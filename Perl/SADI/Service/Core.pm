@@ -1,3 +1,73 @@
+=head1 NAME
+
+     SADI::Service::Core -- A Perl package for SADI services
+
+=head1 DESCRIPTION
+
+    This is a module that helps service providers for SADI services do most
+    of the routine garbage that they need to do to parse and construct
+    RDF messages for SADI
+
+
+=head1 SYNOPSIS
+
+ use SADI::Service::Core;
+ my $service = SADI::Service::Core->new(
+     ServiceName => "helloworld",
+     ServiceType => "http://someontology.org/services/sometype",
+     InputClass => "http://someontology.org/datatypes#Input1",
+     OutputClass => "http://someontology.org/datatypes#Output1",
+     Description => "the usual hello world service",
+     UniqueIdentifier => "urn:lsid:myservices:helloworld",
+     ServicePredicate => "http://someontology.org/predicates#newDataProvided",
+     Authority => "helloworld.com",
+     Provider => 'myaddress@organization.org',
+     ServiceURI => "http://helloworld.com/cgi-bin/helloworld.pl",
+     URL => "http://helloworld.com/cgi-bin/helloworld.pl",
+     );
+ 
+ # if GET then send interface and exit
+ $service->sendInterfaceOnGET;
+ $service->Prepare() || die "somehow the input data was improperly formed\n";
+
+ # get the RDF nodes representing the input, based on input class (from 'new')
+ my @inputs = $service->getInputNodes();
+
+ # for each input, get the value of some property we want to operate on
+ my %values = $service->getLiteralPropertyValues(
+     nodes => \@inputs,
+     property => "http://sadiframework.org/miscObjects.owl#keywordAsString");
+
+ # and process that data
+ &process_data($service,\%values); 
+
+ # then respond and we're done!
+ $service->Respond();
+
+ sub process_data {
+     my ($service, $values) = @_;
+     my %values = %$values;
+     foreach my $node(keys %values){
+         my @values = @{$values{$node}};
+         foreach my $value(@values){
+             # BUSINESS LOGIC GOES HERE.  This demo just reverses the input
+             $value = reverse($value);
+
+             # Add and output triple to the model for that node
+             $service->addOutputData(node => $node,
+                                     value => $value
+                                     );
+     }
+   }
+ }
+
+=cut
+
+=head1 METHODS
+
+=cut
+
+
 package SADI::Service::Core;
 use strict;
 use Carp;
@@ -10,6 +80,99 @@ use RDF::Core::Model;
 use RDF::Core::Storage::Memory;
 use RDF::Core::Model::Parser;
 use RDF::Core::Model::Serializer;
+
+=head2 new
+
+ $service = SADI::Service::Core->new(%args);
+ args:
+     ServiceName(string) - required; some single-word name
+     ServiceURI(URI) - required; usually the URL of the service, but any unique ID
+     ServiceType(URI) - required; the URI of an ontology term
+     InputClass(URI) - required; the URI to an OWL ontology term
+     OutputClass(URI) - reqruied; the URI to an OWL ontology term
+     Description(text) - required; a human-readable description of the service
+     Provider(email) - required; an email addresss
+     ServicePredicate(URI) - requried; the predicate that the service will add
+     URL(URL) - required; the URL to the service endpoint
+     Authority(URI) - required; a URI representing the owner of the service
+     Authoritative(1|0) - optional; is the service authoritative or not?
+     ContentType(string) - optional; what content-type header should we respond with
+     UniqueIdentifier(URI) - optional; if you have other ids (e.g. LSID) put here
+
+=cut
+
+=head2  ServiceName
+
+  $name = $service->ServiceName($name)
+  get/set the service name
+
+=cut
+
+=head2  ServiceURI
+
+  $URI = $service->ServiceURI($URI)
+  get/set the service URI.  This is the "rdf:about" identifier at the root of
+  the service rdf:Description.
+
+=cut
+
+=head2  ServiceType
+
+  $type = $service->ServiceType($type)
+  get/set the service type
+
+=cut
+
+=head2  InputClass
+
+  $input = $service->InputClass($input)
+  get/set the service InputClass URI
+
+=cut
+
+=head2  OutputClass
+
+  $output = $service->OutputClass($output)
+  get/set the service OutputClass URI
+
+=cut
+
+=head2  Description
+
+  $text = $service->Description($text)
+  get/set the service description as human readable text
+
+=cut
+
+=head2  ServicePredicate
+
+  $predURI = $service->ServicePredicate($URI)
+  get/set the URI of the predicate the service will add to the input data
+
+=cut
+
+=head2  URL
+
+  $URL = $service->URL($URL)
+  get/set the service URL
+
+=cut
+
+=head2  Authority
+
+  $URI = $service->Authority($URI)
+  get/set the service providers unique identifier
+
+=cut
+
+=head2  Authoritative
+
+  $bool = $service->Authooritative([1|0])
+  get/set whether or not the service is authoritative
+
+=cut
+
+
 
 {
 
@@ -30,7 +193,7 @@ use RDF::Core::Model::Serializer;
                 Provider        => ["anonymous\@sadiframework.org", 'read/write'],
                 Format          => ["sadi", 'read/write'],
                 URL             => [undef, 'read/write'],
-                Authoritative   => ['false', 'read/write'],
+                Authoritative   => ['0', 'read/write'],
                 Authority       => [undef, 'read/write'],
                 ServicePredicate    => [undef, 'read/write'],
                 _model          => [undef, 'read/write'],
@@ -75,9 +238,32 @@ sub new {
 			$self->{$attrname} = $self->_default_for( $attrname );
 		}
 	}
+        $self->ServiceURI = $args{ServiceURI}?$args{ServiceURI}:$args{URL};
+        die "Needs Predicate" unless $self->Predicate();
+        die "Needs Input Class" unless $self->InputClass();
+        die "Needs Output Class" unless $self->OutputClass();
+        die "Needs provider email" unless $self->Provider();
+        die "Needs Authority URI" unless $self->Authority();
+        die "No Endpoint specified ('URL' init parameter)" unless $self->URL();
+        die "No service name specified" unless $self->ServiceName();
+        die "No ServiceType specified" unless $self->InputClass();
+        die "Needs Description" unless $self->Description();
+        
         $self->_prepareOutputModel();
 	return $self;
 }
+
+=head2 Prepare
+
+  $service->Prepare()
+
+  Prepare the incoming data and make sure it is at least parsible;  this will
+  "die" if it is not RDF data coming in.  No arguments.  Returns true if
+  the incoming message was parsable, though if it isnt then it'll likely
+  crap-out at some point rather than returning false...
+
+=cut
+
 
 sub Prepare {
     my ($self) = @_;
@@ -98,27 +284,24 @@ sub Prepare {
     return 1;
 }
 
-sub addOutputData {
-    my ($self, %args) = @_;
-    my $outputmodel = $self->_output_model;
-    my $nodename = $args{node};
-    my $node = RDF::Core::Resource->new($nodename);
-    my $value = $args{value};
-    my $predicate = RDF::Core::Resource->new($self->ServicePredicate);
-    my $type = RDF::Core::Resource->new($self->OutputClass);
-    my $typepredicate = RDF::Core::Resource->new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 
-    my $object = RDF::Core::Literal->new($value);
-    my $statement = RDF::Core::Statement->new($node, $predicate, $object);
-    my $typestatement = RDF::Core::Statement->new($node, $typepredicate, $type);
-    $self->_addToModel(statement => $statement);
-    $self->_addToModel(statement => $typestatement);
-}
 
+=head2 getInputNodes
+
+ @nodes = $service->getInputNodes(%args)
+
+ get the input passed to the service
+
+ args:
+      type => URI  ;  optional
+ returns
+      an array of RDF::Core::Resource objects
+
+=cut
 
 sub getInputNodes {
     my ($self, %args) = @_;
-    my $predicate = $args{type};
+    my $predicate = $args{type} || $self->InputClass;
     my $model = $self->_model();
     my $type = RDF::Core::Resource->new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
     my $inputtype = RDF::Core::Resource->new($predicate);
@@ -138,7 +321,22 @@ sub getInputNodes {
     return @subjects;
 }
 
-sub getScalarValues {
+=head2 getLiteralPropertyValues
+
+  %values = $service->getLiteralPropertyValues(%args)
+
+  get the value for some property of interest (e.g. from input node(s))
+
+  args
+      property =>  $URI  :  the URI of the predicate for which you want a value
+      nodes =>  @nodes   :  the list of nodes (e.g. from getInputNodes)
+  returns
+      hash of {$nodeURI => [$val, $val], ...}
+
+=cut
+
+      
+sub getLiteralPropertyValues {
     my ($self, %args) = @_;
     my $model = $self->_model;
     my $property = $args{property};
@@ -166,9 +364,66 @@ sub getScalarValues {
     return %valuehash;
 }
 
+=head2 addOutputData
+
+  $service->addOutputData(%args);
+
+  add an output triple to the model; the predicate of the triple
+  is automatically extracted from the ServicePredicate.  Also, the
+  node is automatically rdf:typed as the OutputClass
+
+  args
+     node => $URI  (the URI of the subject node as a string)
+     value => $val  (a string value)
+
+=cut
+
+     
+sub addOutputData {
+    my ($self, %args) = @_;
+    my $outputmodel = $self->_output_model;
+    my $nodename = $args{node};
+    my $node = RDF::Core::Resource->new($nodename);
+    my $value = $args{value};
+    my $predicate = RDF::Core::Resource->new($self->ServicePredicate);
+    my $type = RDF::Core::Resource->new($self->OutputClass);
+    my $typepredicate = RDF::Core::Resource->new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+
+    my $object = RDF::Core::Literal->new($value);
+    my $statement = RDF::Core::Statement->new($node, $predicate, $object);
+    my $typestatement = RDF::Core::Statement->new($node, $typepredicate, $type);
+    $self->_addToModel(statement => $statement);
+    $self->_addToModel(statement => $typestatement);
+}
+
+=head2 Respond
+
+  $service->respond();
+
+  send the service response back to the client
+
+=cut
 
 
-sub SerializeInputModel {
+sub Respond {
+    my ($self) = @_;
+    print "Content-Type: ",$self->ContentType,"; charset=ISO-8859-1;\n\n\n"; 
+    print "\n\n";
+    print $self->serializeOutputModel();
+}
+
+
+=head2 serializeInputModel
+
+  $xml = $service->serializeInputModel()
+
+  if you want access to the raw RDF-XML for the input data, use this method.
+  Returns you a string with the raw XML
+
+=cut
+
+
+sub serializeInputModel {
     my ($self) = @_;
     my $model = $self->_model;
     my $output;
@@ -181,7 +436,19 @@ sub SerializeInputModel {
     return $output;
 }
 
-sub SerializeOutputModel {
+
+=head2 serializeOutputModel
+
+  $xml = $service->serializeOutputModel()
+
+  if you want access to the raw RDF-XML for the output data (at any point
+  during the construction of the output), use this method.
+  Returns you a string with the raw XML
+
+=cut
+
+
+sub serializeOutputModel {
     my ($self) = @_;
     my $model = $self->_output_model;
     my $output;
@@ -194,15 +461,19 @@ sub SerializeOutputModel {
     return $output;
 }
 
-sub Respond {
-    my ($self) = @_;
-    print "Content-Type: ",$self->ContentType,"; charset=ISO-8859-1;\n\n\n"; 
-    print "\n\n";
-    print $self->SerializeOutputModel();
-}
+=head2 sendInterfaceOnGET
+
+  according to the SADI best-practices, the service URL should return the
+  interface document if you call it with GET.  Here we auto-generate that
+  document.  This should be the first line in your service after you create the
+  $service object.
+  
+  $service->sendInterfaceOnGET()
+
+=cut
 
 
-sub handleGET {
+sub sendInterfaceOnGET {
     my ($self) = @_;
     
     my $name = $self->ServiceName();
