@@ -1,0 +1,7 @@
+./generateSADIOntologyFromMoby.pl generates the OWL file on STDOUT, so you should run it as:
+
+./generateSADIOntologyFromMoby.pl > outputfile.owl
+
+Progress messages are printed to STDERR.
+
+-- Ben V.
