@@ -386,7 +386,7 @@ sub addOutputData {
     my $node = RDF::Core::Resource->new($nodename);
     my $value = $args{value};
     my $predicate_sent = $args{predicate};
-    my $predicate = $predicate_sent?$predicate_sent:RDF::Core::Resource->new($self->ServicePredicate);
+    my $predicate = $predicate_sent?$RDF::Core::Resource->new($predicate_sent):RDF::Core::Resource->new($self->ServicePredicate);
     my $type = RDF::Core::Resource->new($self->OutputClass);
     my $typepredicate = RDF::Core::Resource->new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 
