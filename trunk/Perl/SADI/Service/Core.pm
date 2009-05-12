@@ -505,10 +505,7 @@ sub sendInterfaceOnGET {
      xmlns="http://www.w3.org/2002/07/owl#"
      xmlns:a="http://www.mygrid.org.uk/mygrid-moby-service#"
      xmlns:b="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#" 
-     xml:base="http://bioinfo.icapture.ubc.ca/SADI"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-     xmlns:databases="http://sadiframework.org/ontologies/Databases.owl#"
-     xmlns:misc="http://sadiframework.org/ontologies/miscellaneousObjects.owl#"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">    
