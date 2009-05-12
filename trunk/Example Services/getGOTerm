@@ -1,0 +1,81 @@
+#!/usr/bin/perl -w
+use strict;
+use DBI;
+use DBD::mysql;
+use SADI::Service::Core;
+use lib ".";
+
+my $service = SADI::Service::Core->new(
+    ServiceName => "getGOTerm",
+    ServiceType => "http://sadiframework.org/RESOURCES/___NoIdea___",
+    InputClass => "http://purl.oclc.org/SADI/LSRN/GO_Record",
+    OutputClass => "http://sadiframework.org/ontologies/service_objects.owl#getGOTerm_Output",
+    Description => "gets the text-label for a GO Term",
+    UniqueIdentifier => "urn:lsid:sadiframework.org:serviceinstances:sadiframework.net,getGOTerm",
+    Authority => "illuminae.com",
+    ServiceURI => "http://bioinfo.icapture.ubc.ca/cgi-bin/keywordadder.pl",
+    URL => "http://bioinfo.icapture.ubc.ca/cgi-bin/keywordadder.pl",
+    #_default_request_method => "POST",
+                                    
+    );
+
+$service->sendInterfaceOnGET ;  # if GET then send interface and exit
+$service->Prepare() || die "somehow the input data was improperly formed\n";
+
+my @inputs = $service->getInputNodes();
+
+my %values;
+foreach (@inputs){
+	my $URI = $_->getURI;
+	$URI =~ /(\d+)$/;
+	next unless $1;
+	$values{$URI} = $1;
+}
+
+&process_data($service,\%values);
+
+$service->Respond();
+
+
+sub process_data {
+    my ($service, $values) = @_;
+    my $dbh = _dbAccess();
+    die unless $dbh;  # should do something friendlier than this...
+    
+    my %values = %$values;
+    my $acc_string;
+    foreach my $accession(values %values){
+    	$acc_string .= "\"GO:$accession\",";
+    }
+    chop $acc_string;  # remove trailing comma 
+    print STDERR "select acc, name, term_definition from term, term_definition where term.id = term_definition.term_id and acc IN ($acc_string)";
+    my $sth = $dbh->prepare("select acc, name, term_definition from term, term_definition where term.id = term_definition.term_id and acc IN ($acc_string)");
+    $sth->execute;
+    while (my ($acc, $name, $def) = $sth->fetchrow_array()){
+		my $id = ($acc =~ /GO:(\d+)/ && $1);  # need to strip-off the GO: prefixs]
+	    foreach my $node(keys %values){
+	   		if ($node =~ /$id/){
+	            	$service->addOutputData(node => $node,
+	                                        value => $name,
+	                                        predicate => "http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasTermName"
+	                                    );
+	                $service->addOutputData(node => $node,
+	                                        value => $def,
+	                                        predicate => "http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasTermDefinition"
+	                                    );
+	                last;                                    
+	   		}    
+	    }
+	}
+}
+
+
+sub _dbAccess {
+
+
+        my ($dsn) = "DBI:mysql:go_latest:mysql.ebi.ac.uk:4085";
+        my $dbh = DBI->connect($dsn, 'go_select', 'amigo', {RaiseError => 1}) or die "can't connect to database";
+
+        return ($dbh);
+}
+
