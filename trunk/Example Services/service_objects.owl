@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+  <!ENTITY owl "http://www.w3.org/2002/07/owl#">
+  <!ENTITY service "http://bioinfo.icapture.ubc.ca/SADI/service_objects.owl#">
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+  <!ENTITY db "http://sadiframework.org/ontologies/Databases.owl#">
+  <!ENTITY misc "http://sadiframework.org/ontologies/miscellaneousObjects.owl#">
+  <!ENTITY pred "http://es-01.chibi.ubc.ca/~benv/predicates.owl#">
+  
+]>
+<rdf:RDF
+         xml:base="&service;"
+         xml:service="&service;"
+         xmlns:owl="&owl;"
+         xmlns:pred="&pred;"
+         xmlns:rdf="&rdf;"
+         xmlns:db="&db;"
+         xmlns:rdfs="&rdfs;"
+         xmlns:misc="&misc;">
+
+<!-- Ontology Information -->
+  <owl:Ontology rdf:about=""/>
+
+<!-- Classes -->
+
+
+  <owl:Class rdf:about="#getGOTerm_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/GO_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+        <owl:onProperty rdf:resource="&pred;hasTermName"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+
+</rdf:RDF>
