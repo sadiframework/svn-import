@@ -546,8 +546,7 @@ sub sendInterfaceOnGET {
                     <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameter"/>
 
                     <a:objectType>
-                        <rdf:Description rdf:about="$nodeid5">
-                            <rdf:type rdf:resource="$input"/>
+                        <rdf:Description rdf:about="$input">
                         </rdf:Description>
                     </a:objectType>
                 </rdf:Description>
@@ -558,8 +557,7 @@ sub sendInterfaceOnGET {
                     <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameter"/>
 
                     <a:objectType>
-                        <rdf:Description rdf:about="$nodeid7">
-                            <rdf:type rdf:resource="$output"/>
+                        <rdf:Description rdf:about="$output">
                         </rdf:Description>
                     </a:objectType>
                 </rdf:Description>
