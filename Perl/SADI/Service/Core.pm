@@ -236,7 +236,7 @@ sub new {
 			$self->{$attrname} = $self->_default_for( $attrname );
 		}
 	}
-        $self->ServiceURI = $args{ServiceURI}?$args{ServiceURI}:$args{URL};
+        $self->ServiceURI($args{ServiceURI}?$args{ServiceURI}:$args{URL});
         #die "Needs Predicate" unless $self->Predicate();
         die "Needs Input Class" unless $self->InputClass();
         die "Needs Output Class" unless $self->OutputClass();
