@@ -538,9 +538,19 @@ sub sendInterfaceOnGET {
                 </rdf:Description>
             </a:performsTask>
 
-            <a:inputParameter rdf:resource="$input"/>
-
-            <a:outputParameter rdf:resource="$output"/>
+             <mygrid:inputParameter>
+                <mygrid:parameter rdf:about="$nodeid4">
+                    <mygrid:hasParameterNameText>input</mygrid:hasParameterNameText>
+                    <mygrid:objectType rdf:resource="$input"/>
+                </mygrid:parameter>
+            </mygrid:inputParameter>
+ 
+            <mygrid:outputParameter>
+                <mygrid:parameter rdf:about="$nodeid5">
+                    <mygrid:hasParameterNameText>output</mygrid:hasParameterNameText>
+                    <mygrid:objectType rdf:resource="$output"/>
+                </mygrid:parameter>
+            </mygrid:outputParameter>
         </rdf:Description>
     </a:hasOperation>
 </rdf:Description>
