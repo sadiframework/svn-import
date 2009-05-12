@@ -14,13 +14,15 @@
          xmlns:owl="&owl;"
          xmlns:pred="&pred;"
          xmlns:rdf="&rdf;"
-         xmlns:db="&db;"
-         xmlns:rdfs="&rdfs;"
-         xmlns:misc="&misc;">
+         xmlns:rdfs="&rdfs;">
 
-<!-- Ontology Information -->
-  <owl:Ontology rdf:about=""/>
 
+  <!-- Ontology Information -->
+  <owl:Ontology rdf:about="">
+    <owl:imports>
+      <owl:Ontology rdf:about="&pred;"/>
+    </owl:imports>
+  </owl:Ontology>
 <!-- Classes -->
 
 
