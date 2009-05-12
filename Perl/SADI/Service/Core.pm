@@ -541,27 +541,9 @@ sub sendInterfaceOnGET {
                 </rdf:Description>
             </a:performsTask>
 
-            <a:inputParameter>
-                <rdf:Description rdf:about="$nodeid4">
-                    <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameter"/>
+            <a:inputParameter rdf:resource="$input"/>
 
-                    <a:objectType>
-                        <rdf:Description rdf:about="$input">
-                        </rdf:Description>
-                    </a:objectType>
-                </rdf:Description>
-            </a:inputParameter>
-
-            <a:outputParameter>
-                <rdf:Description rdf:about="$nodeid6">
-                    <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameter"/>
-
-                    <a:objectType>
-                        <rdf:Description rdf:about="$output">
-                        </rdf:Description>
-                    </a:objectType>
-                </rdf:Description>
-            </a:outputParameter>
+            <a:outputParameter rdf:resource="$output"/>
         </rdf:Description>
     </a:hasOperation>
 </rdf:Description>
