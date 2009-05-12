@@ -237,7 +237,7 @@ sub new {
 		}
 	}
         $self->ServiceURI = $args{ServiceURI}?$args{ServiceURI}:$args{URL};
-        die "Needs Predicate" unless $self->Predicate();
+        #die "Needs Predicate" unless $self->Predicate();
         die "Needs Input Class" unless $self->InputClass();
         die "Needs Output Class" unless $self->OutputClass();
         die "Needs provider email" unless $self->Provider();
