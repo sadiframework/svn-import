@@ -373,6 +373,8 @@ sub getLiteralPropertyValues {
   args
      node => $URI  (the URI of the subject node as a string)
      value => $val  (a string value)
+     predicate => $URI (optional - the predicate to put between them.  
+                        Defaults to $self->ServicePredicate)
 
 =cut
 
