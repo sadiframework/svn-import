@@ -1,0 +1,19 @@
+<rdf:RDF
+     xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://bioinfo.icapture.ubc.ca/SADI"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:databases="http://sadiframework.org/ontologies/Databases.owl#"
+     xmlns:misc="http://sadiframework.org/ontologies/miscellaneousObjects.owl#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">    
+
+    <databases:GORecord rdf:about="http://view.ncbi.nlm.nih.gov/GO/0016579">
+        <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/GO_Record"/>
+    </databases:GORecord>
+
+    <databases:GORecord rdf:about="http://view.ncbi.nlm.nih.gov/GO/0031593">
+        <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/GO_Record"/>
+    </databases:GORecord>
+
+</rdf:RDF>

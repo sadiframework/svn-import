@@ -13,8 +13,8 @@ my $service = SADI::Service::Core->new(
     Description => "gets the text-label for a GO Term",
     UniqueIdentifier => "urn:lsid:sadiframework.org:serviceinstances:sadiframework.net,getGOTerm",
     Authority => "illuminae.com",
-    ServiceURI => "http://bioinfo.icapture.ubc.ca/cgi-bin/keywordadder.pl",
-    URL => "http://bioinfo.icapture.ubc.ca/cgi-bin/keywordadder.pl",
+    ServiceURI => "http://sadiframework.org/services/getGOTerm",
+    URL => "http://sadiframework.org/services/getGOTerm",
     #_default_request_method => "POST",
                                     
     );
