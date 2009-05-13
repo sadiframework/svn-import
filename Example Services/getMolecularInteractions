@@ -7,17 +7,19 @@ use lib ".";
 use SOAP::Lite;
 use HTTP::Cookies;
 
-# Get a BINDSOAP Service proxy as described by the WSDL file.
-# The proxy will handle the cookie-based sessions.
-my $service = SOAP::Lite
-	-> service('http://soap.bind.ca/bind.wsdl')
-	-> proxy('http://soap.bind.ca/services/BINDSOAP',
-		cookie_jar => HTTP::Cookies->new(ignore_discard => 1));
 
-
-print "idSearch()\n";
-my $resultBean = $service->idSearch("11621","bindid","flat");
-print "\t" . $resultBean->{'totalRecordsFound'} . " records(s) found.\n";
+#http://soap.bind.ca/help_soap_api.jsp
+## Get a BINDSOAP Service proxy as described by the WSDL file.
+## The proxy will handle the cookie-based sessions.
+#my $service = SOAP::Lite
+#	-> service('http://soap.bind.ca/bind.wsdl')
+#	-> proxy('http://soap.bind.ca/services/BINDSOAP',
+#		cookie_jar => HTTP::Cookies->new(ignore_discard => 1));
+#
+#
+#print "idSearch()\n";
+#my $resultBean = $service->idSearch("11621","bindid","flat");
+#print "\t" . $resultBean->{'totalRecordsFound'} . " records(s) found.\n";
 
 my $service = SADI::Service::Core->new(
     ServiceName => "getMolecularInteractions",
@@ -41,7 +43,7 @@ my @inputs = $service->getInputNodes();
 my %values;
 foreach (@inputs){
 	my $URI = $_->getURI;
-	$URI =~ /(\d+)$/;
+	$URI =~ /[#\/](\S+)$/;  # get the id numbers
 	next unless $1;
 	$values{$URI} = $1;
 }
@@ -53,8 +55,6 @@ $service->Respond();
 
 sub process_data {
     my ($service, $values) = @_;
-    my $dbh = _dbAccess();
-    die unless $dbh;  # should do something friendlier than this...
     
     my %values = %$values;
     my $acc_string;
