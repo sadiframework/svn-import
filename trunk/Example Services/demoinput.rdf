@@ -8,12 +8,12 @@
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">    
 
-    <databases:GORecord rdf:about="http://view.ncbi.nlm.nih.gov/GO/0016579">
-        <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/GO_Record"/>
-    </databases:GORecord>
+    <databases:UniProt rdf:about="http://view.ncbi.nlm.nih.gov/GO#P15923">
+        <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+    </databases:UniProt>
 
-    <databases:GORecord rdf:about="http://view.ncbi.nlm.nih.gov/GO/0031593">
-        <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/GO_Record"/>
-    </databases:GORecord>
+    <databases:UniProt rdf:about="http://view.ncbi.nlm.nih.gov/GO/P15923">
+        <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+    </databases:UniProt>
 
 </rdf:RDF>

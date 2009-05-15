@@ -1,25 +1,9 @@
 #!/usr/bin/perl -w
 use strict;
-use DBI;
-use DBD::mysql;
 use SADI::Service::Core;
 use lib ".";
 use SOAP::Lite;
 use HTTP::Cookies;
-
-
-#http://soap.bind.ca/help_soap_api.jsp
-## Get a BINDSOAP Service proxy as described by the WSDL file.
-## The proxy will handle the cookie-based sessions.
-#my $service = SOAP::Lite
-#	-> service('http://soap.bind.ca/bind.wsdl')
-#	-> proxy('http://soap.bind.ca/services/BINDSOAP',
-#		cookie_jar => HTTP::Cookies->new(ignore_discard => 1));
-#
-#
-#print "idSearch()\n";
-#my $resultBean = $service->idSearch("11621","bindid","flat");
-#print "\t" . $resultBean->{'totalRecordsFound'} . " records(s) found.\n";
 
 my $service = SADI::Service::Core->new(
     ServiceName => "getMolecularInteractions",
@@ -40,56 +24,60 @@ $service->Prepare() || die "somehow the input data was improperly formed\n";
 
 my @inputs = $service->getInputNodes();
 
-my %values;
-foreach (@inputs){
-	my $URI = $_->getURI;
-	$URI =~ /[#\/](\S+)$/;  # get the id numbers
-	next unless $1;
-	$values{$URI} = $1;
-}
-
-&process_data($service,\%values);
+&process_data($service, \@inputs);
 
 $service->Respond();
 
-
 sub process_data {
-    my ($service, $values) = @_;
+    my ($service, $inputs) = @_;
     
-    my %values = %$values;
-    my $acc_string;
-    foreach my $accession(values %values){
-    	$acc_string .= "\"GO:$accession\",";
-    }
-    chop $acc_string;  # remove trailing comma 
-    print STDERR "select acc, name, term_definition from term, term_definition where term.id = term_definition.term_id and acc IN ($acc_string)";
-    my $sth = $dbh->prepare("select acc, name, term_definition from term, term_definition where term.id = term_definition.term_id and acc IN ($acc_string)");
-    $sth->execute;
-    while (my ($acc, $name, $def) = $sth->fetchrow_array()){
-		my $id = ($acc =~ /GO:(\d+)/ && $1);  # need to strip-off the GO: prefixs]
-	    foreach my $node(keys %values){
-	   		if ($node =~ /$id/){
-	            	$service->addOutputData(node => $node,
-	                                        value => $name,
-	                                        predicate => "http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasTermName"
-	                                    );
-	                $service->addOutputData(node => $node,
-	                                        value => $def,
-	                                        predicate => "http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasTermDefinition"
-	                                    );
-	                last;                                    
-	   		}    
+    my @inputs = @$inputs;
+    my $SOAP = SOAP::Lite
+	    -> service('http://soap.bind.ca/bind.wsdl')
+	    -> proxy('http://soap.bind.ca/services/BINDSOAP',
+		    cookie_jar => HTTP::Cookies->new(ignore_discard => 1));
+
+    foreach my $input(@inputs){
+	my $UniProt = $input->getURI;
+	my $value = $input->getLocalValue;
+
+	my $resultBean = $SOAP->idSearch($value,"uniprot","idlist");
+	my @results = split "\n", $resultBean->{records};
+
+	foreach my $bind_id(@results){
+	    my $bind_node = RDF::Core::Resource->new("http://www.bind.ca/unresolvable/BIND_ID/$bind_id");
+	    $service->addOutputData(node => $UniProt,      # UniProt inBindInteraction BIND_ID
+				    value => $bind_node,
+				    predicate => "http://es-01.chibi.ubc.ca/~benv/predicates.owl#inBINDInteraction",
+				    typed_as_output => "true",
+				    );
+	    my $bind_type_node = "http://ontology.dumontierlab.com/BIND";
+	    my $typepredicate = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+            $service->addOutputData(node => $bind_node, value => $bind_type_node, predicate => $typepredicate);
+	    my $attrib = "The Biomolecular Interaction Network Database and related tools 2005 update. Nucleic Acids Res. 2005 Jan 1;33(Database issue):D418-24";
+	    my $source = "http://purl.org/dc/elements/1.1/source";
+            $service->addOutputData(node => $bind_node, value => $attrib, predicate => $source);
+
+
+	    my $resultBean = $SOAP->idSearch($bind_id,"bindid","go");
+	    my @go_list = split "\n", $resultBean->{records};
+	    shift @go_list;  # get rid of header line
+	    foreach my $gi_line(@go_list){
+		$gi_line =~ /[^,]+,([^,]+),/;   # bind_id, ((GI)) , GO_ID, GO_TERM
+		my $gi = $1;
+		my $ncbi_uri = "http://view.ncbi.nlm.nih.gov/protein/$gi";
+		
+		$service->addOutputData(node => $bind_node,   # BIND_ID  hasInteractingParticipant  GI
+					value => $ncbi_uri,
+					predicate => "http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasInteractingParticipant"
+					);
+		$service->addOutputData(node => $UniProt,   # UniProt  hasMolecularInteractionWith  GI
+					value => $ncbi_uri,
+					predicate => "http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasMolecularInteractionWith"
+					);
+		my $GI_type = "http://purl.oclc.org/SADI/LSRN/GI";
+		$service->addOutputData(node => $ncbi_uri, value => $GI_type, predicate => $typepredicate);
 	    }
 	}
+    }
 }
-
-
-sub _dbAccess {
-
-
-        my ($dsn) = "DBI:mysql:go_latest:mysql.ebi.ac.uk:4085";
-        my $dbh = DBI->connect($dsn, 'go_select', 'amigo', {RaiseError => 1}) or die "can't connect to database";
-
-        return ($dbh);
-}
-
