@@ -394,12 +394,19 @@ sub addOutputData {
     my ($self, %args) = @_;
     my $outputmodel = $self->_output_model;
     my $subject = $args{node};
+    if (ref($subject) =~ /RDF::Core::Resource/){
+        $subject = RDF::Core::Resource->new($subject->getURI);
+    } else {
+        $subject = RDF::Core::Resource->new($subject);
+    }
     my $object = $args{value};
     my $predicate_sent = $args{predicate};
+    if ($predicate_sent){
+        if (ref($predicate_sent) =~ /RDF::Core/){$predicate_sent = $predicate_sent->getURI;}  # need to stringify it before proceeding
+    }
     my $add_type_data = $args{typed_as_output};
     my $force_literal = $args{force_literal};
     
-    my $node = RDF::Core::Resource->new($subject);
     my $predicate = $predicate_sent?RDF::Core::Resource->new($predicate_sent):RDF::Core::Resource->new($self->ServicePredicate);
 
     if (ref($object) && (ref($object) =~ /RDF::Core/)){  # did they send us an objectt of the right type?
@@ -407,28 +414,28 @@ sub addOutputData {
             my $URI = $object->getURI;
             $object = RDF::Core::Literal->new($URI);
 
-            my $statement = RDF::Core::Statement->new($node, $predicate, $object);
+            my $statement = RDF::Core::Statement->new($subject, $predicate, $object);
             $self->_addToModel(statement => $statement);
         } else { # they sent an RDF::Core node that we should simply add to the graph
-            my $statement = RDF::Core::Statement->new($node, $predicate, $object);
+            my $statement = RDF::Core::Statement->new($subject, $predicate, $object);
             $self->_addToModel(statement => $statement);
         }
     } else {   # they sent a literal value... is it a URI-type thing?
-        if ($object =~ /\s+\:\s+\.\s+/ && !$force_literal){  # a terrible regexp for a URI... should find the one that is sanctioned by the W3C URI RFC... look for it later...
+        if ($object =~ /\S+\:\S+\.\S+/ && !$force_literal){  # a terrible regexp for a URI... should find the one that is sanctioned by the W3C URI RFC... look for it later...
             $object = RDF::Core::Resource->new($object);
-            my $statement = RDF::Core::Statement->new($node, $predicate, $object);
+            my $statement = RDF::Core::Statement->new($subject, $predicate, $object);
             $self->_addToModel(statement => $statement);
             
         } else {
             $object = RDF::Core::Literal->new($object);
-            my $statement = RDF::Core::Statement->new($node, $predicate, $object);
+            my $statement = RDF::Core::Statement->new($subject, $predicate, $object);
             $self->_addToModel(statement => $statement);
         }
     }
     if ($add_type_data){
         my $output_type = RDF::Core::Resource->new($self->OutputClass);
         my $typepredicate = RDF::Core::Resource->new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-        my $typestatement = RDF::Core::Statement->new($node, $typepredicate, $output_type);
+        my $typestatement = RDF::Core::Statement->new($subject, $typepredicate, $output_type);
         $self->_addToModel(statement => $typestatement);
     }
 }
