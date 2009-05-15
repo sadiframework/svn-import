@@ -367,14 +367,25 @@ sub getLiteralPropertyValues {
   $service->addOutputData(%args);
 
   add an output triple to the model; the predicate of the triple
-  is automatically extracted from the ServicePredicate.  Also, the
-  node is automatically rdf:typed as the OutputClass
+  is automatically extracted from the ServicePredicate.
+  
+  You can pass a URI or an RDF::Core::Resource as the "value" argument.  
+  The node is automatically rdf:typed as the OutputClass if you include
+  the "typed_as_output" argument as true.
+  
+  If you pass a "value" that looks like a URI, then this routine WILL ASSUME
+  THAT YOU WANT IT TO BE AN OBJECT, NOT A SCALAR VALUE.  To over-ride this,
+  set the boolean "force_literal" argument.  If you pass an RDF::Core::Resource
+  together with the force_literal argument, the URI of the RDF::Core::Resource
+  will be extracted and added as a literal value rather than as an object.
 
   args
-     node => $URI  (the URI of the subject node as a string)
+     node => $URI  (the URI string or RDF::Core::Resource of the subject node)
      value => $val  (a string value)
      predicate => $URI (optional - the predicate to put between them.  
                         Defaults to $self->ServicePredicate)
+     typed_as_output => boolean (if present output is rdf:typed as output class)
+     force_literal => boolean
 
 =cut
 
@@ -382,19 +393,44 @@ sub getLiteralPropertyValues {
 sub addOutputData {
     my ($self, %args) = @_;
     my $outputmodel = $self->_output_model;
-    my $nodename = $args{node};
-    my $node = RDF::Core::Resource->new($nodename);
-    my $value = $args{value};
+    my $subject = $args{node};
+    my $object = $args{value};
     my $predicate_sent = $args{predicate};
+    my $add_type_data = $args{typed_as_output};
+    my $force_literal = $args{force_literal};
+    
+    my $node = RDF::Core::Resource->new($subject);
     my $predicate = $predicate_sent?RDF::Core::Resource->new($predicate_sent):RDF::Core::Resource->new($self->ServicePredicate);
-    my $type = RDF::Core::Resource->new($self->OutputClass);
-    my $typepredicate = RDF::Core::Resource->new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 
-    my $object = RDF::Core::Literal->new($value);
-    my $statement = RDF::Core::Statement->new($node, $predicate, $object);
-    my $typestatement = RDF::Core::Statement->new($node, $typepredicate, $type);
-    $self->_addToModel(statement => $statement);
-    $self->_addToModel(statement => $typestatement);
+    if (ref($object) && (ref($object) =~ /RDF::Core/)){  # did they send us an objectt of the right type?
+        if ($force_literal){  # did they want the URI of that object as a literal value (very rare, but why not)
+            my $URI = $object->getURI;
+            $object = RDF::Core::Literal->new($URI);
+
+            my $statement = RDF::Core::Statement->new($node, $predicate, $object);
+            $self->_addToModel(statement => $statement);
+        } else { # they sent an RDF::Core node that we should simply add to the graph
+            my $statement = RDF::Core::Statement->new($node, $predicate, $object);
+            $self->_addToModel(statement => $statement);
+        }
+    } else {   # they sent a literal value... is it a URI-type thing?
+        if ($object =~ /\s+\:\s+\.\s+/ && !$force_literal){  # a terrible regexp for a URI... should find the one that is sanctioned by the W3C URI RFC... look for it later...
+            $object = RDF::Core::Resource->new($object);
+            my $statement = RDF::Core::Statement->new($node, $predicate, $object);
+            $self->_addToModel(statement => $statement);
+            
+        } else {
+            $object = RDF::Core::Literal->new($object);
+            my $statement = RDF::Core::Statement->new($node, $predicate, $object);
+            $self->_addToModel(statement => $statement);
+        }
+    }
+    if ($add_type_data){
+        my $output_type = RDF::Core::Resource->new($self->OutputClass);
+        my $typepredicate = RDF::Core::Resource->new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+        my $typestatement = RDF::Core::Statement->new($node, $typepredicate, $output_type);
+        $self->_addToModel(statement => $typestatement);
+    }
 }
 
 
@@ -478,6 +514,7 @@ sub serializeOutputModel {
 sub sendInterfaceOnGET {
     my ($self) = @_;
     
+    
     my $name = $self->ServiceName();
     my $uri = $self->ServiceURI();
     my $type = $self->ServiceType();
@@ -499,6 +536,10 @@ sub sendInterfaceOnGET {
     my $nodeid6 = $authority.$name."fff";
     my $nodeid7 = $authority.$name."ggg";
 
+    if ($ENV{PATH_INFO} =~ /wsdl/){
+        # this is a request to retrieve the SAWSDL document...
+        # Implement this feature one day if possible!
+    }
     
     my $sadi_interface_signature = qq{<?xml version="1.0" encoding="UTF-8"?>
     <rdf:RDF
