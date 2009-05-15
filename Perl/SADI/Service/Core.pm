@@ -543,7 +543,7 @@ sub sendInterfaceOnGET {
     my $nodeid6 = $authority.$name."fff";
     my $nodeid7 = $authority.$name."ggg";
 
-    if ($ENV{PATH_INFO} =~ /wsdl/){
+    if ($ENV{PATH_INFO} && ($ENV{PATH_INFO} =~ /wsdl/)){
         # this is a request to retrieve the SAWSDL document...
         # Implement this feature one day if possible!
     }
