@@ -1,0 +1,241 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:ben="http://es-01.chibi.ubc.ca/~benv/predicates.owl#"
+    xmlns:uniprot2go="http://sadiframework.org/examples/uniprot2go.owl#">
+
+	<!--
+	<uniprot2go:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P12345">
+	  <ben:hasGOTerm>
+	    <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0006457">
+	    </lsrn:GO_Record>
+	  </ben:hasGOTerm>
+      <ben:hasGOTerm>
+	    <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0004069">
+	    </lsrn:GO_Record>
+	  </ben:hasGOTerm>
+      <ben:hasGOTerm>
+	    <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005886">
+	    </lsrn:GO_Record>
+	  </ben:hasGOTerm>
+      <ben:hasGOTerm>
+	    <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005759">
+	    </lsrn:GO_Record>
+	  </ben:hasGOTerm>
+    </uniprot2go:AnnotatedUniProtRecord>
+    -->
+    
+    <uniprot2go:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/A2ABK8">
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005886">
+          <rdfs:label>plasma membrane</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0004872">
+          <rdfs:label>receptor activity</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0043583">
+          <rdfs:label>ear development</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0007566">
+          <rdfs:label>embryo implantation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0030879">
+          <rdfs:label>mammary gland development</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0008285">
+          <rdfs:label>negative regulation of cell proliferation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0018108">
+          <rdfs:label>peptidyl-tyrosine phosphorylation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0001558">
+          <rdfs:label>regulation of cell growth</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0001952">
+          <rdfs:label>regulation of cell-matrix adhesion</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0051789">
+          <rdfs:label>response to protein stimulus</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+    </uniprot2go:AnnotatedUniProtRecord>
+    
+    <uniprot2go:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/A2ABK9">
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005886">
+          <rdfs:label>plasma membrane</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0004872">
+          <rdfs:label>receptor activity</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0043583">
+          <rdfs:label>ear development</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0007566">
+          <rdfs:label>embryo implantation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0030879">
+          <rdfs:label>mammary gland development</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0008285">
+          <rdfs:label>negative regulation of cell proliferation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0018108">
+          <rdfs:label>peptidyl-tyrosine phosphorylation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0001558">
+          <rdfs:label>regulation of cell growth</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0001952">
+          <rdfs:label>regulation of cell-matrix adhesion</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0051789">
+          <rdfs:label>response to protein stimulus</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+    </uniprot2go:AnnotatedUniProtRecord>
+    
+    <uniprot2go:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/A2ABL0">
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005886">
+          <rdfs:label>plasma membrane</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0004872">
+          <rdfs:label>receptor activity</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0043583">
+          <rdfs:label>ear development</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0007566">
+          <rdfs:label>embryo implantation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0030879">
+          <rdfs:label>mammary gland development</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0008285">
+          <rdfs:label>negative regulation of cell proliferation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0018108">
+          <rdfs:label>peptidyl-tyrosine phosphorylation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0001558">
+          <rdfs:label>regulation of cell growth</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0001952">
+          <rdfs:label>regulation of cell-matrix adhesion</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0051789">
+          <rdfs:label>response to protein stimulus</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+    </uniprot2go:AnnotatedUniProtRecord>
+    
+    <uniprot2go:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/A2ABL1">
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005886">
+          <rdfs:label>plasma membrane</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0004872">
+          <rdfs:label>receptor activity</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0043583">
+          <rdfs:label>ear development</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0007566">
+          <rdfs:label>embryo implantation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0030879">
+          <rdfs:label>mammary gland development</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0008285">
+          <rdfs:label>negative regulation of cell proliferation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0018108">
+          <rdfs:label>peptidyl-tyrosine phosphorylation</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0001558">
+          <rdfs:label>regulation of cell growth</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0001952">
+          <rdfs:label>regulation of cell-matrix adhesion</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+      <ben:hasGOTerm>
+        <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0051789">
+          <rdfs:label>response to protein stimulus</rdfs:label>
+        </lsrn:GO_Record>
+      </ben:hasGOTerm>
+    </uniprot2go:AnnotatedUniProtRecord>
+
+</rdf:RDF>
