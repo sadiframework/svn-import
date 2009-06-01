@@ -174,6 +174,8 @@ public class OwlUtils
 	 */
 	public static void loadOntologyForUri(OntModel model, String uri)
 	{
+		log.debug(String.format("loading ontology for %s", uri));
+		
 		/* TODO check to see if the document manager is actually preventing
 		 * duplicate URIs from being loaded...
 		 */

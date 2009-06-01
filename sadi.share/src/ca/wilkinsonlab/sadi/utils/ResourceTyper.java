@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import ca.wilkinsonlab.sadi.common.Config;
 
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 public class ResourceTyper
@@ -30,15 +31,27 @@ public class ResourceTyper
 		}
 	}
 	
+	public String getType(String uri)
+	{
+		return getType(ResourceFactory.createResource(uri));
+	}
+	
+	public String getType(Resource resource)
+	{
+		for (PatternSubstitution pattern: patterns)
+			if (pattern.matches(resource.getURI()))
+				return pattern.execute(resource.getURI());
+		return null;
+	}
+	
 	public void attachType(Resource resource)
 	{
-		for (PatternSubstitution pattern: patterns) {
-			if (pattern.matches(resource.getURI())) {
-				String typeUri = pattern.execute(resource.getURI());
-				Resource type = resource.getModel().createResource(typeUri);
-				resource.addProperty(RDF.type, type);
-			}
-		}
+		String typeUri = getType(resource);
+		if (typeUri == null)
+			return;
+		
+		Resource type = resource.getModel().createResource(typeUri);
+		resource.addProperty(RDF.type, type);
 	}
 
 	/**
