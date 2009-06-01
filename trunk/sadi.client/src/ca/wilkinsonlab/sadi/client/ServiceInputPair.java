@@ -35,4 +35,9 @@ public class ServiceInputPair
 	{
 		return service.invokeService(input);
 	}
+	
+	public String toString()
+	{
+		return String.format("%s( %s )", service, input);
+	}
 }

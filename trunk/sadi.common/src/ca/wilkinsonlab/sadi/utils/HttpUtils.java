@@ -49,6 +49,7 @@ public class HttpUtils
 		
 		log.debug("reading response");
 		String json = StringUtil.readFully(is);
+		is.close();
 
 		log.debug("converting JSON object");
 		return JsonUtils.read(json);

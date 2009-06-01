@@ -202,6 +202,14 @@ public class RdfService implements Service
 		return description;
 	}
 	
+	private OntModel getServiceOntologyModel()
+	{
+		if (!isInitialized())
+			fetchServiceModel();
+		
+		return ontModel;
+	}
+	
 	/**
 	 * Returns an OntClass describing the input this service can consume.
 	 * Any input to this service must be an instance of this class.
@@ -337,7 +345,7 @@ public class RdfService implements Service
 	 */
 	public ExtendedIterator discoverInputInstances(Model inputModel)
 	{
-		return createReasoningModel(inputModel).getOntClass(getInputClass().getURI()).listInstances();
+		return createReasoningModel(inputModel).listIndividuals(getInputClass());
 	}
 
 	private OntModel createReasoningModel(Model inputModel)
@@ -345,7 +353,7 @@ public class RdfService implements Service
 		/* TODO is there some way we can avoid creating a new ontology
 		 * model every time?
 		 */
-		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF, ontModel );
+		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF, getServiceOntologyModel() );
 		model.add(inputModel);
 		return model;
 	}

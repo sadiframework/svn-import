@@ -187,8 +187,12 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 	{
 		Collection<ServiceInputPair> pairs = new ArrayList<ServiceInputPair>();
 		for (RdfService service: getAllServices()) {
-			for (Iterator i = service.discoverInputInstances(inputModel); i.hasNext(); ) {
-				pairs.add(new ServiceInputPair(service, (Resource)i.next()));
+			try {
+				for (Iterator i = service.discoverInputInstances(inputModel); i.hasNext(); ) {
+					pairs.add(new ServiceInputPair(service, (Resource)i.next()));
+				}
+			} catch (Exception e) {
+				log.error(String.format("error finding input instances for %s", service), e);
 			}
 		}
 		return pairs;
@@ -304,5 +308,10 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 			}
 		}
 		return filteredServices;
+	}
+	
+	public String toString()
+	{
+		return String.format("%s:%s", sparqlEndpoint, graphName);
 	}
 }
