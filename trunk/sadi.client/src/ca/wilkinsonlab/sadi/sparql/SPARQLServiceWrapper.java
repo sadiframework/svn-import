@@ -1,6 +1,10 @@
 package ca.wilkinsonlab.sadi.sparql;
 
+import java.util.ArrayList;
 import java.util.Collection;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.client.Service;
 
@@ -16,6 +20,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
  */
 public class SPARQLServiceWrapper implements Service
 {
+	private static final Log log = LogFactory.getLog(SPARQLServiceWrapper.class);
+	
 	SPARQLService endpoint;
 	String predicate;
 	boolean predicateIsInverse;
@@ -83,15 +89,6 @@ public class SPARQLServiceWrapper implements Service
 	 * return translatedResults; }
 	 */
 
-	public Collection<Triple> invokeService(Model inputRDF) throws Exception {
-		throw new RuntimeException("This method is not supported.");
-	}
-
-	public Collection<Triple> invokeService(Model inputRDF, String predicate)
-			throws Exception {
-		throw new RuntimeException("This method is not supported.");
-	}
-
 	public SPARQLService getEndpoint() {
 		return endpoint;
 	}
@@ -141,5 +138,17 @@ public class SPARQLServiceWrapper implements Service
 	public String toString()
 	{
 		return getServiceURI();
+	}
+
+	public boolean isInputInstance(Resource resource)
+	{
+		log.warn("isInputInstance not yet implemented");
+		return false;
+	}
+
+	public Collection<Resource> discoverInputInstances(Model inputModel)
+	{
+		log.warn("discoverInputInstances not yet implemented");
+		return new ArrayList<Resource>(0);
 	}
 }

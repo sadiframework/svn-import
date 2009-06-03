@@ -4,7 +4,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.net.MalformedURLException;
 import java.util.Collection;
-import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,7 +82,7 @@ public class RdfServiceTest
 	@Test
 	public void testDiscoverInputInstances() throws Exception
 	{
-		Set instances = service.discoverInputInstances(inputModel).toSet();
+		Collection<Resource> instances = service.discoverInputInstances(inputModel);
 		assertTrue("direct input instance not discovered", instances.contains(inputModel.getResource(DIRECT_INSTANCE)));
 		assertTrue("inferred input instance not discovered", instances.contains(inputModel.getResource(INFERRED_INSTANCE)));
 //		assertFalse("input instance with no properties discovered", instances.contains(inputModel.getResource(DIRECT_INSTANCE_NO_PROPERTY)));

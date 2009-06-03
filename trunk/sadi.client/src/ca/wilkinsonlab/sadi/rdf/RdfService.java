@@ -40,7 +40,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.ResourceUtils;
-import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class RdfService implements Service
@@ -323,13 +322,9 @@ public class RdfService implements Service
 		return model;
 	}
 	
-	/**
-	 * Returns true if the specified Resource is an instance of this service's
-	 * input class, false otherwise.
-	 * @param resource an input node
-	 * @return true if the specified Resource is an instance of this service's input class,
-	 *         false otherwise.
-	 */
+	/* (non-Javadoc)
+     * @see ca.wilkinsonlab.sadi.client.Service#isInputInstance(com.hp.hpl.jena.rdf.model.Resource)
+     */
 	public boolean isInputInstance(Resource resource)
 	{
 		/* TODO may have to be getInputClass().getURI()...
@@ -337,15 +332,13 @@ public class RdfService implements Service
 		return createReasoningModel(resource.getModel()).getIndividual(resource.getURI()).hasOntClass(getInputClass());
 	}
 	
-	/**
-	 * Returns an iterator over those Resources in the specified model that
-	 * are instances of this service's input class
-	 * @param inputModel the input data
-	 * @return all instances of this service's input class in the model
-	 */
-	public ExtendedIterator discoverInputInstances(Model inputModel)
+	/* (non-Javadoc)
+     * @see ca.wilkinsonlab.sadi.client.Service#discoverInputInstances(com.hp.hpl.jena.rdf.model.Model)
+     */
+	@SuppressWarnings("unchecked")
+	public Collection<Resource> discoverInputInstances(Model inputModel)
 	{
-		return createReasoningModel(inputModel).listIndividuals(getInputClass());
+		return createReasoningModel(inputModel).listIndividuals(getInputClass()).toList();
 	}
 
 	private OntModel createReasoningModel(Model inputModel)

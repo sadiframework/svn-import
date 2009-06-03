@@ -389,15 +389,16 @@ public class BioMobyService extends MobyService implements Service
 	{
 		return invokeService(inputNode.getURI(), predicate);
 	}
-	
-	/*
-	public Collection<Triple> invokeService(Triple pattern) throws Exception {
-		
-		if(pattern.getSubject().isURI())
-			return invokeService(pattern.getSubject().toString());
-		else {
-			throw new Exception("predicate reversal not yet implemented");
-		}
+
+	public boolean isInputInstance(Resource resource)
+	{
+		log.warn("isInputInstance not yet implemented");
+		return false;
 	}
-	*/
+
+	public Collection<Resource> discoverInputInstances(Model inputModel)
+	{
+		log.warn("discoverInputInstances not yet implemented");
+		return new ArrayList<Resource>(0);
+	}
 }
