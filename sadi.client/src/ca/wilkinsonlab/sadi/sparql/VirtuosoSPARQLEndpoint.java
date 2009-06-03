@@ -23,6 +23,8 @@ import ca.wilkinsonlab.sadi.utils.StringUtil;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
 
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * 
@@ -146,4 +148,15 @@ public class VirtuosoSPARQLEndpoint extends SPARQLService
 		return closureDepth;
 	}
 
+	public boolean isInputInstance(Resource resource)
+	{
+		log.warn("isInputInstance not yet implemented");
+		return false;
+	}
+
+	public Collection<Resource> discoverInputInstances(Model inputModel)
+	{
+		log.warn("discoverInputInstances not yet implemented");
+		return new ArrayList<Resource>(0);
+	}
 }

@@ -3,6 +3,7 @@ package ca.wilkinsonlab.sadi.client;
 import java.util.Collection;
 
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
@@ -46,4 +47,21 @@ public interface Service
 	 * @throws Exception
 	 */
 	public abstract Collection<Triple> invokeService(Resource inputNode, String predicate) throws Exception;
+	
+	/**
+	 * Returns true if the specified Resource is an instance of this service's
+	 * input class, false otherwise.
+	 * @param resource an input node
+	 * @return true if the specified Resource is an instance of this service's input class,
+	 *         false otherwise.
+	 */
+	public abstract boolean isInputInstance(Resource resource);
+	
+	/**
+	 * Returns an iterator over those Resources in the specified model that
+	 * are instances of this service's input class
+	 * @param inputModel the input data
+	 * @return all instances of this service's input class in the model
+	 */
+	public abstract Collection<Resource> discoverInputInstances(Model inputModel);
 }

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -188,8 +187,8 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 		Collection<ServiceInputPair> pairs = new ArrayList<ServiceInputPair>();
 		for (RdfService service: getAllServices()) {
 			try {
-				for (Iterator i = service.discoverInputInstances(inputModel); i.hasNext(); ) {
-					pairs.add(new ServiceInputPair(service, (Resource)i.next()));
+				for (Resource input: service.discoverInputInstances(inputModel)) {
+					pairs.add(new ServiceInputPair(service, input));
 				}
 			} catch (Exception e) {
 				log.error(String.format("error finding input instances for %s", service), e);
