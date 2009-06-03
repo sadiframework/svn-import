@@ -14,7 +14,6 @@ import org.mindswap.pellet.KnowledgeBase;
 import org.mindswap.pellet.datatypes.Datatype;
 import org.mindswap.pellet.utils.ATermUtils;
 
-import aterm.ATerm;
 import aterm.ATermAppl;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
@@ -65,31 +64,35 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		this.model = model;
 	}
 	
-	@Override
-	public boolean isProperty(ATerm p) {
-		if (!super.isProperty(p)) {
-			if (p.toString().endsWith("name"))
-				this.addDatatypeProperty(p);
-			else
-				this.addObjectProperty(p);
-		}
-		return true;
-	}
+//	@Override
+//	public boolean isProperty(ATerm p) {
+//		if (!super.isProperty(p)) {
+//			if (p.toString().endsWith("name"))
+//				this.addDatatypeProperty(p);
+//			else
+//				this.addObjectProperty(p);
+//		}
+//		return true;
+//	}
 	
 	@Override
 	public boolean isType(ATermAppl x, ATermAppl c) {
 		log.trace(String.format("isType(%s, %s)", x, c));
 		
 		for (ATermAppl term: tbox.getAxioms(c)) {
+			// TODO need to do this for subclasses as well; probably others...
 			if (term.getAFun().getName().equals("equivalentClasses") && term.getArgument(0).equals(c)) {
 				ATermAppl equivalent = (ATermAppl)term.getArgument(1);
 				log.trace( "found equivalent class " + equivalent );
-				if (equivalent.getAFun().getName().equals("some")) {
+				String name = equivalent.getAFun().getName();
+				// TODO need to do this for max cardinality and "all values from" as well; probably others...
+				if ( name.equals("some") || name.equals("min") ) {
 					ATermAppl property = (ATermAppl)equivalent.getArgument(0);
 					gatherTriples(x, property);
 				}
 			}
 		}
+
 		return super.isType(x, c);
 	}
 	
@@ -101,19 +104,23 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 			if (term.getAFun().getName().equals("equivalentClasses") && term.getArgument(0).equals(c)) {
 				ATermAppl equivalent = (ATermAppl)term.getArgument(1);
 				log.trace( "found equivalent class " + equivalent );
-				if (equivalent.getAFun().getName().equals("some")) {
+				String name = equivalent.getAFun().getName();
+				if (name.equals("some")) {
 					ATermAppl property = (ATermAppl)equivalent.getArgument(0);
 					ATermAppl value = (ATermAppl)equivalent.getArgument(1);
 					if (value.getAFun().getName().equals("value"))
 						value = (ATermAppl)value.getArgument(0);
 					getIndividualsWithProperty(property, value);
+				} else if (name.equals("min")) {
+					ATermAppl property = (ATermAppl)equivalent.getArgument(0);
+					gatherTriples(property);
 				}
 			}
 		}
 		
 		return super.getInstances(c);
 	}
-	
+
 	@Override
 	public boolean hasPropertyValue(ATermAppl s, ATermAppl p, ATermAppl o)
 	{
@@ -182,7 +189,7 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 				failedToFindInverse = true; 
 		}
 
-		List<String> predicateSynonyms;
+		Collection<String> predicateSynonyms;
 		
 		if(failedToFindInverse) {
 			/** 
@@ -193,7 +200,7 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 			predicateSynonyms = new ArrayList<String>();
 			// NOTE: makeInv applied applied to "inv(pred)" yields "pred"
 			ATermAppl barePredicate = ATermUtils.makeInv(predicate);
-			List<String> inverseSynonyms = getPredicateSynonyms(barePredicate.toString());
+			Collection<String> inverseSynonyms = getPredicateSynonyms(barePredicate.toString());
 			for(String inverseSynonym : inverseSynonyms) {
 				ATermAppl inv = ATermUtils.makeTermAppl(inverseSynonym);
 				predicateSynonyms.add(ATermUtils.makeInv(inv).toString());
@@ -204,11 +211,32 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		}
 
 		Collection<Triple> triples = new ArrayList<Triple>();
-		for (String predicateSynonym: predicateSynonyms) {
+		for (String predicateSynonym: predicateSynonyms)
 			gatherTriples(s, predicateSynonym, triples);
-			addTriplesToKB(triples, true);
-		}
 		
+		addTriplesToKB(triples, true);
+	}
+	
+	private void gatherTriples(ATermAppl predicate)
+	{
+		log.info(String.format("gathering triples matching ? <%s> ?", predicate));
+		
+		/* TODO might this be mangled in some way by the ATerm library?
+		 */
+		String p = predicate.toString();
+		
+		/* find services that can attach this property and
+		 * look for individuals in the model that we can call
+		 * that service on...
+		 */
+		Collection<Triple> triples = new ArrayList<Triple>();
+		for (Service service : Config.getMasterRegistry().findServicesByPredicate(p)) {
+			log.trace(String.format("found service %s", service));
+			
+			for (Resource input: service.discoverInputInstances(model))
+				invokeService(service, input, triples);
+		}
+		addTriplesToKB(triples, true);
 	}
 	
 	private void gatherTriples(String subject, String predicate, Collection<Triple> accum)
@@ -227,39 +255,56 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 			services = Config.getMasterRegistry().findServices(subjectAsResource, predicate);
 		}
 		
-		for (Service service : services) {
-			log.trace(String.format("found service %s", service));
-			if (deadServices.contains(service.getServiceURI()))
-				continue;
+		for (Service service : services)
+			invokeService(service, subjectAsResource, predicate, accum);
+	}
+
+	private void invokeService(Service service, Resource subject, Collection<Triple> accum)
+	{
+		/* TODO remove this form of this method once SPARQL services are
+		 * properly proxied...
+		 */
+		invokeService(service, subject, null, accum);
+	}
+	
+	private void invokeService(Service service, Resource subject, String predicate, Collection<Triple> accum)
+	{
+		log.trace(String.format("found service %s", service));
+		if (deadServices.contains(service.getServiceURI()))
+			return;
+		
+		/* TODO fix SPARQL registry so that it returns properly proxied
+		 * services so that this isn't necessary...
+		 * At the moment, we must invoke SPARQL endpoints with both subject and predicate,
+		 * so we can't use the tracker. --BV
+		 */
+		if (service instanceof SPARQLService) {
+			try {
+				log.info(getServiceCallString(service, subject));
+				accum.addAll(service.invokeService(subject, predicate));
+			} catch (Exception e) {
+				log.error(String.format("failed to invoke service %s", service), e);
+				if (HttpUtils.isHTTPTimeout(e))
+					deadServices.add(service.getServiceURI());
+			}
+		} else {
+			if (tracker.beenThere(service, subject.getURI()))
+				return;
 			
-			/* TODO fix SPARQL registry so that it returns properly proxied
-			 * services so that this isn't necessary...
-			 * At the moment, we must invoke SPARQL endpoints with both subject and predicate,
-			 * so we can't use the tracker. --BV
-			 */
-			if (service instanceof SPARQLService) {
-				try {
-					log.info(String.format("calling service %s", service));
-					accum.addAll(service.invokeService(subjectAsResource, predicate));
-				} catch (Exception e) {
-					log.error(String.format("failed to invoke service %s", service), e);
-					if (HttpUtils.isHTTPTimeout(e))
-						deadServices.add(service.getServiceURI());
-				}
-			} else {
-				if (tracker.beenThere(service, subject))
-					continue;
-				
-				try {
-					log.info(String.format("calling service %s", service));
-					accum.addAll(service.invokeService(subjectAsResource));
-				} catch (Exception e) {
-					log.error(String.format("failed to invoke service %s", service), e);
-					if (HttpUtils.isHTTPTimeout(e))
-						deadServices.add(service.getServiceURI());
-				}
+			try {
+				log.info(getServiceCallString(service, subject));
+				accum.addAll(service.invokeService(subject));
+			} catch (Exception e) {
+				log.error(String.format("failed to invoke service %s", service), e);
+				if (HttpUtils.isHTTPTimeout(e))
+					deadServices.add(service.getServiceURI());
 			}
 		}
+	}
+
+	private String getServiceCallString(Service service, Resource subject)
+	{
+		return String.format("calling service %s (%s)", service, subject);
 	}
 		
 	private void attachType(Resource resource)
@@ -306,7 +351,7 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 				if (addWithInverse && !isDatatypeProperty(ATermUtils.makeTermAppl(predicate))) {
 					String inversePredicate = getInversePredicate(predicate);
 					if (inversePredicate == null) {
-						log.info(String.format("no inverse predicate for <%s>", predicate));
+						log.debug(String.format("no inverse predicate for <%s>", predicate));
 					} else {
 						Triple inverseTriple = new Triple(
 								triple.getObject(),
@@ -378,35 +423,40 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	 * @param predicate
 	 * @return a list of equivalent predicates
 	 */
-	private List<String> getPredicateSynonyms(String predicate)
+	private Set<String> getPredicateSynonyms(String predicate)
 	{
-		List<String> predList = new ArrayList<String>();
-
 		ATermAppl p = ATermUtils.makeTermAppl(predicate);
-		boolean invert = false;
+		if (!isProperty(p)|| isAnnotationProperty(p) || isOntologyProperty(p))
+			return Collections.singleton(predicate);
 		
-		if(ATermUtils.isInv(p)) {
-			// Remove "inv()", but remember that we did so.
+		// If inverse property, remove "inv()", but remember that we did so.
+		boolean invert = false;
+		if (ATermUtils.isInv(p)) {
 			invert = true;
 			p = ATermUtils.makeInv(p);
 		}
 		
-		/* TODO figure out why some predicates are causing this error and try
-		 * to fix the root cause...
+		/* TODO if we call getAllEquivalentProperties on a property that
+		 * doesn't exist in the knowledge base, we'll get an error; once we
+		 * can dynamically load definitions as we can encounter them, this
+		 * shouldn't be a problem...
+		 * TODO this should be fixed by the isProperty() check above, but 
+		 * I'm leaving the try/catch just in case...
 		 */
 		try {
+			Set<String> predList = new HashSet<String>();
 			for (ATermAppl synonym : getAllEquivalentProperties(p)) {
-				if(invert)
+				if (invert)
 					predList.add(ATermUtils.makeInv(synonym).toString());
 				else
 					predList.add(synonym.toString());
 			}
-		} catch (Exception e) {
-			log.error(e);
-			predList.add(p.toString());
+			return predList;
+		} catch (RuntimeException e) {
+			log.warn(e);
+			return Collections.singleton(predicate);
 		}
 		
-		return predList;
 	}
 
 	private static class Tracker
@@ -421,16 +471,18 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		public synchronized boolean beenThere(Service service, String subject)
 		{
 			String key = getHashKey(service, subject);
-			if (visited.contains(key))
+			if (visited.contains(key)) {
 				return true;
-			visited.add(key);
-			return false;
+			} else {
+				visited.add(key);
+				return false;
+			}
 		}
 		
 		private String getHashKey(Service service, String subject)
 		{
 			// both URIs, so this should be safe
-			return String.format("%s:%s", service.getServiceURI(), subject);
+			return String.format("%s %s", service.getServiceURI(), subject);
 		}
 	}
 }
