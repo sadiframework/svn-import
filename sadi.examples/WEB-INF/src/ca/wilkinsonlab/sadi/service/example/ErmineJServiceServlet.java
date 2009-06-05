@@ -1,7 +1,5 @@
 package ca.wilkinsonlab.sadi.service.example;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -61,12 +59,6 @@ public class ErmineJServiceServlet extends SynchronousServiceServlet
 
 	public void processInput(Resource input, Resource output)
 	{
-		// each input is a collection of probes
-		try {
-			input.getModel().write(new FileOutputStream("/Users/luke/Desktop/ermineJservice.rdf"));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
 		List<String> probeIds = new ArrayList<String>();
 		List<Double> expressionLevels = new ArrayList<Double>();
 		List<String> geneIds = new ArrayList<String>();
