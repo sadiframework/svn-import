@@ -27,7 +27,7 @@
   <owl:ObjectProperty rdf:about="&benv;hasGOTerm"/>
   
   <owl:DatatypeProperty rdf:ID="expressionLevel">
-    <rdfs:range rdf:resource="&xsd;decimal"/>
+    <rdfs:range rdf:resource="&xsd;double"/>
   </owl:DatatypeProperty>
   
   <owl:DatatypeProperty rdf:ID="intensity">
@@ -105,7 +105,7 @@
   <owl:ObjectProperty rdf:ID="term"/>
   
   <owl:DatatypeProperty rdf:ID="p">
-    <rdfs:range rdf:resource="&xsd;decimal"/>
+    <rdfs:range rdf:resource="&xsd;double"/>
   </owl:DatatypeProperty>
   
   <owl:Class rdf:ID="OverrepresentedTerm">
