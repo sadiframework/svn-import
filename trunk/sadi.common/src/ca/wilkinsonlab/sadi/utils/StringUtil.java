@@ -84,7 +84,7 @@ public class StringUtil
 		for (i=0; i<substStrings.length && matcher.find(); ++i) {
 			String match = matcher.group();
 			if (match.equals("%u%"))
-				output = output.replaceFirst(match, String.format("<%s>", escapeURI(substStrings[i])));
+				output = output.replaceFirst(match, String.format("<%s>", escapeString(substStrings[i])));
 			else if (match.equals("%s%"))
 				output = output.replaceFirst(match, String.format("\"%s\"", escapeString(substStrings[i])));
 			else if (match.equals("%v%"))
