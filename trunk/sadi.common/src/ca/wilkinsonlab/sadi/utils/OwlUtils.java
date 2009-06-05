@@ -13,12 +13,52 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.ontology.OntResource;
+import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 public class OwlUtils 
 {
 	private static final Log log = LogFactory.getLog( OwlUtils.class );
+	
+	public static String getLabel(OntResource resource)
+	{
+		if (resource == null)
+			return "null";
+		
+		String label = resource.getLabel(null);
+		if (label != null)
+			return label;
+		
+		if (resource.isURIResource()) {
+			/* there seems some kind of bug in getLocalName() in that it loses
+			 * some of the text after a #...
+			 */
+			if (resource.isURIResource()) {
+				if (resource.getURI().contains("#"))
+					return StringUtils.substringAfterLast(resource.getURI(), "#");
+				else
+					return resource.getLocalName();
+			} else {
+				return resource.getLocalName();
+			}
+		}
+		
+		if (resource.isClass()) {
+			OntClass clazz = resource.asClass();
+			if (clazz.isRestriction()) {
+				Restriction restriction = clazz.asRestriction();
+				try {
+					return String.format("restriction on %s", restriction.getOnProperty());
+				} catch (Exception e) {
+					log.warn(e.getMessage());
+				}
+			}
+		}
+		
+		return resource.toString();
+	}
 	
 	/**
 	 * Load the definitions for each predicate in 'predicates', by loading the
