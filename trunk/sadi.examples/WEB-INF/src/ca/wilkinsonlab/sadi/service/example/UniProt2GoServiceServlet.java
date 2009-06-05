@@ -33,15 +33,15 @@ public class UniProt2GoServiceServlet extends ServiceServlet
 	private static final String UNIPROT_PREFIX = "http://purl.uniprot.org/uniprot/";
 	private static final String GO_PREFIX = "http://biordf.net/moby/GO/";
 	
-	private final Property HAS_GO_TERM;
-	private final Resource GO_TERM;
+	private final Property hasGOTerm;
+	private final Resource GO_RECORD;
 	
 	public UniProt2GoServiceServlet()
 	{
 		super();
 
-		HAS_GO_TERM = ontologyModel.getProperty("http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm");
-		GO_TERM = ontologyModel.createResource("http://purl.oclc.org/SADI/LSRN/GO_Record");
+		hasGOTerm = ontologyModel.getProperty("http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm");
+		GO_RECORD = ontologyModel.createResource("http://purl.oclc.org/SADI/LSRN/GO_Record");
 	}
 	
 	@Override
@@ -93,9 +93,9 @@ public class UniProt2GoServiceServlet extends ServiceServlet
 	
 	private void attachGoTerm(Resource uniprotNode, Go goTerm)
 	{
-		Resource goNode = uniprotNode.getModel().createResource(getGoUri(goTerm), GO_TERM);
-		goNode.addProperty(RDFS.label, goTerm.getGoTerm().getValue());
-		uniprotNode.addProperty(HAS_GO_TERM, goNode);
+		Resource goNode = uniprotNode.getModel().createResource(getGoUri(goTerm), GO_RECORD);
+		goNode.addProperty(RDFS.label, getGoLabel(goTerm));
+		uniprotNode.addProperty(hasGOTerm, goNode);
 	}
 	
 	private static String getGoUri(Go goTerm)
@@ -104,6 +104,11 @@ public class UniProt2GoServiceServlet extends ServiceServlet
 		if (goId.startsWith("GO:"))
 			goId = goId.substring(3);
 		return String.format("%s%s", GO_PREFIX, goId);
+	}
+
+	private static String getGoLabel(Go goTerm)
+	{
+		return goTerm.getGoTerm().getValue();
 	}
 
 	private static String getUniprotId(Resource uniprotNode)
@@ -117,6 +122,12 @@ public class UniProt2GoServiceServlet extends ServiceServlet
 		}
 	}
 	
+	/**
+	 * Although this method is declared in the abstract superclass (so we must
+	 * implement it), it is not actually used by this class and shouldn't be
+	 * called.
+	 * @deprecated
+	 */
 	public void processInput(Resource input, Resource output)
 	{
 		throw new UnsupportedOperationException();
