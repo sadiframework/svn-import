@@ -23,6 +23,11 @@
     <servlet-name>uniprot2go</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.UniProt2GoServiceServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+    <servlet-name>ermineJgo</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.ErmineJServiceServlet</servlet-class>
+  </servlet>
 
   <servlet-mapping>
     <servlet-name>echo</servlet-name>
@@ -42,6 +47,11 @@
   <servlet-mapping>
     <servlet-name>uniprot2go</servlet-name>
     <url-pattern>/uniprot2go</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>ermineJgo</servlet-name>
+    <url-pattern>/ermineJgo</url-pattern>
   </servlet-mapping>
   
 </web-app>

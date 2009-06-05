@@ -1,5 +1,7 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -20,7 +22,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 public class ErmineJServiceServlet extends SynchronousServiceServlet
 {
-	public static final String ELEMENT_URI = "http://sadiframework.org/ontologies/common.owl#element";
+	public static final String ELEMENT_URI = "http://sadiframework.org/examples/common.owl#element";
 	public static final String EXPRESSION_LEVEL_URI = "http://sadiframework.org/examples/ermineJ.owl#expressionLevel";
 	public static final String MAPPED_TO_URI = "http://sadiframework.org/examples/ermineJ.owl#mappedTo";
 	public static final String HAS_INPUT_TERM_URI = "http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm";
@@ -44,7 +46,6 @@ public class ErmineJServiceServlet extends SynchronousServiceServlet
 	{
 		super();
 
-
 		/* TODO the exact input term property here will change depending on
 		 * whether the GO term service, MESH term service, etc. has been called...
 		 */ 
@@ -61,6 +62,11 @@ public class ErmineJServiceServlet extends SynchronousServiceServlet
 	public void processInput(Resource input, Resource output)
 	{
 		// each input is a collection of probes
+		try {
+			input.getModel().write(new FileOutputStream("/Users/luke/Desktop/ermineJservice.rdf"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		List<String> probeIds = new ArrayList<String>();
 		List<Double> expressionLevels = new ArrayList<Double>();
 		List<String> geneIds = new ArrayList<String>();
