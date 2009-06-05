@@ -14,6 +14,9 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/SPRING"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/UNIPROT"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_LANG"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ERMINE_J"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_CONFIG"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_COLLECTIONS"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/sadi-service.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/sadi-common.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/sadi-client.jar"/>
