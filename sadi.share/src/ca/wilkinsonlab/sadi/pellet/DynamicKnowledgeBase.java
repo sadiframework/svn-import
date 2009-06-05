@@ -27,6 +27,7 @@ import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class DynamicKnowledgeBase extends KnowledgeBase
 {
@@ -174,6 +175,9 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		String s = subject.toString();
 		String p = predicate.toString();
 
+		if (p.equals(RDFS.label.getURI()) || p.equals(RDFS.comment.getURI()))
+			return;
+		
 		/**
 		 * If the predicate is of the form "inv(URI)", try to translate
 		 * this to an actual inverse predicate.  It's okay if there
@@ -381,7 +385,12 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 			addIndividual(o);
 		
 		addPropertyValue(p, s, o);
-//		RdfUtils.addTripleToModel(model, triple);
+		
+		/* have to add it this way as well, even though it's redundant,
+		 * because it's the only way to trigger the methods that tell any
+		 * listeners that the model has changed...
+		 */
+		RdfUtils.addTripleToModel(model, triple);
 	}
 	
 	private ATermAppl makeATermAppl(Node node)
