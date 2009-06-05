@@ -71,6 +71,18 @@ public class PelletClient extends QueryClient
 			ElementVisitor v = new PredicateVisitor(predicates);
 			ElementWalker.walk(query.getQueryPattern(), v);
 			
+			/* TODO resolve each of the predicates referenced by the query
+			 * into the OntModel to get us past the initial check in
+			 * org.mindswap.pellet.query.QueryEngine
+			 * ("Property ? used in the query is not defined in the KB.")
+			 * After that, have the DynamicKnowledgeBase resolve new
+			 * properties as it comes across them.  This might require
+			 * the DynamicKnowledgeBase to have access to an OntModel
+			 * view of itself...
+			 * For now, just load the predicate definitions up front...
+			 */
+			model.read("http://sadiframework.org/ontologies/service_objects.owl");
+			
 			// Many predicates defined in SPARQL endpoints aren't resolvable,
 			// so try to find definitions within the SPARQL registry before
 			// trying to find them on the web.
