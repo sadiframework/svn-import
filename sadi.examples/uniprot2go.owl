@@ -8,6 +8,9 @@
     xml:base="http://sadiframework.org/examples/uniprot2go.owl#">
   <owl:Ontology rdf:about=""/>
   
+  <!-- in lieu of importing the whole ontology... -->
+  <owl:ObjectProperty rdf:about="http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm"/>
+  
   <owl:Class rdf:ID="AnnotatedUniProtRecord">
     <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
     <rdfs:subClassOf>
@@ -17,11 +20,5 @@
       </owl:Restriction>
     </rdfs:subClassOf>
   </owl:Class>
-  
-  <owl:ObjectProperty rdf:ID="hasGoTerm">
-    <rdfs:range rdf:resource="http://purl.oclc.org/SADI/LSRN/GO_Record"/>
-  </owl:ObjectProperty>
-  
-  <owl:ObjectProperty rdf:about="http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm"/>
   
 </rdf:RDF>
