@@ -1,7 +1,7 @@
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
-    xmlns:common="http://sadiframework.org/ontologies/common.owl#"
+    xmlns:common="http://sadiframework.org/examples/common.owl#"
     xmlns:benv="http://es-01.chibi.ubc.ca/~benv/predicates.owl#"
     xmlns:ermineJ="http://sadiframework.org/examples/ermineJ.owl#">
   

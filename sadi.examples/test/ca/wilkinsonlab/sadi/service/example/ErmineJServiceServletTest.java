@@ -26,7 +26,7 @@ public class ErmineJServiceServletTest
 		Resource GoProbe = model.getResource("http://sadiframework.org/examples/ermineJ.owl#GoProbe");
 		Resource GoAnnotated = model.getResource("http://sadiframework.org/examples/ermineJ.owl#GoAnnotated");
 		Resource GoTerm = model.getResource("http://purl.oclc.org/SADI/LSRN/GO_Record");
-		Property element = model.getProperty("http://sadiframework.org/ontologies/common.owl#element");
+		Property element = model.getProperty("http://sadiframework.org/examples/common.owl#element");
 		Property expressionLevel = model.getProperty("http://sadiframework.org/examples/ermineJ.owl#expressionLevel");
 		Property mappedTo = model.getProperty("http://sadiframework.org/examples/ermineJ.owl#mappedTo");
 		Property hasInputTerm = model.getProperty("http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm");
