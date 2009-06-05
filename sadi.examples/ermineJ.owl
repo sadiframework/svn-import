@@ -57,6 +57,7 @@
   </owl:Class>
   
   <owl:Class rdf:ID="ProbeSet">
+    <rdfs:subClassOf rdf:resource="&common;Collection"/>
     <owl:equivalentClass>
       <owl:Restriction rdf:ID="SomeValuesFromProbe">
         <owl:onProperty rdf:resource="&common;element"/>
@@ -89,7 +90,7 @@
   </owl:Class>
   
   <owl:Class rdf:ID="GoProbeSet">
-    <rdfs:subClassOf rdf:resource="&common;Collection"/>
+    <rdfs:subClassOf rdf:resource="#ProbeSet"/>
     <owl:equivalentClass>
       <owl:Restriction>
         <owl:onProperty rdf:resource="&common;element"/>
