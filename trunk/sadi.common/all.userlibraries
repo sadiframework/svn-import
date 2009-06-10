@@ -1,69 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <eclipse-userlibraries version="2">
+<library name="ARGS4J" systemlibrary="false">
+<archive path="/home/ben/Programming/lib/args4j-2.0.10/args4j-2.0.10.jar"/>
+</library>
 <library name="COMMONS_COLLECTIONS" systemlibrary="false">
-<archive javadoc="jar:file:/Users/luke/Code/lib/commons-collections-3.2.1/commons-collections-3.2.1-javadoc.jar!/" path="/Users/luke/Code/lib/commons-collections-3.2.1/commons-collections-3.2.1.jar" source="/Users/luke/Code/lib/commons-collections-3.2.1/commons-collections-3.2.1-sources.jar"/>
+<archive javadoc="jar:file:/home/ben/Programming/lib/commons-collections-3.2.1/commons-collections-3.2.1-javadoc.jar!/" path="/home/ben/Programming/lib/commons-collections-3.2.1/commons-collections-3.2.1.jar" source="/home/ben/Programming/lib/commons-collections-3.2.1/commons-collections-3.2.1-sources.jar"/>
 </library>
 <library name="COMMONS_CONFIG" systemlibrary="false">
-<archive javadoc="jar:file:/Users/luke/Code/lib/commons-configuration-1.5/commons-configuration-1.5-javadoc.jar!/" path="/Users/luke/Code/lib/commons-configuration-1.5/commons-configuration-1.5.jar" source="/Users/luke/Code/lib/commons-configuration-1.5/commons-configuration-1.5-sources.jar"/>
+<archive javadoc="jar:file:/home/ben/Programming/lib/commons-configuration-1.5/commons-configuration-1.5-javadoc.jar!/" path="/home/ben/Programming/lib/commons-configuration-1.5/commons-configuration-1.5.jar" source="/home/ben/Programming/lib/commons-configuration-1.5/commons-configuration-1.5-sources.jar"/>
 </library>
 <library name="COMMONS_HTTPCLIENT" systemlibrary="false">
-<archive javadoc="file:/Users/luke/Code/lib/commons-httpclient-3.1/docs/apidocs/" path="/Users/luke/Code/lib/commons-httpclient-3.1/commons-httpclient-3.1.jar" source="/Users/luke/Code/lib/commons-httpclient-3.1/src/java"/>
-<archive path="/Users/luke/Code/lib/commons-codec-1.3/commons-codec-1.3.jar" source="/Users/luke/Code/lib/commons-codec-1.3/src/java"/>
+<archive javadoc="file:/home/ben/Programming/lib/commons-httpclient-3.1/docs/apidocs/" path="/home/ben/Programming/lib/commons-httpclient-3.1/commons-httpclient-3.1.jar" source="/home/ben/Programming/lib/commons-httpclient-3.1/src/java"/>
+<archive path="/home/ben/Programming/lib/commons-codec-1.3/commons-codec-1.3.jar" source="/home/ben/Programming/lib/commons-codec-1.3/src/java"/>
 </library>
 <library name="COMMONS_IO" systemlibrary="false">
-<archive path="/Users/luke/Code/lib/commons-io-1.4/commons-io-1.4.jar"/>
+<archive path="/home/ben/Programming/lib/commons-io-1.4/commons-io-1.4.jar"/>
 </library>
 <library name="COMMONS_LANG" systemlibrary="false">
-<archive path="/Users/luke/Code/lib/commons-lang-2.4/commons-lang-2.4.jar" source="/Users/luke/Code/lib/commons-lang-2.4/commons-lang-2.4-sources.jar"/>
+<archive path="/home/ben/Programming/lib/commons-lang-2.4/commons-lang-2.4.jar" source="/home/ben/Programming/lib/commons-lang-2.4/commons-lang-2.4-sources.jar"/>
 </library>
 <library name="COMMONS_MATH" systemlibrary="false">
-<archive path="/Users/luke/Code/lib/commons-math-1.2/commons-math-1.2.jar"/>
+<archive path="/home/ben/Programming/lib/commons-math-1.2/commons-math-1.2.jar"/>
 </library>
 <library name="GETOPT" systemlibrary="false">
-<archive path="/Users/luke/Code/lib/lib/java-getopt-1.0.13/java-getopt-1.0.13.jar"/>
+<archive path="/home/ben/Programming/lib/java-getopt-1.0.13/java-getopt-1.0.13.jar"/>
 </library>
 <library name="JENA" systemlibrary="false">
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/antlr-2.7.5.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/arq.jar" source="/Users/luke/Code/lib/pellet-1.5.1/src"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/arq-extra.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/commons-logging-1.1.1.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/concurrent.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/icu4j_3_4.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/iri.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/jena.jar" source="/Users/luke/Code/lib/Jena-2.5.5/src"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/jenatest.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/json.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/junit.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/log4j-1.2.12.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/lucene-core-2.2.0.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/stax-api-1.0.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/wstx-asl-3.0.0.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/xercesImpl.jar"/>
-<archive path="/Users/luke/Code/lib/Jena-2.5.5/lib/xml-apis.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/antlr-2.7.5.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/arq.jar" source="/home/ben/Programming/lib/pellet-1.5.1/src"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/arq-extra.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/commons-logging-1.1.1.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/concurrent.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/icu4j_3_4.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/iri.jar"/>
+<archive javadoc="file:/home/ben/Programming/lib/Jena-2.5.5/doc/javadoc/" path="/home/ben/Programming/lib/Jena-2.5.5/lib/jena.jar" source="/home/ben/Programming/lib/Jena-2.5.5/src"/>
+<archive javadoc="file:/home/ben/Programming/lib/Jena-2.5.5/doc/javadoc/" path="/home/ben/Programming/lib/Jena-2.5.5/lib/jenatest.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/json.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/junit.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/log4j-1.2.12.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/lucene-core-2.2.0.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/stax-api-1.0.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/wstx-asl-3.0.0.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/xercesImpl.jar"/>
+<archive path="/home/ben/Programming/lib/Jena-2.5.5/lib/xml-apis.jar"/>
 </library>
 <library name="JMOBY" systemlibrary="false">
-<archive path="/Users/luke/Code/jMoby/build/lib/jmoby-1.0.0.jar"/>
-<archive path="/Users/luke/Code/jMoby/build/lib/biomoby-datatypes.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/axis-1.4.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/axis-jaxrpc-1.4.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/commons-discovery-0.4.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/activation-1.1.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/mail-1.4.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/relaxngDatatype.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/saaj-api-1.3.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/standard.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/wsdl4j-1.5.1.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/xalan-2.6.0.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/xsdlib.jar"/>
-<archive path="/Users/luke/Code/cardioSHARE/WEB-INF/lib/jdom.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/jmoby-1.1.1.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/biomoby-datatypes.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/axis-1.4.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/axis-jaxrpc-1.4.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/commons-discovery-0.4.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/activation-1.1.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/mail-1.4.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/relaxngDatatype.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/saaj-api-1.3.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/standard.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/wsdl4j-1.5.1.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/xalan-2.6.0.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/xsdlib.jar"/>
+<archive path="/home/ben/Programming/lib/jmoby-1.1.1/jdom.jar"/>
 </library>
 <library name="JSON" systemlibrary="false">
-<archive path="/Users/luke/Code/lib/stringtree-2.0.9/stringtree-2.0.9.jar" source="/Users/luke/Code/lib/stringtree-2.0.9/stringtree-2.0.9-src.zip"/>
+<archive path="/home/ben/Programming/lib/stringtree-2.0.9/stringtree-2.0.9.jar" source="/home/ben/Programming/lib/stringtree-2.0.9/stringtree-2.0.9-src.zip"/>
+</library>
+<library name="JUNG_GRAPH_LIBRARY" systemlibrary="false">
+<archive path="/home/ben/Programming/lib/jung-2.0/collections-generic-4.01.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/colt-1.2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/concurrent-1.3.4.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung2-2_0.zip"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-3d-2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-3d-demos-2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-algorithms-2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-api-2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-api-2.0-tests.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-graph-impl-2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-io-2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-jai-2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-jai-samples-2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-samples-2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/jung-visualization-2.0.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/stax-api-1.0.1.jar"/>
+<archive path="/home/ben/Programming/lib/jung-2.0/wstx-asl-3.2.6.jar"/>
 </library>
 <library name="PELLET" systemlibrary="false">
-<archive path="/Users/luke/Code/lib/pellet-1.5.1/lib/aterm-java-1.6.jar"/>
-<archive path="/Users/luke/Code/lib/pellet-1.5.1/lib/pellet.jar" source="/Users/luke/Code/lib/pellet-1.5.1/src"/>
-<archive path="/Users/luke/Code/lib/pellet-1.5.1/lib/xsdlib/relaxngDatatype.jar"/>
-<archive path="/Users/luke/Code/lib/pellet-1.5.1/lib/xsdlib/xsdlib.jar"/>
+<archive path="/home/ben/Programming/lib/pellet-1.5.1/lib/aterm-java-1.6.jar"/>
+<archive path="/home/ben/Programming/lib/pellet-1.5.1/lib/pellet.jar" source="/home/ben/Programming/lib/pellet-1.5.1/src"/>
+<archive path="/home/ben/Programming/lib/pellet-1.5.1/lib/xsdlib/relaxngDatatype.jar"/>
+<archive path="/home/ben/Programming/lib/pellet-1.5.1/lib/xsdlib/xsdlib.jar"/>
 </library>
 </eclipse-userlibraries>

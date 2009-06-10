@@ -10,10 +10,11 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.StringEscapeUtils;
 
 /*********************************************************
- * Various routines for filling string templates and 
- * performing string and URI escaping.
+ * Various routines for building SPARQL query strings
+ * from templates, escaping URIs, etc.
  * 
  * This entire class was necessary because the Virtuoso
  * JDBC driver doesn't seem to support prepared statements for
@@ -22,25 +23,9 @@ import org.apache.commons.httpclient.URIException;
  * @author Ben Vandervalk
  **********************************************************/
 
-public class StringUtil
+public class SPARQLStringUtils
 {
 	static Pattern CONVERSION_SPECIFIERS = Pattern.compile("%[usv]%");
-	
-//	/*****************************************************
-//	 * Return the string in 'str', after the rightmost
-//	 * occurence of 'ch'.  If 'ch' is not found in 'str',
-//	 * return 'str' in its entirety.
-//	 ****************************************************/
-//	
-//	static public String strRightOf(String str, char ch)
-//	{
-//		Pattern p = Pattern.compile("^.*" + ch);
-//		Matcher m = p.matcher(str);
-//
-//		String output = m.replaceAll("");
-//		
-//		return output;
-//	}
 	
 	/**
 	 * Makes the specified variable substitutions in the
@@ -84,9 +69,11 @@ public class StringUtil
 		for (i=0; i<substStrings.length && matcher.find(); ++i) {
 			String match = matcher.group();
 			if (match.equals("%u%"))
-				output = output.replaceFirst(match, String.format("<%s>", escapeString(substStrings[i])));
-			else if (match.equals("%s%"))
-				output = output.replaceFirst(match, String.format("\"%s\"", escapeString(substStrings[i])));
+				output = output.replaceFirst(match, String.format("<%s>", escapeURI(substStrings[i])));
+			else if (match.equals("%s%")) {
+				String escaped = escapeSPARQL(escapeSPARQL(substStrings[i]));
+				output = output.replaceFirst(match, String.format("\"%s\"", escaped));
+			}
 			else if (match.equals("%v%"))
 				output = output.replaceFirst(match, substStrings[i]);
 		}
@@ -99,6 +86,31 @@ public class StringUtil
 		return output;
 	}
 
+	/**
+	 * Return a quoted version of the given string, that is safe to insert
+	 * into a SPARQL query.  SPARQL has a special triple-quote mechanism which 
+	 * allows for strings with embedded newlines and quotes.  (Escape codes 
+	 * are treated just as they are in double-quoted or single-quoted strings.)
+	 */
+	static public String escapeSPARQL(String s)
+	{
+		// NOTE: Backslashes appearing in the arguments to replaceAll
+		// are escaped twice -- once by Java and once by the regular 
+		// expression engine.  Hence "\\\\" represents a single 
+		// literal "\".
+		
+		s = s.replaceAll("\\\\", "\\\\\\\\");
+		s = s.replaceAll("\"", "\\\\\\\"");
+		s = s.replaceAll("'", "\\\\'");
+		s = s.replaceAll("\n", "\\\\n");
+		s = s.replaceAll("\r", "\\\\r");
+		s = s.replaceAll("\t", "\\\\t");
+		s = s.replaceAll("\f", "\\\\f");
+		s = s.replaceAll("\b", "\\\\b");
+		
+		return s;
+	}
+	
 	/**
 	 * Loads a multi-line text file into a string, 
 	 * and makes the specified variable substitutions
@@ -130,38 +142,6 @@ public class StringUtil
 	}
 	
 	/**
-	 * Escapes a string so that it may safely inserted, inside
-	 * either double or single quotes, into a SPARQL query. 
-	 * Tested against SPARQL-injection attack on Virtuoso.  
-	 *
-	 * @param str The string to be escaped. 
-	 * @return The escaped string.
-	 */
-	public static String escapeString(String s)
-	{
-		String escaped = new String(s);
-		
-		escaped.replaceAll("\"", "\\\"");
-		escaped.replaceAll("'","\'");
-		escaped.replaceAll("\0", "\\\0");
-		escaped.replaceAll("\n","\\n");
-		escaped.replaceAll("\r", "\\r");
-		escaped.replaceAll("\t", "\\t");
-		
-		// This one is a bit tricky.  All it does is escape any
-		// slashes in the string, by replacing "\" with "\\".
-		// However, the first argument (the regular expression)
-		// has its escapes expanded twice - once by Java
-		// and then a second time by the regular expression engine.
-		// Hence "\\\\" really represents a literal "\" in the final
-		// regular expression.
-		
-		escaped.replaceAll("\\\\", "\\\\");
-		
-		return escaped;
-	}
-	
-	/**
 	 * Escapes special characters ('>','<',' ','\t','\n','\r','\0','{','}')
 	 * in a string representing a URI.  Tested against SPARQL-injection attack
 	 * on Virtuoso.
@@ -170,7 +150,7 @@ public class StringUtil
 	 */
 	public static String escapeURI(String uri) throws URIException
 	{
-		return new URI(uri, false, "UTF-8").getEscapedURIReference();
+		return new URI(uri, false).getEscapedURIReference();
 	}
 	
 	/**

@@ -160,6 +160,33 @@ public class RdfUtils
 			triples.add(i.nextStatement().asTriple());
 		return triples;
 	}
+
+	/**
+	 * Return the string representation of a Jena Node, without surrounding
+	 * brackets or quotes, and without any xsd:datatype suffix.
+	 * 
+	 * The default string representation of a node in Jena quotes literals 
+	 * (including numbers) and appends the associated xsd:datatype.  Also, the
+	 * Jena string representation of a variable doesn't include the preceding
+	 * "?".
+	 * 
+	 * @param node
+	 * @return
+	 */
+	public static String getPlainString(Node node)
+	{
+		String str;
+		if(node.isURI()) {
+			str = node.toString();
+		}
+		else if(node.isVariable()) {
+			str = "?" + node.getName();
+		}
+		else {
+			str = node.getLiteralValue().toString();
+		}
+		return str;
+	}
 	
 //	/**
 //	 * Write a collection of triples to a file, as RDF.  

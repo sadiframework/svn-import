@@ -28,7 +28,7 @@ public class HttpUtils
 	public static InputStream postToURL(URL url, Model data)
 	throws IOException
 	{
-		log.debug(String.format("posting RDF data to %s", url));
+		//log.debug(String.format("posting RDF data to %s", url));
 		
 		URLConnection conn = url.openConnection();
 		conn.setDoOutput(true);
@@ -43,15 +43,15 @@ public class HttpUtils
 	public static Object postAndFetchJson(URL url, Map<String, String> params)
 	throws IOException
 	{
-		log.debug(String.format("posting form data to %s", url));
-		log.trace(params);
+		//log.debug(String.format("posting form data to %s", url));
+		//log.trace(params);
 		InputStream is = POST(url.toString(), toNameValuePairArray(params));
 		
-		log.debug("reading response");
-		String json = StringUtil.readFully(is);
+		//log.debug("reading response");
+		String json = SPARQLStringUtils.readFully(is);
 		is.close();
 
-		log.debug("converting JSON object");
+		//log.debug("converting JSON object");
 		return JsonUtils.read(json);
 	}
 	

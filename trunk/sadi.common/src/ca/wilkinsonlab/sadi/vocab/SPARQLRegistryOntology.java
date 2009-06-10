@@ -4,7 +4,7 @@ package ca.wilkinsonlab.sadi.vocab;
  * 
  * @author Ben Vandervalk
  */
-public class SPARQLRegistry
+public class SPARQLRegistryOntology
 {
 	public static final String DEFAULT_REGISTRY_ENDPOINT = "http://dev.biordf.net/sparql";
 
@@ -36,4 +36,9 @@ public class SPARQLRegistry
 	 * points from endpointURI => graphURI (not currently used)
 	 */
 	public static final String PREDICATE_HASGRAPH =  NS + "hasGraph";
+	/**
+	 * points from endpointURI => long (the number of triples the endpoint contains)
+	 */
+	public static final String PREDICATE_NUMTRIPLES = NS + "numTriples";
+	
 }
