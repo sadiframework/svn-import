@@ -3,19 +3,22 @@ package ca.wilkinsonlab.sadi.sparql;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URIException;
 
-import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
-import ca.wilkinsonlab.sadi.utils.StringUtil;
+import ca.wilkinsonlab.sadi.utils.PredicateUtils;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
-import ca.wilkinsonlab.sadi.vocab.SPARQLRegistry;
+import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.vocab.W3C;
 
 import com.hp.hpl.jena.ontology.OntModel;
@@ -27,7 +30,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * 
  * @author Ben Vandervalk
  */
-public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Registry
+public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SPARQLRegistry
 {	
 	private static final String ENDPOINT_CONFIG_KEY = "endpoint";
 	private static final String INDEX_GRAPH_CONFIG_KEY = "indexGraph";
@@ -36,7 +39,9 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Re
 	private OntModel predicateOntology;
 	private String indexGraphURI;
 	private String ontologyGraphURI;
-	
+
+	private Map<String,List<Service>> predicateToEndpointCache;
+
 	public VirtuosoSPARQLRegistry(Configuration config) throws HttpException, IOException
 	{
 		this(config.getString(ENDPOINT_CONFIG_KEY),
@@ -46,16 +51,16 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Re
 	
 	public VirtuosoSPARQLRegistry() throws HttpException, IOException 
 	{
-		this(SPARQLRegistry.DEFAULT_REGISTRY_ENDPOINT, 
-			SPARQLRegistry.DEFAULT_INDEX_GRAPH, 
-			SPARQLRegistry.DEFAULT_ONTOLOGY_GRAPH);
+		this(SPARQLRegistryOntology.DEFAULT_REGISTRY_ENDPOINT, 
+			SPARQLRegistryOntology.DEFAULT_INDEX_GRAPH, 
+			SPARQLRegistryOntology.DEFAULT_ONTOLOGY_GRAPH);
 	}
 	
 	public VirtuosoSPARQLRegistry(String URI) throws HttpException, IOException 
 	{
 		this(URI, 
-			SPARQLRegistry.DEFAULT_INDEX_GRAPH, 
-			SPARQLRegistry.DEFAULT_ONTOLOGY_GRAPH);
+			SPARQLRegistryOntology.DEFAULT_INDEX_GRAPH, 
+			SPARQLRegistryOntology.DEFAULT_ONTOLOGY_GRAPH);
 	}
 	
 	public VirtuosoSPARQLRegistry(String URI, String indexGraphURI, String ontologyGraphURI) throws HttpException, IOException 
@@ -63,6 +68,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Re
 		super(URI);
 		this.indexGraphURI = indexGraphURI;
 		this.ontologyGraphURI = ontologyGraphURI;
+		predicateToEndpointCache = new Hashtable<String,List<Service>>();
 		refreshCachedOntology();
 	}
 	
@@ -88,7 +94,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Re
 		 */
 		predicateOntology = ModelFactory.createOntologyModel();
 		String predicateQuery = "SELECT ?s ?o FROM %u% WHERE { ?s %u% ?o }";
-		predicateQuery = StringUtil.strFromTemplate(predicateQuery, getOntologyGraphURI(), W3C.PREDICATE_RDF_TYPE);
+		predicateQuery = SPARQLStringUtils.strFromTemplate(predicateQuery, getOntologyGraphURI(), W3C.PREDICATE_RDF_TYPE);
 		List<Map<String,String>> results = selectQuery(predicateQuery);
 		for(Map<String,String> binding : results) {
 			String predicateURI = binding.get("s");
@@ -104,17 +110,21 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Re
 	public Collection<Service> findServicesByPredicate(String predicate) throws URIException, HttpException, IOException
 	{
 		List<Service> matches = new ArrayList<Service>();
+		Set<String> matchingEndpointURIs = new HashSet<String>();
 		
 		boolean isInverted = false; 
-		if(PelletHelper.isInverted(predicate)) {
-			predicate = PelletHelper.invert(predicate);
+		if(PredicateUtils.isInverted(predicate)) {
+			predicate = PredicateUtils.invert(predicate);
 			isInverted = true;
 		}
 		
+		if(predicateToEndpointCache.containsKey(predicate)) 
+			return predicateToEndpointCache.get(predicate);
+		
 		/** 
-		 * TODO: Also look for SPARQL endpoints that contain inverses of 'predicate'.
-		 * The code commented out below is a template for doing that.  It's turned off
-		 * at the moment because the Jena reasoning is really slow.
+		 * TODO: Also look for SPARQL endpoints that contain inverses/synonyms of 'predicate'.
+		 * The code commented out below is a template for doing that.  It's commented out
+		 * for now because the Jena reasoning is really slow.  
 		 */
 
 		/*
@@ -142,32 +152,61 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Re
 				matches.add(new SPARQLServiceWrapper(endpoint, inverse, predicate, !isInverted));
 		}
 		*/
+
+		/***********************************************************************************
+		* Get matching endpoints 
+		*************************************************************************************/
 		
 		String predicatesQuery = "SELECT DISTINCT ?endpoint FROM %u% WHERE { ?endpoint %u% %u% }";
-		predicatesQuery = StringUtil.strFromTemplate(predicatesQuery, getIndexGraphURI(), SPARQLRegistry.PREDICATE_HASPREDICATE, predicate);
+		predicatesQuery = SPARQLStringUtils.strFromTemplate(predicatesQuery, getIndexGraphURI(), SPARQLRegistryOntology.PREDICATE_HASPREDICATE, predicate);
 		List<Map<String,String>> results = selectQuery(predicatesQuery);
 
-		/*  This turns out to be too slow in pratice. -- BV 
-		// Also include those endpoints that are in the registry, but haven't been indexed yet.
+		for(Map<String,String> binding : results) {
+			String uri = binding.get("endpoint");
+			SPARQLService endpoint = (SPARQLService)getService(uri);
+			matches.add(new SPARQLServiceWrapper(endpoint, predicate, isInverted));
+			matchingEndpointURIs.add(uri);
+		}
+		
+		/***********************************************************************************
+		* Additionally, check endpoints that are in the registry but haven't been indexed yet, 
+		* or couldn't be indexed fully.
+		*************************************************************************************/
+		
 		String unindexedQuery = "SELECT ?endpoint FROM %u% WHERE { ?endpoint %u% %v% }";
-		unindexedQuery = StringUtil.strFromTemplate(unindexedQuery, getIndexGraphURI(), SPARQLRegistry.PREDICATE_COMPUTEDINDEX, "0");
-		results.addAll(selectQuery(unindexedQuery));
-		*/
+		unindexedQuery = SPARQLStringUtils.strFromTemplate(unindexedQuery, getIndexGraphURI(), SPARQLRegistryOntology.PREDICATE_COMPUTEDINDEX, "0");
+		results = selectQuery(unindexedQuery);
+		
+		String testForPredicateQuery = "SELECT * WHERE { ?s %u% ?o } LIMIT 1";
+		testForPredicateQuery = SPARQLStringUtils.strFromTemplate(testForPredicateQuery, predicate);
 		
 		for(Map<String,String> binding : results) {
-			SPARQLService endpoint = (SPARQLService)getService(binding.get("endpoint"));
-			matches.add(new SPARQLServiceWrapper(endpoint, predicate, isInverted));
+			String uri = binding.get("endpoint");
+			List<Map<String,String>> testResults;
+			
+			if(matchingEndpointURIs.contains(uri))
+				continue;
+			try {
+				testResults = selectQuery(testForPredicateQuery, 10 * 1000);
+				if(testResults.size() > 0) {
+					SPARQLService endpoint = (SPARQLService)getService(uri);
+					matches.add(new SPARQLServiceWrapper(endpoint, predicate, isInverted));
+				}
+			}
+			catch(Exception e) {}
 		}
-
+		
+		
+		predicateToEndpointCache.put(predicate, matches);
 		return matches;
 	}
-
+	
 	public SPARQLEndpointType getEndpointType(String endpointURI) throws HttpException, IOException
 	{
 		if(!hasEndpoint(endpointURI))
 			return null;
 		String typeQuery = "SELECT ?type FROM %u% WHERE { %u% %u% ?type }";
-		typeQuery = StringUtil.strFromTemplate(typeQuery, getIndexGraphURI(), endpointURI, W3C.PREDICATE_RDF_TYPE);
+		typeQuery = SPARQLStringUtils.strFromTemplate(typeQuery, getIndexGraphURI(), endpointURI, W3C.PREDICATE_RDF_TYPE);
 		List<Map<String,String>> results = selectQuery(typeQuery);
 		if(results.size() == 0) 
 			throw new RuntimeException("No type found in registry for endpoint " + endpointURI);
@@ -177,18 +216,18 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Re
 	public boolean hasEndpoint(String endpointURI) throws HttpException, IOException 
 	{
 		String existsQuery = "SELECT * FROM %u% WHERE { %u% ?p ?o } LIMIT 1";
-		existsQuery = StringUtil.strFromTemplate(existsQuery, getIndexGraphURI(), endpointURI);
+		existsQuery = SPARQLStringUtils.strFromTemplate(existsQuery, getIndexGraphURI(), endpointURI);
 		List<Map<String,String>> results = selectQuery(existsQuery);
 		if(results.size() > 0)
 			return true;
 		return false;
 	}
 	
-	public List<SPARQLService> getEndpoints() throws HttpException, IOException
+	public List<SPARQLService> getAllServices() throws HttpException, IOException
 	{
 		List<SPARQLService> endpoints = new ArrayList<SPARQLService>();
 		String endpointQuery = "SELECT DISTINCT ?endpoint ?type FROM %u% WHERE { ?endpoint %u% ?type }";
-		endpointQuery = StringUtil.strFromTemplate(endpointQuery, getIndexGraphURI(), W3C.PREDICATE_RDF_TYPE);
+		endpointQuery = SPARQLStringUtils.strFromTemplate(endpointQuery, getIndexGraphURI(), W3C.PREDICATE_RDF_TYPE);
 		List<Map<String,String>> results = selectQuery(endpointQuery);
 		for(Map<String,String> binding : results) {
 			SPARQLEndpointType type = SPARQLEndpointType.valueOf(binding.get("type"));
@@ -201,19 +240,21 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Re
 	{
 		List<String> endpoints = new ArrayList<String>();
 		String endpointQuery = "SELECT DISTINCT ?endpoint ?type FROM %u% WHERE { ?endpoint %u% ?type }";
-		endpointQuery = StringUtil.strFromTemplate(endpointQuery, W3C.PREDICATE_RDF_TYPE);
+		endpointQuery = SPARQLStringUtils.strFromTemplate(endpointQuery, W3C.PREDICATE_RDF_TYPE);
 		List<Map<String,String>> results = selectQuery(endpointQuery);
 		for(Map<String,String> binding : results)
 			endpoints.add(binding.get("endpoint"));
 		return endpoints;
 	}
 	
-	public SPARQLEndpointStatus getEndpointStatus(String endpointURI) throws URIException, HttpException, HttpResponseCodeException, IOException 
+	public ServiceStatus getServiceStatus(String serviceURI) throws URIException, HttpException, HttpResponseCodeException, IOException 
 	{
 		String statusQuery = "SELECT ?status FROM %u% WHERE { %u% %u% ?status }";
-		statusQuery = StringUtil.strFromTemplate(statusQuery, getIndexGraphURI(), endpointURI, SPARQLRegistry.PREDICATE_ENDPOINTSTATUS);
+		statusQuery = SPARQLStringUtils.strFromTemplate(statusQuery, getIndexGraphURI(), serviceURI, SPARQLRegistryOntology.PREDICATE_ENDPOINTSTATUS);
 		List<Map<String,String>> results = selectQuery(statusQuery);
-		return SPARQLEndpointStatus.valueOf(results.get(0).get("status"));
+		if(results.size() == 0)
+			throw new RuntimeException("Unable to obtain endpoint status for " + serviceURI + " from registry");
+		return ServiceStatus.valueOf(results.get(0).get("status"));
 	}
 	
 	public OntModel getPredicateOntology() 
@@ -221,10 +262,24 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Re
 		return predicateOntology; 
 	}
 	
+	public long getNumTriples(String endpointURI) throws HttpException, HttpResponseCodeException, IOException
+	{
+		if(!hasEndpoint(endpointURI))
+			throw new IllegalArgumentException("The registry does not registry index does not contain: " + endpointURI);
+		String query = "SELECT ?num FROM %u% WHERE { %u% %u% ?num }";
+		query = SPARQLStringUtils.strFromTemplate(query, getIndexGraphURI(), endpointURI, SPARQLRegistryOntology.PREDICATE_NUMTRIPLES);
+		List<Map<String,String>> results = selectQuery(query);
+		if(results.size() == 0)
+			throw new RuntimeException("Unable to retrieve endpoint size (in triples) for " + endpointURI + " from SPARQL endpoint registry");
+		String columnName = results.get(0).keySet().iterator().next();
+		return Long.valueOf(results.get(0).get(columnName));
+	}
+		
+	
 	public boolean hasPredicate(String predicateURI) throws URIException, HttpException, HttpResponseCodeException, IOException 
 	{
 		String query = "SELECT * FROM %u% WHERE { %u% ?p ?o } LIMIT 1";
-		query = StringUtil.strFromTemplate(query, getOntologyGraphURI(), predicateURI);
+		query = SPARQLStringUtils.strFromTemplate(query, getOntologyGraphURI(), predicateURI);
 		List<Map<String,String>> results = selectQuery(query);
 		if(results.size() > 0)
 			return true;
@@ -235,7 +290,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements Re
 	public boolean isDatatypeProperty(String predicateURI) throws URIException, HttpException, HttpResponseCodeException, IOException 
 	{
 		String query = "SELECT ?o FROM %u% WHERE { %u% %u% ?o } LIMIT 1";
-		query = StringUtil.strFromTemplate(query,
+		query = SPARQLStringUtils.strFromTemplate(query,
 				getOntologyGraphURI(),
 				predicateURI,
 				W3C.PREDICATE_RDF_TYPE);

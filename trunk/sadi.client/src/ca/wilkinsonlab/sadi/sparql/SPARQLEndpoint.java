@@ -3,6 +3,7 @@ package ca.wilkinsonlab.sadi.sparql;
 import java.io.IOException;
 import java.io.InputStream;
 import java.rmi.AccessException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -15,8 +16,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.utils.HttpUtils;
-import ca.wilkinsonlab.sadi.utils.RdfUtils;
-import ca.wilkinsonlab.sadi.utils.StringUtil;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
+import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpInputStream;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
 
 import com.hp.hpl.jena.graph.Node;
@@ -62,9 +63,9 @@ public abstract class SPARQLEndpoint
 			}
 			else {
 				if(pos[i].isURI())
-					patternStr.append(StringUtil.strFromTemplate("%u% ", pos[i].toString()));
+					patternStr.append(SPARQLStringUtils.strFromTemplate("%u% ", pos[i].toString()));
 				else
-					patternStr.append(StringUtil.strFromTemplate("%v% ", pos[i].toString()));
+					patternStr.append(SPARQLStringUtils.strFromTemplate("%v% ", pos[i].toString()));
 			}
 		}
 		StringBuilder query = new StringBuilder();
@@ -79,32 +80,52 @@ public abstract class SPARQLEndpoint
 	public List<Map<String,String>> selectQuery(String query, int timeout) throws HttpException, IOException 
 	{
 		InputStream response = HttpUtils.GET(getURI(), getHTTPArgsForSelectQuery(query), timeout);
-		List<Map<String,String>> results = convertSelectResponseToBindings(response);
-		response.close();
+		List<Map<String,String>> results = new ArrayList<Map<String,String>>();
+		try {
+			results = convertSelectResponseToBindings(response);
+		}
+		finally {
+			response.close();
+		}
 		return results;
 	}
 
 	public List<Map<String,String>> selectQuery(String query) throws HttpException, HttpResponseCodeException, IOException 
 	{
 		InputStream response = HttpUtils.GET(getURI(), getHTTPArgsForSelectQuery(query));
-		List<Map<String,String>> results = convertSelectResponseToBindings(response);
-		response.close();
+		List<Map<String,String>> results = new ArrayList<Map<String,String>>();
+		try {
+			results = convertSelectResponseToBindings(response);
+		}
+		finally {
+			response.close();
+		}
 		return results;
 	}
 
 	public Collection<Triple> constructQuery(String query, int timeout) throws HttpException, HttpResponseCodeException, IOException
 	{
 		InputStream response = HttpUtils.GET(getURI(), getHTTPArgsForConstructQuery(query), timeout);
-		Collection<Triple> results = convertConstructResponseToTriples(response);
-		response.close();
+		Collection<Triple> results = new ArrayList<Triple>();
+		try { 
+			results = convertConstructResponseToTriples(response);
+		}
+		finally {
+			response.close();
+		}
 		return results;
 	}
 
 	public Collection<Triple> constructQuery(String query) throws HttpException, HttpResponseCodeException, IOException
 	{
 		InputStream response = HttpUtils.GET(getURI(), getHTTPArgsForConstructQuery(query));
-		Collection<Triple> results = convertConstructResponseToTriples(response);
-		response.close();
+		Collection<Triple> results = new ArrayList<Triple>();
+		try {
+			results = convertConstructResponseToTriples(response);
+		}
+		finally {
+			response.close();
+		}
 		return results;
 	}
 	
@@ -119,7 +140,8 @@ public abstract class SPARQLEndpoint
 	 */
 	public void updateQuery(String query) throws HttpException, HttpResponseCodeException, IOException, AccessException
 	{
-		HttpUtils.POST(getURI(), getHTTPArgsForUpdateQuery(query));
+		HttpInputStream response = HttpUtils.POST(getURI(), getHTTPArgsForUpdateQuery(query));
+		response.close();
 	}
 
 	public Set<String> getNamedGraphs() throws HttpException, IOException
@@ -147,7 +169,7 @@ public abstract class SPARQLEndpoint
 		log.trace("Querying predicate list from graph " + graphURI + " of " + getURI());
 		Set<String> predicates = new HashSet<String>();
 		List<Map<String,String>> results = null;
-		String query = StringUtil.strFromTemplate("SELECT DISTINCT ?p FROM %u% WHERE { ?s ?p ?o }", graphURI);
+		String query = SPARQLStringUtils.strFromTemplate("SELECT DISTINCT ?p FROM %u% WHERE { ?s ?p ?o }", graphURI);
 		results = selectQuery(query);
 		for(Map<String,String> binding : results)
 			predicates.add(binding.get("p"));
@@ -225,8 +247,8 @@ public abstract class SPARQLEndpoint
 				curQuery = query + " OFFSET " + (curPoint - 1) + " LIMIT 1"; 
 				results = selectQuery(curQuery, timeout);
 			}
-			catch(HttpResponseCodeException e) {
-				if(HttpUtils.isProxyTimeout(e)) 
+			catch(IOException e) {
+				if(HttpUtils.isHTTPTimeout(e)) 
 				{
 					log.debug("query timed out for curPoint = " + curPoint);
 					
@@ -285,19 +307,20 @@ public abstract class SPARQLEndpoint
 	public boolean isDatatypeProperty(String predicateURI) throws HttpException, IOException 
 	{
 		boolean isDatatypeProperty = false;
-		String predicateQuery = "SELECT * WHERE { ?s %u% ?o } LIMIT 1";
-		predicateQuery = StringUtil.strFromTemplate(predicateQuery, predicateURI);
-		List<Map<String,String>> results = selectQuery(predicateQuery);
+		String predicateQuery = "CONSTRUCT { ?s %u% ?o } WHERE { ?s %u% ?o } LIMIT 1";
+		predicateQuery = SPARQLStringUtils.strFromTemplate(predicateQuery, predicateURI, predicateURI);
+		Collection<Triple> results = constructQuery(predicateQuery);
 		if(results.size() == 0) {
 			throw new RuntimeException("Internal error: The endpoint " + getURI() + 
-					" have any triples containing the predicate <" + predicateURI + ">");
+					" doesn't have any triples containing the predicate <" + predicateURI + ">");
 		}
 		else {
-			String object = results.iterator().next().get("o");
-			if(RdfUtils.isURI(object))
-				isDatatypeProperty = false;
-			else
+			Triple exampleTriple = results.iterator().next();
+			Node o = exampleTriple.getObject();
+			if(o.isLiteral())
 				isDatatypeProperty = true;
+			else
+				isDatatypeProperty = false;
 		}
 		return isDatatypeProperty;
 	}

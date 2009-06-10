@@ -12,6 +12,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
  */
 public interface Service
 {
+	public enum ServiceStatus { OK,	SLOW, DEAD };
+
 	/**
 	 * Returns the URI of the service.
 	 * @return the URI of the service

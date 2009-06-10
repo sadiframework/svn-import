@@ -19,7 +19,8 @@ import org.apache.commons.logging.LogFactory;
 import ca.wilkinsonlab.sadi.utils.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.JsonUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
-import ca.wilkinsonlab.sadi.utils.StringUtil;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
+import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpInputStream;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
 
 import com.hp.hpl.jena.graph.Triple;
@@ -43,7 +44,8 @@ public class VirtuosoSPARQLEndpoint extends SPARQLService
 	public void updateQuery(String query) throws HttpException, IOException, HttpResponseCodeException, AccessException
 	{
 		try {
-			HttpUtils.POST(getURI(), getHTTPArgsForUpdateQuery(query));
+			HttpInputStream response = HttpUtils.POST(getURI(), getHTTPArgsForUpdateQuery(query));
+			response.close();
 		}
 		catch(HttpResponseCodeException e) {
 			// Virtuoso indicates a failed SPARUL query due to lack
@@ -111,7 +113,7 @@ public class VirtuosoSPARQLEndpoint extends SPARQLService
 				deleteQuery.append("} FROM %u% WHERE {");
 				deleteQuery.append(depthClause);
 				deleteQuery.append("}");
-				String query = StringUtil.strFromTemplate(deleteQuery.toString(), graphURI, URI, graphURI, URI);
+				String query = SPARQLStringUtils.strFromTemplate(deleteQuery.toString(), graphURI, URI, graphURI, URI);
 				updateQuery(query);
 				// Remove one level of depth from the delete query.
 				int secondLastDot = depthClause.lastIndexOf(".",depthClause.lastIndexOf(".")-1);
@@ -129,7 +131,7 @@ public class VirtuosoSPARQLEndpoint extends SPARQLService
 			StringBuilder depthQuery = new StringBuilder("SELECT * FROM %u% WHERE { ");
 			depthQuery.append(depthClause);
 			depthQuery.append("} LIMIT 1");
-			String query = StringUtil.strFromTemplate(depthQuery.toString(), graphURI, URI);
+			String query = SPARQLStringUtils.strFromTemplate(depthQuery.toString(), graphURI, URI);
 			List<Map<String,String>> results = null; 
 			results = selectQuery(query);
 			if(results.size() > 0) {

@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,6 +11,8 @@ import org.apache.commons.logging.LogFactory;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
+
+import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 
 /**
  * A class that aggregates results from several Registry objects.
@@ -130,8 +133,18 @@ public class MultiRegistry implements Registry
 		return results;
 	}
 	
+	public Collection<Service> getAllServices() throws IOException {
+		throw new UnsupportedOperationException();
+	}
+
+	public ServiceStatus getServiceStatus(String serviceURI) throws IOException {
+		throw new UnsupportedOperationException();
+	}
+
 	private interface Accumulator<T>
 	{	
 		public Collection<? extends T> get(Registry registry) throws Exception;
 	}
+
+
 }

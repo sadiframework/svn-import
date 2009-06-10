@@ -15,8 +15,9 @@ import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
+import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
-import ca.wilkinsonlab.sadi.utils.StringUtil;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.virtuoso.VirtuosoRegistry;
 
 import com.hp.hpl.jena.ontology.OntModel;
@@ -103,7 +104,7 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 	 */
 	private Set<String> getReferencedPredicates() throws IOException
 	{
-		String query = StringUtil.readFully(RdfRegistry.class.getResource("resources/select.predicate.all.sparql"));
+		String query = SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.predicate.all.sparql"));
 
 		Set<String> predicates = new HashSet<String>();
 		for (Map<String, String> binding: executeQuery(query))
@@ -148,8 +149,8 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 	public Collection<RdfService> findServicesByPredicate(String predicate)
 	throws IOException
 	{
-		String query = StringUtil.strFromTemplate(
-			StringUtil.readFully(RdfRegistry.class.getResource("resources/select.service.bypredicate.sparql")),
+		String query = SPARQLStringUtils.strFromTemplate(
+			SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.service.bypredicate.sparql")),
 			predicate
 		);
 
@@ -265,10 +266,10 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 	 * @return a collection of all services in the registry
 	 * @throws IOException
 	 */
-	Collection<RdfService> getAllServices()
+	public Collection<RdfService> getAllServices()
 	throws IOException
 	{
-		String query = StringUtil.readFully(RdfRegistry.class.getResource("resources/select.service.all.sparql"));
+		String query = SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.service.all.sparql"));
 		
 		Collection<RdfService> services = new ArrayList<RdfService>();
 		for (Map<String, String> binding: executeQuery(query))
@@ -308,9 +309,14 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 		}
 		return filteredServices;
 	}
+
+	public ServiceStatus getServiceStatus(String serviceURI) throws IOException {
+		throw new UnsupportedOperationException();
+	}
 	
 	public String toString()
 	{
 		return String.format("%s:%s", sparqlEndpoint, graphName);
 	}
+
 }
