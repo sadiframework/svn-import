@@ -271,12 +271,12 @@ public class QueryEngine {
 
     	case NONE:
     	default:
-    		System.out.println("Optimizer: Off");
+    		//System.out.println("Optimizer: Off");
     		q = reorderForResolutionByWebServices(query);
     		break;
     	
     	case PRIM:
-    		System.out.println("Optimizer: Static Prim");
+    		//System.out.println("Optimizer: Static Prim");
     		PelletHelper.optimizeQuery(q, new PrimOptimizer());
     		break;
     	}
