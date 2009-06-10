@@ -64,6 +64,10 @@ import org.mindswap.pellet.utils.Timer;
 
 import aterm.ATermAppl;
 
+import ca.wilkinsonlab.sadi.optimizer.PrimOptimizer;
+import ca.wilkinsonlab.sadi.pellet.PelletHelper;
+import ca.wilkinsonlab.sadi.pellet.SADIQueryExec;
+
 import com.hp.hpl.jena.query.Syntax;
 
 
@@ -72,7 +76,14 @@ import com.hp.hpl.jena.query.Syntax;
  */
 @SuppressWarnings("unchecked")
 public class QueryEngine {
-    public final static Log log = LogFactory.getLog( QueryEngine.class );
+
+	/**
+	 * PATCH: Added for SADI query optimization. -- BV
+	 */
+	private enum StaticOptimizer { NONE, PRIM };
+	private static final StaticOptimizer staticOptimizer = StaticOptimizer.NONE;
+	
+	public final static Log log = LogFactory.getLog( QueryEngine.class );
     
     public final static Syntax DEFAULT_SYNTAX = Syntax.syntaxSPARQL;
     
@@ -81,8 +92,13 @@ public class QueryEngine {
     private static SimpleQueryExec simple = new SimpleQueryExec();
     private static NoDistVarsQueryExec noVars = new NoDistVarsQueryExec();
     
+    /** 
+     * PATCH: Added for SADI query optimization. -- BV
+     */
+    private static SADIQueryExec sadiQueryExec = new SADIQueryExec();
+    
     private static QueryExec[] queryExecs = 
-    	{noVars, distVars, optimized, simple};
+    	{sadiQueryExec, noVars, distVars, optimized, simple};
     
 //    private static QuerySplitter splitter = new QuerySplitter();
 
@@ -238,9 +254,32 @@ public class QueryEngine {
     	
     }
     
+    
+	/**
+	 * Reorder the triple patterns of the query, prior to query execution.
+	 * 
+	 * PATCH: This method was altered to ensure a SADI-resolvable
+	 * ordering of triple patterns.  And also to incorporate
+	 * SADI query optimization. 
+	 */
     public static Query reorder( Query query ) {
+    	
+    	
     	Query q = originalReorder( query );
-    	q = reorderForResolutionByWebServices(query);
+
+    	switch(QueryEngine.staticOptimizer) {
+
+    	case NONE:
+    	default:
+    		System.out.println("Optimizer: Off");
+    		q = reorderForResolutionByWebServices(query);
+    		break;
+    	
+    	case PRIM:
+    		System.out.println("Optimizer: Static Prim");
+    		PelletHelper.optimizeQuery(q, new PrimOptimizer());
+    		break;
+    	}
     	return q;
     }
     

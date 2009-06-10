@@ -11,9 +11,9 @@ import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLEndpoint;
 import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLRegistry;
-import ca.wilkinsonlab.sadi.utils.StringUtil;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.PredicateStats;
-import ca.wilkinsonlab.sadi.vocab.SPARQLRegistry;
+import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 
 public class PredicateStatsDB extends VirtuosoSPARQLEndpoint {
 
@@ -29,7 +29,7 @@ public class PredicateStatsDB extends VirtuosoSPARQLEndpoint {
 	
 	public PredicateStatsDB() throws HttpException, IOException
 	{
-		this(PredicateStats.DEFAULT_PREDSTATSDB_URI, SPARQLRegistry.DEFAULT_REGISTRY_ENDPOINT);
+		this(PredicateStats.DEFAULT_PREDSTATSDB_URI, SPARQLRegistryOntology.DEFAULT_REGISTRY_ENDPOINT);
 	}
 	
 	public PredicateStatsDB(String statsDBURI, String sparqlRegistryURI) throws HttpException, IOException 
@@ -69,7 +69,7 @@ public class PredicateStatsDB extends VirtuosoSPARQLEndpoint {
 			statPredicate = PredicateStats.PREDICATE_TIME;
 		}
 		
-		query = StringUtil.strFromTemplate(query, 
+		query = SPARQLStringUtils.strFromTemplate(query, 
 				PredicateStats.GRAPH_PREDSTATS,
 				predicate,
 				samplePredicate,
@@ -119,7 +119,7 @@ public class PredicateStatsDB extends VirtuosoSPARQLEndpoint {
 		else
 			statPredicate = PredicateStats.PREDICATE_TIME;
 		
-		query = StringUtil.strFromTemplate(query, 
+		query = SPARQLStringUtils.strFromTemplate(query, 
 				PredicateStats.GRAPH_PREDSTATS,
 				PredicateStats.PREDICATE_DIRECTION_IS_FORWARD,
 				String.valueOf(directionIsForward),
