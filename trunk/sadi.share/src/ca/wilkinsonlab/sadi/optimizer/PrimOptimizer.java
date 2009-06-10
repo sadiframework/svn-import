@@ -183,6 +183,10 @@ public class PrimOptimizer extends StaticOptimizer {
 		 */
 		
 		List<Triple> outputTriples = minimumSpanningTree;
+
+		System.out.println("Output ordering for Prim, prior to filler edges: ");
+		for(Triple triple : outputTriples) 
+			System.out.println(triple.toString());
 		
 		if(triplesRemaining.size() > 0) {
 			
@@ -206,11 +210,11 @@ public class PrimOptimizer extends StaticOptimizer {
 				Node o = t.getObject();
 				Integer insertPos;
 				if(s.isVariable() && o.isVariable()) 
-					insertPos = Math.min(firstVarOccurrence.get(s), firstVarOccurrence.get(o));
+					insertPos = Math.max(firstVarOccurrence.get(s), firstVarOccurrence.get(o)) + 1;
 				else if(s.isVariable())
-					insertPos = firstVarOccurrence.get(s);
+					insertPos = firstVarOccurrence.get(s) + 1;
 				else if(o.isVariable())
-					insertPos = firstVarOccurrence.get(o);
+					insertPos = firstVarOccurrence.get(o) + 1;
 				else
 					insertPos = 0;
 				if(insertPosition.containsKey(insertPos)) {
@@ -223,16 +227,21 @@ public class PrimOptimizer extends StaticOptimizer {
 				}
 			}
 			
-			for(int j = 0; j < minimumSpanningTree.size(); j++) {
+			for(int j = 0; j <= minimumSpanningTree.size(); j++) {
 				if(insertPosition.containsKey(Integer.valueOf(j))) {
 					for(Triple t : insertPosition.get(j))
 						outputTriples.add(t);
 				}
-				outputTriples.add(minimumSpanningTree.get(j));
+				if(j < minimumSpanningTree.size())
+					outputTriples.add(minimumSpanningTree.get(j));
 			}
 
 		}
-			
+
+		System.out.println("Output ordering for Prim: ");
+		for(Triple triple : outputTriples) 
+			System.out.println(triple.toString());
+		
 		return outputTriples;
 	}
 	
