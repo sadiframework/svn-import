@@ -6,7 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.client.Service;
-import ca.wilkinsonlab.sadi.utils.StringUtil;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -51,13 +51,13 @@ public abstract class SPARQLService extends SPARQLEndpoint implements Service
 
 	public Collection<Triple> invokeService(String inputURI) throws Exception
 	{
-		String query = StringUtil.strFromTemplate("CONSTRUCT { %u% ?p ?o } WHERE { %u% ?p ?o }", inputURI, inputURI);
+		String query = SPARQLStringUtils.strFromTemplate("CONSTRUCT { %u% ?p ?o } WHERE { %u% ?p ?o }", inputURI, inputURI);
 		return constructQuery(query);
 	}
 
 	public Collection<Triple> invokeService(String inputURI, String predicate) throws Exception
 	{
-		String query = StringUtil.strFromTemplate("CONSTRUCT { %u% %u% ?o } WHERE { %u% %u% ?o }", 
+		String query = SPARQLStringUtils.strFromTemplate("CONSTRUCT { %u% %u% ?o } WHERE { %u% %u% ?o }", 
 				inputURI,
 				predicate,
 				inputURI,

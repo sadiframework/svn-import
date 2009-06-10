@@ -14,6 +14,8 @@ import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
+import ca.wilkinsonlab.sadi.utils.PredicateUtils;
+
 /**
  * 
  * @author Ben Vandervalk
@@ -57,7 +59,7 @@ public class SPARQLServiceWrapper implements Service
 	public Collection<Triple> invokeService(String inputURI, String predicate)
 			throws Exception {
 
-		if(!predicate.equals(getPredicate()) || PelletHelper.invert(predicate).equals(getPredicate()))
+		if(!predicate.equals(getPredicate()) && !PredicateUtils.invert(predicate).equals(getPredicate()))
 			throw new RuntimeException();
 		
 		Triple queryPattern;

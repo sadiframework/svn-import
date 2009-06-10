@@ -7,6 +7,8 @@ import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
+import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
+
 /**
  * The main Registry interface.
  * @author Luke McCarthy
@@ -75,4 +77,17 @@ public interface Registry
 	 */
 	public Collection<String> findPredicatesBySubject(Resource subject) throws IOException;
 	
+	/**
+	 * Returns all services in the registry.
+	 * @return the complete collection of services registered in the registry
+	 * @throws IOException
+	 */
+	public Collection<? extends Service> getAllServices() throws IOException;
+	
+	/**
+	 * Return the status of the specified service.
+	 * @return the service status
+	 * @throws IOException
+	 */
+	public ServiceStatus getServiceStatus(String serviceURI) throws IOException;
 }

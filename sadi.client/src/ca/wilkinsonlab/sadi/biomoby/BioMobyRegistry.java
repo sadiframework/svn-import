@@ -28,8 +28,10 @@ import org.biomoby.shared.MobySecondaryData;
 import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
+import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
+import ca.wilkinsonlab.sadi.utils.PredicateUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
-import ca.wilkinsonlab.sadi.utils.StringUtil;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.virtuoso.VirtuosoRegistry;
 
 import com.hp.hpl.jena.ontology.OntModel;
@@ -105,7 +107,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	 */
 	private Set<String> getReferencedPredicates() throws IOException
 	{
-		String query = StringUtil.readFully(BioMobyRegistry.class.getResource("resources/select.all.predicates.sparql"));
+		String query = SPARQLStringUtils.readFully(BioMobyRegistry.class.getResource("resources/select.all.predicates.sparql"));
 
 		Set<String> predicates = new HashSet<String>();
 		for (Map<String, String> binding: executeQuery(query))
@@ -191,7 +193,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		 * all of the SPARQL is in one place, either all in code or all in
 		 * resource files.
 		 */
-		String query = StringUtil.strFromTemplate(
+		String query = SPARQLStringUtils.strFromTemplate(
 				BioMobyRegistry.class.getResource("resources/select.bypred.sparql"),
 				getSynonymSubquery("?inputarg %u% ?outputarg", predicates)
 		);
@@ -211,6 +213,11 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	public Collection<Service> findServicesByPredicate(String predicate)
 	throws IOException
 	{
+		// It is legal to pass in a predicate of the form "inv(URI)".
+		// The SPARQL registry can resolve these, but the BioMoby registry cannot.
+		if(PredicateUtils.isInverted(predicate))
+			return new ArrayList<Service>();
+		
 		return findServicesByPredicate( Collections.singletonList(predicate));
 	}
 	
@@ -236,7 +243,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	Collection<String> findPredicatesByInputNamespace(String namespace)
 	throws IOException
 	{
-		String query = StringUtil.strFromTemplate(
+		String query = SPARQLStringUtils.strFromTemplate(
 				BioMobyRegistry.class.getResource("resources/select.predbyns.sparql"),
 				namespace
 		);
@@ -275,7 +282,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		 * all of the SPARQL is in one place, either all in code or all in
 		 * resource files.
 		 */
-		String query = StringUtil.strFromTemplate(
+		String query = SPARQLStringUtils.strFromTemplate(
 				BioMobyRegistry.class.getResource("resources/select.constructquery.for.pred.sparql"),
 				getSynonymSubquery("%u% moby:hasOutputType ?outputType", predicates),
 				outputDatatypeURI
@@ -306,7 +313,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	private void fillBasicInfo(BioMobyService service, String serviceURI)
 	throws IOException
 	{
-		String query = StringUtil.strFromTemplate(
+		String query = SPARQLStringUtils.strFromTemplate(
 				BioMobyRegistry.class.getResource("resources/select.servicebasic.sparql"),
 				serviceURI,
 				serviceURI,
@@ -339,7 +346,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	throws IOException
 	{
 		boolean input = inOutURI == INPUT_ARGUMENT_URI;
-		String query = StringUtil.strFromTemplate(
+		String query = SPARQLStringUtils.strFromTemplate(
 				BioMobyRegistry.class.getResource("resources/select.args.sparql"),
 				serviceURI,
 				inOutURI
@@ -421,7 +428,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	private void fillNamespaceInfo(MobyPrimaryData primaryArg, String serviceURI, String inOutURI, String articleName)
 	throws IOException
 	{
-		String query = StringUtil.strFromTemplate(
+		String query = SPARQLStringUtils.strFromTemplate(
 				BioMobyRegistry.class.getResource("resources/select.namespaces.sparql"),
 				serviceURI,
 				inOutURI,
@@ -435,7 +442,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	private void fillPredicateInfo(BioMobyService service, String serviceURI)
 	throws IOException
 	{
-		String query = StringUtil.strFromTemplate(
+		String query = SPARQLStringUtils.strFromTemplate(
 				BioMobyRegistry.class.getResource("resources/select.predicates.sparql"),
 				serviceURI
 		);
@@ -482,7 +489,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 				buf.append("\n\t");
 			
 			buf.append("{");
-			buf.append(StringUtil.strFromTemplate(tripleTemplate, uri));
+			buf.append(SPARQLStringUtils.strFromTemplate(tripleTemplate, uri));
 			buf.append("}");
 		}
 		return buf.toString();
@@ -505,6 +512,14 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 
 	public Collection<? extends Service> findServices(Resource subject) throws IOException
 	{
+		throw new UnsupportedOperationException();
+	}
+
+	public Collection<? extends Service> getAllServices() throws IOException {
+		throw new UnsupportedOperationException();
+	}
+
+	public ServiceStatus getServiceStatus(String serviceURI) throws IOException {
 		throw new UnsupportedOperationException();
 	}
 }

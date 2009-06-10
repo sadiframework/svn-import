@@ -22,7 +22,7 @@ import org.biomoby.shared.data.MobyDataJob;
 import org.biomoby.shared.data.MobyDataObject;
 
 import ca.wilkinsonlab.sadi.client.Service;
-import ca.wilkinsonlab.sadi.utils.StringUtil;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
@@ -337,7 +337,7 @@ public class BioMobyService extends MobyService implements Service
 			}
 		} else {
 			try {
-				query = StringUtil.strFromTemplate(query, subject, predicate);
+				query = SPARQLStringUtils.strFromTemplate(query, subject, predicate);
 				String rdfXml = BioMobyHelper.convertMobyDataObjectToRdf(output);
 				Model model = runConstructQuery(query, rdfXml);
 				for (StmtIterator i = model.listStatements(); i.hasNext();) {
