@@ -1,0 +1,14 @@
+#Fat Jar Configuration File
+#Tue Jun 02 12:14:06 GMT-08:00 2009
+onejar.license.required=true
+manifest.classpath=
+manifest.removesigners=true
+onejar.checkbox=false
+jarname=sparqlreg.jar
+manifest.mergeall=true
+manifest.mainclass=ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLRegistryAdmin
+manifest.file=<createnew>
+jarname.isextern=false
+onejar.expand=
+excludes=
+includes=
