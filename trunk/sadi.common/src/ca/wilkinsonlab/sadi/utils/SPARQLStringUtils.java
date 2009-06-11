@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.lang.StringEscapeUtils;
 
 /*********************************************************
  * Various routines for building SPARQL query strings
