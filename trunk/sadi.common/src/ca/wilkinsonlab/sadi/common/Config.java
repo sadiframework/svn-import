@@ -45,7 +45,7 @@ public class Config extends CompositeConfiguration
 		try {
 			defaultConfig = new PropertiesConfiguration(DEFAULT_PROPERTIES_FILENAME);
 		} catch (ConfigurationException e) {
-			log.warn(e);
+			log.warn(String.format("error loading %s", DEFAULT_PROPERTIES_FILENAME), e);
 			defaultConfig = new PropertiesConfiguration();
 		}
 		
@@ -53,7 +53,7 @@ public class Config extends CompositeConfiguration
 		try {
 			localConfig = new PropertiesConfiguration(LOCAL_PROPERTIES_FILENAME);
 		} catch (ConfigurationException e) {
-			log.warn(e);
+			log.warn(String.format("error loading %s", LOCAL_PROPERTIES_FILENAME), e);
 			localConfig = new PropertiesConfiguration();
 		}
 		

@@ -50,7 +50,7 @@ public class OwlUtilsTest
 	@Test
 	public void testDecomposeString()
 	{
-		Set<OntProperty> properties = OwlUtils.decompose("http://elmonline.ca/sw/explore.owl#OtherClass");
+		Set<OntProperty> properties = OwlUtils.listRestrictedProperties("http://elmonline.ca/sw/explore.owl#OtherClass");
 		assertTrue("class did not provide expected predicate",
 				propertyCollectionContains(properties, "http://elmonline.ca/sw/explore.owl#childProperty"));
 	}
