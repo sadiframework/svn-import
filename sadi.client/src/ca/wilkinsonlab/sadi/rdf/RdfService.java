@@ -39,7 +39,6 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.util.ResourceUtils;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class RdfService implements Service
@@ -96,14 +95,14 @@ public class RdfService implements Service
 	
 	private void fetchServiceModel()
 	{
-		log.debug("fetching service model from " + serviceUrl);
+		log.debug("fetching service model from " + getServiceURL());
 		
 		/* TODO is this the best spec here?
 		 * TODO is this the best import strategy here?
 		 */
 		model = modelMaker.createFreshModel();
-		model.read(serviceUri);
-		Resource serviceRoot = model.getResource(serviceUri);
+		model.read(getServiceURI());
+		Resource serviceRoot = model.getResource(getServiceURI());
 		ServiceOntologyHelper helper = new MyGridServiceOntologyHelper(serviceRoot);
 		name = helper.getName();
 		description = helper.getDescription();
@@ -242,8 +241,8 @@ public class RdfService implements Service
 	public Collection<String> getPredicates()
 	{
 		if (predicates == null) {
-			Set<OntProperty> properties = OwlUtils.decompose(getOutputClass().getURI());
-			Set<OntProperty> inputProperties = OwlUtils.decompose(getInputClass().getURI());
+			Set<OntProperty> properties = OwlUtils.listRestrictedProperties(getOutputClass().getURI());
+			Set<OntProperty> inputProperties = OwlUtils.listRestrictedProperties(getInputClass().getURI());
 			predicates = new ArrayList<String>(properties.size());
 			for (OntProperty p: properties) {
 				/* TODO will two equivalent OntProperties from different
@@ -264,7 +263,7 @@ public class RdfService implements Service
 		/* TODO instead of reachableClosure, post the minimal RDF required
 		 * to satisfy the input class.
 		 */
-		Model model = invokeServiceUnparsed(ResourceUtils.reachableClosure(inputNode));
+		Model model = invokeServiceUnparsed(OwlUtils.getMinimalModel(inputNode, getInputClass()));
 		
 		Collection<Triple> triples = new ArrayList<Triple>();
 		for (StmtIterator i = model.listStatements(); i.hasNext(); ) {
