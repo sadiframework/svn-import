@@ -170,6 +170,16 @@ public class BioMobyHelper
 		request.setService(service);
 		request.setInput(input);		
 		setSecondaryParameters(request, service, secondaryParameters);
+		
+		/* call find service on Registry object to supply tracing information for
+		 * Piam's project...
+		 */
+		try {
+			worker.findService(service);
+		} catch (MobyException e) {
+			log.warn("error calling MobyCentral.findService", e);
+		}
+		
 		if (service.isAsynchronous() ) {
 			return invokeAsynchronousService(request);
 		} else {
