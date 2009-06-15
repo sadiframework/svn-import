@@ -34,14 +34,14 @@ public class UniProt2GoServiceServlet extends ServiceServlet
 	private static final String GO_PREFIX = "http://biordf.net/moby/GO/";
 	
 	private final Property hasGOTerm;
-	private final Resource GO_RECORD;
+	private final Resource GO_Record;
 	
 	public UniProt2GoServiceServlet()
 	{
 		super();
 
 		hasGOTerm = ontologyModel.getProperty("http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm");
-		GO_RECORD = ontologyModel.createResource("http://purl.oclc.org/SADI/LSRN/GO_Record");
+		GO_Record = ontologyModel.createResource("http://purl.oclc.org/SADI/LSRN/GO_Record");
 	}
 	
 	@Override
@@ -93,7 +93,7 @@ public class UniProt2GoServiceServlet extends ServiceServlet
 	
 	private void attachGoTerm(Resource uniprotNode, Go goTerm)
 	{
-		Resource goNode = uniprotNode.getModel().createResource(getGoUri(goTerm), GO_RECORD);
+		Resource goNode = uniprotNode.getModel().createResource(getGoUri(goTerm), GO_Record);
 		goNode.addProperty(RDFS.label, getGoLabel(goTerm));
 		uniprotNode.addProperty(hasGOTerm, goNode);
 	}

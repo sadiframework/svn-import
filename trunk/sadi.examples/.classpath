@@ -19,6 +19,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_COLLECTIONS"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/sadi-service.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/sadi-common.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/sadi-client.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/sadi-client.jar" sourcepath="/sadi.client/src"/>
 	<classpathentry kind="output" path="WEB-INF/classes"/>
 </classpath>

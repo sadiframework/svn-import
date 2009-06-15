@@ -1,32 +1,48 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import ca.wilkinsonlab.sadi.service.ServiceServlet;
 
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.ModelMaker;
-
-public class UniProt2GoServiceServletTest
+public class UniProt2GoServiceServletTest extends ServiceServletTestBase
 {
-	private static final ModelMaker modelMaker = ModelFactory.createMemModelMaker();
-	
-	@Test
-	public void testProcessInputModel()
+	@Override
+	protected Object getInput()
 	{
-		Model inputModel = modelMaker.createFreshModel();
-		inputModel.read(UniProt2GoServiceServletTest.class.getResourceAsStream("/uniprot2go-input.rdf"), "");
-		
-		Model expectedOutputModel = modelMaker.createFreshModel();
-		expectedOutputModel.read(UniProt2GoServiceServletTest.class.getResourceAsStream("/uniprot2go-output.rdf"), "");
-//		System.out.println("Expected output");
-//		System.out.println(RdfUtils.logStatements(expectedOutputModel));
-		
-		Model actualOutputModel = new UniProt2GoServiceServlet().processInput(inputModel);
-//		System.out.println("Actual output");
-//		System.out.println(RdfUtils.logStatements(actualOutputModel));
-		assertTrue("service does not produce expected output", actualOutputModel.isIsomorphicWith(expectedOutputModel));
+		return UniProt2GoServiceServletTest.class.getResourceAsStream("/uniprot2go-input.rdf");
+	}
+
+	@Override
+	protected Object getExpectedOutput()
+	{
+		return UniProt2GoServiceServletTest.class.getResourceAsStream("/uniprot2go-output.rdf");
+	}
+
+	@Override
+	protected String getInputURI()
+	{
+		return "http://purl.uniprot.org/uniprot/P12345";
+	}
+
+	@Override
+	protected String getServiceURI()
+	{
+		return "http://sadiframework.org/examples/uniprot2go";
+	}
+
+	@Override
+	protected String getLocalServiceURL()
+	{
+		return "http://localhost:8080/sadi.examples/uniprot2go";
+	}
+
+	@Override
+	protected ServiceServlet getServiceServletInstance()
+	{
+		return new UniProt2GoServiceServlet();
+	}
+	
+	@Override
+	public void testServiceInvocation()
+	{
+		return;	// multiple input nodes, so this would fail...
 	}
 }

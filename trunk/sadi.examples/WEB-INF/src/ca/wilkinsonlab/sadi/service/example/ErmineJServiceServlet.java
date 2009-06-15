@@ -131,7 +131,7 @@ public class ErmineJServiceServlet extends SynchronousServiceServlet
 		int minGeneSetSize = 1 ;
 		double geneScoreThreshold = 1.0;
 		boolean isBigGeneScoreBetter = true;
-		boolean logTransforemGeneScore = false;
+		boolean logTransformGeneScore = false;
 		int geneReplicateTreatment = ClassScoreSimple.BEST_GENE_SCORE;
 		
 		ClassScoreSimple scores = new ClassScoreSimple( probeIds, geneIds, termCollections );
@@ -139,7 +139,7 @@ public class ErmineJServiceServlet extends SynchronousServiceServlet
 	    // in our raw data, smaller values are better (like pvalues, unlike fold
 	    // change)
 		scores.setBigGeneScoreIsBetter( isBigGeneScoreBetter );
-		scores.setLogTransformGeneScores(logTransforemGeneScore);
+		scores.setLogTransformGeneScores( logTransformGeneScore );
 	
 	    // set range of sizes of gene sets to consider.
 		scores.setMaxGeneSetSize( maxGeneSetSize );

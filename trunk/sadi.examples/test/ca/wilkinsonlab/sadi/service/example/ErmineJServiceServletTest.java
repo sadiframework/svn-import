@@ -1,7 +1,5 @@
 package ca.wilkinsonlab.sadi.service.example;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,19 +7,63 @@ import java.io.InputStreamReader;
 
 import org.junit.Test;
 
+import ca.wilkinsonlab.sadi.service.ServiceServlet;
+
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.ModelMaker;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-public class ErmineJServiceServletTest
+public class ErmineJServiceServletTest extends ServiceServletTestBase
 {
-	private static final ModelMaker modelMaker = ModelFactory.createMemModelMaker();
+	@Override
+	protected Object getInput()
+	{
+		return ErmineJServiceServletTest.class.getResourceAsStream("/ermineJ-input.rdf");
+	}
+
+	@Override
+	protected Object getExpectedOutput()
+	{
+		return ErmineJServiceServletTest.class.getResourceAsStream("/ermineJ-output.rdf");
+	}
+
+	@Override
+	protected String getInputURI()
+	{
+		return "http://sadiframework.org/examples/input/erminej1";
+	}
+
+	@Override
+	protected String getServiceURI()
+	{
+		return "http://sadiframework.org/examples/ermineJgo";
+	}
+
+	@Override
+	protected String getLocalServiceURL()
+	{
+		return "http://localhost:8080/sadi.examples/ermineJgo";
+	}
+
+	@Override
+	protected ServiceServlet getServiceServletInstance()
+	{
+		return new ErmineJServiceServlet();
+	}
+	
+	@Test
+	public void testConvertInputToRdf() throws Exception
+	{
+		Model expectedInputModel = getInputModel();
+		
+		Model convertedModel = convertInputToRdf(ErmineJServiceServletTest.class.getResourceAsStream("/HG-U133_Plus_2.na26.annot_test.ErmineJ"));
+		assertTrue("input parser does not produce expected result", convertedModel.isIsomorphicWith(expectedInputModel));
+	}
 	
 	public static Model convertInputToRdf(InputStream is) throws IOException
 	{
-		Model model = modelMaker.createFreshModel();
+		Model model = ModelFactory.createDefaultModel();
 		Resource GoProbeSet = model.getResource("http://sadiframework.org/examples/ermineJ.owl#GoProbeSet");
 		Resource GoProbe = model.getResource("http://sadiframework.org/examples/ermineJ.owl#GoProbe");
 		Resource GoAnnotated = model.getResource("http://sadiframework.org/examples/ermineJ.owl#GoAnnotated");
@@ -66,33 +108,5 @@ public class ErmineJServiceServletTest
 		if (goId.startsWith("GO:"))
 			goId = goId.substring(3);
 		return String.format("%s%s", "http://biordf.net/moby/GO/", goId);
-	}
-	
-	@Test
-	public void testConvertInputToRdf() throws Exception
-	{
-		Model expectedInputModel = modelMaker.createFreshModel();
-		expectedInputModel.read(ErmineJServiceServletTest.class.getResourceAsStream("/ermineJ-input.rdf"), "");
-		
-		Model convertedModel = convertInputToRdf(ErmineJServiceServletTest.class.getResourceAsStream("/HG-U133_Plus_2.na26.annot_test.ErmineJ"));
-		assertTrue("input parser does not produce expected result", convertedModel.isIsomorphicWith(expectedInputModel));
-	}
-	
-	@Test
-	public void testProcessInputModel() throws Exception
-	{
-		Model inputModel = convertInputToRdf(ErmineJServiceServletTest.class.getResourceAsStream("/HG-U133_Plus_2.na26.annot_test.ErmineJ"));
-//		System.out.println("Input");
-//		System.out.println(RdfUtils.logStatements(inputModel));
-		
-		Model expectedOutputModel = modelMaker.createFreshModel();
-		expectedOutputModel.read(ErmineJServiceServletTest.class.getResourceAsStream("/ermineJ-output.rdf"), "");
-//		System.out.println("Expected output");
-//		System.out.println(RdfUtils.logStatements(expectedOutputModel));
-		
-		Model actualOutputModel = new ErmineJServiceServlet().processInput(inputModel);
-//		System.out.println("Actual output");
-//		System.out.println(RdfUtils.logStatements(actualOutputModel));
-		assertTrue("service does not produce expected output", actualOutputModel.isIsomorphicWith(expectedOutputModel));
 	}
 }
