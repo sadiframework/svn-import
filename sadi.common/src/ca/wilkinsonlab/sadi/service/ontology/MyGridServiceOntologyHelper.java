@@ -4,6 +4,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.shared.PropertyNotFoundException;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
@@ -38,7 +39,7 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 		this(model.createResource(serviceUrl), true);
 	}
 	
-	public MyGridServiceOntologyHelper(Resource serviceNode, boolean createResources)
+	public MyGridServiceOntologyHelper(Resource serviceNode, boolean createResources) throws ServiceOntologyException
 	{
 		root = serviceNode;
 		model = serviceNode.getModel();
@@ -55,7 +56,11 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 			operation = model.createResource(serviceUrl + "#operation", opType);
 			root.addProperty(opProperty, operation);
 		} else {
-			operation = root.getProperty(opProperty).getResource();
+			try {
+				operation = root.getRequiredProperty(opProperty).getResource();
+			} catch (PropertyNotFoundException e) {
+				throw new ServiceOntologyException(String.format("service node missing required property %s", opProperty));
+			}
 		}
 
 		Property inputProperty = model.createProperty(NS + "inputParameter");
@@ -67,8 +72,12 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 			output = model.createResource(serviceUrl + "#output", parameterType);
 			operation.addProperty(outputProperty, output);
 		} else {
-			input = operation.getProperty(inputProperty).getResource();
-			output = operation.getProperty(outputProperty).getResource();
+			try {
+				input = operation.getRequiredProperty(inputProperty).getResource();
+				output = operation.getRequiredProperty(outputProperty).getResource();
+			} catch (PropertyNotFoundException e) {
+				throw new ServiceOntologyException(String.format("operation node missing required property %s", e.getMessage()));
+			}
 		}
 		
 		nameProperty = model.createProperty(NS + "hasServiceNameText");
@@ -78,18 +87,26 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 	
 	public String getName()
 	{
-		return ((Literal)root.getProperty(nameProperty).getObject()).getLexicalForm();
+		try {
+			return root.getRequiredProperty(nameProperty).getLiteral().getLexicalForm();
+		} catch (PropertyNotFoundException e) {
+			return "";
+		}
 	}
 
 	public void setName(String name)
 	{
-		Literal nameValue = model.createLiteral(name);
+		Literal nameValue = model.createTypedLiteral(name);
 		root.addProperty(nameProperty, nameValue);
 	}
 	
 	public String getDescription()
 	{
-		return ((Literal)root.getProperty(descProperty).getObject()).getLexicalForm();
+		try {
+			return root.getRequiredProperty(descProperty).getLiteral().getLexicalForm();
+		} catch (PropertyNotFoundException e) {
+			return "";
+		}
 	}
 
 	public void setDescription(String description)
@@ -100,7 +117,11 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 	
 	public Resource getInputClass()
 	{
-		return (Resource)input.getProperty(objectTypeProperty).getObject();
+		try {
+			return input.getRequiredProperty(objectTypeProperty).getResource();
+		} catch (PropertyNotFoundException e) {
+			throw new ServiceOntologyException(String.format("input node missing required property %s", objectTypeProperty));
+		}
 	}
 
 	public void setInputClass(String inputClass)
@@ -111,12 +132,15 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 	
 	public Resource getOutputClass()
 	{
-		return (Resource)output.getProperty(objectTypeProperty).getObject();
+		try {
+			return output.getRequiredProperty(objectTypeProperty).getResource();
+		} catch (PropertyNotFoundException e) {
+			throw new ServiceOntologyException(String.format("output node missing required property %s", objectTypeProperty));
+		}
 	}
 
 	public void setOutputClass(String outputClass)
 	{
-		Property objectTypeProperty = model.createProperty(NS + "objectType");
 		Resource outputValue = model.createResource(outputClass);
 		output.addProperty(objectTypeProperty, outputValue);
 	}

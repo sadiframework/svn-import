@@ -16,6 +16,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -68,10 +69,10 @@ public class RdfUtils
 	
 	private static Literal getLiteral(Model model, Node node)
 	{
-		if (node.isLiteral())
-			return model.createLiteral(node.getLiteralLexicalForm(), node.getLiteralLanguage());
-		else
+		if (!node.isLiteral())
 			throw new IllegalArgumentException(String.format("node %s is not a literal", node));
+			
+		return ResourceFactory.createTypedLiteral(node.getLiteralLexicalForm(), node.getLiteralDatatype());
 	}
 	
 	private static Property getProperty(Model model, Node node)
@@ -84,16 +85,22 @@ public class RdfUtils
 	
 	public static String logStatements(Model model)
 	{
+		return logStatements("", model);
+	}
+	
+	public static String logStatements(String header, Model model)
+	{
+		StringBuilder buf = new StringBuilder(header);
+		if (!header.endsWith("\n"))
+			buf.append("\n");
+		
 		StmtIterator iter = model.listStatements();
-		StringBuilder buf = new StringBuilder();
 		while (iter.hasNext()) {
 		    Statement stmt      = iter.nextStatement();
 		    Resource  subject   = stmt.getSubject();
 		    Property  predicate = stmt.getPredicate();
 		    RDFNode   object    = stmt.getObject();
 
-		    if (buf.length() > 0)
-		    	buf.append(" .\n");
 		    buf.append(subject.toString());
 		    buf.append(" ");
 		    buf.append(predicate.toString());
@@ -103,7 +110,10 @@ public class RdfUtils
 		    buf.append(object.toString());
 		    if (object.isLiteral())
 		    	buf.append("\"");
-		} 
+		    if (iter.hasNext())
+		    	buf.append(" .\n");
+		}
+		
 	    return buf.toString();
 	}
 
@@ -133,7 +143,7 @@ public class RdfUtils
 	 */
 	public static boolean isTyped(Resource resource)
 	{
-		return resource.getProperty(RDF.type) != null;
+		return resource.hasProperty(RDF.type);
 	}
 
 	/** 
