@@ -8,7 +8,7 @@
   <ermineJ:GoProbeSet rdf:about="http://sadiframework.org/examples/input/erminej1">
     <common:element>
       <ermineJ:GoProbe rdf:about="http://sadiframework.org/examples/input/erminej1#1053_at">
-        <ermineJ:expressionLevel>0.903370423</ermineJ:expressionLevel>
+        <ermineJ:expressionLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.903370423</ermineJ:expressionLevel>
         <ermineJ:mappedTo>
           <ermineJ:GoAnnotated rdf:about="http://sadiframework.org/examples/input/erminej1#RFC2">
             <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0000166"/>
@@ -26,7 +26,7 @@
     </common:element>
     <common:element>
       <ermineJ:GoProbe rdf:about="http://sadiframework.org/examples/input/erminej1#1007_s_at">
-        <ermineJ:expressionLevel>1.903370423</ermineJ:expressionLevel>
+        <ermineJ:expressionLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.903370423</ermineJ:expressionLevel>
         <ermineJ:mappedTo>
           <ermineJ:GoAnnotated rdf:about="http://sadiframework.org/examples/input/erminej1#DDR1">
             <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0016740"/>
@@ -50,7 +50,7 @@
     </common:element>
     <common:element>
       <ermineJ:GoProbe rdf:about="http://sadiframework.org/examples/input/erminej1#117_at">
-        <ermineJ:expressionLevel>1.2</ermineJ:expressionLevel>
+        <ermineJ:expressionLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.2</ermineJ:expressionLevel>
         <ermineJ:mappedTo>
           <ermineJ:GoAnnotated rdf:about="http://sadiframework.org/examples/input/erminej1#HSPA6">
             <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0006986"/>

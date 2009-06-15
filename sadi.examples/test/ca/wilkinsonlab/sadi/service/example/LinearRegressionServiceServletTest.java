@@ -1,28 +1,42 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import ca.wilkinsonlab.sadi.service.ServiceServlet;
 
-import static org.junit.Assert.assertTrue;
-
-import org.junit.Test;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.ModelMaker;
-
-public class LinearRegressionServiceServletTest
+public class LinearRegressionServiceServletTest extends ServiceServletTestBase
 {
-	private static final ModelMaker modelMaker = ModelFactory.createMemModelMaker();
-	
-	@Test
-	public void testProcessInputModel()
+	@Override
+	protected Object getInput()
 	{
-		Model inputModel = modelMaker.createFreshModel();
-		inputModel.read(LinearRegressionServiceServletTest.class.getResourceAsStream("/regression-input.rdf"), "");
-		
-		Model expectedOutputModel = modelMaker.createFreshModel();
-		expectedOutputModel.read(LinearRegressionServiceServletTest.class.getResourceAsStream("/regression-output.rdf"), "");
-		
-		Model actualOutputModel = new LinearRegressionServiceServlet().processInput(inputModel);
-		assertTrue("service does not produce expected output", actualOutputModel.isIsomorphicWith(expectedOutputModel));
+		return LinearRegressionServiceServletTest.class.getResourceAsStream("/regression-input.rdf");
+	}
+
+	@Override
+	protected Object getExpectedOutput()
+	{
+		return LinearRegressionServiceServletTest.class.getResourceAsStream("/regression-output.rdf");
+	}
+
+	@Override
+	protected String getInputURI()
+	{
+		return "http://sadiframework.org/examples/input/regression1";
+	}
+
+	@Override
+	protected String getServiceURI()
+	{
+		return "http://sadiframework.org/examples/linear";
+	}
+
+	@Override
+	protected String getLocalServiceURL()
+	{
+		return "http://localhost:8080/sadi.examples/linear";
+	}
+
+	@Override
+	protected ServiceServlet getServiceServletInstance()
+	{
+		return new LinearRegressionServiceServlet();
 	}
 }
