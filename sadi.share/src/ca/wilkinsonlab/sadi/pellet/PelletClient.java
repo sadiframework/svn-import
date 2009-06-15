@@ -13,6 +13,8 @@ import org.mindswap.pellet.jena.PelletReasonerFactory;
 
 import ca.wikinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.biomoby.BioMobyRegistry;
+import ca.wilkinsonlab.sadi.client.Config;
+import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.jena.PredicateVisitor;
 import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLRegistry;
 
@@ -86,7 +88,8 @@ public class PelletClient extends QueryClient
 			// Many predicates defined in SPARQL endpoints aren't resolvable,
 			// so try to find definitions within the SPARQL registry before
 			// trying to find them on the web.
-			VirtuosoSPARQLRegistry sparqlReg = new VirtuosoSPARQLRegistry();
+//			VirtuosoSPARQLRegistry sparqlReg = new VirtuosoSPARQLRegistry();
+			VirtuosoSPARQLRegistry sparqlReg = findSPARQLRegistry();
 			List<String> remainingPredicates = new ArrayList<String>();
 			for(String predicate : predicates) {
 				if(sparqlReg.hasPredicate(predicate)) {
@@ -104,7 +107,9 @@ public class PelletClient extends QueryClient
 			// the moment because the synonyms to Dumontier's predicates
 			// are in http://dev.biordf.net/~benv/predicates.owl, and the
 			// service annotations use the old predicates.
-			model.add(new BioMobyRegistry().getPredicateOntology());
+//			BioMobyRegistry mobyRegistry = new BioMobyRegistry();
+			BioMobyRegistry mobyRegistry = findMobyRegistry();
+			model.add(mobyRegistry.getPredicateOntology());
 
 		} 
 		catch (Exception e) {
@@ -117,6 +122,22 @@ public class PelletClient extends QueryClient
         }
 
         return model;
+	}
+	
+	private static VirtuosoSPARQLRegistry findSPARQLRegistry()
+	{
+		for (Registry reg: Config.getRegistries())
+			if (reg instanceof VirtuosoSPARQLRegistry)
+				return (VirtuosoSPARQLRegistry)reg;
+		return null;
+	}
+	
+	private static BioMobyRegistry findMobyRegistry()
+	{
+		for (Registry reg: Config.getRegistries())
+			if (reg instanceof BioMobyRegistry)
+				return (BioMobyRegistry)reg;
+		return null;
 	}
 	
 	@SuppressWarnings("unused")
