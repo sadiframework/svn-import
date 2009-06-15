@@ -16,12 +16,14 @@ public class TempTest
 {
 	public static void main(String[] args)
 	{
-		String query = ExampleQueries.getQueryByHtmlListIndex(1);
+		String query = ExampleQueries.getQueryByHtmlListIndex(12);
 		
 //		query = "PREFIX pred: <http://es-01.chibi.ubc.ca/~benv/predicates.owl#> " +
-//				"SELECT ?term " +
+//				"PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " +
+//				"SELECT ?term ?label " +
 //				"WHERE { " +
-//					"<http://biordf.net/moby/UniProt/A2ABK8> pred:hasGOTerm ?term " +
+//					"<http://biordf.net/moby/UniProt/A2ABK8> pred:hasGOTerm ?term . " +
+//					"?term rdfs:label ?label " +
 //				"}";
 		
 		List<Map<String, String>> results = new PelletClient().synchronousQuery(query);
