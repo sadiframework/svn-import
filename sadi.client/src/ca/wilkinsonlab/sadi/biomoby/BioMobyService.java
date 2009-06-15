@@ -11,9 +11,11 @@ import java.util.Map;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.biomoby.shared.MobyData;
+import org.biomoby.shared.MobyNamespace;
 import org.biomoby.shared.MobyPrimaryData;
 import org.biomoby.shared.MobyService;
 import org.biomoby.shared.data.MobyContentInstance;
@@ -26,12 +28,14 @@ import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFList;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
@@ -77,7 +81,12 @@ public class BioMobyService extends MobyService implements Service
 	private Map<String, String> predicateInputMap; // Maps predicate => input article name
 	private Map<String, String> predicateOutputMap; // Maps predicate => output article name
 	
+	private ConstructQueryCache constructQueryCache;
+	
 	private BioMobyRegistry sourceRegistry;
+	
+	private OntClass inputClass;
+	private OntClass outputClass;
 	
 	BioMobyService()
 	{
@@ -87,6 +96,7 @@ public class BioMobyService extends MobyService implements Service
 		outputMap = new HashMap<String,MobyData>();
 		predicateInputMap = new HashMap<String, String>();
 		predicateOutputMap = new HashMap<String, String>();
+		constructQueryCache = new ConstructQueryCache();
 	}
 	
 	void setSourceRegistry(BioMobyRegistry sourceRegistry)
@@ -304,14 +314,10 @@ public class BioMobyService extends MobyService implements Service
 		}
 	}
 
-	private String getConstructQuery(MobyDataObject output, String predicate) {
-		try {
-			String outputTypeURI = BioMobyHelper.MOBY_DATATYPE_PREFIX + output.getDataType().getName();
-			return sourceRegistry.getConstructQueryForPredicate(predicate, outputTypeURI);
-		} catch (IOException e) {
-			log.error(String.format("error retrieving construct query for predicate <%s>", predicate), e);
-			return null;
-		}
+	private String getConstructQuery(MobyDataObject output, String predicate)
+	{
+		String outputTypeURI = BioMobyHelper.MOBY_DATATYPE_PREFIX + output.getDataType().getName();
+		return constructQueryCache.getQuery(predicate, outputTypeURI);
 	}
 
 	private void convertMobyDataObjectToRdf(MobyDataObject output, String subject, String predicate, Collection<Triple> accum)
@@ -332,8 +338,13 @@ public class BioMobyService extends MobyService implements Service
 				log.error(String.format("datatype property <%s> doesn't have a construct query", predicate));
 				return;
 			} else {
-				String objectURI = BioMobyHelper.convertMobyDataObjectToUri(output);
-				addAndLogTriple(subject, predicate, objectURI, accum);
+				/* TODO fix convertMobyDataObjectToUri to throw an exception if there's
+				 * no id?
+				 */
+				if (!StringUtils.isEmpty(output.getId())) {
+					String objectURI = BioMobyHelper.convertMobyDataObjectToUri(output);
+					addAndLogTriple(subject, predicate, objectURI, accum);
+				}
 			}
 		} else {
 			try {
@@ -400,5 +411,70 @@ public class BioMobyService extends MobyService implements Service
 	{
 		log.warn("discoverInputInstances not yet implemented");
 		return new ArrayList<Resource>(0);
+	}
+	
+	/**
+	 * Returns an OntClass describing the input this service can consume.
+	 * Any input to this service must be an instance of this class.
+	 * @return an OntClass describing the input this service can consume
+	 */
+	public OntClass getInputClass()
+	{
+		if (inputClass == null) {
+			if (getNumPrimaryInputs() > 1)
+				throw new UnsupportedOperationException("this interface is invalid for BioMoby services with more than one primary input");
+			
+			RDFList namespaceTypes = sourceRegistry.getTypeOntology().createList();
+			for (MobyNamespace namespace: getPrimaryInputs()[0].getNamespaces())
+				namespaceTypes.add(sourceRegistry.getTypeByNamespace(namespace));
+			
+			inputClass = sourceRegistry.getTypeOntology().createUnionClass(getServiceURI() + "#input", namespaceTypes);
+		}
+		return inputClass;
+	}
+	
+	/**
+	 * Returns an OntClass describing the output this service produces.
+	 * Any output from this service will be an instance of this class.
+	 * @return an OntClass describing the output this service produces
+	 */
+	public OntClass getOutputClass()
+	{
+		log.warn("getOutputClass not yet implemented");
+		return outputClass;
+	}
+	
+	private class ConstructQueryCache
+	{
+		private final Object NO_HIT = new Object();
+		
+		private Map<String, Object> cache;
+		
+		public ConstructQueryCache()
+		{
+			cache = new HashMap<String, Object>();
+		}
+		
+		public String getQuery(String predicate, String outputTypeURI)
+		{
+			String key = getHashKey(predicate, outputTypeURI);
+			Object query = cache.get(key);
+			if (query == null) {
+				try {
+					query = sourceRegistry.getConstructQueryForPredicate(predicate, outputTypeURI);
+				} catch (IOException e) {
+					log.error(String.format("error retrieving construct query for predicate <%s>", predicate), e);
+				}
+				if (query == null)
+					query = NO_HIT;
+				cache.put(key, query);
+			}
+			return query.equals(NO_HIT) ? null : (String)query;
+		}
+		
+		private String getHashKey(String predicate, String outputTypeURI)
+		{
+			return String.format("%s:%s", predicate, outputTypeURI);
+		}
 	}
 }

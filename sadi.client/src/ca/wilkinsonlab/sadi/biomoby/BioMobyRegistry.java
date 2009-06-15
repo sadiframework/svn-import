@@ -7,10 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URIException;
@@ -29,12 +27,14 @@ import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.utils.PredicateUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
+import ca.wilkinsonlab.sadi.utils.PredicateUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.virtuoso.VirtuosoRegistry;
 
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -42,6 +42,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 {
+	static final String LSRN_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
+
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(BioMobyRegistry.class);
 	
@@ -54,6 +56,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 
 	private Map<String, BioMobyService> serviceCache;
 	private OntModel predicateOntology;
+	private OntModel typeOntology;
 	
 	public BioMobyRegistry() throws IOException
 	{
@@ -84,9 +87,28 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		/* TODO we'll probably have to manage this more carefully as the
 		 * number of ontologies we're importing predicates from grows.
 		 */
-		predicateOntology = ModelFactory.createOntologyModel(); 
+		predicateOntology = createPredicateOntology();
 		
-		refreshPredicates();
+		typeOntology = createTypeOntology();
+	}
+	
+	private OntModel createPredicateOntology() throws IOException
+	{
+		// TODO do we need more reasoning here?
+		OntModel predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+
+		String query = SPARQLStringUtils.readFully(BioMobyRegistry.class.getResource("resources/select.all.predicates.sparql"));
+		for (Map<String, String> binding: executeQuery(query))
+			OwlUtils.loadOntologyForUri(predicateOntology, binding.get("pred"));
+
+		return predicateOntology;
+	}
+	
+	private OntModel createTypeOntology()
+	{
+		OntModel typeOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		typeOntology.read(LSRN_PREFIX);
+		return typeOntology;
 	}
 	
 	public OntModel getPredicateOntology()
@@ -94,33 +116,24 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		return predicateOntology;
 	}
 	
+	public OntModel getTypeOntology()
+	{
+		return typeOntology;
+	}
+	
+	public OntClass getTypeByNamespace(MobyNamespace ns)
+	{
+		String uri = String.format("%s%s", LSRN_PREFIX, ns.getName());
+		OntClass type = getTypeOntology().getOntClass(uri);
+		if (type == null)
+			type = getTypeOntology().createClass(uri);
+		return type;
+	}
+	
 	boolean isDatatypeProperty(String predicate)
 	{
 		OntProperty p = getPredicateOntology().getOntProperty(predicate);
 		return p.isDatatypeProperty();
-	}
-	
-	/**
-	 * Returns the set of predicates used to annotate services in the registry.
-	 * @return the set of predicates used to annotate services in the registry
-	 * @throws IOException
-	 */
-	private Set<String> getReferencedPredicates() throws IOException
-	{
-		String query = SPARQLStringUtils.readFully(BioMobyRegistry.class.getResource("resources/select.all.predicates.sparql"));
-
-		Set<String> predicates = new HashSet<String>();
-		for (Map<String, String> binding: executeQuery(query))
-			predicates.add(binding.get("pred"));
-		
-		return predicates;
-	}
-	
-	private void refreshPredicates() throws IOException
-	{
-		/* TODO clear predicateOntology...
-		 */
-		OwlUtils.loadOWLFilesForPredicates(predicateOntology, getReferencedPredicates());
 	}
 
 	/**
