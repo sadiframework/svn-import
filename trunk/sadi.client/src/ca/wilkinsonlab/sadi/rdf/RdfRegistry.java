@@ -5,9 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.logging.Log;
@@ -81,12 +79,24 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 		 */
 		serviceCache = new HashMap<String, RdfService>();
 		
-		/* TODO we'll probably have to manage this more carefully as the
-		 * number of ontologies we're importing predicates from grows.
-		 */
-		predicateOntology = ModelFactory.createOntologyModel(); 
-		
-		if (false) refreshPredicates();
+		predicateOntology = createPredicateOntology();
+	}
+	
+	/**
+	 * Returns the set of predicates used to annotate services in the registry.
+	 * @return the set of predicates used to annotate services in the registry
+	 * @throws IOException
+	 */
+	private OntModel createPredicateOntology() throws IOException
+	{
+		// TODO do we need more reasoning here?
+		OntModel predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+
+		String query = SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.predicate.all.sparql"));
+		for (Map<String, String> binding: executeQuery(query))
+			OwlUtils.loadOntologyForUri(predicateOntology, binding.get("p"));
+
+		return predicateOntology;
 	}
 
 	/* (non-Javadoc)
@@ -95,33 +105,6 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 	public OntModel getPredicateOntology()
 	{
 		return predicateOntology;
-	}
-	
-	/**
-	 * Returns the set of predicates used to annotate services in the registry.
-	 * @return the set of predicates used to annotate services in the registry
-	 * @throws IOException
-	 */
-	private Set<String> getReferencedPredicates() throws IOException
-	{
-		String query = SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.predicate.all.sparql"));
-
-		Set<String> predicates = new HashSet<String>();
-		for (Map<String, String> binding: executeQuery(query))
-			predicates.add(binding.get("pred"));
-		
-		return predicates;
-	}
-	
-	/**
-	 * Reload the predicate ontology.
-	 * @throws IOException
-	 */
-	private void refreshPredicates() throws IOException
-	{
-		/* TODO clear predicateOntology...
-		 */
-		OwlUtils.loadOWLFilesForPredicates(predicateOntology, getReferencedPredicates());
 	}
 
 	/* (non-Javadoc)
@@ -133,6 +116,13 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 		RdfService service = serviceCache.get(serviceURI);
 		if (service != null)
 			return service;
+		
+		String query = SPARQLStringUtils.strFromTemplate(
+			SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.service.byuri.sparql")),
+			serviceURI, serviceURI
+		);
+		if (executeQuery(query).isEmpty())
+			return null;
 		
 		service = new RdfService(serviceURI);
 		service.sourceRegistry = this;
@@ -318,5 +308,4 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 	{
 		return String.format("%s:%s", sparqlEndpoint, graphName);
 	}
-
 }
