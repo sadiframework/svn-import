@@ -17,14 +17,18 @@ public class ResourceTyperTest
 	public void testAttachType()
 	{
 		Model model = ModelFactory.createDefaultModel();
+		
 		Resource uniprotResource = model.createResource("http://purl.uniprot.org/uniprot/P12345");
 		ResourceTyper.getResourceTyper().attachType(uniprotResource);
-		assertTrue(iteratorContains(uniprotResource.listProperties(RDF.type), "http://purl.org/SADI/LSRN/UniProt_Record"));
-		
+		assertTrue(iteratorContains(uniprotResource.listProperties(RDF.type), "http://purl.oclc.org/SADI/LSRN/UniProt_Record"));
 
 		Resource biordfResource = model.createResource("http://biordf.net/moby/UniProt/P12345");
 		ResourceTyper.getResourceTyper().attachType(biordfResource);
-		assertTrue(iteratorContains(biordfResource.listProperties(RDF.type), "http://purl.org/SADI/LSRN/UniProt_Record"));
+		assertTrue(iteratorContains(biordfResource.listProperties(RDF.type), "http://purl.oclc.org/SADI/LSRN/UniProt_Record"));
+		
+		Resource dragondbResource = model.createResource("http://biordf.net/moby/DragonDB_Allele/cho");
+		ResourceTyper.getResourceTyper().attachType(dragondbResource);
+		assertTrue(iteratorContains(dragondbResource.listProperties(RDF.type), "http://purl.oclc.org/SADI/LSRN/DragonDB_Allele_Record"));
 	}
 	
 	static boolean iteratorContains(StmtIterator i, String o)
