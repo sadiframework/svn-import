@@ -17,17 +17,21 @@ import org.mindswap.pellet.utils.ATermUtils;
 import aterm.ATermAppl;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
+import ca.wilkinsonlab.sadi.rdf.RdfService;
 import ca.wilkinsonlab.sadi.sparql.SPARQLService;
 import ca.wilkinsonlab.sadi.utils.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.graph.impl.LiteralLabel;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDFS;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public class DynamicKnowledgeBase extends KnowledgeBase
 {
@@ -38,6 +42,8 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	Tracker tracker;
 	Set<String> deadServices;
 	
+	boolean skipPropertiesPresentInKB;
+	
 	public DynamicKnowledgeBase() 
 	{
 		log.debug("new ca.wilkinsonlab.sadi.pellet.DynamicKnowledgeBase instantiated");
@@ -47,6 +53,8 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		deadServices = Collections.synchronizedSet(new HashSet<String>());
 		for (Object serviceUri: Config.getConfiguration().getList("share.deadService"))
 			deadServices.add((String)serviceUri);
+		
+		skipPropertiesPresentInKB = Config.getConfiguration().getBoolean("share.skipPropertiesPresentInKB", false);
 		
 		/* TODO figure out where the KB is deciding to iterate over all individuals
 		 * and stop it from doing so, since that only happens to us if the query is
@@ -80,16 +88,34 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	public boolean isType(ATermAppl x, ATermAppl c) {
 		log.trace(String.format("isType(%s, %s)", x, c));
 		
+		/* if we already know this individual has this class, we never
+		 * want to do anything dynamic...
+		 */
+		if (super.isType(x, c))
+			return true;
+		
+		/* TODO try to unify this code with that from getInstances() below...
+		 * also need to account for max cardinality, all values from, and probably others...
+		 */
 		for (ATermAppl term: tbox.getAxioms(c)) {
 			// TODO need to do this for subclasses as well; probably others...
 			if (term.getAFun().getName().equals("equivalentClasses") && term.getArgument(0).equals(c)) {
 				ATermAppl equivalent = (ATermAppl)term.getArgument(1);
 				log.trace( "found equivalent class " + equivalent );
 				String name = equivalent.getAFun().getName();
-				// TODO need to do this for max cardinality and "all values from" as well; probably others...
-				if ( name.equals("some") || name.equals("min") ) {
+				if (name.equals("some")) {
 					ATermAppl property = (ATermAppl)equivalent.getArgument(0);
-					gatherTriples(x, property);
+					ATermAppl value = (ATermAppl)equivalent.getArgument(1);
+					if (value.getAFun().getName().equals("value")) {
+						value = (ATermAppl)value.getArgument(0);
+						getPropertyValues(x, property);
+					} else {
+						for (ATermAppl object: getPropertyValues(x, property))
+							isType(object, value);
+					}
+				} else if (name.equals("min")) {
+					ATermAppl property = (ATermAppl)equivalent.getArgument(0);
+					gatherTriples(property);
 				}
 			}
 		}
@@ -101,6 +127,13 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	public Set<ATermAppl> getInstances(ATermAppl c) {
 		log.trace(String.format("getInstances(%s)", c));
 		
+		if (skipPropertiesPresentInKB) {
+			Set<ATermAppl> predynamicResult = super.getInstances(c);
+			if (!predynamicResult.isEmpty())
+				return predynamicResult;
+		}
+		
+		log.info(String.format("looking for dynamic instances of %s", c));
 		for (ATermAppl term: tbox.getAxioms(c)) {
 			if (term.getAFun().getName().equals("equivalentClasses") && term.getArgument(0).equals(c)) {
 				ATermAppl equivalent = (ATermAppl)term.getArgument(1);
@@ -109,9 +142,12 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 				if (name.equals("some")) {
 					ATermAppl property = (ATermAppl)equivalent.getArgument(0);
 					ATermAppl value = (ATermAppl)equivalent.getArgument(1);
-					if (value.getAFun().getName().equals("value"))
+					if (value.getAFun().getName().equals("value")) {
 						value = (ATermAppl)value.getArgument(0);
-					getIndividualsWithProperty(property, value);
+						getIndividualsWithProperty(property, value);
+					} else {
+						getInstances(value);
+					}
 				} else if (name.equals("min")) {
 					ATermAppl property = (ATermAppl)equivalent.getArgument(0);
 					gatherTriples(property);
@@ -126,9 +162,19 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	public boolean hasPropertyValue(ATermAppl s, ATermAppl p, ATermAppl o)
 	{
 		log.trace(String.format("hasPropertyValue(%s, %s, %s)", s, p, o));
-		gatherTriples(s, p);
+		
+		/* it's possible this individual doesn't exist in the KB yet, so we
+		 * need to add it before calling this method on the superclass...
+		 */
 		if (!nodeExists(s))
 			addIndividual(s);
+		
+		if (skipPropertiesPresentInKB) {
+			if (super.hasPropertyValue(s, p, o))
+				return true;
+		}
+		
+		gatherTriples(s, p);
 		return super.hasPropertyValue(s, p, o);
 	}
 
@@ -138,12 +184,23 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	{
 		// r is predicate, x is object
 		log.trace(String.format("getIndividualsWithProperty(%s, %s)", r, x));
-		// if r is an object property, super.getIndividualsWithProperty() will invert and call getObjectPropertyValues() -- BV
-		if(isDatatypeProperty(r)) {
-			gatherTriples(x, ATermUtils.makeInv(r));
-		}
-		if(isObjectProperty(r) && !nodeExists(x))
+		
+		/* it's possible this individual doesn't exist in the KB yet, so we
+		 * need to add it before calling this method on the superclass...
+		 */
+		if (isObjectProperty(r) && !nodeExists(x))
 			addIndividual(x);
+		
+		if (skipPropertiesPresentInKB) {
+			List predynamicResult = super.getIndividualsWithProperty(r, x);
+		 	if (!predynamicResult.isEmpty())
+		 		return predynamicResult;
+		}
+		
+		// if r is an object property, super.getIndividualsWithProperty() will invert and call getObjectPropertyValues() -- BV
+		if (isDatatypeProperty(r))
+			gatherTriples(x, ATermUtils.makeInv(r));
+
 		return super.getIndividualsWithProperty(r, x);
 	}
 
@@ -153,9 +210,20 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	{
 		// x is subject, r is predicate
 		log.trace( "getObjectPropertyValues( " + r + ", " + x + " )" );
-		gatherTriples(x, r);
+		
+		/* it's possible this individual doesn't exist in the KB yet, so we
+		 * need to add it before calling this method on the superclass...
+		 */
 		if (!nodeExists(x))
 			addIndividual(x);
+		
+		if (skipPropertiesPresentInKB) {
+			List<ATermAppl> predynamicResult = super.getObjectPropertyValues(r, x);
+			if (!predynamicResult.isEmpty())
+				return predynamicResult;
+		}
+		
+		gatherTriples(x, r);
 		return super.getObjectPropertyValues(r, x);
 	}
 	
@@ -164,22 +232,31 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	{
 		// x is subject, r is predicate
 		log.trace( "getDataPropertyValues( " + r + ", " + x + ", " + datatype + " )" );
-		gatherTriples(x, r);
+		
+		/* it's possible this individual doesn't exist in the KB yet, so we
+		 * need to add it before calling this method on the superclass...
+		 */
 		if (!nodeExists(x))
 			addIndividual(x);
+		
+		if (skipPropertiesPresentInKB) {
+			List<ATermAppl> predynamicResult = super.getDataPropertyValues(r, x, datatype);
+			if (!predynamicResult.isEmpty())
+				return predynamicResult;
+		}
+		
+		gatherTriples(x, r);
 		return super.getDataPropertyValues(r, x, datatype);
 	}
 
 	private void gatherTriples(ATermAppl subject, ATermAppl predicate)
 	{
-		String s = subject.toString();
 		String p = predicate.toString();
 
-		if (p.equals(RDFS.label.getURI()) || p.equals(RDFS.comment.getURI()))
-			return;
+//		if (p.equals(RDFS.label.getURI()) || p.equals(RDFS.comment.getURI()))
+//			return;
 		
-		/**
-		 * If the predicate is of the form "inv(URI)", try to translate
+		/* If the predicate is of the form "inv(URI)", try to translate
 		 * this to an actual inverse predicate.  It's okay if there
 		 * is no such predicate though, because some services (i.e. SPARQL
 		 * endpoints) can resolve "inv(URI)" as is.  
@@ -196,8 +273,7 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		Collection<String> predicateSynonyms;
 		
 		if(failedToFindInverse) {
-			/** 
-			 * We are about to retrieve/invoke services for "inv(predicate)".
+			/* We are about to retrieve/invoke services for "inv(predicate)".
 			 * We also want to find all services for "inv(synonym)", where synonym is 
 			 * an equivalent property of predicate.
 			 */
@@ -216,7 +292,7 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 
 		Collection<Triple> triples = new ArrayList<Triple>();
 		for (String predicateSynonym: predicateSynonyms)
-			gatherTriples(s, predicateSynonym, triples);
+			gatherTriples(subject, predicateSynonym, triples);
 		
 		addTriplesToKB(triples, true);
 	}
@@ -237,38 +313,73 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		for (Service service : Config.getMasterRegistry().findServicesByPredicate(p)) {
 			log.trace(String.format("found service %s", service));
 			
-			for (Resource input: service.discoverInputInstances(model))
-				invokeService(service, input, triples);
+			OntClass inputClass = getInputClass(service);
+			if (inputClass != null) {
+				for (ATermAppl input: getInstances(makeATermAppl(inputClass.asNode()))) {
+					/* at this point, we know the input instance is of the
+					 * appropriate type, so we can add it explicitly...
+					 */
+					String subject = input.toString();
+					Resource subjectAsResource = model.createResource(subject);
+					subjectAsResource.addProperty(RDF.type, inputClass);
+					invokeService(service, subjectAsResource, p, triples);
+				}
+			}
 		}
 		addTriplesToKB(triples, true);
 	}
 	
-	private void gatherTriples(String subject, String predicate, Collection<Triple> accum)
+	/* TODO unhack this by making getInputClass() part of the general
+	 * service interface...
+	 */
+	private OntClass getInputClass(Service service)
+	{
+		if (service instanceof RdfService)
+			return ((RdfService)service).getInputClass();
+		else
+			return null;
+	}
+	
+	private void gatherTriples(ATermAppl subject, String predicate, Collection<Triple> accum)
 	{
 		log.info(String.format("gathering triples matching <%s> <%s> ?", subject, predicate));
 
-		Resource subjectAsResource = model.createResource(subject);
+		String s = subject.toString();
+		
+		/* this is a hack to support unknown URIs in the SPARQL client...
+		 * this is also probably broken now that I've changed the way services
+		 * are discovered...
+		 */
+		Resource subjectAsResource = model.createResource(s);
 		if ( !RdfUtils.isTyped(subjectAsResource) )
 			attachType(subjectAsResource);
 		
-		Collection<? extends Service> services;
-		if ( !RdfUtils.isTyped(subjectAsResource) ) {
-			log.warn( String.format("discovering services for untyped subject %s", subject) );
-			services = Config.getMasterRegistry().findServicesByPredicate(predicate);
-		} else {
-			services = Config.getMasterRegistry().findServices(subjectAsResource, predicate);
+		for (Service service : Config.getMasterRegistry().findServicesByPredicate(predicate)) {
+			OntClass inputClass = getInputClass(service);
+			if (inputClass != null) {
+				/* first, ask the service if this input has the appropriate
+				 * input type; this wouldn't be necessary if we loaded the
+				 * service's input class definition into our KB, but that
+				 * means we'll suddenly care about ontological inconsistency
+				 * between service definitions...
+				 * if that fails, check our own (dynamic) KB to see if we can
+				 * add properties to make the subject a valid input to this
+				 * service...
+				 */
+				if (service.isInputInstance(subjectAsResource)) {
+					invokeService(service, subjectAsResource, predicate, accum);
+				} else if (isType(subject, makeATermAppl(inputClass.asNode()))) {
+					/* at this point, we know the input instance is of the
+					 * appropriate type, so we can add it explicitly...
+					 */
+					subjectAsResource.addProperty(RDF.type, inputClass);
+					invokeService(service, subjectAsResource, predicate, accum);
+				}
+			} else {
+				log.debug(String.format("no input class for service %s; calling without checking type of subject %s", service, subject));
+				invokeService(service, subjectAsResource, predicate, accum);
+			}
 		}
-		
-		for (Service service : services)
-			invokeService(service, subjectAsResource, predicate, accum);
-	}
-
-	private void invokeService(Service service, Resource subject, Collection<Triple> accum)
-	{
-		/* TODO remove this form of this method once SPARQL services are
-		 * properly proxied...
-		 */
-		invokeService(service, subject, null, accum);
 	}
 	
 	private void invokeService(Service service, Resource subject, String predicate, Collection<Triple> accum)
@@ -387,8 +498,7 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		addPropertyValue(p, s, o);
 		
 		/* have to add it this way as well, even though it's redundant,
-		 * because it's the only way to trigger the methods that tell any
-		 * listeners that the model has changed...
+		 * or some of the higher-level reasoning doesn't work...
 		 */
 		RdfUtils.addTripleToModel(model, triple);
 	}
@@ -397,10 +507,17 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	{
 		if (node.isURI())
 			return ATermUtils.makeTermAppl(node.getURI());
-		else if (node.isLiteral())
-			return ATermUtils.makePlainLiteral((String)node.getLiteral().getValue());
-		else
-			return null;
+		else if (node.isBlank())
+			return ATermUtils.makeAnonNominal(node.getBlankNodeId().getLabelString());
+		else if (node.isLiteral()) {
+			LiteralLabel literal = node.getLiteral();
+			RDFDatatype datatype = literal.getDatatype();
+			if (datatype == null)
+				return ATermUtils.makePlainLiteral(String.valueOf(literal.getValue()));
+			else
+				return ATermUtils.makeTypedLiteral(String.valueOf(literal.getValue()), datatype.getURI());
+		}
+		throw new IllegalArgumentException("attempt to add non-URI, non-blank, non-literal node");
 	}
 
 
