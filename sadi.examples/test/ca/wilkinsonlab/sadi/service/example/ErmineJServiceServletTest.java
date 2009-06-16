@@ -5,9 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.service.ServiceServlet;
+import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -16,6 +19,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 public class ErmineJServiceServletTest extends ServiceServletTestBase
 {
+	private static final Log log = LogFactory.getLog(ErmineJServiceServletTest.class);
+	
 	@Override
 	protected Object getInput()
 	{
@@ -57,8 +62,14 @@ public class ErmineJServiceServletTest extends ServiceServletTestBase
 	{
 		Model expectedInputModel = getInputModel();
 		
-		Model convertedModel = convertInputToRdf(ErmineJServiceServletTest.class.getResourceAsStream("/HG-U133_Plus_2.na26.annot_test.ErmineJ"));
-		assertTrue("input parser does not produce expected result", convertedModel.isIsomorphicWith(expectedInputModel));
+		Model convertedInputModel = convertInputToRdf(ErmineJServiceServletTest.class.getResourceAsStream("/HG-U133_Plus_2.na26.annot_test.ErmineJ"));
+		
+		if (log.isTraceEnabled()) {
+			log.trace(RdfUtils.logStatements("Expected input", expectedInputModel));
+			log.trace(RdfUtils.logStatements("Converted input", convertedInputModel));
+		}
+		
+		assertTrue("input parser does not produce expected result", convertedInputModel.isIsomorphicWith(expectedInputModel));
 	}
 	
 	public static Model convertInputToRdf(InputStream is) throws IOException
@@ -89,7 +100,7 @@ public class ErmineJServiceServletTest extends ServiceServletTestBase
 			String[] goTerms = fields[4].split("\\|");
 			
 			Resource probe = model.createResource(inputPrefix + probeId, GoProbe);
-			probe.addProperty(expressionLevel, expression);
+			probe.addLiteral(expressionLevel, Double.valueOf(expression));
 			
 			Resource gene = model.createResource(inputPrefix + geneId, GoAnnotated);
 			for (String goTerm: goTerms) {
