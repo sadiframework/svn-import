@@ -122,17 +122,6 @@ public class UniProt2GoServiceServlet extends ServiceServlet
 		}
 	}
 	
-	/**
-	 * Although this method is declared in the abstract superclass (so we must
-	 * implement it), it is not actually used by this class and shouldn't be
-	 * called.
-	 * @deprecated
-	 */
-	public void processInput(Resource input, Resource output)
-	{
-		throw new UnsupportedOperationException();
-	}
-	
 	private static class UniProt2GoTask extends Task
 	{
 		Collection<String> uniprotIds;

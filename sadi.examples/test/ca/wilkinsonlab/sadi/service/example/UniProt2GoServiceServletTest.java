@@ -1,6 +1,7 @@
 package ca.wilkinsonlab.sadi.service.example;
 
 import ca.wilkinsonlab.sadi.service.ServiceServlet;
+import ca.wilkinsonlab.sadi.service.ServiceServletTestBase;
 
 public class UniProt2GoServiceServletTest extends ServiceServletTestBase
 {

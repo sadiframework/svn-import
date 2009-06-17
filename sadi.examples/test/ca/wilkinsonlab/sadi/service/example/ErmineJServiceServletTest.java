@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.service.ServiceServlet;
+import ca.wilkinsonlab.sadi.service.ServiceServletTestBase;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;

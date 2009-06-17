@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.service.example;
+package ca.wilkinsonlab.sadi.service;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.rdf.RdfService;
 import ca.wilkinsonlab.sadi.service.ServiceServlet;
+import ca.wilkinsonlab.sadi.service.example.LocalServiceWrapper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 

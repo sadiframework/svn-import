@@ -16,10 +16,41 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-public abstract class AsynchronousServiceServlet extends ServiceServlet
+public abstract class AsynchronousServiceServlet extends ServiceServlet implements InputProcessor
 {
 	private static final String POLL_PARAMETER = "poll";
+	
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#processInput(java.util.Map)
+	 */
+	@Override
+	protected void processInput(Map<Resource, Resource> inputOutputMap)
+	{
+		for (Resource input: inputOutputMap.keySet()) {
+			/* each output will be processed and returned individually, so copy each of them
+			 * to a fresh model before creating its task...
+			 */
+			Resource output = inputOutputMap.get(input);
+			Model outputModel = createOutputModel();
+			outputModel.add(output.listProperties());
+			Task task = new InputProcessingTask(input, outputModel.getResource(output.getURI()), getInputProcessor());
+			TaskManager.getInstance().startTask(task);
+			
+			/* add the poll location data to the output that will be returned immediately...
+			 */
+			Resource pollResource = output.getModel().createResource(getPollUrl(task.getId()));
+			output.addProperty(RDFS.isDefinedBy, pollResource);
+		}
+	}
 
+	protected InputProcessor getInputProcessor()
+	{
+		return this;
+	}
+	
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
@@ -59,36 +90,16 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		response.sendRedirect(redirectUrl);
 	}
 	
-	protected long getSuggestedWaitTime(Task task)
-	{
-		return 5000;
-	}
-	
-	@Override
-	public void processInput(Map<Resource, Resource> inputOutputMap)
-	{
-		for (Resource input: inputOutputMap.keySet()) {
-			/* each output will be processed and returned individually, so copy each of them
-			 * to a fresh model before creating its task...
-			 */
-			Resource output = inputOutputMap.get(input);
-			Model outputModel = createOutputModel();
-			outputModel.add(output.listProperties());
-			Task task = new InputProcessingTask(input, outputModel.getResource(output.getURI()), getInputProcessor());
-			TaskManager.getInstance().startTask(task);
-			
-			/* add the poll location data to the output that will be returned immediately...
-			 */
-			Resource pollResource = output.getModel().createResource(getPollUrl(task.getId()));
-			output.addProperty(RDFS.isDefinedBy, pollResource);
-		}
-	}
-	
 	private String getPollUrl(String taskId)
 	{
 		/* TODO use request.getRequestURL instead?
 		 */
 		return String.format("%s?%s=%s", serviceUrl, POLL_PARAMETER, taskId);
+	}
+	
+	protected long getSuggestedWaitTime(Task task)
+	{
+		return 5000;
 	}
 	
 	private static class InputProcessingTask extends Task

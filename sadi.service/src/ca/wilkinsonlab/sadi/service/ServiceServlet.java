@@ -1,6 +1,8 @@
 package ca.wilkinsonlab.sadi.service;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,7 +36,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * TODO this isn't really true; if you need to batch your input, you need to extend this...
  * @author Luke McCarthy
  */
-public abstract class ServiceServlet extends HttpServlet implements InputProcessor
+public abstract class ServiceServlet extends HttpServlet
 {
 	private static final Log log = LogFactory.getLog(ServiceServlet.class);
 	
@@ -77,10 +79,12 @@ public abstract class ServiceServlet extends HttpServlet implements InputProcess
 		} else {
 			/* read the service model from the local classpath or a remote URL...
 			 */
-			if (serviceModelUrl.startsWith("/"))
-				serviceModel.read(ServiceServlet.class.getResourceAsStream(serviceModelUrl), "");
-			else
+			try {
+				new URL(serviceModelUrl);
 				serviceModel.read(serviceModelUrl);
+			} catch (MalformedURLException e) {
+				serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), "");
+			}
 			
 			serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel.getResource(serviceUrl));
 		}
@@ -130,7 +134,7 @@ public abstract class ServiceServlet extends HttpServlet implements InputProcess
 		return inputModel;
 	}
 	
-	public Model processInput(Model inputModel)
+	protected Model processInput(Model inputModel)
 	{
 		/* 2009-03-17 Luke and Mark decide that inputs will be explicitly typed,
 		 * so reasoning is not required here...
@@ -153,8 +157,6 @@ public abstract class ServiceServlet extends HttpServlet implements InputProcess
 			return outputModel;
 		}
 	}
-	
-	public abstract void processInput(Map<Resource, Resource> inputOutputMap);
 	
 	protected void outputServiceModel(HttpServletResponse response) throws IOException
 	{
@@ -195,8 +197,5 @@ public abstract class ServiceServlet extends HttpServlet implements InputProcess
 		return modelMaker.createFreshModel();
 	}
 	
-	protected InputProcessor getInputProcessor()
-	{
-		return this;
-	}
+	protected abstract void processInput(Map<Resource, Resource> inputOutputMap);
 }
