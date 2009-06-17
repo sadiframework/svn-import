@@ -23,6 +23,7 @@ public abstract class QueryClient
 	 * null if the query does not complete within a specified time 
 	 * limit.
 	 * 
+	 * @author Ben Vandervalk
 	 * @param query The SPARQL query to be executed
 	 * @param timeout The time limit, in milliseconds.
 	 * @return query results on success, null on timeout
