@@ -328,7 +328,15 @@ public class RdfService implements Service
 	{
 		/* TODO may have to be getInputClass().getURI()...
 		 */
-		return createReasoningModel(resource.getModel()).getIndividual(resource.getURI()).hasOntClass(getInputClass());
+		try {
+			return createReasoningModel(resource.getModel()).getIndividual(resource.getURI()).hasOntClass(getInputClass());
+		} catch (Exception e) {
+			/* we're probably here because the service definition is incorrect,
+			 * and we don't want a bad service spoiling everything for everybody...
+			 */
+			log.error(e);
+			return false;
+		}
 	}
 	
 	/* (non-Javadoc)
