@@ -19,6 +19,7 @@ import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.rdf.RdfService;
 import ca.wilkinsonlab.sadi.sparql.SPARQLService;
+import ca.wilkinsonlab.sadi.sparql.SPARQLServiceWrapper;
 import ca.wilkinsonlab.sadi.utils.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
@@ -393,13 +394,13 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		 * At the moment, we must invoke SPARQL endpoints with both subject and predicate,
 		 * so we can't use the tracker. --BV
 		 */
-		if (service instanceof SPARQLService) {
+		if (service instanceof SPARQLService || service instanceof SPARQLServiceWrapper) {
 			try {
 				log.info(getServiceCallString(service, subject));
 				accum.addAll(service.invokeService(subject, predicate));
 			} catch (Exception e) {
 				log.error(String.format("failed to invoke service %s", service), e);
-				if (HttpUtils.isHTTPTimeout(e))
+				if (HttpUtils.isHttpError(e))
 					deadServices.add(service.getServiceURI());
 			}
 		} else {
@@ -411,7 +412,7 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 				accum.addAll(service.invokeService(subject));
 			} catch (Exception e) {
 				log.error(String.format("failed to invoke service %s", service), e);
-				if (HttpUtils.isHTTPTimeout(e))
+				if (HttpUtils.isHttpError(e))
 					deadServices.add(service.getServiceURI());
 			}
 		}
