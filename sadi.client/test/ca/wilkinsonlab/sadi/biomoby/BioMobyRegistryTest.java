@@ -12,7 +12,7 @@ import ca.wilkinsonlab.sadi.client.Service;
 
 public class BioMobyRegistryTest extends TestCase
 {
-	private static final String PREDICATE_URI = "http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasPathwayGene";
+	private static final String PREDICATE_URI = "http://ontology.dumontierlab.com/hasParticipant";
 	private static final String SERVICE_NAME = "getKeggIdsByKeggPathway";
 //	private static final String SubjNamespaces[] = { "KEGG" };
 //	private static final String ObjNamespaces[] = { "KEGG_PATHWAY" };
