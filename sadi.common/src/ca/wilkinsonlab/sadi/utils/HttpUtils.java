@@ -123,6 +123,15 @@ public class HttpUtils
 		else
 			return false;
 	}
+	
+	public static boolean isHttpError(Exception e)
+	{
+		if (e instanceof HttpResponseCodeException)
+			return 500 <= ((HttpResponseCodeException)e).statusCode  &&
+			              ((HttpResponseCodeException)e).statusCode < 600;
+		else
+			return false;
+	}
 
 	public static final int DEFAULT_SOCKET_TIMEOUT = 2 * 60 * 1000; // in ms
 	
