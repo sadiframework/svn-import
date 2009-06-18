@@ -1,6 +1,6 @@
 package ca.wilkinsonlab.sadi.vocab;
 
-public class TestQuery {
+public class DummyQuery {
 
 	public static final String DEFAULT_QUERYDB_ENDPOINT = "http://localhost:8890/sparql";
 
