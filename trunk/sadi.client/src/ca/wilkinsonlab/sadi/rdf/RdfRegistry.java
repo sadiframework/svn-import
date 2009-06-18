@@ -113,16 +113,24 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 	public RdfService getService(String serviceURI)
 	throws IOException
 	{
+		return getService(serviceURI, false);
+	}
+	
+	private RdfService getService(String serviceURI, boolean withCheck)
+	throws IOException
+	{
 		RdfService service = serviceCache.get(serviceURI);
 		if (service != null)
 			return service;
 		
-		String query = SPARQLStringUtils.strFromTemplate(
-			SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.service.byuri.sparql")),
-			serviceURI, serviceURI
-		);
-		if (executeQuery(query).isEmpty())
-			return null;
+		if (withCheck) {
+			String query = SPARQLStringUtils.strFromTemplate(
+					SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.service.byuri.sparql")),
+					serviceURI, serviceURI
+			);
+			if (executeQuery(query).isEmpty())
+				return null;
+		}
 		
 		service = new RdfService(serviceURI);
 		service.sourceRegistry = this;
