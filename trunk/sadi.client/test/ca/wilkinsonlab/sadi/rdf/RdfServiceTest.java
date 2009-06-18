@@ -12,7 +12,6 @@ import org.junit.Test;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.ModelMaker;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -20,7 +19,6 @@ public class RdfServiceTest
 {
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(RdfServiceTest.class);
-	private static final ModelMaker modelMaker = ModelFactory.createMemModelMaker();
 
 	private static final String DUMMY_SERVICE = "http://localhost/dummy";
 	private static final String DUMMY_INPUT_CLASS = "http://elmonline.ca/sw/explore.owl#ParentClass";
@@ -49,7 +47,7 @@ public class RdfServiceTest
 	
 	private static Model createInputModel() throws Exception
 	{
-		Model model = modelMaker.createFreshModel();
+		Model model = ModelFactory.createDefaultModel();
 		Resource inputClass = model.createResource(DUMMY_INPUT_CLASS);
 		Property predicate = model.createProperty(DUMMY_PREDICATE);
 		Resource directInstance = model.createResource(DIRECT_INSTANCE, inputClass);
