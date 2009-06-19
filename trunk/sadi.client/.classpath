@@ -3,15 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_HTTPCLIENT"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JMOBY"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_LANG"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JENA"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/PELLET"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_IO"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_COLLECTIONS"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_CONFIG"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/sadi.common"/>
+	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

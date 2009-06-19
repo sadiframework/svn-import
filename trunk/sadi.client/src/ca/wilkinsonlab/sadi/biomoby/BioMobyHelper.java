@@ -222,13 +222,7 @@ public class BioMobyHelper
 				parameterValues[i].setValue(parameters[i].getDefaultValue());
 		}
 		
-		try {
-			request.setSecondaryInput(parameterValues);
-		} catch (MobyException e) {
-			/* TODO re-throw?
-			 */
-			log.error(e);
-		}
+		request.setSecondaryInput(parameterValues);
 	}
 	
 	/**
