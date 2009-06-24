@@ -15,6 +15,8 @@ import ca.wilkinsonlab.sadi.service.example.LocalServiceWrapper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -70,6 +72,16 @@ public abstract class ServiceServletTestBase extends TestCase
 	protected abstract String getServiceURI();
 	
 	protected abstract String getLocalServiceURL();
+	
+	@Test
+	public void testInputInstance() throws Exception
+	{
+		ServiceServlet serviceServletInstance = getServiceServletInstance();
+		Model inputModel = getInputModel();
+		OntModel infModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF, inputModel);
+		assertTrue(String.format("individual %s is not an instance of class %s", getInputNode(), serviceServletInstance.inputClass),
+				infModel.getIndividual(getInputNode().getURI()).hasOntClass(serviceServletInstance.inputClass));
+	}
 	
 	@Test
 	public void testProcessInputModel() throws Exception
