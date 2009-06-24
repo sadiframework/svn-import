@@ -16,12 +16,14 @@
   
   <owl:Class rdf:ID="RegressableCollection">
     <rdfs:subClassOf rdf:resource="#Collection"/>
+    <!--
     <owl:equivalentClass>
       <owl:Restriction>
         <owl:onProperty rdf:resource="#element"/>
         <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</owl:minCardinality>
       </owl:Restriction>
     </owl:equivalentClass>
+    -->
   </owl:Class>
   
   <owl:DatatypeProperty rdf:ID="x">
@@ -38,11 +40,11 @@
       <owl:intersectionOf rdf:parseType="Collection">
         <owl:Restriction>
           <owl:onProperty rdf:resource="#x"/>
-          <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:cardinality> 
+          <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality> 
         </owl:Restriction>
         <owl:Restriction>
           <owl:onProperty rdf:resource="#y"/>
-          <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:cardinality>
+          <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
         </owl:Restriction>
       </owl:intersectionOf>
      </owl:Class>
@@ -54,7 +56,7 @@
     <owl:equivalentClass>
       <owl:Restriction>
         <owl:onProperty rdf:resource="#element"/>
-        <owl:allValuesFrom rdf:resource="#PairedValue"/>
+        <owl:someValuesFrom rdf:resource="#PairedValue"/>
       </owl:Restriction>
     </owl:equivalentClass>
   </owl:Class>
@@ -65,11 +67,11 @@
       <owl:intersectionOf rdf:parseType="Collection">
         <owl:Restriction>
           <owl:onProperty rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
-          <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:cardinality> 
+          <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality> 
         </owl:Restriction>
         <owl:Restriction>
           <owl:onProperty rdf:resource="http://purl.org/dc/elements/1.1/date"/>
-          <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:cardinality>
+          <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
         </owl:Restriction>
       </owl:intersectionOf>
      </owl:Class>
@@ -81,7 +83,7 @@
     <owl:equivalentClass>
       <owl:Restriction>
         <owl:onProperty rdf:resource="#element"/>
-        <owl:allValuesFrom rdf:resource="#DatedValue"/>
+        <owl:someValuesFrom rdf:resource="#DatedValue"/>
       </owl:Restriction>
     </owl:equivalentClass>
   </owl:Class>
@@ -108,7 +110,7 @@
       <owl:intersectionOf rdf:parseType="Collection">
         <owl:Restriction>
           <owl:onProperty rdf:resource="#slope"/>
-          <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:cardinality>
+          <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:cardinality>
         </owl:Restriction>
         <owl:Restriction>
           <owl:onProperty rdf:resource="#intercept"/>
