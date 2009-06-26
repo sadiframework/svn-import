@@ -144,7 +144,7 @@ public class RdfService implements Service
 						try {
 							toSleep = DurationUtils.parse(element.getValue());
 						} catch (NumberFormatException e) {
-							log.error(e);
+							log.error(String.format("error fetching asynchronous data from %s", url), e);
 						}
 					}
 				}
@@ -326,15 +326,13 @@ public class RdfService implements Service
      */
 	public boolean isInputInstance(Resource resource)
 	{
-		/* TODO may have to be getInputClass().getURI()...
-		 */
 		try {
-			return createReasoningModel(resource.getModel()).getIndividual(resource.getURI()).hasOntClass(getInputClass());
+			return createReasoningModel(resource.getModel()).getIndividual(resource.getURI()).hasOntClass(getInputClass().getURI());
 		} catch (Exception e) {
 			/* we're probably here because the service definition is incorrect,
 			 * and we don't want a bad service spoiling everything for everybody...
 			 */
-			log.error(e);
+			log.error(String.format("error classifying %s as an instance of %s", resource, getInputClass()), e);
 			return false;
 		}
 	}
