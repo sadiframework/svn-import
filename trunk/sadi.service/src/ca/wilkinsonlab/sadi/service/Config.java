@@ -17,14 +17,36 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(Config.class);
 	
+	protected static final String DEFAULT_PROPERTIES_FILENAME = "sadi.service.properties";
+	protected static final String LOCAL_PROPERTIES_FILENAME = "sadi.properties";
+	
 	private static final String SERVICE_SUBSET_KEY = "sadi.service";
 	
+	private static final Config theInstance = new Config(DEFAULT_PROPERTIES_FILENAME, LOCAL_PROPERTIES_FILENAME);
+	
+	public static Config getConfiguration()
+	{
+		return theInstance;
+	}
+	
+	/**
+	 * 
+	 * @param servlet
+	 * @return
+	 * @throws ConfigurationException
+	 */
 	public static Configuration getServiceConfiguration(ServiceServlet servlet)
 	throws ConfigurationException
 	{
 		return getServiceConfiguration(servlet.getClass().getName());
 	}
 	
+	/**
+	 * 
+	 * @param servletClassName
+	 * @return
+	 * @throws ConfigurationException
+	 */
 	public static Configuration getServiceConfiguration(String servletClassName)
 	throws ConfigurationException
 	{
@@ -39,5 +61,10 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 				return servicesConfig.subset(serviceKey);
 		}
 		throw new ConfigurationException("Unmapped servlet class " + servletClassName);
+	}
+	
+	private Config(String defaultPropertiesFile, String localPropertiesFile)
+	{
+		super(defaultPropertiesFile, localPropertiesFile);
 	}
 }

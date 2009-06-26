@@ -30,7 +30,7 @@ public class TaskManager implements UncaughtExceptionHandler
 	
 	private TaskManager()
 	{
-		log.info("New TaskManager instantiated");
+		log.debug("New TaskManager instantiated");
 		
 		taskCounter = 0;
 		idToTask = new HashMap<String, Task>();

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-<jar path="/Users/luke/Code/sadi.service/sadi-service.jar"/>
+<jar path="sadi.libraries/sadi-0.1pre/sadi-service.jar"/>
 <options buildIfNeeded="true" compress="true" descriptionLocation="/sadi.service/sadi-service.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
 <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
 <selectedProjects/>
