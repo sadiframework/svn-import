@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mindswap.pellet.Individual;
@@ -51,11 +52,13 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		
 		tracker = new Tracker();
 		
+		Configuration config = ca.wilkinsonlab.sadi.share.Config.getConfiguration();
+		
 		deadServices = Collections.synchronizedSet(new HashSet<String>());
-		for (Object serviceUri: Config.getConfiguration().getList("share.deadService"))
+		for (Object serviceUri: config.getList("share.deadService"))
 			deadServices.add((String)serviceUri);
 		
-		skipPropertiesPresentInKB = Config.getConfiguration().getBoolean("share.skipPropertiesPresentInKB", false);
+		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
 		
 		/* TODO figure out where the KB is deciding to iterate over all individuals
 		 * and stop it from doing so, since that only happens to us if the query is

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -24,11 +25,18 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 {
 	private static final Log log = LogFactory.getLog(Config.class);
 	
+	protected static final String DEFAULT_PROPERTIES_FILENAME = "sadi.client.properties";
+	protected static final String LOCAL_PROPERTIES_FILENAME = "sadi.properties";
+	
 	private static final String REGISTRY_SUBSET_KEY = "sadi.registry";
 	private static final String REGISTRY_PRIORITY_KEY = "sadi.registryPriority";
 
-	private static List<Registry> registries = configureRegistries();
-	private static MultiRegistry masterRegistry = new MultiRegistry(registries);
+	private static final Config theInstance = new Config(DEFAULT_PROPERTIES_FILENAME, LOCAL_PROPERTIES_FILENAME);
+	
+	public static Config getConfiguration()
+	{
+		return theInstance;
+	}
 	
 	/**
 	 * Return a registry that aggregrates results from all
@@ -38,7 +46,7 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	 */
 	public static MultiRegistry getMasterRegistry()
 	{
-		return masterRegistry;
+		return getConfiguration().masterRegistry;
 	}
 
 	/**
@@ -47,31 +55,47 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	 */
 	public static List<Registry> getRegistries()
 	{
-		return registries;
+		return getConfiguration().registries;
+	}
+
+	private List<Registry> registries;
+	private MultiRegistry masterRegistry;
+
+	private Config(String defaultPropertiesFile, String localPropertiesFile)
+	{
+		super(defaultPropertiesFile, localPropertiesFile);
+		
+		registries = configureRegistries();
+		masterRegistry = new MultiRegistry(registries);
 	}
 	
-	private static List<Registry> configureRegistries()
+	private List<Registry> configureRegistries()
 	{
+		StopWatch stopWatch = new StopWatch();
 		Map<String, Registry> registries = new HashMap<String, Registry>();
-		Configuration registryConfig = getConfiguration().subset(REGISTRY_SUBSET_KEY);
+		Configuration registryConfig = subset(REGISTRY_SUBSET_KEY);
 		for (Iterator registryKeys = registryConfig.getKeys(); registryKeys.hasNext(); ) {
 			String registryKey = (String)registryKeys.next();
 			if (registryKey.contains("."))
 				continue; // only interested in the root property
 			try {
+				stopWatch.start();
 				registries.put(registryKey, (Registry)instantiate(registryConfig.subset(registryKey)));
+				stopWatch.stop();
+				log.info(String.format("instantiated registry %s in %dms", registryKey, stopWatch.getTime()));
+				stopWatch.reset();
 			} catch (Exception e) {
 				log.error(String.format("Error configuring registry %s", registryKey), e);
 			}
 		}
 		
-		return buildPriorityList(registries, getConfiguration().getString(REGISTRY_PRIORITY_KEY));
+		return buildPriorityList(registries, getString(REGISTRY_PRIORITY_KEY));
 	}
 	
-//	private static List<Resolver> configureResolvers()
+//	private List<Resolver> configureResolvers()
 //	{
 //		Map<String, Resolver> resolvers = new HashMap<String, Resolver>();
-//		Configuration resolverConfig = getConfiguration().subset(RESOLVER_SUBSET_KEY);
+//		Configuration resolverConfig = subset(RESOLVER_SUBSET_KEY);
 //		for (Iterator resolverKeys = resolverConfig.getKeys(); resolverKeys.hasNext(); ) {
 //			String resolverKey = (String)resolverKeys.next();
 //			if (resolverKey.contains("."))
