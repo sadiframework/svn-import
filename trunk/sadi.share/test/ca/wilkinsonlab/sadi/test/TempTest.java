@@ -3,6 +3,8 @@ package ca.wilkinsonlab.sadi.test;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.time.StopWatch;
+
 import ca.wilkinsonlab.sadi.pellet.PelletClient;
 
 /**
@@ -26,8 +28,12 @@ public class TempTest
 //					"?term rdfs:label ?label " +
 //				"}";
 		
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		List<Map<String, String>> results = new PelletClient().synchronousQuery(query);
 		for (Map<String, String> binding: results)
 			System.out.println(binding);
+		stopWatch.stop();
+		System.out.println(String.format("query finished in %d seconds", stopWatch.getTime()/1000));
 	}
 }
