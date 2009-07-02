@@ -87,7 +87,12 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		/* TODO we'll probably have to manage this more carefully as the
 		 * number of ontologies we're importing predicates from grows.
 		 */
-		predicateOntology = createPredicateOntology();
+		try {
+			predicateOntology = createPredicateOntology();
+		} catch (Exception e) {
+			log.error("failed to initialize predicate ontology", e);
+			predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		}
 		
 		typeOntology = createTypeOntology();
 	}
@@ -98,8 +103,14 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		OntModel predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
 
 		String query = SPARQLStringUtils.readFully(BioMobyRegistry.class.getResource("resources/select.all.predicates.sparql"));
-		for (Map<String, String> binding: executeQuery(query))
-			OwlUtils.loadOntologyForUri(predicateOntology, binding.get("pred"));
+		for (Map<String, String> binding: executeQuery(query)) {
+			String predicate = binding.get("pred");
+			try {
+				OwlUtils.loadOntologyForUri(predicateOntology, predicate);
+			} catch (Exception e) {
+				log.error(String.format("failed to load ontology for predicate %s", predicate), e);
+			}
+		}
 
 		return predicateOntology;
 	}
