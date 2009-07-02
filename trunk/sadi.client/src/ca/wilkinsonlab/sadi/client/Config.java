@@ -81,11 +81,12 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 			try {
 				stopWatch.start();
 				registries.put(registryKey, (Registry)instantiate(registryConfig.subset(registryKey)));
+			} catch (Exception e) {
+				log.error(String.format("Error configuring registry %s", registryKey), e);
+			} finally {
 				stopWatch.stop();
 				log.info(String.format("instantiated registry %s in %dms", registryKey, stopWatch.getTime()));
 				stopWatch.reset();
-			} catch (Exception e) {
-				log.error(String.format("Error configuring registry %s", registryKey), e);
 			}
 		}
 		
