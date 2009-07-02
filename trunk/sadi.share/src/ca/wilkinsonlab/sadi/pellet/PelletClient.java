@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.pellet;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,16 +91,18 @@ public class PelletClient extends QueryClient
 			// trying to find them on the web.
 //			VirtuosoSPARQLRegistry sparqlReg = new VirtuosoSPARQLRegistry();
 			VirtuosoSPARQLRegistry sparqlReg = findSPARQLRegistry();
-			List<String> remainingPredicates = new ArrayList<String>();
-			for(String predicate : predicates) {
-				if(sparqlReg.hasPredicate(predicate)) {
-					if(sparqlReg.isDatatypeProperty(predicate))
-						model.createDatatypeProperty(predicate);
+			if (sparqlReg != null) {
+				List<String> remainingPredicates = new ArrayList<String>();
+				for(String predicate : predicates) {
+					if(sparqlReg.hasPredicate(predicate)) {
+						if(sparqlReg.isDatatypeProperty(predicate))
+							model.createDatatypeProperty(predicate);
+						else
+							model.createObjectProperty(predicate);
+					}
 					else
-						model.createObjectProperty(predicate);
+						remainingPredicates.add(predicate);
 				}
-				else
-					remainingPredicates.add(predicate);
 			}
 			
 			// TODO: Instead of loading the whole ontology here, just resolve the
@@ -109,10 +112,10 @@ public class PelletClient extends QueryClient
 			// service annotations use the old predicates.
 //			BioMobyRegistry mobyRegistry = new BioMobyRegistry();
 			BioMobyRegistry mobyRegistry = findMobyRegistry();
-			model.add(mobyRegistry.getPredicateOntology());
-
-		} 
-		catch (Exception e) {
+			if (mobyRegistry != null) {
+				model.add(mobyRegistry.getPredicateOntology());
+			}
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
         
