@@ -77,5 +77,15 @@
       <artifactId>pellet</artifactId>
       <version>1.5.2</version>
     </dependency>
+    <dependency>
+    	<groupId>commons-math</groupId>
+    	<artifactId>commons-math</artifactId>
+    	<version>20040218.045431</version>
+    </dependency>
+    <dependency>
+    	<groupId>urbanophile</groupId>
+    	<artifactId>java-getopt</artifactId>
+    	<version>1.0.9</version>
+    </dependency>
   </dependencies>
 </project>
