@@ -23,17 +23,6 @@
     </plugins>
   </build>
   <repositories>
-    <repository>
-      <id>sadi</id>
-      <name>SADI releases</name>
-      <url>http://dev.biordf.net/maven</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>warn</checksumPolicy>
-      </releases>
-    </repository>
   </repositories>
   <dependencies>
     <dependency>
