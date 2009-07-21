@@ -15,6 +15,7 @@ import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
+import ca.wilkinsonlab.sadi.utils.PredicateUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.virtuoso.VirtuosoRegistry;
 
@@ -147,12 +148,21 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 	public Collection<RdfService> findServicesByPredicate(String predicate)
 	throws IOException
 	{
+		Collection<RdfService> services = new ArrayList<RdfService>();
+
+		/* 
+		 * Registries must recognize predicates of the form "inv(predicate)".  
+		 * However, this form of predicate will cause SPARQLStringUtils.strFromTemplate()
+		 * to throw a URIException. -- BV
+		 */
+		if(PredicateUtils.isInverted(predicate))
+			return services;
+		
 		String query = SPARQLStringUtils.strFromTemplate(
 			SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.service.bypredicate.sparql")),
 			predicate
 		);
 
-		Collection<RdfService> services = new ArrayList<RdfService>();
 		for (Map<String, String> binding: executeQuery(query))
 			services.add(getService(binding.get("service")));
 		
