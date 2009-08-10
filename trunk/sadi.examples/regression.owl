@@ -15,23 +15,20 @@
   </owl:ObjectProperty>
   
   <owl:Class rdf:ID="RegressableCollection">
-    <rdfs:subClassOf rdf:resource="#Collection"/>
-    <!--
     <owl:equivalentClass>
       <owl:Restriction>
         <owl:onProperty rdf:resource="#element"/>
         <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">2</owl:minCardinality>
       </owl:Restriction>
     </owl:equivalentClass>
-    -->
   </owl:Class>
   
   <owl:DatatypeProperty rdf:ID="x">
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
   </owl:DatatypeProperty>
   
   <owl:DatatypeProperty rdf:ID="y">
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
   </owl:DatatypeProperty>
   
   <owl:Class rdf:ID="PairedValue">
@@ -52,12 +49,16 @@
   </owl:Class>
   
   <owl:Class rdf:ID="PairedValueCollection">
-    <rdfs:subClassOf rdf:resource="#RegressableCollection"/>
     <owl:equivalentClass>
-      <owl:Restriction>
-        <owl:onProperty rdf:resource="#element"/>
-        <owl:someValuesFrom rdf:resource="#PairedValue"/>
-      </owl:Restriction>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Collection"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#element"/>
+            <owl:someValuesFrom rdf:resource="#PairedValue"/> <!-- allValuesFrom if not for open world... -->
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
     </owl:equivalentClass>
   </owl:Class>
   
@@ -79,25 +80,29 @@
   </owl:Class>
   
   <owl:Class rdf:ID="DatedValueCollection">
-    <rdfs:subClassOf rdf:resource="#RegressableCollection"/>
     <owl:equivalentClass>
-      <owl:Restriction>
-        <owl:onProperty rdf:resource="#element"/>
-        <owl:someValuesFrom rdf:resource="#DatedValue"/>
-      </owl:Restriction>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#Collection"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#element"/>
+            <owl:someValuesFrom rdf:resource="#DatedValue"/> <!-- allValuesFrom if not for open world... -->
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
     </owl:equivalentClass>
   </owl:Class>
   
   <owl:DatatypeProperty rdf:ID="slope">
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
   </owl:DatatypeProperty>
   
   <owl:DatatypeProperty rdf:ID="intercept">
-    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
   </owl:DatatypeProperty>
   
   <owl:ObjectProperty rdf:ID="hasRegressionModel">
-    <rdfs:domain rdf:resource="#RegressableCollection"/>
+    <rdfs:domain rdf:resource="#Collection"/>
     <rdfs:range rdf:resource="#RegressionModel"/>
   </owl:ObjectProperty>
   
@@ -110,14 +115,37 @@
       <owl:intersectionOf rdf:parseType="Collection">
         <owl:Restriction>
           <owl:onProperty rdf:resource="#slope"/>
-          <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:cardinality>
+          <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
         </owl:Restriction>
         <owl:Restriction>
           <owl:onProperty rdf:resource="#intercept"/>
-          <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:cardinality>
+          <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
         </owl:Restriction>
       </owl:intersectionOf>
      </owl:Class>
+    </owl:equivalentClass>
+  </owl:Class>
+
+  <owl:Class rdf:ID="IncreasingLinearRegressionModel">
+    <owl:equivalentClass>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <rdf:Description rdf:about="#LinearRegressionModel"/>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="#slope"/>
+            <owl:someValuesFrom>
+              <rdfs:Datatype>
+                <owl:onDatatype rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
+                <owl:withRestrictions rdf:parseType="Collection">
+                  <rdf:Description>
+                    <xsd:minExclusive rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0</xsd:minExclusive>
+                  </rdf:Description>
+                </owl:withRestrictions>
+              </rdfs:Datatype>
+            </owl:someValuesFrom>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
     </owl:equivalentClass>
   </owl:Class>
   
