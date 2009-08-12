@@ -137,6 +137,9 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 				return predynamicResult;
 		}
 		
+		if (c.getAFun().getName().equals("not"))
+			return super.getInstances(c);
+		
 		log.info(String.format("looking for dynamic instances of %s", c));
 		for (ATermAppl term: tbox.getAxioms(c)) {
 			if (term.getAFun().getName().equals("equivalentClasses") && term.getArgument(0).equals(c)) {
