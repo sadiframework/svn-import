@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mindswap.pellet.datatypes.Datatype;
+import org.mindswap.pellet.query.Query;
 import org.mindswap.pellet.query.QueryExec;
 import org.mindswap.pellet.query.QueryPattern;
 import org.mindswap.pellet.query.QueryResultBinding;
@@ -19,11 +20,30 @@ public class SADIQueryExec extends DistVarsQueryExec implements QueryExec {
 	public static Log log = LogFactory.getLog( SADIQueryExec.class );
     
 	public SADIQueryExec() {
+		super();
+	}
+	
+	@Override
+	public QueryResults exec( Query query )
+	{
+		/* this is extraordinarily dumb, but the JVM isn't garbage
+		 * collecting instances of DynamicKnowledgeBase that are assigned
+		 * to the kb field of the static SADIQueryExec instance -- even
+		 * after they're overwritten or nulled out and so have no actual 
+		 * references remaining.  dumb though it is, this works and the
+		 * memory leak goes away...
+		 */
+		return new SADIQueryExec().execSuper( query );
+	}
+	
+	private QueryResults execSuper( Query query )
+	{
+		return super.exec( query );
 	}
 
 	@Override
-	protected void exec( int index, QueryResultBinding binding, QueryResults results ) {
-
+	protected void exec( int index, QueryResultBinding binding, QueryResults results )
+	{
 		if(patterns.size() <= index) {
 		    results.add(binding);
 			return; 
@@ -99,10 +119,10 @@ public class SADIQueryExec extends DistVarsQueryExec implements QueryExec {
 		return isTripleSatisfied(pattern.getSubject(), pattern.getPredicate(), pattern.getObject());
 	}
 
-	/** 
-	 * Copied this method from DistVarsQueryExec, because it was private. -- BV
+	/* Copied this method from DistVarsQueryExec, because it was private. -- BV
 	 */ 
-	private boolean isTripleSatisfied(ATermAppl s, ATermAppl p, ATermAppl o) {
+	private boolean isTripleSatisfied(ATermAppl s, ATermAppl p, ATermAppl o)
+	{
         if( log.isTraceEnabled() )
             log.trace( "Check triple " + s + " " + (p  == null ? "rdf:type" : p.getName())+ " " + o);
 	    
