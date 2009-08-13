@@ -40,10 +40,4 @@ public class UniProt2GoServiceServletTest extends ServiceServletTestBase
 	{
 		return new UniProt2GoServiceServlet();
 	}
-	
-	@Override
-	public void testServiceInvocation()
-	{
-		return;	// multiple input nodes, so this would fail...
-	}
 }

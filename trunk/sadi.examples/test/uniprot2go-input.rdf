@@ -3,11 +3,10 @@
     xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
     xmlns:uniprot2go="http://sadiframework.org/examples/uniprot2go.owl#">
 
-	<!--
 	<lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/P12345">
 	</lsrn:UniProt_Record>
-	-->
 	
+	<!--
 	<lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/A2ABK8">
     </lsrn:UniProt_Record>
     
@@ -19,5 +18,6 @@
     
     <lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/A2ABL1">
     </lsrn:UniProt_Record>
+	-->
 
 </rdf:RDF>
