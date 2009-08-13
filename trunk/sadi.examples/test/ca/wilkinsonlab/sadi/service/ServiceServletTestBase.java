@@ -90,6 +90,12 @@ public abstract class ServiceServletTestBase extends TestCase
 		Model inputModel = getInputModel();
 		Model expectedOutputModel = getExpectedOutputModel();
 		Model actualOutputModel = serviceServletInstance.processInput(inputModel);
+
+		if (log.isTraceEnabled()) {
+			log.trace(RdfUtils.logStatements("Input", inputModel));
+			log.trace(RdfUtils.logStatements("Expected output", expectedOutputModel));
+			log.trace(RdfUtils.logStatements("Actual output", actualOutputModel));
+		}
 		
 		assertTrue(String.format("%s.processInput does not produce expected output", serviceServletInstance.getClass().getSimpleName()),
 				actualOutputModel.isIsomorphicWith(expectedOutputModel));
@@ -102,12 +108,9 @@ public abstract class ServiceServletTestBase extends TestCase
 		Resource inputNode = getInputNode();
 		Model expectedOutputModel = getExpectedOutputModel();
 		Model actualOutputModel = RdfUtils.triplesToModel( regressionService.invokeService(inputNode) );
-
-		if (log.isTraceEnabled()) {
+		
+		if (log.isTraceEnabled())
 			log.trace(RdfUtils.logStatements("Minimal input", OwlUtils.getMinimalModel(inputNode, regressionService.getInputClass())));
-			log.trace(RdfUtils.logStatements("Expected output", expectedOutputModel));
-			log.trace(RdfUtils.logStatements("Actual output", actualOutputModel));
-		}
 		
 		assertTrue(String.format("service call to %s does not produce expected output", getLocalServiceURL()),
 				actualOutputModel.isIsomorphicWith(expectedOutputModel));
