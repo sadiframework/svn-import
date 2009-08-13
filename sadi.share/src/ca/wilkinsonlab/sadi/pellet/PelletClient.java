@@ -25,10 +25,13 @@ import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.AnonId;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.RDFVisitor;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -177,7 +180,18 @@ public class PelletClient extends QueryClient
 				String var = (String)varNames.next();
 				RDFNode result = binding.get(var);
 //				genericBinding.put(var, formatter.format(result));
-				genericBinding.put(var, result.toString());
+				genericBinding.put(var, (String)result.visitWith(new RDFVisitor() {
+					public Object visitBlank(Resource r, AnonId id) {
+						return String.format("BNODE %s", id);
+					}
+					public Object visitLiteral(Literal l) {
+						return l.getLexicalForm();
+					}
+					public Object visitURI(Resource r, String uri)
+					{
+						return uri;
+					}
+				}));
 			}
 			results.add(genericBinding);
 		}
