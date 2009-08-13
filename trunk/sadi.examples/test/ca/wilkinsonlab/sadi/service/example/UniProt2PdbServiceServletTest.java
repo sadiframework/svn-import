@@ -40,9 +40,4 @@ public class UniProt2PdbServiceServletTest extends ServiceServletTestBase
 	{
 		return new UniProt2PdbServiceServlet();
 	}
-	
-//	@Override
-//	public void testInputInstance() throws Exception { return; }
-//	@Override
-//	public void testServiceInvocation() throws Exception { return; }
 }
