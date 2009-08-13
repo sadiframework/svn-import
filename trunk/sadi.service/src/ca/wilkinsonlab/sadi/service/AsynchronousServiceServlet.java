@@ -16,7 +16,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-public abstract class AsynchronousServiceServlet extends ServiceServlet implements InputProcessor
+public abstract class AsynchronousServiceServlet extends ServiceServlet
 {
 	private static final String POLL_PARAMETER = "poll";
 	
@@ -41,11 +41,6 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet implemen
 			Resource pollResource = output.getModel().createResource(getPollUrl(task.getId()));
 			output.addProperty(RDFS.isDefinedBy, pollResource);
 		}
-	}
-
-	protected InputProcessor getInputProcessor()
-	{
-		return this;
 	}
 	
 	/* (non-Javadoc)

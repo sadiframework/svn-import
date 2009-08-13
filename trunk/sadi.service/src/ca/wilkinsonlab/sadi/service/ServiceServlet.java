@@ -36,7 +36,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * TODO this isn't really true; if you need to batch your input, you need to extend this...
  * @author Luke McCarthy
  */
-public abstract class ServiceServlet extends HttpServlet
+public abstract class ServiceServlet extends HttpServlet implements InputProcessor
 {
 	private static final Log log = LogFactory.getLog(ServiceServlet.class);
 	
@@ -60,13 +60,10 @@ public abstract class ServiceServlet extends HttpServlet
 			throw new RuntimeException(e);
 		}
 		
+		modelMaker = createModelMaker();  // TODO support persistent models in properties file?
 		serviceUrl = config.getString("url");
+		serviceModel = modelMaker.createModel(serviceUrl);
 		
-		/* TODO support non-memory models?
-		 */
-		modelMaker = ModelFactory.createMemModelMaker();
-		
-		serviceModel = modelMaker.createFreshModel();
 		String serviceModelUrl = config.getString("rdf");
 		if (serviceModelUrl == null) {
 			/* create the service model from the information in the config...
@@ -158,6 +155,21 @@ public abstract class ServiceServlet extends HttpServlet
 		}
 	}
 	
+	protected abstract void processInput(Map<Resource, Resource> inputOutputMap);
+	
+//	/* (non-Javadoc)
+//	 * @see ca.wilkinsonlab.sadi.service.InputProcessor#processInput(com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource)
+//	 */
+//	public void processInput(Resource input, Resource output)
+//	{
+//		throw new UnsupportedOperationException("Subclasses of SynchronousServiceServlet must override either processInput or getInputProcessor");
+//	}
+	
+	protected InputProcessor getInputProcessor()
+	{
+		return this;
+	}
+	
 	protected void outputServiceModel(HttpServletResponse response) throws IOException
 	{
 		response.setContentType("application/rdf+xml");
@@ -187,6 +199,11 @@ public abstract class ServiceServlet extends HttpServlet
 		return ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_RULE_INF);
 	}
 	
+	protected ModelMaker createModelMaker()
+	{
+		return ModelFactory.createMemModelMaker();
+	}
+	
 	protected Model createInputModel()
 	{
 		return modelMaker.createFreshModel();
@@ -196,6 +213,4 @@ public abstract class ServiceServlet extends HttpServlet
 	{
 		return modelMaker.createFreshModel();
 	}
-	
-	protected abstract void processInput(Map<Resource, Resource> inputOutputMap);
 }
