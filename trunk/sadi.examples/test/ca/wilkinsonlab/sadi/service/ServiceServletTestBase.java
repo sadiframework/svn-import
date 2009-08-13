@@ -91,7 +91,7 @@ public abstract class ServiceServletTestBase extends TestCase
 		Model expectedOutputModel = getExpectedOutputModel();
 		Model actualOutputModel = serviceServletInstance.processInput(inputModel);
 		
-		assertTrue(String.format("%s.processInput does not produce expected output when ", serviceServletInstance.getClass().getSimpleName()),
+		assertTrue(String.format("%s.processInput does not produce expected output", serviceServletInstance.getClass().getSimpleName()),
 				actualOutputModel.isIsomorphicWith(expectedOutputModel));
 	}
 	
