@@ -13,9 +13,8 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_LANG"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_CONFIG"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/COMMONS_COLLECTIONS"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/sadi-service.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/sadi-common.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/sadi-client.jar" sourcepath="/sadi.client/src"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/sadi-service.jar" sourcepath="/sadi.service/src"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/sadi-common.jar" sourcepath="/sadi.common/src"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/aopalliance.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/baseCode.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/colt.jar"/>
@@ -27,5 +26,6 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/spring-core.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/spring-remoting.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/uniprotjapi.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sadi.client"/>
 	<classpathentry kind="output" path="WEB-INF/classes"/>
 </classpath>
