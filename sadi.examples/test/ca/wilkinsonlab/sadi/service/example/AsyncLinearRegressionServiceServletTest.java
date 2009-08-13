@@ -1,7 +1,5 @@
 package ca.wilkinsonlab.sadi.service.example;
 
-import org.junit.Test;
-
 import ca.wilkinsonlab.sadi.service.ServiceServlet;
 import ca.wilkinsonlab.sadi.service.ServiceServletTestBase;
 
