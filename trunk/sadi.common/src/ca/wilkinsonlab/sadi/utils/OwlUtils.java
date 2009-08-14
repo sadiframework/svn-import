@@ -172,7 +172,7 @@ public class OwlUtils
 						if (p.isURIResource()) {
 							String uri = ((Resource)p.as(Resource.class)).getURI();
 							if (addUnknownProperties) {
-								log.info(String.format("adding unknonw property %s", p));
+								log.info(String.format("adding unknown property %s", p));
 								onProperty = clazz.getOntModel().createOntProperty(uri);
 							}
 						} else {
@@ -213,11 +213,14 @@ public class OwlUtils
 			}
 			
 			/* recursive case: visit equivalent and super classes...
+			 * note that we can't use an iterator because we might add
+			 * properties to the ontology if they're undefined, which can
+			 * trigger a ConcurrentModificationException.
 			 */
-			for (Iterator i = clazz.listEquivalentClasses(); i.hasNext(); )
-				decompose((OntClass)i.next());
-			for (Iterator i = clazz.listSuperClasses(); i.hasNext(); )
-				decompose((OntClass)i.next());
+			for (Object subclass: clazz.listEquivalentClasses().toSet())
+				decompose((OntClass)subclass);
+			for (Object superclass: clazz.listSuperClasses().toSet())
+				decompose((OntClass)superclass);
 		}
 	}
 	
