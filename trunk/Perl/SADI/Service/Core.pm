@@ -548,7 +548,7 @@ sub sendInterfaceOnGET {
         # Implement this feature one day if possible!
     }
     
-    my $sadi_interface_signature = qq{<?xml version="1.0" encoding="UTF-8"?>
+    my $sadi_interface_signature = qq{<?xml version="1.0" encoding="iso-8859-1"?>
     <rdf:RDF
      xmlns="http://www.w3.org/2002/07/owl#"
      xmlns:a="http://www.mygrid.org.uk/mygrid-moby-service#"
