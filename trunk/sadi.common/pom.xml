@@ -8,9 +8,9 @@
   <description>Classes used by both SADI clients and SADI services</description>
   <build>
     <sourceDirectory>src</sourceDirectory>
-    <outputDirectory>bin</outputDirectory>
+    <outputDirectory>target/classes</outputDirectory>
     <testSourceDirectory>test</testSourceDirectory>
-    <testOutputDirectory>bin</testOutputDirectory>
+    <testOutputDirectory>target/test-classes</testOutputDirectory>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
