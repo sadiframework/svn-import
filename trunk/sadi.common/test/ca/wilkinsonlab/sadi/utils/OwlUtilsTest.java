@@ -56,7 +56,7 @@ public class OwlUtilsTest
 		
 		properties = OwlUtils.listRestrictedProperties("http://sadiframework.org/ontologies/service_objects.owl#getKEGGIDFromUniProt_Output");
 		assertTrue("class did not provide expected predicate",
-				propertyCollectionContains(properties, "http://sadiframework.org/ontologies/predicates.owl#isEncodedBy"));
+				propertyCollectionContains(properties, "http://es-01.chibi.ubc.ca/~benv/predicates.owl#isEncodedBy"));
 	}
 	
 	private boolean propertyCollectionContains(Set<OntProperty> properties, String uri)
