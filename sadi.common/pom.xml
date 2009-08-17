@@ -11,6 +11,14 @@
     <outputDirectory>target/classes</outputDirectory>
     <testSourceDirectory>test</testSourceDirectory>
     <testOutputDirectory>target/test-classes</testOutputDirectory>
+    <resources>
+      <resource>
+        <directory>src</directory>
+      </resource>
+      <resource>
+        <directory>test</directory>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
