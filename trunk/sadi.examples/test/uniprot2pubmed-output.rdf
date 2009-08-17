@@ -1,0 +1,65 @@
+<rdf:RDF
+    xmlns:j.0="http://ontology.dumontierlab.com/"
+    xmlns:j.1="http://sadiframework.org/examples/uniprot2pdb.owl#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.2="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" > 
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/8135849">
+    <rdfs:label>Xu P. et al, Molecular cloning, tissue expression of human xanthine dehydrogenase.</rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/16959974">
+    <rdfs:label>Sjoeblom T. et al, The consensus coding sequences of human breast and colorectal cancers.</rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/8670112">
+    <rdfs:label>Saksela M. &amp; Raivio K.O., Cloning and expression in vitro of human xanthine dehydrogenase/oxidase.</rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/18780401">
+    <rdfs:label>Picariello G. et al, Identification of N-linked glycoproteins in human milk by hydrophilic interaction liquid chromatography and mass spectrometry.</rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/11379872">
+    <rdfs:label>Sakamoto N. et al, Identification of a new point mutation in the human xanthine dehydrogenase gene responsible for a case of classical type I xanthinuria.</rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/7575623">
+    <rdfs:label>Xu P. et al, </rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/10844591">
+    <rdfs:label>Levartovsky D. et al, XDH gene mutation is the underlying cause of classical xanthinuria: a second report.</rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://purl.uniprot.org/uniprot/P47989">
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/18780401"/>
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/11379872"/>
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/14551354"/>
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/8135849"/>
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/10844591"/>
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/16959974"/>
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/9153281"/>
+    <rdf:type rdf:resource="http://sadiframework.org/examples/uniprot2pdb.owl#AnnotatedUniProtRecord"/>
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/8224915"/>
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/7575623"/>
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/8670112"/>
+    <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/17081983"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/17081983">
+    <rdfs:label>Olsen J.V. et al, Global, in vivo, and site-specific phosphorylation dynamics in signaling networks.</rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/14551354">
+    <rdfs:label>Gok F., Ichida K. &amp; Topaloglu R., Mutational analysis of the xanthine dehydrogenase gene in a Turkish family with autosomal recessive classical xanthinuria.</rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/9153281">
+    <rdfs:label>Ichida K. et al, Identification of two mutations in human xanthine dehydrogenase gene responsible for classical type I xanthinuria.</rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://biordf.net/moby/PMID/8224915">
+    <rdfs:label>Ichida K. et al, Cloning of the cDNA encoding human xanthine dehydrogenase (oxidase): structural analysis of the protein and chromosomal location of the gene.</rdfs:label>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+</rdf:RDF>
