@@ -21,7 +21,22 @@
         </configuration>
       </plugin>
     </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh-external</artifactId>
+        <version>1.0-alpha-5</version>
+      </extension>
+    </extensions>
   </build>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>dev-snapshot-repository</id>
+      <name>dev.biordf.net Snapshot Repository</name>
+      <url>scpexe://dev.biordf.net/var/www/maven/</url>
+      <uniqueVersion>false</uniqueVersion>
+    </snapshotRepository>
+  </distributionManagement>
   <repositories>
   </repositories>
   <dependencies>

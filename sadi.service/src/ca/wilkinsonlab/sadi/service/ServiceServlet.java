@@ -54,7 +54,7 @@ public abstract class ServiceServlet extends HttpServlet implements InputProcess
 		super();
 		
 		try {
-			config = Config.getServiceConfiguration(this);
+			config = Config.getConfiguration().getServiceConfiguration(this);
 		} catch (ConfigurationException e) {
 			log.fatal(e);
 			throw new RuntimeException(e);
