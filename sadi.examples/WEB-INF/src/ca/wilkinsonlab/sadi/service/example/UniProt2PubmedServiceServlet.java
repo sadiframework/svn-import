@@ -15,6 +15,7 @@ import uk.ac.ebi.kraken.interfaces.uniprot.Citation;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.citations.Author;
+import uk.ac.ebi.kraken.interfaces.uniprot.citations.AuthoringGroup;
 import uk.ac.ebi.kraken.interfaces.uniprot.citations.JournalArticle;
 import uk.ac.ebi.kraken.interfaces.uniprot.citations.PubMedId;
 import uk.ac.ebi.kraken.uuw.services.remoting.Query;
@@ -121,8 +122,9 @@ public class UniProt2PubmedServiceServlet extends ServiceServlet
 	
 	private static String formatAuthorList(JournalArticle article)
 	{
-		if (article.hasAuthorNames()) {
-			List<Author> authors = article.getAuthors();
+		List<Author> authors = article.getAuthors();
+		AuthoringGroup authorGroup = article.getAuthoringGroup();
+		if (authors != null && !authors.isEmpty()) {
 			Iterator<Author> i = authors.iterator();
 			StringBuilder buf = new StringBuilder();
 			Author firstAuthor = i.next();
@@ -142,8 +144,8 @@ public class UniProt2PubmedServiceServlet extends ServiceServlet
 				}
 			}
 			return buf.toString();
-		} else if (article.hasAuthoringGroupName()) {
-			return article.getAuthoringGroup().getValue();
+		} else if (authorGroup != null) {
+			return authorGroup.getValue();
 		} else {
 			return "unknown author";
 		}
