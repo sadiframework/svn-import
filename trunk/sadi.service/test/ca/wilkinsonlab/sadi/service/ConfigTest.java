@@ -8,7 +8,7 @@ public class ConfigTest extends TestCase
 {
 	public void testGetServiceConfiguration() throws Exception
 	{
-		Configuration serviceConfig = Config.getServiceConfiguration("ca.wilkinsonlab.sadi.service.example.SimpleServiceServlet");
+		Configuration serviceConfig = Config.getConfiguration().getServiceConfiguration("ca.wilkinsonlab.sadi.service.example.SimpleServiceServlet");
 		assertTrue(serviceConfig.containsKey("rdf"));
 	}
 }
