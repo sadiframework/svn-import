@@ -69,8 +69,8 @@ public abstract class ServiceServlet extends HttpServlet implements InputProcess
 			/* create the service model from the information in the config...
 			 */
 			serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel, serviceUrl);
-			serviceOntologyHelper.setName(config.getString("name"));
-			serviceOntologyHelper.setDescription(config.getString("description"));
+			serviceOntologyHelper.setName(config.getString("name", "noname"));
+			serviceOntologyHelper.setDescription(config.getString("description", "no description"));
 			serviceOntologyHelper.setInputClass(config.getString("inputClass"));
 			serviceOntologyHelper.setOutputClass(config.getString("outputClass"));
 		} else {
