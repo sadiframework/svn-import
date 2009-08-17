@@ -3,9 +3,7 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:owl="http://www.w3.org/2002/07/owl#"
-    xmlns="http://sadiframework.org/examples/uniprot2pdb.owl#"
-    xml:base="http://sadiframework.org/examples/uniprot2pdb.owl#">
+    xmlns:owl="http://www.w3.org/2002/07/owl#">
   <owl:Ontology rdf:about=""/>
   
   <!-- in lieu of importing the whole ontology... -->
