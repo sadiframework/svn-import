@@ -308,7 +308,8 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 
 	public Collection<String> findPredicatesBySubject(String subject) throws IOException 
 	{
-		throw new RuntimeException("This method is not implemented.");
+		log.warn("This method is not implemented.");
+		return new ArrayList<String>(0);
 	}
 
 	public Collection<Service> findServices(String subject, String predicate) throws URIException, HttpException, IOException
