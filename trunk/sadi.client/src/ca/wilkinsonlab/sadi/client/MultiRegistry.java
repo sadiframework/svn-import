@@ -1,18 +1,18 @@
 package ca.wilkinsonlab.sadi.client;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
+
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
-
-import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 
 /**
  * A class that aggregates results from several Registry objects.
@@ -122,7 +122,7 @@ public class MultiRegistry implements Registry
 	
 	private <T> Collection<? extends T> accumulate(Accumulator<T> accum)
 	{
-		Collection<T> results = new ArrayList<T>();
+		Collection<T> results = new HashSet<T>();
 		for (Registry registry: registries) {
 			try {
 				results.addAll(accum.get(registry));
