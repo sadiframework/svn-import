@@ -106,9 +106,9 @@ public abstract class QueryClientTest extends TestCase
 		testQuery(ExampleQueries.getQueryByHtmlListIndex(11));
 	}
 	
-	@Test
-	public void testQuery12()
-	{
-		testQuery(ExampleQueries.getQueryByHtmlListIndex(12));
-	}
+//	@Test
+//	public void testQuery12()
+//	{
+//		testQuery(ExampleQueries.getQueryByHtmlListIndex(12));
+//	}
 }
