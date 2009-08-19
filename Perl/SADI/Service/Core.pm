@@ -423,7 +423,8 @@ sub addOutputData {
             my $statement = RDF::Core::Statement->new($subject, $predicate, $object);
             $self->_addToModel(statement => $statement);
 	    if ($label){
-		$statement = RDF::Core::Statement->new($object, 'http://www.w3.org/2000/01/rdf-schema#label', $label);
+		my $lab = RDF::Core::Resource->new('http://www.w3.org/2000/01/rdf-schema#label')
+		$statement = RDF::Core::Statement->new($object, $lab, $label);
 		$self->_addToModel(statement => $statement);    
 	    }
         }
@@ -433,7 +434,8 @@ sub addOutputData {
             my $statement = RDF::Core::Statement->new($subject, $predicate, $object);
             $self->_addToModel(statement => $statement);
 	    if ($label){
-		$statement = RDF::Core::Statement->new($object, 'http://www.w3.org/2000/01/rdf-schema#label', $label);
+		my $lab = RDF::Core::Resource->new('http://www.w3.org/2000/01/rdf-schema#label')
+		$statement = RDF::Core::Statement->new($object, $lab, $label);
 		$self->_addToModel(statement => $statement);    
 	    }
         } else {
