@@ -386,6 +386,7 @@ sub getLiteralPropertyValues {
                         Defaults to $self->ServicePredicate)
      typed_as_output => boolean (if present output is rdf:typed as output class)
      force_literal => boolean
+     label => $label (string); label for value node, only if value is a URI
 
 =cut
 
@@ -401,6 +402,8 @@ sub addOutputData {
     }
     my $object = $args{value};
     my $predicate_sent = $args{predicate};
+    my $label = $args{label};
+
     if ($predicate_sent){
         if (ref($predicate_sent) =~ /RDF::Core/){$predicate_sent = $predicate_sent->getURI;}  # need to stringify it before proceeding
     }
@@ -419,13 +422,20 @@ sub addOutputData {
         } else { # they sent an RDF::Core node that we should simply add to the graph
             my $statement = RDF::Core::Statement->new($subject, $predicate, $object);
             $self->_addToModel(statement => $statement);
+	    if ($label){
+		$statement = RDF::Core::Statement->new($object, 'http://www.w3.org/2000/01/rdf-schema#label', $label);
+		$self->_addToModel(statement => $statement);    
+	    }
         }
     } else {   # they sent a literal value... is it a URI-type thing?
         if ($object =~ /\S+\:\S+\.\S+/ && !$force_literal){  # a terrible regexp for a URI... should find the one that is sanctioned by the W3C URI RFC... look for it later...
             $object = RDF::Core::Resource->new($object);
             my $statement = RDF::Core::Statement->new($subject, $predicate, $object);
             $self->_addToModel(statement => $statement);
-            
+	    if ($label){
+		$statement = RDF::Core::Statement->new($object, 'http://www.w3.org/2000/01/rdf-schema#label', $label);
+		$self->_addToModel(statement => $statement);    
+	    }
         } else {
             $object = RDF::Core::Literal->new($object);
             my $statement = RDF::Core::Statement->new($subject, $predicate, $object);
