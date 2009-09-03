@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URIException;
@@ -22,6 +24,7 @@ import org.biomoby.shared.MobyPrimaryData;
 import org.biomoby.shared.MobyPrimaryDataSet;
 import org.biomoby.shared.MobyPrimaryDataSimple;
 import org.biomoby.shared.MobySecondaryData;
+import org.biomoby.shared.data.MobyDataObject;
 
 import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.Service;
@@ -57,6 +60,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	private Map<String, BioMobyService> serviceCache;
 	private OntModel predicateOntology;
 	private OntModel typeOntology;
+	private Collection<Pattern> urlPatterns;
 	
 	public BioMobyRegistry() throws IOException
 	{
@@ -68,6 +72,16 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		this(config.getString(ENDPOINT_CONFIG_KEY));
 		
 		graphName = config.getString(GRAPH_CONFIG_KEY);
+		
+		urlPatterns = new ArrayList<Pattern>();
+		for (Object o: config.getList("urlPattern")) {
+			String pattern = (String)o;
+			try {
+				urlPatterns.add( Pattern.compile( pattern ) );
+			} catch (Exception e) {
+				log.error( String.format("error processing URL pattern: %s", pattern), e );
+			}
+		}
 	}
 	
 	public BioMobyRegistry(String sparqlEndpoint) throws IOException
@@ -95,6 +109,29 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		}
 		
 		typeOntology = createTypeOntology();
+	}
+	
+	public MobyDataObject convertUriToMobyDataObject(String uri) throws URISyntaxException
+	{
+		for (Pattern pattern: urlPatterns) {
+			log.debug( String.format("testing %s =~ / %s /", uri, pattern) );
+			
+			/* use find() and not matches() to better emulate perl semantics by
+			 * not forcing a match to start at the beginning of the string...
+			 */
+			Matcher match = pattern.matcher(uri);
+			if (match.find()) {
+				try {
+					String namespace = match.group(1);
+					String id = match.group(2);
+					log.debug( String.format("matched on %s / %s", namespace, id) );
+					return new MobyDataObject(namespace, id);
+				} catch (Exception e) {
+					log.error( String.format("error processing %s =~ / %s /", uri, pattern), e );
+				}
+			}
+		}
+		throw new URISyntaxException(uri, "unable to determine namespace/id");
 	}
 	
 	private OntModel createPredicateOntology() throws IOException
@@ -256,7 +293,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	throws IOException
 	{
 		try {
-			String namespace = BioMobyHelper.convertUriToMobyDataObject(subject).getNamespaces()[0].getName();
+			String namespace = convertUriToMobyDataObject(subject).getNamespaces()[0].getName();
 			return findPredicatesByInputNamespace(namespace);
 		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException(e);

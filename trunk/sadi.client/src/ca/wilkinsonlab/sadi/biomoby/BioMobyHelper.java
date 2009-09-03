@@ -46,7 +46,7 @@ public class BioMobyHelper
 	{
 		return String.format( "%s/%s", service.getAuthority(), service.getName() );
 	}
-	
+
 	/**
 	 * Returns true if the specified BioMoby datatype is a primitive.
 	 * @param datatype the name of the datatype
@@ -83,6 +83,7 @@ public class BioMobyHelper
 	 * @param uri the URI to convert
 	 * @return the converted MobyDataObject
 	 * @throws URISyntaxException if the URI cannot be converted
+	 * @deprecated use the method on the registry
 	 */
 	public static MobyDataObject convertUriToMobyDataObject(String uri) throws URISyntaxException
 	{
