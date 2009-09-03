@@ -470,14 +470,14 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 						triple.getObject()
 				);
 				addTripleToKB(synonymousTriple);
-				if (addWithInverse && !isDatatypeProperty(ATermUtils.makeTermAppl(predicate))) {
-					String inversePredicate = getInversePredicate(predicate);
+				if (addWithInverse && !isDatatypeProperty(ATermUtils.makeTermAppl(predicateSynonym))) {
+					String inversePredicate = getInversePredicate(predicateSynonym);
 					if (inversePredicate == null) {
-						log.debug(String.format("no inverse predicate for <%s>", predicate));
+						log.debug(String.format("no inverse predicate for <%s>", predicateSynonym));
 					} else {
 						Triple inverseTriple = new Triple(
 								triple.getObject(),
-								NodeCreateUtils.create(predicateSynonym),
+								NodeCreateUtils.create(inversePredicate),
 								triple.getSubject()
 						);
 						addTripleToKB(inverseTriple);
