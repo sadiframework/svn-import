@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
+import org.biomoby.shared.data.MobyDataObject;
 import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.client.Config;
@@ -85,5 +86,18 @@ public class BioMobyRegistryTest extends TestCase
 		// If the injection works, then we will get services that
 		// are mapped to <http://moby/hasPathwayGene>.
 		assertTrue(services.isEmpty());
+	}
+	
+	@Test
+	public final void testConvertUriToMobyDataObject() throws Exception
+	{
+		MobyDataObject data;
+		data = registry.convertUriToMobyDataObject("http://biordf.net/moby/UniProt/P12345");
+		assertEquals("incorrect namespace", "UniProt", data.getNamespaces()[0].getName());
+		assertEquals("incorrect id", "P12345", data.getId());
+		
+		data = registry.convertUriToMobyDataObject("http://lsrn.org/UniProt:P12345");
+		assertEquals("incorrect namespace", "UniProt", data.getNamespaces()[0].getName());
+		assertEquals("incorrect id", "P12345", data.getId());
 	}
 }

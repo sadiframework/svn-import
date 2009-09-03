@@ -242,7 +242,7 @@ public class BioMobyService extends MobyService implements Service
 	throws Exception
 	{
 		Collection<Triple> triples = new ArrayList<Triple>();
-		MobyDataObject input = BioMobyHelper.convertUriToMobyDataObject(inputURI);
+		MobyDataObject input = sourceRegistry.convertUriToMobyDataObject(inputURI);
 		/* TODO don't call the service if it doesn't take this input namespace;
 		 * eventually we won't need this here because the registry query should
 		 * take the input into account when finding appropriate services...
@@ -255,7 +255,7 @@ public class BioMobyService extends MobyService implements Service
 	public Collection<Triple> invokeService(String inputURI) throws Exception
 	{
 		Collection<Triple> triples = new ArrayList<Triple>();
-		MobyDataObject input = BioMobyHelper.convertUriToMobyDataObject(inputURI);
+		MobyDataObject input = sourceRegistry.convertUriToMobyDataObject(inputURI);
 		/* TODO don't call the service if it doesn't take this input namespace;
 		 * eventually we won't need this here because the registry query should
 		 * take the input into account when finding appropriate services...
