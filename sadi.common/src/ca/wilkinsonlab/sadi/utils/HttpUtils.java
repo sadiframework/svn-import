@@ -44,7 +44,7 @@ public class HttpUtils
 	throws IOException
 	{
 		log.debug(String.format("posting form data to %s", url));
-		log.trace(params);
+//		log.trace(params);
 		InputStream is = POST(url.toString(), toNameValuePairArray(params));
 		
 		log.debug("reading response");
