@@ -83,7 +83,7 @@ public class ErmineJServiceServletTest extends ServiceServletTestBase
 		Property element = model.getProperty("http://sadiframework.org/examples/common.owl#element");
 		Property expressionLevel = model.getProperty("http://sadiframework.org/examples/ermineJ.owl#expressionLevel");
 		Property mappedTo = model.getProperty("http://sadiframework.org/examples/ermineJ.owl#mappedTo");
-		Property hasInputTerm = model.getProperty("http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm");
+		Property hasInputTerm = model.getProperty("http://sadiframework.org/ontologies/predicates.owl#hasGOTerm");
 		
 		String inputUri = "http://sadiframework.org/examples/input/erminej1";
 		String inputPrefix = inputUri + "#";

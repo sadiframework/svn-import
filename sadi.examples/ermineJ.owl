@@ -4,7 +4,7 @@
   <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
   <!ENTITY owl "http://www.w3.org/2002/07/owl#">
   <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
-  <!ENTITY benv "http://es-01.chibi.ubc.ca/~benv/predicates.owl#">
+  <!ENTITY benv "http://sadiframework.org/ontologies/predicates.owl#">
   <!ENTITY common "http://sadiframework.org/examples/common.owl#">
 ]>
 

@@ -1,6 +1,6 @@
 <rdf:RDF
     xmlns:j.0="http://ontology.dumontierlab.com/"
-    xmlns:j.1="http://sadiframework.org/examples/uniprot2pdb.owl#"
+    xmlns:j.1="http://sadiframework.org/examples/uniprot2pubmed.owl#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:j.2="http://purl.oclc.org/SADI/LSRN/"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" > 
@@ -40,7 +40,7 @@
     <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/10844591"/>
     <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/16959974"/>
     <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/9153281"/>
-    <rdf:type rdf:resource="http://sadiframework.org/examples/uniprot2pdb.owl#AnnotatedUniProtRecord"/>
+    <rdf:type rdf:resource="http://sadiframework.org/examples/uniprot2pubmed.owl#AnnotatedUniProtRecord"/>
     <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/8224915"/>
     <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/7575623"/>
     <j.0:hasReference rdf:resource="http://biordf.net/moby/PMID/8670112"/>

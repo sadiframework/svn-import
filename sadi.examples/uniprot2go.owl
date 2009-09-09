@@ -9,13 +9,13 @@
   <owl:Ontology rdf:about=""/>
   
   <!-- in lieu of importing the whole ontology... -->
-  <owl:ObjectProperty rdf:about="http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm"/>
+  <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#hasGOTerm"/>
   
   <owl:Class rdf:ID="AnnotatedUniProtRecord">
     <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
     <rdfs:subClassOf>
       <owl:Restriction>
-        <owl:onProperty rdf:resource="http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm"/>
+        <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/predicates.owl#hasGOTerm"/>
         <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
       </owl:Restriction>
     </rdfs:subClassOf>
