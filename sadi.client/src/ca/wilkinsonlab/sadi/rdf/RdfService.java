@@ -101,7 +101,7 @@ public class RdfService implements Service
 		 * TODO is this the best import strategy here?
 		 */
 		model = modelMaker.createFreshModel();
-		model.read(getServiceURI());
+		model.read(getServiceURL().toExternalForm());
 		Resource serviceRoot = model.getResource(getServiceURI());
 		ServiceOntologyHelper helper = new MyGridServiceOntologyHelper(serviceRoot);
 		name = helper.getName();
