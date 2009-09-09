@@ -2,7 +2,7 @@
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
-    xmlns:ben="http://es-01.chibi.ubc.ca/~benv/predicates.owl#"
+    xmlns:ben="http://sadiframework.org/ontologies/predicates.owl#"
     xmlns:uniprot2go="http://sadiframework.org/examples/uniprot2go.owl#">
 
 	<uniprot2go:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P12345">

@@ -42,7 +42,7 @@ public class UniProt2PdbServiceServlet extends ServiceServlet
 	{
 		super();
 
-		hasPDBId = ontologyModel.getProperty("http://es-01.chibi.ubc.ca/~benv/predicates.owl#has3DStructure");
+		hasPDBId = ontologyModel.getProperty("http://sadiframework.org/ontologies/predicates.owl#has3DStructure");
 		PDB_Record = ontologyModel.createResource("http://purl.oclc.org/SADI/LSRN/PDB_Record");
 	}
 	

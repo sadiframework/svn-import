@@ -109,8 +109,11 @@ public abstract class ServiceServletTestBase extends TestCase
 		Model expectedOutputModel = getExpectedOutputModel();
 		Model actualOutputModel = RdfUtils.triplesToModel( regressionService.invokeService(inputNode) );
 		
-		if (log.isTraceEnabled())
+		if (log.isTraceEnabled()) {
 			log.trace(RdfUtils.logStatements("Minimal input", OwlUtils.getMinimalModel(inputNode, regressionService.getInputClass())));
+			log.trace(RdfUtils.logStatements("Expected output", expectedOutputModel));
+			log.trace(RdfUtils.logStatements("Actual output", actualOutputModel));
+		}
 		
 		assertTrue(String.format("service call to %s does not produce expected output", getLocalServiceURL()),
 				actualOutputModel.isIsomorphicWith(expectedOutputModel));

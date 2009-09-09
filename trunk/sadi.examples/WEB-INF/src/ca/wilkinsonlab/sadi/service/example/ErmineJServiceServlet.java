@@ -23,7 +23,7 @@ public class ErmineJServiceServlet extends SynchronousServiceServlet
 	public static final String ELEMENT_URI = "http://sadiframework.org/examples/common.owl#element";
 	public static final String EXPRESSION_LEVEL_URI = "http://sadiframework.org/examples/ermineJ.owl#expressionLevel";
 	public static final String MAPPED_TO_URI = "http://sadiframework.org/examples/ermineJ.owl#mappedTo";
-	public static final String HAS_INPUT_TERM_URI = "http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm";
+	public static final String HAS_INPUT_TERM_URI = "http://sadiframework.org/ontologies/predicates.owl#hasGOTerm";
 	public static final String HAS_OUTPUT_TERM_URI = "http://sadiframework.org/examples/ermineJ.owl#term";
 	public static final String HAS_SIGNIFICANCE_URI = "http://sadiframework.org/examples/ermineJ.owl#p";
 	public static final String HAS_OVERREPRESENTED_TERM = "http://sadiframework.org/examples/ermineJ.owl#hasOverrepresentedTerm";

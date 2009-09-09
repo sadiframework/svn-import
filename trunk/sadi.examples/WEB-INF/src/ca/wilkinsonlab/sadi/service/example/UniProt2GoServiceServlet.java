@@ -40,7 +40,7 @@ public class UniProt2GoServiceServlet extends ServiceServlet
 	{
 		super();
 
-		hasGOTerm = ontologyModel.getProperty("http://es-01.chibi.ubc.ca/~benv/predicates.owl#hasGOTerm");
+		hasGOTerm = ontologyModel.getProperty("http://sadiframework.org/ontologies/predicates.owl#hasGOTerm");
 		GO_Record = ontologyModel.createResource("http://purl.oclc.org/SADI/LSRN/GO_Record");
 	}
 	
