@@ -202,13 +202,13 @@ public class OwlUtils
 			 * so, visit all of them...
 			 */
 			if ( clazz.isUnionClass() ) {
-				for (Iterator i = clazz.asUnionClass().listOperands(); i.hasNext(); )
+				for (Iterator<?> i = clazz.asUnionClass().listOperands(); i.hasNext(); )
 					decompose((OntClass)i.next());
 			} else if ( clazz.isIntersectionClass() ) {
-				for (Iterator i = clazz.asIntersectionClass().listOperands(); i.hasNext(); )
+				for (Iterator<?> i = clazz.asIntersectionClass().listOperands(); i.hasNext(); )
 					decompose((OntClass)i.next());
 			} else if ( clazz.isComplementClass() ) {
-				for (Iterator i = clazz.asComplementClass().listOperands(); i.hasNext(); )
+				for (Iterator<?> i = clazz.asComplementClass().listOperands(); i.hasNext(); )
 					decompose((OntClass)i.next());
 			}
 			

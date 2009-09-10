@@ -26,7 +26,7 @@ public class Config extends CompositeConfiguration
 
 	protected static final String DEFAULT_PROPERTIES_FILENAME = "sadi.common.properties";
 	protected static final String LOCAL_PROPERTIES_FILENAME = "sadi.properties";
-	private static final Class[] CONSTRUCTOR_SIGNATURE = new Class[]{ Configuration.class };
+	private static final Class<?>[] CONSTRUCTOR_SIGNATURE = new Class<?>[]{ Configuration.class };
 
 	private static final Config theInstance = new Config(DEFAULT_PROPERTIES_FILENAME, LOCAL_PROPERTIES_FILENAME);
 	
@@ -73,8 +73,8 @@ public class Config extends CompositeConfiguration
 	protected static Object instantiate(Configuration instanceConfig) throws Exception
 	{
 		String className = instanceConfig.getString("");
-		Class clazz = Class.forName(className);
-		Constructor constructor = clazz.getConstructor(CONSTRUCTOR_SIGNATURE);
+		Class<?> clazz = Class.forName(className);
+		Constructor<?> constructor = clazz.getConstructor(CONSTRUCTOR_SIGNATURE);
 		return constructor.newInstance(instanceConfig);
 	}
 	

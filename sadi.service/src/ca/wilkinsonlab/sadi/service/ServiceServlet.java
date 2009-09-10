@@ -139,7 +139,7 @@ public abstract class ServiceServlet extends HttpServlet implements InputProcess
 		Model outputModel = createOutputModel();
 		Map<Resource, Resource> inputOutputMap = new HashMap<Resource, Resource>();
 		OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, inputModel);
-		for (Iterator i = ontModel.listIndividuals(inputClass); i.hasNext(); ) {
+		for (Iterator<?> i = ontModel.listIndividuals(inputClass); i.hasNext(); ) {
 			Resource inputNode = inputModel.getResource(((Resource)i.next()).getURI());
 			Resource outputNode = outputModel.createResource(inputNode.getURI(), outputClass);
 			inputOutputMap.put(inputNode, outputNode);
