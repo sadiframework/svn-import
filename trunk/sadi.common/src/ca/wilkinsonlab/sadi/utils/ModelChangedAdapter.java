@@ -27,6 +27,7 @@ public abstract class ModelChangedAdapter implements ModelChangedListener
 			addedStatement(s);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void addedStatements(List statements)
 	{
 		if (log.isTraceEnabled())
@@ -68,6 +69,7 @@ public abstract class ModelChangedAdapter implements ModelChangedListener
 			removedStatement(s);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void removedStatements(List statements)
 	{
 		if (log.isTraceEnabled())

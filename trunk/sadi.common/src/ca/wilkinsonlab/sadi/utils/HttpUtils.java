@@ -165,6 +165,7 @@ public class HttpUtils
 		 }
 	}
 	
+	@SuppressWarnings("serial")
 	public static class HttpResponseCodeException extends HttpException
 	{
 		int statusCode;

@@ -1,7 +1,5 @@
 package ca.wilkinsonlab.sadi.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -85,7 +83,7 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 		 */
 		Configuration servicesConfig = subset(SERVICE_SUBSET_KEY);
 		Map<String, Configuration> configs = new HashMap<String, Configuration>();
-		for (Iterator serviceKeys = servicesConfig.getKeys(); serviceKeys.hasNext(); ) {
+		for (Iterator<?> serviceKeys = servicesConfig.getKeys(); serviceKeys.hasNext(); ) {
 			String serviceKey = (String)serviceKeys.next();
 			if (serviceKey.contains("."))
 				continue; // only interested in the root property

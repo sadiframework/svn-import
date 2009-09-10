@@ -74,7 +74,7 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 		StopWatch stopWatch = new StopWatch();
 		Map<String, Registry> registries = new HashMap<String, Registry>();
 		Configuration registryConfig = subset(REGISTRY_SUBSET_KEY);
-		for (Iterator registryKeys = registryConfig.getKeys(); registryKeys.hasNext(); ) {
+		for (Iterator<?> registryKeys = registryConfig.getKeys(); registryKeys.hasNext(); ) {
 			String registryKey = (String)registryKeys.next();
 			if (registryKey.contains("."))
 				continue; // only interested in the root property

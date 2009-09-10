@@ -305,7 +305,7 @@ public class BioMobyService extends MobyService implements Service
 			MobyDataObject data = (MobyDataObject)outer;
 			convertMobyDataObjectToRdf(data, subject, predicate, accum);
 		} else if (inner instanceof Collection) { // output object is Collection
-			for (Object o: (Collection)inner) {
+			for (Object o: (Collection<?>)inner) {
 				MobyDataObject data = (MobyDataObject)o;
 				convertMobyDataObjectToRdf(data, subject, predicate, accum);
 			}
