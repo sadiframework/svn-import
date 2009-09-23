@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<sparql xmlns="http://www.w3.org/2005/sparql-results#">
+  <head>
+    <variable name="s"/>
+    <variable name="p"/>
+    <variable name="o"/>
+  </head>
+  <results>
+    <result>
+      <binding name="s">
+        <uri>http://www4.wiwiss.fu-berlin.de/drugbank/resource/drug_interactions/DB00008_DB01223</uri>
+      </binding>
+      <binding name="p">
+        <uri>http://www.w3.org/2000/01/rdf-schema#label</uri>
+      </binding>
+      <binding name="o">
+        <literal>DB00008 DB01223</literal>
+      </binding>
+    </result>
+    <result>
+      <binding name="s">
+        <uri>http://www4.wiwiss.fu-berlin.de/drugbank/resource/drug_interactions/DB00008_DB00651</uri>
+      </binding>
+      <binding name="p">
+        <uri>http://www.w3.org/2000/01/rdf-schema#label</uri>
+      </binding>
+      <binding name="o">
+        <literal>DB00008 DB00651</literal>
+      </binding>
+    </result>
+    <result>
+      <binding name="s">
+        <uri>http://www4.wiwiss.fu-berlin.de/drugbank/resource/drug_interactions/DB00008_DB01303</uri>
+      </binding>
+      <binding name="p">
+        <uri>http://www.w3.org/2000/01/rdf-schema#label</uri>
+      </binding>
+      <binding name="o">
+        <literal>DB00008 DB01303</literal>
+      </binding>
+    </result>
+    <result>
+      <binding name="s">
+        <uri>http://www4.wiwiss.fu-berlin.de/drugbank/resource/drug_interactions/DB00008_DB00277</uri>
+      </binding>
+      <binding name="p">
+        <uri>http://www.w3.org/2000/01/rdf-schema#label</uri>
+      </binding>
+      <binding name="o">
+        <literal>DB00008 DB00277</literal>
+      </binding>
+    </result>
+    <result>
+      <binding name="s">
+        <uri>http://www4.wiwiss.fu-berlin.de/drugbank/resource/drug_interactions/DB00009_DB00727</uri>
+      </binding>
+      <binding name="p">
+        <uri>http://www.w3.org/2000/01/rdf-schema#label</uri>
+      </binding>
+      <binding name="o">
+        <literal>DB00009 DB00727</literal>
+      </binding>
+    </result>
+  </results>
+</sparql>

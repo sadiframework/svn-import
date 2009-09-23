@@ -5,11 +5,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
 
 /*********************************************************
  * Various routines for building SPARQL query strings
@@ -23,7 +32,9 @@ import org.apache.commons.httpclient.URIException;
  **********************************************************/
 
 public class SPARQLStringUtils
-{
+{	
+	public final static Log log = LogFactory.getLog(SPARQLStringUtils.class);
+
 	static Pattern CONVERSION_SPECIFIERS = Pattern.compile("%[usv]%");
 	
 	/**
@@ -67,14 +78,19 @@ public class SPARQLStringUtils
 		int i;
 		for (i=0; i<substStrings.length && matcher.find(); ++i) {
 			String match = matcher.group();
-			if (match.equals("%u%"))
-				output = output.replaceFirst(match, String.format("<%s>", escapeURI(substStrings[i])));
-			else if (match.equals("%s%")) {
-				String escaped = escapeSPARQL(escapeSPARQL(substStrings[i]));
-				output = output.replaceFirst(match, String.format("\"%s\"", escaped));
+			if (match.equals("%u%")) {
+				//output = output.replaceFirst(match, String.format("<%s>", escapeURI(substStrings[i])));
+				output = StringUtils.replaceOnce(output, match, String.format("<%s>", escapeURI(substStrings[i])));
 			}
-			else if (match.equals("%v%"))
-				output = output.replaceFirst(match, substStrings[i]);
+			else if (match.equals("%s%")) {
+				String escaped = escapeSPARQL(substStrings[i]); //escapeSPARQL(escapeSPARQL(substStrings[i]));
+				//output = output.replaceFirst(match, String.format("\"%s\"", escaped));
+				output = StringUtils.replaceOnce(output, match, String.format("\"%s\"", escaped));
+			}
+			else if (match.equals("%v%")) {
+				//output = output.replaceFirst(match, substStrings[i]);
+				output = StringUtils.replaceOnce(output, match, substStrings[i]);
+			}
 		}
 		
 		if (matcher.find())
@@ -87,9 +103,7 @@ public class SPARQLStringUtils
 
 	/**
 	 * Return a quoted version of the given string, that is safe to insert
-	 * into a SPARQL query.  SPARQL has a special triple-quote mechanism which 
-	 * allows for strings with embedded newlines and quotes.  (Escape codes 
-	 * are treated just as they are in double-quoted or single-quoted strings.)
+	 * into a SPARQL query.  
 	 */
 	static public String escapeSPARQL(String s)
 	{
@@ -176,5 +190,90 @@ public class SPARQLStringUtils
 		}
 		input.close();
 		return buf.toString();
+	}
+
+	public static String getSPARQLQueryString(List<Triple> basicGraphPattern) 
+	{
+		StringBuilder query = new StringBuilder();
+		query.append("SELECT * WHERE {\n");
+		for(Triple triple : basicGraphPattern) {
+			query.append(getTriplePattern(triple));
+			query.append("\n");	
+		}
+		query.append("}");
+		String queryStr = query.toString();
+	
+		return queryStr;
+	}
+
+	public static String getTriplePattern(Triple triple) 
+	{
+		StringBuilder template = new StringBuilder();
+		Node sNode = triple.getSubject();
+		Node pNode = triple.getPredicate();
+		Node oNode = triple.getObject();
+		
+		if(sNode.isURI())
+			template.append("%u% ");
+		else
+			template.append("%v% ");
+		
+		if(pNode.isURI())
+			template.append("%u% ");
+		else
+			template.append("%v% ");
+		
+		String objectDatatypeURI = null;
+		
+		if(oNode.isURI())
+			template.append("%u% .");
+		else if(oNode.isVariable()) 
+			template.append("%v% .");
+		else if(oNode.isLiteral()) {
+			if(oNode.getLiteralDatatype() == null) {
+				template.append("%s% .");
+			}
+			else {
+				String typeURI = oNode.getLiteralDatatypeURI();
+				
+				// These builtin types can be included in the query
+				// without quotes, and their type will be correctly 
+				// interpreted.  For any other types, the value must
+				// be quoted and the datatype explicitly stated. --BV
+				
+				if(typeURI.equals(XSDDatatype.XSDboolean.getURI()) ||
+				   typeURI.equals(XSDDatatype.XSDinteger.getURI()) ||
+				   typeURI.equals(XSDDatatype.XSDdecimal.getURI()) ||
+				   typeURI.equals(XSDDatatype.XSDfloat.getURI()) ) 
+				{
+					template.append("%v% .");
+				}
+				else {
+					template.append("%s%^^%u% .");
+					objectDatatypeURI = typeURI;
+				}
+			}
+		}
+		else if(oNode.isBlank()) {
+			template.append("%u% .");
+		}
+
+		String s = RdfUtils.getPlainString(sNode);
+		String p = RdfUtils.getPlainString(pNode);
+		String o = RdfUtils.getPlainString(oNode);
+		String tripleStr = null;
+		
+		try {
+
+			if(objectDatatypeURI != null)
+				tripleStr = strFromTemplate(template.toString(), s, p, o, objectDatatypeURI);
+			else
+				tripleStr = strFromTemplate(template.toString(), s, p, o);
+		}
+		catch(URIException e) {
+			throw new RuntimeException(e);
+		}
+		
+		return tripleStr;
 	}
 }

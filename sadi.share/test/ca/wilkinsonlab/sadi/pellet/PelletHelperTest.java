@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.mindswap.pellet.PelletOptions;
 import org.mindswap.pellet.utils.ATermUtils;
 
+import ca.wilkinsonlab.sadi.utils.Pellet2JenaUtils;
+
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 
@@ -26,14 +28,14 @@ public class PelletHelperTest {
 	@Test
 	public void testGetNodeFromATerm_BlankNode() {
 		ATermAppl atermBNode = ATermUtils.makeTermAppl(PelletOptions.BNODE + "111");
-		Node jenaBNode = PelletHelper.getNodeFromATerm(atermBNode);
+		Node jenaBNode = Pellet2JenaUtils.getNode(atermBNode);
 		assertTrue(jenaBNode.isBlank());
 	}
 
 	@Test
 	public void testGetATermFromNode_BlankNode() {
 		Node jenaBNode = NodeCreateUtils.create("_111");
-		ATermAppl atermBNode = PelletHelper.getATermFromNode(jenaBNode);
+		ATermAppl atermBNode = Pellet2JenaUtils.getATerm(jenaBNode);
 		assertTrue(ATermUtils.isBnode(atermBNode));
 	}
 

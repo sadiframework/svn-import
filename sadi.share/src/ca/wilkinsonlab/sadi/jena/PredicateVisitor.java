@@ -21,7 +21,7 @@ import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
  * Pellet's ARQParser class has a parse() method for converting Jena 
  * queries to Pellet queries, which would be handy here.  Unfortunately, 
  * that method assumes that all predicates have already been defined in 
- * the knowledgebase. 
+ * the KnowledgeBase. 
  */
 public class PredicateVisitor implements ElementVisitor {
 

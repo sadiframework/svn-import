@@ -1,37 +1,34 @@
 package ca.wilkinsonlab.sadi.sparql;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.rmi.AccessException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.utils.HttpUtils;
-import ca.wilkinsonlab.sadi.utils.JsonUtils;
-import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpInputStream;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
 
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * 
  * @author Ben Vandervalk
  */
-public class VirtuosoSPARQLEndpoint extends SPARQLService
+public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 {
 	public final static Log log = LogFactory.getLog(VirtuosoSPARQLEndpoint.class);
 
@@ -39,7 +36,23 @@ public class VirtuosoSPARQLEndpoint extends SPARQLService
 	{
 		super(endpointURI);
 	}
-
+	
+	public VirtuosoSPARQLEndpoint(String endpointURI, String username, String password)  throws URIException
+	{
+		this(endpointURI);
+		if(username != null && password != null)
+			initCredentials(username, password);
+	}
+	
+	protected void initCredentials(String username, String password) throws URIException 
+	{
+		// Limit the use of this username/pass to only this endpoint.
+		String hostname = new URI(getURI(), false).getHost();
+		AuthScope authScope = new AuthScope(hostname, AuthScope.ANY_PORT, "SPARQL");
+		Credentials credentials = new UsernamePasswordCredentials(username, password);
+		HttpUtils.getHttpClient().getState().setCredentials(authScope, credentials);
+	}
+	
 	@Override
 	public void updateQuery(String query) throws HttpException, IOException, HttpResponseCodeException, AccessException
 	{
@@ -48,42 +61,12 @@ public class VirtuosoSPARQLEndpoint extends SPARQLService
 			response.close();
 		}
 		catch(HttpResponseCodeException e) {
-			// Virtuoso indicates a failed SPARUL query due to lack
-			// of permission as HTTP response code 500 ("Internal 
-			// Server Error").  
-			if(e.getStatusCode() == HttpStatus.SC_INTERNAL_SERVER_ERROR) 
-				throw new AccessException("No permission to perform update query on endpoint",e);
+			if(e.getStatusCode() == HttpStatus.SC_FORBIDDEN) 
+				throw new AccessException("unauthorized to perform update query on " + getURI(), e);
 			throw e;
 		}
 	}
 
-	protected Collection<Triple> convertConstructResponseToTriples(InputStream response)
-	{
-		return RdfUtils.getTriples(response, "N3");
-	}
-
-	protected List<Map<String,String>> convertSelectResponseToBindings(InputStream response) throws IOException 
-	{
-		String responseAsString = IOUtils.toString(response);
-		return JsonUtils.convertJSONToResults(JsonUtils.read(responseAsString));
-	}
-	
-	protected Collection<NameValuePair> getHTTPArgsForConstructQuery(String query) 
-	{
-		ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new NameValuePair("query",query));
-		params.add(new NameValuePair("format","text/rdf+n3"));
-		return params;
-	}
-	
-	protected Collection<NameValuePair> getHTTPArgsForSelectQuery(String query)
-	{
-		ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new NameValuePair("query",query));
-		params.add(new NameValuePair("format","JSON"));
-		return params;
-	}
-	
 	protected Collection<NameValuePair> getHTTPArgsForUpdateQuery(String query) 
 	{
 		ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -150,15 +133,9 @@ public class VirtuosoSPARQLEndpoint extends SPARQLService
 		return closureDepth;
 	}
 
-	public boolean isInputInstance(Resource resource)
+	public void clearGraph(String graphURI) throws IOException
 	{
-		log.warn("isInputInstance not yet implemented");
-		return false;
-	}
-
-	public Collection<Resource> discoverInputInstances(Model inputModel)
-	{
-		log.warn("discoverInputInstances not yet implemented");
-		return new ArrayList<Resource>(0);
+		String query = SPARQLStringUtils.strFromTemplate(	"CLEAR GRAPH %u%", graphURI);
+		updateQuery(query);
 	}
 }

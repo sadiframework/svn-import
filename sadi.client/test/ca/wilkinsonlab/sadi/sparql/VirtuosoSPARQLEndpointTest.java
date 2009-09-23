@@ -4,22 +4,20 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ca.wilkinsonlab.sadi.sparql.SPARQLService;
 import ca.wilkinsonlab.sadi.sparql.SPARQLEndpointFactory;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpointType;
+import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
 import junit.framework.TestCase;
-
 
 public class VirtuosoSPARQLEndpointTest extends TestCase
 {
 	public final static Log log = LogFactory.getLog(VirtuosoSPARQLEndpointTest.class);
 	
 	public final static String EXAMPLE_ENDPOINT1_URI = "http://omim.bio2rdf.org/sparql";
-	public final static SPARQLEndpointType EXAMPLE_ENDPOINT1_TYPE = SPARQLEndpointType.VIRTUOSO;
+	public final static EndpointType EXAMPLE_ENDPOINT1_TYPE = EndpointType.VIRTUOSO;
 	public final static String EXAMPLE_ENDPOINT2_URI = "http://pubmed.bio2rdf.org/sparql";
-	public final static SPARQLEndpointType EXAMPLE_ENDPOINT2_TYPE = SPARQLEndpointType.VIRTUOSO;
+	public final static EndpointType EXAMPLE_ENDPOINT2_TYPE = EndpointType.VIRTUOSO;
 
-	SPARQLService endpoint;
+	SPARQLEndpoint endpoint;
 	
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -86,7 +84,7 @@ public class VirtuosoSPARQLEndpointTest extends TestCase
 	public void testGetResultsCountLowerBound()
 	{
 		try {
-			SPARQLService endpoint = SPARQLEndpointFactory.createEndpoint(EXAMPLE_ENDPOINT2_URI, EXAMPLE_ENDPOINT2_TYPE);
+			SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(EXAMPLE_ENDPOINT2_URI, EXAMPLE_ENDPOINT2_TYPE);
 			endpoint.getResultsCountLowerBound("SELECT * WHERE { ?s ?p ?o }", 1);
 		}
 		catch(Exception e) {
