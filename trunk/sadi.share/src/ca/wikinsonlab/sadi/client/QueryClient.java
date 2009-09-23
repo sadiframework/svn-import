@@ -18,40 +18,6 @@ public abstract class QueryClient
 		return queryRunner.results;
 	}
 
-	/**
-	 * Execute a synchronous query, but abort the query and return
-	 * null if the query does not complete within a specified time 
-	 * limit.
-	 * 
-	 * @author Ben Vandervalk
-	 * @param query The SPARQL query to be executed
-	 * @param timeout The time limit, in milliseconds.
-	 * @return query results on success, null on timeout
-	 */
-	public List<Map<String, String>> synchronousQuery(String query, int timeout)
-	{
-		boolean queryFinished = true;
-		QueryRunner queryRunner = getQueryRunner(query, null);
-		try {
-			Thread queryThread = new Thread(queryRunner);
-			queryThread.start();
-			queryThread.join(timeout);
-			if(queryThread.isAlive()) {
-				queryFinished = false;
-				queryThread.stop();
-				//queryThread.join();
-				LOGGER.trace("Query aborted due to timeout.");
-			}
-		}
-		catch(InterruptedException e) {
-		}
-		
-		if(queryFinished)
-			return queryRunner.results;
-		else
-			return null;
-	}
-
 	/* TODO use java.util.concurrent to return Future objects...
 	 */
 	public void asynchronousQuery(String query, ClientCallback callback)

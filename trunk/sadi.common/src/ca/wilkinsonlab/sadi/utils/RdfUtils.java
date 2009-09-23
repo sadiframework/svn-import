@@ -176,9 +176,11 @@ public class RdfUtils
 	 * brackets or quotes, and without any xsd:datatype suffix.
 	 * 
 	 * The default string representation of a node in Jena quotes literals 
-	 * (including numbers) and appends the associated xsd:datatype.  Also, the
-	 * Jena string representation of a variable doesn't include the preceding
-	 * "?".
+	 * (including numbers) and appends the associated xsd:datatype.  However,
+	 * Jena does not include angle brackets around the absolute datatype URI,
+	 * so the default string form will not parse within a standard SPARQL query.  
+	 * Also, the Jena string representation of a variable doesn't include the 
+	 * preceding "?".
 	 * 
 	 * @param node
 	 * @return
@@ -186,15 +188,14 @@ public class RdfUtils
 	public static String getPlainString(Node node)
 	{
 		String str;
-		if(node.isURI()) {
+		if(node.isURI()) 
 			str = node.toString();
-		}
-		else if(node.isVariable()) {
+		else if(node.isVariable()) 
 			str = "?" + node.getName();
-		}
-		else {
-			str = node.getLiteralValue().toString();
-		}
+		else if(node.isBlank()) 
+			str = node.getBlankNodeLabel().toString(); 
+		else 
+			str = node.getLiteral().getLexicalForm().toString();
 		return str;
 	}
 	

@@ -10,6 +10,9 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ca.wilkinsonlab.sadi.biomoby.BioMobyRegistry;
+import ca.wilkinsonlab.sadi.sparql.SPARQLRegistry;
+
 /**
  * Client configuration class, containing information about which service
  * registries are available.  The defaults can be overridden in
@@ -60,6 +63,7 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 
 	private List<Registry> registries;
 	private MultiRegistry masterRegistry;
+	private SPARQLRegistry sparqlRegistry;
 
 	private Config(String defaultPropertiesFile, String localPropertiesFile)
 	{
@@ -92,6 +96,38 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 		
 		return buildPriorityList(registries, getString(REGISTRY_PRIORITY_KEY));
 	}
+	
+	/** 
+	 * Return the SADI SPARQL registry.  For now, we assume that there is exactly
+	 * one such registry. In the long run, this method should no longer be
+	 * needed, as all SADI registries should be treated uniformly.
+	 * 
+	 * @return the SADI SPARQL registry
+	 */
+	public static SPARQLRegistry getSPARQLRegistry() 
+	{
+		for(Registry r: getRegistries()) {
+			if(r instanceof SPARQLRegistry)
+				return (SPARQLRegistry)r;
+		}
+		return null;
+	}
+	
+	/** 
+	 * Return the SADI BioMoby registry.  For now, we assume that there is exactly
+	 * one such registry. In the long run, this method should no longer be
+	 * needed, as all SADI registries should be treated uniformly.
+	 * 
+	 * @return the SADI BioMoby registry
+	 */
+	public static BioMobyRegistry getMobyRegistry()
+	{
+		for (Registry reg: Config.getRegistries())
+			if (reg instanceof BioMobyRegistry)
+				return (BioMobyRegistry)reg;
+		return null;
+	}
+	
 	
 //	private List<Resolver> configureResolvers()
 //	{

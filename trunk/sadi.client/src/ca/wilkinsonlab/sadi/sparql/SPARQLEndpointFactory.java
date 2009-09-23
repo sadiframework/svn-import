@@ -1,6 +1,6 @@
 package ca.wilkinsonlab.sadi.sparql;
 
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpointType;
+import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
 
 /**
  * 
@@ -8,13 +8,15 @@ import ca.wilkinsonlab.sadi.sparql.SPARQLEndpointType;
  */
 public class SPARQLEndpointFactory 
 {
-	public static SPARQLService createEndpoint(String endpointURI, SPARQLEndpointType type) 
+	public static SPARQLEndpoint createEndpoint(String endpointURI, EndpointType type) 
 	{
 		switch(type) {
 		case VIRTUOSO:
 			return new VirtuosoSPARQLEndpoint(endpointURI);
+		case D2R:
+			return new SPARQLEndpoint(endpointURI);
 		default:
-			throw new IllegalArgumentException("Only Virtuoso SPARQL endpoints are currently supported");
+			throw new IllegalArgumentException("Unsupported SPARQL endpoint type: " + type.toString());
 		}
 	}
 }

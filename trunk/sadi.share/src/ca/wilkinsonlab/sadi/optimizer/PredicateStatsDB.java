@@ -4,60 +4,139 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ca.wilkinsonlab.sadi.share.Config;
 import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLEndpoint;
-import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLRegistry;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.PredicateStats;
-import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
+import ca.wilkinsonlab.sadi.vocab.W3C;
 
-public class PredicateStatsDB extends VirtuosoSPARQLEndpoint {
-
+public class PredicateStatsDB extends VirtuosoSPARQLEndpoint 
+{
 	public final static Log LOGGER = LogFactory.getLog(PredicateStatsDB.class);
-
-	// The registry of SPARQL endpoints.
-	protected VirtuosoSPARQLRegistry registry;
 	
-	private int avgForwardSelectivity;
+ 	protected final static String CONFIG_ROOT = "share.statsdb";
+
+ 	protected final static String ENDPOINT_CONFIG_KEY = "endpoint";
+	protected final static String GRAPH_CONFIG_KEY = "graph";
+	protected final static String USERNAME_CONFIG_KEY = "username";
+	protected final static String PASSWORD_CONFIG_KEY = "password";
+
+	// remember, PredicateStats.INFINITY == -1
+	public final static int NO_SAMPLES_AVAILABLE= -2;
+	
+	private int avgForwardSelectivity; 
 	private int avgReverseSelectivity;
 	private int avgForwardTime;
 	private int avgReverseTime;
+
+	private boolean avgStatsInitialized = false;
+
+	private String graphName;
 	
 	public PredicateStatsDB() throws HttpException, IOException
 	{
-		this(PredicateStats.DEFAULT_PREDSTATSDB_URI, SPARQLRegistryOntology.DEFAULT_REGISTRY_ENDPOINT);
+		this(Config.getConfiguration().subset(CONFIG_ROOT));
 	}
 	
-	public PredicateStatsDB(String statsDBURI, String sparqlRegistryURI) throws HttpException, IOException 
+	public PredicateStatsDB(Configuration config) throws IOException
 	{
-		super(statsDBURI);
-		registry = new VirtuosoSPARQLRegistry(sparqlRegistryURI);
+		super(config.getString(ENDPOINT_CONFIG_KEY), 
+			config.getString(USERNAME_CONFIG_KEY),
+			config.getString(PASSWORD_CONFIG_KEY));
 		
-		LOGGER.trace("Calculating average forward selectivity over all predicates");
-		avgForwardSelectivity = calcAverageStat(true, true);
-		LOGGER.trace("Calculating average reverse selectivity over all predicates");
-		avgReverseSelectivity = calcAverageStat(true, false);
-		LOGGER.trace("Calculating average forward time over all predicates");
-		avgForwardTime = calcAverageStat(false, true);
-		LOGGER.trace("Calculating average reverse time over all predicates");
-		avgReverseTime = calcAverageStat(false, false);
-		
+		graphName = config.getString(GRAPH_CONFIG_KEY);
 	}
 	
-	public int getPredicateStat(String predicate, boolean statIsSelectivity, boolean directionIsForward) throws URIException, HttpException, IOException 
+	public String getGraphName()
+	{
+		return graphName;
+	}
+	
+	/**
+	 * Return true if the statistics database has been initialized with at least one sample
+	 * of each type (forward selectivity, reverse selectivity, forward time, reverse time).
+	 * 
+	 * @return true if the statistics DB has at least one sample of each type, false otherwise.
+	 */
+	public boolean isPopulated() throws IOException 
+	{
+		return !(hasSample(false, false) &&
+				hasSample(false, true) &&
+				hasSample(true, false) &&
+				hasSample(true, true));
+	}
+	
+	private boolean hasSample(boolean statIsSelectivity, boolean directionIsForward) throws IOException
+	{
+		String samplePredicate = statIsSelectivity ? PredicateStats.PREDICATE_SELECTIVITYSAMPLE : PredicateStats.PREDICATE_TIMESAMPLE;		
+		
+		String query = 	
+			"SELECT * FROM %u% WHERE {\n" +
+			"    ?predicate %u% ?sample .\n" +
+			"    ?sample %u% %v% .\n" +
+			"    FILTER (?sample != %v%)" +
+			"}\n" +
+			"LIMIT 1";
+		
+		query = SPARQLStringUtils.strFromTemplate(query, 
+				getGraphName(),
+				samplePredicate,
+				PredicateStats.PREDICATE_TIMESTAMP, String.valueOf(directionIsForward),
+				String.valueOf(PredicateStats.INFINITY));
+		
+		return (selectQuery(query).size() == 1);
+	}	
+	
+	public boolean statIsInfinity(String predicate, boolean statIsSelectivity, boolean directionIsForward) throws IOException
 	{
 		String query = 
-			"SELECT AVG(?stat) FROM %u% " +
-			"WHERE { " +
-			"   %u% %u% ?sample . " +
-			"   ?sample %u% %s% . " +
-			"   ?sample %u% ?stat . " +
+			"SELECT ?infinity FROM %u%\n" +
+			"WHERE {\n" +
+			"   %u% %u% ?sample .\n" +
+			"   ?sample %u% %s% . \n" +
+			"   ?sample %u% ?infinity .\n" +
+			"   FILTER (?infinity = %v%) \n" +
 			"}";
 		
+		String samplePredicate = statIsSelectivity ? PredicateStats.PREDICATE_SELECTIVITYSAMPLE : PredicateStats.PREDICATE_TIMESAMPLE;
+		String statPredicate = statIsSelectivity ? PredicateStats.PREDICATE_SELECTIVITY : PredicateStats.PREDICATE_TIME;
+
+		query = SPARQLStringUtils.strFromTemplate(query, 
+				getGraphName(),
+				predicate,
+				samplePredicate,
+				PredicateStats.PREDICATE_DIRECTION_IS_FORWARD,
+				String.valueOf(directionIsForward),
+				statPredicate,
+				String.valueOf(PredicateStats.INFINITY));
+
+		List<Map<String,String>> results = selectQuery(query);
+		
+		return (results.size() > 0);
+	}
+	
+	public int getAverageSampleValue(String predicate, boolean statIsSelectivity, boolean directionIsForward) throws IOException
+	{
+		if(statIsInfinity(predicate, statIsSelectivity, directionIsForward))
+			return PredicateStats.INFINITY;
+		
+		String query = 
+			"SELECT AVG(?stat) FROM %u%\n" +
+			"WHERE {\n" +
+			"   %u% %u% ?sample .\n" +
+			"   ?sample %u% %s% .\n" +
+			"   ?sample %u% ?stat .\n" +
+			"}";
+
+		String samplePredicate = statIsSelectivity ? PredicateStats.PREDICATE_SELECTIVITYSAMPLE : PredicateStats.PREDICATE_TIMESAMPLE;
+		String statPredicate = statIsSelectivity ? PredicateStats.PREDICATE_SELECTIVITY : PredicateStats.PREDICATE_TIME;
+		
+		/*
 		String samplePredicate;
 		String statPredicate;
 		if(statIsSelectivity) {
@@ -68,9 +147,10 @@ public class PredicateStatsDB extends VirtuosoSPARQLEndpoint {
 			samplePredicate = PredicateStats.PREDICATE_TIMESAMPLE;
 			statPredicate = PredicateStats.PREDICATE_TIME;
 		}
-		
+		*/
+
 		query = SPARQLStringUtils.strFromTemplate(query, 
-				PredicateStats.GRAPH_PREDSTATS,
+				getGraphName(),
 				predicate,
 				samplePredicate,
 				PredicateStats.PREDICATE_DIRECTION_IS_FORWARD,
@@ -78,18 +158,37 @@ public class PredicateStatsDB extends VirtuosoSPARQLEndpoint {
 				statPredicate);
 		
 		List<Map<String,String>> results = selectQuery(query);
-		
+	
 		if(results.size() == 0)
 			throw new RuntimeException();
+		
+		// If the predicate has no stats in the DB
 		if(!results.get(0).keySet().iterator().hasNext())
-			return getAverageStat(statIsSelectivity, directionIsForward);
-
+			return NO_SAMPLES_AVAILABLE;
+		
 		String columnHeader = results.get(0).keySet().iterator().next();
 		return Integer.valueOf(results.get(0).get(columnHeader));
 	}
 	
-	public int getAverageStat(boolean statIsSelectivity, boolean directionIsForward)
+	public int getPredicateStat(String predicate, boolean statIsSelectivity, boolean directionIsForward) throws IOException 
 	{
+		// Special case: We want to delay querying with an rdf:type for as long as possible
+		if(predicate.equals(W3C.PREDICATE_RDF_TYPE) && !directionIsForward)
+			return PredicateStats.INFINITY;
+		
+		int avg = getAverageSampleValue(predicate, statIsSelectivity, directionIsForward);
+		
+		if(avg == NO_SAMPLES_AVAILABLE)
+			return getAverageStat(statIsSelectivity, directionIsForward);
+		else
+			return avg;
+	}
+	
+	public int getAverageStat(boolean statIsSelectivity, boolean directionIsForward) throws IOException
+	{
+		if(!avgStatsInitialized) 
+			initAverageStatValues();
+		
 		if(statIsSelectivity) {
 			if(directionIsForward)
 				return avgForwardSelectivity;
@@ -104,45 +203,45 @@ public class PredicateStatsDB extends VirtuosoSPARQLEndpoint {
 		}
 	}
 	
-	private int calcAverageStat(boolean statIsSelectivity, boolean directionIsForward) throws URIException, HttpException, IOException
+	private void initAverageStatValues() throws IOException 
 	{
 		String query = 
-			"SELECT AVG(?stat) FROM %u% " +
-			"WHERE { " +
-			"   ?sample %u% %s% . " +
-			"   ?sample %u% ?stat . " +
+			"SELECT ?forwardSel ?reverseSel ?forwardTime ?reverseTime\n" +
+			"FROM %u%\n" +
+			"WHERE {\n" +
+			"   %u% %u% ?forwardSel .\n" +
+			"   %u% %u% ?reverseSel .\n" +
+			"   %u% %u% ?forwardTime .\n" +
+			"   %u% %u% ?reverseTime .\n" +
 			"}";
 		
-		String statPredicate;
-		if(statIsSelectivity)
-			statPredicate = PredicateStats.PREDICATE_SELECTIVITY;
-		else
-			statPredicate = PredicateStats.PREDICATE_TIME;
-		
 		query = SPARQLStringUtils.strFromTemplate(query, 
-				PredicateStats.GRAPH_PREDSTATS,
-				PredicateStats.PREDICATE_DIRECTION_IS_FORWARD,
-				String.valueOf(directionIsForward),
-				statPredicate);
+				getGraphName(),
+				getGraphName(),
+				PredicateStats.PREDICATE_AVG_FORWARD_SELECTIVITY,
+				getGraphName(),
+				PredicateStats.PREDICATE_AVG_REVERSE_SELECTIVITY,
+				getGraphName(),
+				PredicateStats.PREDICATE_AVG_FORWARD_TIME,
+				getGraphName(),
+				PredicateStats.PREDICATE_AVG_REVERSE_TIME);
 		
 		List<Map<String,String>> results = selectQuery(query);
 		
-		/**
-		 * NOTE: If the aggregate can't be computed 
-		 * (e.g. trying to take the AVG() of a list of URIs)
-		 * or there are no matching entries in the database,
-		 * Virtuoso returns a result set of size 1 with no bindings. 
-		 * 
-		 * I don't know if this is standard behaviour across different
-		 * types of SPARQL endpoints. -- BV
-		 */
 		if(results.size() == 0)
-			throw new RuntimeException();
-		if(!results.get(0).keySet().iterator().hasNext())
-			return 0;
-			
-		String columnHeader = results.get(0).keySet().iterator().next();
-		return Integer.valueOf(results.get(0).get(columnHeader));
+			throw new RuntimeException("Average values for selectivity and delay time are not present in the statistics DB");
+
+		if(results.size() > 1)
+			throw new RuntimeException("There is more than one value in the database for average selectivity and delay time.");
+		
+		Map<String,String> values = results.iterator().next();
+		
+		avgForwardSelectivity = Integer.valueOf(values.get("forwardSel"));
+		avgReverseSelectivity = Integer.valueOf(values.get("reverseSel"));
+		avgForwardTime = Integer.valueOf(values.get("forwardTime"));
+		avgReverseTime = Integer.valueOf(values.get("reverseTime"));
+		
+		avgStatsInitialized = true;
 	}
 
 }

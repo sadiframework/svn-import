@@ -9,15 +9,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mindswap.pellet.jena.PelletQueryExecution;
 import org.mindswap.pellet.jena.PelletReasonerFactory;
 
 import ca.wikinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.biomoby.BioMobyRegistry;
 import ca.wilkinsonlab.sadi.client.Config;
-import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.jena.PredicateVisitor;
-import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLRegistry;
+import ca.wilkinsonlab.sadi.sparql.SPARQLRegistry;
+import ca.wilkinsonlab.sadi.utils.OwlUtils;
 
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.query.Query;
@@ -40,6 +42,8 @@ import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
 
 public class PelletClient extends QueryClient
 {
+	private static final Log log = LogFactory.getLog(PelletClient.class);
+	
 	@Override
 	protected QueryRunner getQueryRunner(String query, ClientCallback callback)
 	{
@@ -51,8 +55,8 @@ public class PelletClient extends QueryClient
 		Query query = QueryFactory.create(queryString);
 		OntModel model = createOntologyModel(query);
 		QueryExecution qexec = new PelletQueryExecution(query, model);
-        ResultSet resultSet = qexec.execSelect();
-        qexec.close();
+		ResultSet resultSet = qexec.execSelect();
+		qexec.close();
         
 		return resultSet;
 	}
@@ -63,20 +67,19 @@ public class PelletClient extends QueryClient
 		 * into a FROM clause...
 		 */
 		OntModel model = ModelFactory.createOntologyModel( PelletReasonerFactory.THE_SPEC );        
-        model.setStrictMode( false );
-        
-        /* TODO figure out a better way to do this on a consistent basis
-         * for each registry...
-         */
-//        for (Registry registry: Config.getRegistries())
-//        	model.add(registry.getPredicateOntology());
+		model.setStrictMode( false );
+
+		/* TODO figure out a better way to do this on a consistent basis
+		 * for each registry...
+		 */
 
 		try {
+
 			// Walk the query to get the set of predicates used within.
 			Set<String> predicates = new HashSet<String>();
 			ElementVisitor v = new PredicateVisitor(predicates);
 			ElementWalker.walk(query.getQueryPattern(), v);
-			
+
 			/* TODO resolve each of the predicates referenced by the query
 			 * into the OntModel to get us past the initial check in
 			 * org.mindswap.pellet.query.QueryEngine
@@ -88,62 +91,94 @@ public class PelletClient extends QueryClient
 			 * For now, just load the predicate definitions up front...
 			 */
 			model.read("http://sadiframework.org/ontologies/service_objects.owl");
+
 			
-			// Many predicates defined in SPARQL endpoints aren't resolvable,
-			// so try to find definitions within the SPARQL registry before
-			// trying to find them on the web.
-//			VirtuosoSPARQLRegistry sparqlReg = new VirtuosoSPARQLRegistry();
-			VirtuosoSPARQLRegistry sparqlReg = findSPARQLRegistry();
-			if (sparqlReg != null) {
-				List<String> remainingPredicates = new ArrayList<String>();
-				for(String predicate : predicates) {
-					if(sparqlReg.hasPredicate(predicate)) {
-						if(sparqlReg.isDatatypeProperty(predicate))
-							model.createDatatypeProperty(predicate);
-						else
-							model.createObjectProperty(predicate);
-					}
-					else
-						remainingPredicates.add(predicate);
-				}
-			}
-			
+			// Many predicates referenced in SPARQL endpoints either aren't resolvable,
+			// or are just plain RDF properties.   For this reason, we must try to 
+			// determine the type of each predicate using the SPARQL registry before
+			// we try to resolve them on the web. -- BV
+
+			Set<String> unresolvedPredicates = new HashSet<String>();
+			if(Config.getSPARQLRegistry() != null)
+				unresolvedPredicates = addPredicatesFromSPARQLRegistry(model, predicates);
+
 			// TODO: Instead of loading the whole ontology here, just resolve the
-			// URIs in remainingPredicates on the web. Can't do this at
-			// the moment because the synonyms to Dumontier's predicates
-			// are in http://dev.biordf.net/~benv/predicates.owl, and the
-			// service annotations use the old predicates.
-//			BioMobyRegistry mobyRegistry = new BioMobyRegistry();
-			BioMobyRegistry mobyRegistry = findMobyRegistry();
+			// URIs in unresolvedPredicates on the web.   There are a couple of issues
+			// that need to be worked out relating to this:
+			//
+			// 1) Importing entire ontologies for the sake of a single predicate can
+			// lead to inconsistency errors.  (For example if there are domain/range 
+			// restrictions on the imported predicates.)
+			//
+			// 2) Some predicates resolve to RDF files, rather than OWL files.  This
+			// causes a SAXParseException with our current setup.
+			// 
+			// Also note, for some reason I don't understand, if I add predicates 
+			// from the SPARQL registry *after* the moby registry ontology has been
+			// added, the SPARQL predicates are reported as undefined.  This is baffling.
+			//
+			// -- BV
+			
+			BioMobyRegistry mobyRegistry = Config.getMobyRegistry();
 			if (mobyRegistry != null) {
 				model.add(mobyRegistry.getPredicateOntology());
-			}
+			}	
+		
+			
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-        
-        for (Iterator iter = query.getGraphURIs().iterator(); iter.hasNext();) {
-        	String sourceURI = (String) iter.next();
-        	model.read( sourceURI );
-        }
 
-        return model;
+		for (Iterator iter = query.getGraphURIs().iterator(); iter.hasNext();) {
+			String sourceURI = (String) iter.next();
+			model.read( sourceURI );
+		}
+
+		return model;
 	}
-	
-	private static VirtuosoSPARQLRegistry findSPARQLRegistry()
+
+	/**
+	 * For a given list of predicate URIs, query the type of each predicate from the
+	 * SPARQL registry and add a corresponding property to the given
+	 * OntModel.
+	 * 
+	 * @param model
+	 * @param predicates
+	 * @return The set of predicates for which the SPARQL registry had no type 
+	 * information (i.e. object property vs. datatype property).  The predicates in 
+	 * this set are not added to the given OntModel. 
+	 */
+	private static Set<String> addPredicatesFromSPARQLRegistry(OntModel model, Set<String> predicates) throws IOException 
 	{
-		for (Registry reg: Config.getRegistries())
-			if (reg instanceof VirtuosoSPARQLRegistry)
-				return (VirtuosoSPARQLRegistry)reg;
-		return null;
-	}
-	
-	private static BioMobyRegistry findMobyRegistry()
-	{
-		for (Registry reg: Config.getRegistries())
-			if (reg instanceof BioMobyRegistry)
-				return (BioMobyRegistry)reg;
-		return null;
+		SPARQLRegistry sparqlReg = Config.getSPARQLRegistry();
+		Set<String> unresolvedPredicates = new HashSet<String>();
+
+		for(String predicate : predicates) {
+			/* 
+			 * NOTE: It seems sensible to skip properties that are
+			 * already defined in the model here, but this ultimately causes
+			 * queries which use annotation-type properties (e.g. dc:title) 
+			 * to return zero results.  In such cases, we want the
+			 * properties to be defined as both datatype properties 
+			 * and annotation properties. 
+			 * --BV
+			 */
+			/*
+		 	if((model.getDatatypeProperty(predicate) != null) || 
+		 	   (model.getObjectProperty(predicate) != null))
+				continue;
+			*/
+			if(sparqlReg.hasPredicate(predicate)) {
+				if(sparqlReg.isDatatypeProperty(predicate))
+					model.createDatatypeProperty(predicate);
+				else
+					model.createObjectProperty(predicate);
+			}
+			else 
+				unresolvedPredicates.add(predicate);
+		}	
+		
+		return unresolvedPredicates;
 	}
 	
 	@SuppressWarnings("unused")

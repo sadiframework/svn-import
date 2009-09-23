@@ -83,6 +83,7 @@ public class OwlUtils
 		model.read( StringUtils.substringBefore( uri, "#" ) );
 	}
 	
+		
 	/**
 	 * Return the set of properties the OWL class identified by a URI has restrictions on.
 	 * The ontology containing the OWL class (and any referenced imports) will be fetched

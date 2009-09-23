@@ -25,7 +25,7 @@ public class PredicateUtils
 		if(isInverted(predicate)) {
 			Matcher matcher = invertedPredicatePattern.matcher(predicate);
 			if(!matcher.find()) 
-				throw new RuntimeException("predicate did not match expected regular expression '^inv(.+)$'");
+				throw new RuntimeException("predicate did not match expected regular expression " + invertedPredicatePattern.toString());
 			predicate = matcher.group(1);
 		}
 		else

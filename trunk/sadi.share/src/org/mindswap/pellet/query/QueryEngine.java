@@ -31,11 +31,9 @@ package org.mindswap.pellet.query;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,8 +62,7 @@ import org.mindswap.pellet.utils.Timer;
 
 import aterm.ATermAppl;
 
-import ca.wilkinsonlab.sadi.optimizer.PrimOptimizer;
-import ca.wilkinsonlab.sadi.pellet.PelletHelper;
+import ca.wilkinsonlab.sadi.optimizer.PelletOptimizer;
 import ca.wilkinsonlab.sadi.pellet.SADIQueryExec;
 
 import com.hp.hpl.jena.query.Syntax;
@@ -77,14 +74,8 @@ import com.hp.hpl.jena.query.Syntax;
 @SuppressWarnings("unchecked")
 public class QueryEngine {
 
-	/**
-	 * PATCH: Added for SADI query optimization. -- BV
-	 */
-	private enum StaticOptimizer { NONE, PRIM };
-	private static final StaticOptimizer staticOptimizer = StaticOptimizer.NONE;
-	
 	public final static Log log = LogFactory.getLog( QueryEngine.class );
-    
+
     public final static Syntax DEFAULT_SYNTAX = Syntax.syntaxSPARQL;
     
     private static DistVarsQueryExec distVars = new DistVarsQueryExec();
@@ -158,10 +149,19 @@ public class QueryEngine {
                 
             return results;             
         }
+        
+        /* 
+         * PATCH: We don't want the special case of
+         * "no variables in the query" to bypass the
+         * DynamicKnowledgeBase. --BV
+         */
+        
+        /*
         else if( query.isGround() ) {
             return noVars.exec( query );
         }
-            
+        */
+        
         if( PelletOptions.SIMPLIFY_QUERY ) {
             if( log.isInfoEnabled() )
                 log.info( "Simplifying:\n" + query );
@@ -222,39 +222,6 @@ public class QueryEngine {
 	    throw new InternalReasonerException( "Cannot determine which query engine to use" );
     }
     
-    private static class QueryPatternComparator implements Comparator<QueryPattern>
-    {
-		private Map<QueryPattern, Integer> patternToCount;
-		
-		public QueryPatternComparator()
-		{
-			patternToCount = new HashMap<QueryPattern, Integer>();
-		}
-		
-		private Integer countFreeVars(QueryPattern pattern)
-		{
-			Integer n = patternToCount.get(pattern);
-			if (n == null) {
-				n = 0;
-				if (ATermUtils.isVar(pattern.getSubject()))
-					++n;
-//				if (ATermUtils.isVar(pattern.getPredicate()))
-//					++n;
-				if (ATermUtils.isVar(pattern.getObject()))
-					++n;
-				patternToCount.put(pattern, n);
-			}
-			return n;
-		}
-
-		public int compare(QueryPattern pattern1, QueryPattern pattern2)
-		{
-			return countFreeVars(pattern1).compareTo(countFreeVars(pattern2));
-		}
-    	
-    }
-    
-    
 	/**
 	 * Reorder the triple patterns of the query, prior to query execution.
 	 * 
@@ -264,91 +231,15 @@ public class QueryEngine {
 	 */
     public static Query reorder( Query query ) {
     	
-    	
+    	// Keeping this here in case original reordering has side effects. -- BV
     	Query q = originalReorder( query );
 
-    	switch(QueryEngine.staticOptimizer) {
-
-    	case NONE:
-    	default:
-    		//System.out.println("Optimizer: Off");
-    		q = reorderForResolutionByWebServices(query);
-    		break;
+    	PelletOptimizer optimizer = new PelletOptimizer(query.getKB());
+    	q = optimizer.optimize(query);
     	
-    	case PRIM:
-    		//System.out.println("Optimizer: Static Prim");
-    		PelletHelper.optimizeQuery(q, new PrimOptimizer());
-    		break;
-    	}
     	return q;
     }
     
-    /*****************************************************************
-     * <p>Reorder the patterns in the query so that each pattern
-     * contains at most one unbound variable not present in a
-     * previous pattern.</p>
-     * 
-     * <p>The Pellet query engine will resolve a SPARQL query by
-     * attempting to resolve each triple in the WHERE clause one
-     * at a time, in the order they are given.</p>
-     *    
-     * <p>However, in order for a SPARQL query to be resolved by means of 
-     * web service calls, there is an additional requirement:</p>
-     * 
-     * <p>=> Each triple can contain at most one variable that hasn't
-     * been solved (bound) by a previous triple.</p>
-     * 
-     * <p>The purpose of this method is to reorder the triples to
-     * satisfy this requirement (if possible).</p>
-     * 
-     * @param query The query object, containing the list of 
-     *              triples to be reordered.
-     * @return The same query object, with the reordered triples.
-     ****************************************************************/
-    private static Query reorderForResolutionByWebServices(Query query) {
-    	Collections.sort(query.getQueryPatterns(), new QueryPatternComparator());
-    	
-    	List<QueryPattern> patternsRemaining = new LinkedList<QueryPattern>(query.getQueryPatterns()); 
-    	List<QueryPattern> patternsOrdered = new ArrayList<QueryPattern>();
-    	Set<ATermAppl> boundVars = new HashSet<ATermAppl>();
-    	boolean bFoundSolution = true;
-        
-   		while (!patternsRemaining.isEmpty()) {
-   			boolean bFoundNextPattern = false;
-   			for (Iterator<QueryPattern> i = patternsRemaining.iterator(); i.hasNext(); ) {
-   				QueryPattern pattern = i.next();
-        		ATermAppl s = pattern.getSubject();
-        		ATermAppl o = pattern.getObject();
-        		boolean bSubjIsUnboundVar = ATermUtils.isVar(s) && !boundVars.contains(s); 
-        		boolean bObjIsUnboundVar = ATermUtils.isVar(o) && !boundVars.contains(o);
-        		if (!bSubjIsUnboundVar || !bObjIsUnboundVar) {
-        			if (bSubjIsUnboundVar)
-        				boundVars.add(s);
-        			if (bObjIsUnboundVar)
-        				boundVars.add(o);
-        			i.remove();
-        			patternsOrdered.add(pattern);
-        			bFoundNextPattern = true;
-        			break;
-        		}
-   			}
-   			if (!bFoundNextPattern) {
-   				patternsOrdered.addAll(patternsRemaining);
-   				bFoundSolution = false;
-   				break;
-   			}
-    	}
-    	
-   		if (!bFoundSolution) {
-    		log.warn("It is not possible to resolve this query by web services alone.");
-    	}
-
-    	query.getQueryPatterns().clear();
-   		query.getQueryPatterns().addAll(patternsOrdered);
-
-    	return query;
-    }
-
     private static Query originalReorder( Query query ) {        
         double minCost = Double.POSITIVE_INFINITY;
         

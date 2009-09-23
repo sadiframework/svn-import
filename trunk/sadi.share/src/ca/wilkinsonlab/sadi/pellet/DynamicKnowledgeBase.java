@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.pellet;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,9 +20,9 @@ import aterm.ATermAppl;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.rdf.RdfService;
-import ca.wilkinsonlab.sadi.sparql.SPARQLService;
 import ca.wilkinsonlab.sadi.sparql.SPARQLServiceWrapper;
 import ca.wilkinsonlab.sadi.utils.HttpUtils;
+import ca.wilkinsonlab.sadi.utils.Pellet2JenaUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
 
@@ -31,6 +32,7 @@ import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.impl.LiteralLabel;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -51,7 +53,7 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		log.debug("new ca.wilkinsonlab.sadi.pellet.DynamicKnowledgeBase instantiated");
 		
 		tracker = new Tracker();
-		
+
 		Configuration config = ca.wilkinsonlab.sadi.share.Config.getConfiguration();
 		
 		deadServices = Collections.synchronizedSet(new HashSet<String>());
@@ -258,48 +260,10 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 
 	private void gatherTriples(ATermAppl subject, ATermAppl predicate)
 	{
-		String p = predicate.toString();
-
-//		if (p.equals(RDFS.label.getURI()) || p.equals(RDFS.comment.getURI()))
-//			return;
-		
-		/* If the predicate is of the form "inv(URI)", try to translate
-		 * this to an actual inverse predicate.  It's okay if there
-		 * is no such predicate though, because some services (i.e. SPARQL
-		 * endpoints) can resolve "inv(URI)" as is.  
-		 */
-		boolean failedToFindInverse = false;
-		if(ATermUtils.isInv(predicate)) {
-			String inverse = translateInverseToPredicate(predicate);
-			if(inverse != null)
-				p = inverse;
-			else
-				failedToFindInverse = true; 
-		}
-
-		Collection<String> predicateSynonyms;
-		
-		if(failedToFindInverse) {
-			/* We are about to retrieve/invoke services for "inv(predicate)".
-			 * We also want to find all services for "inv(synonym)", where synonym is 
-			 * an equivalent property of predicate.
-			 */
-			predicateSynonyms = new ArrayList<String>();
-			// NOTE: makeInv applied applied to "inv(pred)" yields "pred"
-			ATermAppl barePredicate = ATermUtils.makeInv(predicate);
-			Collection<String> inverseSynonyms = getPredicateSynonyms(barePredicate.toString());
-			for(String inverseSynonym : inverseSynonyms) {
-				ATermAppl inv = ATermUtils.makeTermAppl(inverseSynonym);
-				predicateSynonyms.add(ATermUtils.makeInv(inv).toString());
-			}
-		}
-		else {
-			predicateSynonyms = getPredicateSynonyms(p);
-		}
-
 		Collection<Triple> triples = new ArrayList<Triple>();
-		for (String predicateSynonym: predicateSynonyms)
-			gatherTriples(subject, predicateSynonym, triples);
+		for (ATermAppl synonym: getAllEquivalentPropertiesIncludingInverses(predicate)) {
+			gatherTriples(subject, synonym.toString(), triples);
+		}
 		
 		addTriplesToKB(triples, true);
 	}
@@ -322,7 +286,7 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 			
 			OntClass inputClass = getInputClass(service);
 			if (inputClass != null) {
-				for (ATermAppl input: getInstances(makeATermAppl(inputClass.asNode()))) {
+				for (ATermAppl input: getInstances(Pellet2JenaUtils.getATerm(inputClass.asNode()))) {
 					/* at this point, we know the input instance is of the
 					 * appropriate type, so we can add it explicitly...
 					 */
@@ -351,80 +315,106 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	{
 		log.info(String.format("gathering triples matching <%s> <%s> ?", subject, predicate));
 
-		String s = subject.toString();
-		
-		/* this is a hack to support unknown URIs in the SPARQL client...
-		 * this is also probably broken now that I've changed the way services
-		 * are discovered...
-		 */
-		Resource subjectAsResource = model.createResource(s);
+		for (Service service : Config.getMasterRegistry().findServicesByPredicate(predicate)) {
+
+			log.trace(String.format("found service %s", service));
+			if (deadServices.contains(service.getServiceURI()))
+				return;
+
+			/* SPARQL endpoints are treated as a special case, because they are the only type of service 
+			 * that can accept a literal as input. -- BV */
+			if(service instanceof SPARQLServiceWrapper)
+				invokeSPARQLService((SPARQLServiceWrapper)service, subject, predicate, accum);
+			else
+				invokeService(service, subject, predicate, accum);
+		}
+
+	}
+
+	private void invokeSPARQLService(SPARQLServiceWrapper service, ATermAppl subject, String predicate, Collection<Triple> accum)
+	{
+		try {
+			
+			/* SPARQL endpoints differ from RDF/Moby services in that the same URI
+			 * may be used to query both the subject and the object of a predicate.
+			 * These two cases must be distinguished within the Tracker. -- BV
+			 */
+			String trackerIdPrefix = predicate.startsWith("inv(") ? "object=" : "subject=";
+			
+			if(ATermUtils.isLiteral(subject)) {
+				Literal literal = Pellet2JenaUtils.getLiteral(subject);
+				if(tracker.beenThere(service, trackerIdPrefix + literal.toString()))
+					return;
+				log.info(getServiceCallString(service, subject.toString()));
+				accum.addAll(service.invokeService(literal));
+			}
+			else {
+				if(tracker.beenThere(service, trackerIdPrefix + subject.toString()))
+					return;
+				Resource resource = model.createResource(subject.toString());
+				if(service.isInputInstance(resource)) {
+					log.info(getServiceCallString(service, subject.toString()));
+					accum.addAll(service.invokeService(resource));
+				}
+			}
+		}
+		catch (Exception e) {
+			log.error(String.format("failed to invoke service %s", service), e);
+			if (HttpUtils.isHttpError(e) || (e instanceof IOException))
+				deadServices.add(service.getServiceURI());
+		}
+
+	}
+	
+	private void invokeService(Service service, ATermAppl subject, String predicate, Collection<Triple> accum)
+	{
+		Resource subjectAsResource = model.createResource(subject.toString());
 		if ( !RdfUtils.isTyped(subjectAsResource) )
 			attachType(subjectAsResource);
 		
-		for (Service service : Config.getMasterRegistry().findServicesByPredicate(predicate)) {
-			OntClass inputClass = getInputClass(service);
-			if (inputClass != null) {
-				/* first, ask the service if this input has the appropriate
-				 * input type; this wouldn't be necessary if we loaded the
-				 * service's input class definition into our KB, but that
-				 * means we'll suddenly care about ontological inconsistency
-				 * between service definitions...
-				 * if that fails, check our own (dynamic) KB to see if we can
-				 * add properties to make the subject a valid input to this
-				 * service...
+		OntClass inputClass = getInputClass(service);
+		if (inputClass != null) {
+			/* first, ask the service if this input has the appropriate
+			 * input type; this wouldn't be necessary if we loaded the
+			 * service's input class definition into our KB, but that
+			 * means we'll suddenly care about ontological inconsistency
+			 * between service definitions...
+			 * if that fails, check our own (dynamic) KB to see if we can
+			 * add properties to make the subject a valid input to this
+			 * service...
+			 */
+			if (service.isInputInstance(subjectAsResource)) {
+				invokeService(service, subjectAsResource, predicate, accum);
+			} else if (isType(subject, Pellet2JenaUtils.getATerm(inputClass.asNode()))) {
+				/* at this point, we know the input instance is of the
+				 * appropriate type, so we can add it explicitly...
 				 */
-				if (service.isInputInstance(subjectAsResource)) {
-					invokeService(service, subjectAsResource, predicate, accum);
-				} else if (isType(subject, makeATermAppl(inputClass.asNode()))) {
-					/* at this point, we know the input instance is of the
-					 * appropriate type, so we can add it explicitly...
-					 */
-					subjectAsResource.addProperty(RDF.type, inputClass);
-					invokeService(service, subjectAsResource, predicate, accum);
-				}
-			} else {
-				log.debug(String.format("no input class for service %s; calling without checking type of subject %s", service, subject));
+				subjectAsResource.addProperty(RDF.type, inputClass);
 				invokeService(service, subjectAsResource, predicate, accum);
 			}
+		} else {
+			log.debug(String.format("no input class for service %s; calling without checking type of subject %s", service, subject));
+			invokeService(service, subjectAsResource, predicate, accum);
 		}
+		
 	}
 	
 	private void invokeService(Service service, Resource subject, String predicate, Collection<Triple> accum)
 	{
-		log.trace(String.format("found service %s", service));
-		if (deadServices.contains(service.getServiceURI()))
+		if (tracker.beenThere(service, subject.getURI()))
 			return;
-		
-		/* TODO fix SPARQL registry so that it returns properly proxied
-		 * services so that this isn't necessary...
-		 * At the moment, we must invoke SPARQL endpoints with both subject and predicate,
-		 * so we can't use the tracker. --BV
-		 */
-		if (service instanceof SPARQLService || service instanceof SPARQLServiceWrapper) {
-			try {
-				log.info(getServiceCallString(service, subject));
-				accum.addAll(service.invokeService(subject, predicate));
-			} catch (Exception e) {
-				log.error(String.format("failed to invoke service %s", service), e);
-				if (HttpUtils.isHttpError(e))
-					deadServices.add(service.getServiceURI());
-			}
-		} else {
-			if (tracker.beenThere(service, subject.getURI()))
-				return;
-			
-			try {
-				log.info(getServiceCallString(service, subject));
-				accum.addAll(service.invokeService(subject));
-			} catch (Exception e) {
-				log.error(String.format("failed to invoke service %s", service), e);
-				if (HttpUtils.isHttpError(e))
-					deadServices.add(service.getServiceURI());
-			}
+
+		try {
+			log.info(getServiceCallString(service, subject.toString()));
+			accum.addAll(service.invokeService(subject));
+		} catch (Exception e) {
+			log.error(String.format("failed to invoke service %s", service), e);
+			if (HttpUtils.isHttpError(e))
+				deadServices.add(service.getServiceURI());
 		}
 	}
 
-	private String getServiceCallString(Service service, Resource subject)
+	private String getServiceCallString(Service service, String subject)
 	{
 		return String.format("calling service %s (%s)", service, subject);
 	}
@@ -462,6 +452,13 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	private void addTriplesToKB(Collection<Triple> triples, boolean addWithInverse)
 	{
 		for (Triple triple: triples) {
+			
+			/* If a service returns triples with predicates other than those specified in the query (for efficiency),
+			 * then those predicates must be defined in the KB.  -- BV */
+			ATermAppl p = Pellet2JenaUtils.getATerm(triple.getPredicate());
+			ATermAppl o = Pellet2JenaUtils.getATerm(triple.getObject());
+			createPropertyIfNotDefined(p,o);
+			
 			String predicate = triple.getPredicate().toString();
 			for (String predicateSynonym: getPredicateSynonyms(predicate)) {
 				Triple synonymousTriple = new Triple(
@@ -491,16 +488,26 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	{
 		log.trace( "storing triple " + triple );
 		
-		ATermAppl s = makeATermAppl(triple.getSubject());
-		ATermAppl p = makeATermAppl(triple.getPredicate());
-		ATermAppl o = makeATermAppl(triple.getObject());
+		ATermAppl s = Pellet2JenaUtils.getATerm(triple.getSubject());
+		ATermAppl p = Pellet2JenaUtils.getATerm(triple.getPredicate());
+		ATermAppl o = Pellet2JenaUtils.getATerm(triple.getObject());
 		
 		if (abox.getIndividual(s) == null)
 			addIndividual(s);
-		if (rbox.getRole( p ) == null)
-			addObjectProperty(p);
+		if (rbox.getRole( p ) == null) {
+			if(triple.getObject().isLiteral())
+				addDatatypeProperty(p);
+			else
+				addObjectProperty(p);
+		}
 		if (!triple.getObject().isLiteral() && abox.getIndividual(o) == null)
 			addIndividual(o);
+
+		/* It is legal for the same RDF predicate to be assigned both literals and URIs, although this rarely happens */
+		if((isObjectProperty(p) && ATermUtils.isLiteral(o)) || (isDatatypeProperty(p) && !ATermUtils.isLiteral(o))) {
+			log.warn("skipping triple " + triple.toString() + ", assigns a literal to an object property, or a URI/blank node to a datatype property"); 
+			return;
+		}
 		
 		addPropertyValue(p, s, o);
 		
@@ -510,35 +517,23 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		RdfUtils.addTripleToModel(model, triple);
 	}
 	
-	private ATermAppl makeATermAppl(Node node)
+	private void createPropertyIfNotDefined(ATermAppl property, ATermAppl exampleValue)
 	{
-		if (node.isURI())
-			return ATermUtils.makeTermAppl(node.getURI());
-		else if (node.isBlank())
-			return ATermUtils.makeAnonNominal(node.getBlankNodeId().getLabelString());
-		else if (node.isLiteral()) {
-			LiteralLabel literal = node.getLiteral();
-			RDFDatatype datatype = literal.getDatatype();
-			if (datatype == null)
-				return ATermUtils.makePlainLiteral(String.valueOf(literal.getValue()));
+		// Sanity check.
+		if(ATermUtils.isInv(property))
+			throw new IllegalArgumentException("Cannot define properties of the form inv(property)");
+		
+		if(!this.isProperty(property)) {
+			if(ATermUtils.isLiteral(exampleValue))
+				addDatatypeProperty(property);
 			else
-				return ATermUtils.makeTypedLiteral(String.valueOf(literal.getValue()), datatype.getURI());
+				addObjectProperty(property);
 		}
-		throw new IllegalArgumentException("attempt to add non-URI, non-blank, non-literal node");
 	}
-
-
-	private String translateInverseToPredicate(ATermAppl p)
-	{
-		if (!ATermUtils.isInv(p))
-			throw new RuntimeException("attempt to invert non-inverse predicate");
-		String predicate = p.getArguments().getFirst().toString();
-		String inversePredicate = getInversePredicate(predicate.toString());
-		return inversePredicate;
-	}
-
+	
 	/**
-	 * Returns null if an inverse doesn't exist. -- B.V.
+	 * Return the named inverse of the given predicate. Return null if 
+	 * such an inverse doesn't exist.
 	 */
 	private String getInversePredicate(String predicate)
 	{
@@ -550,24 +545,18 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 	}
 	
 	/**
-	 * Returns a list of predicates that are equivalent to the argument,
-	 * including the argument itself.
+	 * Return a set of predicates that are equivalent to the argument,
+	 * including the argument itself.  Note that this method cannot
+	 * deal with inverse predicates (e.g. "inv(hasParticipant)").
 	 * 
 	 * @param predicate
 	 * @return a list of equivalent predicates
 	 */
-	private Set<String> getPredicateSynonyms(String predicate)
+	Set<String> getPredicateSynonyms(String predicate)
 	{
 		ATermAppl p = ATermUtils.makeTermAppl(predicate);
 		if (!isProperty(p)|| isAnnotationProperty(p) || isOntologyProperty(p))
 			return Collections.singleton(predicate);
-		
-		// If inverse property, remove "inv()", but remember that we did so.
-		boolean invert = false;
-		if (ATermUtils.isInv(p)) {
-			invert = true;
-			p = ATermUtils.makeInv(p);
-		}
 		
 		/* TODO if we call getAllEquivalentProperties on a property that
 		 * doesn't exist in the knowledge base, we'll get an error; once we
@@ -577,21 +566,85 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		 * I'm leaving the try/catch just in case...
 		 */
 		try {
+		
 			Set<String> predList = new HashSet<String>();
-			for (ATermAppl synonym : getAllEquivalentProperties(p)) {
-				if (invert)
-					predList.add(ATermUtils.makeInv(synonym).toString());
-				else
-					predList.add(synonym.toString());
-			}
+			for (ATermAppl synonym : getAllEquivalentProperties(p))
+				predList.add(synonym.toString());
 			return predList;
-		} catch (RuntimeException e) {
+		} 
+		catch (RuntimeException e) {
 			log.warn(e);
 			return Collections.singleton(predicate);
 		}
 		
 	}
+	
+	/**
+	 * <p>Return a set of properties that are equivalent to the argument.  This
+	 * method behaves the same as KnowledgeBase.getAllEquivalentProperties()
+	 * except that it consumes/generates "inv()" properties, in addition
+	 * to ordinary properties.  For example, if the property "isParticipantOf" 
+	 * has an equilivalent property "participatesIn" and an inverse property "hasParticipant", 
+	 * then calling the method with "inv(isParticipantOf)" will generate a set with:</p>
+	 * 
+	 * <ul>
+	 * 		<li>inv(isParticipantOf)</li>
+	 * 		<li>inv(participatesIn)</li>
+	 * 		<li>hasParticipant</li>
+	 * </ul>
+	 * 
+	 * @param property
+	 * @return A set of equivalent properties
+	 */
+	Set<ATermAppl> getAllEquivalentPropertiesIncludingInverses(ATermAppl property) 
+	{
+		/**
+		 * TODO: This is a hack to handle the case where the property has not 
+		 * yet been defined in the KB.
+		 */ 
+		if (!isProperty(property)|| isAnnotationProperty(property) || isOntologyProperty(property))
+			return Collections.singleton(property);
 
+		Set<ATermAppl> synonyms = new HashSet<ATermAppl>();
+		
+		if(ATermUtils.isInv(property)) {
+
+			ATermAppl arg = ATermUtils.makeInv(property);
+			synonyms.addAll(getInverses(arg));
+			for(ATermAppl argSynonym : getAllEquivalentProperties(arg)) 
+				synonyms.add(ATermUtils.makeInv(argSynonym));
+		}
+		else {
+
+			synonyms.addAll(getAllEquivalentProperties(property));
+			for(ATermAppl inverse : getInverses(property)) 
+				synonyms.add(ATermUtils.makeInv(inverse));
+		}
+		
+		return synonyms;
+	}
+
+	/**
+	 * Answer true if there is at least one service that can resolve the given predicate.
+	 * This method accepts predicates of the form "inv(predicate)".
+	 * 
+	 * @param predicate
+	 * @return true if there is a service that can generate the given predicate.
+	 */
+	public boolean isResolvable(String predicate) 
+	{
+		ATermAppl p = Pellet2JenaUtils.getProperty(predicate);
+		for(ATermAppl synonym: getAllEquivalentPropertiesIncludingInverses(p)) {
+			if(Config.getMasterRegistry().findServicesByPredicate(synonym.toString()).size() > 0) {
+				log.debug(predicate + " resolves to one or more services");
+				return true;
+			}
+		}
+		log.warn(predicate + " does not resolve to a service");
+		return false;
+	}
+	
+	
 	private static class Tracker
 	{
 		private Set<String> visited;

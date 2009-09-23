@@ -172,6 +172,12 @@ public class ARQParser implements QueryParser {
             if( obj.isVariable() && !obj.getName().startsWith(ARQConstants.anonVarMarker) )
                 query.addDistVar( o );
             
+            /*
+             * PATCH: Original Pellet code in comment below.  There seems to be 
+             * no need for this restriction for our purposes. --BV
+             */
+
+            /*
             if( obj.toString().startsWith( RDF.getURI() )
                 || obj.toString().startsWith( OWL.getURI() )
                 || obj.toString().startsWith( RDFS.getURI() ) ) {
@@ -181,18 +187,20 @@ public class ARQParser implements QueryParser {
                     "Terms that belong to [RDF, RDFS, OWL] namespaces cannot be used as objects in ABoxQuery: "
                         + obj );
             }
+            */
             
 			if( pred.equals( RDF.Nodes.type ) ) {
+
+				/*
+				 * PATCH: Original Pellet code in comment below.  If the object of an rdf:type is not a URI which represents 
+				 * a class in the KB, we want it to act like an ordinary predicate. -- BV
+                 */
+
+                /*
                 if( ATermUtils.isVar( o ) )
                     throw new UnsupportedQueryException(
                         "Variables cannot be used as objects of rdf:type triples in ABoxQuery" );
 
-                /**
-                 * If the object of an rdf:type is not a URI which represents a class in the KB, we want 
-                 * it to act like an ordinary predicate. -- BV
-                 */
-
-                /*
                 if( !kb.isClass( o ) ) {
                     query.setHasUndefinedPredicate( true );
                     log.warn( "Class " + o + " used in the query is not defined in the KB." );
@@ -203,18 +211,20 @@ public class ARQParser implements QueryParser {
                 
                 if( kb.isClass(o) )
                 	query.addTypePattern( s, o );
-                else
-                	query.addEdgePattern(s, p, o);
+                else 
+                	query.addEdgePattern(s, ATermUtils.makeTermAppl(RDF.Nodes.type.getURI()), o);
                 
             }
             else if( pred.isVariable() ) {
                 throw new UnsupportedQueryException(
                     "Variables cannot be used in predicate position in AboxQuery" );
             }
+            /*
+             * PATCH: Original Pellet code in comment below.  There seems to be 
+             * no need for this restriction for our purposes. --BV
+             */
+			
 			/*
-			 *  PATCH. I don't understand why this needs to be here, and its preventing me
-			 *  from doing queries that use rdfs:label, owl:sameAs, etc.
-			 *  -- BV 
             else if( pred.toString().startsWith( RDF.getURI() )
                 || pred.toString().startsWith( OWL.getURI() )
                 || pred.toString().startsWith( RDFS.getURI() ) ) {

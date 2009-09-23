@@ -1,8 +1,6 @@
 package ca.wilkinsonlab.sadi.sparql;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,32 +8,44 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.hp.hpl.jena.graph.Triple;
+import org.junit.Test;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertTrue;
+
+import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import ca.wilkinsonlab.sadi.admin.Config;
 
-public class VirtuosoSPARQLRegistryAdminTest extends TestCase {
+public class VirtuosoSPARQLRegistryAdminTest {
 
 	public final static Log LOGGER = LogFactory.getLog(VirtuosoSPARQLRegistryAdminTest.class);
+	public final static String ENDPOINT_URI = Config.getConfiguration().getString("sadi.registry.sparql.endpoint"); 
+	public final static String TEST_INDEX_GRAPH = "http://test/sparqlreg/endpoints/";
+	public final static String TEST_ONTOLOGY_GRAPH = "http://test/sparqlreg/ontology/"; 
+
 	public final static String EXAMPLE_ENDPOINT1_URI = "http://omim.bio2rdf.org/sparql";
-	public final static SPARQLEndpointType EXAMPLE_ENDPOINT1_TYPE = SPARQLEndpointType.VIRTUOSO;
+	public final static EndpointType EXAMPLE_ENDPOINT1_TYPE = EndpointType.VIRTUOSO;
 	public final static String EXAMPLE_ENDPOINT2_URI = "http://kegg.bio2rdf.org/sparql";
-	public final static SPARQLEndpointType EXAMPLE_ENDPOINT2_TYPE = SPARQLEndpointType.VIRTUOSO;
+	public final static EndpointType EXAMPLE_ENDPOINT2_TYPE = EndpointType.VIRTUOSO;
+	public final static String EXAMPLE_ENDPOINT3_URI = "http://www4.wiwiss.fu-berlin.de/drugbank/sparql";
+	public final static EndpointType EXAMPLE_ENDPOINT3_TYPE = EndpointType.D2R;
 	
 	VirtuosoSPARQLRegistryAdmin registry;
-	
+
+	@Before
 	public void setUp() {
 		try {
 			// Best to run these tests on a local copy of the registry.
-			registry = new VirtuosoSPARQLRegistryAdmin("http://localhost:8890/sparql");
+			registry = new VirtuosoSPARQLRegistryAdmin(ENDPOINT_URI, TEST_INDEX_GRAPH, TEST_ONTOLOGY_GRAPH);
 		}
 		catch(Exception e) {
 			fail("Failed to initialize registry: " + e);
 		}
 	}
 	
+	@Test
 	public void testClearRegistry()
 	{
 		try {
@@ -48,6 +58,7 @@ public class VirtuosoSPARQLRegistryAdminTest extends TestCase {
 		assertTrue(graphIsEmpty(registry.getOntologyGraphURI()));
 	}
 	
+	@Test
 	public void testClearIndexes() 
 	{
 		try {
@@ -58,14 +69,8 @@ public class VirtuosoSPARQLRegistryAdminTest extends TestCase {
 		}
 		assertTrue(graphIsEmpty(registry.getIndexGraphURI()));
 	}
-	
-	private boolean graphIsEmpty(String graphURI)
-	{
-		String query = "SELECT * FROM %u% WHERE { ?s ?p ?o } LIMIT 1";
-		query = strFromTemplate(query, graphURI);
-		return !selectQueryHasResults(query);
-	}
-	
+
+	@Test
 	public void testClearOntology()
 	{
 		try {
@@ -76,6 +81,14 @@ public class VirtuosoSPARQLRegistryAdminTest extends TestCase {
 		}
 		assertTrue(graphIsEmpty(registry.getOntologyGraphURI()));
 	}
+	
+	private boolean graphIsEmpty(String graphURI)
+	{
+		String query = "SELECT * FROM %u% WHERE { ?s ?p ?o } LIMIT 1";
+		query = strFromTemplate(query, graphURI);
+		return !selectQueryHasResults(query);
+	}
+	
 	
 	private String strFromTemplate(String template, String ... substStrings) {
 		String answer = null;
@@ -101,6 +114,7 @@ public class VirtuosoSPARQLRegistryAdminTest extends TestCase {
 		return (results.size() > 0);
 	}
 
+	@Test
 	public void testAddEndpoint()
 	{
 		try {
@@ -111,25 +125,27 @@ public class VirtuosoSPARQLRegistryAdminTest extends TestCase {
 		}
 	}
 	
-	public void testAddAndIndexEndpoint() 
+	@Test
+	public void testIndexEndpoint() 
 	{
-		testAddAndIndexEndpoint(EXAMPLE_ENDPOINT1_URI, EXAMPLE_ENDPOINT1_TYPE);
+		testIndexEndpoint(EXAMPLE_ENDPOINT1_URI, EXAMPLE_ENDPOINT1_TYPE);
 	}
 
-	public void testAddAndIndexEndpoint(String URI, SPARQLEndpointType type) 
+	private void testIndexEndpoint(String URI, EndpointType type) 
 	{
 		try {
-			registry.addAndIndexEndpoint(URI, type);
+			registry.indexEndpoint(URI, type);
 		}
 		catch(Exception e) {
 			fail("Failed to update endpoint data in registry: " + e);
 		}
 	}
 	
+	@Test
 	public void testRemoveEndpoint() 
 	{
 		// Add an endpoint, then remove it, then make sure no trace of it remains.
-		testAddAndIndexEndpoint(EXAMPLE_ENDPOINT1_URI, EXAMPLE_ENDPOINT1_TYPE);
+		testIndexEndpoint(EXAMPLE_ENDPOINT1_URI, EXAMPLE_ENDPOINT1_TYPE);
 		try {
 			registry.removeEndpoint(EXAMPLE_ENDPOINT1_URI);
 		}
@@ -142,7 +158,7 @@ public class VirtuosoSPARQLRegistryAdminTest extends TestCase {
 		assertTrue(!selectQueryHasResults(query));
 	}
 	
-	private SPARQLEndpoint createSPARQLEndpoint(String endpointURI, SPARQLEndpointType type)
+	private SPARQLEndpoint createSPARQLEndpoint(String endpointURI, EndpointType type)
 	{
 		SPARQLEndpoint endpoint = null;
 		try {
@@ -154,8 +170,7 @@ public class VirtuosoSPARQLRegistryAdminTest extends TestCase {
 		return endpoint;
 	}
 	
-	
-
+	@Test
 	public void testAddPredicateToOntology() 
 	{
 		try {
@@ -170,18 +185,29 @@ public class VirtuosoSPARQLRegistryAdminTest extends TestCase {
 			fail("Failed to add predicate to registry ontology: " + e);
 		}
 	}
-	
+
 	/*
-	public void testGetOntologyGraph() 
+	@Test
+	public void testBuildURIRegEx_OnD2REndpoint() 
 	{
-		Collection<Triple> triples; 
 		try {
-			triples = registry.getOntologyGraph();
-			TriplesHelper.writeTriplesAsRDF(System.out, triples, "N3");
+			registry.addEndpoint(EXAMPLE_ENDPOINT3_URI, EXAMPLE_ENDPOINT3_TYPE);
+			registry.updateRegex(EXAMPLE_ENDPOINT3_URI, EXAMPLE_ENDPOINT3_TYPE, true);
+		} catch(Exception e) {
+			fail("Failed to build regular expression for subject URIs of " + EXAMPLE_ENDPOINT3_URI + ": " + e);
 		}
-		catch(Exception e) {
-			fail("Failed to generate ontology graph: " + e);
+	}
+
+	@Test
+	public void testBuildURIRegEx_OnVirtuosoEndpoint() 
+	{
+		try {
+			registry.addEndpoint(EXAMPLE_ENDPOINT1_URI, EXAMPLE_ENDPOINT1_TYPE);
+			registry.updateRegex(EXAMPLE_ENDPOINT1_URI, EXAMPLE_ENDPOINT1_TYPE, true);
+		} catch(Exception e) {
+			fail("Failed to build regular expression for subject URIs of " + EXAMPLE_ENDPOINT1_URI + ": " + e);
 		}
 	}
 	*/
+	
 }
