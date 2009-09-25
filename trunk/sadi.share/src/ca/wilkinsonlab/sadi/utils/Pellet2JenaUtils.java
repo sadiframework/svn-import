@@ -107,7 +107,7 @@ public class Pellet2JenaUtils
 			//node = NodeCreateUtils.create("'" + aterm.getArgument(0).toString() + "'");
 			
 			String datatypeURI = ATermUtils.getLiteralDatatype(aterm).trim();
-			RDFDatatype datatype = datatypeURI.isEmpty() ? null : (new TypeMapper()).getSafeTypeByName(ATermUtils.getLiteralDatatype(aterm)); 
+			RDFDatatype datatype = datatypeURI.length() == 0 ? null : (new TypeMapper()).getSafeTypeByName(ATermUtils.getLiteralDatatype(aterm)); 
 			node = Node.createLiteral(ATermUtils.getLiteralValue(aterm), ATermUtils.getLiteralLang(aterm), datatype);
 		}
 		else if(ATermUtils.isBnode(aterm)) {
