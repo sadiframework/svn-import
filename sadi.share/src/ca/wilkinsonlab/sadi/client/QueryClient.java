@@ -1,4 +1,4 @@
-package ca.wikinsonlab.sadi.client;
+package ca.wilkinsonlab.sadi.client;
 
 import java.util.ArrayList;
 import java.util.List;
