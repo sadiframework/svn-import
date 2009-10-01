@@ -20,17 +20,17 @@ public abstract class QueryClient
 
 	/* TODO use java.util.concurrent to return Future objects...
 	 */
-	public void asynchronousQuery(String query, ClientCallback callback)
+	public void asynchronousQuery(String query, QueryClientCallback callback)
 	{
 		new Thread(getQueryRunner(query, callback)).start();
 	}
 	
-	protected abstract QueryRunner getQueryRunner(String query, ClientCallback callback);
+	protected abstract QueryRunner getQueryRunner(String query, QueryClientCallback callback);
 	
 	/* TODO provide methods that return RDF; query into a Jena Model? return RDF text?
 	 */
 	
-	public static interface ClientCallback
+	public static interface QueryClientCallback
 	{
 		public abstract void onFailure(String errorMessage);
 		
@@ -40,10 +40,10 @@ public abstract class QueryClient
 	protected static abstract class QueryRunner implements Runnable
 	{
 		protected String query;
-		protected ClientCallback callback;
+		protected QueryClientCallback callback;
 		protected List<Map<String, String>> results;
 		
-		public QueryRunner(String query, ClientCallback callback)
+		public QueryRunner(String query, QueryClientCallback callback)
 		{
 			this.query = query;
 			this.callback = callback;
