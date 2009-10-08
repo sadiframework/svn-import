@@ -14,7 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.mindswap.pellet.jena.PelletQueryExecution;
 import org.mindswap.pellet.jena.PelletReasonerFactory;
 
-import ca.wikinsonlab.sadi.client.QueryClient;
+import ca.wilkinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.biomoby.BioMobyRegistry;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.jena.PredicateVisitor;
@@ -42,10 +42,11 @@ import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
 
 public class PelletClient extends QueryClient
 {
+	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(PelletClient.class);
 	
 	@Override
-	protected QueryRunner getQueryRunner(String query, ClientCallback callback)
+	protected QueryRunner getQueryRunner(String query, QueryClientCallback callback)
 	{
 		return new PelletClientQueryRunner(query, callback);
 	}
@@ -235,7 +236,7 @@ public class PelletClient extends QueryClient
 	
 	private class PelletClientQueryRunner extends QueryRunner
 	{
-		public PelletClientQueryRunner(String query, ClientCallback callback)
+		public PelletClientQueryRunner(String query, QueryClientCallback callback)
 		{
 			super(query, callback);
 		}

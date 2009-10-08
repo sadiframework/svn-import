@@ -11,7 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ca.wilkinsonlab.sadi.share.QueryClient;
+import ca.wilkinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.test.ExampleQueries;
 
 public abstract class QueryClientTest extends TestCase
