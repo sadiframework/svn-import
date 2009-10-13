@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -10,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.common.Config;
 
+import com.hp.hpl.jena.ontology.ConversionException;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
@@ -24,6 +26,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class OwlUtils 
 {
@@ -80,10 +83,62 @@ public class OwlUtils
 		/* TODO check to see if the document manager is actually preventing
 		 * duplicate URIs from being loaded...
 		 */
-		model.read( StringUtils.substringBefore( uri, "#" ) );
+		String ontologyUri = StringUtils.substringBefore( uri, "#" );
+		log.trace(String.format("reading ontology from %s", ontologyUri));
+		try {
+			model.read( ontologyUri );
+		} catch (Exception e) {
+			log.error(String.format("error reading ontology from %s", uri), e);
+		}
+		/* Michel Dumontier's predicates resolve to a minimal definition that
+		 * doesn't include the inverse relationship, so we need to resolve
+		 * the ontology that contains the complete definition...
+		 */
+		Collection statements = model.getResource(uri).listProperties(RDFS.isDefinedBy).toList();
+		for (Object o: statements) {
+			Statement statement = (Statement)o;
+			if (statement.getObject().isURIResource()) {
+				ontologyUri = statement.getResource().getURI();
+				log.trace(String.format("reading isDefinedBy ontology from %s", ontologyUri));
+				model.read(ontologyUri);
+			}
+		}
 	}
 	
+	/**
+	 * Return the OntProperty with the specified URI, resolving it and
+	 * loading the resulting ontology into the model if necessary.
+	 * @param model the OntModel
+	 * @param uri the URI
+	 * @return the OntProperty
+	 */
+	public static OntProperty getOntPropertyWithLoad(OntModel model, String uri)
+	{
+		OntProperty p = model.getOntProperty(uri);
+		if (p != null)
+			return p;
 		
+		loadOntologyForUri(model, uri);
+		return model.getOntProperty(uri);
+	}
+	
+	/**
+	 * Return the OntClass with the specified URI, resolving it and
+	 * loading the resulting ontology into the model if necessary.
+	 * @param model the OntModel
+	 * @param uri the URI
+	 * @return the OntClass
+	 */
+	public static OntClass getOntClassWithLoad(OntModel model, String uri)
+	{
+		OntClass c = model.getOntClass(uri);
+		if (c != null)
+			return c;
+		
+		loadOntologyForUri(model, uri);
+		return model.getOntClass(uri);
+	}
+	
 	/**
 	 * Return the set of properties the OWL class identified by a URI has restrictions on.
 	 * The ontology containing the OWL class (and any referenced imports) will be fetched
@@ -132,14 +187,24 @@ public class OwlUtils
 		private PropertyRestrictionVisitor visitor;
 		private Set<OntClass> visited;
 		
-		boolean addUnknownProperties;
+		private static final int IGNORE = 0x0;
+		private static final int CREATE = 0x1;
+		private static final int RESOLVE = 0x2;
+		private int undefinedPropertiesPolicy;
 		
 		public VisitingDecomposer(PropertyRestrictionVisitor visitor)
 		{
 			this.visitor = visitor;
 			this.visited = new HashSet<OntClass>();
 			
-			addUnknownProperties = Config.getConfiguration().getBoolean("sadi.decompose.addUnknownProperties", true);
+			String s = Config.getConfiguration().getString("sadi.decompose.undefinedPropertiesPolicy", "create");
+			undefinedPropertiesPolicy = IGNORE;
+			if (s.equalsIgnoreCase("create"))
+				undefinedPropertiesPolicy = CREATE;
+			else if (s.equalsIgnoreCase("resolve"))
+				undefinedPropertiesPolicy = RESOLVE;
+			else if (s.equalsIgnoreCase("resolveThenCreate"))
+				undefinedPropertiesPolicy = RESOLVE | CREATE;
 		}
 		
 		public void decompose(OntClass clazz)
@@ -161,26 +226,15 @@ public class OwlUtils
 				OntProperty onProperty = null;
 				try {
 					onProperty = restriction.getOnProperty();
-				} catch (Exception e) {
-					/* TODO I can't remember which Exception (if any) is
-					 * actually thrown; figure it out and fix this code...
-					 */
-					log.warn(String.format("exception getting property on %s", restriction), e);
-				} finally {
-					if (onProperty == null) {
-						RDFNode p = restriction.getPropertyValue(OWL.onProperty);
-						log.info(String.format("unknown property %s in ontology", p));
-						if (p.isURIResource()) {
-							String uri = ((Resource)p.as(Resource.class)).getURI();
-							if (addUnknownProperties) {
-								log.info(String.format("adding unknown property %s", p));
-								onProperty = clazz.getOntModel().createOntProperty(uri);
-							}
-						} else {
-							/* TODO call a new method on PropertyRestrictionVisitor?
-							 */
-							log.warn(String.format("found non-URI property %s in restriction", p));
-						}
+				} catch (ConversionException e) {
+					RDFNode p = restriction.getPropertyValue(OWL.onProperty);
+					log.info(String.format("unknown property %s in class %s", p, clazz));
+					if (p.isURIResource()) {
+						String uri = ((Resource)p.as(Resource.class)).getURI();
+						onProperty = resolveUndefinedPropery(clazz.getOntModel(), uri, undefinedPropertiesPolicy);
+					} else {
+						// TODO call a new method on PropertyRestrictionVisitor?
+						log.warn(String.format("found non-URI property %s in clsas %s", p, clazz));
 					}
 				}
 				
@@ -193,6 +247,9 @@ public class OwlUtils
 						Resource valuesFrom = restriction.asSomeValuesFromRestriction().getSomeValuesFrom();
 						OntResource ontValuesFrom = onProperty.getOntModel().getOntResource(valuesFrom);
 						visitor.valuesFrom(onProperty, ontValuesFrom);			
+					} else if ( restriction.isHasValueRestriction() ) {
+						RDFNode hasValue = restriction.asHasValueRestriction().getHasValue();
+						visitor.hasValue(onProperty, hasValue);
 					} else {
 						visitor.onProperty(onProperty);
 					}
@@ -223,11 +280,25 @@ public class OwlUtils
 			for (Object superclass: clazz.listSuperClasses().toSet())
 				decompose((OntClass)superclass);
 		}
+
+		private static OntProperty resolveUndefinedPropery(OntModel model, String uri, int undefinedPropertiesPolicy)
+		{
+			if ((undefinedPropertiesPolicy & RESOLVE) != 0) {
+				log.debug(String.format("resolving property %s during decomposition", uri));
+				return OwlUtils.getOntPropertyWithLoad(model, uri);
+			}
+			if ((undefinedPropertiesPolicy & CREATE) != 0 && (model.getOntProperty(uri) == null)) {
+				log.debug(String.format("creating property %s during decomposition", uri));
+				return model.createOntProperty(uri);
+			}
+			return model.getOntProperty(uri);
+		}
 	}
 	
 	public static interface PropertyRestrictionVisitor
 	{
 		void onProperty(OntProperty onProperty);
+		void hasValue(OntProperty onProperty, RDFNode hasValue);
 		void valuesFrom(OntProperty onProperty, OntResource valuesFrom);
 	}
 	
@@ -243,6 +314,11 @@ public class OwlUtils
 		public void onProperty(OntProperty onProperty)
 		{
 			properties.add(onProperty);
+		}
+
+		public void hasValue(OntProperty onProperty, RDFNode hasValue)
+		{
+			onProperty(onProperty);
 		}
 
 		public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
@@ -293,6 +369,13 @@ public class OwlUtils
 			 * bad...
 			 */
 			model.add(subject.listProperties(onProperty));
+		}
+
+		public void hasValue(OntProperty onProperty, RDFNode hasValue)
+		{
+			if (subject.hasProperty(onProperty, hasValue)) {
+				model.add(subject, onProperty, hasValue);
+			}
 		}
 
 		public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
