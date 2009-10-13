@@ -24,6 +24,7 @@ import org.biomoby.shared.MobySecondaryData;
 import org.biomoby.shared.MobyService;
 import org.biomoby.shared.data.MobyContentInstance;
 import org.biomoby.shared.data.MobyDataInstance;
+import org.biomoby.shared.data.MobyDataJob;
 import org.biomoby.shared.data.MobyDataObject;
 import org.biomoby.shared.data.MobyDataSecondaryInstance;
 
@@ -35,7 +36,7 @@ public class BioMobyHelper
 	public static final String MOBY_NAMESPACE_PREFIX = "http://biomoby.org/RESOURCES/MOBY-S/Namespaces/";
 	public static final String MOBY_DATATYPE_PREFIX = "http://biomoby.org/RESOURCES/MOBY-S/Objects/";
 	
-	private static final Map<String, String> EMPTY_PARAMETER_MAP = new HashMap<String, String>(0);
+	static final Map<String, String> EMPTY_PARAMETER_MAP = new HashMap<String, String>(0);
 	
 	/**
 	 * Returns a string representation of the given MobyService.
@@ -71,6 +72,7 @@ public class BioMobyHelper
 	 * Returns true if the specified URI can be converted to a BioMoby triple.
 	 * @param uri the URI
 	 * @return true if the URI can be converted, false otherwise
+	 * @deprecated
 	 */
 	public static boolean canParse(String uri)
 	{
@@ -106,6 +108,7 @@ public class BioMobyHelper
 	 * Converts a MobyDataObject to a URI.
 	 * @param obj the MobyDataObject to convert
 	 * @return the converted URI
+	 * @deprecated use the method on the registry
 	 */
 	public static String convertMobyDataObjectToUri(MobyDataObject obj)
 	{
@@ -154,6 +157,20 @@ public class BioMobyHelper
 	}
 	
 	/**
+	 * Call a MobyService with the specified MobyContentInstance as input.
+	 * The MobyContentInstance can contain multiple jobs (so multiple inputs
+	 * can be processed with a single service invocation).
+	 * @param service
+	 * @param input
+	 * @return the MobyContentInstance
+	 * @throws Exception
+	 */
+	public static MobyContentInstance callService(MobyService service, MobyContentInstance input) throws Exception
+	{
+		return callService(service, input, EMPTY_PARAMETER_MAP);
+	}
+	
+	/**
 	 * Call a MobyService with the specified MobyDataObject as input
 	 * and the specified secondary parameters.
 	 * @param service
@@ -162,6 +179,26 @@ public class BioMobyHelper
 	 * @throws Exception
 	 */
 	public static MobyContentInstance callService(MobyService service, MobyDataObject input,
+			Map<String, String> secondaryParameters) throws Exception
+	{
+		MobyContentInstance content = new MobyContentInstance();
+		MobyDataJob job = new MobyDataJob();
+		job.put(input.getId(), input);
+		content.put(input.getId(), job);
+		return callService(service, content, secondaryParameters);
+	}
+	
+	/**
+	 * Call a MobyService with the specified MobyContentInstance as input
+	 * and the specified secondary parameters.  The MobyContentInstance can
+	 * contain multiple jobs (so multiple inputs can be processed with a
+	 * single service invocation).
+	 * @param service
+	 * @param input
+	 * @return the MobyContentInstance
+	 * @throws Exception
+	 */
+	public static MobyContentInstance callService(MobyService service, MobyContentInstance input,
 			Map<String, String> secondaryParameters) throws Exception
 	{
 		log.trace("retrieving triples from " + serviceToString(service));
@@ -246,32 +283,4 @@ public class BioMobyHelper
 	{
 		return request.invokeService();
 	}
-	
-//	/**
-//	 * Converts a MobyDataObject to RDF using <code>org.moby2.biomoby.resource.xslt.moby2rdf.xslt</code>.
-//	 * 
-//	 * @param obj the MobyDataObject to convert
-//	 * @return the converted RDF
-//	 */
-//	private static String convertMobyDataObjectToRdf(MobyDataObject obj)
-//	throws TransformerException
-//	{
-//		// Transform the output XML to RDF using the Xalan XSLT processor
-//		TransformerFactory factory = TransformerFactory.newInstance();
-//	
-//		URL mobyXslt = BioMobyHelper.class.getResource( "resources/moby2rdf.xslt" );
-//		Transformer transformer = factory.newTransformer( new StreamSource( mobyXslt.toString() ) );
-//
-//		obj.setXmlMode( MobyDataInstance.SERVICE_XML_MODE );
-//		StringReader reader = new StringReader( obj.toXML() );
-//		StringWriter writer = new StringWriter();
-//		
-//		// Indent the RDF for easier debugging
-//		transformer.setOutputProperty( OutputKeys.INDENT, "yes" );
-//		transformer.setOutputProperty( "{http://xml.apache.org/xslt}indent-amount", "2" );	
-//
-//		transformer.transform( new StreamSource( reader ), new StreamResult( writer ) );
-//			
-//		return writer.toString();
-//	}
 }
