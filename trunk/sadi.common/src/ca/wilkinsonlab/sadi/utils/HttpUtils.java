@@ -48,7 +48,7 @@ public class HttpUtils
 	public static InputStream postToURL(URL url, Model data)
 	throws IOException
 	{
-		log.debug(String.format("posting RDF data to %s", url));
+		log.trace(String.format("posting RDF data to %s", url));
 		
 		URLConnection conn = url.openConnection();
 		conn.setDoOutput(true);
@@ -63,15 +63,15 @@ public class HttpUtils
 	public static Object postAndFetchJson(URL url, Map<String, String> params)
 	throws IOException
 	{
-		log.debug(String.format("posting form data to %s", url));
+		log.trace(String.format("posting form data to %s", url));
 //		log.trace(params);
 		InputStream is = POST(url.toString(), toNameValuePairArray(params));
 		
-		log.debug("reading response");
+		log.trace("reading response");
 		String json = SPARQLStringUtils.readFully(is);
 		is.close();
 
-		log.debug("converting JSON object");
+		log.trace("converting JSON object");
 		return JsonUtils.read(json);
 	}
 	
@@ -168,7 +168,7 @@ public class HttpUtils
 	
 	public static boolean isResourceUnavailableError(Exception e)
 	{
-		if(e instanceof HttpResponseCodeException) {
+		if (e instanceof HttpResponseCodeException) {
 			HttpResponseCodeException e2 = (HttpResponseCodeException)e;
 			if(e2.getStatusCode() == HttpStatus.SC_NOT_FOUND || e2.getStatusCode() == HttpStatus.SC_SERVICE_UNAVAILABLE)
 				return true;
