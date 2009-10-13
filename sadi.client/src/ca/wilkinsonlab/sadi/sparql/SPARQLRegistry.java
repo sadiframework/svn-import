@@ -1,22 +1,10 @@
 package ca.wilkinsonlab.sadi.sparql;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.httpclient.HttpException;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
 
 import ca.wilkinsonlab.sadi.client.Registry;
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
-import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
-import ca.wilkinsonlab.sadi.vocab.W3C;
 
 /**
  * A registry that holds SPARQL endpoints.
