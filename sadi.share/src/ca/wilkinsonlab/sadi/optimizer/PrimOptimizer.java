@@ -14,7 +14,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.utils.PredicateUtils;
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.PredicateStats;
 import ca.wilkinsonlab.sadi.vocab.W3C;
 
@@ -86,6 +85,7 @@ public class PrimOptimizer extends StaticOptimizer {
 		return optimizedQuery;
 	}
 	
+	@SuppressWarnings("unchecked") // PriorityBuffer doesn't support generics...
 	private List<Triple> getPrimMST(List<Triple> query, AdjacencyList adjacencyList, Map<Node,Integer> numBindings)
 	{
 		List<Triple> MST = new ArrayList<Triple>();
