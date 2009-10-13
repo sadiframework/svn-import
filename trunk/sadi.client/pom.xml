@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>sadi</groupId>
+  <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-client</artifactId>
   <name>SADI client classes</name>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.2-SNAPSHOT</version>
   <description>Classes used by SADI clients</description>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -16,12 +16,20 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.6</source>
+          <target>1.6</target>
         </configuration>
       </plugin>
     </plugins>
   </build>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>dev-snapshot-repository</id>
+      <name>dev.biordf.net Snapshot Repository</name>
+      <url>scpexe://dev.biordf.net/var/www/maven/</url>
+      <uniqueVersion>false</uniqueVersion>
+    </snapshotRepository>
+  </distributionManagement>
   <repositories>
     <repository>
       <id>biomoby</id>
@@ -34,12 +42,20 @@
         <checksumPolicy>warn</checksumPolicy>
       </releases>
     </repository>
+  	<repository>
+  		<id>dev.biordf.net</id>
+  		<name>dev.biordf.net</name>
+  		<url>http://dev.biordf.net/maven</url>
+  		<snapshots>
+  			<enabled>true</enabled>
+  		</snapshots>
+  	</repository>
   </repositories>
   <dependencies>
     <dependency>
-      <groupId>sadi</groupId>
+      <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-common</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>0.0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-configuration</groupId>
@@ -52,11 +68,6 @@
       <version>2.4</version>
     </dependency>
     <dependency>
-      <groupId>com.hp.hpl.jena</groupId>
-      <artifactId>jena</artifactId>
-      <version>2.5.5</version>
-    </dependency>
-    <dependency>
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
       <version>3.1</version>
@@ -66,6 +77,16 @@
       <artifactId>commons-io</artifactId>
       <version>1.4</version>
     </dependency>
+    <dependency>
+      <groupId>com.hp.hpl.jena</groupId>
+      <artifactId>jena</artifactId>
+      <version>2.6.0</version>
+    </dependency>
+  	<dependency>
+  		<groupId>org.slf4j</groupId>
+  		<artifactId>slf4j-log4j12</artifactId>
+  		<version>1.5.6</version>
+  	</dependency>
     <dependency>
       <groupId>org.biomoby</groupId>
       <artifactId>jmoby</artifactId>
