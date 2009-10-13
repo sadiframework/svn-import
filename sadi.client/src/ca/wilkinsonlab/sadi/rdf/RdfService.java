@@ -6,6 +6,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.client.Service;
+import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.DurationUtils;
@@ -258,15 +260,39 @@ public class RdfService implements Service
 	/* (non-Javadoc)
      * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource)
      */
-	public Collection<Triple> invokeService(Resource inputNode) throws Exception
+	public Collection<Triple> invokeService(Resource inputNode) throws ServiceInvocationException
 	{
-		/* TODO instead of reachableClosure, post the minimal RDF required
-		 * to satisfy the input class.
-		 */
-		Model model = invokeServiceUnparsed(OwlUtils.getMinimalModel(inputNode, getInputClass()));
+		return invokeService(Collections.singletonList(inputNode));
+	}
+
+	/* (non-Javadoc)
+     * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource, java.lang.String)
+     */
+	public Collection<Triple> invokeService(Resource inputNode, String predicate)
+	throws ServiceInvocationException
+	{
+		return filterByPredicate(invokeService(inputNode), predicate);
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection)
+	 */
+	public Collection<Triple> invokeService(Collection<Resource> inputNodes) throws ServiceInvocationException
+	{
+		Model inputModel = ModelFactory.createDefaultModel();
+		for (Resource inputNode: inputNodes) {
+			inputModel.add(OwlUtils.getMinimalModel(inputNode, getInputClass()));
+		}
+		
+		Model outputModel;
+		try {
+			outputModel = invokeServiceUnparsed(inputModel);
+		} catch (IOException e) {
+			throw new ServiceInvocationException(e.getMessage());
+		}
 		
 		Collection<Triple> triples = new ArrayList<Triple>();
-		for (StmtIterator i = model.listStatements(); i.hasNext(); ) {
+		for (StmtIterator i = outputModel.listStatements(); i.hasNext(); ) {
 			Statement statement = i.nextStatement();
 			triples.add(statement.asTriple());
 		}
@@ -274,16 +300,25 @@ public class RdfService implements Service
 	}
 
 	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource, java.lang.String)
-     */
-	public Collection<Triple> invokeService(Resource inputNode, String predicate)
-	throws Exception
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection, java.lang.String)
+	 */
+	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate) throws ServiceInvocationException
+	{
+		return filterByPredicate(invokeService(inputNodes), predicate);
+	}
+
+	/* Filter a collection of triples to pass only those with the
+	 * specified predicate.
+	 */
+	private Collection<Triple> filterByPredicate(Collection<Triple> results, String predicate)
 	{
 		Collection<Triple> filteredTriples = new ArrayList<Triple>();
-		for (Triple triple: invokeService(inputNode))
+		for (Triple triple: results) {
 			if (triple.getPredicate().getURI().equals(predicate))
 				filteredTriples.add(triple);
+		}
 		return filteredTriples;
+		
 	}
 
 	/**
@@ -341,9 +376,12 @@ public class RdfService implements Service
      * @see ca.wilkinsonlab.sadi.client.Service#discoverInputInstances(com.hp.hpl.jena.rdf.model.Model)
      */
 	@SuppressWarnings("unchecked")
-	public Collection<Resource> discoverInputInstances(Model inputModel)
+	public synchronized Collection<Resource> discoverInputInstances(Model inputModel)
 	{
-		return createReasoningModel(inputModel).listIndividuals(getInputClass()).toList();
+		OntModel reasoningModel = getServiceOntologyModel();
+		OntClass inputClass = getInputClass();
+		reasoningModel.addSubModel(inputModel);
+		return (Collection<Resource>)inputClass.listInstances().toList();
 	}
 
 	private OntModel createReasoningModel(Model inputModel)
