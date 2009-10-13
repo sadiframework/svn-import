@@ -24,7 +24,6 @@ import ca.wilkinsonlab.sadi.utils.SPARQLResultsXMLUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpInputStream;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
-import ca.wilkinsonlab.sadi.client.Config;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 
@@ -101,7 +100,7 @@ public class SPARQLEndpoint
 	public Collection<Triple> getTriplesMatchingPattern(Triple pattern, int timeout, long resultsLimit) throws IOException 
 	{
 		Node s = pattern.getSubject();
-		Node p = pattern.getPredicate();
+//		Node p = pattern.getPredicate();
 		Node o = pattern.getObject();
 		
 		if(s.isVariable() && o.isVariable()) 
@@ -463,6 +462,7 @@ public class SPARQLEndpoint
 	 * This exception is thrown when a predicate has both literal and URIs values, and thus cannot
 	 * be typed as a datatype property or an object property.
 	 */
+	@SuppressWarnings("serial")
 	public static class AmbiguousPropertyTypeException extends Exception
 	{
 		public AmbiguousPropertyTypeException(String message) { super(message); }
