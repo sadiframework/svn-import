@@ -9,12 +9,15 @@ import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
+import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
@@ -50,12 +53,130 @@ public class SPARQLServiceWrapper implements Service
 		initResultsLimit();
 	}
 	
+	// FIXME if this really needs to be public, Javadoc it...
 	public void initResultsLimit()
 	{
 		if(Config.getConfiguration().containsKey(RESULTS_LIMIT_CONFIG_KEY)) 
 			setResultsLimit(Config.getConfiguration().getLong(RESULTS_LIMIT_CONFIG_KEY));
 		else
 			setResultsLimit(SPARQLEndpoint.NO_RESULTS_LIMIT);
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getServiceURI()
+	 */
+	public String getServiceURI() {
+		return getEndpoint().getURI();
+	}
+	
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getName()
+	 */
+	public String getName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getDescription()
+	 */
+	public String getDescription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+		
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getInputClass()
+	 */
+	public OntClass getInputClass()
+	{
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getOutputClass()
+	 */
+	public OntClass getOutputClass()
+	{
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource)
+	 */
+	public Collection<Triple> invokeService(Resource inputNode) throws ServiceInvocationException
+	{
+		try {
+			return invokeService(inputNode.asNode());
+		} catch (Exception e) {
+			throw new ServiceInvocationException(e.getMessage());
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection)
+	 */
+	public Collection<Triple> invokeService(Collection<Resource> inputNodes) throws ServiceInvocationException
+	{
+		// FIXME
+		Collection<Triple> triples = new ArrayList<Triple>();
+		for (Resource inputNode: inputNodes)
+			triples.addAll(invokeService(inputNode));
+		return triples;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource, java.lang.String)
+	 */
+	public Collection<Triple> invokeService(Resource inputNode, String predicate) throws ServiceInvocationException
+	{
+		try {
+			return invokeService(inputNode.asNode());
+		} catch (Exception e) {
+			throw new ServiceInvocationException(e.getMessage());
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection, java.lang.String)
+	 */
+	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate) throws ServiceInvocationException
+	{
+		// FIXME
+		Collection<Triple> triples = new ArrayList<Triple>();
+		for (Resource inputNode: inputNodes)
+			triples.addAll(invokeService(inputNode, predicate));
+		return triples;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#isInputInstance(com.hp.hpl.jena.rdf.model.Resource)
+	 */
+	public boolean isInputInstance(Resource resource)
+	{
+		boolean matches = false;
+
+		try {
+			if(predicateIsInverse()) {
+				matches = getRegistry().objectMatchesRegEx(getEndpoint().getURI(), resource.getURI());
+			}
+			else {
+				matches = getRegistry().subjectMatchesRegEx(getEndpoint().getURI(), resource.getURI());
+			}
+		} catch(IOException e) {
+			throw new RuntimeException("Error communicating with SPARQL registry: ", e);
+		}
+
+		return matches;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#discoverInputInstances(com.hp.hpl.jena.rdf.model.Model)
+	 */
+	public Collection<Resource> discoverInputInstances(Model inputModel)
+	{
+		log.warn("discoverInputInstances not yet implemented");
+		return new ArrayList<Resource>(0);
 	}
 
 	public long getResultsLimit() { return resultsLimit; }
@@ -72,6 +193,28 @@ public class SPARQLServiceWrapper implements Service
 
 	public String getPredicate() { return predicate; }
 	public void setPredicate(String predicate) {this.predicate = predicate; }
+	
+	private Collection<Triple> invokeService(Node inputURIorLiteral) throws ServiceInvocationException
+	{
+		Triple queryPattern;
+		Node var1 = NodeCreateUtils.create("?var1");
+		Node var2 = NodeCreateUtils.create("?var2");
+		
+		if(predicateIsInverse())
+			queryPattern = new Triple(var1, var2, inputURIorLiteral);
+		else {
+			// Sanity check.
+			if(inputURIorLiteral.isLiteral())
+				throw new RuntimeException("Attempted to query with a triple pattern where the subject is a literal.");
+			queryPattern = new Triple(inputURIorLiteral, var1, var2);
+		}
+		
+		try {
+			return getEndpoint().getTriplesMatchingPattern(queryPattern, QUERY_TIMEOUT, getResultsLimit());
+		} catch (IOException e) {
+			throw new ServiceInvocationException(e.getMessage());
+		}
+	}
 	
 	public Collection<Triple> invokeService(String inputURI) throws Exception 
 	{
@@ -118,85 +261,24 @@ public class SPARQLServiceWrapper implements Service
 		return results;
 		*/
 	}
+
+	public Collection<Triple> invokeService(Literal inputNode) throws ServiceInvocationException 
+	{
+		return invokeService(inputNode.asNode());
+	}
+
+	public Collection<Triple> invokeService(Literal inputNode, String predicate) throws ServiceInvocationException 
+	{
+		return invokeService(inputNode.asNode());
+	}
 	
-	private Collection<Triple> invokeService(Node inputURIorLiteral) throws IOException
+	public Collection<Triple> invokeServiceOnRDFNodes(Collection<? extends RDFNode> inputNodes) throws ServiceInvocationException
 	{
-		Triple queryPattern;
-		Node var1 = NodeCreateUtils.create("?var1");
-		Node var2 = NodeCreateUtils.create("?var2");
-		
-		if(predicateIsInverse())
-			queryPattern = new Triple(var1, var2, inputURIorLiteral);
-		else {
-			// Sanity check.
-			if(inputURIorLiteral.isLiteral())
-				throw new RuntimeException("Attempted to query with a triple pattern where the subject is a literal.");
-			queryPattern = new Triple(inputURIorLiteral, var1, var2);
-		}
-			
-		Collection<Triple> results = getEndpoint().getTriplesMatchingPattern(queryPattern, QUERY_TIMEOUT, getResultsLimit());
-		
-		return results;
-	}
-
-	public boolean isInputInstance(Resource resource)
-	{
-		boolean matches = false;
-
-		try {
-			
-			if(predicateIsInverse()) {
-				matches = getRegistry().objectMatchesRegEx(getEndpoint().getURI(), resource.getURI());
-			}
-			else {
-				matches = getRegistry().subjectMatchesRegEx(getEndpoint().getURI(), resource.getURI());
-			}
-			
-		} catch(IOException e) {
-			throw new RuntimeException("Error communicating with SPARQL registry: ", e);
-		}
-
-		return matches;
-	}
-
-	public Collection<Resource> discoverInputInstances(Model inputModel)
-	{
-		log.warn("discoverInputInstances not yet implemented");
-		return new ArrayList<Resource>(0);
-	}
-
-	public String getDescription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getServiceURI() {
-		return getEndpoint().getURI();
-	}
-
-	public Collection<Triple> invokeService(Resource inputNode) throws Exception 
-	{
-		return invokeService(inputNode.asNode());
-	}
-
-	public Collection<Triple> invokeService(Resource inputNode, String predicate) throws Exception 
-	{
-		return invokeService(inputNode.asNode());
-	}
-
-	public Collection<Triple> invokeService(Literal inputNode) throws IOException 
-	{
-		return invokeService(inputNode.asNode());
-	}
-
-	public Collection<Triple> invokeService(Literal inputNode, String predicate) throws IOException 
-	{
-		return invokeService(inputNode.asNode());
+		// FIXME
+		Collection<Triple> triples = new ArrayList<Triple>();
+		for (RDFNode inputNode: inputNodes)
+			triples.addAll(invokeService(inputNode.asNode()));
+		return triples;
 	}
 
 	@Override
@@ -204,5 +286,4 @@ public class SPARQLServiceWrapper implements Service
 	{
 		return getServiceURI();
 	}
-
 }
