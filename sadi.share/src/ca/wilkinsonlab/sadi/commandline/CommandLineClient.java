@@ -6,10 +6,10 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import ca.wilkinsonlab.sadi.pellet.PelletClient;
+import ca.wilkinsonlab.sadi.share.SHAREQueryClient;
 
-public class CommandLineClient {
-	
+public class CommandLineClient
+{
 	public final static int EXIT_CODE_SUCCESS = 0;
 	public final static int EXIT_CODE_NO_RESULTS = 1;
 	public final static int EXIT_CODE_FAILURE = 2;
@@ -26,7 +26,7 @@ public class CommandLineClient {
 				throw new Exception("incorrect number of arguments");
 
 			String query = args[0];
-			List<Map<String, String>> results = new PelletClient().synchronousQuery(query);
+			List<Map<String, String>> results = new SHAREQueryClient().synchronousQuery(query);
 			for (Map<String, String> binding : results)
 				System.out.println(binding);	
 			
@@ -40,5 +40,4 @@ public class CommandLineClient {
 			System.exit(EXIT_CODE_FAILURE);
 		}
 	}
-	
 }

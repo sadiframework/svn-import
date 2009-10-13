@@ -17,7 +17,7 @@ public class ExampleQueries
 {
 	// in the default run configuration, path is relative to the project directory
 //	private static final URL exampleQueriesPath = URI.create("http://biordf.net/cardioSHARE/queries.html").toURL();
-	private static final String exampleQueriesPath = "../cardioSHARE/queries.html";
+	private static final String exampleQueriesPath = "../cardioSHARE/src/main/webapp/queries.html";
 	
 	private static final ExampleQueries theInstance = new ExampleQueries();
 
@@ -61,6 +61,7 @@ public class ExampleQueries
 		return theInstance.queries.get(index-1);
 	}
 	
+	@SuppressWarnings("serial")
 	private static class HTMLEditorKit extends javax.swing.text.html.HTMLEditorKit
 	{
 		public Parser getParser()

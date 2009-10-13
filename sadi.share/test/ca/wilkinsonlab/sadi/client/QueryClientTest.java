@@ -5,6 +5,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.After;
@@ -16,7 +17,7 @@ import ca.wilkinsonlab.sadi.test.ExampleQueries;
 
 public abstract class QueryClientTest extends TestCase
 {
-	public final static Log LOGGER = LogFactory.getLog(QueryClientTest.class);
+	public final static Log log = LogFactory.getLog(QueryClientTest.class);
 	
 	protected QueryClient client;
 	
@@ -30,14 +31,16 @@ public abstract class QueryClientTest extends TestCase
 	 */
 	private void testQuery(String query)
 	{
+		log.info("Query: " + query + "\n\n");
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		List<Map<String, String>> results = client.synchronousQuery(query);
-//		List<Map<String, String>> results = SimplePelletClient.selectQuery(query);
+		stopWatch.stop();
+		log.info(String.format("query finished in %d seconds", stopWatch.getTime()/1000));
 		assertFalse(String.format("query \"%s\" returned no results", query), results.isEmpty());
 		
-		LOGGER.info("Query: " + query + "\n\n");
 		for (Map<String, String> binding : results)
 			System.out.println(binding.toString());
-		
 	}
 	
 	@Test
@@ -106,9 +109,15 @@ public abstract class QueryClientTest extends TestCase
 		testQuery(ExampleQueries.getQueryByHtmlListIndex(11));
 	}
 	
-//	@Test
-//	public void testQuery12()
-//	{
-//		testQuery(ExampleQueries.getQueryByHtmlListIndex(12));
-//	}
+	@Test
+	public void testQuery12()
+	{
+		testQuery(ExampleQueries.getQueryByHtmlListIndex(12));
+	}
+	
+	@Test
+	public void testQuery13()
+	{
+		testQuery(ExampleQueries.getQueryByHtmlListIndex(13));
+	}
 }
