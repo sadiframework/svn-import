@@ -100,4 +100,12 @@ public class BioMobyRegistryTest extends TestCase
 		assertEquals("incorrect namespace", "UniProt", data.getNamespaces()[0].getName());
 		assertEquals("incorrect id", "P12345", data.getId());
 	}
+	
+	@Test
+	public final void testConvertMobyDataObjectToUri() throws Exception
+	{
+		MobyDataObject data = new MobyDataObject("UniProt", "P12345");
+		String uri = registry.convertMobyDataObjectToUri(data);
+		assertEquals("incorrect uri", "http://lsrn.org/UniProt:P12345", uri);
+	}
 }

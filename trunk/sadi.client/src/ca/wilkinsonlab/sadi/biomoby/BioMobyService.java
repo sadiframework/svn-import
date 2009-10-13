@@ -2,8 +2,10 @@ package ca.wilkinsonlab.sadi.biomoby;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.biomoby.shared.MobyData;
+import org.biomoby.shared.MobyException;
 import org.biomoby.shared.MobyNamespace;
 import org.biomoby.shared.MobyPrimaryData;
 import org.biomoby.shared.MobyService;
@@ -24,6 +27,7 @@ import org.biomoby.shared.data.MobyDataJob;
 import org.biomoby.shared.data.MobyDataObject;
 
 import ca.wilkinsonlab.sadi.client.Service;
+import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Triple;
@@ -38,6 +42,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFList;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public class BioMobyService extends MobyService implements Service
 {
@@ -238,181 +243,6 @@ public class BioMobyService extends MobyService implements Service
 		return toString();
 	}
 	
-	public Collection<Triple> invokeService(String inputURI, Map<String, String> secondaryParameters)
-	throws Exception
-	{
-		Collection<Triple> triples = new ArrayList<Triple>();
-		MobyDataObject input = sourceRegistry.convertUriToMobyDataObject(inputURI);
-		/* TODO don't call the service if it doesn't take this input namespace;
-		 * eventually we won't need this here because the registry query should
-		 * take the input into account when finding appropriate services...
-		 */
-		MobyContentInstance response = BioMobyHelper.callService(this, input, secondaryParameters);
-		convertMobyContentInstanceToRdf(response, inputURI, triples);
-		return triples;
-	}
-	
-	public Collection<Triple> invokeService(String inputURI) throws Exception
-	{
-		Collection<Triple> triples = new ArrayList<Triple>();
-		MobyDataObject input = sourceRegistry.convertUriToMobyDataObject(inputURI);
-		/* TODO don't call the service if it doesn't take this input namespace;
-		 * eventually we won't need this here because the registry query should
-		 * take the input into account when finding appropriate services...
-		 */
-		MobyContentInstance response = BioMobyHelper.callService(this, input);
-		convertMobyContentInstanceToRdf(response, inputURI, triples);
-		return triples;
-	}
-	
-	public Collection<Triple> invokeService(String inputURI, String predicate) throws Exception
-	{
-		Collection<Triple> results = invokeService(inputURI);
-		Collection<Triple> filtered = new ArrayList<Triple>();
-		for (Triple triple : results) {
-			if (triple.getPredicate().toString().equals(predicate))
-				filtered.add(triple);
-		}
-		return filtered;
-	}
-	
-	private void convertMobyContentInstanceToRdf(MobyContentInstance response, String subject, Collection<Triple> accum)
-	{
-		for (MobyDataJob job: response.values()) {
-			// if there's only one output, convert that (service might not set the article name)
-			// if there's more than one, convert only the article we're interested in
-			if (job.size() == 1) {
-				/* if there's only one output, the service might not set the article name,
-				 * but all predicates will map to the one output, so just iterate over them...
-				 */
-				MobyDataInstance output = (MobyDataInstance)job.values().iterator().next();
-				for (String predicate: predicateOutputMap.keySet())
-					convertMobyDataInstanceToRdf(output, subject, predicate, accum);
-			} else {
-				for (String article: job.keySet()) {
-					MobyDataInstance output = job.get(article);
-					for (String predicate: getPredicatesForOutput(article))
-						convertMobyDataInstanceToRdf(output, subject, predicate, accum);
-				}
-			}
-		}
-	}
-
-	private void convertMobyDataInstanceToRdf(MobyDataInstance outer, String subject, String predicate, Collection<Triple> accum)
-	{
-		Object inner = outer.getObject();
-		if (outer instanceof MobyDataObject) { // output object is Simple
-			MobyDataObject data = (MobyDataObject)outer;
-			convertMobyDataObjectToRdf(data, subject, predicate, accum);
-		} else if (inner instanceof Collection) { // output object is Collection
-			for (Object o: (Collection<?>)inner) {
-				MobyDataObject data = (MobyDataObject)o;
-				convertMobyDataObjectToRdf(data, subject, predicate, accum);
-			}
-		} else {
-			log.warn("MobyDataInstance contained an unhandled " + inner.getClass());
-		}
-	}
-
-	private String getConstructQuery(MobyDataObject output, String predicate)
-	{
-		String outputTypeURI = BioMobyHelper.MOBY_DATATYPE_PREFIX + output.getDataType().getName();
-		return constructQueryCache.getQuery(predicate, outputTypeURI);
-	}
-
-	private void convertMobyDataObjectToRdf(MobyDataObject output, String subject, String predicate, Collection<Triple> accum)
-	{
-		if (BioMobyHelper.isPrimitive(output.getDataType().getName())) {
-			String typedObject = String.format("'%s'xsd:string", output.getValue());
-			addAndLogTriple(subject, predicate, typedObject, accum);
-			return;
-		}
-
-		String query = getConstructQuery(output, predicate);
-		if (query == null) {
-			/* If there isn't a query, just make a triple linking the URIs of the input
-			 * and output objects.  (However, we're not allowed to do that if the property
-			 * is a datatype property).  -- B.V.
-			 */
-			if (sourceRegistry.isDatatypeProperty(predicate)) {
-				log.error(String.format("datatype property <%s> doesn't have a construct query", predicate));
-				return;
-			} else {
-				/* TODO fix convertMobyDataObjectToUri to throw an exception if there's
-				 * no id?
-				 */
-				if (!StringUtils.isEmpty(output.getId())) {
-					String objectURI = BioMobyHelper.convertMobyDataObjectToUri(output);
-					addAndLogTriple(subject, predicate, objectURI, accum);
-				}
-			}
-		} else {
-			try {
-				query = SPARQLStringUtils.strFromTemplate(query, subject, predicate);
-				String rdfXml = BioMobyHelper.convertMobyDataObjectToRdf(output);
-				Model model = runConstructQuery(query, rdfXml);
-				for (StmtIterator i = model.listStatements(); i.hasNext();) {
-					addAndLogTriple(i.nextStatement().asTriple(), accum);
-				}
-			} catch (TransformerException e) {
-				log.error("failed to convert MobyDataObject to RDF", e);
-			} catch (URIException e) {
-				log.error(String.format("failed to parse URI <%s>", subject), e);
-			}
-		}
-	}
-	
-	private static void addAndLogTriple(String subject, String predicate, String object, Collection<Triple> accum)
-	{
-		Triple triple = new Triple(
-				NodeCreateUtils.create(subject),
-				NodeCreateUtils.create(predicate),
-				NodeCreateUtils.create(object)
-		);
-		addAndLogTriple(triple, accum);
-	}
-	
-	private static void addAndLogTriple(Triple triple, Collection<Triple> accum)
-	{
-		log.trace("retrieved triple " + triple);
-		accum.add(triple);
-	}	
-	
-	private static Model runConstructQuery( String sparql, String rdfXml )
-	{
-		Model model = ModelFactory.createDefaultModel();
-		model.read(new StringReader( rdfXml ), "", "RDF/XML");
-		
-		Query query = QueryFactory.create(sparql) ;
-		QueryExecution qexec = QueryExecutionFactory.create(query, model) ;
-		Model resultModel = qexec.execConstruct() ;
-		qexec.close() ;		
-		
-		return resultModel;
-	}
-
-	public Collection<Triple> invokeService(Resource inputNode) throws Exception
-	{
-		return invokeService(inputNode.getURI());
-	}
-
-	public Collection<Triple> invokeService(Resource inputNode, String predicate) throws Exception
-	{
-		return invokeService(inputNode.getURI(), predicate);
-	}
-
-	public boolean isInputInstance(Resource resource)
-	{
-		log.warn("isInputInstance not yet implemented");
-		return false;
-	}
-
-	public Collection<Resource> discoverInputInstances(Model inputModel)
-	{
-		log.warn("discoverInputInstances not yet implemented");
-		return new ArrayList<Resource>(0);
-	}
-	
 	/**
 	 * Returns an OntClass describing the input this service can consume.
 	 * Any input to this service must be an instance of this class.
@@ -442,6 +272,367 @@ public class BioMobyService extends MobyService implements Service
 	{
 		log.warn("getOutputClass not yet implemented");
 		return outputClass;
+	}
+	
+//	public Collection<Triple> invokeService(String inputURI, Map<String, String> secondaryParameters)
+//	throws ServiceInvocationException
+//	{
+//		Collection<Triple> triples = new ArrayList<Triple>();
+//	
+//		MobyDataObject input;
+//		try {
+//			input = sourceRegistry.convertUriToMobyDataObject(inputURI);
+//		} catch (URISyntaxException e) {
+//			throw new ServiceInvocationException(String.format("unable to convert input URI to MobyDataObject: %s", e.getMessage()));
+//		}
+//		
+//		/* TODO don't call the service if it doesn't take this input namespace;
+//		 * eventually we won't need this here because the registry query should
+//		 * take the input into account when finding appropriate services...
+//		 */
+//		
+//		MobyContentInstance response;
+//		try {
+//			response = BioMobyHelper.callService(this, input, secondaryParameters);
+//		} catch (Exception e) {
+//			throw new ServiceInvocationException(String.format("failed to invoke BioMoby service: %s", e.getMessage()));
+//		}
+//		
+//		convertMobyContentInstanceToRdf(response, inputURI, triples);
+//		return triples;
+//	}
+//	
+//	public Collection<Triple> invokeService(String inputURI) throws ServiceInvocationException
+//	{
+//		Collection<Triple> triples = new ArrayList<Triple>();
+//		
+//		MobyDataObject input;
+//		try {
+//			input = sourceRegistry.convertUriToMobyDataObject(inputURI);
+//		} catch (URISyntaxException e) {
+//			throw new ServiceInvocationException(String.format("unable to convert input URI to MobyDataObject: %s", e.getMessage()));
+//		}
+//		
+//		/* TODO don't call the service if it doesn't take this input namespace;
+//		 * eventually we won't need this here because the registry query should
+//		 * take the input into account when finding appropriate services...
+//		 */
+//		
+//		MobyContentInstance response;
+//		try {
+//			response = BioMobyHelper.callService(this, input);
+//		} catch (Exception e) {
+//			throw new ServiceInvocationException(String.format("failed to invoke BioMoby service: %s", e.getMessage()));
+//		}
+//		
+//		convertMobyContentInstanceToRdf(response, inputURI, triples);
+//		return triples;
+//	}
+//	
+//	public Collection<Triple> invokeService(String inputURI, String predicate) throws ServiceInvocationException
+//	{
+//		Collection<Triple> results = invokeService(inputURI);
+//		Collection<Triple> filtered = new ArrayList<Triple>();
+//		for (Triple triple : results) {
+//			if (triple.getPredicate().toString().equals(predicate))
+//				filtered.add(triple);
+//		}
+//		return filtered;
+//	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource)
+	 */
+	public Collection<Triple> invokeService(Resource inputNode) throws ServiceInvocationException
+	{
+		return invokeService(Collections.singletonList(inputNode));
+	}
+
+	/**
+	 * 
+	 * @param inputNode
+	 * @param secondaryParameters
+	 * @return
+	 * @throws ServiceInvocationException
+	 */
+	public Collection<Triple> invokeService(Resource inputNode, Map<String, String> secondaryParameters) throws ServiceInvocationException
+	{
+		return invokeService(Collections.singletonList(inputNode), secondaryParameters);
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource, java.lang.String)
+	 */
+	public Collection<Triple> invokeService(Resource inputNode, String predicate) throws ServiceInvocationException
+	{
+		return filterByPredicate(invokeService(inputNode), predicate);
+	}
+
+	/**
+	 * 
+	 * @param inputNode
+	 * @param predicate
+	 * @param secondaryParameters
+	 * @return
+	 * @throws ServiceInvocationException
+	 */
+	public Collection<Triple> invokeService(Resource inputNode, String predicate, Map<String, String> secondaryParameters) throws ServiceInvocationException
+	{
+		return filterByPredicate(invokeService(inputNode, secondaryParameters), predicate);
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection)
+	 */
+	public Collection<Triple> invokeService(Collection<Resource> inputNodes) throws ServiceInvocationException
+	{
+		return invokeService(inputNodes, BioMobyHelper.EMPTY_PARAMETER_MAP);
+	}
+
+	/**
+	 * 
+	 * @param inputNodes
+	 * @param secondaryParameters
+	 * @return
+	 * @throws ServiceInvocationException
+	 */
+	public Collection<Triple> invokeService(Collection<Resource> inputNodes, Map<String, String> secondaryParameters) throws ServiceInvocationException
+	{
+		MobyContentInstance contentInstance = new MobyContentInstance();
+		for (Resource inputNode: inputNodes) {
+			MobyDataObject input;
+			try {
+				input = sourceRegistry.convertUriToMobyDataObject(inputNode.getURI());
+			} catch (URISyntaxException e) {
+				throw new ServiceInvocationException(String.format("unable to convert input URI %s to MobyDataObject: %s", inputNode.getURI(), e.getMessage()));
+			}
+			
+			MobyDataJob job = new MobyDataJob();
+			job.put(this.getPrimaryInputs()[0].getName(), input); // TODO make sure this isn't null...
+			job.setID(inputNode.getURI());
+			contentInstance.put(inputNode.getURI(), job);
+		}
+		
+		MobyContentInstance response;
+		try {
+			response = BioMobyHelper.callService(this, contentInstance, secondaryParameters);
+		} catch (Exception e) {
+			throw new ServiceInvocationException(String.format("failed to invoke BioMoby service: %s", e.getMessage()));
+		}
+		
+		Collection<Triple> triples = new ArrayList<Triple>();
+		convertMobyContentInstanceToRdf(response, triples);
+		return triples;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection, java.lang.String)
+	 */
+	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate) throws ServiceInvocationException
+	{
+		return filterByPredicate(invokeService(inputNodes), predicate);
+	}
+	
+	/**
+	 * 
+	 * @param inputNodes
+	 * @param predicate
+	 * @param secondaryParameters
+	 * @return
+	 * @throws ServiceInvocationException
+	 */
+	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate, Map<String, String> secondaryParameters) throws ServiceInvocationException
+	{
+		return filterByPredicate(invokeService(inputNodes, secondaryParameters), predicate);
+	}
+	
+	/* Convert a MobyContentInstance to RDF, where the ID of each job in the
+	 * instance is the URI of the input submitted in that job.  The converted
+	 * RDF is added (in triple form) to the specified accumulator.
+	 */
+	private void convertMobyContentInstanceToRdf(MobyContentInstance response, Collection<Triple> accum)
+	{
+		for (MobyDataJob job: response.values()) {
+			/* we stored the URI of the input as the job ID;
+			 * hopefully it's preserved...
+			 */
+			String subject = job.getID();
+			
+			/* if there's only one output, convert that (service might not set the article name);
+			 * if there's more than one, convert only the article we're interested in...
+			 */
+			if (job.size() == 1) {
+				/* if there's only one output, the service might not set the article name,
+				 * but all predicates will map to the one output, so just iterate over them...
+				 */
+				MobyDataInstance output = (MobyDataInstance)job.values().iterator().next();
+				for (String predicate: predicateOutputMap.keySet())
+					convertMobyDataInstanceToRdf(output, subject, predicate, accum);
+			} else {
+				for (String article: job.keySet()) {
+					MobyDataInstance output = job.get(article);
+					for (String predicate: getPredicatesForOutput(article))
+						convertMobyDataInstanceToRdf(output, subject, predicate, accum);
+				}
+			}
+		}
+	}
+
+	/* Convert a MobyDataInstance to RDF using the specified subject and predicate.
+	 * The converted RDF is added (in triple form) to the specified accumulator.
+	 */
+	private void convertMobyDataInstanceToRdf(MobyDataInstance outer, String subject, String predicate, Collection<Triple> accum)
+	{
+		Object inner = outer.getObject();
+		if (outer instanceof MobyDataObject) { // output object is Simple
+			MobyDataObject data = (MobyDataObject)outer;
+			convertMobyDataObjectToRdf(data, subject, predicate, accum);
+		} else if (inner instanceof Collection) { // output object is Collection
+			for (Object o: (Collection<?>)inner) {
+				MobyDataObject data = (MobyDataObject)o;
+				convertMobyDataObjectToRdf(data, subject, predicate, accum);
+			}
+		} else {
+			log.warn("MobyDataInstance contained an unhandled " + inner.getClass());
+		}
+	}
+
+	/* Convert a MobyDataObject to RDF using the specified subject and predicate.
+	 * The converted RDF is added (in triple form) to the specified accumulator.
+	 */
+	private void convertMobyDataObjectToRdf(MobyDataObject output, String subject, String predicate, Collection<Triple> accum)
+	{
+		if (BioMobyHelper.isPrimitive(output.getDataType().getName())) {
+			String typedObject = String.format("'%s'xsd:string", output.getValue());
+			addAndLogTriple(subject, predicate, typedObject, accum);
+			return;
+		}
+
+		String query = getConstructQuery(output, predicate);
+		if (query == null) {
+			/* If there isn't a query, just make a triple linking the URIs of the input
+			 * and output objects.  (However, we're not allowed to do that if the property
+			 * is a datatype property).  -- B.V.
+			 */
+			if (sourceRegistry.isDatatypeProperty(predicate)) {
+				log.error(String.format("datatype property <%s> doesn't have a construct query", predicate));
+				return;
+			} else {
+				/* TODO fix convertMobyDataObjectToUri to throw an exception if there's
+				 * no id?
+				 */
+				if (!StringUtils.isEmpty(output.getId())) {
+					String objectURI = sourceRegistry.convertMobyDataObjectToUri(output);
+					addAndLogTriple(subject, predicate, objectURI, accum);
+				}
+			}
+		} else {
+			try {
+				query = SPARQLStringUtils.strFromTemplate(query, subject, predicate);
+				String rdfXml = BioMobyHelper.convertMobyDataObjectToRdf(output);
+				Model model = runConstructQuery(query, rdfXml);
+				for (StmtIterator i = model.listStatements(); i.hasNext();) {
+					addAndLogTriple(i.nextStatement().asTriple(), accum);
+				}
+			} catch (TransformerException e) {
+				log.error("failed to convert MobyDataObject to RDF", e);
+			} catch (URIException e) {
+				log.error(String.format("failed to parse URI <%s>", subject), e);
+			}
+		}
+	}
+
+	private String getConstructQuery(MobyDataObject output, String predicate)
+	{
+		String outputTypeURI = BioMobyHelper.MOBY_DATATYPE_PREFIX + output.getDataType().getName();
+		return constructQueryCache.getQuery(predicate, outputTypeURI);
+	}	
+	
+	private static Model runConstructQuery( String sparql, String rdfXml )
+	{
+		Model model = ModelFactory.createDefaultModel();
+		model.read(new StringReader( rdfXml ), "", "RDF/XML");
+		
+		Query query = QueryFactory.create(sparql) ;
+		QueryExecution qexec = QueryExecutionFactory.create(query, model) ;
+		Model resultModel = qexec.execConstruct() ;
+		qexec.close() ;		
+		
+		return resultModel;
+	}
+	
+	private static void addAndLogTriple(String subject, String predicate, String object, Collection<Triple> accum)
+	{
+		Triple triple = new Triple(
+				NodeCreateUtils.create(subject),
+				NodeCreateUtils.create(predicate),
+				NodeCreateUtils.create(object)
+		);
+		addAndLogTriple(triple, accum);
+	}
+	
+	private static void addAndLogTriple(Triple triple, Collection<Triple> accum)
+	{
+		log.trace("retrieved triple " + triple);
+		accum.add(triple);
+	}
+
+	/* Filter a collection of triples to pass only those with the
+	 * specified predicate.
+	 */
+	private Collection<Triple> filterByPredicate(Collection<Triple> results, String predicate)
+	{
+		Collection<Triple> filtered = new ArrayList<Triple>();
+		for (Triple triple : results) {
+			if (triple.getPredicate().toString().equals(predicate))
+				filtered.add(triple);
+		}
+		return filtered;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#isInputInstance(com.hp.hpl.jena.rdf.model.Resource)
+	 */
+	public boolean isInputInstance(Resource resource)
+	{
+		/* FIXME apparently BioMobyService doesn't actually contain all of the
+		 * information that MobyService does, despite the fact that it's a
+		 * subclass; this needs to be fixed, but I don't have time right now...
+		 */
+		MobyService template = new MobyService();
+		template.setAuthority(getAuthority());
+		template.setName(getName());
+		MobyService service;
+		try {
+			MobyService[] services = sourceRegistry.getMobyCentral().findService(template);
+			if (services.length == 0) {
+				throw new MobyException("no services matched this template");
+			} else if (services.length > 1) {
+				throw new MobyException("more than one service matched this template");
+			} else {
+				service = services[0];
+			}
+		} catch (MobyException e) {
+			log.error("couldn't retrieve service description from BioMoby registry", e);
+			return false;
+		}
+		
+		MobyNamespace[] namespaces = service.getPrimaryInputs()[0].getNamespaces();
+		for (MobyNamespace namespace: namespaces) {
+			OntClass namespaceType = sourceRegistry.getTypeByNamespace(namespace);
+			if (resource.hasProperty(RDF.type, namespaceType))
+				return true;
+		}
+		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#discoverInputInstances(com.hp.hpl.jena.rdf.model.Model)
+	 */
+	public Collection<Resource> discoverInputInstances(Model inputModel)
+	{
+		log.warn("discoverInputInstances not yet implemented");
+		return new ArrayList<Resource>(0);
 	}
 	
 	private class ConstructQueryCache

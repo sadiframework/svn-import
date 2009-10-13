@@ -17,8 +17,11 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.biomoby.client.CentralImpl;
+import org.biomoby.shared.Central;
 import org.biomoby.shared.MobyData;
 import org.biomoby.shared.MobyDataType;
+import org.biomoby.shared.MobyException;
 import org.biomoby.shared.MobyNamespace;
 import org.biomoby.shared.MobyPrimaryData;
 import org.biomoby.shared.MobyPrimaryDataSet;
@@ -45,23 +48,25 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 {
-	static final String LSRN_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
-
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(BioMobyRegistry.class);
-	
+	private static final String LSRN_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
+	private static final boolean CACHE_ENABLED = true;
+
 	private static final String INPUT_ARGUMENT_URI = "http://www.mygrid.org.uk/mygrid-moby-service#inputParameter";
 	private static final String OUTPUT_ARGUMENT_URI = "http://www.mygrid.org.uk/mygrid-moby-service#outputParameter";
 	private static final String DEFAULT_SPARQL_ENDPOINT = "http://biordf.net/sparql";
 	private static final String ENDPOINT_CONFIG_KEY = "endpoint";
 	private static final String GRAPH_CONFIG_KEY = "graph";
-	private static final boolean CACHE_ENABLED = true;
+	private static final String URI_PATTERN_KEY = "uriPattern";
+	private static final String OUTPUT_URI_KEY = "outputUriPattern";
 
 	private Map<String, BioMobyService> serviceCache;
 	private OntModel predicateOntology;
 	private OntModel typeOntology;
 	private Collection<Pattern> urlPatterns;
-	
+	private String outputUriPattern;
+		
 	public BioMobyRegistry() throws IOException
 	{
 		this(DEFAULT_SPARQL_ENDPOINT);
@@ -73,8 +78,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		
 		graphName = config.getString(GRAPH_CONFIG_KEY);
 		
-		urlPatterns = new ArrayList<Pattern>();
-		for (Object o: config.getList("urlPattern")) {
+		for (Object o: config.getList(URI_PATTERN_KEY)) {
 			String pattern = (String)o;
 			try {
 				urlPatterns.add( Pattern.compile( pattern ) );
@@ -82,6 +86,8 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 				log.error( String.format("error processing URL pattern: %s", pattern), e );
 			}
 		}
+		
+		outputUriPattern = config.getString(OUTPUT_URI_KEY);
 	}
 	
 	public BioMobyRegistry(String sparqlEndpoint) throws IOException
@@ -109,6 +115,9 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		}
 		
 		typeOntology = createTypeOntology();
+
+		urlPatterns = new ArrayList<Pattern>();
+		outputUriPattern = "http://biordf.net/moby/$NS/$ID";
 	}
 	
 	public MobyDataObject convertUriToMobyDataObject(String uri) throws URISyntaxException
@@ -134,10 +143,23 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		throw new URISyntaxException(uri, "unable to determine namespace/id");
 	}
 	
+	public String convertMobyDataObjectToUri(MobyDataObject obj)
+	{
+		// TODO deal with the issue of multiple namespaces
+		String uri = outputUriPattern;
+		uri = StringUtils.replace(uri, "$NS", obj.getNamespaces()[0].getName());
+		uri = StringUtils.replace(uri, "$ID", obj.getId());
+		
+		return uri;
+	}
+
+	/* TODO I'd be much happier if we didn't load this up front, but only as
+	 * required currently only by isDatatypeProperty...
+	 */
 	private OntModel createPredicateOntology() throws IOException
 	{
 		// TODO do we need more reasoning here?
-		OntModel predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		OntModel predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
 
 		String query = SPARQLStringUtils.readFully(BioMobyRegistry.class.getResource("resources/select.all.predicates.sparql"));
 		for (Map<String, String> binding: executeQuery(query)) {
@@ -169,9 +191,22 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		return typeOntology;
 	}
 	
+	Central central;
+	public synchronized Central getMobyCentral()
+	{
+		if (central == null) {
+			try {
+				central = new CentralImpl();
+			} catch (MobyException e) {
+				log.error("error instantiating Moby Central", e);
+			}
+		}
+		return central;
+	}
+	
 	public OntClass getTypeByNamespace(MobyNamespace ns)
 	{
-		String uri = String.format("%s%s", LSRN_PREFIX, ns.getName());
+		String uri = String.format("%s%s_Record", LSRN_PREFIX, ns.getName());
 		OntClass type = getTypeOntology().getOntClass(uri);
 		if (type == null)
 			type = getTypeOntology().createClass(uri);
@@ -350,7 +385,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		);
 		List<Map<String, String>> bindings = executeQuery(query);
 		if (bindings.size() != 1) {
-			log.warn(String.format("%s construct queries for %s/%s", bindings.size(), outputDatatypeURI, predicates));
+			log.debug(String.format("%s construct queries for %s/%s", bindings.size(), outputDatatypeURI, predicates));
 			return null;
 		}
 		
