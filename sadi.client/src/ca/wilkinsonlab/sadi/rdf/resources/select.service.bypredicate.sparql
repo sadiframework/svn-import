@@ -1,9 +1,0 @@
-PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-PREFIX sadi: <http://sadiframework.org/ontologies/sadi.owl#>
-
-SELECT DISTINCT ?service
-WHERE
-{
-	?service rdf:type sadi:Service .
-	?service sadi:providesPredicate %u%
-}
