@@ -63,7 +63,6 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 
 	private List<Registry> registries;
 	private MultiRegistry masterRegistry;
-	private SPARQLRegistry sparqlRegistry;
 
 	private Config(String defaultPropertiesFile, String localPropertiesFile)
 	{
