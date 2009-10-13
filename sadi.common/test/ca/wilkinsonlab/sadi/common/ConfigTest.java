@@ -23,7 +23,7 @@ public class ConfigTest
 	public void testGetConfiguration()
 	{
 		Configuration config = Config.getConfiguration();
-		assertTrue("Client.Config missing global key", config.containsKey("sadi.decompose.addUnknownProperties"));
+		assertTrue("Client.Config missing global key", config.containsKey("sadi.decompose.undefinedPropertiesPolicy"));
 		assertTrue("Client.Config missing local key", config.containsKey("sadi.client.localKey"));
 	}
 }
