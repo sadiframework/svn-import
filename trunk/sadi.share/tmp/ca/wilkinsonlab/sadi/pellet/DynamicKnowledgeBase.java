@@ -37,6 +37,9 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 
+/**
+ * @deprecated
+ */
 public class DynamicKnowledgeBase extends KnowledgeBase
 {
 	public final static Log log = LogFactory.getLog(DynamicKnowledgeBase.class);
@@ -53,7 +56,7 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		log.debug("new ca.wilkinsonlab.sadi.pellet.DynamicKnowledgeBase instantiated");
 		
 		tracker = new Tracker();
-
+		
 		Configuration config = ca.wilkinsonlab.sadi.share.Config.getConfiguration();
 		
 		deadServices = Collections.synchronizedSet(new HashSet<String>());
@@ -396,7 +399,6 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 			log.debug(String.format("no input class for service %s; calling without checking type of subject %s", service, subject));
 			invokeService(service, subjectAsResource, predicate, accum);
 		}
-		
 	}
 	
 	private void invokeService(Service service, Resource subject, String predicate, Collection<Triple> accum)
@@ -566,13 +568,11 @@ public class DynamicKnowledgeBase extends KnowledgeBase
 		 * I'm leaving the try/catch just in case...
 		 */
 		try {
-		
 			Set<String> predList = new HashSet<String>();
 			for (ATermAppl synonym : getAllEquivalentProperties(p))
 				predList.add(synonym.toString());
 			return predList;
-		} 
-		catch (RuntimeException e) {
+		} catch (RuntimeException e) {
 			log.warn(e);
 			return Collections.singleton(predicate);
 		}

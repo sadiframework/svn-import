@@ -14,12 +14,11 @@ import org.apache.commons.logging.LogFactory;
 import org.mindswap.pellet.jena.PelletQueryExecution;
 import org.mindswap.pellet.jena.PelletReasonerFactory;
 
-import ca.wilkinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.biomoby.BioMobyRegistry;
 import ca.wilkinsonlab.sadi.client.Config;
+import ca.wilkinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.jena.PredicateVisitor;
 import ca.wilkinsonlab.sadi.sparql.SPARQLRegistry;
-import ca.wilkinsonlab.sadi.utils.OwlUtils;
 
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.query.Query;
@@ -40,6 +39,9 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.sparql.syntax.ElementWalker;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
 
+/**
+ * @deprecated
+ */
 public class PelletClient extends QueryClient
 {
 	@SuppressWarnings("unused")
