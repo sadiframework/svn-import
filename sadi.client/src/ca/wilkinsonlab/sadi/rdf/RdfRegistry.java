@@ -14,7 +14,6 @@ import org.apache.commons.logging.LogFactory;
 import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.PredicateUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.virtuoso.VirtuosoRegistry;
@@ -93,9 +92,9 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 		// TODO do we need more reasoning here?
 		OntModel predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
 
-		String query = SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.predicate.all.sparql"));
-		for (Map<String, String> binding: executeQuery(query))
-			OwlUtils.loadOntologyForUri(predicateOntology, binding.get("p"));
+//		String query = SPARQLStringUtils.readFully(RdfRegistry.class.getResource("resources/select.predicate.all.sparql"));
+//		for (Map<String, String> binding: executeQuery(query))
+//			OwlUtils.loadOntologyForUri(predicateOntology, binding.get("p"));
 
 		return predicateOntology;
 	}
