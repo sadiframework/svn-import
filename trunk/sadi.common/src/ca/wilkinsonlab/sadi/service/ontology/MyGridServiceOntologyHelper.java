@@ -1,5 +1,7 @@
 package ca.wilkinsonlab.sadi.service.ontology;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -36,7 +38,12 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 	
 	public MyGridServiceOntologyHelper(Model model, String serviceUrl)
 	{
-		this(model.createResource(serviceUrl), true);
+		this(model, serviceUrl, true);
+	}
+	
+	public MyGridServiceOntologyHelper(Model model, String serviceUrl, boolean createResources)
+	{
+		this(model.createResource(StringUtils.defaultString(serviceUrl)), createResources);
 	}
 	
 	public MyGridServiceOntologyHelper(Resource serviceNode, boolean createResources) throws ServiceOntologyException
