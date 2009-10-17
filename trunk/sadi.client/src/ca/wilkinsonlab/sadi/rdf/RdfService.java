@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -336,22 +337,8 @@ public class RdfService implements Service
 		is.close();
 		
 		/* resolve any rdfs:isDefinedBy URIs to fetch asynchronous data...
-		 * TODO don't visit a given URI more than once in each pass
 		 */
-		List<Statement> toRemove = new ArrayList<Statement>();
-		for (StmtIterator i = model.listStatements((Resource)null, RDFS.isDefinedBy, (RDFNode)null); i.hasNext(); ) {
-			Statement statement = i.nextStatement();
-			try {
-				String url = statement.getResource().getURI();
-				InputStream data = fetchAsyncData(url);
-				model.read(data, url);
-				toRemove.add(statement);
-				data.close();
-			} catch (Exception e) {
-				log.error("failed to fetch data for " + statement, e);
-			}
-		}
-		model.remove(toRemove);
+		resolveAsynchronousData(model);
 		
 		return model;
 	}
@@ -382,6 +369,38 @@ public class RdfService implements Service
 		OntClass inputClass = getInputClass();
 		reasoningModel.addSubModel(inputModel);
 		return (Collection<Resource>)inputClass.listInstances().toList();
+	}
+	
+	/**
+	 * Resolve any rdfs:isDefinedBy URIs in the specified model to fetch 
+	 * asynchronous data.
+	 * @param model the model
+	 */
+	public static void resolveAsynchronousData(Model model)
+	{
+		List<Statement> toRemove = new ArrayList<Statement>();
+		Set<String> seen = new HashSet<String>();
+		for (StmtIterator i = model.listStatements((Resource)null, RDFS.isDefinedBy, (RDFNode)null); i.hasNext(); ) {
+			Statement statement = i.nextStatement();
+			if (!statement.getObject().isURIResource())
+				continue;
+			
+			String url = statement.getResource().getURI();
+			if (seen.contains(url))
+				continue;
+			else
+				seen.add(url);
+			
+			try {
+				InputStream data = fetchAsyncData(url);
+				model.read(data, url);
+				toRemove.add(statement);
+				data.close();
+			} catch (Exception e) {
+				log.error("failed to fetch data for " + statement, e);
+			}
+		}
+		model.remove(toRemove);
 	}
 
 	private OntModel createReasoningModel(Model inputModel)
