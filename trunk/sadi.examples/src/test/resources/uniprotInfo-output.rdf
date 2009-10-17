@@ -1,0 +1,16 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:benv="http://sadiframework.org/ontologies/predicates.owl#"
+    xmlns:uniprotInfo="http://sadiframework.org/examples/uniprotInfo.owl#"> 
+  <uniprotInfo:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P12345">
+    <benv:hasName>Glutamate oxaloacetate transaminase 2</benv:hasName>
+    <benv:hasName>Aspartate aminotransferase, mitochondrial</benv:hasName>
+    <benv:hasName>FABP-1</benv:hasName>
+    <benv:hasName>Fatty acid-binding protein</benv:hasName>
+    <benv:hasName>mAspAT</benv:hasName>
+    <benv:hasName>FABPpm</benv:hasName>
+    <benv:hasName>Transaminase A</benv:hasName>
+    <benv:belongsToOrganism>Oryctolagus cuniculus</benv:belongsToOrganism>
+  </uniprotInfo:AnnotatedUniProtRecord>
+</rdf:RDF>
