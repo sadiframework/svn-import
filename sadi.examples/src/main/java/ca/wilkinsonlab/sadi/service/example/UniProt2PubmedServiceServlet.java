@@ -3,6 +3,7 @@ package ca.wilkinsonlab.sadi.service.example;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -49,7 +50,7 @@ public class UniProt2PubmedServiceServlet extends UniProtServiceServlet
 	private void attachCitation(Resource uniprotNode, JournalArticle article)
 	{
 		PubMedId pmId = article.getPubMedId();
-		if (pmId == null || pmId.getValue().isEmpty())
+		if (pmId == null || StringUtils.isEmpty(pmId.getValue()))
 			return;
 		
 		Resource pubmedNode = uniprotNode.getModel().createResource(getPubMedUri(pmId), PubMed_Record);
