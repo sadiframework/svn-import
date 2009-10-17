@@ -1,0 +1,152 @@
+<?xml version="1.0"?>
+<!DOCTYPE rdf:RDF [
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+  <!ENTITY owl "http://www.w3.org/2002/07/owl#">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+  <!ENTITY benv "http://sadiframework.org/ontologies/predicates.owl#">
+  <!ENTITY common "http://sadiframework.org/examples/common.owl#">
+]>
+
+<rdf:RDF
+    xmlns:rdf="&rdf;"
+    xmlns:rdfs="&rdfs;"
+    xmlns:owl="&owl;"
+    xmlns:xsd="&xsd;"
+    xmlns:common="&common;"
+    xml:base="http://sadiframework.org/examples/ermineJ.owl#"
+    xmlns="http://sadiframework.org/examples/ermineJ.owl#">
+    
+  <owl:Ontology rdf:about="">
+    <!-- this ontology is huge, just declare the single property we need...
+    <owl:imports rdf:resource="&benv;"/>
+    -->
+    <owl:imports rdf:resource="&common;"/>
+  </owl:Ontology>
+  
+  <owl:ObjectProperty rdf:about="&benv;hasGOTerm"/>
+  
+  <owl:DatatypeProperty rdf:ID="expressionLevel">
+    <rdfs:range rdf:resource="&xsd;double"/>
+  </owl:DatatypeProperty>
+  
+  <owl:DatatypeProperty rdf:ID="intensity">
+    <rdfs:subPropertyOf rdf:resource="#expressionLevel"/>
+  </owl:DatatypeProperty>
+  
+  <owl:DatatypeProperty rdf:ID="foldChange">
+    <rdfs:subPropertyOf rdf:resource="#expressionLevel"/>
+  </owl:DatatypeProperty>
+  
+  <owl:ObjectProperty rdf:ID="mappedTo">
+  </owl:ObjectProperty>
+  
+  <owl:Class rdf:ID="Probe">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#expressionLevel"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#mappedTo"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+  
+  <owl:Class rdf:ID="ProbeSet">
+    <rdfs:subClassOf rdf:resource="&common;Collection"/>
+    <owl:equivalentClass>
+      <owl:Restriction rdf:ID="SomeValuesFromProbe">
+        <owl:onProperty rdf:resource="&common;element"/>
+        <owl:someValuesFrom rdf:resource="#Probe"/>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+  
+  <owl:Class rdf:ID="GoAnnotated">
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <!--
+        <owl:onProperty rdf:resource="&common;hasAnnotation"/>
+        <owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/GO_Record"/>
+        -->
+        <owl:onProperty rdf:resource="&benv;hasGOTerm"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+  
+  <owl:Class rdf:ID="GoProbe">
+    <rdfs:subClassOf rdf:resource="#Probe"/>
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#mappedTo"/>
+        <owl:someValuesFrom rdf:resource="#GoAnnotated"/>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+  
+  <owl:Class rdf:ID="GoProbeSet">
+    <rdfs:subClassOf rdf:resource="#ProbeSet"/>
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&common;element"/>
+        <owl:someValuesFrom rdf:resource="#GoProbe"/>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+  
+  <owl:ObjectProperty rdf:ID="hasOverrepresentedTerm">
+    <rdfs:range rdf:resource="#OverrepresentedTerm"/>
+  </owl:ObjectProperty>
+  
+  <owl:ObjectProperty rdf:ID="term"/>
+  
+  <owl:DatatypeProperty rdf:ID="p">
+    <rdfs:range rdf:resource="&xsd;double"/>
+  </owl:DatatypeProperty>
+  
+  <owl:Class rdf:ID="OverrepresentedTerm">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#term"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#p"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+  
+  <owl:Class rdf:ID="AnnotatedProbeSet">
+    <rdfs:subClassOf rdf:resource="#ProbeSet"/>
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#hasOverrepresentedTerm"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+  
+  <owl:ObjectProperty rdf:ID="hasAnnotation"/>
+  
+  <rdf:Description rdf:about="&benv;hasGOTerm">
+    <rdfs:subPropertyOf rdf:resource="#hasAnnotation"/>
+  </rdf:Description>
+  
+  <owl:Class rdf:ID="AnnotatedObject">
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#hasAnnotation"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+  
+</rdf:RDF>
