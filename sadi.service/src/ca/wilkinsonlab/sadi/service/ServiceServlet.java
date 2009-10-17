@@ -80,7 +80,7 @@ public abstract class ServiceServlet extends HttpServlet
 			try {
 				serviceModel.read(new URL(serviceModelUrl).toString());
 			} catch (MalformedURLException e) {
-				serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), "");
+				serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), serviceUrl);
 			}
 			serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel, serviceUrl, false);
 		} else {
