@@ -1,0 +1,168 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:mygrid="http://www.mygrid.org.uk/mygrid-moby-service#"
+    xmlns:dc="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#" 
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+<mygrid:serviceDescription rdf:about="">
+    <!--
+    <dc:format>moby</dc:format>
+    <dc:identifier>urn:lsid:biomoby.org:serviceinstance:mips.gsf.de,getElementsByName:2008-12-23T20-24-59Z</dc:identifier>
+    -->
+    <mygrid:hasServiceNameText>LinearRegression</mygrid:hasServiceNameText>
+    <mygrid:hasServiceDescriptionText>Fits a least-squares regression line.</mygrid:hasServiceDescriptionText>
+    <mygrid:locationURI>http://sadiframework.org/examples/linear</mygrid:locationURI>
+    <mygrid:hasServiceDescriptionLocation>http://sadiframework.org/examples/linear</mygrid:hasServiceDescriptionLocation>
+
+    <mygrid:providedBy>
+        <mygrid:organisation rdf:about="#organisation">
+            <mygrid:authoritative>true</mygrid:authoritative>
+            <dc:creator>mccarthy@elmonline.ca</dc:creator>
+            <dc:publisher>wilkinsonlab.ca</dc:publisher>
+        </mygrid:organisation>
+    </mygrid:providedBy>
+
+    <mygrid:hasOperation>
+        <mygrid:operation rdf:about="#operation">
+            <mygrid:hasOperationNameText>getRegressionLine</mygrid:hasOperationNameText>
+            <mygrid:performsTask>
+                <mygrid:operationTask rdf:about="#operationTask">
+                </mygrid:operationTask>
+            </mygrid:performsTask>
+
+            <mygrid:inputParameter>
+                <mygrid:parameter rdf:about="#input">
+                    <mygrid:hasParameterNameText>input</mygrid:hasParameterNameText>
+                    <mygrid:objectType rdf:resource="http://sadiframework.org/examples/regression.owl#PairedValueCollection"/>
+
+                    <!--
+                    <mygrid:hasParameterType>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/cacbb6284e1b8a0948761e769aa0eabe">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#simpleParameter"/>
+                        </rdf:Description>
+                    </mygrid:hasParameterType>
+                    -->
+
+                    <!--
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/ee79074c781abc2a9676f56cf9ec932f">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/AGI_LocusCode"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/5c459f81615082fe547d8b72c87dfee7">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/MIPS_GE_Medicago"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/0da97dcbba24cf3e810a881c041ad2a5">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/MIPS_GE_Rice"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/79fbd2b1da6c1b9fa4754b5e0835daa6">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/MIPS_GE_Tomato"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/3b32fbfdc26068afcae07eff3ad2ae5d">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/MIPS_GE_Maize"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/f28b49b8f0b9845eab1836299032588c">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/MIPS_GE_Arabidopsis"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/bc1c02967b22f0aa13f861f6dd4fb4eb">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/IMGA"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+                    -->
+                </mygrid:parameter>
+            </mygrid:inputParameter>
+
+            <mygrid:outputParameter>
+                <mygrid:parameter rdf:about="#output">
+                    <mygrid:hasParameterNameText>output</mygrid:hasParameterNameText>
+                    <mygrid:objectType rdf:resource="http://sadiframework.org/examples/regression.owl#OutputClass"/>
+
+                    <!--
+                    <mygrid:hasParameterType>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/014b82e1dbedb72b841bbc28369f97f0">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#simpleParameter"/>
+                        </rdf:Description>
+                    </mygrid:hasParameterType>
+                    -->
+
+                    <!--
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/4c67f6066077328b8d3084468e9157e8">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/MIPS_GE_Tomato"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/1a8f3c1a5ab97775e88d9ef6f13779c4">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/MIPS_GE_Arabidopsis"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/6d68635577a7955c66697f1b7020d9f9">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/AGI_LocusCode"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/e50c966f4f88e19b7e9344e19daf34e0">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/IMGA"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/6b47e40a9bf6c740a4c982e6a112c5ea">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/MIPS_GE_Maize"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/833ce326eccedca7dd15f525bed9b20e">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/MIPS_GE_Rice"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+
+                    <mygrid:inNamespaces>
+                        <rdf:Description rdf:about="http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/e62c4ab95653143c27d32aac60a64caa">
+                            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameterNamespace"/>
+                            <rdf:type rdf:resource="http://biomoby.org/RESOURCES/MOBY-S/Namespaces/MIPS_GE_Medicago"/>
+                        </rdf:Description>
+                    </mygrid:inNamespaces>
+                    -->
+                </mygrid:parameter>
+            </mygrid:outputParameter>
+        </mygrid:operation>
+    </mygrid:hasOperation>
+</mygrid:serviceDescription>
+
+</rdf:RDF>

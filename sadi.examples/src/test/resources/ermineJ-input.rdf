@@ -1,0 +1,90 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:common="http://sadiframework.org/examples/common.owl#"
+    xmlns:benv="http://sadiframework.org/ontologies/predicates.owl#"
+    xmlns:ermineJ="http://sadiframework.org/examples/ermineJ.owl#">
+  
+  <ermineJ:GoProbeSet rdf:about="http://sadiframework.org/examples/input/erminej1">
+    <common:element>
+      <ermineJ:GoProbe rdf:about="http://sadiframework.org/examples/input/erminej1#1053_at">
+        <ermineJ:expressionLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#double">0.903370423</ermineJ:expressionLevel>
+        <ermineJ:mappedTo>
+          <ermineJ:GoAnnotated rdf:about="http://sadiframework.org/examples/input/erminej1#RFC2">
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0000166"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0003677"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0017111"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0005515"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0005524"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0005663"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0005634"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0003689"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0006260"/>
+          </ermineJ:GoAnnotated>
+        </ermineJ:mappedTo>
+      </ermineJ:GoProbe>
+    </common:element>
+    <common:element>
+      <ermineJ:GoProbe rdf:about="http://sadiframework.org/examples/input/erminej1#1007_s_at">
+        <ermineJ:expressionLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.903370423</ermineJ:expressionLevel>
+        <ermineJ:mappedTo>
+          <ermineJ:GoAnnotated rdf:about="http://sadiframework.org/examples/input/erminej1#DDR1">
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0016740"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0006468"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0007155"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0005515"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0004672"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0007169"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0016301"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0004713"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0004872"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0004714"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0000166"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0005524"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0016020"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0005887"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0016021"/>
+          </ermineJ:GoAnnotated>
+        </ermineJ:mappedTo>
+      </ermineJ:GoProbe>
+    </common:element>
+    <common:element>
+      <ermineJ:GoProbe rdf:about="http://sadiframework.org/examples/input/erminej1#117_at">
+        <ermineJ:expressionLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.2</ermineJ:expressionLevel>
+        <ermineJ:mappedTo>
+          <ermineJ:GoAnnotated rdf:about="http://sadiframework.org/examples/input/erminej1#HSPA6">
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0006986"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0006950"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0005524"/>
+            <benv:hasGOTerm rdf:resource="http://biordf.net/moby/GO/0000166"/>
+          </ermineJ:GoAnnotated>
+        </ermineJ:mappedTo>
+      </ermineJ:GoProbe>
+    </common:element>
+  </ermineJ:GoProbeSet>
+  
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0016020"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0016301"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005515"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005524"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0004714"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0006986"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0017111"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005634"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0006260"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0016021"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0004872"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0003689"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0007169"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0000166"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0004713"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0016740"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0006950"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0004672"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0006468"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005663"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0007155"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0003677"/>
+  <lsrn:GO_Record rdf:about="http://biordf.net/moby/GO/0005887"/>
+  
+</rdf:RDF>

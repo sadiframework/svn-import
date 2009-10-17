@@ -1,0 +1,24 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:pred="http://sadiframework.org/ontologies/predicates.owl#"
+    xmlns:uniprot2pdb="http://sadiframework.org/examples/uniprot2pdb.owl#">
+
+  <uniprot2pdb:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P47989">
+    <pred:has3DStructure>
+      <lsrn:PDB_Record rdf:about="http://lsrn.org/PDB:2E1Q">
+	    <owl:sameAs rdf:resource="http://biordf.net/moby/PDB/2E1Q"/>
+        <rdfs:label>2E1Q:X-ray:2.60 A:A/B/C/D=2-1332;</rdfs:label>
+      </lsrn:PDB_Record>
+    </pred:has3DStructure>
+    <pred:has3DStructure>
+      <lsrn:PDB_Record rdf:about="http://lsrn.org/PDB:2CKJ">
+	    <owl:sameAs rdf:resource="http://biordf.net/moby/PDB/2CKJ"/>
+        <rdfs:label>2CKJ:X-ray:3.59 A:A/B/C/D=2-1332;</rdfs:label>
+      </lsrn:PDB_Record>
+    </pred:has3DStructure>
+  </uniprot2pdb:AnnotatedUniProtRecord>
+
+</rdf:RDF>
