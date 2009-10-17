@@ -1,12 +1,15 @@
 package ca.wilkinsonlab.sadi.service;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import ca.elmonline.util.BatchIterator;
 import ca.wilkinsonlab.sadi.tasks.Task;
 import ca.wilkinsonlab.sadi.tasks.TaskManager;
 import ca.wilkinsonlab.sadi.utils.DurationUtils;
@@ -14,33 +17,21 @@ import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 public abstract class AsynchronousServiceServlet extends ServiceServlet
 {
 	private static final String POLL_PARAMETER = "poll";
+	private static final String INPUT_BATCH_SIZE_KEY = "inputBatchSize";
 	
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#processInput(java.util.Map)
-	 */
-	@Override
-	protected void processInput(Map<Resource, Resource> inputOutputMap)
+	protected int inputBatchSize;
+	
+	public AsynchronousServiceServlet()
 	{
-		for (Resource input: inputOutputMap.keySet()) {
-			/* each output will be processed and returned individually, so copy each of them
-			 * to a fresh model before creating its task...
-			 */
-			Resource output = inputOutputMap.get(input);
-			Model outputModel = createOutputModel();
-			outputModel.add(output.listProperties());
-			Task task = new InputProcessingTask(input, outputModel.getResource(output.getURI()), getInputProcessor());
-			TaskManager.getInstance().startTask(task);
-			
-			/* add the poll location data to the output that will be returned immediately...
-			 */
-			Resource pollResource = output.getModel().createResource(getPollUrl(task.getId()));
-			output.addProperty(RDFS.isDefinedBy, pollResource);
-		}
+		super();
+		
+		inputBatchSize = config.getInteger(INPUT_BATCH_SIZE_KEY, -1);	
 	}
 	
 	/* (non-Javadoc)
@@ -64,32 +55,57 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 					TaskManager.getInstance().disposeTask(taskId);
 				}
 			} else {
-				outputInterimResponse(response, task);
+				String redirectUrl = getPollUrl(request, task.getId());
+				long waitTime = getSuggestedWaitTime(task);
+				outputInterimResponse(response, redirectUrl, waitTime);
 			}
 		} else {
-			outputServiceModel(response);
+			super.doGet(request, response);
 		}
 	}
 
-	private void outputInterimResponse(HttpServletResponse response, InputProcessingTask task) throws IOException
+	private void outputInterimResponse(HttpServletResponse response, String redirectUrl, long waitTime) throws IOException
 	{
-		String redirectUrl = getPollUrl(task.getId());
-		
 		/* according to spec, "response SHOULD contain a short hypertext note with a hyperlink to the new URI(s)",
 		 * but Tomcat doesn't want us to send a body with the redirect; this probably won't be a problem...
 		Model model = modelMaker.createFreshModel();
 		model.createResource(redirectUrl, outputClass);
 		model.write(response.getWriter());
 		 */
-		response.setHeader("Pragma", String.format("%s = %s", SADI.ASYNC_HEADER, DurationUtils.format(getSuggestedWaitTime(task))));
+		response.setHeader("Pragma", String.format("%s = %s", SADI.ASYNC_HEADER, DurationUtils.format(waitTime)));
 		response.sendRedirect(redirectUrl);
 	}
 	
-	private String getPollUrl(String taskId)
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#processInput(ca.wilkinsonlab.sadi.service.ServiceCall)
+	 */
+	@Override
+	protected void processInput(ServiceCall call)
 	{
-		/* TODO use request.getRequestURL instead?
-		 */
-		return String.format("%s?%s=%s", serviceUrl, POLL_PARAMETER, taskId);
+		Model inputModel = call.getInputModel();
+		Model outputModel = call.getOutputModel();
+		
+		for (Iterator<Collection<Resource>> batches = getInputBatches(inputModel); batches.hasNext(); ) {
+			/* process each input batch in it's own task thread...
+			 */
+			Collection<Resource> batch = batches.next();
+			InputProcessingTask task = getInputProcessingTask(batch);
+			TaskManager.getInstance().startTask(task);
+			
+			/* add the poll location data to the output that will be returned immediately...
+			 */
+			Resource pollResource = outputModel.createResource(getPollUrl(call.getRequest(), task.getId()));
+			for (Resource inputNode: batch) {
+				Resource outputNode = outputModel.getResource(inputNode.getURI());
+				outputNode.addProperty(RDFS.isDefinedBy, pollResource);
+			}
+		}
+	}
+	
+	protected String getPollUrl(HttpServletRequest request, String taskId)
+	{
+		
+		return String.format("%s?%s=%s", serviceUrl == null ? request.getRequestURL().toString() : serviceUrl, POLL_PARAMETER, taskId);
 	}
 	
 	protected long getSuggestedWaitTime(Task task)
@@ -97,28 +113,36 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		return 5000;
 	}
 	
-	private static class InputProcessingTask extends Task
+	protected Iterator<Collection<Resource>> getInputBatches(Model inputModel)
 	{
-		private Resource input;
-		private Resource output;
-		private InputProcessor processor;
+		if (inputBatchSize > 0) {
+			return BatchIterator.batches(inputModel.listSubjectsWithProperty(RDF.type, inputClass), inputBatchSize);
+		} else {
+			return Collections.singleton((Collection<Resource>)inputModel.listSubjectsWithProperty(RDF.type, inputClass).toList()).iterator();
+		}
+	}
+	
+	protected abstract InputProcessingTask getInputProcessingTask(Collection<Resource> inputNodes);
+	
+	protected abstract class InputProcessingTask extends Task
+	{
+		protected Collection<Resource> inputNodes;
+		protected Model outputModel;
 		
-		public InputProcessingTask(Resource input, Resource output, InputProcessor processor)
+		public InputProcessingTask(Collection<Resource> inputNodes)
 		{
-			this.input = input;
-			this.output = output;
-			this.processor = processor;
+			this.inputNodes = inputNodes;
+			outputModel = createOutputModel();
 		}
 		
-		public void run()
+		public Collection<Resource> getInputNodes()
 		{
-			processor.processInput(input, output);
-			success();
+			return inputNodes;
 		}
 		
 		public Model getOutputModel()
 		{
-			return output.getModel();
+			return outputModel;
 		}
 	}
 }

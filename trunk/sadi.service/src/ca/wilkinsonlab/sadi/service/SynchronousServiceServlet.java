@@ -1,8 +1,6 @@
 package ca.wilkinsonlab.sadi.service;
 
-import java.util.Map;
-
-import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Model;
 
 /**
  * This is the base class extended by synchronous SADI services.
@@ -10,13 +8,10 @@ import com.hp.hpl.jena.rdf.model.Resource;
  */
 public abstract class SynchronousServiceServlet extends ServiceServlet
 {
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#processInput(java.util.Map)
-	 */
-	@Override
-	public void processInput(Map<Resource, Resource> inputOutputMap)
+	public void processInput(ServiceCall call)
 	{
-		for (Resource input: inputOutputMap.keySet())
-			getInputProcessor().processInput(input, inputOutputMap.get(input));
+		processInput(call.getInputModel(), call.getOutputModel());
 	}
+	
+	protected abstract void processInput(Model inputModel, Model outputModel);
 }

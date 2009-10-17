@@ -3,9 +3,6 @@ package ca.wilkinsonlab.sadi.service;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,7 +24,8 @@ import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
-import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * This class encapsulates things common to both synchronous and asynchronous services.
@@ -36,16 +34,17 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * TODO this isn't really true; if you need to batch your input, you need to extend this...
  * @author Luke McCarthy
  */
-public abstract class ServiceServlet extends HttpServlet implements InputProcessor
+public abstract class ServiceServlet extends HttpServlet
 {
 	private static final Log log = LogFactory.getLog(ServiceServlet.class);
 	
 	protected Configuration config;
+	protected String serviceName;
 	protected String serviceUrl;
 	protected Model serviceModel;
+	protected OntModel ontologyModel;
 	protected OntClass inputClass;
 	protected OntClass outputClass;
-	protected OntModel ontologyModel;
 	protected ModelMaker modelMaker;
 	protected ServiceOntologyHelper serviceOntologyHelper;
 	
@@ -56,62 +55,78 @@ public abstract class ServiceServlet extends HttpServlet implements InputProcess
 		try {
 			config = Config.getConfiguration().getServiceConfiguration(this);
 		} catch (ConfigurationException e) {
-			log.fatal(e);
+			log.fatal("Error configuring service servlet", e);
 			throw new RuntimeException(e);
 		}
 		
-		modelMaker = createModelMaker();  // TODO support persistent models in properties file?
+		serviceName = config.getString("");
+		
+		/* In most cases, serviceUrl will be null, in which case the service
+		 * model is constructed with a root node whose URI is "" (and the URL
+		 * the service model is retrieved from will be the service URI...)
+		 * In some cases, probably involving baroque network configurations,
+		 * it might be necessary to supply an explicit service URI.
+		 */
 		serviceUrl = config.getString("url");
-		serviceModel = modelMaker.createModel(serviceUrl);
+		
+		modelMaker = createModelMaker();  // TODO support persistent models in properties file?
+		serviceModel = createServiceModel();
 		
 		String serviceModelUrl = config.getString("rdf");
-		if (serviceModelUrl == null) {
+		if (serviceModelUrl != null) {
+			/* if serviceModelUrl is a valid URL, read from that URL;
+			 * if not, assume it is a location relative to the classpath...
+			 */
+			try {
+				serviceModel.read(new URL(serviceModelUrl).toString());
+			} catch (MalformedURLException e) {
+				serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), "");
+			}
+			serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel, serviceUrl, false);
+		} else {
 			/* create the service model from the information in the config...
 			 */
-			serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel, serviceUrl);
+			serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel, serviceUrl, true);
 			serviceOntologyHelper.setName(config.getString("name", "noname"));
 			serviceOntologyHelper.setDescription(config.getString("description", "no description"));
 			serviceOntologyHelper.setInputClass(config.getString("inputClass"));
 			serviceOntologyHelper.setOutputClass(config.getString("outputClass"));
-		} else {
-			/* read the service model from the local classpath or a remote URL...
-			 */
-			try {
-				new URL(serviceModelUrl);
-				serviceModel.read(serviceModelUrl);
-			} catch (MalformedURLException e) {
-				serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), "");
-			}
-			
-			serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel.getResource(serviceUrl));
 		}
 
-		String inputClassUri = serviceOntologyHelper.getInputClass().getURI();
-		String outputClassUri = serviceOntologyHelper.getOutputClass().getURI();
 		ontologyModel = createOntologyModel();
-		OwlUtils.loadOntologyForUri(ontologyModel, inputClassUri);
-		OwlUtils.loadOntologyForUri(ontologyModel, outputClassUri);
 		
+		String inputClassUri = serviceOntologyHelper.getInputClass().getURI();
+		OwlUtils.loadOntologyForUri(ontologyModel, inputClassUri);
 		inputClass = ontologyModel.getOntClass(inputClassUri);
+		
+		String outputClassUri = serviceOntologyHelper.getOutputClass().getURI();
+		OwlUtils.loadOntologyForUri(ontologyModel, outputClassUri);
 		outputClass = ontologyModel.getOntClass(outputClassUri);
 	}
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
-		outputServiceModel(response);
+		outputServiceModel(request, response);
 	}
 
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
-		/* TODO surround model read with try/catch...
+		/* create the service-call structure and execute it in a try/catch
+		 * block that sends an appropriate error response...
 		 */
-		Model inputModel = readInput(request);
+		ServiceCall call = new ServiceCall();
+		call.setRequest(request);
 		
 		try {
-			Model outputModel = processInput(inputModel);
-			outputSuccessResponse(response, outputModel);
+			Model inputModel = readInput(request);
+			call.setInputModel(inputModel);
+			Model outputModel = prepareOutputModel(inputModel);
+			call.setOutputModel(outputModel);
+			
+			processInput(call);
+			outputSuccessResponse(response, call.getOutputModel());
 		} catch (Exception e) {
 			outputErrorResponse(response, e);
 		}
@@ -131,55 +146,33 @@ public abstract class ServiceServlet extends HttpServlet implements InputProcess
 		return inputModel;
 	}
 	
-	protected Model processInput(Model inputModel)
+	protected Model prepareOutputModel(Model inputModel)
 	{
 		/* 2009-03-17 Luke and Mark decide that inputs will be explicitly typed,
 		 * so reasoning is not required here...
 		 */
 		Model outputModel = createOutputModel();
-		Map<Resource, Resource> inputOutputMap = new HashMap<Resource, Resource>();
-		OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM, inputModel);
-		for (Iterator<?> i = ontModel.listIndividuals(inputClass); i.hasNext(); ) {
-			Resource inputNode = inputModel.getResource(((Resource)i.next()).getURI());
-			Resource outputNode = outputModel.createResource(inputNode.getURI(), outputClass);
-			inputOutputMap.put(inputNode, outputNode);
+		for (ResIterator i = inputModel.listSubjectsWithProperty(RDF.type, inputClass); i.hasNext();) {
+			outputModel.createResource(i.nextResource().getURI(), outputClass);
 		}
-		
-		if (inputOutputMap.isEmpty()) {
-			String message = "POST data contained no instances of " + inputClass;
-			log.warn(message);
-			throw new IllegalArgumentException(message);
-		} else {
-			processInput(inputOutputMap);
-			return outputModel;
-		}
+		return outputModel;
 	}
 	
-	protected abstract void processInput(Map<Resource, Resource> inputOutputMap);
+	protected abstract void processInput(ServiceCall call);
 	
-//	/* (non-Javadoc)
-//	 * @see ca.wilkinsonlab.sadi.service.InputProcessor#processInput(com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource)
-//	 */
-//	public void processInput(Resource input, Resource output)
-//	{
-//		throw new UnsupportedOperationException("Subclasses of SynchronousServiceServlet must override either processInput or getInputProcessor");
-//	}
-	
-	protected InputProcessor getInputProcessor()
+	protected void outputServiceModel(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
-		return this;
-	}
-	
-	protected void outputServiceModel(HttpServletResponse response) throws IOException
-	{
+		/* output the service model using the request URL as the base for an
+		 * relative URIs...
+		 */
 		response.setContentType("application/rdf+xml");
-		serviceModel.write(response.getWriter());
+		serviceModel.write(response.getWriter(), "RDF/XML", request.getRequestURL().toString());
 	}
 	
 	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
 	{
-		/* TODO should probably have a more complex Servlet that stores the final response
-		 * somewhere on disk and redirects there...
+		/* TODO add a mechanims to specify a web-accessible location on disk
+		 * where the servlet can dump the output model and redirect to it...
 		 */
 		response.setContentType("application/rdf+xml");
 		outputModel.write(response.getWriter());
@@ -202,6 +195,11 @@ public abstract class ServiceServlet extends HttpServlet implements InputProcess
 	protected ModelMaker createModelMaker()
 	{
 		return ModelFactory.createMemModelMaker();
+	}
+	
+	protected Model createServiceModel()
+	{
+		return modelMaker.createModel(serviceName);
 	}
 	
 	protected Model createInputModel()
