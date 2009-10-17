@@ -10,6 +10,7 @@ import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
+@SuppressWarnings("serial")
 public abstract class UniProtServiceServlet extends AsynchronousServiceServlet
 {
 	protected UniProtServiceServlet()
