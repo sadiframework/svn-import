@@ -104,7 +104,6 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	
 	protected String getPollUrl(HttpServletRequest request, String taskId)
 	{
-		
 		return String.format("%s?%s=%s", serviceUrl == null ? request.getRequestURL().toString() : serviceUrl, POLL_PARAMETER, taskId);
 	}
 	
