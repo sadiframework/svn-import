@@ -589,6 +589,21 @@ public class BioMobyService extends MobyService implements Service
 		}
 		return filtered;
 	}
+	
+	private MobyService getMobyServiceDefinition() throws MobyException
+	{
+		MobyService template = new MobyService();
+		template.setAuthority(getAuthority());
+		template.setName(getName());
+		MobyService[] services = sourceRegistry.getMobyCentral().findService(template);
+		if (services.length == 0) {
+			throw new MobyException("no services matched this template");
+		} else if (services.length > 1) {
+			throw new MobyException("more than one service matched this template");
+		} else {
+			return services[0];
+		}
+	}
 
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.Service#isInputInstance(com.hp.hpl.jena.rdf.model.Resource)
@@ -599,19 +614,9 @@ public class BioMobyService extends MobyService implements Service
 		 * information that MobyService does, despite the fact that it's a
 		 * subclass; this needs to be fixed, but I don't have time right now...
 		 */
-		MobyService template = new MobyService();
-		template.setAuthority(getAuthority());
-		template.setName(getName());
 		MobyService service;
 		try {
-			MobyService[] services = sourceRegistry.getMobyCentral().findService(template);
-			if (services.length == 0) {
-				throw new MobyException("no services matched this template");
-			} else if (services.length > 1) {
-				throw new MobyException("more than one service matched this template");
-			} else {
-				service = services[0];
-			}
+			service = getMobyServiceDefinition();
 		} catch (MobyException e) {
 			log.error("couldn't retrieve service description from BioMoby registry", e);
 			return false;
@@ -631,8 +636,26 @@ public class BioMobyService extends MobyService implements Service
 	 */
 	public Collection<Resource> discoverInputInstances(Model inputModel)
 	{
-		log.warn("discoverInputInstances not yet implemented");
-		return new ArrayList<Resource>(0);
+		Collection<Resource> instances = new ArrayList<Resource>(0);
+		
+		/* FIXME apparently BioMobyService doesn't actually contain all of the
+		 * information that MobyService does, despite the fact that it's a
+		 * subclass; this needs to be fixed, but I don't have time right now...
+		 */
+		MobyService service;
+		try {
+			service = getMobyServiceDefinition();
+		} catch (MobyException e) {
+			log.error("couldn't retrieve service description from BioMoby registry", e);
+			return instances;
+		}
+		
+		MobyNamespace[] namespaces = service.getPrimaryInputs()[0].getNamespaces();
+		for (MobyNamespace namespace: namespaces) {
+			OntClass namespaceType = sourceRegistry.getTypeByNamespace(namespace);
+			instances.addAll(inputModel.listResourcesWithProperty(RDF.type, namespaceType).toList());
+		}
+		return instances;
 	}
 	
 	private class ConstructQueryCache
