@@ -117,6 +117,11 @@ public class RdfUtils
 	    return buf.toString();
 	}
 
+	/**
+	 * @author Ben Vandervalk
+	 * @param objectValue
+	 * @return
+	 */
 	public static boolean isURI(String objectValue)
 	{
 		if (StringUtils.isEmpty(objectValue))

@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
+import ca.wilkinsonlab.sadi.utils.ExceptionUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 
 import com.hp.hpl.jena.ontology.OntClass;
@@ -182,7 +183,7 @@ public abstract class ServiceServlet extends HttpServlet
 	{
 		/* TODO send errors in RDF in some form...
 		 */
-		error.printStackTrace(response.getWriter());
+		ExceptionUtils.createExceptionModel(error).write(response.getWriter());
 		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 	}
 	
