@@ -16,6 +16,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -24,6 +25,7 @@ import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.DurationUtils;
+import ca.wilkinsonlab.sadi.utils.ExceptionUtils;
 import ca.wilkinsonlab.sadi.utils.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpInputStream;
@@ -285,11 +287,16 @@ public class RdfService implements Service
 			inputModel.add(OwlUtils.getMinimalModel(inputNode, getInputClass()));
 		}
 		
-		Model outputModel;
+		Model outputModel = null;
 		try {
 			outputModel = invokeServiceUnparsed(inputModel);
 		} catch (IOException e) {
-			throw new ServiceInvocationException(e.getMessage());
+			String message = null;
+			if (outputModel != null)
+				message = ExceptionUtils.exceptionModelToString(outputModel);
+			if (StringUtils.isEmpty(message))
+				message = e.getMessage();
+			throw new ServiceInvocationException(message);
 		}
 		
 		Collection<Triple> triples = new ArrayList<Triple>();
