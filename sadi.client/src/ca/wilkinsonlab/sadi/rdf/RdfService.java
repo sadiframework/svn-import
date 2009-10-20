@@ -137,7 +137,7 @@ public class RdfService implements Service
 	private static InputStream fetchAsyncData(String url) throws HttpException, IOException
 	{
 		while (true) {
-			log.trace("fetching asynchronous data from " + url);
+			log.debug("fetching asynchronous data from " + url);
 			GetMethod method = new GetMethod(url);
 			method.setFollowRedirects(false);
 			HttpClient client = new HttpClient();
