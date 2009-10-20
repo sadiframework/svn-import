@@ -137,8 +137,7 @@ public class SHAREKnowledgeBase
 		 * TODO might have to make this configurable or turn it off, if people
 		 * are using the FROM clause in other ways...
 		 */
-		for (Iterator iter = query.getGraphURIs().iterator(); iter.hasNext();) {
-			String sourceURI = (String) iter.next();
+		for (String sourceURI: query.getGraphURIs()) {
 			reasoningModel.read( sourceURI );
 		}
 		
@@ -400,8 +399,8 @@ public class SHAREKnowledgeBase
 		Set<Service> services = new HashSet<Service>(Config.getMasterRegistry().findServicesByPredicate(p.getURI()));
 		
 		// listEquivalentProperties doesn't include the property itself
-		for (Iterator i = p.listEquivalentProperties(); i.hasNext(); ) {
-			OntProperty equivalentProperty = (OntProperty)i.next();
+		for (Iterator<? extends OntProperty> i = p.listEquivalentProperties(); i.hasNext(); ) {
+			OntProperty equivalentProperty = i.next();
 			log.trace(String.format("found equivalent property %s", equivalentProperty));
 			services.addAll(Config.getMasterRegistry().findServicesByPredicate(equivalentProperty.getURI()));
 		}
