@@ -91,6 +91,12 @@
       <groupId>org.biomoby</groupId>
       <artifactId>jmoby</artifactId>
       <version>1.1.1</version>
+      <exclusions>
+      	<exclusion>
+      		<artifactId>tools</artifactId>
+      		<groupId>sun.jdk</groupId>
+      	</exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
