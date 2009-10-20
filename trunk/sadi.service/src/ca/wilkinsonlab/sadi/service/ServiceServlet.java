@@ -68,7 +68,8 @@ public abstract class ServiceServlet extends HttpServlet
 		 * In some cases, probably involving baroque network configurations,
 		 * it might be necessary to supply an explicit service URI.
 		 */
-		serviceUrl = config.getString("url");
+		serviceUrl = (System.getProperty("sadi.service.ignoreForcedURL") != null) ?
+				null : config.getString("url");
 		
 		modelMaker = createModelMaker();  // TODO support persistent models in properties file?
 		serviceModel = createServiceModel();

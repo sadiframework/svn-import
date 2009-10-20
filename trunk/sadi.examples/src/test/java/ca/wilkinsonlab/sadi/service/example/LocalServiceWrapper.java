@@ -21,4 +21,10 @@ public class LocalServiceWrapper extends RdfService
 	{
 		return localServiceUrl;
 	}
+	
+	@Override
+	public String getServiceURI()
+	{
+		return localServiceUrl.toExternalForm();
+	}
 }

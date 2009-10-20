@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.rdf.RdfService;
 import ca.wilkinsonlab.sadi.service.ServiceServlet;
+import ca.wilkinsonlab.sadi.service.example.LocalServiceWrapper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
@@ -52,9 +53,7 @@ public abstract class ServiceServletTestBase extends TestCase
 	
 	protected RdfService getLocalServiceInstance() throws MalformedURLException
 	{
-//		return new LocalServiceWrapper(getServiceURI(), getLocalServiceURL());
-//		return new RdfService(getLocalServiceURL());
-		return new RdfService(getServiceURI());
+		return new LocalServiceWrapper(getServiceURI(), getLocalServiceURL());
 	}
 	
 	protected Resource getInputNode()
