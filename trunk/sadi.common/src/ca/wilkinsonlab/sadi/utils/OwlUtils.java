@@ -1,6 +1,5 @@
 package ca.wilkinsonlab.sadi.utils;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -93,10 +92,9 @@ public class OwlUtils
 		/* Michel Dumontier's predicates resolve to a minimal definition that
 		 * doesn't include the inverse relationship, so we need to resolve
 		 * the ontology that contains the complete definition...
+		 * We extract to a list here to prevent concurrent modification exceptions...
 		 */
-		Collection statements = model.getResource(uri).listProperties(RDFS.isDefinedBy).toList();
-		for (Object o: statements) {
-			Statement statement = (Statement)o;
+		for (Statement statement: model.getResource(uri).listProperties(RDFS.isDefinedBy).toList()) {
 			if (statement.getObject().isURIResource()) {
 				ontologyUri = statement.getResource().getURI();
 				log.trace(String.format("reading isDefinedBy ontology from %s", ontologyUri));
