@@ -31,7 +31,6 @@ import com.hp.hpl.jena.util.ResourceUtils;
  */
 public class RdfRegistry extends VirtuosoRegistry implements Registry
 {
-	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(RdfRegistry.class);
 	
 	static final String ENDPOINT_CONFIG_KEY = "endpoint";

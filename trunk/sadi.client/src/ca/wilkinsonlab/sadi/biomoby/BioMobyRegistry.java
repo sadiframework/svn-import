@@ -48,8 +48,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 {
-	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(BioMobyRegistry.class);
+	
 	private static final String LSRN_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
 	private static final boolean CACHE_ENABLED = true;
 

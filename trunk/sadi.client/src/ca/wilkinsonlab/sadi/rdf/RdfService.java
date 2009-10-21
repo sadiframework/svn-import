@@ -133,7 +133,6 @@ public class RdfService implements Service
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	@SuppressWarnings("deprecation")
 	private static InputStream fetchAsyncData(String url) throws HttpException, IOException
 	{
 		while (true) {

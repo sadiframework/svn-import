@@ -21,7 +21,6 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 public class RdfRegistryTest
 {
-	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(RdfRegistryTest.class);
 	
 	private static final String SERVICE_URI = "http://sadiframework.org/examples/linear";
