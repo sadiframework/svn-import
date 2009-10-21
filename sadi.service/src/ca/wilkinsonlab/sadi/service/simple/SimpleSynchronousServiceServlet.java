@@ -7,6 +7,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 import ca.wilkinsonlab.sadi.service.SynchronousServiceServlet;
 
+@SuppressWarnings("serial")
 public abstract class SimpleSynchronousServiceServlet extends SynchronousServiceServlet
 {
 	@Override

@@ -35,6 +35,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * TODO this isn't really true; if you need to batch your input, you need to extend this...
  * @author Luke McCarthy
  */
+@SuppressWarnings("serial")
 public abstract class ServiceServlet extends HttpServlet
 {
 	private static final Log log = LogFactory.getLog(ServiceServlet.class);
