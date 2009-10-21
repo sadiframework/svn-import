@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
@@ -354,14 +356,20 @@ public class RdfService implements Service
      */
 	public boolean isInputInstance(Resource resource)
 	{
+		Model inputModel = resource.getModel();
+		OntModel reasoningModel = getServiceOntologyModel();
+		OntClass inputClass = getInputClass();
 		try {
-			return createReasoningModel(resource.getModel()).getIndividual(resource.getURI()).hasOntClass(getInputClass().getURI());
+			reasoningModel.addSubModel(inputModel);
+			return reasoningModel.getIndividual(resource.getURI()).hasOntClass(inputClass);
 		} catch (Exception e) {
 			/* we're probably here because the service definition is incorrect,
 			 * and we don't want a bad service spoiling everything for everybody...
 			 */
-			log.error(String.format("error classifying %s as an instance of %s", resource, getInputClass()), e);
+			log.error(String.format("error classifying %s as an instance of %s", resource, inputClass), e);
 			return false;
+		} finally {
+			reasoningModel.removeSubModel(inputModel);
 		}
 	}
 	
@@ -370,11 +378,26 @@ public class RdfService implements Service
      */
 	@SuppressWarnings("unchecked")
 	public synchronized Collection<Resource> discoverInputInstances(Model inputModel)
-	{
+	{	
 		OntModel reasoningModel = getServiceOntologyModel();
 		OntClass inputClass = getInputClass();
-		reasoningModel.addSubModel(inputModel);
-		return (Collection<Resource>)inputClass.listInstances().toList();
+		try {
+			reasoningModel.addSubModel(inputModel);
+			Collection<Resource> instancesInInputModel = new ArrayList<Resource>();
+			for (Iterator<? extends OntResource> instances = inputClass.listInstances(); instances.hasNext(); ) {
+				OntResource instance = instances.next();
+				instancesInInputModel.add(instance.inModel(inputModel).as(Resource.class));
+			}
+			return instancesInInputModel;
+		} catch (Exception e) {
+			/* we're probably here because the service definition is incorrect,
+			 * and we don't want a bad service spoiling everything for everybody...
+			 */
+			log.error(String.format("error discovering instances of %s", inputClass), e);
+			return Collections.EMPTY_LIST;
+		} finally {
+			reasoningModel.removeSubModel(inputModel);
+		}
 	}
 	
 	/**
@@ -407,16 +430,6 @@ public class RdfService implements Service
 			}
 		}
 		model.remove(toRemove);
-	}
-
-	private OntModel createReasoningModel(Model inputModel)
-	{
-		/* TODO is there some way we can avoid creating a new ontology
-		 * model every time?
-		 */
-		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF, getServiceOntologyModel() );
-		model.add(inputModel);
-		return model;
 	}
 	
 	@Override
