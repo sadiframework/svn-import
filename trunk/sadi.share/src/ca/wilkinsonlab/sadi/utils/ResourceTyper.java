@@ -14,7 +14,6 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 public class ResourceTyper
 {
-	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog( ResourceTyper.class );
 	
 	private static final ResourceTyper theInstance = new ResourceTyper();
