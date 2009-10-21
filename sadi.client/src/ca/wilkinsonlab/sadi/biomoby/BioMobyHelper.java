@@ -19,7 +19,6 @@ import org.apache.commons.logging.LogFactory;
 import org.biomoby.client.CentralImpl;
 import org.biomoby.client.MobyRequest;
 import org.biomoby.shared.Central;
-import org.biomoby.shared.MobyException;
 import org.biomoby.shared.MobySecondaryData;
 import org.biomoby.shared.MobyService;
 import org.biomoby.shared.data.MobyContentInstance;
@@ -209,14 +208,14 @@ public class BioMobyHelper
 		request.setInput(input);		
 		setSecondaryParameters(request, service, secondaryParameters);
 		
-		/* call find service on Registry object to supply tracing information for
-		 * Piam's project...
-		 */
-		try {
-			worker.findService(service);
-		} catch (MobyException e) {
-			log.warn("error calling MobyCentral.findService", e);
-		}
+//		/* call find service on Registry object to supply tracing information for
+//		 * Piam's project...
+//		 */
+//		try {
+//			worker.findService(service);
+//		} catch (MobyException e) {
+//			log.warn("error calling MobyCentral.findService", e);
+//		}
 		
 		if (service.isAsynchronous() ) {
 			return invokeAsynchronousService(request);
