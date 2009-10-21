@@ -6,6 +6,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
 
+@SuppressWarnings("serial")
 public abstract class SimpleAsynchronousServiceServlet extends AsynchronousServiceServlet
 {
 	@Override

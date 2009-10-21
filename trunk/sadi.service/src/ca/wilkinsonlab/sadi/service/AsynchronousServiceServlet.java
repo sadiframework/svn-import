@@ -20,6 +20,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+@SuppressWarnings("serial")
 public abstract class AsynchronousServiceServlet extends ServiceServlet
 {
 	private static final String POLL_PARAMETER = "poll";
