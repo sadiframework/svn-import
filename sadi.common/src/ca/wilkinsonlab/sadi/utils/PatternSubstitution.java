@@ -35,12 +35,13 @@ public class PatternSubstitution
 	public String execute(String s)
 	{
 		/* use find() and not matches() to better emulate perl semantics by
-		 * not forcing a match to start at the beginning of the string...
+		 * not forcing a match over the whole string...
 		 */
 		Matcher match = inPattern.matcher(s);
 		match.find();
 		
 		/* replace groups in out pattern according to perl semantics...
+		 * TODO ignore escaped $s and \s in the out pattern...
 		 */
 		String result = new String(outPattern);
 		for (int i=1; i<=match.groupCount(); ++i)
