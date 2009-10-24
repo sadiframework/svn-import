@@ -10,4 +10,14 @@ public class SADIException extends Exception
 	{
 		super(message);
 	}
+	
+	public SADIException(String message, Throwable cause)
+	{
+        super(message, cause);
+    }
+	
+	public SADIException(Throwable cause)
+	{
+        super(cause);
+    }
 }
