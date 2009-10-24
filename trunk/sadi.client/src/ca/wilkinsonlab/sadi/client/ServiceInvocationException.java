@@ -12,4 +12,14 @@ public class ServiceInvocationException extends SADIException
 	{
 		super(message);
 	}
+	
+	public ServiceInvocationException(String message, Throwable cause)
+	{
+        super(message, cause);
+    }
+	
+	public ServiceInvocationException(Throwable cause)
+	{
+        super(cause);
+    }
 }
