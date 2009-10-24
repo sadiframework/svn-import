@@ -138,6 +138,23 @@ public class OwlUtils
 	}
 	
 	/**
+	 * Return the OntResource with the specified URI, resolving it and
+	 * loading the resulting ontology into the model if necessary.
+	 * @param model the OntModel
+	 * @param uri the URI
+	 * @return the OntResource
+	 */
+	public static OntResource getOntResourceWithLoad(OntModel model, String uri)
+	{
+		OntResource r = model.getOntResource(uri);
+		if (r != null)
+			return r;
+		
+		loadOntologyForUri(model, uri);
+		return model.getOntResource(uri);
+	}
+	
+	/**
 	 * Return the set of properties the OWL class identified by a URI has restrictions on.
 	 * The ontology containing the OWL class (and any referenced imports) will be fetched
 	 * and processed.
