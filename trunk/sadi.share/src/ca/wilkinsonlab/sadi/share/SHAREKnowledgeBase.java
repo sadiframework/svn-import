@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang.time.DurationFormatUtils;
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -59,19 +61,20 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 public class SHAREKnowledgeBase
 {
-	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog( SHAREKnowledgeBase.class );
-
-	// TODO make this configurable (and rename to something less unwieldy...)
-	private static final boolean USE_SADI_FOR_IS_INPUT_INSTANCE = false;
 	
 	private OntModel reasoningModel;
 	private Model dataModel;
 	
 	private Map<Node, Set<RDFNode>> variableBindings;
 	
+	private StopWatch inputClassificationWatch;
+	
 	private Tracker tracker;
 	private Set<String> deadServices;
+
+	// TODO rename to something less unwieldy?
+	private boolean dynamicInputInstanceClassification;
 	
 	public SHAREKnowledgeBase()
 	{
@@ -96,6 +99,8 @@ public class SHAREKnowledgeBase
 		
 		variableBindings = new HashMap<Node, Set<RDFNode>>();
 		
+		inputClassificationWatch = new StopWatch();
+		
 		tracker = new Tracker();
 		
 		Configuration config = ca.wilkinsonlab.sadi.share.Config.getConfiguration();
@@ -103,6 +108,7 @@ public class SHAREKnowledgeBase
 		for (Object serviceUri: config.getList("share.deadService"))
 			deadServices.add((String)serviceUri);
 		
+		dynamicInputInstanceClassification = config.getBoolean("share.dynamicInputInstanceClassification", false);
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
 	}
 	
@@ -133,6 +139,11 @@ public class SHAREKnowledgeBase
 	
 	public void executeQuery(Query query, QueryPatternOrderingStrategy strategy)
 	{
+		// this is really stupid; is this really the way it has to be done?
+		inputClassificationWatch.reset();
+		inputClassificationWatch.start();
+		inputClassificationWatch.suspend();
+		
 		/* load all of the graphs referenced in the FROM clause into the kb
 		 * TODO might have to make this configurable or turn it off, if people
 		 * are using the FROM clause in other ways...
@@ -185,6 +196,9 @@ public class SHAREKnowledgeBase
 		} catch (UnresolvableQueryException e) {
 			log.error(String.format("failed to order query %s with strategy %s", query, strategy), e);
 		}
+		
+		inputClassificationWatch.stop();
+		log.info(String.format("spent %s on input classification", DurationFormatUtils.formatDurationHMS(inputClassificationWatch.getTime())));
 	}
 
 	private Set<RDFNode> getVariableBinding(Node variable)
@@ -342,14 +356,7 @@ public class SHAREKnowledgeBase
 		Set<Service> services = getServicesByPredicate(predicate);
 		log.debug(String.format("found %d service%s", services.size(), services.size() == 1 ? "" : "s"));
 		for (Service service : services) {
-			log.trace(String.format("filtering potential subjects for service %s", service));
-			Set<RDFNode> subjectsMatchingInputClass = filterByInputClass(subjects, service);
-			if (subjectsMatchingInputClass.isEmpty()) {
-				log.trace("nothing left to do");
-				continue;
-			}
-			
-			Collection<Triple> output = invokeService(service, subjectsMatchingInputClass);
+			Collection<Triple> output = maybeCallService(service, subjects);
 			for (Triple triple: output) {
 				log.trace(String.format("adding triple to data model %s", triple));
 				RdfUtils.addTripleToModel(dataModel, triple);
@@ -390,6 +397,37 @@ public class SHAREKnowledgeBase
 		}
 	}
 	
+	private Collection<Triple> maybeCallService(Service service, Set<? extends RDFNode> subjects)
+	{
+		log.trace(String.format("found service %s", service));
+		if (deadServices.contains(service.getServiceURI())) {
+			log.debug(String.format("skipping dead service %s", service));
+			return Collections.emptyList();
+		}
+		
+		log.trace(String.format("filtering duplicate service calls"));
+		for (Iterator<? extends RDFNode> i = subjects.iterator(); i.hasNext(); ) {
+			RDFNode input = i.next();
+			if (tracker.beenThere(service, input)) {
+				log.trace(String.format("skipping input %s (been there)", input));
+				i.remove();
+			}
+		}
+		if (subjects.isEmpty()) {
+			log.trace("nothing left to do");
+			return Collections.emptyList();
+		}
+		
+		log.trace(String.format("filtering potential subjects for service %s", service));
+		Set<RDFNode> subjectsMatchingInputClass = filterByInputClass(subjects, service);
+		if (subjectsMatchingInputClass.isEmpty()) {
+			log.trace("nothing left to do");
+			return Collections.emptyList();
+		}
+		
+		return invokeService(service, subjectsMatchingInputClass);
+	}
+
 	/* TODO make this less clunky; probably the service interface should take
 	 * the OntProperty instead of just the URI, then it can return services
 	 * that match the synonyms as well...
@@ -417,8 +455,51 @@ public class SHAREKnowledgeBase
 	
 	private Set<RDFNode> filterByInputClass(Set<? extends RDFNode> subjects, Service service)
 	{
-		Set<RDFNode> passed = new HashSet<RDFNode>(subjects.size());
+		inputClassificationWatch.resume();
+//		Set<RDFNode> passed = filterByInputClassIndividually(subjects, service);
+		Set<RDFNode> passed = filterByInputClassInBulk(subjects, service);
 		Set<Resource> failed = new HashSet<Resource>(subjects.size());
+		for (RDFNode subject: subjects) {
+			if (!passed.contains(subject) && subject.isResource())
+				failed.add(subject.as(Resource.class));
+		}
+		
+		/* if so configured, use SADI to attempt to dynamically attach
+		 * properties to the failed nodes so that they will pass...
+		 */
+		if (dynamicInputInstanceClassification && service.getInputClass() != null) {
+			log.trace(String.format("Using SADI to test membership in %s", service.getInputClass()));
+			gatherTriplesByClass(failed, service.getInputClass(), null);
+			for (Resource node: failed) {
+				if (service.isInputInstance(node))
+					passed.add(node);
+			}
+		}
+		inputClassificationWatch.suspend();
+		return passed;
+	}
+	
+	private Set<RDFNode> filterByInputClassInBulk(Set<? extends RDFNode> subjects, Service service)
+	{
+		// TODO SPARQLServiceWrapper doesn't implement discoverInputInstances
+		if (service instanceof SPARQLServiceWrapper)
+			return filterByInputClassIndividually(subjects, service);
+		
+		if (subjects.isEmpty())
+			return Collections.emptySet();
+
+		log.trace(String.format("filtering invalid inputs to %s in bulk", service));
+		Set<RDFNode> passed = new HashSet<RDFNode>(subjects.size());
+		for (Resource r: service.discoverInputInstances(dataModel)) {
+			if (subjects.contains(r))
+				passed.add(r);
+		}
+		return passed;
+	}
+	
+	private Set<RDFNode> filterByInputClassIndividually(Set<? extends RDFNode> subjects, Service service)
+	{
+		Set<RDFNode> passed = new HashSet<RDFNode>(subjects.size());
 		for (RDFNode node: subjects) {
 			log.trace(String.format("Checking if %s is a valid input to %s", node, service));
 			
@@ -431,23 +512,9 @@ public class SHAREKnowledgeBase
 				Resource r = (Resource)node.as(Resource.class);
 				if (service.isInputInstance(r)) {
 					passed.add(r);
-				} else {
-					failed.add(r);
 				}
 			} else if (node.isLiteral() && service instanceof SPARQLServiceWrapper) {
 				passed.add(node);
-			}
-		}
-		
-		/* if so configured, use SADI to attempt to dynamically attach
-		 * properties to the failed nodes so that they will pass...
-		 */
-		if (USE_SADI_FOR_IS_INPUT_INSTANCE && service.getInputClass() != null) {
-			log.trace(String.format("Using SADI to test membership in %s", service.getInputClass()));
-			gatherTriplesByClass(failed, service.getInputClass(), null);
-			for (Resource node: failed) {
-				if (service.isInputInstance(node))
-					passed.add(node);
 			}
 		}
 		return passed;
@@ -456,23 +523,6 @@ public class SHAREKnowledgeBase
 	@SuppressWarnings("unchecked")
 	private Collection<Triple> invokeService(Service service, Set<? extends RDFNode> inputs)
 	{
-		log.trace(String.format("found service %s", service));
-		if (deadServices.contains(service.getServiceURI()))
-			return Collections.emptyList();
-		
-		// don't call a service more than once with a given input...
-		for (Iterator<? extends RDFNode> i = inputs.iterator(); i.hasNext(); ) {
-			RDFNode input = i.next();
-			if (tracker.beenThere(service, input)) {
-				log.trace(String.format("skipping input %s (been there)", input));
-				i.remove();
-			}
-		}
-		if (inputs.isEmpty()) {
-			log.trace("nothing left to do");
-			return Collections.emptyList();
-		}
-		
 		log.info(getServiceCallString(service, inputs));
 		try {
 			/* see above about special-case coding...
@@ -487,6 +537,10 @@ public class SHAREKnowledgeBase
 			}
 		} catch (ServiceInvocationException e) {
 			log.error(String.format("failed to invoke service %s", service), e);
+			
+			/* TODO there are probably other cases where we want to mark a
+			 * service as dead...
+			 */
 			if (HttpUtils.isHttpError(e))
 				deadServices.add(service.getServiceURI());
 
@@ -496,7 +550,7 @@ public class SHAREKnowledgeBase
 	
 	private String getServiceCallString(Service service, Collection<? extends RDFNode> inputs)
 	{
-		return String.format("calling service %s (%s)", service, inputs);
+		return String.format("calling %s %s (%s)", service.getClass().getSimpleName(), service, inputs);
 	}
 
 	/* I'm not 100% sure we don't have to care exactly how we encounter a
