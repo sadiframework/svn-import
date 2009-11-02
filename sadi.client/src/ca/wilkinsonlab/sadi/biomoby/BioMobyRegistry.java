@@ -612,7 +612,20 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	}
 
 	public Collection<? extends Service> getAllServices() throws IOException {
-		throw new UnsupportedOperationException();
+		List<Service> matches = new ArrayList<Service>();
+		
+		/* TODO I don't like that the text in this string has to match text
+		 * contained in another file; we should aim for a situation where
+		 * all of the SPARQL is in one place, either all in code or all in
+		 * resource files.
+		 */
+		String query = SPARQLStringUtils.readFully(
+				BioMobyRegistry.class.getResource("resources/select.services.sparql")
+		);
+		for (Map<String, String> binding: executeQuery(query))
+			matches.add(getService(binding.get("service")));
+		
+		return matches;
 	}
 
 	public ServiceStatus getServiceStatus(String serviceURI) throws IOException {
