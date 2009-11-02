@@ -1,6 +1,7 @@
 package ca.wilkinsonlab.sadi.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -10,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -68,6 +70,22 @@ public class MultiRegistry implements Registry
 			public Collection<? extends Service> get(Registry registry) throws Exception {
 				return registry.findServicesByPredicate(predicate);
 			}	
+		});
+	}
+	
+	public Collection<? extends Service> findServicesByInputClass(final String inputClassUri)
+	{
+		return accumulate(new Accumulator<Service>() {
+			public Collection<? extends Service> get(Registry registry) throws Exception {
+				Collection<Service> services = new ArrayList<Service>();
+				for (Service service: registry.getAllServices()) {
+					OntClass inputClass = service.getInputClass();
+					if (inputClass != null)
+						if (inputClass.getURI().equals(inputClassUri))
+							services.add(service);
+				}
+				return services;
+			}
 		});
 	}
 
