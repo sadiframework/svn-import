@@ -256,7 +256,7 @@ public class BioMobyService extends MobyService implements Service
 			
 			RDFList namespaceTypes = sourceRegistry.getTypeOntology().createList();
 			for (MobyNamespace namespace: getPrimaryInputs()[0].getNamespaces())
-				namespaceTypes.add(sourceRegistry.getTypeByNamespace(namespace));
+				namespaceTypes = namespaceTypes.with(sourceRegistry.getTypeByNamespace(namespace));
 			
 			inputClass = sourceRegistry.getTypeOntology().createUnionClass(getServiceURI() + "#input", namespaceTypes);
 		}
