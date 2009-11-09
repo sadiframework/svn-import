@@ -66,7 +66,7 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 			try {
 				operation = root.getRequiredProperty(opProperty).getResource();
 			} catch (PropertyNotFoundException e) {
-				throw new ServiceOntologyException(String.format("service node missing required property %s", opProperty));
+				throw new ServiceOntologyException(String.format("service node %s missing required property %s", root, opProperty));
 			}
 		}
 
@@ -83,7 +83,7 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 				input = operation.getRequiredProperty(inputProperty).getResource();
 				output = operation.getRequiredProperty(outputProperty).getResource();
 			} catch (PropertyNotFoundException e) {
-				throw new ServiceOntologyException(String.format("operation node missing required property %s", e.getMessage()));
+				throw new ServiceOntologyException(String.format("operation node %s missing required property %s", operation, e.getMessage()));
 			}
 		}
 		
@@ -127,7 +127,7 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 		try {
 			return input.getRequiredProperty(objectTypeProperty).getResource();
 		} catch (PropertyNotFoundException e) {
-			throw new ServiceOntologyException(String.format("input node missing required property %s", objectTypeProperty));
+			throw new ServiceOntologyException(String.format("input node %s missing required property %s", input, objectTypeProperty));
 		}
 	}
 
@@ -142,7 +142,7 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 		try {
 			return output.getRequiredProperty(objectTypeProperty).getResource();
 		} catch (PropertyNotFoundException e) {
-			throw new ServiceOntologyException(String.format("output node missing required property %s", objectTypeProperty));
+			throw new ServiceOntologyException(String.format("output node %s missing required property %s", output, objectTypeProperty));
 		}
 	}
 
