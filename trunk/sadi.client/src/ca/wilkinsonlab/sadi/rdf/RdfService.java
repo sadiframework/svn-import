@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.httpclient.HeaderElement;
@@ -407,10 +406,9 @@ public class RdfService implements Service
 	 */
 	public static void resolveAsynchronousData(Model model)
 	{
-		List<Statement> toRemove = new ArrayList<Statement>();
 		Set<String> seen = new HashSet<String>();
 		for (StmtIterator i = model.listStatements((Resource)null, RDFS.isDefinedBy, (RDFNode)null); i.hasNext(); ) {
-			Statement statement = i.nextStatement();
+			Statement statement = i.removeNext();
 			if (!statement.getObject().isURIResource())
 				continue;
 			
@@ -423,13 +421,11 @@ public class RdfService implements Service
 			try {
 				InputStream data = fetchAsyncData(url);
 				model.read(data, url);
-				toRemove.add(statement);
 				data.close();
 			} catch (Exception e) {
 				log.error("failed to fetch data for " + statement, e);
 			}
 		}
-		model.remove(toRemove);
 	}
 	
 	@Override
