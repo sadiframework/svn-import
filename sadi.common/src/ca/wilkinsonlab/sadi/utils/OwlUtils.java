@@ -423,7 +423,7 @@ public class OwlUtils
 		{
 			return String.format("%s %s", 
 					individual.isURIResource() ? individual.getURI() : individual.getId(),
-					asClass.isURIResource() ? individual.getURI() : individual.getId()
+					asClass.isURIResource() ? asClass.getURI() : asClass.getId()
 			);
 		}
 	}
