@@ -32,7 +32,7 @@ public class UniProt2PdbServiceServletTest extends ServiceServletTestBase
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi.examples/uniprot2pdb";
+		return "http://localhost:8080/sadi-examples/uniprot2pdb";
 	}
 
 	@Override
