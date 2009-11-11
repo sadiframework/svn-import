@@ -33,7 +33,7 @@
             <mygrid:inputParameter>
                 <mygrid:parameter rdf:about="#input">
                     <mygrid:hasParameterNameText>input</mygrid:hasParameterNameText>
-                    <mygrid:objectType rdf:resource="http://sadiframework.org/examples/regression.owl#PairedValueCollection"/>
+                    <mygrid:objectType rdf:resource="http://sadiframework.org/examples/regression.owl#InputClass"/>
 
                     <!--
                     <mygrid:hasParameterType>
