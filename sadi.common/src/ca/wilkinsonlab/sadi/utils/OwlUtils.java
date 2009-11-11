@@ -360,6 +360,8 @@ public class OwlUtils
 		
 		public MinimalModelVisitor(Model model, Resource subject, OntClass asClass, Set<String> visited)
 		{
+			log.trace(String.format("visiting %s as %s", subject, asClass));
+			
 			this.model = model;
 			this.subject = subject;
 			this.visited = visited;
