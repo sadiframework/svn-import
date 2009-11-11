@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,7 +31,7 @@ public class ExceptionUtils
 	{
 		Resource exception = model.createResource();
 		exception.addProperty(RDF.type, SADI.Exception);
-		exception.addProperty(RDFS.label, t.getMessage());
+		exception.addProperty(RDFS.label, StringUtils.defaultString(t.getMessage(), t.getClass().toString()));
 		exception.addProperty(RDFS.comment, t.toString());
 		RDFList stackTrace = model.createList();
 		for (StackTraceElement e: t.getStackTrace()) {
