@@ -2,24 +2,27 @@ package ca.wilkinsonlab.sadi.service;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.Collection;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.rdf.RdfService;
-import ca.wilkinsonlab.sadi.service.ServiceServlet;
 import ca.wilkinsonlab.sadi.service.example.LocalServiceWrapper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
-import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public abstract class ServiceServletTestBase extends TestCase
 {
@@ -56,9 +59,9 @@ public abstract class ServiceServletTestBase extends TestCase
 		return new LocalServiceWrapper(getServiceURI(), getLocalServiceURL());
 	}
 	
-	protected Resource getInputNode()
+	protected Collection<Resource> getInputNodes()
 	{
-		return getInputModel().createResource(getInputURI());
+		return Collections.singleton(getInputModel().createResource(getInputURI()));
 	}
 	
 	protected abstract Object getInput();
@@ -73,14 +76,29 @@ public abstract class ServiceServletTestBase extends TestCase
 	
 	protected abstract String getLocalServiceURL();
 	
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception
+	{
+		System.setProperty("sadi.service.ignoreForcedURL", "true");
+	}
+
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception
+	{
+		System.setProperty("sadi.service.ignoreForcedURL", null);
+	}
+	
 	@Test
 	public void testInputInstance() throws Exception
 	{
-		ServiceServlet serviceServletInstance = getServiceServletInstance();
-		Model inputModel = getInputModel();
-		OntModel infModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF, inputModel);
-		assertTrue(String.format("individual %s is not an instance of class %s", getInputNode(), serviceServletInstance.inputClass),
-				infModel.getIndividual(getInputNode().getURI()).hasOntClass(serviceServletInstance.inputClass));
+		/* inputs to services must be explicitly typed, so there's not much
+		 * to do here now...
+		 */
+		OntClass inputClass = getServiceServletInstance().inputClass;
+		for (Resource inputNode: getInputNodes()) {
+			assertTrue(String.format("individual %s is not an instance of class %s", inputNode, inputClass),
+					inputNode.hasProperty(RDF.type, inputClass));
+		}
 	}
 	
 //	@Test
@@ -106,12 +124,15 @@ public abstract class ServiceServletTestBase extends TestCase
 	public void testServiceInvocation() throws Exception
 	{
 		RdfService regressionService = getLocalServiceInstance();
-		Resource inputNode = getInputNode();
 		Model expectedOutputModel = getExpectedOutputModel();
-		Model actualOutputModel = RdfUtils.triplesToModel( regressionService.invokeService(inputNode) );
+		Model actualOutputModel = RdfUtils.triplesToModel( regressionService.invokeService(getInputNodes()) );
 		
 		if (log.isTraceEnabled()) {
-			log.trace(RdfUtils.logStatements("Minimal input", OwlUtils.getMinimalModel(inputNode, regressionService.getInputClass())));
+			Model inputModel = ModelFactory.createDefaultModel();
+			for (Resource inputNode: getInputNodes()) {
+				OwlUtils.getMinimalModel(inputNode, regressionService.getInputClass());
+			}
+			log.trace(RdfUtils.logStatements("Minimal input", inputModel));
 			log.trace(RdfUtils.logStatements("Expected output", expectedOutputModel));
 			log.trace(RdfUtils.logStatements("Actual output", actualOutputModel));
 		}
