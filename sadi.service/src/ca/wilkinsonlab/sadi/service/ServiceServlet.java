@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -83,9 +84,9 @@ public abstract class ServiceServlet extends HttpServlet
 			try {
 				serviceModel.read(new URL(serviceModelUrl).toString());
 			} catch (MalformedURLException e) {
-				serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), serviceUrl);
+				serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), StringUtils.defaultString(serviceUrl));
 			}
-			serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel, serviceUrl, false);
+			serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel, StringUtils.defaultString(serviceUrl), false);
 		} else {
 			/* create the service model from the information in the config...
 			 */
