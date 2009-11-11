@@ -1,5 +1,10 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import com.hp.hpl.jena.rdf.model.Resource;
+
 import ca.wilkinsonlab.sadi.service.ServiceServlet;
 import ca.wilkinsonlab.sadi.service.ServiceServletTestBase;
 
@@ -20,7 +25,19 @@ public class AsyncLinearRegressionServiceServletTest extends ServiceServletTestB
 	@Override
 	protected String getInputURI()
 	{
-		return "http://sadiframework.org/examples/input/regression1";
+		// this method shouldn't be called because we're overriding getInputNodes...
+		throw new UnsupportedOperationException();
+//		return "http://sadiframework.org/examples/input/regression1";
+	}
+	
+	@Override
+	protected Collection<Resource> getInputNodes()
+	{
+		Collection<Resource> inputNodes = new ArrayList<Resource>();
+		for (int i=1; i<=2; ++i) {
+			inputNodes.add(getInputModel().getResource(String.format("http://sadiframework.org/examples/input/regression%d", i)));
+		}
+		return inputNodes;
 	}
 
 	@Override
@@ -32,7 +49,7 @@ public class AsyncLinearRegressionServiceServletTest extends ServiceServletTestB
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi.examples/linear-async";
+		return "http://localhost:8080/sadi-examples/linear-async";
 	}
 
 	@Override
