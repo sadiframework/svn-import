@@ -149,6 +149,13 @@
     </owl:equivalentClass>
   </owl:Class>
   
+  <owl:Class rdf:ID="InputClass">
+    <owl:unionOf rdf:parseType="Collection">
+      <owl:Class rdf:about="#PairedValueCollection"/>
+      <owl:Class rdf:about="#DatedValueCollection"/>
+    </owl:unionOf>
+  </owl:Class>
+  
   <owl:Class rdf:ID="OutputClass">
     <owl:equivalentClass>
       <owl:Restriction>
