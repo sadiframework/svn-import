@@ -7,5 +7,5 @@
     <updateXml>true</updateXml>
     <warLocation>/tmp/sadi-examples.war</warLocation>
     <extraInfo></extraInfo>
-    <webPath>/sadi.examples</webPath>
+    <webPath>/sadi-examples</webPath>
 </tomcatProjectProperties>

@@ -49,7 +49,7 @@ public class ErmineJServiceServletTest extends ServiceServletTestBase
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi.examples/ermineJgo";
+		return "http://localhost:8080/sadi-examples/ermineJgo";
 	}
 
 	@Override
