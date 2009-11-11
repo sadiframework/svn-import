@@ -1,8 +1,9 @@
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:regress="http://sadiframework.org/examples/regression.owl#">
 
-	<regress:PairedValueCollection rdf:about="http://sadiframework.org/examples/input/regression1">
+	<regress:InputClass rdf:about="http://sadiframework.org/examples/input/regression1">
 	  <regress:element>
 	    <regress:PairedValue>
 	      <regress:x rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</regress:x>
@@ -15,6 +16,21 @@
 	      <regress:y rdf:datatype="http://www.w3.org/2001/XMLSchema#int">5</regress:y>
 	    </regress:PairedValue>
 	  </regress:element>
-	</regress:PairedValueCollection>
+	</regress:InputClass>
+	
+	<regress:InputClass rdf:about="http://sadiframework.org/examples/input/regression2">
+	  <regress:element>
+	    <regress:DatedValue>
+	      <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2009-01-01</dc:date>
+	      <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#double">3</rdf:value>
+	    </regress:DatedValue>
+	  </regress:element>
+	  <regress:element>
+	    <regress:DatedValue>
+	      <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2009-01-03</dc:date>
+	      <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#double">5</rdf:value>
+	    </regress:DatedValue>
+	  </regress:element>
+	</regress:InputClass>
 
 </rdf:RDF>

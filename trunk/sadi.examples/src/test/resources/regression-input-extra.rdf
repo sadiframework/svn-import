@@ -1,0 +1,61 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:regress="http://sadiframework.org/examples/regression.owl#">
+    
+  <owl:Class rdf:about="http://sadiframework.org/examples/regression.owl#hasX">
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="http://sadiframework.org/examples/regression.owl#x"/>
+        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality> 
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+
+	<regress:PairedValueCollection rdf:about="http://sadiframework.org/examples/input/regression2">
+	  <regress:element>
+	    <rdf:Description>
+	      <regress:x rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1</regress:x>
+	      <regress:y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2</regress:y>
+	    </rdf:Description>
+	  </regress:element>
+	  <regress:element>
+	    <rdf:Description>
+	      <regress:x rdf:datatype="http://www.w3.org/2001/XMLSchema#double">3</regress:x>
+	      <regress:y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">5</regress:y>
+	    </rdf:Description>
+	  </regress:element>
+	</regress:PairedValueCollection>
+	
+	<regress:Collection rdf:about="http://sadiframework.org/examples/input/regression3">
+	  <regress:element>
+	    <rdf:Description>
+	      <regress:x rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1</regress:x>
+	      <regress:y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2</regress:y>
+	    </rdf:Description>
+	  </regress:element>
+	  <regress:element>
+	    <rdf:Description>
+	      <regress:x rdf:datatype="http://www.w3.org/2001/XMLSchema#double">3</regress:x>
+	      <regress:y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">5</regress:y>
+	    </rdf:Description>
+	  </regress:element>
+	</regress:Collection>
+	
+	<regress:Collection rdf:about="http://sadiframework.org/examples/input/regression4">
+	  <regress:element>
+	    <rdf:Description>
+	      <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2009-01-01</dc:date>
+	      <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2</rdf:value>
+	    </rdf:Description>
+	  </regress:element>
+	  <regress:element>
+	    <rdf:Description>
+	      <dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2009-01-15</dc:date>
+	      <rdf:value rdf:datatype="http://www.w3.org/2001/XMLSchema#double">4</rdf:value>
+	    </rdf:Description>
+	  </regress:element>
+	</regress:Collection>
+
+</rdf:RDF>
