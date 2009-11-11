@@ -13,5 +13,14 @@
         </regress:LinearRegressionModel>
       </regress:hasRegressionModel>
     </regress:OutputClass>
+    
+    <regress:OutputClass rdf:about="http://sadiframework.org/examples/input/regression2">
+      <regress:hasRegressionModel>
+        <regress:LinearRegressionModel>
+          <regress:intercept rdf:datatype="http://www.w3.org/2001/XMLSchema#double">3.0</regress:intercept>
+          <regress:slope rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.0</regress:slope>
+        </regress:LinearRegressionModel>
+      </regress:hasRegressionModel>
+    </regress:OutputClass>
 
 </rdf:RDF>
