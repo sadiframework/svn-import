@@ -383,15 +383,19 @@ public class SHAREKnowledgeBase
 				OntProperty p = getOntProperty(triple.getPredicate().getURI());
 				OntProperty inverse = getInverseProperty(predicate);
 				
-				Resource s = dataModel.getResource(triple.getSubject().getURI());
-				if ( variableBinding != null ) {
-					if ( ( predicate.equals(p) || predicate.hasEquivalentProperty(p) ) && subjects.contains(s) ) {
-						log.trace(String.format("adding object %s to variable binding", o));
-						variableBinding.add(o);
-					} else if ( inverse.equals(p) || inverse.hasEquivalentProperty(p) && subjects.contains(o) ) {
-						log.trace(String.format("adding subject %s to variable binding", s));
-						variableBinding.add(s);
+				try {
+					Resource s = dataModel.getRDFNode(triple.getSubject()).as(Resource.class);
+					if ( variableBinding != null ) {
+						if ( ( predicate.equals(p) || predicate.hasEquivalentProperty(p) ) && subjects.contains(s) ) {
+							log.trace(String.format("adding object %s to variable binding", o));
+							variableBinding.add(o);
+						} else if ( inverse.equals(p) || inverse.hasEquivalentProperty(p) && subjects.contains(o) ) {
+							log.trace(String.format("adding subject %s to variable binding", s));
+							variableBinding.add(s);
+						}
 					}
+				} catch (Exception e) {
+					log.error("error adding variable binding", e);
 				}
 			}
 		}
