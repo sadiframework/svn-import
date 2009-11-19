@@ -155,6 +155,8 @@ public class TaskManager implements UncaughtExceptionHandler
 		
 		public TaskSweeper()
 		{
+			super(TaskSweeper.class.getCanonicalName());
+			setDaemon(true);
 			done = false;
 		}
 		
