@@ -18,7 +18,7 @@ public class SADI
 	/**
 	 * The namespace of the vocabulary as a string.
 	 */
-	public static final String NS = "http://sadiframework.org/sadi.owl#";
+	public static final String NS = "http://sadiframework.org/ontologies/sadi.owl#";
 	
 	/** 
 	 * Returns the namespace of the vocabulary as a string.
