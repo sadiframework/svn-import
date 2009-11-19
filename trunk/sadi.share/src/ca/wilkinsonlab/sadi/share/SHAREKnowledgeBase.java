@@ -152,53 +152,103 @@ public class SHAREKnowledgeBase
 			reasoningModel.read( sourceURI );
 		}
 		
+		List<Triple> queryPatterns = new QueryPatternEnumerator(query).getQueryPatterns();
 		try {
-			for (Triple pattern: strategy.orderPatterns(new QueryPatternEnumerator(query).getQueryPatterns())) {
-				if (!pattern.getPredicate().isURI()) {
-					log.warn(String.format("skipping non-URI predicate %s", pattern.getPredicate()));
-					continue;
-				}
-				OntProperty p = getOntProperty(pattern.getPredicate().getURI());
-				
-				Set<RDFNode> subjects = expandQueryNode(pattern.getSubject());
-				Set<RDFNode> objects = expandQueryNode(pattern.getObject());
-				
-				if (p.equals(RDF.type)) {
-					if (!pattern.getObject().isURI()) {
-						log.warn(String.format("object of rdf:type is not a URI"));
-						continue;
-					}
-					OntClass c = getOntClass(pattern.getObject().getURI());
-					
-					if (subjects == null) {
-						gatherTriplesByClass(subjects, c, getVariableBinding(pattern.getSubject()));
-					} else {
-						gatherTriplesByClass(subjects, c, null);
-					}
-				} else if (subjects != null) { // bound subject...
-					if (objects != null) { // bound subject and object...
-						/* now we have a choice; this is where Ben's optimizer
-						 * will plug in somehow to figure out which way to go,
-						 * but for now just go in the forward direction...
-						 */
-						gatherTriplesByPredicate(subjects, p, null);
-					} else { // bound subject, unbound object...
-						gatherTriplesByPredicate(subjects, p, getVariableBinding(pattern.getObject()));
-					}
-				} else if (objects != null) { // unbound subject, bound object...
-					OntProperty inverse = getInverseProperty(p);
-					gatherTriplesByPredicate(objects, inverse, getVariableBinding(pattern.getSubject()));
-				} else { // unbound subject, unbound object...
-					log.warn(String.format("encountered a pattern whose subject and object are both unbound variables %s", pattern));
-					continue;
-				}
-			}
+			queryPatterns = strategy.orderPatterns(queryPatterns);
 		} catch (UnresolvableQueryException e) {
 			log.error(String.format("failed to order query %s with strategy %s", query, strategy), e);
 		}
 		
+		for (Triple pattern: queryPatterns) {
+			log.trace(String.format("examining clause %s", pattern));
+			if (!pattern.getPredicate().isURI()) {
+				log.warn(String.format("skipping non-URI predicate %s", pattern.getPredicate()));
+				continue;
+			}
+			OntProperty p = getOntProperty(pattern.getPredicate().getURI());
+			
+			populateFromCurrentData(pattern.getSubject(), p, pattern.getObject());
+			
+			Set<RDFNode> subjects = expandQueryNode(pattern.getSubject());
+			Set<RDFNode> objects = expandQueryNode(pattern.getObject());
+			
+			if (p.equals(RDF.type)) {
+				if (!pattern.getObject().isURI()) {
+					log.warn(String.format("object of rdf:type is not a URI"));
+					continue;
+				}
+				OntClass c = getOntClass(pattern.getObject().getURI());
+				
+				if (subjects.isEmpty()) {
+					gatherTriplesByClass(subjects, c, getVariableBinding(pattern.getSubject()));
+				} else {
+					gatherTriplesByClass(subjects, c, null);
+				}
+			} else if (!subjects.isEmpty()) { // bound subject...
+				if (!objects.isEmpty()) { // bound subject and object...
+					/* now we have a choice; this is where Ben's optimizer
+					 * will plug in somehow to figure out which way to go,
+					 * but for now just go in the forward direction...
+					 */
+					gatherTriplesByPredicate(subjects, p, null);
+				} else { // bound subject, unbound object...
+					gatherTriplesByPredicate(subjects, p, getVariableBinding(pattern.getObject()));
+				}
+			} else if (!objects.isEmpty()) { // unbound subject, bound object...
+				OntProperty inverse = getInverseProperty(p);
+				gatherTriplesByPredicate(objects, inverse, getVariableBinding(pattern.getSubject()));
+			} else { // unbound subject, unbound object...
+				/* TODO try to find subjects by looking for instances of input
+				 * classes for services that generate the required property...
+				 */
+				log.warn(String.format("encountered a pattern whose subject and object are both unbound variables %s", pattern));
+				continue;
+			}
+		}
+		
 		inputClassificationWatch.stop();
 		log.info(String.format("spent %s on input classification", DurationFormatUtils.formatDurationHMS(inputClassificationWatch.getTime())));
+	}
+
+	/* TODO replace this and the cumbersome way it's done in
+	 * gatherTriplesByPredicate with the same routine based on Jena selectors;
+	 * also try to satisfy double-variable clauses by looking for instances of
+	 * the input class for services we've discovered...
+	 */
+	private void populateFromCurrentData(Node s, OntProperty p, Node o)
+	{
+		if (s.isLiteral())
+			return;
+		
+		Resource subject;
+		RDFNode object;
+		Set<RDFNode> subjectBindings, objectBindings;
+		if (s.isVariable()) {
+			subject = null;
+			subjectBindings = getVariableBinding(s);
+		} else {
+			subject = reasoningModel.asRDFNode(s).as(Resource.class);
+			subjectBindings = null;
+		}
+		if (o.isVariable()) {
+			object = null;
+			objectBindings = getVariableBinding(o);
+		} else {
+			object = reasoningModel.asRDFNode(o);
+			objectBindings = null;
+		}
+		
+		for (StmtIterator i = reasoningModel.listStatements(subject, p, object); i.hasNext(); ) {
+			Statement statement = i.nextStatement();
+			if (subjectBindings != null) {
+				log.trace(String.format("adding subject %s to variable binding", statement.getSubject()));
+				subjectBindings.add(statement.getSubject());
+			}
+			if (objectBindings != null) {
+				log.trace(String.format("adding object %s to variable binding", statement.getObject()));
+				objectBindings.add(statement.getObject());
+			}
+		}
 	}
 
 	private Set<RDFNode> getVariableBinding(Node variable)
@@ -253,12 +303,12 @@ public class SHAREKnowledgeBase
 	}
 	
 	/* return a list of potential values this query node represents; this will
-	 * be null if the node is an unbound variable.
+	 * be empty if the node is an unbound variable.
 	 */
 	private Set<RDFNode> expandQueryNode(Node node)
 	{
 		if (node.isVariable()) {
-			return variableBindings.get(node);
+			return getVariableBinding(node);
 		} else if (node.isURI()) {
 			RDFNode resource = getTypedResource(node.getURI());
 			return Collections.singleton(resource);
@@ -303,7 +353,10 @@ public class SHAREKnowledgeBase
 			}
 			public void hasValue(OntProperty onProperty, RDFNode hasValue)
 			{
-				if (subjects != null) {
+				/* TODO another spot for optimization; both directions should
+				 * be viable here...
+				 */
+				if (!subjects.isEmpty()) {
 					gatherTriplesByPredicate(subjects, onProperty, variableBinding);
 				} else {
 					if (!hasValue.isURIResource()) {
@@ -494,7 +547,7 @@ public class SHAREKnowledgeBase
 
 		log.trace(String.format("filtering invalid inputs to %s in bulk", service));
 		Set<RDFNode> passed = new HashSet<RDFNode>(subjects.size());
-		for (Resource r: service.discoverInputInstances(dataModel)) {
+		for (Resource r: service.discoverInputInstances(reasoningModel)) {
 			if (subjects.contains(r))
 				passed.add(r);
 		}
@@ -524,7 +577,6 @@ public class SHAREKnowledgeBase
 		return passed;
 	}
 
-	@SuppressWarnings("unchecked")
 	private Collection<Triple> invokeService(Service service, Set<? extends RDFNode> inputs)
 	{
 		log.info(getServiceCallString(service, inputs));
@@ -534,10 +586,19 @@ public class SHAREKnowledgeBase
 			if (service instanceof SPARQLServiceWrapper) {
 				return ((SPARQLServiceWrapper)service).invokeServiceOnRDFNodes(inputs);
 			} else {
-				/* I know this generates a type warning, but I guarantee that
-				 * only Resources are in this collection at this point...
+				/* generate a list of the OntModel views of each resource;
+				 * also explicitly attach the input type of the service, since
+				 * we know it's been dynamically classified as such (TODO
+				 * this shouldn't be necessary and is probably a bug...)
 				 */
-				return service.invokeService((Collection<Resource>)inputs);
+				Collection<Resource> inputResources = new ArrayList<Resource>(inputs.size());
+				for (RDFNode input: inputs) {
+					// only resources should be in the collection at this point...
+					Resource inputResource = input.inModel(reasoningModel).as(Resource.class);
+					inputResource.addProperty(RDF.type, service.getInputClass());
+					inputResources.add(inputResource);
+				}
+				return service.invokeService(inputResources);
 			}
 		} catch (ServiceInvocationException e) {
 			log.error(String.format("failed to invoke service %s", service), e);
