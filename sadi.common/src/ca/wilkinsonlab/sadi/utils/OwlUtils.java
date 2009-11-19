@@ -89,6 +89,7 @@ public class OwlUtils
 		} catch (Exception e) {
 			log.error(String.format("error reading ontology from %s", uri), e);
 		}
+		
 		/* Michel Dumontier's predicates resolve to a minimal definition that
 		 * doesn't include the inverse relationship, so we need to resolve
 		 * the ontology that contains the complete definition...
