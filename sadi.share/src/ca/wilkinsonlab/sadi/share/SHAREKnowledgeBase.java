@@ -346,6 +346,24 @@ public class SHAREKnowledgeBase
 	{
 		log.debug(String.format("gathering triples to find instances of %s", c));
 		
+		log.trace(String.format("filtering duplicate instance tests"));
+		for (Iterator<? extends RDFNode> i = subjects.iterator(); i.hasNext(); ) {
+			RDFNode node = i.next();
+			if (node.canAs(Resource.class)) {
+				Resource r = node.as(Resource.class);
+				if (tracker.beenThere(r, c)) {
+					log.trace(String.format("skipping individual %s (been there)", r));
+					i.remove();
+				}
+			} else {
+				i.remove();
+			}
+		}
+		if (subjects.isEmpty()) {
+			log.trace("nothing left to do");
+			return;
+		}
+		
 		OwlUtils.decompose(c, new PropertyRestrictionVisitor() {
 			public void onProperty(OntProperty onProperty)
 			{
@@ -422,12 +440,7 @@ public class SHAREKnowledgeBase
 				 * more explicit... (probably only attach the type when the
 				 * resource becomes the potential subject of a triple...)
 				 */ 
-				RDFNode o = null;
-				if (triple.getObject().isURI()) {
-					o = getTypedResource(triple.getObject().getURI());
-				} else if (triple.getObject().isLiteral()) {
-					o = getTypedLiteral(triple.getObject());
-				}
+				RDFNode o = dataModel.getRDFNode(triple.getObject());
 				
 				/* this will load any properties not-yet defined, but I
 				 * think that's a good thing; we're likely to need them
@@ -713,10 +726,27 @@ public class SHAREKnowledgeBase
 			}
 		}
 		
+		public synchronized boolean beenThere(Resource instance, OntClass asClass)
+		{
+			String key = getHashKey(instance, asClass);
+			if (visited.contains(key)) {
+				return true;
+			} else {
+				visited.add(key);
+				return false;
+			}
+		}
+		
 		private String getHashKey(Service service, RDFNode input)
 		{
 			// two URIS, or one URI and one literal, so this should be safe...
 			return String.format("%s %s", service.getServiceURI(), input.toString());
+		}
+		
+		private String getHashKey(Resource instance, OntClass asClass)
+		{
+			// two URIS, so this should be safe...
+			return String.format("%s %s", instance.getURI(), asClass.getURI());
 		}
 	}
 }
