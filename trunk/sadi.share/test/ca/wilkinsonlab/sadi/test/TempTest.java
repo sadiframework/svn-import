@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.test;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 
@@ -76,12 +77,24 @@ public class TempTest
 					"} . " +
 				"}";
 		
+		query = ExampleQueries.getQueryByHtmlListIndex(9);
+		
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-		List<Map<String, String>> results = new SHAREQueryClient().synchronousQuery(query);
+		
+		SHAREQueryClient client = new SHAREQueryClient();
+		List<Map<String, String>> results = client.synchronousQuery(query);
+		
+		stopWatch.stop();
+		
+		try {
+			client.latestDataModel.write( new java.io.FileOutputStream("/tmp/TempTest.rdf") );
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		for (Map<String, String> binding: results)
 			System.out.println(binding);
-		stopWatch.stop();
 		System.out.println(String.format("query finished in %d seconds", stopWatch.getTime()/1000));
 	}
 }
