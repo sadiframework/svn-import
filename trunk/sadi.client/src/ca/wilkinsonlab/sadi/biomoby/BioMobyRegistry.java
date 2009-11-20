@@ -159,7 +159,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	private OntModel createPredicateOntology() throws IOException
 	{
 		// TODO do we need more reasoning here?
-		OntModel predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
+		OntModel predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
 
 		String query = SPARQLStringUtils.readFully(BioMobyRegistry.class.getResource("resources/select.all.predicates.sparql"));
 		for (Map<String, String> binding: executeQuery(query)) {

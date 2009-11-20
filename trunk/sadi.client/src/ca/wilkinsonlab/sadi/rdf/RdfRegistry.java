@@ -300,7 +300,7 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 			/* TODO if this is too slow, we can create an ontology model that
 			 * contains only the direct properties of the input node...
 			 */
-			OntModel base = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM, input.getModel() );
+			OntModel base = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF, input.getModel() );
 			for (RdfService service: services) {
 				if (base.getIndividual(input.getURI()).hasRDFType(service.getInputClass(), true))
 					filteredServices.add(service);
