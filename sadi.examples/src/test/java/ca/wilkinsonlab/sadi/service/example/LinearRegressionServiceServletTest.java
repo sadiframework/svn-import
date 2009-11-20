@@ -71,7 +71,7 @@ public class LinearRegressionServiceServletTest extends ServiceServletTestBase
 	@Test
 	public void testOWL() throws Exception
 	{
-		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_RULE_INF );
+		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
 		model.read( new FileInputStream("src/main/webapp/regression.owl"), "" );
 		model.read( new FileInputStream("src/test/resources/regression-input-extra.rdf"), "" );
 		model.prepare();
