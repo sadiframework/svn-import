@@ -254,8 +254,21 @@ public class BioMobyService extends MobyService implements Service
 			if (getNumPrimaryInputs() > 1)
 				throw new UnsupportedOperationException("this interface is invalid for BioMoby services with more than one primary input");
 			
+			/* FIXME apparently BioMobyService doesn't actually contain all of the
+			 * information that MobyService does, despite the fact that it's a
+			 * subclass; this needs to be fixed, but I don't have time right now...
+			 */
+			MobyService service;
+			try {
+				service = getMobyServiceDefinition();
+			} catch (MobyException e) {
+				log.error("couldn't retrieve service description from BioMoby registry", e);
+				return null;
+			}
+			
+			
 			RDFList namespaceTypes = sourceRegistry.getTypeOntology().createList();
-			for (MobyNamespace namespace: getPrimaryInputs()[0].getNamespaces())
+			for (MobyNamespace namespace: service.getPrimaryInputs()[0].getNamespaces())
 				namespaceTypes = namespaceTypes.with(sourceRegistry.getTypeByNamespace(namespace));
 			
 			inputClass = sourceRegistry.getTypeOntology().createUnionClass(getServiceURI() + "#input", namespaceTypes);
