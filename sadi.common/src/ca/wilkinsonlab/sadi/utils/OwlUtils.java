@@ -22,7 +22,6 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
@@ -31,6 +30,15 @@ public class OwlUtils
 {
 	private static final Log log = LogFactory.getLog( OwlUtils.class );
 	
+	/**
+	 * Returns a human-readable label for the specified resource.  The value
+	 * returned will be the first of the following that is present:
+	 * 	getLabel() [usually the value of the rdfs:label property]
+	 * 	getLocalName() [usually the last path element of the URI]
+	 * 	toString()
+	 * @param resource
+	 * @return a human-readable label for the specified resource
+	 */
 	public static String getLabel(OntResource resource)
 	{
 		if (resource == null)
@@ -71,7 +79,11 @@ public class OwlUtils
 	
 	/**
 	 * Resolve the specified URI and load the resulting statements
-	 * into the specified OntModel.
+	 * into the specified OntModel. Resolve imports and relevant
+	 * isDefinedBy URIs as well.
+	 * TODO we should probably make the import/isDefinedBy behaviour
+	 * configurable, including an option to load only the relevant
+	 * parts of each ontology (using ResourceUtils.reachableClosure)
 	 * @param model the OntModel
 	 * @param uri the URI
 	 */
@@ -165,9 +177,9 @@ public class OwlUtils
 	public static Set<OntProperty> listRestrictedProperties(String classUri)
 	{
 		// TODO do we need more reasoning here?
-		OntModel inf = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
-		inf.read( StringUtils.substringBefore( classUri, "#" ) );
-		return listRestrictedProperties( inf.getOntClass( classUri ) );
+		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		OntClass clazz = getOntClassWithLoad( model, classUri );
+		return listRestrictedProperties( clazz );
 	}
 	
 	/**
@@ -182,6 +194,15 @@ public class OwlUtils
 		return visitor.listProperties();
 	}
 	
+	/**
+	 * Return the minimal RDF required for the specified individual to satisfy
+	 * the specified class description. Note that the RDF will not be complete
+	 * if the individual is not in the same OntModel as the OntClass or does
+	 * not satisfy the class requirements. 
+	 * @param individual the individual
+	 * @param asClass the class
+	 * @return a new in-memory model containing the minimal RDF
+	 */
 	public static Model getMinimalModel(Resource individual, OntClass asClass)
 	{
 		Model model = ModelFactory.createDefaultModel();
@@ -190,12 +211,29 @@ public class OwlUtils
 		return model;
 	}
 	
+	/**
+	 * Visit each property restriction of the specified OWL class with the
+	 * specified PropertyRestrictionVisitor.
+	 * @param clazz the class
+	 * @param visitor the visitor
+	 */
 	public static void decompose(OntClass clazz, PropertyRestrictionVisitor visitor)
 	{
 		if ( clazz == null )
 			throw new IllegalArgumentException("class to decompose cannot be null");
 		
 		new VisitingDecomposer(visitor).decompose(clazz);
+	}
+	
+	/**
+	 * PropertyRestrictionVisitor is used by OwlUtils.decompose.
+	 * @author Luke McCarthy
+	 */
+	public static interface PropertyRestrictionVisitor
+	{
+		void onProperty(OntProperty onProperty);
+		void hasValue(OntProperty onProperty, RDFNode hasValue);
+		void valuesFrom(OntProperty onProperty, OntResource valuesFrom);
 	}
 	
 	private static class VisitingDecomposer
@@ -311,13 +349,6 @@ public class OwlUtils
 		}
 	}
 	
-	public static interface PropertyRestrictionVisitor
-	{
-		void onProperty(OntProperty onProperty);
-		void hasValue(OntProperty onProperty, RDFNode hasValue);
-		void valuesFrom(OntProperty onProperty, OntResource valuesFrom);
-	}
-	
 	private static class PropertyEnumerationVisitor implements PropertyRestrictionVisitor
 	{
 		private Set<OntProperty> properties;
@@ -401,10 +432,9 @@ public class OwlUtils
 			/* for (all/some)ValuesFrom restrictions, we need to add enough
 			 * information to determine the class membership of the objects of
 			 * the statments as well...
+			 * (extract to list to avoid ConcurrentModificationException)
 			 */
-			for (StmtIterator statements = subject.listProperties(onProperty); statements.hasNext(); ) {
-				Statement statement = statements.nextStatement();
-				
+			for (Statement statement: subject.listProperties(onProperty).toList()) {
 				/* always add the statement itself; this covers the case where
 				 * valuesFrom is a datatype or data range...
 				 */
