@@ -283,6 +283,7 @@ public class RdfService implements Service
 	{
 		Model inputModel = ModelFactory.createDefaultModel();
 		for (Resource inputNode: inputNodes) {
+			log.debug(String.format("computing minimal RDF for %s as an instance of %s", inputNode, getInputClass()));
 			inputModel.add(OwlUtils.getMinimalModel(inputNode, getInputClass()));
 		}
 		

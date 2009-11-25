@@ -11,8 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.time.DurationFormatUtils;
-import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.Config;
@@ -34,13 +33,11 @@ import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.sparql.syntax.ElementAssign;
 import com.hp.hpl.jena.sparql.syntax.ElementDataset;
 import com.hp.hpl.jena.sparql.syntax.ElementFetch;
@@ -65,9 +62,7 @@ public class SHAREKnowledgeBase
 	private OntModel reasoningModel;
 	private Model dataModel;
 	
-	private Map<Node, Set<RDFNode>> variableBindings;
-	
-	private StopWatch inputClassificationWatch;
+	private Map<String, PotentialValues> variableBindings;
 	
 	private Tracker tracker;
 	private Set<String> deadServices;
@@ -92,13 +87,11 @@ public class SHAREKnowledgeBase
 		this.reasoningModel = reasoningModel;
 		this.dataModel = dataModel;
 		if (!reasoningModel.listSubModels().toSet().contains(dataModel)) {
-			log.debug("Adding data-only model as a sub-model of reasoning model");
+			log.debug("adding data-only model as a sub-model of reasoning model");
 			reasoningModel.addSubModel(dataModel);
 		}
 		
-		variableBindings = new HashMap<Node, Set<RDFNode>>();
-		
-		inputClassificationWatch = new StopWatch();
+		variableBindings = new HashMap<String, PotentialValues>();
 		
 		tracker = new Tracker();
 		
@@ -138,17 +131,16 @@ public class SHAREKnowledgeBase
 	
 	public void executeQuery(Query query, QueryPatternOrderingStrategy strategy)
 	{
-		// this is really stupid; is this really the way it has to be done?
-		inputClassificationWatch.reset();
-		inputClassificationWatch.start();
-		inputClassificationWatch.suspend();
-		
 		/* load all of the graphs referenced in the FROM clause into the kb
 		 * TODO might have to make this configurable or turn it off, if people
 		 * are using the FROM clause in other ways...
 		 */
 		for (String sourceURI: query.getGraphURIs()) {
-			reasoningModel.read( sourceURI );
+			try{ 
+				dataModel.read( sourceURI );
+			} catch (Exception e) {
+				log.error(String.format("failed to read FROM graph %s", sourceURI));
+			}
 		}
 		
 		List<Triple> queryPatterns = new QueryPatternEnumerator(query).getQueryPatterns();
@@ -159,103 +151,155 @@ public class SHAREKnowledgeBase
 		}
 		
 		for (Triple pattern: queryPatterns) {
-			log.trace(String.format("examining clause %s", pattern));
-			if (!pattern.getPredicate().isURI()) {
-				log.warn(String.format("skipping non-URI predicate %s", pattern.getPredicate()));
-				continue;
-			}
-			OntProperty p = getOntProperty(pattern.getPredicate().getURI());
-			
-			populateFromCurrentData(pattern.getSubject(), p, pattern.getObject());
-			
-			Set<RDFNode> subjects = expandQueryNode(pattern.getSubject());
-			Set<RDFNode> objects = expandQueryNode(pattern.getObject());
-			
-			if (p.equals(RDF.type)) {
-				if (!pattern.getObject().isURI()) {
-					log.warn(String.format("object of rdf:type is not a URI"));
-					continue;
-				}
-				OntClass c = getOntClass(pattern.getObject().getURI());
-				
-				if (subjects.isEmpty()) {
-					gatherTriplesByClass(subjects, c, getVariableBinding(pattern.getSubject()));
-				} else {
-					gatherTriplesByClass(subjects, c, null);
-				}
-			} else if (!subjects.isEmpty()) { // bound subject...
-				if (!objects.isEmpty()) { // bound subject and object...
-					/* now we have a choice; this is where Ben's optimizer
-					 * will plug in somehow to figure out which way to go,
-					 * but for now just go in the forward direction...
-					 */
-					gatherTriplesByPredicate(subjects, p, null);
-				} else { // bound subject, unbound object...
-					gatherTriplesByPredicate(subjects, p, getVariableBinding(pattern.getObject()));
-				}
-			} else if (!objects.isEmpty()) { // unbound subject, bound object...
-				OntProperty inverse = getInverseProperty(p);
-				gatherTriplesByPredicate(objects, inverse, getVariableBinding(pattern.getSubject()));
-			} else { // unbound subject, unbound object...
-				/* TODO try to find subjects by looking for instances of input
-				 * classes for services that generate the required property...
-				 */
-				log.warn(String.format("encountered a pattern whose subject and object are both unbound variables %s", pattern));
-				continue;
-			}
+			processPattern(pattern);
 		}
-		
-		inputClassificationWatch.stop();
-		log.info(String.format("spent %s on input classification", DurationFormatUtils.formatDurationHMS(inputClassificationWatch.getTime())));
 	}
+	
+	private void processPattern(Triple pattern)
+	{	
+		log.trace(String.format("query pattern %s", pattern));
+		
+		if (!pattern.getPredicate().isURI()) {
+			// this should never happen, but let's be safe...
+			log.warn(String.format("skipping non-URI predicate %s", pattern.getPredicate()));
+			return;
+		}
+		OntProperty p = getOntProperty(pattern.getPredicate().getURI());
+		
+		if (p.equals(RDF.type)) {
+			processTypePattern(pattern);
+			return;
+		}
 
-	/* TODO replace this and the cumbersome way it's done in
-	 * gatherTriplesByPredicate with the same routine based on Jena selectors;
-	 * also try to satisfy double-variable clauses by looking for instances of
-	 * the input class for services we've discovered...
+		PotentialValues subjects = expandQueryNode(pattern.getSubject());
+		PotentialValues objects = expandQueryNode(pattern.getObject());
+		if (!subjects.isEmpty()) { // bound subject...
+			if (!objects.isEmpty()) { // bound subject and object...
+				/* now we have a choice...
+				 * TODO this is where Ben's optimizer will plug in to figure
+				 * out which way to go; for now don't invert...
+				 */
+				gatherTriplesByPredicate(subjects, p, objects);
+			} else { // bound subject, unbound object...
+				gatherTriplesByPredicate(subjects, p, objects);
+			}
+		} else if (!objects.isEmpty()) { // unbound subject, bound object...
+			OntProperty inverse = getInverseProperty(p);
+			gatherTriplesByPredicate(objects, inverse, subjects);
+		} else { // unbound subject, unbound object...
+			/* TODO try to find subjects by looking for instances of input
+			 * classes for services that generate the required property...
+			 */
+			log.warn(String.format("encountered a pattern whose subject and object are both unbound variables %s", pattern));
+			populateVariableBinding(subjects, p, objects);
+		}
+	}
+	
+	/* this now expands a class definition into the triple patterns
+	 * that describe it, so we should be able to use it to convert from
+	 * a class description to a SPARQL query...
 	 */
-	private void populateFromCurrentData(Node s, OntProperty p, Node o)
+	private void processTypePattern(final Triple pattern)
 	{
-		if (s.isLiteral())
+		/* if this starts happening (meaning we can have anonymous class
+		 * expressions in queries), we'll have to do something about it...
+		 */
+		if (!pattern.getObject().isURI()) {
+			log.warn(String.format("skipping non-URI object of rdf:type %s", pattern.getObject()));
+			return;
+		}
+		OntClass c = getOntClass(pattern.getObject().getURI());
+		
+		final PotentialValues subjects = expandQueryNode(pattern.getSubject());
+		if (tracker.beenThere(subjects, c))
 			return;
 		
-		Resource subject;
-		RDFNode object;
-		Set<RDFNode> subjectBindings, objectBindings;
-		if (s.isVariable()) {
-			subject = null;
-			subjectBindings = getVariableBinding(s);
-		} else {
-			subject = reasoningModel.asRDFNode(s).as(Resource.class);
-			subjectBindings = null;
-		}
-		if (o.isVariable()) {
-			object = null;
-			objectBindings = getVariableBinding(o);
-		} else {
-			object = reasoningModel.asRDFNode(o);
-			objectBindings = null;
-		}
+		log.debug(String.format("gathering triples to find instances of %s", c));
 		
-		for (StmtIterator i = reasoningModel.listStatements(subject, p, object); i.hasNext(); ) {
-			Statement statement = i.nextStatement();
-			if (subjectBindings != null) {
-				log.trace(String.format("adding subject %s to variable binding", statement.getSubject()));
-				subjectBindings.add(statement.getSubject());
+		OwlUtils.decompose(c, new PropertyRestrictionVisitor() {
+			public void onProperty(OntProperty onProperty)
+			{
+				PotentialValues objects = getNewVariableBinding();
+				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), objects.variable);
+				processPattern(newPattern);
 			}
-			if (objectBindings != null) {
-				log.trace(String.format("adding object %s to variable binding", statement.getObject()));
-				objectBindings.add(statement.getObject());
+			public void hasValue(OntProperty onProperty, RDFNode hasValue)
+			{
+				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), hasValue.asNode());
+				processPattern(newPattern);
 			}
+			public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
+			{
+				PotentialValues objects = getNewVariableBinding();
+				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), objects.variable);
+				processPattern(newPattern);
+				Triple typePattern = Triple.create(objects.variable, RDF.type.asNode(), valuesFrom.asNode());
+				processPattern(typePattern);
+			}
+		});
+	}
+	
+	/* return a set of potential values this query node represents;
+	 * this will be empty if the node is an unbound variable.
+	 */
+	private PotentialValues expandQueryNode(Node queryPatternNode)
+	{
+		if (queryPatternNode.isVariable()) {
+			return getVariableBinding(queryPatternNode);
+		} else {
+			return new PotentialValues(dataModel.getRDFNode(queryPatternNode));
 		}
 	}
-
-	private Set<RDFNode> getVariableBinding(Node variable)
+	
+	private PotentialValues getVariableBinding(Node variable)
 	{
-		if (!variableBindings.containsKey(variable)) {
-			variableBindings.put(variable, new HashSet<RDFNode>());
+		if (!variableBindings.containsKey(variable.getName())) {
+			log.trace(String.format("first time encountering variable %s", variable));
+			variableBindings.put(variable.getName(), new PotentialValues(variable));
 		}
-		return variableBindings.get(variable);
+		return variableBindings.get(variable.getName());
+	}
+
+	private PotentialValues getNewVariableBinding()
+	{
+		String varName = null;
+		do {
+			varName = getNextVariableName(varName);
+		} while (variableBindings.containsKey(varName));
+		
+		return getVariableBinding(Node.createVariable(varName));
+	}
+
+	/* horribly hacky and inefficient; find some library to generate a
+	 * pronounceable word...
+	 */
+	private static String alpha = "abcdefghijklmnopqrstuvwxyz";
+	private String getNextVariableName(String variable)
+	{
+		if (StringUtils.isEmpty(variable))
+			return "" + alpha.charAt(0); // not String.valueOf because I need a new string...
+		
+		String lastLetter = StringUtils.substring(variable, -1);
+		int i = alpha.indexOf(lastLetter) + 1;
+		if (i >= alpha.length() || i < 0) {
+			return variable + alpha.charAt(0);
+		} else {
+			return StringUtils.substring(variable, 0, -1) + alpha.charAt(i);
+		}
+	}
+	
+	/* look up the specified URI in the reasoning model; if it's not there,
+	 * try to resolve the URI into the model; if that doesn't work, just
+	 * create it.
+	 */
+	private OntClass getOntClass(String uri)
+	{
+		OntClass c = OwlUtils.getOntClassWithLoad(reasoningModel, uri);
+		if (c != null)
+			return c;
+		
+		log.warn(String.format("creating undefined and unresolvable property %s", uri));
+		return reasoningModel.createClass(uri);
 	}
 
 	/* look up the specified URI in the reasoning model; if it's not there,
@@ -275,20 +319,6 @@ public class SHAREKnowledgeBase
 		return reasoningModel.createOntProperty(uri);
 	}
 	
-	/* look up the specified URI in the reasoning model; if it's not there,
-	 * try to resolve the URI into the model; if that doesn't work, just
-	 * create it.
-	 */
-	private OntClass getOntClass(String uri)
-	{
-		OntClass c = OwlUtils.getOntClassWithLoad(reasoningModel, uri);
-		if (c != null)
-			return c;
-		
-		log.warn(String.format("creating undefined and unresolvable property %s", uri));
-		return reasoningModel.createClass(uri);
-	}
-	
 	private OntProperty getInverseProperty(OntProperty p)
 	{
 		OntProperty inverse = p.getInverse();
@@ -301,120 +331,29 @@ public class SHAREKnowledgeBase
 		return inverse;
 	}
 	
-	/* return a list of potential values this query node represents; this will
-	 * be empty if the node is an unbound variable.
-	 */
-	private Set<RDFNode> expandQueryNode(Node node)
+	private void attachTypes(Set<RDFNode> nodes)
 	{
-		if (node.isVariable()) {
-			return getVariableBinding(node);
-		} else if (node.isURI()) {
-			RDFNode resource = getTypedResource(node.getURI());
-			return Collections.singleton(resource);
-		} else if (node.isLiteral()) {
-			RDFNode literal = getTypedLiteral(node);
-			return Collections.singleton(literal);
-		} else {
-			log.warn(String.format("unknown node %s", node));
-			return Collections.emptySet();
+		for (RDFNode node: nodes) {
+			if (node.isResource()) {
+				attachType(node.as(Resource.class));
+			}
 		}
 	}
 	
-	/* returns a resource in the data model with the specified URI, creating
-	 * one if necessary; if the resource is untyped, attempt to attach a type
-	 * based on the URI.
-	 */
-	private Resource getTypedResource(String uri)
+	private void attachType(Resource resource)
 	{
-		Resource resource = dataModel.createResource(uri);
 		if ( !RdfUtils.isTyped(resource) ) {
+			log.trace(String.format("attaching type to untyped node %s", resource));
 			ResourceTyper.getResourceTyper().attachType(resource);
 		}
-		return resource;
-	}
-
-	private Literal getTypedLiteral(Node node)
-	{
-		return dataModel.createTypedLiteral(node.getLiteralValue(), node.getLiteralDatatype());
-	}
-	
-	/* gather triples matching a class, optionally storing subjects that are
-	 * class instances in an accumulator.
-	 */
-	private void gatherTriplesByClass(final Set<? extends RDFNode> subjects, final OntClass c, final Set<RDFNode> variableBinding)
-	{
-		log.debug(String.format("gathering triples to find instances of %s", c));
-		
-		log.trace(String.format("filtering duplicate instance tests"));
-		for (Iterator<? extends RDFNode> i = subjects.iterator(); i.hasNext(); ) {
-			RDFNode node = i.next();
-			if (node.canAs(Resource.class)) {
-				Resource r = node.as(Resource.class);
-				if (tracker.beenThere(r, c)) {
-					log.trace(String.format("skipping individual %s (been there)", r));
-					i.remove();
-				}
-			} else {
-				i.remove();
-			}
-		}
-		if (subjects.isEmpty()) {
-			log.trace("nothing left to do");
-			return;
-		}
-		
-		OwlUtils.decompose(c, new PropertyRestrictionVisitor() {
-			public void onProperty(OntProperty onProperty)
-			{
-				gatherTriplesByPredicate(subjects, onProperty, variableBinding);
-			}
-			public void hasValue(OntProperty onProperty, RDFNode hasValue)
-			{
-				/* TODO another spot for optimization; both directions should
-				 * be viable here...
-				 */
-				if (!subjects.isEmpty()) {
-					gatherTriplesByPredicate(subjects, onProperty, variableBinding);
-				} else {
-					if (!hasValue.isURIResource()) {
-						log.warn(String.format("unable to process property restriction on %s in %s", onProperty, c));
-						return;
-					}
-					Resource object = getTypedResource(hasValue.toString());
-					Set<Resource> objects = Collections.singleton(object);
-					OntProperty inverse = getInverseProperty(onProperty);
-					gatherTriplesByPredicate(objects, inverse, variableBinding);
-				}
-			}
-			public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
-			{
-				gatherTriplesByPredicate(subjects, onProperty, variableBinding);
-				if (valuesFrom.isClass()) {
-					Set<Resource> nextSubjects = new HashSet<Resource>();
-					for (RDFNode node: subjects) {
-						if (!node.isResource())
-							continue;
-						Resource subject = (Resource)node.as(Resource.class);
-						for (StmtIterator statements = subject.listProperties(onProperty); statements.hasNext(); ) {
-							Statement statement = statements.nextStatement();
-							if (statement.getObject().isResource()) {
-								nextSubjects.add(statement.getResource());
-							}
-						}
-					}
-					// TODO do we need to add these to a variable binding?
-					gatherTriplesByClass(nextSubjects, valuesFrom.asClass(), null);
-				}
-			}
-		});
 	}
 	
 	/* gather triples matching a predicate, optionally storing the subjects in an accumulator.
 	 */
-	private void gatherTriplesByPredicate(Set<? extends RDFNode> subjects, OntProperty predicate, Set<RDFNode> variableBinding)
+	private void gatherTriplesByPredicate(PotentialValues subjects, OntProperty predicate, PotentialValues objects)
 	{
 		log.debug(String.format("gathering triples with predicate %s", predicate));
-		log.trace(String.format("potential subjects %s", subjects));
+		log.trace(String.format("potential subjects %s", subjects.values));
 		if (subjects == null) {
 			log.warn("attempt to call gatherTriplesByPredicate with null subject");
 			return;
@@ -424,49 +363,51 @@ public class SHAREKnowledgeBase
 		}
 		
 		Set<Service> services = getServicesByPredicate(predicate);
-		log.debug(String.format("found %d service%s", services.size(), services.size() == 1 ? "" : "s"));
+		log.debug(String.format("found %d service%s total", services.size(), services.size() == 1 ? "" : "s"));
 		for (Service service : services) {
-			Collection<Triple> output = maybeCallService(service, subjects);
+			/* copy the collection of potential inputs as they'll be filtered
+			 * for each service...
+			 */
+			Set<RDFNode> inputs = new HashSet<RDFNode>(subjects.values);
+			Collection<Triple> output = maybeCallService(service, inputs);
 			for (Triple triple: output) {
 				log.trace(String.format("adding triple to data model %s", triple));
 				RdfUtils.addTripleToModel(dataModel, triple);
-				
-				if (triple.getPredicate().getURI().equals(RDF.type.getURI()))
-					continue; // performance-enhancing shortcut...
-				
-				/* this has the important side-effect of adding a type to
-				 * untyped objects; probably we should move this somewhere
-				 * more explicit... (probably only attach the type when the
-				 * resource becomes the potential subject of a triple...)
-				 */ 
-				RDFNode o = dataModel.getRDFNode(triple.getObject());
-				
-				/* this will load any properties not-yet defined, but I
-				 * think that's a good thing; we're likely to need them
-				 * eventually...
-				 */
-				OntProperty p = getOntProperty(triple.getPredicate().getURI());
-				OntProperty inverse = getInverseProperty(predicate);
-				
-				try {
-					Resource s = dataModel.getRDFNode(triple.getSubject()).as(Resource.class);
-					if ( variableBinding != null ) {
-						if ( ( predicate.equals(p) || predicate.hasEquivalentProperty(p) ) && subjects.contains(s) ) {
-							log.trace(String.format("adding object %s to variable binding", o));
-							variableBinding.add(o);
-						} else if ( inverse.equals(p) || inverse.hasEquivalentProperty(p) && subjects.contains(o) ) {
-							log.trace(String.format("adding subject %s to variable binding", s));
-							variableBinding.add(s);
-						}
+			}
+		}
+		
+		if (objects.isVariable()) {
+			populateVariableBinding(subjects, predicate, objects);
+		}
+	}
+	
+	private void populateVariableBinding(PotentialValues subjects, OntProperty predicate, PotentialValues objects)
+	{
+		log.trace(String.format("populating variable %s", objects.variable));
+		
+		if (subjects.isEmpty()) {
+			for (Iterator<Statement> i = reasoningModel.listStatements((Resource)null, predicate, (RDFNode)null); i.hasNext(); ) {
+				Statement statement = i.next();
+				subjects.add(statement.getSubject());
+				objects.add(statement.getObject());
+			}
+		} else {
+			for (RDFNode node: subjects.values) {
+				if (node.isResource()) {
+					/* TODO make sure subject is in the reasoning model, or we'll
+					 * miss equivalent properties...
+					 */
+					Resource subject = node.as(Resource.class);
+					for (Iterator<Statement> i = subject.listProperties(predicate); i.hasNext(); ) {
+						Statement statement = i.next();
+						objects.add(statement.getObject());
 					}
-				} catch (Exception e) {
-					log.error("error adding variable binding", e);
 				}
 			}
 		}
 	}
-	
-	private Collection<Triple> maybeCallService(Service service, Set<? extends RDFNode> subjects)
+
+	private Collection<Triple> maybeCallService(Service service, Set<RDFNode> subjects)
 	{
 		log.trace(String.format("found service %s", service));
 		if (deadServices.contains(service.getServiceURI())) {
@@ -474,7 +415,7 @@ public class SHAREKnowledgeBase
 			return Collections.emptyList();
 		}
 		
-		log.trace(String.format("filtering duplicate service calls"));
+		log.trace(String.format("filtering inputs previously sent to service %s", service));
 		for (Iterator<? extends RDFNode> i = subjects.iterator(); i.hasNext(); ) {
 			RDFNode input = i.next();
 			if (tracker.beenThere(service, input)) {
@@ -487,14 +428,13 @@ public class SHAREKnowledgeBase
 			return Collections.emptyList();
 		}
 		
-		log.trace(String.format("filtering potential subjects for service %s", service));
-		Set<RDFNode> subjectsMatchingInputClass = filterByInputClass(subjects, service);
-		if (subjectsMatchingInputClass.isEmpty()) {
+		filterByInputClass(subjects, service);
+		if (subjects.isEmpty()) {
 			log.trace("nothing left to do");
 			return Collections.emptyList();
 		}
 		
-		return invokeService(service, subjectsMatchingInputClass);
+		return invokeService(service, subjects);
 	}
 
 	/* TODO make this less clunky; probably the service interface should take
@@ -503,90 +443,140 @@ public class SHAREKnowledgeBase
 	 */
 	private Set<Service> getServicesByPredicate(OntProperty p)
 	{
-		Set<Service> services = new HashSet<Service>(Config.getMasterRegistry().findServicesByPredicate(p.getURI()));
-		
-		// listEquivalentProperties doesn't include the property itself
-		for (Iterator<? extends OntProperty> i = p.listEquivalentProperties(); i.hasNext(); ) {
-			OntProperty equivalentProperty = i.next();
-			log.trace(String.format("found equivalent property %s", equivalentProperty));
-			services.addAll(Config.getMasterRegistry().findServicesByPredicate(equivalentProperty.getURI()));
-		}
-		
-		/* FIXME pass around the predicate object so that the
-		 * registries can check its inverse explicitly; for now
-		 * just call using Ben's old syntax so that the SPARQL
-		 * services are found...
+		/* in some reasoners, listEquivalentProperties doesn't include the
+		 * property itself; also, some reasoners return an immutable list here,
+		 * so we need to create our own copy (incidentally solving an issue
+		 * with generics...)
 		 */
-		services.addAll(Config.getMasterRegistry().findServicesByPredicate(String.format("inv(%s)", getInverseProperty(p).getURI())));
+		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>(p.listEquivalentProperties().toSet());
+		equivalentProperties.add(p);
+		
+		Set<Service> services = new HashSet<Service>();
+		for (OntProperty equivalentProperty: equivalentProperties) {
+			log.trace(String.format("finding services for equivalent property %s", equivalentProperty));
+			Collection<Service> equivalentPropertyServices = Config.getMasterRegistry().findServicesByPredicate(equivalentProperty.getURI());
+			log.debug(String.format("found %d service%s for property %s", equivalentPropertyServices.size(), equivalentPropertyServices.size() == 1 ? "" : "s", equivalentProperty));
+			services.addAll(equivalentPropertyServices);
+		}
 		
 		return services;
 	}
 	
-	private Set<RDFNode> filterByInputClass(Set<? extends RDFNode> subjects, Service service)
+	/* TODO fix this redundancy by making it so that Services can return 
+	 * null for getInputClass (in which case, we'll call isInputInstance
+	 * on the collection), or an OntClass (in which case, we'll load it
+	 * in our own ontology and check in bulk...)
+	 * allow isInputInstance on collection without be cumbersome by
+	 * implementing AbstractService, which others can extend to implement
+	 * the multiple methods of the interface without all the tedium...
+	 */
+	private void filterByInputClass(Set<RDFNode> subjects, Service service)
 	{
-		inputClassificationWatch.resume();
-//		Set<RDFNode> passed = filterByInputClassIndividually(subjects, service);
-		Set<RDFNode> passed = filterByInputClassInBulk(subjects, service);
-		Set<Resource> failed = new HashSet<Resource>(subjects.size());
-		for (RDFNode subject: subjects) {
-			if (!passed.contains(subject) && subject.isResource())
-				failed.add(subject.as(Resource.class));
-		}
+		log.trace(String.format("filtering inputs to service %s by input class", service));
+		
+		/* keep an unfiltered copy around so we can try using SADI to try and
+		 * satisfy the input class description (if so configured...)
+		 */
+		Set<RDFNode> unfiltered = new HashSet<RDFNode>(subjects.size());
+		
+		/* attach types to untyped nodes where we can infer the type from the
+		 * URI...
+		 */
+		attachTypes(subjects);
+
+		filterByInputClassInBulk(subjects, service);
 		
 		/* if so configured, use SADI to attempt to dynamically attach
 		 * properties to the failed nodes so that they will pass...
 		 */
 		if (dynamicInputInstanceClassification && service.getInputClass() != null) {
-			log.trace(String.format("Using SADI to test membership in %s", service.getInputClass()));
-			gatherTriplesByClass(failed, service.getInputClass(), null);
-			for (Resource node: failed) {
-				if (service.isInputInstance(node))
-					passed.add(node);
-			}
-		}
-		inputClassificationWatch.suspend();
-		return passed;
-	}
-	
-	private Set<RDFNode> filterByInputClassInBulk(Set<? extends RDFNode> subjects, Service service)
-	{
-		// TODO SPARQLServiceWrapper doesn't implement discoverInputInstances
-		if (service instanceof SPARQLServiceWrapper)
-			return filterByInputClassIndividually(subjects, service);
-		
-		if (subjects.isEmpty())
-			return Collections.emptySet();
-
-		log.trace(String.format("filtering invalid inputs to %s in bulk", service));
-		Set<RDFNode> passed = new HashSet<RDFNode>(subjects.size());
-		for (Resource r: service.discoverInputInstances(reasoningModel)) {
-			if (subjects.contains(r))
-				passed.add(r);
-		}
-		return passed;
-	}
-	
-	private Set<RDFNode> filterByInputClassIndividually(Set<? extends RDFNode> subjects, Service service)
-	{
-		Set<RDFNode> passed = new HashSet<RDFNode>(subjects.size());
-		for (RDFNode node: subjects) {
-			log.trace(String.format("Checking if %s is a valid input to %s", node, service));
+			log.trace(String.format("using SADI to test membership in %s", service.getInputClass()));
 			
-			/* I really, really hate this special case coding, but if we want
-			 * to be able to use literals as input to the SPARQL services 
-			 * (even though the SADI spec explicitly disallows this), we have
-			 * to do it this way...
-			 */
-			if (node.isResource()) {
-				Resource r = (Resource)node.as(Resource.class);
-				if (service.isInputInstance(r)) {
-					passed.add(r);
-				}
-			} else if (node.isLiteral() && service instanceof SPARQLServiceWrapper) {
-				passed.add(node);
+			PotentialValues s = getNewVariableBinding();
+			for (Iterator<RDFNode> i = unfiltered.iterator(); i.hasNext(); ) {
+				RDFNode node = i.next();
+				if (!subjects.contains(node))
+					s.add(node);
+			}
+			Triple typePattern = Triple.create(s.variable, RDF.type.asNode(), service.getInputClass().asNode());
+			processPattern(typePattern);
+		}
+	}
+
+	private void filterByInputClassInBulk(Set<RDFNode> subjects, Service service)
+	{
+		OntClass inputClass = service.getInputClass();
+		
+		/* I really, really hate this special case coding, but if we want
+		 * to be able to use literals as input to the SPARQL services 
+		 * (even though the SADI spec explicitly disallows this), we have
+		 * to do it this way...
+		 */
+		if (inputClass == null) {
+			filterByInputClassIndividually(subjects, service);
+			return;
+		}
+
+		log.trace(String.format("finding instances of %s", inputClass));
+		inputClass = inOurModel(inputClass);
+//		Set<? extends OntResource> instances = inputClass.listInstances().toSet();
+		Set<String> instanceURIs = new HashSet<String>();
+		for (Iterator<? extends OntResource> i = inputClass.listInstances(); i.hasNext(); ) {
+			OntResource r = i.next();
+			instanceURIs.add(r.getURI());
+		}
+		for (Iterator<? extends RDFNode> i = subjects.iterator(); i.hasNext(); ) {
+			RDFNode node = i.next();
+//			if (instances.contains(node.inModel(reasoningModel))) {
+			if (node.isResource() && instanceURIs.contains(node.as(Resource.class).getURI())) {
+				log.trace(String.format("%s is a valid input to %s", node, service));
+			} else {
+				log.trace(String.format("%s is an invalid input to %s", node, service));
+				i.remove();
 			}
 		}
-		return passed;
+	}
+	
+	private OntClass inOurModel(OntClass c)
+	{
+		/* TODO this will cause a problem if different ontologies accessed in
+		 * the same query have conflicting definitions; it might be worth
+		 * changing OwlUtils.getOnt(Class|Property)WithLoad to only load the
+		 * reachable closure of each requested URI...  Also, we'll need a
+		 * really descriptive error message for when this happens...
+		 */
+		reasoningModel.addSubModel(c.getOntModel());
+		return reasoningModel.getOntClass(c.getURI());
+	}
+	
+	private void filterByInputClassIndividually(Set<RDFNode> subjects, Service service)
+	{
+		for (Iterator<? extends RDFNode> i = subjects.iterator(); i.hasNext(); ) {
+			RDFNode node = i.next();
+			log.trace(String.format("checking if %s is a valid input to %s", node, service));
+			if (isValidInput(node, service)) {
+				log.trace(String.format("%s is a valid input to %s", node, service));
+			} else {
+				log.trace(String.format("%s is not a valid input to %s", node, service));
+				i.remove();
+			}
+		}
+	}
+	
+	private boolean isValidInput(RDFNode input, Service service)
+	{
+		/* I really, really hate this special case coding, but if we want
+		 * to be able to use literals as input to the SPARQL services 
+		 * (even though the SADI spec explicitly disallows this), we have
+		 * to do it this way...
+		 */
+		if (input.isResource()) {
+			return service.isInputInstance(input.as(Resource.class));
+		} else if (input.isLiteral() && service instanceof SPARQLServiceWrapper) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private Collection<Triple> invokeService(Service service, Set<? extends RDFNode> inputs)
@@ -598,17 +588,26 @@ public class SHAREKnowledgeBase
 			if (service instanceof SPARQLServiceWrapper) {
 				return ((SPARQLServiceWrapper)service).invokeServiceOnRDFNodes(inputs);
 			} else {
-				/* generate a list of the OntModel views of each resource;
-				 * also explicitly attach the input type of the service, since
-				 * we know it's been dynamically classified as such (TODO
-				 * this shouldn't be necessary and is probably a bug...)
+				/* generate a list of the OntModel views of each resource
+				 * so that the minimal model extractor can used inferred
+				 * properties...
 				 */
 				Collection<Resource> inputResources = new ArrayList<Resource>(inputs.size());
 				for (RDFNode input: inputs) {
-					// only resources should be in the collection at this point...
+					/* only resources should be in the collection by now, but
+					 * let's be safe...
+					 */
+					if (!input.isResource())
+						continue;
+					
 					Resource inputResource = input.inModel(reasoningModel).as(Resource.class);
-					inputResource.addProperty(RDF.type, service.getInputClass());
 					inputResources.add(inputResource);
+
+					/* explicitly attach the input type of the service, since
+					 * we know it's been dynamically classified as such...
+					 * TODO this shouldn't be necessary and is probably a bug
+					 */
+					inputResource.addProperty(RDF.type, service.getInputClass());
 				}
 				return service.invokeService(inputResources);
 			}
@@ -705,6 +704,53 @@ public class SHAREKnowledgeBase
 		}
 	}
 	
+	private static class PotentialValues
+	{
+		Node variable;
+		Set<RDFNode> values;
+		String key;
+		
+		public PotentialValues(Node variable)
+		{
+			this.variable = variable;
+			values = new HashSet<RDFNode>();
+			key = "?" + variable.getName();
+		}
+		
+		public PotentialValues(RDFNode value)
+		{
+			this.variable = null;
+			values = new HashSet<RDFNode>();
+			values.add(value);
+			key = value.toString();
+		}
+		
+		public boolean isVariable()
+		{
+			return variable != null;
+		}
+		
+		public boolean isEmpty()
+		{
+			return values.isEmpty();
+		}
+		
+		public void add(RDFNode node)
+		{
+			log.trace(String.format("adding %s to variable %s", node, variable));
+			values.add(node);
+		}
+		
+		public String toString()
+		{
+			if (isVariable()) {
+				return String.format("?%s %s", variable.getName(), values);
+			} else {
+				return values.toString();
+			}
+		}
+	}
+	
 	private static class Tracker
 	{
 		private Set<String> visited;
@@ -725,9 +771,9 @@ public class SHAREKnowledgeBase
 			}
 		}
 		
-		public synchronized boolean beenThere(Resource instance, OntClass asClass)
+		public synchronized boolean beenThere(PotentialValues instances, OntClass asClass)
 		{
-			String key = getHashKey(instance, asClass);
+			String key = getHashKey(instances, asClass);
 			if (visited.contains(key)) {
 				return true;
 			} else {
@@ -741,11 +787,11 @@ public class SHAREKnowledgeBase
 			// two URIS, or one URI and one literal, so this should be safe...
 			return String.format("%s %s", service.getServiceURI(), input.toString());
 		}
-		
-		private String getHashKey(Resource instance, OntClass asClass)
+
+		private String getHashKey(PotentialValues instances, OntClass asClass)
 		{
-			// two URIS, so this should be safe...
-			return String.format("%s %s", instance.getURI(), asClass.getURI());
+			// one variable name or URI, one URI, so this should be safe...
+			return String.format("%s %s", instances.key, asClass.getURI());
 		}
 	}
 }

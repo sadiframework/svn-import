@@ -63,7 +63,7 @@ public class MultiRegistry implements Registry
 	/* (non-Javadoc)
      * @see ca.wilkinsonlab.sadi.registry.Registry#findServicesByPredicate(java.lang.String)
      */
-	public Collection<? extends Service> findServicesByPredicate(final String predicate)
+	public Collection<Service> findServicesByPredicate(final String predicate)
 	{
 		return accumulate(new Accumulator<Service>() {
 			public Collection<? extends Service> get(Registry registry) throws Exception {
@@ -72,7 +72,7 @@ public class MultiRegistry implements Registry
 		});
 	}
 	
-	public Collection<? extends Service> findServicesByInputClass(final String inputClassUri)
+	public Collection<Service> findServicesByInputClass(final String inputClassUri)
 	{
 		return accumulate(new Accumulator<Service>() {
 			public Collection<? extends Service> get(Registry registry) throws Exception {
@@ -91,7 +91,7 @@ public class MultiRegistry implements Registry
 	/* (non-Javadoc)
      * @see ca.wilkinsonlab.sadi.registry.Registry#findServices(com.hp.hpl.jena.rdf.model.Resource)
      */
-	public Collection<? extends Service> findServices(final Resource subject)
+	public Collection<Service> findServices(final Resource subject)
 	{
 		return accumulate(new Accumulator<Service>() {
 			public Collection<? extends Service> get(Registry registry) throws Exception {
@@ -103,7 +103,7 @@ public class MultiRegistry implements Registry
 	/* (non-Javadoc)
      * @see ca.wilkinsonlab.sadi.registry.Registry#findServices(com.hp.hpl.jena.rdf.model.Resource, java.lang.String)
      */
-	public Collection<? extends Service> findServices(final Resource subject, final String predicate)
+	public Collection<Service> findServices(final Resource subject, final String predicate)
 	{
 		return accumulate(new Accumulator<Service>() {
 			public Collection<? extends Service> get(Registry registry) throws Exception {
@@ -115,7 +115,7 @@ public class MultiRegistry implements Registry
 	/* (non-Javadoc)
      * @see ca.wilkinsonlab.sadi.registry.Registry#discoverServices(com.hp.hpl.jena.rdf.model.Model)
      */
-	public Collection<? extends ServiceInputPair> discoverServices(final Model model)
+	public Collection<ServiceInputPair> discoverServices(final Model model)
 	{
 		return accumulate(new Accumulator<ServiceInputPair>() {
 			public Collection<? extends ServiceInputPair> get(Registry registry) throws Exception {
@@ -127,7 +127,6 @@ public class MultiRegistry implements Registry
 	/* (non-Javadoc)
      * @see ca.wilkinsonlab.sadi.registry.Registry#findPredicatesBySubject(com.hp.hpl.jena.rdf.model.Resource)
      */
-	@SuppressWarnings("unchecked")
 	public Collection<String> findPredicatesBySubject(final Resource subject)
 	{
 		return (Collection<String>) accumulate(new Accumulator<String>() {
@@ -137,7 +136,7 @@ public class MultiRegistry implements Registry
 		});
 	}
 	
-	private <T> Collection<? extends T> accumulate(Accumulator<T> accum)
+	private <T> Collection<T> accumulate(Accumulator<T> accum)
 	{
 		Collection<T> results = new HashSet<T>();
 		for (Registry registry: registries) {

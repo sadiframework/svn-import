@@ -236,10 +236,25 @@ public class BioMobyService extends MobyService implements Service
 		return numOutputs;
 	}
 
+	private String serviceURI = null;
 	public String getServiceURI()
 	{
-		// TODO this works now, but there must be a better way...
-		return toString();
+		if (serviceURI == null) {
+			/* FIXME apparently BioMobyService doesn't actually contain all of the
+			 * information that MobyService does, despite the fact that it's a
+			 * subclass; this needs to be fixed, but I don't have time right now...
+			 */
+			MobyService service;
+			try {
+				service = getMobyServiceDefinition();
+			} catch (MobyException e) {
+				log.error("couldn't retrieve service description from BioMoby registry", e);
+				return "";
+			}
+			
+			serviceURI = BioMobyHelper.getServiceURI(service);
+		}
+		return serviceURI;
 	}
 	
 	/**
