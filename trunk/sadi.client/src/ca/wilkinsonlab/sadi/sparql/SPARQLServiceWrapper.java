@@ -72,8 +72,7 @@ public class SPARQLServiceWrapper implements Service
 	 * @see ca.wilkinsonlab.sadi.client.Service#getName()
 	 */
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return getServiceURI();
 	}
 
 	/* (non-Javadoc)

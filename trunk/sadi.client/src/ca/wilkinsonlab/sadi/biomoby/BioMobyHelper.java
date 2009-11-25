@@ -43,7 +43,7 @@ public class BioMobyHelper
 	 */
 	public static String serviceToString( MobyService service )
 	{
-		return String.format( "%s/%s", service.getAuthority(), service.getName() );
+		return getServiceURI(service);
 	}
 	
 	/**
