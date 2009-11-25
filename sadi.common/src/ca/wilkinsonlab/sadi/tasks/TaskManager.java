@@ -8,8 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * A class that simplifies spawning, tracking and cleaning up background
@@ -19,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TaskManager implements UncaughtExceptionHandler
 {
-	private static final Log log = LogFactory.getLog(TaskManager.class);
+	private static final Logger log = Logger.getLogger(TaskManager.class);
 	
 	private static final TaskManager theInstance = new TaskManager();
 	

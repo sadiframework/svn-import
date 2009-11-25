@@ -14,8 +14,7 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.biomoby.shared.MobyData;
 import org.biomoby.shared.MobyException;
 import org.biomoby.shared.MobyNamespace;
@@ -46,7 +45,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 public class BioMobyService extends MobyService implements Service
 {
-	private static final Log log = LogFactory.getLog(BioMobyService.class);
+	private static final Logger log = Logger.getLogger(BioMobyService.class);
 	
 	/* Maps article name => argument
 	 * 

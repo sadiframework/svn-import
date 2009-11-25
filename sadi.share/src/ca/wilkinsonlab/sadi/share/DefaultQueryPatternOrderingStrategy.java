@@ -6,8 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -22,7 +21,7 @@ import com.hp.hpl.jena.graph.Triple;
 public class DefaultQueryPatternOrderingStrategy implements QueryPatternOrderingStrategy
 {
 	@SuppressWarnings("unused")
-	private static final Log log = LogFactory.getLog( DefaultQueryPatternOrderingStrategy.class );
+	private static final Logger log = Logger.getLogger( DefaultQueryPatternOrderingStrategy.class );
 	
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.share.QueryPatternOrderingStrategy#orderPatterns(java.util.List)

@@ -14,8 +14,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.biomoby.client.CentralImpl;
 import org.biomoby.client.MobyRequest;
 import org.biomoby.shared.Central;
@@ -29,7 +28,7 @@ import org.biomoby.shared.data.MobyDataSecondaryInstance;
 
 public class BioMobyHelper
 {
-	private static final Log log = LogFactory.getLog(BioMobyHelper.class);
+	private static final Logger log = Logger.getLogger(BioMobyHelper.class);
 	
 	public static final String URI_PREFIX = "http://biordf.net/moby/";
 	public static final String MOBY_NAMESPACE_PREFIX = "http://biomoby.org/RESOURCES/MOBY-S/Namespaces/";

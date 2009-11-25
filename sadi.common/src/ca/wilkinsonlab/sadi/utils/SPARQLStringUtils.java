@@ -12,8 +12,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
@@ -32,7 +31,7 @@ import com.hp.hpl.jena.graph.Triple;
 
 public class SPARQLStringUtils
 {	
-	public final static Log log = LogFactory.getLog(SPARQLStringUtils.class);
+	public final static Logger log = Logger.getLogger(SPARQLStringUtils.class);
 
 	static Pattern CONVERSION_SPECIFIERS = Pattern.compile("%[usv]%");
 	

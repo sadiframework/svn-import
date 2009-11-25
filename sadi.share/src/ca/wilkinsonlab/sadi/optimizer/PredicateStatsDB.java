@@ -6,8 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.share.Config;
 import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLEndpoint;
@@ -17,7 +16,7 @@ import ca.wilkinsonlab.sadi.vocab.W3C;
 
 public class PredicateStatsDB extends VirtuosoSPARQLEndpoint 
 {
-	public final static Log LOGGER = LogFactory.getLog(PredicateStatsDB.class);
+	public final static Logger LOGGER = Logger.getLogger(PredicateStatsDB.class);
 	
  	protected final static String CONFIG_ROOT = "share.statsdb";
 

@@ -2,17 +2,16 @@ package ca.wilkinsonlab.sadi.utils;
 
 import java.util.List;
 
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelChangedListener;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import org.apache.commons.logging.Log;
 
 public abstract class ModelChangedAdapter implements ModelChangedListener
 {
-	private static final Log log = LogFactory.getLog(ModelChangedAdapter.class);
+	private static final Logger log = Logger.getLogger(ModelChangedAdapter.class);
 	
 	public abstract void addedStatement(Statement s);
 

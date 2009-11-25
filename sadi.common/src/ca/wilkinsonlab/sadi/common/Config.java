@@ -10,8 +10,7 @@ import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * Base configuration class.  This class reads default configuration from the
@@ -22,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Config extends CompositeConfiguration
 {
-	private static final Log log = LogFactory.getLog(Config.class);
+	private static final Logger log = Logger.getLogger(Config.class);
 
 	protected static final String DEFAULT_PROPERTIES_FILENAME = "sadi.common.properties";
 	protected static final String LOCAL_PROPERTIES_FILENAME = "sadi.properties";

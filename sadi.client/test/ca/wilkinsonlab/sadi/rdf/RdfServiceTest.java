@@ -5,8 +5,8 @@ import static org.junit.Assert.assertTrue;
 import java.net.MalformedURLException;
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 public class RdfServiceTest
 {
 	@SuppressWarnings("unused")
-	private static final Log log = LogFactory.getLog(RdfServiceTest.class);
+	private static final Logger log = Logger.getLogger(RdfServiceTest.class);
 
 	private static final String DUMMY_SERVICE = "http://localhost/dummy";
 	private static final String DUMMY_INPUT_CLASS = "http://elmonline.ca/sw/explore.owl#ParentClass";
@@ -36,6 +36,13 @@ public class RdfServiceTest
 	{
 		service = createDummyService();
 		inputModel = createInputModel();
+	}
+	
+	@AfterClass
+	public static void tearDownAfterClass() throws Exception
+	{
+		service = null;
+		inputModel = null;
 	}
 	
 	private static RdfService createDummyService() throws MalformedURLException

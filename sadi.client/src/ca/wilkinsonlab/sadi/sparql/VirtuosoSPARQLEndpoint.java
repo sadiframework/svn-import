@@ -9,14 +9,13 @@ import java.util.Map;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.utils.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
@@ -25,12 +24,12 @@ import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
 
 
 /**
- * 
+ * VirtuosoSPARQLEndpoint.
  * @author Ben Vandervalk
  */
 public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 {
-	public final static Log log = LogFactory.getLog(VirtuosoSPARQLEndpoint.class);
+	public final static Logger log = Logger.getLogger(VirtuosoSPARQLEndpoint.class);
 
 	public VirtuosoSPARQLEndpoint(String endpointURI)
 	{

@@ -3,8 +3,7 @@ package ca.wilkinsonlab.sadi.commandline;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.share.SHAREQueryClient;
 
@@ -14,7 +13,7 @@ public class CommandLineClient
 	public final static int EXIT_CODE_NO_RESULTS = 1;
 	public final static int EXIT_CODE_FAILURE = 2;
 	
-	public final static Log log = LogFactory.getLog(CommandLineClient.class);
+	public final static Logger log = Logger.getLogger(CommandLineClient.class);
 
 	private static final String USAGE = "java -jar SHARE.jar \"<SPARQL query>\"";
 	

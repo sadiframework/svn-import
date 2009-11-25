@@ -6,8 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * This class provides access to the common service configuration and any
@@ -17,7 +16,7 @@ import org.apache.commons.logging.LogFactory;
 public class Config extends ca.wilkinsonlab.sadi.common.Config
 {
 	@SuppressWarnings("unused")
-	private static final Log log = LogFactory.getLog(Config.class);
+	private static final Logger log = Logger.getLogger(Config.class);
 	
 	protected static final String DEFAULT_PROPERTIES_FILENAME = "sadi.service.properties";
 	protected static final String LOCAL_PROPERTIES_FILENAME = "sadi.properties";

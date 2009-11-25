@@ -14,8 +14,7 @@ import java.util.Set;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.utils.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.JsonUtils;
@@ -24,6 +23,7 @@ import ca.wilkinsonlab.sadi.utils.SPARQLResultsXMLUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpInputStream;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
+
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 
@@ -42,7 +42,7 @@ public class SPARQLEndpoint
 	public enum SelectQueryResultsFormat  { SPARQL_RESULTS_XML, JSON };
 	public enum ConstructQueryResultsFormat { RDFXML, N3 };
 	
-	public final static Log log = LogFactory.getLog(SPARQLEndpoint.class);
+	public final static Logger log = Logger.getLogger(SPARQLEndpoint.class);
 	
 	final static int DEFAULT_QUERY_TIMEOUT = 30 * 1000;
 	final static int DEFAULT_PING_TIMEOUT = 10 * 1000;

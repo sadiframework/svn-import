@@ -6,18 +6,16 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.time.StopWatch;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import ca.wilkinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.test.ExampleQueries;
 
 public abstract class QueryClientTest extends TestCase
 {
-	public final static Log log = LogFactory.getLog(QueryClientTest.class);
+	public final static Logger log = Logger.getLogger(QueryClientTest.class);
 	
 	protected QueryClient client;
 	

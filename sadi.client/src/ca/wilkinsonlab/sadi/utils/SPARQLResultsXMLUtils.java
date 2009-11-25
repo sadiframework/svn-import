@@ -7,8 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -16,9 +15,9 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class SPARQLResultsXMLUtils {
-
-	public final static Log log = LogFactory.getLog(SPARQLResultsXMLUtils.class);
+public class SPARQLResultsXMLUtils
+{
+	public final static Logger log = Logger.getLogger(SPARQLResultsXMLUtils.class);
 	
 	public static List<Map<String, String>> getResultsFromSPARQLXML(InputStream input) throws IOException
 	{

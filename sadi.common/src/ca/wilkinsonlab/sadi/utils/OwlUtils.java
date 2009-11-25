@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.common.Config;
 
@@ -28,7 +27,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class OwlUtils 
 {
-	private static final Log log = LogFactory.getLog( OwlUtils.class );
+	private static final Logger log = Logger.getLogger( OwlUtils.class );
 	
 	/**
 	 * Returns a human-readable label for the specified resource.  The value

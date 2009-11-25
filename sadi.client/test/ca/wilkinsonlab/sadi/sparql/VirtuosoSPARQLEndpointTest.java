@@ -1,16 +1,15 @@
 package ca.wilkinsonlab.sadi.sparql;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpointFactory;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
 import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
+
+import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
 
 public class VirtuosoSPARQLEndpointTest extends TestCase
 {
-	public final static Log log = LogFactory.getLog(VirtuosoSPARQLEndpointTest.class);
+	public final static Logger log = Logger.getLogger(VirtuosoSPARQLEndpointTest.class);
 	
 	public final static String EXAMPLE_ENDPOINT1_URI = "http://omim.bio2rdf.org/sparql";
 	public final static EndpointType EXAMPLE_ENDPOINT1_TYPE = EndpointType.VIRTUOSO;

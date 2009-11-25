@@ -8,8 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
@@ -31,7 +30,7 @@ import com.hp.hpl.jena.util.ResourceUtils;
  */
 public class RdfRegistry extends VirtuosoRegistry implements Registry
 {
-	private static final Log log = LogFactory.getLog(RdfRegistry.class);
+	private static final Logger log = Logger.getLogger(RdfRegistry.class);
 	
 	static final String ENDPOINT_CONFIG_KEY = "endpoint";
 	static final String GRAPH_CONFIG_KEY = "graph";
