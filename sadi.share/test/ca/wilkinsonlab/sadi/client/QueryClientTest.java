@@ -29,7 +29,7 @@ public abstract class QueryClientTest extends TestCase
 	 */
 	private void testQuery(String query)
 	{
-		log.info("Query: " + query + "\n\n");
+		log.info("Query: " + query);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		List<Map<String, String>> results = client.synchronousQuery(query);
