@@ -626,7 +626,8 @@ public class SHAREKnowledgeBase
 	
 	private String getServiceCallString(Service service, Collection<? extends RDFNode> inputs)
 	{
-		return String.format("calling %s %s (%s)", service.getClass().getSimpleName(), service, inputs);
+//		return String.format("calling %s %s (%s)", service.getClass().getSimpleName(), service, inputs);
+		return String.format("calling service %s (%s)", service.getName(), inputs);
 	}
 
 	/* I'm not 100% sure we don't have to care exactly how we encounter a
