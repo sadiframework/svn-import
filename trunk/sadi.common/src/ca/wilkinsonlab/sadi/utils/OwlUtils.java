@@ -90,15 +90,17 @@ public class OwlUtils
 	{
 		log.debug(String.format("loading ontology for %s", uri));
 		
-		/* TODO check to see if the document manager is actually preventing
-		 * duplicate URIs from being loaded...
-		 */
 		String ontologyUri = StringUtils.substringBefore( uri, "#" );
+		if (model.hasLoadedImport(ontologyUri)) {
+			log.trace(String.format("skipping previously loaded ontology %s", ontologyUri));
+			return;
+		}
+		
 		log.trace(String.format("reading ontology from %s", ontologyUri));
 		try {
 			model.read( ontologyUri );
 		} catch (Exception e) {
-			log.error(String.format("error reading ontology from %s", uri), e);
+			log.error(String.format("error reading ontology from %s", ontologyUri), e);
 		}
 		
 		/* Michel Dumontier's predicates resolve to a minimal definition that
@@ -108,9 +110,7 @@ public class OwlUtils
 		 */
 		for (Statement statement: model.getResource(uri).listProperties(RDFS.isDefinedBy).toList()) {
 			if (statement.getObject().isURIResource()) {
-				ontologyUri = statement.getResource().getURI();
-				log.trace(String.format("reading isDefinedBy ontology from %s", ontologyUri));
-				model.read(ontologyUri);
+				loadOntologyForUri(model, statement.getResource().getURI());
 			}
 		}
 	}
@@ -267,13 +267,19 @@ public class OwlUtils
 			else
 				visited.add(clazz);
 			
+			/* bottom out explicitly at owl:Thing, or we'll have problems when
+			 * we enumerate equivalent classes...
+			 */
+			if ( clazz.equals( OWL.Thing ) )
+				return;
+			
 			/* base case: is this a property restriction?
 			 */
 			if ( clazz.isRestriction() ) {
 				Restriction restriction = clazz.asRestriction();
 				
 				/* Restriction.onProperty throws an exception if the property
-				 * isn't defined in the ontolog; this is technically correct,
+				 * isn't defined in the ontology; this is technically correct,
 				 * but it's often better for us to just add the property...
 				 */
 				OntProperty onProperty = null;
@@ -281,7 +287,7 @@ public class OwlUtils
 					onProperty = restriction.getOnProperty();
 				} catch (ConversionException e) {
 					RDFNode p = restriction.getPropertyValue(OWL.onProperty);
-					log.info(String.format("unknown property %s in class %s", p, clazz));
+					log.debug(String.format("unknown property %s in class %s", p, clazz));
 					if (p.isURIResource()) {
 						String uri = ((Resource)p.as(Resource.class)).getURI();
 						onProperty = resolveUndefinedPropery(clazz.getOntModel(), uri, undefinedPropertiesPolicy);
@@ -328,10 +334,10 @@ public class OwlUtils
 			 * properties to the ontology if they're undefined, which can
 			 * trigger a ConcurrentModificationException.
 			 */
-			for (Object subclass: clazz.listEquivalentClasses().toSet())
-				decompose((OntClass)subclass);
-			for (Object superclass: clazz.listSuperClasses().toSet())
-				decompose((OntClass)superclass);
+			for (Object equivalentClass: clazz.listEquivalentClasses().toSet())
+				decompose((OntClass)equivalentClass);
+			for (Object superClass: clazz.listSuperClasses().toSet())
+				decompose((OntClass)superClass);
 		}
 
 		private static OntProperty resolveUndefinedPropery(OntModel model, String uri, int undefinedPropertiesPolicy)

@@ -20,7 +20,6 @@ import com.hp.hpl.jena.graph.Triple;
  */
 public class DefaultQueryPatternOrderingStrategy implements QueryPatternOrderingStrategy
 {
-	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger( DefaultQueryPatternOrderingStrategy.class );
 	
 	/* (non-Javadoc)
@@ -52,7 +51,9 @@ public class DefaultQueryPatternOrderingStrategy implements QueryPatternOrdering
         		}
 			}
 			if (!bFoundNextPattern) {
-				throw new UnresolvableQueryException("Query cannot be ordered so that there is never more than one free variable in each pattern");
+				log.warn("query cannot be ordered so that there is never more than one free variable in each pattern");
+				patternsOrdered.addAll(patternsRemaining);
+				patternsRemaining.clear();
 			}
 		}
 		

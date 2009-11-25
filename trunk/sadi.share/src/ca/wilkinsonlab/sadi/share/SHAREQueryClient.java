@@ -16,34 +16,34 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 
 public class SHAREQueryClient extends QueryClient
 {
-	public Model latestDataModel;
+	protected SHAREKnowledgeBase kb;
+	
+	public SHAREQueryClient()
+	{
+		this(new SHAREKnowledgeBase());
+	}
+	
+	public SHAREQueryClient(SHAREKnowledgeBase kb)
+	{
+		this.kb = kb;
+	}
+	
+	public Model getDataModel()
+	{
+		return kb.getDataModel();
+	}
 	
 	@Override
 	protected QueryRunner getQueryRunner(String query, QueryClientCallback callback)
 	{
-		SHAREQueryRunner queryRunner = new SHAREQueryRunner(query, callback);
-		latestDataModel = queryRunner.getDataModel();
-		return queryRunner;
+		return new SHAREQueryRunner(query, callback);
 	}
 	
-	public static class SHAREQueryRunner extends QueryRunner
+	public class SHAREQueryRunner extends QueryRunner
 	{
-		protected SHAREKnowledgeBase kb;
-		
 		public SHAREQueryRunner(String query, QueryClientCallback callback)
 		{
-			this(new SHAREKnowledgeBase(), query, callback);
-		}
-		
-		public SHAREQueryRunner(SHAREKnowledgeBase kb, String query, QueryClientCallback callback)
-		{
 			super(query, callback);
-			this.kb = kb;
-		}
-		
-		public Model getDataModel()
-		{
-			return kb.getDataModel();
 		}
 		
 		public void run()

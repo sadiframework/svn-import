@@ -45,6 +45,18 @@ public class BioMobyHelper
 	{
 		return String.format( "%s/%s", service.getAuthority(), service.getName() );
 	}
+	
+	/**
+	 * Returns a unique URI for the given MobyService.
+	 * This is necessary because apparently signature URLs aren't always
+	 * unique.
+	 * @param service the MobyService
+	 * @return a unique URI for the given MobyService
+	 */
+	public static String getServiceURI( MobyService service )
+	{
+		return String.format( "http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/%s,%s", service.getAuthority(), service.getName() );
+	}
 
 	/**
 	 * Returns true if the specified BioMoby datatype is a primitive.

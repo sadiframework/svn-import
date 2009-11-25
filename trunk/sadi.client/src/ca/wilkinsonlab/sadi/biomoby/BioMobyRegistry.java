@@ -121,8 +121,9 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	
 	public MobyDataObject convertUriToMobyDataObject(String uri) throws URISyntaxException
 	{
+		log.debug( String.format("converting %s to MobyDataObject", uri) );
 		for (Pattern pattern: urlPatterns) {
-			log.debug( String.format("testing %s =~ / %s /", uri, pattern) );
+			log.trace( String.format("testing %s =~ / %s /", uri, pattern) );
 			
 			/* use find() and not matches() to better emulate perl semantics by
 			 * not forcing a match to start at the beginning of the string...
@@ -132,7 +133,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 				try {
 					String namespace = match.group(1);
 					String id = match.group(2);
-					log.debug( String.format("matched on %s / %s", namespace, id) );
+					log.trace( String.format("matched on %s / %s", namespace, id) );
 					return new MobyDataObject(namespace, id);
 				} catch (Exception e) {
 					log.error( String.format("error processing %s =~ / %s /", uri, pattern), e );
@@ -160,15 +161,16 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		// TODO do we need more reasoning here?
 		OntModel predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
 
-		String query = SPARQLStringUtils.readFully(BioMobyRegistry.class.getResource("resources/select.all.predicates.sparql"));
-		for (Map<String, String> binding: executeQuery(query)) {
-			String predicate = binding.get("pred");
-			try {
-				OwlUtils.loadOntologyForUri(predicateOntology, predicate);
-			} catch (Exception e) {
-				log.error(String.format("failed to load ontology for predicate %s", predicate), e);
-			}
-		}
+		// we're now loading properties dynamically...
+//		String query = SPARQLStringUtils.readFully(BioMobyRegistry.class.getResource("resources/select.all.predicates.sparql"));
+//		for (Map<String, String> binding: executeQuery(query)) {
+//			String predicate = binding.get("pred");
+//			try {
+//				OwlUtils.loadOntologyForUri(predicateOntology, predicate);
+//			} catch (Exception e) {
+//				log.error(String.format("failed to load ontology for predicate %s", predicate), e);
+//			}
+//		}
 
 		return predicateOntology;
 	}
@@ -214,7 +216,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	
 	boolean isDatatypeProperty(String predicate)
 	{
-		OntProperty p = getPredicateOntology().getOntProperty(predicate);
+		OntProperty p = OwlUtils.getOntPropertyWithLoad(getPredicateOntology(), predicate);
 		return p.isDatatypeProperty();
 	}
 
