@@ -15,8 +15,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.biomoby.client.CentralImpl;
 import org.biomoby.shared.Central;
 import org.biomoby.shared.MobyData;
@@ -48,7 +47,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 {
-	private static final Log log = LogFactory.getLog(BioMobyRegistry.class);
+	private static final Logger log = Logger.getLogger(BioMobyRegistry.class);
 	
 	private static final String LSRN_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
 	private static final boolean CACHE_ENABLED = true;

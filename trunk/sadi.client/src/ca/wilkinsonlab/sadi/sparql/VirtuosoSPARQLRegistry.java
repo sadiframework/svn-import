@@ -14,8 +14,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
@@ -32,12 +31,12 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
- * 
+ * VirtuosoSPARQLRegistry.
  * @author Ben Vandervalk
  */
 public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SPARQLRegistry
 {	
-	public final static Log log = LogFactory.getLog(VirtuosoSPARQLRegistry.class);
+	public final static Logger log = Logger.getLogger(VirtuosoSPARQLRegistry.class);
 	
 	protected static final String ENDPOINT_CONFIG_KEY = "endpoint";
 	protected static final String INDEX_GRAPH_CONFIG_KEY = "indexGraph";

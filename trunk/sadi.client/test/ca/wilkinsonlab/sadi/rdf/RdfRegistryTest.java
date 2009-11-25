@@ -7,8 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collection;
 
 import org.apache.commons.lang.time.StopWatch;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -21,7 +20,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 public class RdfRegistryTest
 {
-	private static final Log log = LogFactory.getLog(RdfRegistryTest.class);
+	private static final Logger log = Logger.getLogger(RdfRegistryTest.class);
 	
 	private static final String SERVICE_URI = "http://sadiframework.org/examples/linear";
 	private static final String SERVICE_PREDICATE = "http://sadiframework.org/examples/regression.owl#hasRegressionModel";

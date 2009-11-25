@@ -1,8 +1,7 @@
 package ca.wilkinsonlab.sadi.utils;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.vocab.SADI;
 
@@ -16,7 +15,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class ExceptionUtils
 {
-	private static final Log log = LogFactory.getLog(ExceptionUtils.class);
+	private static final Logger log = Logger.getLogger(ExceptionUtils.class);
 	
 	public static final String NS = "http://sadiframework.org/ontologies/sadi.owl#";
 	

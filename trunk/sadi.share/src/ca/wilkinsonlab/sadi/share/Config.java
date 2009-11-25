@@ -1,7 +1,6 @@
 package ca.wilkinsonlab.sadi.share;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 /**
  * SHARE configuration class.  The defaults can be overridden in
@@ -13,7 +12,7 @@ import org.apache.commons.logging.LogFactory;
 public class Config extends ca.wilkinsonlab.sadi.common.Config
 {
 	@SuppressWarnings("unused")
-	private static final Log log = LogFactory.getLog(Config.class);
+	private static final Logger log = Logger.getLogger(Config.class);
 	
 	protected static final String DEFAULT_PROPERTIES_FILENAME = "sadi.share.properties";
 	protected static final String LOCAL_PROPERTIES_FILENAME = "sadi.properties";

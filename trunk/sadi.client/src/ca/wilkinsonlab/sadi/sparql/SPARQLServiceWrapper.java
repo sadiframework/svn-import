@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
@@ -26,7 +25,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
  */
 public class SPARQLServiceWrapper implements Service
 {
-	private static final Log log = LogFactory.getLog(SPARQLServiceWrapper.class);
+	private static final Logger log = Logger.getLogger(SPARQLServiceWrapper.class);
 
 	private static final String RESULTS_LIMIT_CONFIG_KEY = "sadi.sparql.resultsLimit";
 	private long resultsLimit;

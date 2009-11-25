@@ -12,8 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
@@ -39,7 +38,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 @SuppressWarnings("serial")
 public abstract class ServiceServlet extends HttpServlet
 {
-	private static final Log log = LogFactory.getLog(ServiceServlet.class);
+	private static final Logger log = Logger.getLogger(ServiceServlet.class);
 	
 	protected Configuration config;
 	protected String serviceName;

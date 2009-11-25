@@ -13,8 +13,7 @@ import java.util.Set;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.lang.time.StopWatch;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
@@ -61,7 +60,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 public class SHAREKnowledgeBase
 {
-	private static final Log log = LogFactory.getLog( SHAREKnowledgeBase.class );
+	private static final Logger log = Logger.getLogger( SHAREKnowledgeBase.class );
 	
 	private OntModel reasoningModel;
 	private Model dataModel;

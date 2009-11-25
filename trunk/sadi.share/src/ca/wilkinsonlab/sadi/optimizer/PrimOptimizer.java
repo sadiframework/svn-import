@@ -10,8 +10,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.buffer.PriorityBuffer;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.utils.PredicateUtils;
 import ca.wilkinsonlab.sadi.vocab.PredicateStats;
@@ -22,9 +21,10 @@ import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntModel;
 
-public class PrimOptimizer extends StaticOptimizer {
-
-	public final static Log log = LogFactory.getLog(PrimOptimizer.class);
+public class PrimOptimizer extends StaticOptimizer
+{
+	public final static Logger log = Logger.getLogger(PrimOptimizer.class);
+	
 	protected final static int VALUE_UNINITIALIZED = -2;
 	
 	private PredicateStatsDB statsDB;

@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 public abstract class QueryClient
 {
-	public final static Log LOGGER = LogFactory.getLog(QueryClient.class);
+	protected final static Logger LOGGER = Logger.getLogger(QueryClient.class);
 	
 	public List<Map<String, String>> synchronousQuery(String query)
 	{

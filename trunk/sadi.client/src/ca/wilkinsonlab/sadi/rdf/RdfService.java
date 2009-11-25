@@ -17,8 +17,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
@@ -49,7 +48,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class RdfService implements Service
 {
-	private static final Log log = LogFactory.getLog(RdfService.class);
+	private static final Logger log = Logger.getLogger(RdfService.class);
 	
 	private static final ModelMaker modelMaker = ModelFactory.createMemModelMaker();
 	

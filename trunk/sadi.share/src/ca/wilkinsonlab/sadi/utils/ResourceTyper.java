@@ -3,8 +3,7 @@ package ca.wilkinsonlab.sadi.utils;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.share.Config;
 
@@ -14,7 +13,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 public class ResourceTyper
 {
-	private static final Log log = LogFactory.getLog( ResourceTyper.class );
+	private static final Logger log = Logger.getLogger( ResourceTyper.class );
 	
 	private static final ResourceTyper theInstance = new ResourceTyper();
 	

@@ -19,14 +19,14 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
 public class HttpUtils
 {
-	private static final Log log = LogFactory.getLog(HttpUtils.class);
+	private static final Logger log = Logger.getLogger(HttpUtils.class);
+	
 	private static HttpClient theClient;
 	private static int HTTP_CONNECTION_TIMEOUT = 30 * 1000; // in milliseconds
 	private static int MAX_CONNECTIONS_PER_HOST = 10;
