@@ -1,7 +1,6 @@
 package ca.wilkinsonlab.sadi.share;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import ca.wilkinsonlab.sadi.client.QueryClient;
@@ -58,10 +57,9 @@ public class SHAREQueryClient extends QueryClient
 			while (resultSet.hasNext()) {
 				QuerySolution binding = resultSet.nextSolution();
 				Map<String, String> bindingAsMap = new HashMap<String, String>();
-				for (Iterator<String> i = binding.varNames(); i.hasNext(); ) {
-					String var = i.next();
+				for (String var: resultSet.getResultVars()) {
 					RDFNode varValue = binding.get(var);
-					bindingAsMap.put(var, varValue != null ? RdfUtils.getPlainString(varValue.asNode()) : "");
+					bindingAsMap.put(var, varValue != null ? RdfUtils.getPlainString(varValue.asNode()) : null);
 				}
 				results.add(bindingAsMap);
 			}
