@@ -1,6 +1,8 @@
 package ca.wilkinsonlab.sadi.tasks;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -14,11 +16,13 @@ public abstract class Task implements Runnable
 	protected String id;
 	protected String status;
 	protected Throwable error;
+	protected Collection<String> warnings;
 	protected Date completed;
 	
 	protected Task()
 	{
 		status = "";
+		warnings = new ArrayList<String>();
 	}
 	
 	/**
@@ -65,6 +69,24 @@ public abstract class Task implements Runnable
 	{
 		this.error = error;
 		setStatus(error.toString());
+	}
+	
+	/**
+	 * Returns any warnings the task has received.
+	 * @return any warnings the task has received
+	 */
+	public Collection<String> getWarnings()
+	{
+		return warnings;
+	}
+	
+	/**
+	 * Add a warning to the task.
+	 * @param message the warning
+	 */
+	protected void warn(String warning)
+	{
+		warnings.add(warning);
 	}
 	
 	/**
