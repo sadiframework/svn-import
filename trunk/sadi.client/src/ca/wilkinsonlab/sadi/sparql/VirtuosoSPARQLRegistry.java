@@ -479,12 +479,6 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(uri);
 		boolean matches = matcher.find();
-		/*
-		log.trace("endpoint: " + endpointURI);
-		log.trace("regex: " + pattern.toString());
-		log.trace("uri: " + uri);
-		log.trace("matches?: " + String.valueOf(matches));
-		*/
 		return matches;
 	}
 	
