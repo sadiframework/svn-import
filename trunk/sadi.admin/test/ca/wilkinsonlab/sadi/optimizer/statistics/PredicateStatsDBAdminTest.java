@@ -22,8 +22,17 @@ public class PredicateStatsDBAdminTest {
 	private PredicateStatsDB statsDB;
 	private SPARQLRegistry sparqlRegistry = Config.getSPARQLRegistry();
 	
+	/* TODO: These tests depend on third-party endpoints, which is bad. Fix
+	 * this by setting up a test registry containing only test (dummy) SPARQL
+	 * endpoints.
+	 * 
+	 * For the time being, the affected unit tests have been commented out.
+	 */
+	
+	/*
 	private static final String EXAMPLE_PREDICATE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"; //"http://bio2rdf.org/ns/bio2rdf#xGO";
 	private static final String EXAMPLE_ENDPOINT = "http://omim.bio2rdf.org/sparql";
+	*/
 	
 	@Before
 	public void setUp() throws Exception {
@@ -65,8 +74,11 @@ public class PredicateStatsDBAdminTest {
 		
 	}
 	
+	/* TODO: These tests are to remain disabled until they no longer depend on
+	 * third-party endpoints (see TODO at top of file).
+	 */
 
-
+	/*
 	@Test
 	public void testComputeStatsForPredicate()
 	{
@@ -153,5 +165,5 @@ public class PredicateStatsDBAdminTest {
 			fail("Failed to compute stats for endpoint " + EXAMPLE_ENDPOINT + ": " + e);
 		}
 	}
-	
+	*/
 }
