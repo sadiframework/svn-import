@@ -22,16 +22,15 @@ import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.ibm.icu.text.DateFormat;
 
-import ca.wikinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.PredicateStats;
-import ca.wilkinsonlab.sadi.pellet.PelletClient;
+import ca.wilkinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpointFactory;
 import ca.wilkinsonlab.sadi.sparql.SPARQLRegistry;
 import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLEndpoint;
 import ca.wilkinsonlab.sadi.share.Config;
+import ca.wilkinsonlab.sadi.share.SHAREQueryClient;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -47,7 +46,7 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 	protected final static String USERNAME_CONFIG_KEY = "username";
 	protected final static String PASSWORD_CONFIG_KEY = "password";
 	
-	private QueryClient queryClient = new PelletClient();
+	private QueryClient queryClient = new SHAREQueryClient();
 
 	protected final static String SPARQL_RESULTS_LIMIT_CONFIG_KEY = "sadi.sparql.resultsLimit";
 	private static final int SPARQL_RESULTS_LIMIT = 500;

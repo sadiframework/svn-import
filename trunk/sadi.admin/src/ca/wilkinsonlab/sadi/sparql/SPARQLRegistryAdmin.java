@@ -2,20 +2,12 @@ package ca.wilkinsonlab.sadi.sparql;
 
 import java.io.IOException;
 import java.rmi.AccessException;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URIException;
 
-import com.hp.hpl.jena.graph.Node;
-import com.hp.hpl.jena.graph.Triple;
-
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.AmbiguousPropertyTypeException;
 import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
 
 public interface SPARQLRegistryAdmin

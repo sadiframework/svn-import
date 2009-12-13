@@ -13,12 +13,10 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.random.RandomData;
 import org.apache.commons.math.random.RandomDataImpl;
-import org.xml.sax.SAXParseException;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -27,14 +25,11 @@ import com.hp.hpl.jena.shared.JenaException;
 
 import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
-import ca.wilkinsonlab.sadi.vocab.W3C;
-import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.optimizer.statistics.ExceededMaxAttemptsException;
 import ca.wilkinsonlab.sadi.optimizer.statistics.NoSampleAvailableException;
 import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint;
 import ca.wilkinsonlab.sadi.sparql.SPARQLRegistry;
-import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLRegistry;
 
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
