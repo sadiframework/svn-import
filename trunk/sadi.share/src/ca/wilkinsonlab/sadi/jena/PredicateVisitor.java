@@ -7,17 +7,18 @@ import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.sparql.core.BasicPattern;
 import com.hp.hpl.jena.sparql.syntax.ElementAssign;
 import com.hp.hpl.jena.sparql.syntax.ElementDataset;
+import com.hp.hpl.jena.sparql.syntax.ElementExists;
 import com.hp.hpl.jena.sparql.syntax.ElementFetch;
 import com.hp.hpl.jena.sparql.syntax.ElementFilter;
 import com.hp.hpl.jena.sparql.syntax.ElementGroup;
 import com.hp.hpl.jena.sparql.syntax.ElementNamedGraph;
+import com.hp.hpl.jena.sparql.syntax.ElementNotExists;
 import com.hp.hpl.jena.sparql.syntax.ElementOptional;
 import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementService;
 import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementUnion;
-import com.hp.hpl.jena.sparql.syntax.ElementUnsaid;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
 
 /**
@@ -52,10 +53,12 @@ public class PredicateVisitor implements ElementVisitor {
 	public void visit(ElementGroup el) {}
 	public void visit(ElementDataset el) {}
 	public void visit(ElementNamedGraph el) {}
-	public void visit(ElementUnsaid el) {}
+//	public void visit(ElementUnsaid el) {}
 	public void visit(ElementService el) {}
 	public void visit(ElementPathBlock arg0) {}
 	public void visit(ElementAssign arg0) {}
 	public void visit(ElementFetch arg0) {}
 	public void visit(ElementSubQuery arg0) {}
+	public void visit(ElementExists arg0) {}
+	public void visit(ElementNotExists arg0) {}
 }
