@@ -124,6 +124,14 @@ public abstract class Task implements Runnable
 	{
 		return completed;
 	}
+
+	/** 
+	 * Dispose the task and free up any resources it might be holding.
+	 */
+	public void dispose()
+	{
+		return;
+	}
 	
 	public String toString()
 	{

@@ -122,6 +122,8 @@ public class TaskManager implements UncaughtExceptionHandler
 		if (t != null)
 			threadToTask.remove(t);
 		
+		task.dispose();
+		
 		/* TODO actively dispose task?
 		 */
 		System.gc();
