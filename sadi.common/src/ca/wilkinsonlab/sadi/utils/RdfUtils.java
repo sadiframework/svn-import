@@ -200,7 +200,8 @@ public class RdfUtils
 		else if(node.isBlank()) 
 			str = node.getBlankNodeLabel().toString(); 
 		else 
-			str = node.getLiteral().getLexicalForm().toString();
+//			str = node.getLiteral().getLexicalForm().toString();
+			str = node.getLiteralLexicalForm();
 		return str;
 	}
 	
