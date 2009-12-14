@@ -135,6 +135,11 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 			outputModel = createOutputModel();
 		}
 		
+		public void dispose()
+		{
+			outputModel.close();
+		}
+		
 		public Collection<Resource> getInputNodes()
 		{
 			return inputNodes;

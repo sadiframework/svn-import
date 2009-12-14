@@ -122,16 +122,21 @@ public abstract class ServiceServlet extends HttpServlet
 		ServiceCall call = new ServiceCall();
 		call.setRequest(request);
 		
+		Model inputModel = null;
+		Model outputModel = null;
 		try {
-			Model inputModel = readInput(request);
+			inputModel = readInput(request);
 			call.setInputModel(inputModel);
-			Model outputModel = prepareOutputModel(inputModel);
+			outputModel = prepareOutputModel(inputModel);
 			call.setOutputModel(outputModel);
 			
 			processInput(call);
 			outputSuccessResponse(response, call.getOutputModel());
 		} catch (Exception e) {
 			outputErrorResponse(response, e);
+		} finally {
+			inputModel.close();
+			outputModel.close();
 		}
 	}
 	
