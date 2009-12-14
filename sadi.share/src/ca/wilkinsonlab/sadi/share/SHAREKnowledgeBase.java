@@ -40,17 +40,18 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.sparql.syntax.ElementAssign;
 import com.hp.hpl.jena.sparql.syntax.ElementDataset;
+import com.hp.hpl.jena.sparql.syntax.ElementExists;
 import com.hp.hpl.jena.sparql.syntax.ElementFetch;
 import com.hp.hpl.jena.sparql.syntax.ElementFilter;
 import com.hp.hpl.jena.sparql.syntax.ElementGroup;
 import com.hp.hpl.jena.sparql.syntax.ElementNamedGraph;
+import com.hp.hpl.jena.sparql.syntax.ElementNotExists;
 import com.hp.hpl.jena.sparql.syntax.ElementOptional;
 import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementService;
 import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementUnion;
-import com.hp.hpl.jena.sparql.syntax.ElementUnsaid;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
 import com.hp.hpl.jena.sparql.syntax.ElementWalker;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -102,6 +103,32 @@ public class SHAREKnowledgeBase
 		
 		dynamicInputInstanceClassification = config.getBoolean("share.dynamicInputInstanceClassification", false);
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
+	}
+	
+	public void dispose()
+	{
+		/* this is not working because (unbelievably) it closes the root OWL ontology model...
+		 * clearly Jena is not imagining a world where multiple reasoners coexist in the
+		 * same VM long-term...
+		 */
+//		/* before we close our reasoning model, we have to remove all sub-
+//		 * models, or they'll be closed too (this is mostly a problem because
+//		 * it includes imported models, which are reused by Jena later...)
+//		 * (remove with no rebind so that it's quicker, since we're about to
+//		 * close this reasoning model anyway...)
+//		 */
+//		for (OntModel subModel: reasoningModel.listSubModels().toList()) {
+//			reasoningModel.removeSubModel(subModel);
+//		}
+//		reasoningModel.close();
+		
+		dataModel.close();
+		
+		/* this shouldn't actually be necessary, as closing the models should
+		 * free up the resources associated with the RDFNodes in the variable
+		 * bindings...
+		 */
+		variableBindings.clear();
 	}
 	
 	public Model getDataModel()
@@ -680,10 +707,6 @@ public class SHAREKnowledgeBase
 		{	
 		}
 
-		public void visit(ElementUnsaid el)
-		{	
-		}
-
 		public void visit(ElementService el)
 		{
 		}
@@ -702,6 +725,14 @@ public class SHAREKnowledgeBase
 
 		public void visit(ElementSubQuery el)
 		{
+		}
+
+		public void visit(ElementExists el)
+		{
+		}
+
+		public void visit(ElementNotExists el)
+		{			
 		}
 	}
 	
