@@ -240,19 +240,7 @@ public class BioMobyService extends MobyService implements Service
 	public String getServiceURI()
 	{
 		if (serviceURI == null) {
-			/* FIXME apparently BioMobyService doesn't actually contain all of the
-			 * information that MobyService does, despite the fact that it's a
-			 * subclass; this needs to be fixed, but I don't have time right now...
-			 */
-			MobyService service;
-			try {
-				service = getMobyServiceDefinition();
-			} catch (MobyException e) {
-				log.error("couldn't retrieve service description from BioMoby registry", e);
-				return "";
-			}
-			
-			serviceURI = BioMobyHelper.getServiceURI(service);
+			serviceURI = BioMobyHelper.getServiceURI(getMobyServiceDefinition());
 		}
 		return serviceURI;
 	}
@@ -262,30 +250,22 @@ public class BioMobyService extends MobyService implements Service
 	 * Any input to this service must be an instance of this class.
 	 * @return an OntClass describing the input this service can consume
 	 */
-	public OntClass getInputClass()
+	public synchronized OntClass getInputClass()
 	{
 		if (inputClass == null) {
-			if (getNumPrimaryInputs() > 1)
-				throw new UnsupportedOperationException("this interface is invalid for BioMoby services with more than one primary input");
-			
-			/* FIXME apparently BioMobyService doesn't actually contain all of the
-			 * information that MobyService does, despite the fact that it's a
-			 * subclass; this needs to be fixed, but I don't have time right now...
-			 */
-			MobyService service;
-			try {
-				service = getMobyServiceDefinition();
-			} catch (MobyException e) {
-				log.error("couldn't retrieve service description from BioMoby registry", e);
-				return null;
+			String inputClassUri = getServiceURI() + "#input";
+			inputClass = sourceRegistry.getTypeOntology().getOntClass(inputClassUri);
+			if (inputClass == null) {
+				if (getNumPrimaryInputs() > 1) {
+					log.warn("this interface is invalid for BioMoby services with more than one primary input");
+					inputClass = sourceRegistry.getTypeOntology().createClass(inputClassUri);
+				} else {
+					RDFList namespaceTypes = sourceRegistry.getTypeOntology().createList();
+					for (MobyNamespace namespace: getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces())
+						namespaceTypes = namespaceTypes.with(sourceRegistry.getTypeByNamespace(namespace));
+					inputClass = sourceRegistry.getTypeOntology().createUnionClass(inputClassUri, namespaceTypes);
+				}
 			}
-			
-			
-			RDFList namespaceTypes = sourceRegistry.getTypeOntology().createList();
-			for (MobyNamespace namespace: service.getPrimaryInputs()[0].getNamespaces())
-				namespaceTypes = namespaceTypes.with(sourceRegistry.getTypeByNamespace(namespace));
-			
-			inputClass = sourceRegistry.getTypeOntology().createUnionClass(getServiceURI() + "#input", namespaceTypes);
 		}
 		return inputClass;
 	}
@@ -298,6 +278,13 @@ public class BioMobyService extends MobyService implements Service
 	public OntClass getOutputClass()
 	{
 		log.warn("getOutputClass not yet implemented");
+		if (outputClass == null) {
+			String outputClassUri = getServiceURI() + "#output";
+			outputClass = sourceRegistry.getTypeOntology().getOntClass(outputClassUri);
+			if (outputClass == null) {
+				outputClass = sourceRegistry.getTypeOntology().createClass(outputClassUri);
+			}
+		}
 		return outputClass;
 	}
 	
@@ -616,20 +603,33 @@ public class BioMobyService extends MobyService implements Service
 		}
 		return filtered;
 	}
+
 	
-	private MobyService getMobyServiceDefinition() throws MobyException
+	/* FIXME apparently BioMobyService doesn't actually contain all of the
+	 * information that MobyService does, despite the fact that it's a
+	 * subclass; this needs to be fixed, but I don't have time right now...
+	 */
+	private MobyService mobyService;
+	private MobyService getMobyServiceDefinition()
 	{
-		MobyService template = new MobyService();
-		template.setAuthority(getAuthority());
-		template.setName(getName());
-		MobyService[] services = sourceRegistry.getMobyCentral().findService(template);
-		if (services.length == 0) {
-			throw new MobyException("no services matched this template");
-		} else if (services.length > 1) {
-			throw new MobyException("more than one service matched this template");
-		} else {
-			return services[0];
+		if (mobyService == null) {
+			try {
+				MobyService template = new MobyService();
+				template.setAuthority(getAuthority());
+				template.setName(getName());
+				MobyService[] services = sourceRegistry.getMobyCentral().findService(template);
+				if (services.length == 0) {
+					throw new MobyException("no services matched this template");
+				} else if (services.length > 1) {
+					throw new MobyException("more than one service matched this template");
+				} else {
+					mobyService = services[0];
+				}
+			} catch (MobyException e) {
+				log.error("couldn't retrieve service description from BioMoby registry", e);
+			}
 		}
+		return mobyService;
 	}
 
 	/* (non-Javadoc)
@@ -637,19 +637,10 @@ public class BioMobyService extends MobyService implements Service
 	 */
 	public boolean isInputInstance(Resource resource)
 	{
-		/* FIXME apparently BioMobyService doesn't actually contain all of the
-		 * information that MobyService does, despite the fact that it's a
-		 * subclass; this needs to be fixed, but I don't have time right now...
+		/* TODO this can maybe be done better now that the input class is
+		 * properly created...
 		 */
-		MobyService service;
-		try {
-			service = getMobyServiceDefinition();
-		} catch (MobyException e) {
-			log.error("couldn't retrieve service description from BioMoby registry", e);
-			return false;
-		}
-		
-		MobyNamespace[] namespaces = service.getPrimaryInputs()[0].getNamespaces();
+		MobyNamespace[] namespaces = getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces();
 		for (MobyNamespace namespace: namespaces) {
 			OntClass namespaceType = sourceRegistry.getTypeByNamespace(namespace);
 			if (resource.hasProperty(RDF.type, namespaceType))
@@ -663,21 +654,11 @@ public class BioMobyService extends MobyService implements Service
 	 */
 	public Collection<Resource> discoverInputInstances(Model inputModel)
 	{
-		Collection<Resource> instances = new ArrayList<Resource>(0);
-		
-		/* FIXME apparently BioMobyService doesn't actually contain all of the
-		 * information that MobyService does, despite the fact that it's a
-		 * subclass; this needs to be fixed, but I don't have time right now...
+		/* TODO this can maybe be done better now that the input class is
+		 * properly created...
 		 */
-		MobyService service;
-		try {
-			service = getMobyServiceDefinition();
-		} catch (MobyException e) {
-			log.error("couldn't retrieve service description from BioMoby registry", e);
-			return instances;
-		}
-		
-		MobyNamespace[] namespaces = service.getPrimaryInputs()[0].getNamespaces();
+		Collection<Resource> instances = new ArrayList<Resource>();
+		MobyNamespace[] namespaces = getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces();
 		for (MobyNamespace namespace: namespaces) {
 			OntClass namespaceType = sourceRegistry.getTypeByNamespace(namespace);
 			instances.addAll(inputModel.listResourcesWithProperty(RDF.type, namespaceType).toList());
