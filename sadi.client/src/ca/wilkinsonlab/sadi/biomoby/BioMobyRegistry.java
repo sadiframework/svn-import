@@ -209,8 +209,10 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	{
 		String uri = String.format("%s%s_Record", LSRN_PREFIX, ns.getName());
 		OntClass type = getTypeOntology().getOntClass(uri);
-		if (type == null)
+		if (type == null) {
+			log.trace(String.format("creating class %s", uri));
 			type = getTypeOntology().createClass(uri);
+		}
 		return type;
 	}
 	
