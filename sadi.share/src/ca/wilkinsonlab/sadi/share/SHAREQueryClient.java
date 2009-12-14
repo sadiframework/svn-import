@@ -27,6 +27,11 @@ public class SHAREQueryClient extends QueryClient
 		this.kb = kb;
 	}
 	
+	public SHAREKnowledgeBase getKB()
+	{
+		return kb;
+	}
+	
 	public Model getDataModel()
 	{
 		return kb.getDataModel();
