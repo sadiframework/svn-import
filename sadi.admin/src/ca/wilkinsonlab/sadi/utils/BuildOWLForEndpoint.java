@@ -7,11 +7,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
@@ -115,7 +113,7 @@ public class BuildOWLForEndpoint {
 			else {
 				for(String rootURI : options.rootURIs) {
 					// TODO: For endpoints that are too large to be queried for the full set of
-					// predicates, do a breadth-firstsearch starting a the given root URI.  
+					// predicates, do a breadth-first search starting at the given root URI.  
 					// Note: The Java Search Library looks like it would handy for this.
 				}
 			}
