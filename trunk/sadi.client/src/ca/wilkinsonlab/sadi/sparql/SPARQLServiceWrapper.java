@@ -52,8 +52,7 @@ public class SPARQLServiceWrapper implements Service
 		initResultsLimit();
 	}
 	
-	// FIXME if this really needs to be public, Javadoc it...
-	public void initResultsLimit()
+	protected void initResultsLimit()
 	{
 		if(Config.getConfiguration().containsKey(RESULTS_LIMIT_CONFIG_KEY)) 
 			setResultsLimit(Config.getConfiguration().getLong(RESULTS_LIMIT_CONFIG_KEY));
@@ -213,63 +212,7 @@ public class SPARQLServiceWrapper implements Service
 			throw new ServiceInvocationException(e.getMessage());
 		}
 	}
-	
-	public Collection<Triple> invokeService(String inputURI) throws Exception 
-	{
-		Node input = NodeCreateUtils.create(inputURI);
-		return invokeService(input);
-		
-		/*
-		Triple queryPattern;
-		Node var1 = NodeCreateUtils.create("?var1");
-		Node input = NodeCreateUtils.create(inputURI);
-		Node var2 = NodeCreateUtils.create("?var2");
-		
-		if(predicateIsInverse())
-			queryPattern = new Triple(var1, var2, input);
-		else
-			queryPattern = new Triple(input, var1, var2);
-			
-		Collection<Triple> results = getEndpoint().getTriplesMatchingPattern(queryPattern);
-		
-		return results;
-		*/
-	}
 
-	public Collection<Triple> invokeService(String inputURI, String predicate)  throws Exception 
-	{
-		return invokeService(inputURI);
-		
-		/*
-		if(!predicate.equals(getPredicate()) && !PredicateUtils.invert(predicate).equals(getPredicate()))
-			throw new RuntimeException();
-		
-		Triple queryPattern;
-		Node var = NodeCreateUtils.create("?var");
-		Node input = NodeCreateUtils.create(inputURI);
-		Node pred = NodeCreateUtils.create(getPredicate());
-		
-		if(predicateIsInverse())
-			queryPattern = new Triple(var, pred, input);
-		else
-			queryPattern = new Triple(input, pred, var);
-			
-		Collection<Triple> results = getEndpoint().getTriplesMatchingPattern(queryPattern);
-		
-		return results;
-		*/
-	}
-
-	public Collection<Triple> invokeService(Literal inputNode) throws ServiceInvocationException 
-	{
-		return invokeService(inputNode.asNode());
-	}
-
-	public Collection<Triple> invokeService(Literal inputNode, String predicate) throws ServiceInvocationException 
-	{
-		return invokeService(inputNode.asNode());
-	}
-	
 	public Collection<Triple> invokeServiceOnRDFNodes(Collection<? extends RDFNode> inputNodes) throws ServiceInvocationException
 	{
 		// FIXME
