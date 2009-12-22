@@ -375,7 +375,7 @@ public class SPARQLEndpoint
 		return curPoint;
 	}
 	
-	public boolean isDatatypeProperty(String predicateURI) throws IOException, AmbiguousPropertyTypeException 
+	public boolean isDatatypeProperty(String predicateURI, boolean checkForAmbiguousProperty) throws IOException, AmbiguousPropertyTypeException 
 	{
 		log.trace("checking if " + predicateURI + " is a datatype property or an object property");
 
@@ -394,15 +394,17 @@ public class SPARQLEndpoint
 				isDatatypeProperty = false;
 			
 			// Sanity check: Make sure this is not an RDF predicate that has both URIs and literals as values.  
-			String query;
-			if(isDatatypeProperty)
-				query = "SELECT ?o WHERE { ?s %u% ?o . FILTER (!isLiteral(?o)) } LIMIT 1";
-			else
-				query = "SELECT ?o WHERE { ?s %u% ?o . FILTER isLiteral(?o) } LIMIT 1";
-			
-			query = SPARQLStringUtils.strFromTemplate(query, predicateURI);
-			if(selectQuery(query).size() > 0)
-				throw new AmbiguousPropertyTypeException(predicateURI + " is an RDF predicate which has both URIs and literals as values.");
+			if(checkForAmbiguousProperty) {
+				String query;
+				if(isDatatypeProperty)
+					query = "SELECT ?o WHERE { ?s %u% ?o . FILTER (!isLiteral(?o)) } LIMIT 1";
+				else
+					query = "SELECT ?o WHERE { ?s %u% ?o . FILTER isLiteral(?o) } LIMIT 1";
+
+				query = SPARQLStringUtils.strFromTemplate(query, predicateURI);
+				if(selectQuery(query).size() > 0)
+					throw new AmbiguousPropertyTypeException(predicateURI + " is an RDF predicate which has both URIs and literals as values.");
+			}
 		}
 		return isDatatypeProperty;
 	}
