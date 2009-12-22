@@ -737,7 +737,7 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 		if (isDatatypePropertyCache.containsKey(property))
 			return isDatatypePropertyCache.get(property);
 
-		boolean isDatatypeProperty = endpoint.isDatatypeProperty(property);
+		boolean isDatatypeProperty = endpoint.isDatatypeProperty(property, true);
 		isDatatypePropertyCache.put(property, Boolean.valueOf(isDatatypeProperty));
 
 		return isDatatypeProperty;

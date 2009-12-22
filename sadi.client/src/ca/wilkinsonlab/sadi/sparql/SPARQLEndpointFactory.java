@@ -1,5 +1,7 @@
 package ca.wilkinsonlab.sadi.sparql;
 
+import org.apache.log4j.Logger;
+
 import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
 
 /**
@@ -8,15 +10,22 @@ import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
  */
 public class SPARQLEndpointFactory 
 {
+	public final static Logger log = Logger.getLogger(SPARQLEndpoint.class);
+	
 	public static SPARQLEndpoint createEndpoint(String endpointURI, EndpointType type) 
 	{
 		switch(type) {
 		case VIRTUOSO:
 			return new VirtuosoSPARQLEndpoint(endpointURI);
 		case D2R:
-			return new SPARQLEndpoint(endpointURI);
+			return createEndpoint(endpointURI);
 		default:
-			throw new IllegalArgumentException("Unsupported SPARQL endpoint type: " + type.toString());
+			log.warn(String.format("unrecognized SPARQL endpoint type %s, creating plain SPARQLEndpoint object", type.toString()));
+			return createEndpoint(endpointURI);
 		}
+	}
+	
+	public static SPARQLEndpoint createEndpoint(String endpointURI) {
+		return new SPARQLEndpoint(endpointURI);
 	}
 }

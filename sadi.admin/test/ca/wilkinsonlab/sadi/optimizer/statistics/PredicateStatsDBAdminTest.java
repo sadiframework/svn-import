@@ -3,8 +3,6 @@ package ca.wilkinsonlab.sadi.optimizer.statistics;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Date;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,8 +10,6 @@ import org.junit.Test;
 import ca.wilkinsonlab.sadi.optimizer.PredicateStatsDB;
 import ca.wilkinsonlab.sadi.optimizer.statistics.PredicateStatsDBAdmin;
 import ca.wilkinsonlab.sadi.sparql.SPARQLRegistry;
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.vocab.PredicateStats;
 import ca.wilkinsonlab.sadi.client.Config;
 
 public class PredicateStatsDBAdminTest {

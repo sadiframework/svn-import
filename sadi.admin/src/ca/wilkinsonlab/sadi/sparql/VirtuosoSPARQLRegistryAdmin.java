@@ -343,7 +343,7 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 	public void addPredicateToRegistry(String endpointURI, EndpointType type, String predicate) throws IOException, AmbiguousPropertyTypeException
 	{
 		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-		boolean isDatatypeProperty = endpoint.isDatatypeProperty(predicate);
+		boolean isDatatypeProperty = endpoint.isDatatypeProperty(predicate, true);
 		addPredicateToOntology(predicate, isDatatypeProperty);
 		addPredicateToIndex(endpointURI, predicate);
 	}
