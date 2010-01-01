@@ -100,36 +100,11 @@ public class SPARQLEndpoint
 	public Collection<Triple> getTriplesMatchingPattern(Triple pattern, int timeout, long resultsLimit) throws IOException 
 	{
 		Node s = pattern.getSubject();
-//		Node p = pattern.getPredicate();
 		Node o = pattern.getObject();
 		
 		if(s.isVariable() && o.isVariable()) 
 			throw new IllegalArgumentException("Not allowed to query {?s ?p ?o} or {?s <predicate> ?o} against a SPARQL endpoint");
 		
-		/*
-		StringBuilder patternStr = new StringBuilder();
-		Node pos[] = {s,p,o};
-		for(int i = 0; i < pos.length; i++) {
-			if(pos[i].isVariable()) {
-				patternStr.append(pos[i].toString());
-				patternStr.append(' ');
-			}
-			else {
-				if(pos[i].isURI())
-					patternStr.append(SPARQLStringUtils.strFromTemplate("%u% ", pos[i].toString()));
-				else
-					patternStr.append(SPARQLStringUtils.strFromTemplate("%v% ", pos[i].toString()));
-			}
-		}
-
-		StringBuilder query = new StringBuilder();
-		query.append("CONSTRUCT { ");
-		query.append(patternStr);
-		query.append(" } WHERE { ");
-		query.append(patternStr);
-		query.append(" }");
-		*/
-
 		String patternStr = SPARQLStringUtils.getTriplePattern(pattern);
 		StringBuilder query = new StringBuilder();
 		query.append("CONSTRUCT { ");
