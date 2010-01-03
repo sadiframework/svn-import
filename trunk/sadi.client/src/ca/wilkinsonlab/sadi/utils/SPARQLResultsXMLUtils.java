@@ -15,10 +15,18 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 import org.xml.sax.helpers.XMLReaderFactory;
 
+import org.apache.commons.io.IOUtils;
+
 public class SPARQLResultsXMLUtils
 {
 	public final static Logger log = Logger.getLogger(SPARQLResultsXMLUtils.class);
 	
+	public static List<Map<String, String>> getResultsFromSPARQLXML(String input) throws IOException
+	{
+		InputStream inputStream = IOUtils.toInputStream(input);
+		return getResultsFromSPARQLXML(inputStream);
+	}
+
 	public static List<Map<String, String>> getResultsFromSPARQLXML(InputStream input) throws IOException
 	{
 //		String resultsXML = IOUtils.toString(input);

@@ -21,7 +21,6 @@ import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.utils.PredicateUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.vocab.W3C;
 
@@ -44,7 +43,6 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	protected static final String USERNAME_CONFIG_KEY = "username";
 	protected static final String PASSWORD_CONFIG_KEY = "password";
 
-	protected static final int ENDPOINT_QUERY_TIMEOUT = 20 * 1000; // in milliseconds
 	//private OntModel predicateOntology;
 	private String indexGraphURI;
 	private String ontologyGraphURI;
@@ -219,52 +217,6 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		return matchingEndpointURIs;
 	}
 	
-	public Set<String> findPartiallyIndexedEndpointsByPredicate(String predicate, Set<String> ignoreEndpointURIs) throws IOException
-	{
-		Set<String> matchingEndpointURIs = new HashSet<String>();
-
-		// Note: if the index for an endpoint contains no indication about whether the
-		// its predicate list is complete, we assume it is not.
-		
-		String endpointsQuery = 
-			"SELECT ?endpoint ?status FROM %u% WHERE {\n" +
-			"   OPTIONAL { ?endpoint %u% ?complete . } \n" +
-			"   ?endpoint %u% ?status .\n" +
-			"   FILTER (!bound(?complete) || (?complete = 'false'))\n" +
-			"}";
-		
-		endpointsQuery = SPARQLStringUtils.strFromTemplate(endpointsQuery, 
-							getIndexGraphURI(), 
-							SPARQLRegistryOntology.PREDICATE_PREDICATE_LIST_IS_COMPLETE, 
-							SPARQLRegistryOntology.PREDICATE_ENDPOINTSTATUS);
-		
-		List<Map<String,String>>results = selectQuery(endpointsQuery);
-		
-		String testForPredicateQuery = "SELECT * WHERE { ?s %u% ?o } LIMIT 1";
-		testForPredicateQuery = SPARQLStringUtils.strFromTemplate(testForPredicateQuery, predicate);
-		
-		for(Map<String,String> binding : results) {
-			
-			String uri = binding.get("endpoint");
-			ServiceStatus status = ServiceStatus.valueOf(binding.get("status"));
-
-			if(ignoreEndpointURIs.contains(uri) || status == ServiceStatus.DEAD)
-				continue;
-			
-			SPARQLEndpoint endpoint = getEndpoint(uri);
-			List<Map<String,String>> testResults;
-			try {
-				testResults = endpoint.selectQuery(testForPredicateQuery, ENDPOINT_QUERY_TIMEOUT);
-				if(testResults.size() > 0)
-					matchingEndpointURIs.add(uri);
-			} catch(Exception e) {
-				log.warn("Query timed out when testing unindexed endpoint " + uri + " for triples containing " + predicate);
-			}
-		}
-		
-		return matchingEndpointURIs;
-	}
-	
 	public Collection<SPARQLServiceWrapper> findServicesByPredicate(String predicate) throws IOException
 	{
 		boolean isInverted = false; 
@@ -346,7 +298,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		return endpoints;
 	}
 	
-	public ServiceStatus getServiceStatus(String serviceURI) throws URIException, HttpException, HttpResponseCodeException, IOException 
+	public ServiceStatus getServiceStatus(String serviceURI) throws IOException 
 	{
 		String statusQuery = "SELECT ?status FROM %u% WHERE { %u% %u% ?status }";
 		statusQuery = SPARQLStringUtils.strFromTemplate(statusQuery, getIndexGraphURI(), serviceURI, SPARQLRegistryOntology.PREDICATE_ENDPOINTSTATUS);

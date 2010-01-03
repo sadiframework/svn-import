@@ -1,5 +1,9 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -58,5 +62,12 @@ public class ExceptionUtils
 			}
 		}
 		return buf.toString();
+	}
+	
+	public static String getStackTrace(Throwable t) {
+	    Writer stacktrace = new StringWriter();
+	    PrintWriter printWriter = new PrintWriter(stacktrace);
+	    t.printStackTrace(printWriter);
+	    return stacktrace.toString();
 	}
 }

@@ -2,27 +2,27 @@ package ca.wilkinsonlab.sadi.sparql;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.rmi.AccessException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.utils.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.JsonUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLResultsXMLUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpInputStream;
-import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
+import ca.wilkinsonlab.sadi.utils.http.HttpResponse;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -43,9 +43,6 @@ public class SPARQLEndpoint
 	public enum ConstructQueryResultsFormat { RDFXML, N3 };
 	
 	public final static Logger log = Logger.getLogger(SPARQLEndpoint.class);
-	
-	final static int DEFAULT_QUERY_TIMEOUT = 30 * 1000;
-	final static int DEFAULT_PING_TIMEOUT = 10 * 1000;
 	
 	String endpointURI;
 	
@@ -76,28 +73,19 @@ public class SPARQLEndpoint
 
 	public String getURI()  { return endpointURI; }
 	public String toString() { return getURI(); }
-	
-	public boolean ping()
-	{
-		return ping(DEFAULT_PING_TIMEOUT);  
-	}
 
-	public boolean ping(int timeout) 
+	public boolean ping() 
 	{
 		try {
-			selectQuery("SELECT * WHERE { ?s ?p ?o } LIMIT 1", timeout);
+			selectQuery("SELECT * WHERE { ?s ?p ?o } LIMIT 1");
 			return true;
 		} catch(IOException e) {
 			return false;
-		}
-	}
-	
-	public Collection<Triple> getTriplesMatchingPattern(Triple pattern) throws IOException
-	{
-		return getTriplesMatchingPattern(pattern, DEFAULT_QUERY_TIMEOUT, NO_RESULTS_LIMIT);
+		} 
 	}
 
-	public Collection<Triple> getTriplesMatchingPattern(Triple pattern, int timeout, long resultsLimit) throws IOException 
+	
+	public Collection<Triple> getTriplesMatchingPattern(Triple pattern, long resultsLimit) throws IOException 
 	{
 		Node s = pattern.getSubject();
 		Node o = pattern.getObject();
@@ -118,7 +106,7 @@ public class SPARQLEndpoint
 			query.append(resultsLimit);
 		}
 		
-		Collection<Triple> triples = constructQuery(query.toString(), timeout);
+		Collection<Triple> triples = constructQuery(query.toString());
 		
 		if(resultsLimit != NO_RESULTS_LIMIT && triples.size() == resultsLimit)
 			log.warn("query results may have been truncated at " + resultsLimit + " triples");
@@ -126,56 +114,28 @@ public class SPARQLEndpoint
 		return triples;
 	}
 	
-	public List<Map<String,String>> selectQuery(String query, int timeout) throws IOException 
-	{
-		InputStream response = HttpUtils.POST(getURI(), getHTTPArgsForSelectQuery(query), timeout);
-		List<Map<String,String>> results = new ArrayList<Map<String,String>>();
-		try {
-			results = convertSelectResponseToBindings(response);
-		}
-		finally {
-			response.close();
-		}
-		return results;
-	}
-
 	public List<Map<String,String>> selectQuery(String query) throws IOException 
 	{
-		InputStream response = HttpUtils.POST(getURI(), getHTTPArgsForSelectQuery(query));
-		List<Map<String,String>> results = new ArrayList<Map<String,String>>();
+		InputStream is = HttpUtils.GET(new URL(getURI()), getParamsForSelectQuery(query));
+		
 		try {
-			results = convertSelectResponseToBindings(response);
+			return convertSelectResponseToBindings(is);
 		}
 		finally {
-			response.close();
+			is.close();
 		}
-		return results;
-	}
-
-	public Collection<Triple> constructQuery(String query, int timeout) throws IOException
-	{
-		InputStream response = HttpUtils.POST(getURI(), getHTTPArgsForConstructQuery(query), timeout);
-		Collection<Triple> results = new ArrayList<Triple>();
-		try { 
-			results = convertConstructResponseToTriples(response);
-		}
-		finally {
-			response.close();
-		}
-		return results;
 	}
 
 	public Collection<Triple> constructQuery(String query) throws IOException
 	{
-		InputStream response = HttpUtils.POST(getURI(), getHTTPArgsForConstructQuery(query));
-		Collection<Triple> results = new ArrayList<Triple>();
+		InputStream is = HttpUtils.GET(new URL(getURI()), getParamsForConstructQuery(query));
+
 		try {
-			results = convertConstructResponseToTriples(response);
+			return convertConstructResponseToTriples(is);
 		}
 		finally {
-			response.close();
+			is.close();
 		}
-		return results;
 	}
 	
 	/**
@@ -189,8 +149,8 @@ public class SPARQLEndpoint
 	 */
 	public void updateQuery(String query) throws IOException
 	{
-		HttpInputStream response = HttpUtils.POST(getURI(), getHTTPArgsForUpdateQuery(query));
-		response.close();
+		InputStream is = HttpUtils.POST(new URL(getURI()), getParamsForUpdateQuery(query));
+		is.close();
 	}
 
 	public Set<String> getNamedGraphs() throws IOException
@@ -242,12 +202,12 @@ public class SPARQLEndpoint
 	 * Get the largest result set possible for the given query.  This method is a fallback 
 	 * if we cannot get the complete answer to a query due to HTTP timeouts.
 	 */
-	public List<Map<String,String>> getPartialQueryResults(String query) throws HttpException, HttpResponseCodeException, IOException 
+	public List<Map<String,String>> getPartialQueryResults(String query) throws IOException 
 	{
 		return getPartialQueryResults(query, 1);
 	}
 	
-	public List<Map<String,String>> getPartialQueryResults(String query, long startSize) throws HttpException, HttpResponseCodeException, IOException 
+	public List<Map<String,String>> getPartialQueryResults(String query, long startSize) throws IOException 
 	{
 		long limit = getResultsCountLowerBound(query, startSize);
 		String partialQuery = query + " LIMIT " + limit;
@@ -270,12 +230,7 @@ public class SPARQLEndpoint
 	 * two to find the real limit. 
 	 * @return A maximum lower bound for the number of results to the query
 	 */
-	public long getResultsCountLowerBound(String query, long startSize) throws HttpException, HttpResponseCodeException, IOException
-	{
-		return getResultsCountLowerBound(query, startSize, DEFAULT_QUERY_TIMEOUT);
-	}
-	
-	public long getResultsCountLowerBound(String query, long startSize, int timeout) throws HttpException, HttpResponseCodeException, IOException 
+	public long getResultsCountLowerBound(String query, long startSize) throws IOException 
 	{
 		long curPoint = startSize;
 		long lastSuccessPoint = 0;
@@ -290,11 +245,10 @@ public class SPARQLEndpoint
 			List<Map<String,String>> results;
 			try {
 				curQuery = query + " OFFSET " + (curPoint - 1) + " LIMIT 1"; 
-				results = selectQuery(curQuery, timeout);
+				results = selectQuery(curQuery);
 			}
-			catch(IOException e) {
-				if(HttpUtils.isHTTPTimeout(e)) 
-				{
+			catch(HttpStatusException e) {
+				if(e.getStatusCode() == HttpResponse.HTTP_STATUS_GATEWAY_TIMEOUT) {
 					log.debug("query timed out for LIMIT = " + curPoint);
 					
 					if(curPoint == lastSuccessPoint) {
@@ -313,8 +267,9 @@ public class SPARQLEndpoint
 					if(curPoint == 0) 
 						throw e;
 					continue;
+				} else {
+					throw e;
 				}
-				throw e;
 			}
 			if(results.size() == 0) {
 				// A successful query with no results means that we have
@@ -384,7 +339,7 @@ public class SPARQLEndpoint
 		return isDatatypeProperty;
 	}
 	
-	protected Collection<NameValuePair> getHTTPArgsForUpdateQuery(String query) {
+	protected Map<String,String> getParamsForUpdateQuery(String query) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -411,17 +366,17 @@ public class SPARQLEndpoint
 		}
 	}
 
-	protected Collection<NameValuePair> getHTTPArgsForConstructQuery(String query) 
+	protected Map<String,String> getParamsForConstructQuery(String query) 
 	{
-		ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new NameValuePair("query",query));
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("query", query);
 		return params;
 	}
 
-	protected Collection<NameValuePair> getHTTPArgsForSelectQuery(String query) 
+	protected Map<String,String> getParamsForSelectQuery(String query) 
 	{
-		ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new NameValuePair("query", query));
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("query", query);
 		return params;
 	}
 	
@@ -430,9 +385,9 @@ public class SPARQLEndpoint
 		return new TripleIterator(this);
 	}
 
-	public TripleIterator iterator(int timeout, long blockSize)
+	public TripleIterator iterator(long blockSize)
 	{
-		return new TripleIterator(this, timeout, blockSize);
+		return new TripleIterator(this, blockSize);
 	}
 	
 	/**
@@ -451,24 +406,21 @@ public class SPARQLEndpoint
 	 */
 	public static class TripleIterator 
 	{
-		private final static int DEFAULT_TIMEOUT = 60 * 1000; // milliseconds
 		private final static long  DEFAULT_BLOCK_SIZE = 50000; // triples
 		private List<Triple> tripleCache = null;
 		private int cacheIndex = 0;
 		private int cacheOffset = 0;
 		private SPARQLEndpoint endpoint;
-		private int timeout;
 		private long blockSize;
 
 		public TripleIterator(SPARQLEndpoint endpoint) 
 		{
-			this(endpoint, DEFAULT_TIMEOUT, DEFAULT_BLOCK_SIZE);
+			this(endpoint, DEFAULT_BLOCK_SIZE);
 		}
 		
-		public TripleIterator(SPARQLEndpoint endpoint, int timeout, long blockSize) 
+		public TripleIterator(SPARQLEndpoint endpoint, long blockSize) 
 		{
 			this.endpoint = endpoint;
-			this.timeout = timeout;
 			this.blockSize = blockSize;
 		}
 		
@@ -493,7 +445,7 @@ public class SPARQLEndpoint
 			
 			String query = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } LIMIT " + blockSize + " OFFSET " + cacheOffset;
 			tripleCache = new ArrayList<Triple>();
-			tripleCache.addAll(endpoint.constructQuery(query, timeout));
+			tripleCache.addAll(endpoint.constructQuery(query));
 			cacheOffset += blockSize;
 			cacheIndex = 0;
 			if(tripleCache.size() > 0)

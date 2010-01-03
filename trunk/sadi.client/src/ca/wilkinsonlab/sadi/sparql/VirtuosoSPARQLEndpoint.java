@@ -1,79 +1,58 @@
 package ca.wilkinsonlab.sadi.sparql;
 
 import java.io.IOException;
-import java.rmi.AccessException;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.utils.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpInputStream;
-import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
-
+import ca.wilkinsonlab.sadi.utils.http.HttpClient;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 
 /**
- * VirtuosoSPARQLEndpoint.
  * @author Ben Vandervalk
  */
 public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 {
 	public final static Logger log = Logger.getLogger(VirtuosoSPARQLEndpoint.class);
-
+	public final static String VIRTUOSO_SPARQL_AUTH_REALM = "SPARQL";
+	
 	public VirtuosoSPARQLEndpoint(String endpointURI)
 	{
 		super(endpointURI);
 	}
 	
-	public VirtuosoSPARQLEndpoint(String endpointURI, String username, String password)  throws URIException
+	public VirtuosoSPARQLEndpoint(String endpointURI, String username, String password) throws MalformedURLException
 	{
 		this(endpointURI);
 		if(username != null && password != null)
 			initCredentials(username, password);
 	}
 	
-	protected void initCredentials(String username, String password) throws URIException 
+	protected void initCredentials(String username, String password) throws MalformedURLException
 	{
-		// Limit the use of this username/pass to only this endpoint.
-		String hostname = new URI(getURI(), false).getHost();
-		AuthScope authScope = new AuthScope(hostname, AuthScope.ANY_PORT, "SPARQL");
-		Credentials credentials = new UsernamePasswordCredentials(username, password);
-		HttpUtils.getHttpClient().getState().setCredentials(authScope, credentials);
+		String hostname = new URL(getURI()).getHost();
+		HttpUtils.setHttpAuthCredentials(hostname, HttpClient.HTTP_AUTH_ANY_PORT, VIRTUOSO_SPARQL_AUTH_REALM, username, password);
 	}
 	
 	@Override
-	public void updateQuery(String query) throws HttpException, IOException, HttpResponseCodeException, AccessException
+	public void updateQuery(String query) throws IOException
 	{
-		try {
-			HttpInputStream response = HttpUtils.POST(getURI(), getHTTPArgsForUpdateQuery(query));
-			response.close();
-		}
-		catch(HttpResponseCodeException e) {
-			if(e.getStatusCode() == HttpStatus.SC_FORBIDDEN) 
-				throw new AccessException("unauthorized to perform update query on " + getURI(), e);
-			throw e;
-		}
+		HttpUtils.POST(new URL(getURI()), getParamsForUpdateQuery(query)).close();
 	}
 
-	protected Collection<NameValuePair> getHTTPArgsForUpdateQuery(String query) 
+	protected Map<String,String> getParamsForUpdateQuery(String query) 
 	{
-		ArrayList<NameValuePair> params = new ArrayList<NameValuePair>();
-		params.add(new NameValuePair("query",query));
+		Map<String,String> params = new HashMap<String,String>();
+		params.put("query",query);
 		return params;
 	}
 
-	public void deleteDirectedClosure(String URI, String graphURI) throws URIException, HttpException, HttpResponseCodeException, IOException, AccessException
+	public void deleteDirectedClosure(String URI, String graphURI) throws IOException
 	{
 		int closureDepth = getClosureDepth(URI, graphURI);
 		// Delete the closure, starting with the deepest paths.
@@ -105,7 +84,7 @@ public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 		}
 	}
 	
-	private int getClosureDepth(String URI, String graphURI) throws HttpException, IOException 
+	private int getClosureDepth(String URI, String graphURI) throws IOException 
 	{
 		int closureDepth = 0;
 		StringBuilder depthClause = new StringBuilder(" %u% ?p0 ?o0 .");
@@ -134,7 +113,7 @@ public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 
 	public void clearGraph(String graphURI) throws IOException
 	{
-		String query = SPARQLStringUtils.strFromTemplate(	"CLEAR GRAPH %u%", graphURI);
+		String query = SPARQLStringUtils.strFromTemplate("CLEAR GRAPH %u%", graphURI);
 		updateQuery(query);
 	}
 }
