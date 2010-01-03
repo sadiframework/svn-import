@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ca.wilkinsonlab.sadi.utils.HttpUtils;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 
 /**
  * A class encapsulating basic functionality for accessing a registry in a

@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.ws.http.HTTPException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.StringUtils;
@@ -21,7 +23,11 @@ import com.hp.hpl.jena.ontology.OntProperty;
 
 import ca.wilkinsonlab.sadi.utils.RegExUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.HttpUtils;
+import ca.wilkinsonlab.sadi.utils.http.HttpClient;
+import ca.wilkinsonlab.sadi.utils.http.HttpResponse;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
+import ca.wilkinsonlab.sadi.utils.http.XLightwebHttpClient;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.vocab.W3C;
 import ca.wilkinsonlab.sadi.sparql.SPARQLEndpointFactory;
@@ -34,8 +40,16 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 /**
- * Class for performing administrative tasks on a Virtuoso SPARQL endpoint
- * registry (adding new endpoints, reindexing existing endpoints, etc.)
+ * <p>Class for performing administrative tasks on a Virtuoso SPARQL endpoint
+ * registry (adding new endpoints, reindexing existing endpoints, etc.)</p>
+ * 
+ * <p>NOTE: This class  be used if other threads are issuing HTTP requests
+ * .  The issue is 
+ * that the response timeout value for httpClient is global and shared.  
+ * VirtuosoSPARQLRegistryAdmin changes this value during some operations, such
+ * as pinging SPARQL endpoits.  Unfortunately, there is no fix for this because
+ * the current httpclient (XLightwebHttpClient) does not support setting 
+ * timeouts on a per-request basis.</p> 
  *
  * @author Ben Vandervalk
  */
@@ -48,7 +62,6 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 	public final static int REGEX_MAX_LENGTH = 2048; 
 	
 	protected final static long DEFAULT_RESULTS_LIMIT = 50000; // triples
-	protected final static int QUERY_TIMEOUT = 600 * 1000; // milliseconds
 	
 	public VirtuosoSPARQLRegistryAdmin() throws IOException 
 	{
@@ -187,7 +200,7 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 			setURIRegEx(endpointURI, "", false, false);
 		}
 			
-		TripleIterator i = endpoint.iterator(QUERY_TIMEOUT, maxResultsPerQuery);
+		TripleIterator i = endpoint.iterator(maxResultsPerQuery);
 		while(i.hasNext()) {
 
 			Triple t = i.next();
@@ -734,7 +747,7 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
 		ServiceStatus status;
 	
-		if (endpoint.ping(15*1000))
+		if (endpoint.ping())
 			status = ServiceStatus.OK;
 		else
 			status = ServiceStatus.DEAD;
@@ -787,18 +800,16 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 
 	public void refreshStatusOfAllEndpoints() throws IOException 
 	{
-
 		Collection<SPARQLEndpoint> endpoints = getAllEndpoints();
 		for (SPARQLEndpoint endpoint : endpoints) {
 			try {
 				endpoint.getPredicates();
-				setEndpointStatus(endpoint.getURI(),	ServiceStatus.OK);
-			} catch (IOException e) {
-				if (HttpUtils.isHTTPTimeout(e))
+				setEndpointStatus(endpoint.getURI(), ServiceStatus.OK);
+			} catch (HttpStatusException e) {
+				if(e.getStatusCode() == HttpResponse.HTTP_STATUS_GATEWAY_TIMEOUT) {
 					setEndpointStatus(endpoint.getURI(), ServiceStatus.SLOW);
-				else
-					setEndpointStatus(endpoint.getURI(), ServiceStatus.DEAD);
-			} catch (Exception e) {
+				}
+			} catch (IOException e) {
 				setEndpointStatus(endpoint.getURI(), ServiceStatus.DEAD);
 			}
 		}
@@ -840,7 +851,7 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 	public long getNumTriples(SPARQLEndpoint endpoint) throws IOException 
 	{
 		String query = "SELECT COUNT(*) WHERE { ?s ?p ?o }";
-		List<Map<String, String>> results = endpoint.selectQuery(query, 120 * 1000);
+		List<Map<String, String>> results = endpoint.selectQuery(query);
 		if (results.size() == 0) 
 			throw new RuntimeException("no value returned for COUNT query");
 
@@ -941,17 +952,17 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 		
 		query = SPARQLStringUtils.strFromTemplate(query, p);
 		
-		final int TIMEOUT = 20 * 1000; // in milliseconds
 		for(SPARQLEndpoint endpoint: endpoints) {
 			try {
 				log.trace("querying for illegal object values for " + p + " from " + endpoint.getURI());
-				if(endpoint.selectQuery(query, TIMEOUT).size() > 0)
+				if(endpoint.selectQuery(query).size() > 0)
 					return true;
 			}
 			catch(IOException e) {
 				log.warn("query failed on " + endpoint.getURI(), e);
 			}
 		}
+
 		return false;
 	}
 	

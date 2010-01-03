@@ -23,7 +23,6 @@ import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.shared.JenaException;
 
-import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.optimizer.statistics.ExceededMaxAttemptsException;
@@ -39,9 +38,6 @@ public class RandomQueryGenerator {
 	public final static Log log = LogFactory.getLog(RandomQueryGenerator.class);
 	SPARQLRegistry registry;
 	
-	protected final static int QUERY_TIMEOUT = 30 * 1000; // in milliseconds 
-	protected final static int RANDOM_URI_QUERY_TIMEOUT = 180 * 1000; // in milliseconds
-	protected final static int PING_TIMEOUT = 10 * 1000; // in milliseconds
 	protected final static int SPARQL_RESULTS_LIMIT = 300; 
 
 	protected Set<String> deadEndpoints = Collections.synchronizedSet(new HashSet<String>());
@@ -187,95 +183,6 @@ public class RandomQueryGenerator {
 		return outputTriples;
 	}
 	
-	/*
-	public List<Triple> substituteVarsForConstantsOld(List<Triple> triples, int maxConstants) 
-	{
-		// record the triples where each distinct constant (URI or literal) occurs
-
-		Map<String, Set<Integer>> occurences = new HashMap<String, Set<Integer>>();
-		List<String> constants = new LinkedList<String>();
-		
-		for(int i = 0; i < triples.size(); i++) {
-			Triple triple = triples.get(i);
-			String s = RdfUtils.getPlainString(triple.getSubject());
-			String o = RdfUtils.getPlainString(triple.getObject());
-			
-			String pos[] = { s, o };
-			for(int j = 0; j < pos.length; j++) {
-				String constant = pos[j];
-				constants.add(constant);
-				Set<Integer> set;
-				if(!occurences.containsKey(constant)) {
-					set = new HashSet<Integer>();
-					occurences.put(constant, set);
-				}
-				else {
-					set = occurences.get(constant);
-				}
-				set.add(i);
-			}
-		}
-		
-		// randomly choose a set of constants, ensuring that no triple patterns in the
-		// resulting query will have both a constant subject and a constant object
-		
-		Set<Integer> triplesWithAConstant = new HashSet<Integer>();
-		Set<String> chosenConstants = new HashSet<String>();
-		
-		RandomData generator = new RandomDataImpl();
-		
-		while(triplesWithAConstant.size() < triples.size() && 
-			  chosenConstants.size() < maxConstants &&
-			  constants.size() > 0) 
-		{
-			int index = constants.size() > 1 ? generator.nextInt(0, constants.size() - 1) : 0;
-			String candidate = constants.remove(index);
-			boolean candidateValid = true;
-			for(Integer i : occurences.get(candidate)) {
-				if(triplesWithAConstant.contains(i)) {
-					candidateValid = false;
-					break;
-				}
-			}
-			
-			if(candidateValid) {
-				chosenConstants.add(candidate);
-				triplesWithAConstant.addAll(occurences.get(candidate));
-			}
-		}
-		
-		// Build the triple patterns, replacing anything that wasn't chosen as a constant with a variable.
-		
-		Map<String,String> constantToVarname = new HashMap<String,String>();
-		List<Triple> outputTriples = new ArrayList<Triple>();
-		
-		for(Triple triple : triples) {
-
-			Node s = triple.getSubject();
-			Node p = triple.getPredicate();
-			Node o = triple.getObject();
-
-			Node pos[] = { s, o };
-			for(int i = 0; i < pos.length; i++) {
-				String str = pos[i].toString();
-				if(!chosenConstants.contains(str)) {
-					String varName;
-					if(!constantToVarname.containsKey(str))
-						varName = "?var" + constantToVarname.size();
-					else
-						varName = constantToVarname.get(str);
-					pos[i] = NodeCreateUtils.create(varName);
-					constantToVarname.put(str, varName);
-				}
-			}
-			
-			outputTriples.add(new Triple(pos[0], p, pos[1]));
-		}
-		
-		return outputTriples;
-	}
-	*/
-	
 	public Collection<ReversibleTriple> getRandomNeighboringEdges(Node node, int maxFanout) throws IOException
 	{
 		List<ReversibleTriple> neighborEdges = getOutgoingEdges(node); //getIncomingAndOutgoingEdges(node, maxFanout);
@@ -357,7 +264,7 @@ public class RandomQueryGenerator {
 			try {
 				if(node.isURI() && getRegistry().subjectMatchesRegEx(endpointURI, nodeStr)) {
 					log.trace("querying " + endpointURI + " for triples with subject " + nodeStr);
-					outgoingEdges.addAll(endpoint.constructQuery(query, QUERY_TIMEOUT));
+					outgoingEdges.addAll(endpoint.constructQuery(query));
 				}
 			}
 			catch(IOException e) {
@@ -379,84 +286,6 @@ public class RandomQueryGenerator {
 		
 		return new ArrayList<ReversibleTriple>(triples);
 	}
-
-	/**
-	 * 
-	 * @param node Can be a URI or a literal
-	 * @return
-	 */
-	/*
-	public List<ReversibleTriple> getIncomingAndOutgoingEdges(Node node, int maxFanout) throws IOException
-	{
-		SPARQLRegistry registry = getRegistry();
-		Collection<SPARQLEndpoint> endpoints = registry.getAllEndpoints();
-
-		// Use a set to avoid duplicate triples
-		Set<ReversibleTriple> triples = new HashSet<ReversibleTriple>();
-
-		String subjectQuery = null;
-		String objectQuery = null;
-		
-		String nodeStr = RdfUtils.getPlainString(node);
-		
-		if(node.isURI()) {
-			subjectQuery = "CONSTRUCT { %u% ?p ?o } WHERE { %u% ?p ?o . FILTER (!isBlank(?o)) } LIMIT %v%";
-			subjectQuery = SPARQLStringUtils.strFromTemplate(subjectQuery, nodeStr, nodeStr, String.valueOf(SPARQL_RESULTS_LIMIT));
-			objectQuery = "CONSTRUCT { ?s ?p %u% } WHERE { ?s ?p %u% . FILTER (!isBlank(?s)) } LIMIT %v%";
-		}
-		else if(node.isLiteral()) {
-			objectQuery = "CONSTRUCT { ?s ?p %s% } WHERE { ?s ?p %s% . FILTER (!isBlank(?s)) } LIMIT %v%";
-		}
-		else {
-			throw new RuntimeException("attempted to query with a blank node (this is not allowed)");
-		}
-		
-		objectQuery = SPARQLStringUtils.strFromTemplate(objectQuery, nodeStr, nodeStr, String.valueOf(SPARQL_RESULTS_LIMIT));
-		
-		log.debug("subjectQuery: " + subjectQuery);
-		log.debug("objectQuery: " + objectQuery);
-		
-		List<Triple> outgoingResults = new ArrayList<Triple>();
-		List<Triple> incomingResults = new ArrayList<Triple>();
-
-		for(SPARQLEndpoint endpoint : endpoints) {
-
-			String endpointURI = endpoint.getURI();
-			if((registry.getServiceStatus(endpointURI) == ServiceStatus.DEAD) || deadEndpoints.contains(endpointURI))
-				continue;
-			
-			try {
-				if(node.isURI() && getRegistry().subjectMatchesRegEx(endpointURI, nodeStr)) {
-					log.trace("querying " + endpointURI + " for triples with subject " + nodeStr);
-					outgoingResults.addAll(endpoint.constructQuery(subjectQuery, QUERY_TIMEOUT));
-				}
-				if(node.isLiteral() || getRegistry().objectMatchesRegEx(endpoint.getURI(), nodeStr)) {
-					log.trace("querying " + endpointURI + " for triples with object " + nodeStr);
-					incomingResults.addAll(endpoint.constructQuery(objectQuery, QUERY_TIMEOUT));
-				}
-			}
-			catch(IOException e) {
-				log.warn("failed to query endpoint: " + endpoint.getURI(), e);
-				deadEndpoints.add(endpointURI);
-			}
-			catch(JenaException e) {
-				// Jena occasionally barfs when it's parsing RDF/XML from Virtuoso.
-				// In this case it's not a big deal; we can carry on.
-				log.warn("parsing error", e);
-			}
-		}
-		
-		log.trace("found " + (incomingResults.size() + outgoingResults.size()) + " results");
-
-		for(Triple triple : incomingResults)
-			triples.add(new ReversibleTriple(triple, true));
-		
-		for(Triple triple : outgoingResults)
-			triples.add(new ReversibleTriple(triple, false));
-		
-		return new ArrayList<ReversibleTriple>(triples);
-	}
-	*/
 
 	public Node getRandomURI() throws IOException, ExceededMaxAttemptsException
 	{
@@ -501,20 +330,6 @@ public class RandomQueryGenerator {
 		
 		throw new ExceededMaxAttemptsException("exceeded maximum attempts when trying to get a random non-blank-node subject from " + endpoint.getURI());
 		
-		/*
-		long numTriples = getRegistry().getNumTriples(endpoint.getURI());
-		RandomData generator = new RandomDataImpl();
-		long sampleIndex = generator.nextLong(0, numTriples - 1);
-		
-		log.trace("Querying " + endpoint.getURI() + " for random subject URI #" + String.valueOf(sampleIndex));
-		String query = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o FILTER (!isBlank(?s)) } OFFSET %v% LIMIT 1";
-		query = SPARQLStringUtils.strFromTemplate(query, String.valueOf(sampleIndex));
-		
-		Collection<Triple> results = endpoint.constructQuery(query, 240 * 1000);
-		if(results.size() == 0) 
-			throw new RuntimeException("query for non-blank-node subject #" + String.valueOf(sampleIndex) + " from " + endpoint.getURI() + " returned no result");
-		return results.iterator().next().getSubject();
-		*/
 	}
 
 	public Triple getRandomTriple(SPARQLEndpoint endpoint) throws IOException, NoSampleAvailableException
@@ -532,30 +347,15 @@ public class RandomQueryGenerator {
 		log.trace("Querying " + endpoint.getURI() + " for randomly selected triple #" + String.valueOf(sampleIndex));
 		String query = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } OFFSET %v% LIMIT 1";
 		query = SPARQLStringUtils.strFromTemplate(query, String.valueOf(sampleIndex));
-		Collection<Triple> results = endpoint.constructQuery(query, RANDOM_URI_QUERY_TIMEOUT);
+		Collection<Triple> results = endpoint.constructQuery(query);
 
 		if(results.size() == 0) 
 			throw new RuntimeException("query for triple #" + String.valueOf(sampleIndex) + " from " + endpoint.getURI() + " returned no result");
 		return results.iterator().next();
 
-		/*
-		SPARQLRegistry registry = getRegistry();
-		long numTriples = registry.getNumTriples(endpoint.getURI());
-		RandomData generator = new RandomDataImpl();
-		String query;
-		Collection<Triple> results = null;
-		long sampleIndex = generator.nextLong(0, numTriples - 1);
-		log.trace("Querying " + endpoint.getURI() + " for random subject URI #" + String.valueOf(sampleIndex));
-		query = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } OFFSET %v% LIMIT 1";
-		query = SPARQLStringUtils.strFromTemplate(query, String.valueOf(sampleIndex));
-		results = endpoint.constructQuery(query, 240 * 1000);
-		if(results == null || results.size() == 0) 
-			throw new RuntimeException("Query for triple #" + String.valueOf(sampleIndex) + " from " + endpoint.getURI() + " returned no result");
-		return results.iterator().next();
-		*/
 	}
 	
-	public SPARQLEndpoint getRandomEndpoint() throws HttpException, HttpResponseCodeException, IOException 
+	public SPARQLEndpoint getRandomEndpoint() throws IOException 
 	{
 		List<SPARQLEndpoint> endpoints = new ArrayList<SPARQLEndpoint>(getRegistry().getAllEndpoints());
 		RandomData generator = new RandomDataImpl();
@@ -563,7 +363,7 @@ public class RandomQueryGenerator {
 		while(endpoints.size() > 0) {
 			int index = endpoints.size() > 1 ? generator.nextInt(0, endpoints.size() - 1) : 0;
 			SPARQLEndpoint endpoint = endpoints.get(index);
-			if (!endpoint.ping(PING_TIMEOUT)) {
+			if (!endpoint.ping()) {
 				deadEndpoints.add(endpoint.getURI());
 				endpoints.remove(index);
 				continue;

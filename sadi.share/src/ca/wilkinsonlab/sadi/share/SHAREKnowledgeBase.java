@@ -18,11 +18,11 @@ import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.sparql.SPARQLServiceWrapper;
-import ca.wilkinsonlab.sadi.utils.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils.PropertyRestrictionVisitor;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -644,7 +644,7 @@ public class SHAREKnowledgeBase
 			/* TODO there are probably other cases where we want to mark a
 			 * service as dead...
 			 */
-			if (HttpUtils.isHttpError(e))
+			if (HttpUtils.isHttpServerError(e.getCause()))
 				deadServices.add(service.getServiceURI());
 
 			return Collections.emptyList();

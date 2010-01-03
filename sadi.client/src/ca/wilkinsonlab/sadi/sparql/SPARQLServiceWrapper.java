@@ -14,7 +14,6 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntClass;
-import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -30,8 +29,6 @@ public class SPARQLServiceWrapper implements Service
 	private static final String RESULTS_LIMIT_CONFIG_KEY = "sadi.sparql.resultsLimit";
 	private long resultsLimit;
 
-	private static final int QUERY_TIMEOUT = 15 * 1000;  // in milliseconds  
-	
 	private SPARQLEndpoint endpoint;
 	private SPARQLRegistry registry;
 	private String predicate;
@@ -207,7 +204,7 @@ public class SPARQLServiceWrapper implements Service
 		}
 		
 		try {
-			return getEndpoint().getTriplesMatchingPattern(queryPattern, QUERY_TIMEOUT, getResultsLimit());
+			return getEndpoint().getTriplesMatchingPattern(queryPattern, getResultsLimit());
 		} catch (IOException e) {
 			throw new ServiceInvocationException(e.getMessage());
 		}

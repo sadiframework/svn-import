@@ -13,7 +13,6 @@ import java.util.Set;
 
 import org.apache.commons.httpclient.HeaderElement;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
@@ -25,10 +24,9 @@ import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.DurationUtils;
 import ca.wilkinsonlab.sadi.utils.ExceptionUtils;
-import ca.wilkinsonlab.sadi.utils.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
-import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpInputStream;
-import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.graph.Triple;
@@ -133,7 +131,7 @@ public class RdfService implements Service
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	private static InputStream fetchAsyncData(String url) throws HttpException, IOException
+	private static InputStream fetchAsyncData(String url) throws IOException
 	{
 		while (true) {
 			log.debug("fetching asynchronous data from " + url);
@@ -159,9 +157,9 @@ public class RdfService implements Service
 					log.warn(e);
 				}
 			} else if (statusCode == HttpStatus.SC_OK) {
-				return new HttpInputStream(method.getResponseBodyAsStream(),method);
+				return method.getResponseBodyAsStream();
 			} else {
-				throw new HttpResponseCodeException(statusCode, method.getStatusLine().getReasonPhrase());
+				throw new HttpStatusException(statusCode);
 			}
 		}
 	}

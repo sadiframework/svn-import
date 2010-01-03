@@ -994,7 +994,7 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 				try {
 					String query = "SELECT COUNT(*) WHERE { ?s %u% ?o . " + filter + " }";
 					query = SPARQLStringUtils.strFromTemplate(query, predicate);
-					List<Map<String, String>> results = endpoint.selectQuery(query, QUERY_TIMEOUT);
+					List<Map<String, String>> results = endpoint.selectQuery(query);
 
 					Map<String, String> firstRow = results.iterator().next();
 					String firstColumn = firstRow.keySet().iterator().next();

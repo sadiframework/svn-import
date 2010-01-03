@@ -1,11 +1,9 @@
 package ca.wilkinsonlab.sadi.testquery;
 
 import java.io.IOException;
-import java.rmi.AccessException;
+import java.net.MalformedURLException;
 import java.util.List;
 
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.kohsuke.args4j.CmdLineException;
@@ -16,7 +14,6 @@ import com.hp.hpl.jena.graph.Triple;
 
 import ca.wilkinsonlab.sadi.optimizer.statistics.ExceededMaxAttemptsException;
 import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLEndpoint;
-import ca.wilkinsonlab.sadi.utils.HttpUtils.HttpResponseCodeException;
 import ca.wilkinsonlab.sadi.vocab.TestQueryDB;
 import ca.wilkinsonlab.sadi.utils.BasicGraphPatternUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
@@ -36,7 +33,7 @@ public class TestQueryDBAdmin extends VirtuosoSPARQLEndpoint {
 
 	private String graphName;
 	
-	public TestQueryDBAdmin() throws URIException 
+	public TestQueryDBAdmin() throws MalformedURLException
 	{
 		this(Config.getConfiguration().subset(CONFIG_ROOT).getString(ENDPOINT_CONFIG_KEY),
 			Config.getConfiguration().subset(CONFIG_ROOT).getString(GRAPH_CONFIG_KEY),
@@ -44,7 +41,7 @@ public class TestQueryDBAdmin extends VirtuosoSPARQLEndpoint {
 			Config.getConfiguration().subset(CONFIG_ROOT).getString(PASSWORD_CONFIG_KEY));
 	}
 	
-	public TestQueryDBAdmin(String endpointURI, String graphName, String username, String password) throws URIException 
+	public TestQueryDBAdmin(String endpointURI, String graphName, String username, String password) throws MalformedURLException
 	{
 		super(endpointURI, username, password);
 		setGraphName(graphName); 
@@ -60,7 +57,7 @@ public class TestQueryDBAdmin extends VirtuosoSPARQLEndpoint {
 		this.graphName = graphName;
 	}
 	
-	public void addQuery(String query, String subgraph, int numConstants, int queryDepth, int queryDiameter, int maxFanout) throws HttpException, HttpResponseCodeException, IOException, AccessException
+	public void addQuery(String query, String subgraph, int numConstants, int queryDepth, int queryDiameter, int maxFanout) throws IOException
 	{
 		String insertQuery = 
 			"INSERT INTO GRAPH %u% {" +
