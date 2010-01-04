@@ -3,17 +3,16 @@ package ca.wilkinsonlab.sadi.client;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 import ca.wilkinsonlab.sadi.test.ExampleQueries;
 
-public abstract class QueryClientTest extends TestCase
+public abstract class QueryClientTest
 {
 	public final static Logger log = Logger.getLogger(QueryClientTest.class);
 	
