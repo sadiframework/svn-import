@@ -5,21 +5,8 @@ import java.util.Set;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.sparql.core.BasicPattern;
-import com.hp.hpl.jena.sparql.syntax.ElementAssign;
-import com.hp.hpl.jena.sparql.syntax.ElementDataset;
-import com.hp.hpl.jena.sparql.syntax.ElementExists;
-import com.hp.hpl.jena.sparql.syntax.ElementFetch;
-import com.hp.hpl.jena.sparql.syntax.ElementFilter;
-import com.hp.hpl.jena.sparql.syntax.ElementGroup;
-import com.hp.hpl.jena.sparql.syntax.ElementNamedGraph;
-import com.hp.hpl.jena.sparql.syntax.ElementNotExists;
-import com.hp.hpl.jena.sparql.syntax.ElementOptional;
-import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
-import com.hp.hpl.jena.sparql.syntax.ElementService;
-import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
-import com.hp.hpl.jena.sparql.syntax.ElementUnion;
-import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
+import com.hp.hpl.jena.sparql.syntax.ElementVisitorBase;
 
 /**
  * Build a list of predicate URIs used in a Jena query.
@@ -28,8 +15,8 @@ import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
  * that method assumes that all predicates have already been defined in 
  * the KnowledgeBase. 
  */
-public class PredicateVisitor implements ElementVisitor {
-
+public class PredicateVisitor extends ElementVisitorBase
+{
 	Set<String> predicates;
 	public PredicateVisitor(Set<String> predicateURIs) 
 	{
@@ -46,19 +33,4 @@ public class PredicateVisitor implements ElementVisitor {
 				predicates.add(predicate.toString());
 		}
 	}
-
-	public void visit(ElementFilter el) {}
-	public void visit(ElementUnion el) {}
-	public void visit(ElementOptional el) {}
-	public void visit(ElementGroup el) {}
-	public void visit(ElementDataset el) {}
-	public void visit(ElementNamedGraph el) {}
-//	public void visit(ElementUnsaid el) {}
-	public void visit(ElementService el) {}
-	public void visit(ElementPathBlock arg0) {}
-	public void visit(ElementAssign arg0) {}
-	public void visit(ElementFetch arg0) {}
-	public void visit(ElementSubQuery arg0) {}
-	public void visit(ElementExists arg0) {}
-	public void visit(ElementNotExists arg0) {}
 }

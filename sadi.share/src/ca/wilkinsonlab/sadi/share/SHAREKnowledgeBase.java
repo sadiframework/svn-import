@@ -38,21 +38,8 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.sparql.syntax.ElementAssign;
-import com.hp.hpl.jena.sparql.syntax.ElementDataset;
-import com.hp.hpl.jena.sparql.syntax.ElementExists;
-import com.hp.hpl.jena.sparql.syntax.ElementFetch;
-import com.hp.hpl.jena.sparql.syntax.ElementFilter;
-import com.hp.hpl.jena.sparql.syntax.ElementGroup;
-import com.hp.hpl.jena.sparql.syntax.ElementNamedGraph;
-import com.hp.hpl.jena.sparql.syntax.ElementNotExists;
-import com.hp.hpl.jena.sparql.syntax.ElementOptional;
-import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
-import com.hp.hpl.jena.sparql.syntax.ElementService;
-import com.hp.hpl.jena.sparql.syntax.ElementSubQuery;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
-import com.hp.hpl.jena.sparql.syntax.ElementUnion;
-import com.hp.hpl.jena.sparql.syntax.ElementVisitor;
+import com.hp.hpl.jena.sparql.syntax.ElementVisitorBase;
 import com.hp.hpl.jena.sparql.syntax.ElementWalker;
 import com.hp.hpl.jena.vocabulary.RDF;
 
@@ -661,7 +648,7 @@ public class SHAREKnowledgeBase
 	 * particular query pattern, but I suspect worrying about it now would
 	 * fall under the heading of premature optimization...
 	 */
-	private static class QueryPatternEnumerator implements ElementVisitor
+	private static class QueryPatternEnumerator extends ElementVisitorBase
 	{
 		List<Triple> queryPatterns;
 		
@@ -681,58 +668,6 @@ public class SHAREKnowledgeBase
 			for (Iterator<Triple> i = el.patternElts(); i.hasNext(); ) {
 				queryPatterns.add((Triple)i.next());
 			}
-		}
-
-		public void visit(ElementFilter el)
-		{
-		}
-
-		public void visit(ElementUnion el)
-		{
-		}
-
-		public void visit(ElementOptional el)
-		{
-		}
-
-		public void visit(ElementGroup el)
-		{
-		}
-
-		public void visit(ElementDataset el)
-		{
-		}
-
-		public void visit(ElementNamedGraph el)
-		{	
-		}
-
-		public void visit(ElementService el)
-		{
-		}
-
-		public void visit(ElementPathBlock el)
-		{
-		}
-
-		public void visit(ElementAssign el)
-		{
-		}
-
-		public void visit(ElementFetch el)
-		{
-		}
-
-		public void visit(ElementSubQuery el)
-		{
-		}
-
-		public void visit(ElementExists el)
-		{
-		}
-
-		public void visit(ElementNotExists el)
-		{			
 		}
 	}
 	
