@@ -12,13 +12,11 @@ import java.util.Set;
 import org.apache.commons.collections.buffer.PriorityBuffer;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.utils.PredicateUtils;
 import ca.wilkinsonlab.sadi.vocab.PredicateStats;
 import ca.wilkinsonlab.sadi.vocab.W3C;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntModel;
 
 public class PrimOptimizer extends StaticOptimizer
@@ -346,8 +344,9 @@ public class PrimOptimizer extends StaticOptimizer
 							&& (propertiesModel.getObjectProperty(pStr) != null);
 						
 						if(reverseCost < forwardCost && hasInverse) {
-							Node invP = NodeCreateUtils.create(PredicateUtils.invert(pStr));
-							outputTriples.add(new Triple(o, invP, s));
+							throw new RuntimeException("code to invert predicate not implemented");
+							//Node invP = NodeCreateUtils.create(PredicateUtils.invert(pStr));
+							//outputTriples.add(new Triple(o, invP, s));
 						}
 						else 
 							outputTriples.add(t);

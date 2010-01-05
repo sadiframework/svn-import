@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.utils.http;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class XLightwebHttpClientTest extends TestCase {
 				requests.add(new GetRequest(new URL(TEST_URL)));
 			}
 
-			Set<HttpResponse> responses = theClient.batchRequest(requests);
+			Collection<HttpResponse> responses = theClient.batchRequest(requests);
 
 			for (HttpResponse response : responses) {
 				assertFalse(response.exceptionOccurred());
@@ -74,7 +75,7 @@ public class XLightwebHttpClientTest extends TestCase {
 				requests.add(new PostRequest(new URL(TEST_URL), params));
 			}
 
-			Set<HttpResponse> responses = theClient.batchRequest(requests);
+			Collection<HttpResponse> responses = theClient.batchRequest(requests);
 
 			for (HttpResponse response : responses) {
 				assertFalse(response.exceptionOccurred());

@@ -33,6 +33,7 @@ import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -151,7 +152,7 @@ public class SHAREKnowledgeBase
 		 */
 		for (String sourceURI: query.getGraphURIs()) {
 			try{ 
-				dataModel.read( sourceURI );
+			dataModel.read( sourceURI );
 			} catch (Exception e) {
 				log.error(String.format("failed to read FROM graph %s", sourceURI));
 			}
@@ -408,13 +409,20 @@ public class SHAREKnowledgeBase
 		} else {
 			for (RDFNode node: subjects.values) {
 				if (node.isResource()) {
-					/* TODO make sure subject is in the reasoning model, or we'll
-					 * miss equivalent properties...
-					 */
 					Resource subject = node.as(Resource.class);
-					for (Iterator<Statement> i = subject.listProperties(predicate); i.hasNext(); ) {
+					for (Iterator<Statement> i = reasoningModel.listStatements(subject, predicate, (RDFNode)null); i.hasNext(); ) {
 						Statement statement = i.next();
-						objects.add(statement.getObject());
+						objects.add(statement.getObject().inModel(dataModel));
+					}
+				} else {
+					/* This case occurs when Literals are sent as input to SPARQL services -- BV */  
+					Literal subject = node.as(Literal.class);
+					OntProperty inverse = predicate.getInverse();
+					if(inverse != null) {
+						for (Iterator<Statement> i = reasoningModel.listStatements((Resource)null, inverse, subject); i.hasNext(); ) {
+							Statement statement = i.next();
+							objects.add(statement.getSubject().inModel(dataModel));
+						}
 					}
 				}
 			}

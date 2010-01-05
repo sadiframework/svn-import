@@ -1,9 +1,6 @@
 package ca.wilkinsonlab.sadi.sparql;
 
 import java.io.IOException;
-import java.rmi.AccessException;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.URIException;
 
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
