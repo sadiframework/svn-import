@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.ws.http.HTTPException;
 
@@ -50,7 +50,7 @@ public class HttpUtils
 		return theClient().request(request);
 	}
 	
-	static public Set<HttpResponse> batchRequest(Set<HttpRequest> requests) {
+	static public Collection<HttpResponse> batchRequest(Collection<HttpRequest> requests) {
 		return theClient().batchRequest(requests);
 	}
 	
@@ -104,7 +104,7 @@ public class HttpUtils
 		int statusCode;
 		
 		public HttpStatusException(int statusCode) {
-			super();
+			super("HTTP status code " + String.valueOf(statusCode));
 			this.statusCode = statusCode;
 		}
 		

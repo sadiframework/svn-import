@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.sparql;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.AccessException;
 import java.util.ArrayList;
@@ -20,12 +21,16 @@ import ca.wilkinsonlab.sadi.utils.JsonUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLResultsXMLUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
+import ca.wilkinsonlab.sadi.utils.http.GetRequest;
+import ca.wilkinsonlab.sadi.utils.http.HttpRequest;
 import ca.wilkinsonlab.sadi.utils.http.HttpResponse;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 /**
  * <p>Encapsulates access to a SPARQL endpoint (via HTTP).</p>
@@ -135,6 +140,47 @@ public class SPARQLEndpoint
 		}
 		finally {
 			is.close();
+		}
+	}
+	
+	public Collection<ConstructQueryResult> constructQueryBatch(Collection<String> constructQueries) {
+		
+		Collection<HttpRequest> requests = new ArrayList<HttpRequest>();
+		Collection<ConstructQueryResult> results = new ArrayList<ConstructQueryResult>();
+		
+		for(String query : constructQueries) {
+			try {
+				requests.add(new GetRequest(new URL(getURI()), getParamsForConstructQuery(query)));
+			} catch(MalformedURLException e) {
+				results.add(new ConstructQueryResult(query, e));
+			}
+		}
+		
+		Collection<HttpResponse> responses = HttpUtils.batchRequest(requests);
+		
+		for(HttpResponse response : responses) {
+			String originalQuery = response.getOriginalRequest().getParams().get("query");
+			if(response.exceptionOccurred()) {
+				results.add(new ConstructQueryResult(originalQuery, response.getException()));
+			} else {
+				String lang = getJenaRDFLangString(getConstructResultsFormat());
+				Model resultTriples = ModelFactory.createDefaultModel();
+				resultTriples.read(response.getInputStream(), "", lang);
+				results.add(new ConstructQueryResult(originalQuery, resultTriples));
+			}
+		}
+		
+		return results;
+	}
+	
+	protected static String getJenaRDFLangString(ConstructQueryResultsFormat format) {
+		switch(format) {
+		case N3:
+			return "N3";
+		case RDFXML:
+			return "RDF/XML";
+		default:
+			throw new RuntimeException("unrecognized value for ContructQueryResultsFormat");
 		}
 	}
 	

@@ -33,7 +33,6 @@ import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
-import ca.wilkinsonlab.sadi.utils.PredicateUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.virtuoso.VirtuosoRegistry;
 
@@ -312,11 +311,6 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	public Collection<Service> findServicesByPredicate(String predicate)
 	throws IOException
 	{
-		// It is legal to pass in a predicate of the form "inv(URI)".
-		// The SPARQL registry can resolve these, but the BioMoby registry cannot.
-		if(PredicateUtils.isInverted(predicate))
-			return new ArrayList<Service>();
-		
 		return findServicesByPredicate( Collections.singletonList(predicate));
 	}
 	

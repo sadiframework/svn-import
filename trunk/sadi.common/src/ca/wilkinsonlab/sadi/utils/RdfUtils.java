@@ -37,6 +37,26 @@ public class RdfUtils
 	}
 	
 	/**
+	 * Convert a Jena Model to a collection of triples.
+	 * @param model
+	 * @return a collection of triples representing the model
+	 */
+	public static Collection<Triple> modelToTriples(Model model) {
+		
+		Collection<Triple> triples = new ArrayList<Triple>();
+		StmtIterator i = model.listStatements();
+		while(i.hasNext()) {
+			Statement stmt = i.next();
+			Triple triple = new Triple(
+					stmt.getSubject().asNode(),
+					stmt.getPredicate().asNode(),
+					stmt.getObject().asNode());
+			triples.add(triple);
+		}
+		return triples;
+	}
+	
+	/**
 	 * Add the specified Triple to the specified Model.
 	 * @param model the model
 	 * @param triple the triple

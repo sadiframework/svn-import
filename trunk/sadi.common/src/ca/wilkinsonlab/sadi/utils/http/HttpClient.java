@@ -3,8 +3,8 @@ package ca.wilkinsonlab.sadi.utils.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 public interface HttpClient 
 {
@@ -68,10 +68,10 @@ public interface HttpClient
 	 * is an internally set limit on how many simultaneous connections can be made to a
 	 * server at one time.</p>
 	 * 
-	 * @param requests a set of HTTP requests (each request consists of the HTTP method, the URL, the parameters, etc.)
-	 * @return a set of responses for the input requests.
+	 * @param requests a collection of HTTP requests (each request consists of the HTTP method, the URL, the parameters, etc.)
+	 * @return a collection of responses for the input requests.
 	 */
-	abstract public Set<HttpResponse> batchRequest(Set<HttpRequest> requests);
+	abstract public Collection<HttpResponse> batchRequest(Collection<HttpRequest> requests);
 	
 	/**
 	 * Set HTTP authentication credentials for a given (host,port,realm) combination.  Both

@@ -14,12 +14,12 @@ import java.util.regex.Pattern;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.utils.PredicateUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.vocab.W3C;
@@ -169,8 +169,6 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	
 	public Collection<SPARQLEndpoint> findEndpointsByPredicate(String predicate) throws IOException
 	{
-		if(PredicateUtils.isInverted(predicate))
-			predicate = PredicateUtils.invert(predicate);
 		
 		if(predicateToEndpointCache.containsKey(predicate))
 			return predicateToEndpointCache.get(predicate);
@@ -220,9 +218,14 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	public Collection<SPARQLServiceWrapper> findServicesByPredicate(String predicate) throws IOException
 	{
 		boolean isInverted = false; 
-		if(PredicateUtils.isInverted(predicate)) {
-			predicate = PredicateUtils.invert(predicate);
-			isInverted = true;
+
+		// TODO: Remove this hack; this will only be possible when "predicate" is being
+		// passed in as a Jena Property rather than as a String.  (Having access to the predicate
+		// as a Property allows for the retrieval of synonyms and inverses.) -- BV
+		
+		if(predicate.endsWith("-inverse")) {
+			predicate = StringUtils.substringBeforeLast(predicate, "-inverse");
+			isInverted = true; 
 		}
 		
 		Set<SPARQLServiceWrapper> services = new HashSet<SPARQLServiceWrapper>();

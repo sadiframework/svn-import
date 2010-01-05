@@ -4,13 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.Channels;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
-import java.util.Set;
-
-import javax.xml.ws.http.HTTPException;
 
 import org.apache.log4j.Logger;
 import org.xlightweb.HttpRequestHeader;
@@ -75,9 +73,9 @@ public class XLightwebHttpClient implements HttpClient {
 		return request(request);
 	}
 
-	public Set<HttpResponse> batchRequest(Set<HttpRequest> requests) {
+	public Collection<HttpResponse> batchRequest(Collection<HttpRequest> requests) {
 		
-		Set<HttpResponse> responses = Collections.synchronizedSet(new HashSet<HttpResponse>());
+		Collection<HttpResponse> responses = Collections.synchronizedList(new ArrayList<HttpResponse>());
 		
 		// fire off each request asynchronously
 		for(HttpRequest request : requests) {
@@ -135,7 +133,7 @@ public class XLightwebHttpClient implements HttpClient {
 		
 		if(xLightwebResponse.getStatus() != HttpResponse.HTTP_STATUS_SUCCESS) {
 			xLightwebResponse.getBlockingBody().close();
-			throw new HTTPException(xLightwebResponse.getStatus());
+			throw new HttpStatusException(xLightwebResponse.getStatus());
 		}
 		
 		return Channels.newInputStream(xLightwebResponse.getBlockingBody());
@@ -249,9 +247,9 @@ public class XLightwebHttpClient implements HttpClient {
 	protected static class XLightwebCallback implements IHttpResponseHandler
 	{
 		HttpRequest originalRequest;
-		Set<HttpResponse> responses;
+		Collection<HttpResponse> responses;
 		
-		public XLightwebCallback(HttpRequest originalRequest, Set<HttpResponse> responses) 
+		public XLightwebCallback(HttpRequest originalRequest, Collection<HttpResponse> responses) 
 		{
 			this.originalRequest = originalRequest;
 			this.responses = responses;
