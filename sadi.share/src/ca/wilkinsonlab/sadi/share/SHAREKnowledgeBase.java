@@ -357,10 +357,16 @@ public class SHAREKnowledgeBase
 	
 	private void attachType(Resource resource)
 	{
-		if ( !RdfUtils.isTyped(resource) ) {
-			log.trace(String.format("attaching type to untyped node %s", resource));
-			ResourceTyper.getResourceTyper().attachType(resource);
-		}
+		/* 
+		 * NOTE: Resources from OntModels with reasoning (such as reasoningModel) may
+		 * infer rdf:types such as rdf:Resource and owl:Thing for every resource,
+		 * so this check for an existing rdf:type is not safe. (See Bug 14 in Bugzilla.) --BV
+		 */
+		
+		//if ( !RdfUtils.isTyped(resource) ) {
+		log.trace(String.format("attaching type to untyped node %s", resource));
+		ResourceTyper.getResourceTyper().attachType(resource);
+		//}
 	}
 	
 	/* gather triples matching a predicate, optionally storing the subjects in an accumulator.
