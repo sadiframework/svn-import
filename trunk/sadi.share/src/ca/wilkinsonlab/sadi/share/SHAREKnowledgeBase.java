@@ -418,7 +418,7 @@ public class SHAREKnowledgeBase
 					Resource subject = node.as(Resource.class);
 					for (Iterator<Statement> i = reasoningModel.listStatements(subject, predicate, (RDFNode)null); i.hasNext(); ) {
 						Statement statement = i.next();
-						objects.add(statement.getObject().inModel(dataModel));
+						objects.add(statement.getObject());
 					}
 				} else {
 					/* This case occurs when Literals are sent as input to SPARQL services -- BV */  
@@ -427,7 +427,7 @@ public class SHAREKnowledgeBase
 					if(inverse != null) {
 						for (Iterator<Statement> i = reasoningModel.listStatements((Resource)null, inverse, subject); i.hasNext(); ) {
 							Statement statement = i.next();
-							objects.add(statement.getSubject().inModel(dataModel));
+							objects.add(statement.getSubject());
 						}
 					}
 				}
