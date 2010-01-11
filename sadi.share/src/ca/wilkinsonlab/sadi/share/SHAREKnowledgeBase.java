@@ -200,7 +200,9 @@ public class SHAREKnowledgeBase
 			}
 		} else if (!objects.isEmpty()) { // unbound subject, bound object...
 			OntProperty inverse = getInverseProperty(p);
-			gatherTriplesByPredicate(objects, inverse, subjects);
+			if(inverse != null) {
+				gatherTriplesByPredicate(objects, inverse, subjects);
+			}
 		} else { // unbound subject, unbound object...
 			/* TODO try to find subjects by looking for instances of input
 			 * classes for services that generate the required property...
@@ -336,6 +338,10 @@ public class SHAREKnowledgeBase
 	
 	private OntProperty getInverseProperty(OntProperty p)
 	{
+		if(p.isDatatypeProperty()) {
+			return null;
+		}
+		
 		OntProperty inverse = p.getInverse();
 		if (inverse == null) {
 			log.warn(String.format("creating inverse property of %s", p.getURI()));
