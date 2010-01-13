@@ -16,6 +16,7 @@ import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.virtuoso.VirtuosoRegistry;
 
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -153,6 +154,25 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 
 		for (Map<String, String> binding: executeQuery(query))
 			services.add(getService(binding.get("service")));
+		
+		return services;
+	}
+	
+	public Collection<RdfService> findServicesByInputClass(OntClass clazz)
+	throws IOException
+	{
+		Collection<RdfService> services = new ArrayList<RdfService>();
+		
+		/* TODO store input classes in the registry so we don't have to
+		 * iterate over every service definition; alternatively, use
+		 * reasoning to cover the case where the argument class is a 
+		 * subclass of the service input class...
+		 */
+		for (RdfService service: getAllServices()) {
+			if (service.getInputClass().equals(clazz)) {
+				services.add(service);
+			}
+		}
 		
 		return services;
 	}
