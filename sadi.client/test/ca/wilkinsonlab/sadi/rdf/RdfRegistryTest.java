@@ -76,6 +76,13 @@ public class RdfRegistryTest
 	}
 	
 	@Test
+	public void testFindServicesByInputClass() throws Exception
+	{
+		assertTrue(String.format("failed to find service %s matching predicate %s", SERVICE_URI, SERVICE_PREDICATE),
+				serviceCollectionContains(registry.findServicesByInputClass(registry.getService(SERVICE_URI).getInputClass()), SERVICE_URI));
+	}
+	
+	@Test
 	public void testFindServices() throws Exception
 	{
 		assertTrue(String.format("failed to find service %s from input %s", SERVICE_URI, DIRECT_INPUT_INSTANCE),
