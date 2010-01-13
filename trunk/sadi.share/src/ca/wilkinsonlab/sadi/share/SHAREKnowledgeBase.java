@@ -22,7 +22,6 @@ import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils.PropertyRestrictionVisitor;
-import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -33,7 +32,6 @@ import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -152,7 +150,7 @@ public class SHAREKnowledgeBase
 		 */
 		for (String sourceURI: query.getGraphURIs()) {
 			try{ 
-			dataModel.read( sourceURI );
+				dataModel.read( sourceURI );
 			} catch (Exception e) {
 				log.error(String.format("failed to read FROM graph %s", sourceURI));
 			}
@@ -179,12 +177,12 @@ public class SHAREKnowledgeBase
 			log.warn(String.format("skipping non-URI predicate %s", pattern.getPredicate()));
 			return;
 		}
-		OntProperty p = getOntProperty(pattern.getPredicate().getURI());
 		
-		if (p.equals(RDF.type)) {
+		if (pattern.getPredicate().getURI().equals(RDF.type.getURI())) {
 			processTypePattern(pattern);
 			return;
 		}
+		OntProperty p = getOntProperty(pattern.getPredicate().getURI());
 
 		PotentialValues subjects = expandQueryNode(pattern.getSubject());
 		PotentialValues objects = expandQueryNode(pattern.getObject());
@@ -200,16 +198,15 @@ public class SHAREKnowledgeBase
 			}
 		} else if (!objects.isEmpty()) { // unbound subject, bound object...
 			OntProperty inverse = getInverseProperty(p);
-			if(inverse != null) {
-				gatherTriplesByPredicate(objects, inverse, subjects);
-			}
+			gatherTriplesByPredicate(objects, inverse, subjects);
 		} else { // unbound subject, unbound object...
 			/* TODO try to find subjects by looking for instances of input
 			 * classes for services that generate the required property...
 			 */
 			log.warn(String.format("encountered a pattern whose subject and object are both unbound variables %s", pattern));
-			populateVariableBinding(subjects, p, objects);
 		}
+		
+		populateVariableBinding(subjects, p, objects);
 	}
 	
 	/* this now expands a class definition into the triple patterns
@@ -338,10 +335,6 @@ public class SHAREKnowledgeBase
 	
 	private OntProperty getInverseProperty(OntProperty p)
 	{
-		if(p.isDatatypeProperty()) {
-			return null;
-		}
-		
 		OntProperty inverse = p.getInverse();
 		if (inverse == null) {
 			log.warn(String.format("creating inverse property of %s", p.getURI()));
@@ -363,14 +356,12 @@ public class SHAREKnowledgeBase
 	
 	private void attachType(Resource resource)
 	{
-		/* 
-		 * NOTE: Resources from OntModels with reasoning (such as reasoningModel) may
+		/* NOTE: Resources from OntModels with reasoning (such as reasoningModel) may
 		 * infer rdf:types such as rdf:Resource and owl:Thing for every resource,
 		 * so this check for an existing rdf:type is not safe. (See Bug 14 in Bugzilla.) --BV
 		 */
-		
 		//if ( !RdfUtils.isTyped(resource) ) {
-		log.trace(String.format("attaching type to untyped node %s", resource));
+		//log.trace(String.format("attaching type to untyped node %s", resource));
 		ResourceTyper.getResourceTyper().attachType(resource);
 		//}
 	}
@@ -402,10 +393,6 @@ public class SHAREKnowledgeBase
 				RdfUtils.addTripleToModel(dataModel, triple);
 			}
 		}
-		
-		if (objects.isVariable()) {
-			populateVariableBinding(subjects, predicate, objects);
-		}
 	}
 	
 	private void populateVariableBinding(PotentialValues subjects, OntProperty predicate, PotentialValues objects)
@@ -421,20 +408,13 @@ public class SHAREKnowledgeBase
 		} else {
 			for (RDFNode node: subjects.values) {
 				if (node.isResource()) {
-					Resource subject = node.as(Resource.class);
-					for (Iterator<Statement> i = reasoningModel.listStatements(subject, predicate, (RDFNode)null); i.hasNext(); ) {
+					/* TODO make sure subject is in the reasoning model, or we'll
+					 * miss equivalent properties...
+					 */
+					Resource subject = node.inModel(reasoningModel).as(Resource.class);
+					for (Iterator<Statement> i = subject.listProperties(predicate); i.hasNext(); ) {
 						Statement statement = i.next();
 						objects.add(statement.getObject());
-					}
-				} else {
-					/* This case occurs when Literals are sent as input to SPARQL services -- BV */  
-					Literal subject = node.as(Literal.class);
-					OntProperty inverse = predicate.getInverse();
-					if(inverse != null) {
-						for (Iterator<Statement> i = reasoningModel.listStatements((Resource)null, inverse, subject); i.hasNext(); ) {
-							Statement statement = i.next();
-							objects.add(statement.getSubject());
-						}
 					}
 				}
 			}
@@ -648,12 +628,12 @@ public class SHAREKnowledgeBase
 		} catch (ServiceInvocationException e) {
 			log.error(String.format("failed to invoke service %s", service), e);
 			
-			/* TODO there are probably other cases where we want to mark a
-			 * service as dead...
-			 */
-			if (HttpUtils.isHttpServerError(e.getCause()))
-				deadServices.add(service.getServiceURI());
-
+			if (e.isServiceDead()) {
+				String serviceURI = service.getServiceURI();
+				log.warn(String.format("adding %s to dead services", serviceURI));
+				deadServices.add(serviceURI);
+			}
+			
 			return Collections.emptyList();
 		}
 	}
