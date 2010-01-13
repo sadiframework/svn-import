@@ -431,7 +431,7 @@ public class BioMobyService extends MobyService implements Service
 		try {
 			response = BioMobyHelper.callService(this, contentInstance, secondaryParameters);
 		} catch (Exception e) {
-			throw new ServiceInvocationException(String.format("failed to invoke BioMoby service: %s", e.getMessage()));
+			throw new ServiceInvocationException(String.format("failed to invoke BioMoby service: %s", e.getMessage()), e);
 		}
 		
 		Collection<Triple> triples = new ArrayList<Triple>();
