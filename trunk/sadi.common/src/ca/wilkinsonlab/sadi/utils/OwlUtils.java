@@ -1,7 +1,9 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,6 +20,7 @@ import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFList;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -74,6 +77,59 @@ public class OwlUtils
 		}
 		
 		return resource.toString();
+	}
+	
+	/**
+	 * Returns the range of the specified property.  Jena seems to include
+	 * all of the ancestor classes of any specified range (all the way back
+	 * to rdfs:resource) in the iterator it returns, so it's not actually
+	 * useful for asking if a given resource is in the property's range.
+	 * This method constructs a tree of the classes in the range returned
+	 * by Jena and returns an OWL union class of the leaf nodes.
+	 * @param p the property
+	 * @return the range of the specified property as a single OWL class
+	 */
+	public static OntClass getUsefulRange(OntProperty p)
+	{
+		Set<OntClass> ancestors = new HashSet<OntClass>();
+		List<OntClass> range = new ArrayList<OntClass>();
+		for (Iterator<? extends OntResource> i = p.listRange(); i.hasNext(); ) {
+			OntResource r = (OntResource)i.next();
+			if (r.isClass()) {
+				OntClass c = r.asClass();
+				range.add(c);
+				
+				/* TODO does listSuperClasses() return all ancestors in all reasoners,
+				 * or just in Jena? also, do any reasoners return the class itself?
+				 * Either of those will be a problem...
+				 */
+				for (Iterator<? extends OntClass> j = c.listSuperClasses(); j.hasNext(); ) {
+					ancestors.add(j.next());
+				}
+			}
+		}
+		
+		log.debug("range before pruning is " + range);
+		log.debug("ancestors to prune are " + ancestors);
+		for (Iterator<OntClass> i = range.iterator(); i.hasNext(); ) {
+			OntClass c = i.next();
+			if (ancestors.contains(c))
+				i.remove();
+		}
+		
+		if (range.size() > 1) {
+			String unionUri = p.getURI().concat("-range");
+			log.debug(String.format("creating union class %s from %s", unionUri, range));
+			OntModel model = p.getOntModel();
+			RDFList unionList = model.createList();
+			for (OntClass c: range) {
+				unionList = unionList.with(c);
+			}
+			return model.createUnionClass(unionUri, unionList);
+		} else {
+			log.debug("pruned range to single class " + range);
+			return range.get(0);
+		}
 	}
 	
 	/**

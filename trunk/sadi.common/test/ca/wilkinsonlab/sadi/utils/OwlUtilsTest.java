@@ -10,7 +10,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 
 public class OwlUtilsTest
@@ -72,4 +76,14 @@ public class OwlUtilsTest
 //	{
 //		fail("Not yet implemented");
 //	}
+	
+	@Test
+	public void testGetUsefulRange()
+	{
+		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		OntProperty p = OwlUtils.getOntPropertyWithLoad(model, "http://elmonline.ca/sw/explore.owl#rangeProperty");
+		OntClass c = OwlUtils.getUsefulRange(p);
+		assertTrue("getUsefulRange did not return expected class",
+				c.getURI().equals("http://elmonline.ca/sw/explore.owl#ChildClass"));
+	}
 }
