@@ -17,6 +17,7 @@ public class OntologyTest
 {
 	private static final Logger log = Logger.getLogger( OntologyTest.class );
 
+	@SuppressWarnings("serial")
 	public static void main(String[] args)
 	{
 		Map<OntModelSpec, String> specNames = new HashMap<OntModelSpec,String>() {{
