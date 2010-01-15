@@ -19,30 +19,26 @@ public class OntologyTest
 
 	public static void main(String[] args)
 	{
+		Map<OntModelSpec, String> specNames = new HashMap<OntModelSpec,String>() {{
+			put(OntModelSpec.OWL_DL_MEM_RULE_INF, "OWL_DL_MEM_RULE_INF");
+//			put(OntModelSpec.OWL_MEM_TRANS_INF, "OWL_MEM_TRANS_INF");
+//			put(OntModelSpec.OWL_MEM_RDFS_INF, "OWL_MEM_RDFS_INF");
+//			put(OntModelSpec.OWL_MEM_RULE_INF, "OWL_MEM_RULE_INF");
+			put(OntModelSpec.OWL_MEM_MINI_RULE_INF, "OWL_MEM_MINI_RULE_INF");
+			put(OntModelSpec.OWL_MEM_MICRO_RULE_INF, "OWL_MEM_MICRO_RULE_INF");
+		}};
 		
-		// comment out these lines if you want to skip testing certain reasoner types
-		OntModelSpec ontModelSpecs[] = new OntModelSpec[] { 
-				OntModelSpec.OWL_DL_MEM_RULE_INF,
-				OntModelSpec.OWL_MEM_MINI_RULE_INF,
-				OntModelSpec.OWL_MEM_MICRO_RULE_INF,
-		};
-
-		Map<OntModelSpec,String> specNames = new HashMap<OntModelSpec,String>();
-		specNames.put(OntModelSpec.OWL_DL_MEM_RULE_INF, "OWL_DL_MEM_RULE_INF");
-		specNames.put(OntModelSpec.OWL_MEM_MINI_RULE_INF, "OWL_MEM_MINI_RULE_INF");
-		specNames.put(OntModelSpec.OWL_MEM_MICRO_RULE_INF, "OWL_MEM_MICRO_RULE_INF");
-		
-		for(OntModelSpec spec : ontModelSpecs) {
-			
-			log.info("running tests for OntModelSpec = " + specNames.get(spec));
+		for (OntModelSpec spec: specNames.keySet()) {
+			log.info("running tests for OntModelSpec." + specNames.get(spec));
 			OntModel ontModel = ModelFactory.createOntologyModel(spec);
 
 			// comment out these lines if you want to skip running certain ontology tests
 			OntModelTest tests[] = new OntModelTest[] { 
-				new InversePropertiesTest(ontModel),
-				new EquivalentPropertiesTest(ontModel),
-				new TransitiveEquivalentPropertiesTest(ontModel),
-				new MultipleEquivalentPropertiesTest(ontModel)
+					new PropertyRangeTest(ontModel), 
+					new InversePropertiesTest(ontModel),
+					new EquivalentPropertiesTest(ontModel),
+					new TransitiveEquivalentPropertiesTest(ontModel),
+					new MultipleEquivalentPropertiesTest(ontModel)
 			};
 			
 			for(OntModelTest test : tests) {
@@ -98,6 +94,18 @@ public class OntologyTest
 			return inverseProperty != null;
 		}
 	}
+	
+	public static class PropertyRangeTest extends OntModelTest {
+		
+		public PropertyRangeTest(OntModel ontModel) { 
+			super(ontModel, "property range test"); 
+		}
+
+		public boolean runTest() {
+			OntProperty p = OwlUtils.getOntPropertyWithLoad(getOntModel(), "http://sadiframework.org/ontologies/predicates.owl#has3DStructure");
+			return p.getRange().getURI().equals("http://purl.oclc.org/SADI/LSRN/PDB_Record");
+		}
+	}	
 	
 	public static class EquivalentPropertiesTest extends OntModelTest {
 
@@ -169,8 +177,8 @@ public class OntologyTest
 			OntProperty b = model.createOntProperty("b");
 			OntProperty c = model.createOntProperty("c");
 			
-			a.setEquivalentProperty(b);
-			a.setEquivalentProperty(c);
+			a.addEquivalentProperty(b);
+			a.addEquivalentProperty(c);
 
 			boolean hasB = false;
 			boolean hasC = false;
