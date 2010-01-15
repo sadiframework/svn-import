@@ -16,6 +16,7 @@ import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.vocabulary.OWL;
 
 public class OwlUtilsTest
 {
@@ -85,5 +86,10 @@ public class OwlUtilsTest
 		OntClass c = OwlUtils.getUsefulRange(p);
 		assertTrue("getUsefulRange did not return expected class",
 				c.getURI().equals("http://elmonline.ca/sw/explore.owl#ChildClass"));
+		
+
+		OntProperty q = OwlUtils.getOntPropertyWithLoad(model, "http://elmonline.ca/sw/explore.owl#parentProperty");
+		assertTrue("getUsefulRange did not return owl:Thing for range-less property",
+				OwlUtils.getUsefulRange(q).equals(OWL.Thing));
 	}
 }
