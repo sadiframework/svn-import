@@ -91,6 +91,9 @@ public class OwlUtils
 	 */
 	public static OntClass getUsefulRange(OntProperty p)
 	{
+		if (p.getRange() == null)
+			return (OntClass) OWL.Thing;
+		
 		Set<OntClass> ancestors = new HashSet<OntClass>();
 		List<OntClass> range = new ArrayList<OntClass>();
 		for (Iterator<? extends OntResource> i = p.listRange(); i.hasNext(); ) {
