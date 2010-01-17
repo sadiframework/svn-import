@@ -17,6 +17,7 @@ import org.xlightweb.IHttpRequestHeader;
 import org.xlightweb.IHttpResponse;
 import org.xlightweb.IHttpResponseHandler;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpState;
@@ -29,10 +30,15 @@ import org.apache.commons.httpclient.auth.AuthChallengeParser;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 
+import ca.wilkinsonlab.sadi.common.Config;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 public class XLightwebHttpClient implements HttpClient {
 
+	protected static final String CONFIG_ROOT = "sadi.http";
+	protected static final String RESPONSE_TIMEOUT_CONFIG_KEY = "responseTimeout";
+	protected static final String MAX_CONNECTIONS_PER_HOST_CONFIG_KEY = "maxConnectionsPerHost";
+	
 	protected static Logger log = Logger.getLogger(XLightwebHttpClient.class);
 	protected org.xlightweb.client.HttpClient xLightWebClient;
 	
@@ -43,11 +49,14 @@ public class XLightwebHttpClient implements HttpClient {
 	protected Map<URL,String> cachedAuthHeaderMap = new Hashtable<URL,String>();
 	
 	protected XLightwebHttpClient() {
+		
+		Configuration config = Config.getConfiguration().subset(CONFIG_ROOT);
+		
 		xLightWebClient = new org.xlightweb.client.HttpClient();
 		xLightWebClient.setMaxActive(200);
-		xLightWebClient.setMaxActivePerServer(30);
-		xLightWebClient.setConnectTimeoutMillis(10 * 1000);
-		xLightWebClient.setResponseTimeoutMillis(20 * 1000);
+		xLightWebClient.setMaxActivePerServer(config.getInt(MAX_CONNECTIONS_PER_HOST_CONFIG_KEY, 30));
+		xLightWebClient.setConnectTimeoutMillis(20 * 1000); 
+		xLightWebClient.setResponseTimeoutMillis(config.getInt(RESPONSE_TIMEOUT_CONFIG_KEY, 30 * 1000));
 		xLightWebClient.setMaxRetries(0);
 		xLightWebClient.setCacheMaxSizeKB(0);
 		xLightWebClient.setFollowsRedirect(false);
