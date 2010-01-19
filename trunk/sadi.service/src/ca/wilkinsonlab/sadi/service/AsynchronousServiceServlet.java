@@ -28,9 +28,9 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	
 	protected int inputBatchSize;
 	
-	public AsynchronousServiceServlet()
+	public void init() throws ServletException
 	{
-		super();
+		super.init();
 		
 		inputBatchSize = config.getInteger(INPUT_BATCH_SIZE_KEY, -1);	
 	}
@@ -137,6 +137,7 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		
 		public void dispose()
 		{
+			inputNodes.clear();
 			outputModel.close();
 		}
 		
