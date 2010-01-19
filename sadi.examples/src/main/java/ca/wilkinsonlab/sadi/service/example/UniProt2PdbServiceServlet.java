@@ -26,11 +26,6 @@ public class UniProt2PdbServiceServlet extends UniProtServiceServlet
 	private final Property hasPDBId = ResourceFactory.createProperty("http://sadiframework.org/ontologies/predicates.owl#has3DStructure");
 	private final Resource PDB_Record = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PDB_Record");
 	
-	public UniProt2PdbServiceServlet()
-	{
-		super();
-	}
-	
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
 	{

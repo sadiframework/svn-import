@@ -32,11 +32,6 @@ public class UniProt2PubmedServiceServlet extends UniProtServiceServlet
 	private final Property hasReference = ResourceFactory.createProperty("http://ontology.dumontierlab.com/hasReference");
 	private final Resource PubMed_Record = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PubMed_Record");
 	
-	public UniProt2PubmedServiceServlet()
-	{
-		super();
-	}
-	
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
 	{

@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.servlet.ServletException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -32,18 +34,18 @@ public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 
 	private static final Log log = LogFactory.getLog(ErmineJServiceServlet.class);
 	
-	private final Property element;
-	private final Property expressionLevel;
-	private final Property mappedTo;
-	private final Property hasInputTerm;
-	private final Property hasOutputTerm;
-	private final Property hasSignificance;
-	private final Property hasOverrepresentedTerm;
-	private final Resource OverrepresentedTerm;
+	private Property element;
+	private Property expressionLevel;
+	private Property mappedTo;
+	private Property hasInputTerm;
+	private Property hasOutputTerm;
+	private Property hasSignificance;
+	private Property hasOverrepresentedTerm;
+	private Resource OverrepresentedTerm;
 	
-	public ErmineJServiceServlet()
+	public void init() throws ServletException
 	{
-		super();
+		super.init();
 
 		/* TODO the exact input term property here will change depending on
 		 * whether the GO term service, MESH term service, etc. has been called...

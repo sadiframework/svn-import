@@ -24,11 +24,6 @@ public class UniProt2GoServiceServlet extends UniProtServiceServlet
 	private final Property hasGOTerm = ResourceFactory.createProperty("http://sadiframework.org/ontologies/predicates.owl#hasGOTerm");
 	private final Resource GO_Record = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/GO_Record");
 	
-	public UniProt2GoServiceServlet()
-	{
-		super();
-	}
-	
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
 	{

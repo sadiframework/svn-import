@@ -12,6 +12,7 @@ public abstract class SynchronousServiceServlet extends ServiceServlet
 	public void processInput(ServiceCall call)
 	{
 		processInput(call.getInputModel(), call.getOutputModel());
+		call.getInputModel().close();
 	}
 	
 	protected abstract void processInput(Model inputModel, Model outputModel);
