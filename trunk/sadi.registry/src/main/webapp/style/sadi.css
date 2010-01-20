@@ -1,0 +1,388 @@
+/* CSS reset
+ * CSS by Brian Purkiss
+ * http://plainbeta.com/whiteboard/
+html, body, div, span, applet, object, iframe,h1, h2, h3, h4, h5, h6, p, blockquote, pre,a, abbr, del, dfn, em, font, img, ins, kbd, q, s, samp, acronym, address, big, cite, code,small, strike, strong, sub, sup, tt, var,dl, dt, dd, ol, ul, li,fieldset, form, label, legend,table, caption, tbody, tfoot, thead, tr, th, td {font-size:100%;font-family:inherit;vertical-align:baseline;margin:0;padding:0;border:0;outline:0;font-weight:inherit;font-style:inherit;}caption, th, td {text-align:left;font-weight:normal;}table {border-collapse:separate;border-spacing:0;}blockquote:before,blockquote:after,q:before,q:after {content: "";}blockquote, q {quotes: "" "";}
+* {margin:0;padding:0;}
+ */
+
+/* common styles
+ * CSS by Luke McCarthy
+ */
+blockquote {
+  font-style: italic;
+}
+
+em {
+    font-weight: bold;
+    font-style: italic;
+}
+
+pre {
+    margin-left: 2em;
+    margin-right: 2em;
+    padding: 4px;
+    font-family: monospace;
+    font-size: 125%;
+    background: #eee;
+}
+
+dt {
+    margin-top: 2em;
+    margin-bottom; 0.5em;
+}
+dd {
+    margin-top: 0.5em;
+}
+
+.nobreak {
+  white-space: nowrap;
+}
+
+.disclaimer {
+  font-size: 0.75em;
+  font-style: italic;
+}
+
+/* SADI branding
+ * CSS by Luke McCarthy
+ * TODO the alpha channel on the PNGs doesn't work in older version of IE,
+ * so we'll have to go with a simpler background on those browsers (probably
+ * just use the edge and ignore the translucent grid bits...)
+ */
+body {
+  background: url("images/bgtop.png") no-repeat top right;
+  margin: 0;
+  font-family: Verdana, Helvetica, Arial, sans-serif;
+  font-size: 0.75em;
+}
+#outer-frame {
+  background: url("images/bgbottom.png") no-repeat bottom left;
+}
+#inner-frame {
+  background: url("images/bgedge.png") no-repeat top left;
+  padding: 35px; /* bgedge is 25px thick... */
+}
+#nav, #content { margin: 0 6.25%; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Charcoal, Tahoma, Helvetica, Arial, sans-serif;
+}
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+  text-decoration: none;
+}
+h1 a:link, h2 a:link, h3 a:link, h4 a:link, h5 a:link, h6 a:link {
+  color: #386eba;
+}
+a:visited {
+  color: #2a538c;
+}
+
+#header h1 {
+  /* image replacement technique from
+   *  http://www.kryogenix.org/code/browser/lir/
+   */
+  margin: 0;
+  padding: 150px 0 0 0; /* height of the image */
+  overflow: hidden;
+  background-image: url("images/sadi-header.png");
+  background-repeat: no-repeat;
+  height: 0px !important; /* for most browsers */
+  height /**/:150px; /* for IE5.5 */
+}
+#header .tagline {
+  /* the tagline is in the graphic, so hide it too... */
+  margin: 0;
+  overflow: hidden;
+  height: 0;
+}
+
+.post {
+  margin: 0;
+  margin-top: 1em;
+  border: 1px solid #e6efef;
+  background: #f4f8fc;
+  padding: 1em;
+  /*
+  background: #e6efef;
+  */
+}
+.post-header h2 {
+  margin: 0 0 0 0;
+}
+.post-header .byline {
+  margin: .25em 0 1em 1em;
+}
+.byline {
+  font-size: 90%;
+  font-style: italic;
+}
+.author { color: #286b73; font-weight: bold; }
+.date { color: #286b73; }
+.time { }
+
+.post-content {
+  background: #fff;
+  border: 1px solid #e6efef;
+  padding: .25em;
+}
+.post-content p {
+  margin: 1em;
+}
+.more-link {
+  font-style: italic;
+}
+
+.post-meta {
+  margin: 1em 0 0 1em;
+}
+.post-meta p {
+  margin: 0;
+}
+.post-tags {
+  float: right;
+  margin-left: 25em;
+}
+.post-tags a { text-decoration: none; }
+
+.comment-count {
+  margin: 1em 0 0 1em;
+}
+
+.comment-track {
+  margin-left: 5em;
+  font-style: italic;
+}
+
+#comment-list {
+  margin: 0 1em;
+  padding: 0;
+  list-style-type: none;
+}
+#comment-list li {
+  list-style-type: none;
+  margin: 1em;
+  padding: .5em;
+  border: 1px solid #e6efef;
+}
+#comment-list li .byline {
+  display: inline;
+}
+#comment-list li p {
+  margin-bottom: 0;
+}
+.comment-pending {
+  background: #e6efef;
+}
+.comment-odd {
+  /*
+  background: #e1eefa;
+  background: #8598c2;
+  */
+  background: #98aede;
+}
+.comment-even {
+  /*
+  background: #dafac8;
+  background: #bbd6ab;
+  */
+  background: #c2deb1;
+}
+
+#comment-form {
+  margin-left: 1em;
+}
+
+#footer {
+  text-align: center;
+  font-size: 0.75em;
+}
+
+img.sponsor {
+  margin-left: 60px;
+  margin-right: 60px;
+}
+
+/* uncomment if we want the page title beside the SADI header...
+#header h1 {
+  width: 318px;
+  float: left;
+}
+#header h2 {
+  margin-left: 318px;
+  padding-top: 75px;
+  text-align: center;
+}
+#header .tagline {
+  clear: both;
+}
+*/
+
+/* CSS tabs
+ * based on CSS by Adam Kalsey
+ * http://kalsey.com/tools/csstabs/4
+ * modified for WordPress by Luke McCarthy
+ * (see also functions.php in the SADI WordPress theme...)
+ */
+#nav {
+  margin-top: 2em;
+  margin-bottom: 0;
+  padding: 2px 1em;
+  border-bottom: 1px solid #748ecb;
+}
+#nav ul, #nav li, #sub-nav ul, #sub-nav li {
+  display: inline;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+#nav a:link, #nav a:visited, #sub-nav a:link, #sub-nav a:visited {
+  color: #386eba;
+  text-decoration: none;
+}
+#nav a:hover, #sub-nav a:hover {
+  color: #748ecb !important;
+}
+#nav li {
+  background: #eff6fb;
+  border: 1px solid #748ecb;
+  padding: 2px 4px;
+}
+#nav li.current_page_item, #nav li.current_page_parent, #nav li.current_page_ancestor {
+  background: white;
+  border-bottom: 1px solid white;
+}
+#nav li ul {
+  display: none;  /* sub-menus, just in case they leak out... */
+}
+#content {
+  background: white;
+  border: 1px solid #748ecb;
+  border-top: none;
+  padding: 1em;
+}
+#sub-nav {
+  margin: 0 .5em;
+}
+#sub-nav ul {
+  display: block;
+  margin-bottom: .25em;
+}
+#sub-nav li {
+  margin: 0 .5em;
+}
+li.current_page_item a, li.current_page_ancestor a {
+  color: #286b73 !important;
+}
+.breadcrumb a {
+  color: #286b73;
+  text-decoration: none;
+}
+
+/* registry-specific stuff..
+ */
+
+h2 {
+	margin-top: 0;
+	margin-bottom: 2em;
+}
+
+#registration-form {
+	margin-top: 2em;
+	margin-bottom: 2em;
+}
+#registration-form #url-label {
+  display: block;
+  margin-left: 6.25%;
+}
+#registration-form #url-input {
+  display: block;
+  margin: 1em 10%;
+  width: 80%;
+}
+#registration-form #register-submit {
+  display: block;
+  margin-left: auto;
+  margin-right: 6.25%;
+}
+
+#services-table {
+    border: 1px solid #e6efef;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: auto;
+}
+#services-table caption{
+	font-size: 125%;
+	font-weight: bold;
+	text-align: left;
+	margin-left: -2em;
+	margin-bottom: 1em;
+}
+#services-table thead {
+    background: #eaf0f8;
+    /*
+    color: #386eba;
+    color: #286b73;
+    */
+    color: #4370b7
+}
+#services-table th {
+  text-align: left;
+}
+#services-table td, #services-table th {
+    padding: .25em;
+}
+#services-table tr.odd {
+    background: #e6efef;
+}
+#services-table tr.even {
+    background: #f4f8fc;
+}
+#services-table a {
+	white-space: nowrap;
+}
+
+table.service-detail th {
+    color: #4370b7;
+    text-align: right !important;
+    vertical-align: top;
+}
+table.service-detail dl {
+	margin: 0;
+}
+table.service-detail dt {
+	margin: 0 0 .25em 0;
+}
+table.service-detail dd {
+	margin: .25em 0 .5em 1em;
+}
+
+#registration-error {
+	margin-left: 12.5%;
+	margin-right: 12.5%;
+    border: 1px solid #732828;
+    padding: 1em;
+    background: #f5eeee;
+}
+#registration-error h3 {
+	color: #732828;
+	margin-top: 0;
+}
+#registration-error blockquote {
+    border: 1px solid #af3d3d;
+    padding: .25em;
+	background: white;
+	font-style: normal;
+}
+
+#registration-success {
+	margin-left: 12.5%;
+	margin-right: 12.5%;
+    border: 1px solid #286b73;
+    padding: 1em;
+    background: #e6efef;
+}
+#registration-success h3 {
+	color: #286b73;
+	margin-top: 0;
+}
