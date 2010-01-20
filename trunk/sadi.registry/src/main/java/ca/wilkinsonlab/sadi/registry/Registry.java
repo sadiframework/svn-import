@@ -160,7 +160,7 @@ public class Registry
 				dsn,
 				username,
 				password,
-				driver.matches("(?iregex).*mysql.*") ? "MySQL" : null
+				driver.matches("(?i).*mysql.*") ? "MySQL" : null
 		);
 		
 		// create a model maker with the given connection parameters
