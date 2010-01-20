@@ -1,16 +1,14 @@
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:benv="http://sadiframework.org/ontologies/predicates.owl#"
-    xmlns:uniprotInfo="http://sadiframework.org/examples/uniprotInfo.owl#"> 
-  <uniprotInfo:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P12345">
-    <benv:hasName>Glutamate oxaloacetate transaminase 2</benv:hasName>
-    <benv:hasName>Aspartate aminotransferase, mitochondrial</benv:hasName>
-    <benv:hasName>FABP-1</benv:hasName>
-    <benv:hasName>Fatty acid-binding protein</benv:hasName>
-    <benv:hasName>mAspAT</benv:hasName>
-    <benv:hasName>FABPpm</benv:hasName>
-    <benv:hasName>Transaminase A</benv:hasName>
-    <benv:belongsToOrganism>Oryctolagus cuniculus</benv:belongsToOrganism>
-  </uniprotInfo:AnnotatedUniProtRecord>
+    xmlns:j.0="http://sadiframework.org/ontologies/predicates.owl#"
+    xmlns:j.1="http://sadiframework.org/examples/uniprotInfo.owl#" > 
+  <rdf:Description rdf:about="http://purl.uniprot.org/uniprot/P12345">
+    <rdf:type rdf:resource="http://sadiframework.org/examples/uniprotInfo.owl#AnnotatedUniProtRecord"/>
+    <j.0:belongsToOrganism>Oryctolagus cuniculus</j.0:belongsToOrganism>
+    <j.0:hasName>Plasma membrane-associated fatty acid-binding protein (FABPpm)</j.0:hasName>
+    <j.0:hasName>Fatty acid-binding protein (FABP-1)</j.0:hasName>
+    <j.0:hasName>Glutamate oxaloacetate transaminase 2</j.0:hasName>
+    <j.0:hasName>Transaminase A</j.0:hasName>
+    <j.0:hasName>Aspartate aminotransferase, mitochondrial (mAspAT)</j.0:hasName>
+  </rdf:Description>
 </rdf:RDF>
