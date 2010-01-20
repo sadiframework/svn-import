@@ -6,7 +6,6 @@ jQuery.fn.expandTable = function(callback) {
 	var expandedClass = "expandTable-expanded";
 	var collapsedClass = "expandTable-collapsed";
 	var rowBodyClass = "expandTable-rowBody";
-	var loadingClass = "expandTable-loading";
 	
 	function expandRow(row) {
 		row.addClass(expandedClass);
@@ -16,7 +15,7 @@ jQuery.fn.expandTable = function(callback) {
 		if (!rowBody.hasClass(rowBodyClass)) {
 			// we haven't added it yet...
 			var cols = row.children("td").length - 1;
-			row.after("<tr class='" + rowBodyClass +"'><td></td><td class='" + loadingClass + "' colspan='" + cols + "'></td></tr>");
+			row.after("<tr class='" + rowBodyClass +"'><td></td><td colspan='" + cols + "'></td></tr>");
 			callback(row.next("tr").children("td").slice(1,2));
 		} else {
 			rowBody.show();

@@ -341,7 +341,12 @@ h2 {
 #services-table a {
 	white-space: nowrap;
 }
-
+td.service-loading {
+  height: 150px;
+  background-image: url("images/sadi-spinner.gif");
+  background-repeat: no-repeat;
+  background-position: center center;
+}
 table.service-detail th {
     color: #4370b7;
     text-align: right !important;
