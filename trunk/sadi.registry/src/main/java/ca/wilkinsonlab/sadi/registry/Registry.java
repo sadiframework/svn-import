@@ -67,22 +67,30 @@ public class Registry
 			config = new PropertiesConfiguration();
 		}
 		
+		String driver = config.getString("driver");
 		String graph = config.getString("graph");
 		String dsn = config.getString("dsn");
 		String username = config.getString("username");
 		String password = config.getString("password");
 		
-		if (graph != null) {
+		if (driver == null) {
+			/* TODO create file-backed model somewhere...
+			 */
+			log.warn("no database driver specified; creating transient registry model");
+			model = ModelFactory.createDefaultModel();
+		} else if (driver.equals("virtuoso.jdbc3.Driver")) {
+			log.info(String.format("creating Virtuoso-backed registry model from %s(%s)", dsn, graph));
 			try {
-				model = initRegistryModel(graph, dsn, username, password);
+				model = initVirtuosoRegistryModel(graph, dsn, username, password);
 			} catch (Exception e) {
-				log.error("error initializing registry model", e);
+				log.error(String.format("error connecting to Virtuoso registry at %s", dsn), e);
 			}
 		} else {
+			log.info(String.format("creating JDBC-backed registry model from %s", dsn));
 			try {
-				model = initRegistryModel(dsn, username, password);
+				model = initJDBCRegistryModel(driver, dsn, username, password);
 			} catch (Exception e) {
-				log.error("error initializing registry model", e);
+				log.error(String.format("error connecting to JDBC registry at %s", dsn), e);
 			}
 		}
 		
@@ -105,7 +113,7 @@ public class Registry
 	 */
 	public Registry(String graph, String dsn, String username, String password)
 	{
-		model = initRegistryModel(graph, dsn, username, password);
+		model = initVirtuosoRegistryModel(graph, dsn, username, password);
 	}
 	
 	/**
@@ -116,7 +124,7 @@ public class Registry
 	 */
 	public Registry(String dsn, String username, String password)
 	{
-		model = initRegistryModel(dsn, username, password);
+		model = initJDBCRegistryModel("com.mysql.jdbc.driver", dsn, username, password);
 	}
 	
 	/**
@@ -128,7 +136,7 @@ public class Registry
 		this.model = model;
 	}
 	
-	private Model initRegistryModel(String graph, String dsn, String username, String password)
+	private Model initVirtuosoRegistryModel(String graph, String dsn, String username, String password)
 	{
 		return VirtModel.createDatabaseModel(
 				graph,
@@ -138,11 +146,11 @@ public class Registry
 		);
 	}
 	
-	private Model initRegistryModel(String dsn, String username, String password)
+	private Model initJDBCRegistryModel(String driver, String dsn, String username, String password)
 	{
 		// load the driver class
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(driver);
 		} catch ( ClassNotFoundException e ) {
 			throw new RuntimeException(e);
 		}
@@ -152,13 +160,21 @@ public class Registry
 				dsn,
 				username,
 				password,
-				"MySQL"
+				driver.matches("(?iregex).*mysql.*") ? "MySQL" : null
 		);
 		
 		// create a model maker with the given connection parameters
 		ModelMaker maker = ModelFactory.createModelRDBMaker(conn);
 
 		// create a default model
+		return maker.createDefaultModel();
+	}
+	
+	@SuppressWarnings("unused")
+	private Model initFileRegistryModel(String path, String dsn, String username, String password)
+	{
+		ModelMaker maker = ModelFactory.createFileModelMaker(path);
+		
 		return maker.createDefaultModel();
 	}
 	
