@@ -8,5 +8,6 @@
    [ lm:prefix "http://www4.wiwiss.fu-berlin.de/dailymed/resource/dailymed/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/dailymed.owl#" ],
    [ lm:prefix "http://www4.wiwiss.fu-berlin.de/diseasome/resource/diseasome/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/diseasome.owl#" ],
    [ lm:prefix "http://www4.wiwiss.fu-berlin.de/medicare/resource/medicare/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/medicare.owl#" ],
-   [ lm:prefix "http://www4.wiwiss.fu-berlin.de/sider/resource/sider/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/sider.owl#" ]
+   [ lm:prefix "http://www4.wiwiss.fu-berlin.de/sider/resource/sider/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/sider.owl#" ],
+   [ lm:prefix "http://www4.wiwiss.fu-berlin.de/stitch/resource/stitch/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/stitch.owl#" ]
    .
