@@ -31,7 +31,16 @@ public class SADI
      */
     public static final Resource NAMESPACE = m_model.createResource( NS );
     
-
+    /**
+     * An RDF type for SADI services.
+     */
+    public static final Resource Service = m_model.createResource( NS + "Service" );
+    
+    /**
+     * A property that connects a service with the restrictions it attaches to its input.
+     */
+    public static final Property decoratesWith = m_model.createProperty( NS + "decoratesWith" );
+    
     /**
      * An RDF type for SADI service exceptions.
      */
@@ -46,8 +55,7 @@ public class SADI
 	/**
 	 * A property that connects exceptions and stack traces.
 	 */
-	public static final Property hasStackTrace = m_model.createProperty( NS + "hasStackTrace ");
+	public static final Property hasStackTrace = m_model.createProperty( NS + "hasStackTrace");
     
     public static final String ASYNC_HEADER = "sadi-please-wait";
-
 }
