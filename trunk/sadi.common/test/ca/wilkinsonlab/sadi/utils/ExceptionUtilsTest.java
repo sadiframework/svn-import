@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.utils;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +20,12 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 public class ExceptionUtilsTest
 {
 	@Test
-	public void testCreateExceptionModel()
+	public void testCreateExceptionModel() throws Exception
 	{
+		String message = "this is the exception message";
+		Exception exception = new Exception(message);
+		Model model = ExceptionUtils.createExceptionModel(exception);
+		model.write(new FileOutputStream("/tmp/exception.rdf"));
 	}
 
 	@Test
