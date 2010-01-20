@@ -66,8 +66,8 @@ public class ErmineJServiceServletTest extends ServiceServletTestBase
 		Model convertedInputModel = convertInputToRdf(ErmineJServiceServletTest.class.getResourceAsStream("/HG-U133_Plus_2.na26.annot_test.ErmineJ"));
 		
 		if (log.isTraceEnabled()) {
-			log.trace(RdfUtils.logStatements("Expected input", expectedInputModel));
-			log.trace(RdfUtils.logStatements("Converted input", convertedInputModel));
+			log.trace("Expected input" + RdfUtils.logStatements(expectedInputModel));
+			log.trace("Converted input" + RdfUtils.logStatements(convertedInputModel));
 		}
 		
 		assertTrue("input parser does not produce expected result", convertedInputModel.isIsomorphicWith(expectedInputModel));

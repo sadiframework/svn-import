@@ -108,11 +108,9 @@ public class RdfUtils
 		return logStatements("", model);
 	}
 	
-	public static String logStatements(String header, Model model)
+	public static String logStatements(String prefix, Model model)
 	{
-		StringBuilder buf = new StringBuilder(header);
-		if (!header.endsWith("\n"))
-			buf.append("\n");
+		StringBuilder buf = new StringBuilder();
 		
 		StmtIterator iter = model.listStatements();
 		while (iter.hasNext()) {
@@ -120,7 +118,8 @@ public class RdfUtils
 		    Resource  subject   = stmt.getSubject();
 		    Property  predicate = stmt.getPredicate();
 		    RDFNode   object    = stmt.getObject();
-
+		    
+		    buf.append(prefix);
 		    buf.append(subject.toString());
 		    buf.append(" ");
 		    buf.append(predicate.toString());

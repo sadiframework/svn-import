@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.service;
 
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.util.Collection;
@@ -15,6 +16,7 @@ import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.rdf.RdfService;
 import ca.wilkinsonlab.sadi.service.example.LocalServiceWrapper;
+import ca.wilkinsonlab.sadi.utils.ModelDiff;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
@@ -126,18 +128,34 @@ public abstract class ServiceServletTestBase extends TestCase
 		RdfService regressionService = getLocalServiceInstance();
 		Model expectedOutputModel = getExpectedOutputModel();
 		Model actualOutputModel = RdfUtils.triplesToModel( regressionService.invokeService(getInputNodes()) );
+		String outputPath = String.format("/tmp/%s.output.rdf", getClass().getSimpleName());
+		try {
+			actualOutputModel.write( new FileOutputStream(outputPath) );
+		} catch (Exception e) {
+			log.error( String.format("error writing output model to %s", outputPath), e);
+		}
 		
 		if (log.isTraceEnabled()) {
 			Model inputModel = ModelFactory.createDefaultModel();
 			for (Resource inputNode: getInputNodes()) {
-				OwlUtils.getMinimalModel(inputNode, regressionService.getInputClass());
+				inputModel.add(OwlUtils.getMinimalModel(inputNode, regressionService.getInputClass()));
 			}
-			log.trace(RdfUtils.logStatements("Minimal input", inputModel));
-			log.trace(RdfUtils.logStatements("Expected output", expectedOutputModel));
-			log.trace(RdfUtils.logStatements("Actual output", actualOutputModel));
+			try {
+				inputModel.write( new FileOutputStream( String.format( "target/%s.input.rdf", getClass().getSimpleName() ) ) );
+				expectedOutputModel.write( new FileOutputStream( String.format( "target/%s.expected.rdf", getClass().getSimpleName() ) ) );
+				actualOutputModel.write( new FileOutputStream( String.format( "target/%s.output.rdf", getClass().getSimpleName() ) ) );
+			} catch (Exception e) {
+				log.error("error writing models", e);
+			}
 		}
 		
-		assertTrue(String.format("service call to %s does not produce expected output", getLocalServiceURL()),
-				actualOutputModel.isIsomorphicWith(expectedOutputModel));
+		if (!actualOutputModel.isIsomorphicWith(expectedOutputModel)) {
+			ModelDiff diff = ModelDiff.diff(expectedOutputModel, actualOutputModel);
+			StringBuffer buf = new StringBuffer(String.format("service call to %s does not produce expected output\n", getLocalServiceURL()));
+			buf.append(RdfUtils.logStatements("", diff.inXnotY));
+			buf.append(RdfUtils.logStatements("    ", diff.inBoth));
+			buf.append(RdfUtils.logStatements("        ", diff.inYnotX));
+			fail(buf.toString());
+		}
 	}
 }
