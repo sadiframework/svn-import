@@ -29,9 +29,11 @@ public class SPARQLResultsXMLUtils
 
 	public static List<Map<String, String>> getResultsFromSPARQLXML(InputStream input) throws IOException
 	{
-//		String resultsXML = IOUtils.toString(input);
-//		log.debug("resultsXML:" + resultsXML);
-//		input = IOUtils.toInputStream(resultsXML);
+		/*
+		String resultsXML = IOUtils.toString(input);
+		log.debug("resultsXML:" + resultsXML);
+		input = IOUtils.toInputStream(resultsXML);
+		*/
 		
 		SPARQLResultsXMLHandler handler = new SPARQLResultsXMLHandler();
 		try {
@@ -109,7 +111,13 @@ public class SPARQLResultsXMLUtils
 
 			if(namespaceURI.equals(SPARQL_RESULTS_NS)) {
 				if(localName.equals(RESULT_TAG)) {
-					results.add(currentBindings);
+					/* Virtuoso has a bug where (in rare circumstances) it will generate 
+					 * empty result rows (e.g. <result></result>). However, if we add an 
+					 * empty set of bindings to the result set, it will cause problems higher 
+					 * up (null pointers). -- BV */ 
+					if(currentBindings.size() > 0) {
+						results.add(currentBindings);
+					}
 				}
 				else if(localName.equals(BINDING_TAG)) {
 					currentBindings.put(currentVariable, characterData.toString());
