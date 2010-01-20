@@ -87,7 +87,6 @@ public class OwlUtilsTest
 		assertTrue("getUsefulRange did not return expected class",
 				c.getURI().equals("http://elmonline.ca/sw/explore.owl#ChildClass"));
 		
-
 		OntProperty q = OwlUtils.getOntPropertyWithLoad(model, "http://elmonline.ca/sw/explore.owl#parentProperty");
 		assertTrue("getUsefulRange did not return owl:Thing for range-less property",
 				OwlUtils.getUsefulRange(q).equals(OWL.Thing));
