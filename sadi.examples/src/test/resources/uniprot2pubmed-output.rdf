@@ -55,6 +55,11 @@
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/16402859"/>
     <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
+  <rdf:Description rdf:about="http://lsrn.org/PMID:19608861">
+    <rdfs:label>Choudhary C. et al, Lysine acetylation targets protein complexes and co-regulates major cellular functions.</rdfs:label>
+    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/19608861"/>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:7773777">
     <rdfs:label>Lee W. et al, Solution structure of the tetrameric minimum transforming domain of p53.</rdfs:label>
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/7773777"/>
@@ -86,27 +91,29 @@
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1327751"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1565144"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1915267"/>
-    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:9452042"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:19536131"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:9452042"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:2259385"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:2905688"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:8023159"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:15489334"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:11925430"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:19413330"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:17224074"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:19509332"/>
-    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:11925430"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:11058590"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:17287340"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:11124955"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:8013454"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:8718514"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1978757"/>
-    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:10644996"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:11007800"/>
-    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:8825920"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:10644996"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:8023157"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:8825920"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:9101296"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:11554448"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:17245430"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1459726"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1868473"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:12851404"/>
@@ -115,11 +122,12 @@
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1705009"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:4006916"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1848668"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:19608861"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:16083285"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:10549356"/>
-    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:7682763"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:7878469"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:11546806"/>
-    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:16083285"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:7682763"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:12702766"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:11672523"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:15109303"/>
@@ -152,6 +160,7 @@
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1849234"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:15053879"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:8336944"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:17967874"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:11740489"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:14660794"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1933902"/>
@@ -210,14 +219,14 @@
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/9452042"/>
     <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://lsrn.org/PMID:9101296">
-    <rdfs:label>Guldberg P. et al, Single-step DGGE-based mutation scanning of the p53 gene: application to genetic diagnosis of colorectal cancer.</rdfs:label>
-    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/9101296"/>
-    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
-  </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:16219768">
     <rdfs:label>Chang N.-S. et al, WOX1 is essential for tumor necrosis factor-, UV light-, staurosporine-, and p53-mediated cell death, and its tyrosine 33-phosphorylated form binds and stabilizes serine 46-phosphorylated p53.</rdfs:label>
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/16219768"/>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://lsrn.org/PMID:9101296">
+    <rdfs:label>Guldberg P. et al, Single-step DGGE-based mutation scanning of the p53 gene: application to genetic diagnosis of colorectal cancer.</rdfs:label>
+    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/9101296"/>
     <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:10951572">
@@ -225,19 +234,24 @@
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/10951572"/>
     <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
+  <rdf:Description rdf:about="http://lsrn.org/PMID:17967874">
+    <rdfs:label>Shouse G.P., Cai X. &amp; Liu X., Serine 15 phosphorylation of p53 directs its interaction with B56gamma and the tumor suppressor activity of B56gamma-specific protein phosphatase 2A.</rdfs:label>
+    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/17967874"/>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:14660794">
     <rdfs:label>Kanashiro C.A. et al, Inhibition of mutant p53 expression and growth of DMS-153 small cell lung carcinoma by antagonists of growth hormone-releasing hormone and bombesin.</rdfs:label>
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/14660794"/>
     <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://lsrn.org/PMID:17311302">
-    <rdfs:label>Petitjean A. et al, Impact of mutant p53 functional properties on TP53 mutation patterns and tumor phenotype: lessons from recent developments in the IARC TP53 database.</rdfs:label>
-    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/17311302"/>
-    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
-  </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:1737852">
     <rdfs:label>Felix C.A. et al, Hereditary and acquired p53 gene mutations in childhood acute lymphoblastic leukemia.</rdfs:label>
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/1737852"/>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://lsrn.org/PMID:17311302">
+    <rdfs:label>Petitjean A. et al, Impact of mutant p53 functional properties on TP53 mutation patterns and tumor phenotype: lessons from recent developments in the IARC TP53 database.</rdfs:label>
+    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/17311302"/>
     <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:2259385">
@@ -420,6 +434,11 @@
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/1999338"/>
     <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
+  <rdf:Description rdf:about="http://lsrn.org/PMID:19413330">
+    <rdfs:label>Gauci S. et al, Lys-N and trypsin cover complementary parts of the phosphoproteome in a refined SCX-based approach.</rdfs:label>
+    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/19413330"/>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:8632903">
     <rdfs:label>Flaman J.-M. et al, The human tumour suppressor gene p53 is alternatively spliced in normal cells.</rdfs:label>
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/8632903"/>
@@ -435,6 +454,11 @@
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/11672523"/>
     <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
+  <rdf:Description rdf:about="http://lsrn.org/PMID:17245430">
+    <rdfs:label>Li H.H. et al, A specific PP2A regulatory subunit, B56gamma, mediates DNA damage-induced dephosphorylation of p53 at Thr55.</rdfs:label>
+    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/17245430"/>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:11925430">
     <rdfs:label>Kim E.-J., Park J.-S. &amp; Um S.-J., Identification and characterization of HIPK2 interacting with p73 and modulating functions of the p53 family in vivo.</rdfs:label>
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/11925430"/>
@@ -445,14 +469,14 @@
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/10484981"/>
     <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://lsrn.org/PMID:16959974">
-    <rdfs:label>Sjoeblom T. et al, The consensus coding sequences of human breast and colorectal cancers.</rdfs:label>
-    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/16959974"/>
-    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
-  </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:8875926">
     <rdfs:label>Gorina S. &amp; Pavletich N.P., Structure of the p53 tumor suppressor bound to the ankyrin and SH3 domains of 53BP2.</rdfs:label>
     <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/8875926"/>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://lsrn.org/PMID:16959974">
+    <rdfs:label>Sjoeblom T. et al, The consensus coding sequences of human breast and colorectal cancers.</rdfs:label>
+    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/16959974"/>
     <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:7887414">

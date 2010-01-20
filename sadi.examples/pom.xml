@@ -6,7 +6,12 @@
   <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
   <name>sadi-examples Maven Webapp</name>
-  <url>http://maven.apache.org</url>
+  <url>http://sadiframework.org/examples/</url>
+  <parent>
+    <groupId>ca.wilkinsonlab.sadi</groupId>
+    <artifactId>sadi-webapp</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
   <build>
     <finalName>sadi-examples</finalName>
     <plugins>
@@ -73,15 +78,8 @@
     <dependency>
     	<groupId>uk.ac.ebi.uniprot.kraken</groupId>
     	<artifactId>uniprotjapi</artifactId>
-   		<version>15.11</version>
+   		<version>15.13</version>
 	</dependency>
-<!--
-    <dependency>
-  		<groupId>org.uniprot</groupId>
-  		<artifactId>uniprotjapi</artifactId>
-  		<version>2009-10-16</version>
-  	</dependency>
-  -->
   	<dependency>
   		<groupId>ubic</groupId>
   		<artifactId>baseCode</artifactId>
