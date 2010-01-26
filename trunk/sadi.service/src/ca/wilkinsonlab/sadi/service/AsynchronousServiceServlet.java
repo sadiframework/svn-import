@@ -64,6 +64,13 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 			super.doGet(request, response);
 		}
 	}
+	
+	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
+	{
+		response.setStatus(HttpServletResponse.SC_ACCEPTED);
+		response.setContentType("application/rdf+xml");
+		outputModel.write(response.getWriter());
+	}
 
 	private void outputInterimResponse(HttpServletResponse response, String redirectUrl, long waitTime) throws IOException
 	{
