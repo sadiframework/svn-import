@@ -180,7 +180,7 @@ public class SPARQLServiceWrapper implements Service
 	{
 		try {
 			Triple queryPattern = getTriplePatternRepresentingServiceInvocation(inputURIorLiteral);
-			return getEndpoint().constructQuery(getConstructQuery(queryPattern));
+			return filterOutTriplesWithBlankNodes(getEndpoint().constructQuery(getConstructQuery(queryPattern)));
 		} catch (IOException e) {
 			throw new ServiceInvocationException(e.getMessage(),e);
 		}
@@ -190,7 +190,7 @@ public class SPARQLServiceWrapper implements Service
 	{
 		try {
 			Triple queryPattern = getTriplePatternRepresentingServiceInvocation(inputURIorLiteral, predicate);
-			return getEndpoint().constructQuery(getConstructQuery(queryPattern));
+			return filterOutTriplesWithBlankNodes(getEndpoint().constructQuery(getConstructQuery(queryPattern)));
 		} catch (IOException e) {
 			throw new ServiceInvocationException(e.getMessage());
 		}
@@ -216,7 +216,7 @@ public class SPARQLServiceWrapper implements Service
 				triples.addAll(invokeServiceOnRDFNode(inputNode));
 			}
 		}
-		return triples;
+		return filterOutTriplesWithBlankNodes(triples);
 	}
 
 	public Collection<Triple> invokeServiceOnRDFNodes(Collection<? extends RDFNode> inputNodes, String predicate) throws ServiceInvocationException 
@@ -239,7 +239,7 @@ public class SPARQLServiceWrapper implements Service
 				triples.addAll(invokeServiceOnRDFNode(inputNode, predicate));
 			}
 		}
-		return triples;
+		return filterOutTriplesWithBlankNodes(triples);
 	}
 	
 	protected Collection<Triple> batchConstructQueries(Collection<String> queries) throws ServiceInvocationException
@@ -261,7 +261,7 @@ public class SPARQLServiceWrapper implements Service
 			mergedModel.add(result.getResultModel());
 		}
 
-		return RdfUtils.modelToTriples(mergedModel);
+		return filterOutTriplesWithBlankNodes(RdfUtils.modelToTriples(mergedModel));
 	}
 	
 	@Override
@@ -332,5 +332,28 @@ public class SPARQLServiceWrapper implements Service
 		constructQuery.setQueryPattern(queryPattern);		
 
 		return constructQuery.serialize();
+	}
+	
+	/**
+	 * Return the input collection of triples, less any triples that reference blank nodes.
+	 * This filtering is necessary because blank nodes cannot be reconciled across 
+	 * distributed RDF data sources. Further, they cannot be used as inputs to 
+	 * SADI services or SPARQL endpoints. 
+	 * 
+	 * @param triples
+	 * @return the input collection of triples, with any triples that reference blank
+	 * nodes removed.
+	 */
+	protected Collection<Triple> filterOutTriplesWithBlankNodes(Collection<Triple> triples) {
+		
+		Collection<Triple> filtered = new ArrayList<Triple>();
+		for(Triple triple : triples) {
+			if(triple.getSubject().isBlank() || triple.getPredicate().isBlank() || triple.getObject().isBlank()) {
+				log.warn("omitting triple with blank node(s) from results: " + triple);
+				continue;
+			}
+			filtered.add(triple);
+		}
+		return filtered;
 	}
 }
