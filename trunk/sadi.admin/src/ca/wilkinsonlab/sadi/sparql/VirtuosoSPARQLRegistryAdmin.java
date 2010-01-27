@@ -1,37 +1,52 @@
 package ca.wilkinsonlab.sadi.sparql;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
-import javax.xml.ws.http.HTTPException;
-
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.StringUtils;
 
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 import ca.wilkinsonlab.sadi.utils.RegExUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.http.HttpClient;
-import ca.wilkinsonlab.sadi.utils.http.HttpResponse;
-import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
-import ca.wilkinsonlab.sadi.utils.http.XLightwebHttpClient;
-import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
+import ca.wilkinsonlab.sadi.utils.graph.BoundedBreadthFirstIterator;
+import ca.wilkinsonlab.sadi.utils.graph.RDFTypeConstraint;
+import ca.wilkinsonlab.sadi.utils.graph.SPARQLSearchNode;
+import ca.wilkinsonlab.sadi.utils.graph.SearchNode;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
-import ca.wilkinsonlab.sadi.vocab.W3C;
 import ca.wilkinsonlab.sadi.sparql.SPARQLEndpointFactory;
 import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint;
+import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
+import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.TripleIterator;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 
@@ -39,80 +54,234 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import virtuoso.jena.driver.VirtModel;
+
 /**
  * <p>Class for performing administrative tasks on a Virtuoso SPARQL endpoint
  * registry (adding new endpoints, reindexing existing endpoints, etc.)</p>
  * 
- * <p>NOTE: This class  be used if other threads are issuing HTTP requests
- * .  The issue is 
- * that the response timeout value for httpClient is global and shared.  
- * VirtuosoSPARQLRegistryAdmin changes this value during some operations, such
- * as pinging SPARQL endpoits.  Unfortunately, there is no fix for this because
- * the current httpclient (XLightwebHttpClient) does not support setting 
- * timeouts on a per-request basis.</p> 
- *
  * @author Ben Vandervalk
  */
-public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implements SPARQLRegistryAdmin 
-{
+public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
+	
 	public final static Log log = LogFactory.getLog(VirtuosoSPARQLRegistryAdmin.class);
+	
 	public final static String CONFIG_ROOT = "sadi.registry.sparql";
+	protected final static Configuration config = Config.getConfiguration().subset(CONFIG_ROOT);
+	
+	protected final static String INDEX_GRAPH_CONFIG_KEY = "indexGraph";
+	protected final static String PREDICATE_EXCLUDE_REGEX = "predicateExcludeRegEx";
+		
+	protected String indexGraph;
+
+	public final static String VIRTUOSO_CONFIG_ROOT = "sadi.registry.sparql.virtuoso";
+	protected final static Configuration virtuosoConfig = Config.getConfiguration().subset(VIRTUOSO_CONFIG_ROOT);
+
+	protected final static String VIRTUOSO_HOSTNAME_CONFIG_KEY = "hostname";
+	protected final static String VIRTUOSO_PORT_CONFIG_KEY = "port"; 
+	protected final static String VIRTUOSO_USERNAME_CONFIG_KEY = "username";
+	protected final static String VIRTUOSO_PASSWORD_CONFIG_KEY = "password";
+	protected String virtuosoHost;
+	protected int virtuosoPort;
+	protected String virtuosoUsername;
+	protected String virtuosoPassword;
+	
+	protected Model indexModel;
+	protected Model ontologyModel;
+	protected OntModel registryOntology;
+	
+	/** regular expressions for predicates that should *not* be indexed. */
+	protected Collection<Pattern> predicateExcludeList;
 	
 	/** Maximum allowable length for any subject/object regex, in characters */
 	public final static int REGEX_MAX_LENGTH = 2048; 
-	
 	protected final static long DEFAULT_RESULTS_LIMIT = 50000; // triples
+	/** Maximum depth when performing ad-hoc indexing by traversal */
+	protected static final int MAX_TRAVERSAL_DEPTH = 7;
+
 	
 	public VirtuosoSPARQLRegistryAdmin() throws IOException 
 	{
-		this(Config.getConfiguration().subset(CONFIG_ROOT).getString(ENDPOINT_CONFIG_KEY));
+		this(virtuosoConfig.getString(VIRTUOSO_HOSTNAME_CONFIG_KEY),
+			virtuosoConfig.getInt(VIRTUOSO_PORT_CONFIG_KEY),
+			config.getString(INDEX_GRAPH_CONFIG_KEY),
+			virtuosoConfig.getString(VIRTUOSO_USERNAME_CONFIG_KEY),
+			virtuosoConfig.getString(VIRTUOSO_PASSWORD_CONFIG_KEY));
 	}
-
-	public VirtuosoSPARQLRegistryAdmin(String URI) throws IOException 
+	
+	public VirtuosoSPARQLRegistryAdmin(String virtuosoHost, int virtuosoPort, String virtuosoUsername, String virtuosoPassword) 
 	{
-		this(URI, 
-			Config.getConfiguration().subset(CONFIG_ROOT).getString(INDEX_GRAPH_CONFIG_KEY), 
-			Config.getConfiguration().subset(CONFIG_ROOT).getString(ONTOLOGY_GRAPH_CONFIG_KEY)); 
+		this(virtuosoHost, 
+			virtuosoPort, 
+			Config.getConfiguration().subset(CONFIG_ROOT).getString(INDEX_GRAPH_CONFIG_KEY),
+			virtuosoUsername,
+			virtuosoPassword);
+	}
+	
+	public VirtuosoSPARQLRegistryAdmin(String virtuosoHost, int virtuosoPort, String indexGraph, String virtuosoUsername, String virtuosoPassword) {
+		
+		setVirtuosoHost(virtuosoHost);
+		setVirtuosoPort(virtuosoPort);
+		setIndexGraph(indexGraph);
+		setVirtuosoUsername(virtuosoUsername);
+		setVirtuosoPassword(virtuosoPassword);
+		
+		initPredicateExcludeList();
+		initIndexModel();
+		initRegistryOntology();
+	}
+	
+	public String getVirtuosoConnectString(String hostname, int port) {
+		return "jdbc:virtuoso://" + hostname + ":" + String.valueOf(port);
+	}
+	
+	public String getVirtuosoHost() {
+		return virtuosoHost;
 	}
 
-	public VirtuosoSPARQLRegistryAdmin(String URI, String indexGraphURI, String ontologyGraphURI) throws IOException 
-	{
-		super(URI, indexGraphURI, ontologyGraphURI, 
-			Config.getConfiguration().subset(CONFIG_ROOT).getString(USERNAME_CONFIG_KEY), 
-			Config.getConfiguration().subset(CONFIG_ROOT).getString(PASSWORD_CONFIG_KEY));
+	public void setVirtuosoHost(String virtuosoHost) {
+		this.virtuosoHost = virtuosoHost;
 	}
 
+	public int getVirtuosoPort() {
+		return virtuosoPort;
+	}
+
+	public void setVirtuosoPort(int virtuosoPort) {
+		this.virtuosoPort = virtuosoPort;
+	}
+
+	public String getVirtuosoUsername() {
+		return virtuosoUsername;
+	}
+
+	public void setVirtuosoUsername(String virtuosoUsername) {
+		this.virtuosoUsername = virtuosoUsername;
+	}
+
+	public String getVirtuosoPassword() {
+		return virtuosoPassword;
+	}
+
+	public void setVirtuosoPassword(String virtuosoPassword) {
+		this.virtuosoPassword = virtuosoPassword;
+	}
+
+	public String getIndexGraph() {
+		return indexGraph;
+	}
+
+	public void setIndexGraph(String indexGraph) {
+		this.indexGraph = indexGraph;
+	}
+	
+	protected void initPredicateExcludeList() {
+		predicateExcludeList = new ArrayList<Pattern>();
+		Configuration config = ca.wilkinsonlab.sadi.admin.Config.getConfiguration().subset(CONFIG_ROOT);
+		for(Object regex : config.getList(PREDICATE_EXCLUDE_REGEX)) {
+			predicateExcludeList.add(Pattern.compile((String)regex));
+		}
+	}
+	
+	protected boolean predicateMatchesExcludeList(String predicate) {
+		
+		for(Pattern regex : predicateExcludeList) {
+			if(regex.matcher(predicate).find()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected void initIndexModel() {
+		indexModel = VirtModel.createDatabaseModel(getIndexGraph(), 
+				getVirtuosoConnectString(getVirtuosoHost(), getVirtuosoPort()), 
+				getVirtuosoUsername(), 
+				getVirtuosoPassword());
+	}
+	
+	protected void initRegistryOntology() {
+		// in memory OWL model with no reasoning
+		registryOntology = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
+		registryOntology.read(SPARQLRegistryOntology.URI);
+	}
+	
+	protected OntModel getRegistryOntology() {
+		return registryOntology;
+	}
+	
+	protected Model getIndexModel() {
+		return indexModel;
+	}
+	
+	protected void closeAllModels() {
+		getIndexModel().close();
+		getRegistryOntology().close();
+	}
+	
 	public void clearRegistry() throws IOException 
 	{
-		clearIndexes();
-		clearOntology();
-	}
-
-	public void clearIndexes() throws IOException 
-	{
-		log.trace("clearing indexes from registry at " + getURI());
-		clearGraph(getIndexGraphURI());
-	}
-
-	public void clearOntology() throws IOException 
-	{
-		log.trace("clearing predicate ontology from registry at " + getURI());
-		clearGraph(getOntologyGraphURI());
+		log.trace("clearing registry");
+		getIndexModel().removeAll();
 	}
 
 	public void addEndpoint(String endpointURI, EndpointType type) throws IOException 
 	{
-		if (hasEndpoint(endpointURI))
+		if (endpointInIndex(endpointURI)) {
+			log.warn("cannot add " + endpointURI + ", endpoint is already in index");
 			return;
+		}
 		
-		// check if the endpoint is alive or dead, and record the result.
-		updateEndpointStatus(endpointURI, type);
-		// record the type of endpoint.
-		setEndpointType(endpointURI, type);
-		// record the fact that we have not yet computed an index
-		setPredicateListIsComplete(endpointURI, false);
+		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
+		Model endpointIndex = ModelFactory.createMemModelMaker().createFreshModel();
+		
+		try {
+
+			if(endpoint.ping()) {
+				setEndpointStatus(endpointIndex, endpointURI, ServiceStatus.OK);
+			} else {
+				setEndpointStatus(endpointIndex, endpointURI, ServiceStatus.DEAD);
+			}
+
+			addEndpointType(endpointIndex, endpointURI, endpoint.getEndpointType());
+			addPredicateListStatus(endpointIndex, endpointURI, false);
+			addSubjectRegExStatus(endpointIndex, endpointURI, false);
+			addObjectRegExStatus(endpointIndex, endpointURI, false);
+			addIndexCreationTime(endpointIndex, endpointURI, new Date());
+
+			updateEndpointIndex(endpointIndex, endpointURI);
+			endpointIndex.close();
+			log.trace("successfully added (empty) entry for " + endpointURI + " to registry");
+
+		} finally {
+			endpointIndex.close();
+		}
+	}
+	
+	protected void updateEndpointIndex(Model endpointEntry, String endpointURI) {
+		log.trace("writing entry for " + endpointURI + " to registry");
+		getIndexModel().removeAll(getResource(endpointURI), (Property)null, (RDFNode)null);
+		getIndexModel().add(endpointEntry);
 	}
 
+	protected boolean endpointInIndex(String endpointURI) {
+		Resource endpoint = getIndexModel().createResource(endpointURI);
+		return getIndexModel().contains(endpoint, getProperty(SPARQLRegistryOntology.ENDPOINT_STATUS), (RDFNode)null);
+	}
+	
+	protected Property getProperty(String uri) {
+		
+		Property p = getRegistryOntology().getProperty(uri);
+		if(p == null) {
+			throw new RuntimeException("property " + uri + " is not defined in " + SPARQLRegistryOntology.URI);
+		}
+		return p;
+	}
+	
+	protected Resource getResource(String uri) {
+		return getIndexModel().createResource(uri);
+	}
+	
 	public void indexEndpoint(String endpointURI, EndpointType type) throws IOException
 	{
 		indexEndpoint(endpointURI, type, DEFAULT_RESULTS_LIMIT);
@@ -121,85 +290,66 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 	public void indexEndpoint(String endpointURI, EndpointType type, long maxResultsPerQuery) throws IOException 
 	{
 		log.trace("indexing SPARQL endpoint " + endpointURI);
-		
-		ServiceStatus status = ServiceStatus.OK;
-		boolean indexIsComplete = true;
-		
-		if(updateEndpointStatus(endpointURI, type) == ServiceStatus.DEAD) {
-			log.warn("Skipping indexing of endpoint " + endpointURI + " (did not respond to ping)");
-			return;
-		}
-		
-		setEndpointType(endpointURI, type);
-
-		// D2R doesn't have support for regular expression FILTERs,
-		// so in order to compute the subject/object patterns, we must
-		// use the iteration method. -- BV
-		
-		if(type == EndpointType.D2R) {
-			try {
-				indexEndpointByIteration(endpointURI, type, maxResultsPerQuery);
-			}
-			catch(IOException e) {
-				log.warn("failed to compute full index by iteration", e);
-				status = ServiceStatus.SLOW;
-				indexIsComplete = false;
-			}
-		}
-		else {
-			try {
-				indexEndpointByQuery(endpointURI, type);
-			}
-			catch(IOException e) {
-
-				log.warn("failed to index endpoint by querying, now attempting to index by iteration", e);
-				status = ServiceStatus.SLOW; 
-				try {
-					indexEndpointByIteration(endpointURI, type, maxResultsPerQuery);
-				}
-				catch(IOException e2) {
-					log.warn("failed to compute full index by iteration", e2);
-					indexIsComplete = false;
-				}
-			}
-		}
-
-		setEndpointStatus(endpointURI, status);
-		
-		if(indexIsComplete)
-			log.trace("complete index for SPARQL endpoint " + endpointURI + " successfully computed");
-	}
-
-	public void indexEndpointByQuery(String endpointURI, EndpointType type) throws IOException 
-	{
-		updatePredicateListByQuery(endpointURI, type);
-		updateNumTriplesByQuery(endpointURI, type);
-		updateRegexByQuery2(endpointURI, type, true);
-		updateRegexByQuery2(endpointURI, type, false);
-	}
-	
-	public void indexEndpointByIteration(String endpointURI, EndpointType type, long maxResultsPerQuery) throws IOException
-	{
 		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
+		
+		Model endpointIndex = null;
+		try {
+			if(!endpoint.ping()) {
+				throw new IOException(endpointURI + " did not respond to ping");
+			}
 
-		if(maxResultsPerQuery == NO_RESULTS_LIMIT)
+			/* D2R doesn't have support for regular expression FILTERs,
+			 * so in order to compute the subject/object regex patterns, we must
+			 * use the iteration method. -- BV */
+
+			if(type == EndpointType.D2R) {
+				try {
+					endpointIndex = buildEndpointIndexByIteration(endpoint, maxResultsPerQuery);
+				} catch(IOException e) {
+					log.warn("failed to compute index by iteration", e);
+					return;
+				}
+			} else {
+				try {
+					endpointIndex = buildEndpointIndexByQuery(endpoint);
+				} catch(IOException e) {
+					log.warn("failed to complete index by querying, falling back to indexing by iteration", e);
+					try {
+						endpointIndex = buildEndpointIndexByIteration(endpoint, maxResultsPerQuery);
+						setEndpointStatus(endpointIndex, endpointURI, ServiceStatus.SLOW);
+					} catch(IOException e2) {
+						log.warn("failed to compute index by iteration, try indexing by traversal instead", e2);
+						return;
+					}
+				}
+			}
+
+			updateEndpointIndex(endpointIndex, endpointURI);
+			log.trace("index for SPARQL endpoint " + endpointURI + " successfully computed");
+
+		} finally {
+			if(endpointIndex != null) {
+				endpointIndex.close();
+			}
+		}
+		
+	}
+
+	public Model buildEndpointIndexByIteration(SPARQLEndpoint endpoint, long maxResultsPerQuery) throws IOException
+	{
+		String endpointURI = endpoint.getURI();
+		Model endpointIndex = ModelFactory.createMemModelMaker().createFreshModel();
+		
+		log.trace("building index for " + endpointURI + " by iteration");
+		
+		if(maxResultsPerQuery == SPARQLEndpoint.NO_RESULTS_LIMIT)
 			maxResultsPerQuery = DEFAULT_RESULTS_LIMIT;
 		
 		long numTriples = 0;
 		Set<String> predicates = new HashSet<String>();
-		Set<String> subjectPrefixes = new HashSet<String>();
-		Set<String> objectPrefixes = new HashSet<String>();
-		boolean subjectRegexExceededMaxLength = false;
-		boolean objectRegexExceededMaxLength = false;
+		RegExUtils.URIRegExBuilder subjectRegExBuilder = new RegExUtils.URIRegExBuilder(REGEX_MAX_LENGTH);
+		RegExUtils.URIRegExBuilder objectRegExBuilder = new RegExUtils.URIRegExBuilder(REGEX_MAX_LENGTH);
 
-		// ensure that the endpoint is alive, before erasing any existing index information
-		if(endpoint.ping()) {
-			clearPredicateEntries(endpointURI);
-			setPredicateListIsComplete(endpointURI, false);
-			setURIRegEx(endpointURI, "", true, false);
-			setURIRegEx(endpointURI, "", false, false);
-		}
-			
 		TripleIterator i = endpoint.iterator(maxResultsPerQuery);
 		while(i.hasNext()) {
 
@@ -209,177 +359,230 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 			Node o = t.getObject();
 
 			numTriples++;
-
-			if((numTriples % maxResultsPerQuery) == 0) {
-				setNumTriplesLowerBound(endpointURI, numTriples);
-			}
-
+			
 			String predicate = p.toString();
 			if(!predicates.contains(predicate)) {
-				try {
-					predicates.add(predicate);
-					addPredicateToRegistry(endpointURI, type, predicate);
-					log.trace("added predicate " + predicate);
-				}
-				catch(AmbiguousPropertyTypeException e) {
-					log.warn("skipped predicate " + predicate + " (ambiguous predicate)", e);
-				}
+				predicates.add(predicate);
+				addPredicate(endpointIndex, endpoint, getResource(predicate));
 			}
 
-			if(!subjectRegexExceededMaxLength && s.isURI()) {
-				String prefix = getURIPrefix(s.getURI());
-				if (!subjectPrefixes.contains(prefix)) {
-					subjectPrefixes.add(prefix);
-					String regex = buildRegExFromPrefixes(subjectPrefixes);
-					if(regex.length() > REGEX_MAX_LENGTH) {
-						log.debug("full regex for subject URIs exceeds max length of " + REGEX_MAX_LENGTH + " chars, regex will be incomplete");
-						subjectPrefixes.remove(prefix);
-						subjectRegexExceededMaxLength = true;
-					}
-					else {
-						setURIRegEx(endpointURI, regex, true, false);
-						log.debug("added subject prefix " + prefix);
-					}
-				}
-			}
+			// Check for uris that are empty or consist only of whitespace.
+			// Believe it or not, this actually happens in some of the Bio2RDF data. -- BV
 
-			if(!objectRegexExceededMaxLength && o.isURI()) {
-				String prefix = getURIPrefix(o.getURI());
-				if (!objectPrefixes.contains(prefix)) {
-					objectPrefixes.add(prefix);
-					String regex = buildRegExFromPrefixes(objectPrefixes);
-					if(regex.length() > REGEX_MAX_LENGTH) {
-						log.debug("full regex for object URIs exceeds max length of " + REGEX_MAX_LENGTH + " chars, regex will be incomplete");
-						objectPrefixes.remove(prefix);
-						objectRegexExceededMaxLength = true;
-					}
-					else {
-						setURIRegEx(endpointURI, regex, false, false);
-						log.debug("added object prefix " + prefix);
-					}
-				}
+			if(s.isURI() && s.getURI().trim().length() > 0) {
+				subjectRegExBuilder.addURIPrefixToRegEx(s.getURI());
 			}
-
+			
+			if(o.isURI() && o.getURI().trim().length() > 0) {
+				objectRegExBuilder.addURIPrefixToRegEx(o.getURI());
+			}
 		}
 
-		setPredicateListIsComplete(endpointURI, true);
-		setNumTriples(endpointURI, numTriples);
-
-		String regex = buildRegExFromPrefixes(subjectPrefixes);
-		setURIRegEx(endpointURI, regex, true, true);
-
-		regex = buildRegExFromPrefixes(objectPrefixes);
-		setURIRegEx(endpointURI, regex, false, true);
-
-		log.trace("indexing by iteration succeeded");
+		addEndpointType(endpointIndex, endpointURI, endpoint.getEndpointType());
+		setEndpointStatus(endpointIndex, endpointURI, ServiceStatus.OK);
+		addPredicateListStatus(endpointIndex, endpointURI, true);
+		addNumTriples(endpointIndex, endpointURI, numTriples);
+		addSubjectRegEx(endpointIndex, endpointURI, subjectRegExBuilder.getRegEx());
+		addSubjectRegExStatus(endpointIndex, endpointURI, true);
+		addObjectRegEx(endpointIndex, endpointURI, objectRegExBuilder.getRegEx());
+		addObjectRegExStatus(endpointIndex, endpointURI, true);
+		addIndexCreationTime(endpointIndex, endpointURI, new Date());
+		
+		log.trace("completed building index for " + endpointURI + " by iteration");
+		
+		return endpointIndex;
 	}
 	
-	public void addPredicatesBySubjectURI(String endpointURI, EndpointType type, String subjectURI) throws IOException
+	public Model buildEndpointIndexByQuery(SPARQLEndpoint endpoint) throws IOException 
 	{
+		String endpointURI = endpoint.getURI();
+		
+		log.trace("building index for " + endpointURI + " by query");
+		
+		Model endpointIndex = ModelFactory.createMemModelMaker().createFreshModel();
+		
+		addEndpointType(endpointIndex, endpointURI, endpoint.getEndpointType());
+		setEndpointStatus(endpointIndex, endpointURI, ServiceStatus.OK);
+		addPredicateListByQuery(endpointIndex, endpoint);
+		addPredicateListStatus(endpointIndex, endpointURI, true);
+		addNumTriplesByQuery(endpointIndex, endpoint);
+		
+		boolean regExComplete;
+		regExComplete = addRegexByQuery(endpointIndex, endpoint, true);
+		addSubjectRegExStatus(endpointIndex, endpointURI, regExComplete);
+		regExComplete = addRegexByQuery(endpointIndex, endpoint, false);
+		addObjectRegExStatus(endpointIndex, endpointURI, regExComplete);
+		
+		addIndexCreationTime(endpointIndex, endpointURI, new Date());
+		
+		log.trace("completed building index for " + endpointURI + " by query");
+		
+		return endpointIndex;
+	}
+
+	public void indexEndpointByTraversal(String endpointURI, EndpointType type, List<String> rootURIs) throws IOException {
+
+		log.trace("building index for " + endpointURI + " by traversal");
+		
 		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
 		
-		String query = "CONSTRUCT { %u% ?p ?o } WHERE { %u% ?p ?o }";
-		query = SPARQLStringUtils.strFromTemplate(query, subjectURI, subjectURI);
-		
-		Collection<Triple> triples = endpoint.constructQuery(query);
-		Set<Node> predicatesAdded = new HashSet<Node>();
-			
-		if(triples.size() == 0) {
-			log.warn(endpointURI + " does not contain " + subjectURI);
+		if(!endpoint.ping()) {
+			log.warn("aborting indexing of " + endpoint.getURI() + " by traversal, did not respond to ping");
 			return;
 		}
+	
+		Model endpointIndex = buildEndpointIndexByTraversal(endpoint, rootURIs);
+		updateEndpointIndex(endpointIndex, endpointURI);
 		
-		for(Triple t : triples) {
-			Node p = t.getPredicate();
-			if(predicatesAdded.contains(p))
-				continue;
+		log.trace("indexing by traversal successful for " + endpoint.getURI());
+	}
+	
+	public Model buildEndpointIndexByTraversal(SPARQLEndpoint endpoint, List<String> rootURIs) throws IOException {
+		
+		String endpointURI = endpoint.getURI();
+		Model endpointIndex = ModelFactory.createMemModelMaker().createFreshModel();
+		
+		RDFTypeConstraint typeConstraint = new RDFTypeConstraint(endpoint);
+
+		RegExUtils.URIRegExBuilder subjectRegExBuilder = new RegExUtils.URIRegExBuilder(REGEX_MAX_LENGTH);
+		RegExUtils.URIRegExBuilder objectRegExBuilder = new RegExUtils.URIRegExBuilder(REGEX_MAX_LENGTH);
+		
+		Set<String> predicates = new HashSet<String>();
+		
+		for(String rootURI : rootURIs) {
+			Resource root = ResourceFactory.createResource(rootURI);
+			SearchNode<Resource> startNode = new SPARQLSearchNode(endpoint, root);
 			try {
-				addPredicateToRegistry(endpointURI, type, p.toString());
+				Iterator<Resource> i = new BoundedBreadthFirstIterator<Resource>(startNode, typeConstraint, MAX_TRAVERSAL_DEPTH);
+				while(i.hasNext()) {
+
+					Resource subject = i.next();
+					if(subject.isURIResource()) {
+					
+						String uri = subject.getURI();
+
+						// Check for uris that are empty or consist only of whitespace.
+						// Believe it or not, this actually happens in some of the Bio2RDF data. -- BV
+						if(uri.trim().length() == 0) {
+							continue;
+						}
+						
+						subjectRegExBuilder.addURIPrefixToRegEx(uri);
+
+						log.trace("visiting subject " + uri);
+						
+						String queryType = "CONSTRUCT { %u% ?p ?o } WHERE { %u% ?p ?o }";
+						queryType = SPARQLStringUtils.strFromTemplate(queryType, uri, uri);
+						Collection<Triple> triples = endpoint.constructQuery(queryType);
+
+						for(Triple triple : triples) {
+							Node p = triple.getPredicate();
+							Node o = triple.getObject();
+							if(!predicates.contains(p.getURI())) {
+								log.trace("adding predicate " + p.getURI());
+								predicates.add(p.getURI());
+								addPredicate(endpointIndex, endpoint, getResource(p.getURI()));
+							}
+							if(o.isURI()) {
+								objectRegExBuilder.addURIPrefixToRegEx(o.getURI());
+							}
+							if(p.toString().equals(RDF.type.getURI()) && o.isURI()) {
+								Resource rdfType = ResourceFactory.createResource(o.getURI());
+								typeConstraint.setTypeAsVisited(rdfType);
+							}
+						}
+					}
+				}
+			} catch(RuntimeException e) {
+				// the BreadthFirstIterator can only throw a RuntimeException, so IOExceptions in 
+				// SPARQLSearchNode / VisitEachRDFTypeOnlyOnce are wrapped
+				if(e.getCause() instanceof IOException) {
+					throw (IOException)e.getCause();
+				} else {
+					throw e;
+				}
 			}
-			catch(IOException e) {
-				log.warn("skipping predicate: ", e);
-			}
-			catch(AmbiguousPropertyTypeException e) {
-				log.warn("skipping predicate: ", e);
-			}
-			predicatesAdded.add(p);
 		}
+
+		// Note: We have no idea what the number of triples is for the endpoint, so we don't set it here.
 		
+		addEndpointType(endpointIndex, endpointURI, endpoint.getEndpointType());
+		setEndpointStatus(endpointIndex, endpointURI, ServiceStatus.OK);
+		// it is impossible to be certain we have seen all predicates in the endpoint
+		addPredicateListStatus(endpointIndex, endpointURI, false);
+		addSubjectRegEx(endpointIndex, endpointURI, subjectRegExBuilder.getRegEx());
+		// it is impossible to be certain that the subject/object regexes are complete 
+		addSubjectRegExStatus(endpointIndex, endpointURI, false);
+		addObjectRegEx(endpointIndex, endpointURI, objectRegExBuilder.getRegEx());
+		// it is impossible to be certain that the subject/object regexes are complete 
+		addObjectRegExStatus(endpointIndex, endpointURI, false);
+		addIndexCreationTime(endpointIndex, endpointURI, new Date());
+
+		return endpointIndex;
+	}
+
+	protected void addPredicate(Model endpointIndex, SPARQLEndpoint endpoint, Resource predicate) {
+
+		if(predicateMatchesExcludeList(predicate.getURI())) {
+			log.trace("ignoring predicate " + predicate.getURI());
+			return;
+		}
+		log.trace("adding predicate " + predicate.getURI());
+		endpointIndex.add(getResource(endpoint.getURI()), getProperty(SPARQLRegistryOntology.HAS_PREDICATE), predicate);
 	}
 	
-	public void updateNumTriplesByQuery(String endpointURI, EndpointType type) throws IOException
-	{
-		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-		long numTriples;
+	public void addNumTriplesByQuery(Model endpointIndex, SPARQLEndpoint endpoint) throws IOException {
 
-		log.trace("querying number of triples in " + endpointURI);
-		numTriples = getNumTriples(endpoint);
+		String endpointURI = endpoint.getURI();
 		
-		log.trace("determined exact number of triples in " + endpointURI + ": " + String.valueOf(numTriples));
-		setNumTriples(endpointURI, numTriples);
+		log.trace("querying number of triples in " + endpoint.getURI());
+		long numTriples = getNumTriples(endpoint);
+		
+		log.trace(endpoint.getURI() + " has exactly " + String.valueOf(numTriples) + " triples");
+		addNumTriples(endpointIndex, endpointURI, numTriples);
 	}
 	
-	public void updatePredicateListByQuery(String endpointURI, EndpointType type) throws IOException
+	public long getNumTriples(SPARQLEndpoint endpoint) throws IOException 
 	{
-		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-		Set<String> predicates = null;
-		
-		log.trace("querying predicate list from " + endpointURI);
-		predicates = endpoint.getPredicates();
-		
-		log.trace("retrieved full predicate list for " + endpointURI);
-		clearPredicateEntries(endpointURI);
-		addPredicatesToRegistry(endpointURI, type, predicates);
-		setPredicateListIsComplete(endpointURI, true);
+		String query = "SELECT COUNT(*) WHERE { ?s ?p ?o }";
+		List<Map<String, String>> results = endpoint.selectQuery(query);
+		if (results.size() == 0) 
+			throw new RuntimeException("no value returned for COUNT query");
+
+		String columnName = results.get(0).keySet().iterator().next();
+		return Long.valueOf(results.get(0).get(columnName));
 	}
 	
-	public void addPredicatesToRegistry(String endpointURI, EndpointType type, Collection<String> predicates) throws IOException
+	public void addPredicateListByQuery(Model endpointIndex, SPARQLEndpoint endpoint) throws IOException
 	{
-
-		for (String predicate : predicates) {
-
-			try {
-				addPredicateToRegistry(endpointURI, type, predicate);
-			} 
-			catch (IOException e) {
-				log.warn("failed to determine type of " + predicate, e);
-				continue;
-			} 
-			catch (AmbiguousPropertyTypeException e) {
-				log.warn("omitting predicate " + predicate, e);
-				continue;
-			}
-			
+		log.trace("querying predicate list from " + endpoint.getURI());
+		Set<String> predicates = endpoint.getPredicates();
+		
+		log.trace("retrieved full predicate list for " + endpoint.getURI());
+		for(String predicate : predicates) {
+			addPredicate(endpointIndex, endpoint, getResource(predicate));
 		}
 	}
 	
-	public void addPredicateToRegistry(String endpointURI, EndpointType type, String predicate) throws IOException, AmbiguousPropertyTypeException
+	private boolean addRegexByQuery(Model endpointIndex, SPARQLEndpoint endpoint, boolean positionIsSubject) throws IOException
 	{
-		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-		boolean isDatatypeProperty = endpoint.isDatatypeProperty(predicate, true);
-		addPredicateToOntology(predicate, isDatatypeProperty);
-		addPredicateToIndex(endpointURI, predicate);
-	}
+		String endpointURI = endpoint.getURI();
+		EndpointType type = endpoint.getEndpointType();
+		RegExUtils.URIRegExBuilder regExBuilder = new RegExUtils.URIRegExBuilder(REGEX_MAX_LENGTH);
 
-	private void updateRegexByQuery2(String endpointURI, EndpointType type, boolean positionIsSubject) throws IOException
-	{
-		Set<String> prefixes = new HashSet<String>();
-		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-		boolean regexIsComplete = true;
-		
 		// Query for the next subject/object URI that doesn't match any of the prefixes we've found so far.  
 		// Get the prefix for that URI, add it to the list, and repeat.
-		while(true) {
+		while(!regExBuilder.regExIsTruncated()) {
 			
 			String query;
 			String filter;
-			String regex = buildRegExFromPrefixes(prefixes);
+			String regex = regExBuilder.getRegEx();
 				
 			// regular expressions in Virtuoso SPARQL queries require two backslashes for escaping metacharacters
 			if(type == EndpointType.VIRTUOSO)
 				regex = regex.replaceAll("\\\\", "\\\\\\\\");
 			
-			if(prefixes.size() == 0) {
+			if(regex.length() == 0) {
 				if(positionIsSubject)
 					filter = "isURI(?s)";
 				else 
@@ -394,578 +597,126 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 			
 			query = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o . FILTER " + filter + "} LIMIT 1";
 			
-			Collection<Triple> triples = null;
-			try {
-				triples = endpoint.constructQuery(query);
-			} 
-			catch(IOException e) {
-				log.warn("query failed during computation of regex", e);
-				if(prefixes.size() > 0) {
-					log.warn("recording partial regex");
-					setURIRegEx(endpointURI, regex, positionIsSubject, false);
-				}
-				throw e;
-			}
+			Collection<Triple> triples = endpoint.constructQuery(query);
 
 			if(triples.size() == 0)
-				break; // Done!
+				break; // done!
 			
 			String uri;
 			if(positionIsSubject)
 				uri = triples.iterator().next().getSubject().getURI();
 			else
 				uri = triples.iterator().next().getObject().getURI();
-			
-			String prefix = getURIPrefix(uri);
 
-			if(!prefixes.contains(prefix)) {
-				log.debug("adding URI prefix " + prefix);
-				prefixes.add(prefix);
-				
-				if(buildRegExFromPrefixes(prefixes).length() > REGEX_MAX_LENGTH) {
-					log.debug("full regex exceeds maximum length of " + REGEX_MAX_LENGTH + " chars, regex will be incomplete");
-					prefixes.remove(prefix);
-					regexIsComplete = false;
-					break;
-				}
-				
+			// Check for uris that are empty or consists only of whitespace.
+			// Believe it or not, this actually happens in some of the Bio2RDF data. -- BV
+			if(uri.trim().length() == 0) {
+				log.warn("encountered empty uri in data, aborting computation of regex");
+				return false;
 			}
 			
+			regExBuilder.addURIPrefixToRegEx(uri);
 		}
 
-		String regex = buildRegExFromPrefixes(prefixes);
-		setURIRegEx(endpointURI, regex, positionIsSubject, regexIsComplete);
-	}
-
-	/*
-	private void updateRegexByIteration(String endpointURI, EndpointType type, boolean positionIsSubject) throws IOException 
-	{
-		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-
-		boolean regexIsComplete = true;
-		Set<String> prefixes = new HashSet<String>();
-
-		TripleIterator i = endpoint.iterator();
-		while(i.hasNext()) {
-
-			Triple t = i.next();
-			Node s = t.getSubject();
-			Node o = t.getObject();
-
-			String uri;
-			if (positionIsSubject && s.isURI())
-				uri = s.getURI();
-			else if (!positionIsSubject && o.isURI())
-				uri = o.getURI();
-			else
-				continue;
-
-			String prefix = getURIPrefix(uri);
-
-			if (!prefixes.contains(prefix)) {
-				log.debug("adding URI prefix " + prefix);
-				prefixes.add(prefix);
-
-				if(buildRegExFromPrefixes(prefixes).length() > REGEX_MAX_LENGTH) {
-					log.debug("full regex exceeds maximum length of " + REGEX_MAX_LENGTH + " chars, regex will be incomplete");
-					prefixes.remove(prefix);
-					regexIsComplete = false;
-					break;
-				}
-			}
-		}
-			
-		String regex = buildRegExFromPrefixes(prefixes);
-		if(regex.length() > 0)
-			setURIRegEx(endpointURI, regex, positionIsSubject, regexIsComplete);
-	}
-	*/
-	
-	public void setURIRegEx(String endpointURI, String regex, boolean positionIsSubject, boolean regexIsComplete) throws IOException 
-	{
-		// Clear any pre-existing regex and regex status.
-
-		String deleteTemplate = "DELETE FROM GRAPH %u% { %u% %u% ?o } WHERE { %u% %u% ?o }";
-		
-		String regexPredicate;
-		String regexIsCompletePredicate;
+		String regex = regExBuilder.getRegEx();
 		
 		if(positionIsSubject) {
-			regexPredicate = SPARQLRegistryOntology.PREDICATE_SUBJECT_REGEX;
-			regexIsCompletePredicate = SPARQLRegistryOntology.PREDICATE_SUBJECT_REGEX_IS_COMPLETE;
+			addSubjectRegEx(endpointIndex, endpointURI, regex);
+		} else {
+			addObjectRegEx(endpointIndex, endpointURI, regex);
 		}
-		else {
-			regexPredicate = SPARQLRegistryOntology.PREDICATE_OBJECT_REGEX;
-			regexIsCompletePredicate = SPARQLRegistryOntology.PREDICATE_OBJECT_REGEX_IS_COMPLETE;
-		}
-			
-		String deleteRegEx = SPARQLStringUtils.strFromTemplate(deleteTemplate, 
-								getIndexGraphURI(),
-								endpointURI,
-								regexPredicate,
-								endpointURI,
-								regexPredicate);
 		
-		String deleteRegExIsComplete = SPARQLStringUtils.strFromTemplate(deleteTemplate, 
-								getIndexGraphURI(),
-								endpointURI,
-								regexIsCompletePredicate,
-								endpointURI,
-								regexIsCompletePredicate);
-		
-		updateQuery(deleteRegEx);
-		updateQuery(deleteRegExIsComplete);
-		
-		// Insert the new regex and regex status.
-		
-		String insertQuery = 
-			"INSERT INTO GRAPH %u% { \n" +
-			"    %u% %u% %s% .\n" +
-			"    %u% %u% %s% .\n" +
-			"}";
-		
-		insertQuery = SPARQLStringUtils.strFromTemplate(insertQuery,  
-							getIndexGraphURI(),
-							endpointURI, regexPredicate, regex,
-							endpointURI, regexIsCompletePredicate, String.valueOf(regexIsComplete));
-							
-		updateQuery(insertQuery);
-		
-		if(positionIsSubject) 
-			log.debug("set subject regex pattern for " + endpointURI + " to " + regex);
-		else
-			log.debug("set object regex pattern for " + endpointURI + " to " + regex);
-			
+		return !regExBuilder.regExIsTruncated();
 	}
 
-	private String getURIPrefix(String uri) 
-	{
-		final String delimiters[] = { "/", "#", ":" };
-		
-		// ignore delimiters that occur as the last character
-		if(StringUtils.lastIndexOfAny(uri, delimiters) == (uri.length() - 1))
-			uri = StringUtils.left(uri, uri.length() - 1);
-		
-		int chopIndex = StringUtils.lastIndexOfAny(uri, delimiters);
+	public void addSubjectRegExStatus(Model model, String endpointURI, boolean regexIsComplete) {
+		log.trace("adding subject regex status as " + (regexIsComplete ? "complete" : "incomplete"));
+		model.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.SUBJECT_REGEX_IS_COMPLETE), model.createTypedLiteral(String.valueOf(regexIsComplete)));
+	}
 
-		String prefix;
-		if (chopIndex == -1)
-			prefix = uri;
-		else {
-			chopIndex++; // we want to include the last "/", ":", or "#" in the prefix
-			prefix = StringUtils.substring(uri, 0, chopIndex);
-		}
-
-		return prefix;
+	public void addObjectRegExStatus(Model model, String endpointURI, boolean regexIsComplete) {
+		log.trace("adding object regex status as " + (regexIsComplete ? "complete" : "incomplete"));
+		model.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.OBJECT_REGEX_IS_COMPLETE), model.createTypedLiteral(String.valueOf(regexIsComplete)));
 	}
 	
-	private String buildRegExFromPrefixes(Collection<String> prefixes) {
-		StringBuffer regex = new StringBuffer();
-		int count = 0;
-		for (String prefix : prefixes) {
-			regex.append("^");
-			regex.append(RegExUtils.escapeRegEx(prefix));
-			if (count < prefixes.size() - 1)
-				regex.append("|");
-			count++;
-		}
-		return regex.toString();
+	public void addIndexCreationTime(Model model, String endpointURI, Date date) {
+		String dateString = DateFormat.getDateTimeInstance().format(date);
+		log.trace("adding index creation time " + dateString);
+		model.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.LAST_UPDATED), model.createTypedLiteral(dateString));
 	}
 	
-	/**
-	 * <p>Truncate the given string at the first occurrence of a regular expression
-	 * metacharacter that isn't "." or "-". This method is needed to make safe regular
-	 * expressions, because there doesn't seem to be a way to escape regex
-	 * metacharacters in Virtuoso SPARQL queries.</p>
-	 * 
-	 * <p>"." is omitted because it is relatively harmless to match "any character"
-	 * instead of a dot, in the context of matching URIs.  "-" is omitted because
-	 * it is only a metacharacter when found within a character class (e.g. "[A-Z]"),
-	 *  and both "[" or "]" are guaranteed to be absent from the truncated string.</p> 
-	 * 
-	 * @param str
-	 * @return the truncated string
-	 */
-	/*
-	private String truncateStringAtFirstRegExMetaChar(String str) 
-	{
-		final char metaChars[] = {  '[', ']', '$', '^', '(', ')', '+', '*', '|' };
-		int chopIndex = StringUtils.indexOfAny(str, metaChars);
-		if(chopIndex != -1)
-			return StringUtils.substring(str, 0, chopIndex);
-		else
-			return str;
+	public void addSubjectRegEx(Model endpointIndex, String endpointURI, String regex) {
+		log.trace("adding subject regex pattern " + regex + " for " + endpointURI);
+		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.SUBJECT_REGEX), endpointIndex.createTypedLiteral(regex));
 	}
-	*/
 
-	/*
-	public boolean updatePredicateList(String endpointURI, EndpointType type) throws IOException 
-	{
-		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-		Set<String> predicateURIs = null;
-		boolean retrievedFullPredicateList = false;
-		
-		log.trace("querying predicate list from " + endpointURI);
-
-		try {
-			predicateURIs = endpoint.getPredicates();
-			log.trace("retrieved full predicate list for " + endpointURI);
-			retrievedFullPredicateList = true;
-		} catch (Exception e) {
-			log.warn("failed to retrieve full predicate list for endpoint " + endpointURI + ": ", e);
-			try {
-				predicateURIs = endpoint.getPredicatesPartial();
-			} catch(IOException e2) {
-				log.warn("failed to get partial predicate list by querying with limits.", e2);
-				predicateURIs = updatePredicatesByIteration(endpointURI, type);
-			}
-		}
-
-		// If we failed to get any predicates at all, keep the list that's already in the registry.
-		if(predicateURIs.size() > 0)
-			clearPredicateEntries(endpointURI);
-			 
-		for (String predicateURI : predicateURIs) {
-
-			boolean isDatatypeProperty = false;
-			try {
-				isDatatypeProperty = endpoint.isDatatypeProperty(predicateURI);
-			} catch (IOException e) {
-				log.warn("failed to determine whether " + predicateURI + " is a datatype or object property, omitting this predicate from the endpoint index", e);
-				continue;
-			} catch (AmbiguousPropertyTypeException e) {
-				log.warn("omitting ambiguous predicate " + predicateURI, e);
-				continue;
-			}
-
-			addPredicateToOntology(predicateURI, isDatatypeProperty);
-			addPredicateToIndex(endpointURI, predicateURI);
-		}
-
-		return retrievedFullPredicateList;
+	public void addObjectRegEx(Model endpointIndex, String endpointURI, String regex) {
+		log.trace("adding object regex pattern " + regex + " for " + endpointURI);
+		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.OBJECT_REGEX), endpointIndex.createTypedLiteral(regex));
 	}
-	*/
+
+	void addEndpointType(Model endpointIndex, String endpointURI, EndpointType type) {
+		log.trace("adding endpoint type of " + type.toString() + " for " + endpointURI);
+		endpointIndex.add(getResource(endpointURI), RDF.type, endpointIndex.createTypedLiteral(type.toString()));
+	}
+
+	protected void addPredicateListStatus(Model endpointIndex, String endpointURI, boolean indexStatus) {
+		log.trace("adding predicate list status as " + (indexStatus ? "complete" : "incomplete"));
+		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.PREDICATE_LIST_IS_COMPLETE), endpointIndex.createTypedLiteral(String.valueOf(indexStatus)));
+	}
+
+	protected void setEndpointStatus(Model endpointIndex, String endpointURI, ServiceStatus status) {
+		log.trace("updating status " + status.toString() + " for " + endpointURI);
+		endpointIndex.removeAll(getResource(endpointURI), getProperty(SPARQLRegistryOntology.ENDPOINT_STATUS), (RDFNode)null);
+		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.ENDPOINT_STATUS), endpointIndex.createTypedLiteral(status.toString()));
+	}
+
+	public void addNumTriples(Model endpointIndex, String endpointURI, long numTriples) {
+		log.trace("adding number of triples = " + String.valueOf(numTriples) + " for " + endpointURI);
+		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.NUM_TRIPLES), endpointIndex.createTypedLiteral(numTriples));
+	}
+
+	public void addNumTriplesLowerBound(Model endpointIndex, String endpointURI, long numTriplesLowerBound) throws IOException	{
+		log.trace("adding number of triples (lower bound) = " + String.valueOf(numTriplesLowerBound) + " for " + endpointURI);
+		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.NUM_TRIPLES), endpointIndex.createTypedLiteral(numTriplesLowerBound));
+	}
 	
-	/*
-	public Set<String> updatePredicatesByIteration(String endpointURI, EndpointType type) throws IOException 
-	{
-		log.trace("downloading triples by chunks to determine predicate list");
-		Set<String> predicates = new HashSet<String>();
-		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-		try {
-			TripleIterator i = endpoint.iterator();
-			while(i.hasNext()) {
-				String uri = i.next().getPredicate().getURI();
-				if(!predicates.contains(uri)) {
-					log.trace("added predicate " + uri + " to index for " + endpointURI);
-					predicates.add(uri);
-				}
-			}
-		} catch(IOException e) {
-			log.warn("failed to download full list of triples for " + endpointURI + ", keeping partial predicate list");
-		}
-		return predicates;
-	}
-	*/
-	
-	/*
-	public boolean updateEndpointSize(String endpointURI, EndpointType type) throws IOException 
-	{
-		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-		boolean retrievedFullTripleCount = false;
-		long numTriples;
-
-		log.trace("querying number of triples in " + endpointURI);
-
-		try {
-			numTriples = getNumTriples(endpoint);
-			log.trace("determined exact number of triples in " + endpointURI + ": " + String.valueOf(numTriples));
-			retrievedFullTripleCount = true;
-		} catch (Exception e) {
-			log.warn("failed to query exact size (in triples) for endpoint " + endpoint.getURI());
-			numTriples = getNumTriplesLowerBound(endpoint);
-		}
-
-		setNumTriples(endpointURI, numTriples);
-
-		return retrievedFullTripleCount;
-	}
-	*/
-	
-	public void clearPredicateEntries(String endpointURI) throws IOException 
-	{
-		String query = "DELETE FROM GRAPH %u% { %u% %u% ?o } FROM %u% WHERE { %u% %u% ?o }";
-		query = SPARQLStringUtils.strFromTemplate(query,
-				getIndexGraphURI(), 
-				endpointURI, SPARQLRegistryOntology.PREDICATE_HASPREDICATE,
-				getIndexGraphURI(), 
-				endpointURI, SPARQLRegistryOntology.PREDICATE_HASPREDICATE);
-		updateQuery(query);
-	}
-
-	void setEndpointType(String endpointURI, EndpointType type) throws IOException 
-	{
-		String deleteQuery = "DELETE FROM GRAPH %u% { %u% %u% ?o } WHERE { %u% %u% ?o }";
-		deleteQuery = SPARQLStringUtils.strFromTemplate(deleteQuery, 
-				getIndexGraphURI(),
-				endpointURI, W3C.PREDICATE_RDF_TYPE,
-				endpointURI, W3C.PREDICATE_RDF_TYPE);
-		updateQuery(deleteQuery);
-		
-		String insertQuery = "INSERT INTO GRAPH %u% { %u% %u% %s%^^%u% }";
-		insertQuery = SPARQLStringUtils.strFromTemplate(insertQuery, 
-				getIndexGraphURI(),
-				endpointURI, W3C.PREDICATE_RDF_TYPE, type.toString(),
-				XSDDatatype.XSDstring.getURI());
-		updateQuery(insertQuery);
-	}
-
-	void setPredicateListIsComplete(String endpointURI, boolean indexStatus) throws IOException 
-	{
-		// Delete the existing status value
-		String queryDeletePrev = "DELETE FROM GRAPH %u% { %u% %u% ?o } FROM %u% WHERE { %u% %u% ?o }";
-		queryDeletePrev = SPARQLStringUtils	.strFromTemplate(queryDeletePrev,
-						getIndexGraphURI(),
-						endpointURI,
-						SPARQLRegistryOntology.PREDICATE_PREDICATE_LIST_IS_COMPLETE,
-						getIndexGraphURI(),
-						endpointURI,
-						SPARQLRegistryOntology.PREDICATE_PREDICATE_LIST_IS_COMPLETE);
-		updateQuery(queryDeletePrev);
-
-		// Write the new status value
-		String queryRecordSuccess = "INSERT INTO GRAPH %u% { %u% %u% %s% }";
-		//String status = indexStatus ? "true" : "false";
-		queryRecordSuccess = SPARQLStringUtils.strFromTemplate(queryRecordSuccess,
-						getIndexGraphURI(),
-						endpointURI, SPARQLRegistryOntology.PREDICATE_PREDICATE_LIST_IS_COMPLETE, String.valueOf(indexStatus));
-		updateQuery(queryRecordSuccess);
-	}
-
-	public ServiceStatus updateEndpointStatus(String endpointURI, EndpointType type) throws IOException 
-	{
-		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-		ServiceStatus status;
-	
-		if (endpoint.ping())
-			status = ServiceStatus.OK;
-		else
-			status = ServiceStatus.DEAD;
-
-		setEndpointStatus(endpointURI, status);
-		return status;
-	}
-
-	public void setEndpointStatus(String endpointURI, ServiceStatus status) throws IOException 
-	{
-		log.trace("setting status of " + endpointURI + " to " + status.toString());
-		
-		// Delete the existing status value
-		String queryDeletePrev = "DELETE FROM GRAPH %u% { %u% %u% ?o } FROM %u% WHERE { %u% %u% ?o }";
-		queryDeletePrev = SPARQLStringUtils	.strFromTemplate(	queryDeletePrev,
-						getIndexGraphURI(),
-						endpointURI,
-						SPARQLRegistryOntology.PREDICATE_ENDPOINTSTATUS,
-						getIndexGraphURI(),
-						endpointURI,
-						SPARQLRegistryOntology.PREDICATE_ENDPOINTSTATUS);
-		updateQuery(queryDeletePrev);
-
-		// Write the new status value
-		String queryRecordSuccess = "INSERT INTO GRAPH %u% { %u% %u% %s% }";
-		queryRecordSuccess = SPARQLStringUtils.strFromTemplate(queryRecordSuccess,
-						getIndexGraphURI(),
-						endpointURI,
-						SPARQLRegistryOntology.PREDICATE_ENDPOINTSTATUS,
-						status.toString());
-		updateQuery(queryRecordSuccess);
-	}
-
-	private void addPredicateToIndex(String endpointURI, String predicateURI) throws IOException 
-	{
-		// TEMP HACK: Ignore "junk" data that comes with all Virtuoso installations.
-		if(predicateURI.matches("^http://www\\.openlinksw\\.com/.*")) { 
-			log.trace("omitting " + predicateURI + " from index (Virtuoso sample data)");
-			return;
-		}
-		
-		String queryAddPredURI = "INSERT INTO GRAPH %u% { %u% %u% %u% }";
-		queryAddPredURI = SPARQLStringUtils.strFromTemplate(
-				queryAddPredURI, getIndexGraphURI(),
-				endpointURI,
-				SPARQLRegistryOntology.PREDICATE_HASPREDICATE,
-				predicateURI);
-		updateQuery(queryAddPredURI);
-	}
-
-	public void refreshStatusOfAllEndpoints() throws IOException 
+	public void updateStatusOfAllEndpoints() throws IOException 
 	{
 		Collection<SPARQLEndpoint> endpoints = getAllEndpoints();
 		for (SPARQLEndpoint endpoint : endpoints) {
-			try {
-				endpoint.getPredicates();
-				setEndpointStatus(endpoint.getURI(), ServiceStatus.OK);
-			} catch (HttpStatusException e) {
-				if(e.getStatusCode() == HttpResponse.HTTP_STATUS_GATEWAY_TIMEOUT) {
-					setEndpointStatus(endpoint.getURI(), ServiceStatus.SLOW);
-				}
-			} catch (IOException e) {
-				setEndpointStatus(endpoint.getURI(), ServiceStatus.DEAD);
-			}
+			updateEndpointStatus(endpoint);
 		}
 	}
-
-	public void removeEndpoint(String endpointURI) throws IOException 
-	{
-		log.trace("Removing endpoint " + endpointURI + " from SPARQL registry");
-		deleteDirectedClosure(endpointURI, getIndexGraphURI());
-	}
-
-	public void addPredicateToOntology(String predicateURI, boolean isDatatypeProperty) throws IOException 
-	{
-		String type = isDatatypeProperty ? "DatatypeProperty" : "ObjectProperty";
-
-		// Remove the previously assigned type (if any).
-		removePredicateFromOntology(predicateURI);
-
-		// Insert the new value.
-		String addPredQuery = "INSERT INTO GRAPH %u% { %u% %u% %u% }";
-		addPredQuery = SPARQLStringUtils.strFromTemplate(addPredQuery,
-				getOntologyGraphURI(), 
-				predicateURI, W3C.PREDICATE_RDF_TYPE, W3C.OWL_PREFIX + type);
-		updateQuery(addPredQuery);
-		
+	
+	public void updateEndpointStatus(SPARQLEndpoint endpoint) {
+		ServiceStatus newStatus = endpoint.ping() ? ServiceStatus.OK : ServiceStatus.DEAD;
+		setEndpointStatus(getIndexModel(), endpoint.getURI(), newStatus); 
 	}
 	
-	public void removePredicateFromOntology(String predicateURI) throws IOException 
-	{
-		// Remove the previously assigned type (if any).
-		String deleteQuery = "DELETE FROM GRAPH %u% { %u% %u% ?type } WHERE { %u% %u% ?type }";
-		deleteQuery = SPARQLStringUtils.strFromTemplate(deleteQuery,
-				getOntologyGraphURI(), 
-				predicateURI,	W3C.PREDICATE_RDF_TYPE, 
-				predicateURI,	W3C.PREDICATE_RDF_TYPE);
-		updateQuery(deleteQuery);
+	public void setEndpointStatus(String endpointURI, ServiceStatus status) {
 	}
 
-	public long getNumTriples(SPARQLEndpoint endpoint) throws IOException 
-	{
-		String query = "SELECT COUNT(*) WHERE { ?s ?p ?o }";
-		List<Map<String, String>> results = endpoint.selectQuery(query);
-		if (results.size() == 0) 
-			throw new RuntimeException("no value returned for COUNT query");
+	protected Set<SPARQLEndpoint> getAllEndpoints() {
 
-		String columnName = results.get(0).keySet().iterator().next();
-		return Long.valueOf(results.get(0).get(columnName));
-	}
-
-	/*
-	public long getNumTriplesLowerBound(SPARQLEndpoint endpoint) throws IOException 
-	{
-		String probeQuery = "SELECT * WHERE { ?s ?p ?o }";
-		return endpoint.getResultsCountLowerBound(probeQuery, 1000000, 20 * 1000);
-	}
-	*/
-	
-	public void setNumTriples(String endpointURI, long numTriples) throws IOException 
-	{
-		// Delete any existing value for numTriples/numTriplesLowerBound first.
-		clearNumTriples(endpointURI);
-		
-		// Insert the new value.
-		String query = "INSERT INTO GRAPH %u% { %u% %u% %v% }";
-		query = SPARQLStringUtils.strFromTemplate(query,
-				getIndexGraphURI(), endpointURI,
-				SPARQLRegistryOntology.PREDICATE_NUMTRIPLES,
-				String.valueOf(numTriples));
-		updateQuery(query);
-	}
-
-	public void setNumTriplesLowerBound(String endpointURI, long numTriples) throws IOException
-	{
-		// Delete any existing value for numTriples/numTriplesLowerBound first.
-		clearNumTriples(endpointURI);
-		
-		// Insert the new value.
-		String query = "INSERT INTO GRAPH %u% { %u% %u% %v% }";
-		query = SPARQLStringUtils.strFromTemplate(query,
-				getIndexGraphURI(), endpointURI,
-				SPARQLRegistryOntology.PREDICATE_NUMTRIPLES_LOWER_BOUND,
-				String.valueOf(numTriples));
-		updateQuery(query);
-	}
-	
-	private void clearNumTriples(String endpointURI) throws IOException 
-	{
-		String deleteQueryTemplate = "DELETE FROM GRAPH %u% { %u% %u% ?o } FROM %u% WHERE { %u% %u% ?o }";
-		
-		String deleteQuery1 = SPARQLStringUtils.strFromTemplate(deleteQueryTemplate,
-									getIndexGraphURI(), endpointURI,
-									SPARQLRegistryOntology.PREDICATE_NUMTRIPLES,
-									getIndexGraphURI(), endpointURI,
-									SPARQLRegistryOntology.PREDICATE_NUMTRIPLES);
-		updateQuery(deleteQuery1);
-		
-		String deleteQuery2 = SPARQLStringUtils.strFromTemplate(deleteQueryTemplate,
-									getIndexGraphURI(), endpointURI,
-									SPARQLRegistryOntology.PREDICATE_NUMTRIPLES_LOWER_BOUND,
-									getIndexGraphURI(), endpointURI,
-									SPARQLRegistryOntology.PREDICATE_NUMTRIPLES_LOWER_BOUND);
-		updateQuery(deleteQuery2);
-	}
-	
-	public void removeAmbiguousPropertiesFromOntology() throws IOException
-	{
-		log.trace("detecting and removing all ambiguous properties");
-		OntModel predicateOntology = getPredicateOntology();
-		Iterator it = predicateOntology.listAllOntProperties();
-
-		while (it.hasNext()) {
-			OntProperty predicate = (OntProperty)it.next();
-			String p = predicate.toString();
-			if(isAmbiguousProperty(predicate)) {
-				log.trace("removing ambiguous property " + p);
-				removePredicateFromOntology(p);
+		Set<SPARQLEndpoint> endpoints = new HashSet<SPARQLEndpoint>();
+		for(ResIterator i = getIndexModel().listSubjects(); i.hasNext(); ) {
+			Resource endpoint = (Resource)i.next();
+			Statement typeTriple = endpoint.getProperty(RDF.type);
+			if(typeTriple == null) {
+ 				endpoints.add(SPARQLEndpointFactory.createEndpoint(endpoint.getURI()));
+			} else {
+				EndpointType type = EndpointType.valueOf(typeTriple.getObject().toString());
+				endpoints.add(SPARQLEndpointFactory.createEndpoint(endpoint.getURI(), type));
 			}
 		}
-		
+		return endpoints;
 	}
 	
-	protected boolean isAmbiguousProperty(OntProperty predicate) throws IOException
-	{
-		String p = predicate.toString();
-
-		if(!predicate.isDatatypeProperty() && !predicate.isObjectProperty()) {
-			log.warn(p + " is neither a datatype property or an object property, assuming it is unambiguous");
-			return false;
-		}
-		
-		log.trace("checking if " + p + " is an ambiguous property");
-		
-		Collection<SPARQLEndpoint> endpoints = findEndpointsByPredicate(p);
-		
-		String query = null;
-		if(predicate.isDatatypeProperty()) 
-			query = "SELECT * WHERE { ?s %u% ?o . FILTER (!isLiteral(?o)) } LIMIT 1";
-		else
-			query = "SELECT * WHERE { ?s %u% ?o . FILTER (isLiteral(?o)) } LIMIT 1";
-		
-		query = SPARQLStringUtils.strFromTemplate(query, p);
-		
-		for(SPARQLEndpoint endpoint: endpoints) {
-			try {
-				log.trace("querying for illegal object values for " + p + " from " + endpoint.getURI());
-				if(endpoint.selectQuery(query).size() > 0)
-					return true;
-			}
-			catch(IOException e) {
-				log.warn("query failed on " + endpoint.getURI(), e);
-			}
-		}
-
-		return false;
+	public void removeEndpoint(String uri) {
+		log.trace("removing endpoint " + uri + " from registry");
+		getIndexModel().removeAll(getResource(uri), (Property)null, (RDFNode)null);
 	}
-	
 	
 	public static class CommandLineOptions {
 
@@ -980,6 +731,7 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 			REMOVE_AMBIGUOUS_PROPERTIES,
 			SET_ENDPOINT_STATUS,
 			ADD_PREDICATES_BY_SUBJECT_URI,
+			ADD_ROOT_URI_FOR_TRAVERSAL
 		};
 
 		public static class Operation {
@@ -994,8 +746,20 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 
 		public List<Operation> operations = new ArrayList<Operation>();
 
-		@Option(name = "-r", usage = "URI of registry to be updated")
-		public String registryURI = Config.getConfiguration().subset(CONFIG_ROOT).getString(ENDPOINT_CONFIG_KEY);
+		@Option(name = "-H", usage = "virtuoso hostname")
+		public String virtuosoHost = virtuosoConfig.getString(VIRTUOSO_HOSTNAME_CONFIG_KEY);
+
+		@Option(name = "-P", usage = "virtuoso port")
+		public int virtuosoPort = virtuosoConfig.getInt(VIRTUOSO_PORT_CONFIG_KEY);
+		
+		@Option(name = "-p", usage = "virtuoso username")
+		public String virtuosoUsername = virtuosoConfig.getString(VIRTUOSO_USERNAME_CONFIG_KEY);
+		
+		@Option(name = "-u", usage = "virtuoso username")
+		public String virtuosoPassword = virtuosoConfig.getString(VIRTUOSO_PASSWORD_CONFIG_KEY);
+		
+		@Option(name = "-g", usage = "URI of index graph")
+		public String indexGraph = Config.getConfiguration().subset(CONFIG_ROOT).getString(INDEX_GRAPH_CONFIG_KEY);
 		
 		@Option(name = "-l", usage = "max results per query")
 		public void setResultsLimit(long limit) { operations.add(new Operation(String.valueOf(limit), OperationType.SET_RESULTS_LIMIT)); }
@@ -1015,34 +779,36 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 		@Option(name = "-t", usage = "specify endpoint type (options: \"VIRTUOSO\", \"D2R\"")
 		public void setEndpointType(String type) { operations.add(new Operation(type, OperationType.SET_ENDPOINT_TYPE)); }
 
-		@Option(name = "-s", usage = "update the regular expression for subject URIs of the given endpoint")
-		public void updateSubjectRegEx(String endpointURI) { operations.add(new Operation(endpointURI, OperationType.UPDATE_SUBJECT_REGEX)); }
-
-		@Option(name = "-R", usage = "detect and remove ambiguous properties (properties that have both URIs and literals as object values)")
-		public void removeAmbiguousProperties(boolean unused) { operations.add(new Operation(null, OperationType.REMOVE_AMBIGUOUS_PROPERTIES)); } 
-
-		// NOTE: you must always quote the values of this option on the commandline, since they contain spaces 
 		@Option(name = "-S", usage = "manually set endpoint status (choices: '<endpoint>,DEAD', '<endpoint>,SLOW', '<endpoint>,OK')")
 		public void updateEndpointStatus(String endpointAndStatus) { operations.add(new Operation(endpointAndStatus, OperationType.SET_ENDPOINT_STATUS)); }
 		
-		@Option(name = "-A", usage = "syntax: 'endpointURI,subjectURI'; add any predicates attached to subjectURI to the index for endpointURI")
-		public void addPredicatesBySubjectURI(String endpointAndSubject) { operations.add(new Operation(endpointAndSubject, OperationType.ADD_PREDICATES_BY_SUBJECT_URI)); }
+		@Option(name = "-R", usage = "specify a root URI for indexing-by-traversal")
+		public void addRootURIForTraversal(String rootURI) { operations.add(new Operation(rootURI, OperationType.ADD_ROOT_URI_FOR_TRAVERSAL)); }
 	}
 
 	public static void main(String[] args) throws IOException 
 	{
 		CommandLineOptions options = new CommandLineOptions();
 		CmdLineParser cmdLineParser = new CmdLineParser(options);
-
+		
+		// currently, there are two possible values: 0 (success) and 1 (some error occurred)
+		int exitCode = 0;
+		
 		try {
 			cmdLineParser.parseArgument(args);
 			
-			log.debug("Registry URI: " + options.registryURI);
-			SPARQLRegistryAdmin registry = new VirtuosoSPARQLRegistryAdmin(options.registryURI);
+			SPARQLRegistryAdmin registry = new VirtuosoSPARQLRegistryAdmin(
+					options.virtuosoHost,
+					options.virtuosoPort,
+					options.indexGraph,
+					options.virtuosoUsername,
+					options.virtuosoPassword );
+			
+			log.trace("using registry at " + options.virtuosoHost + ":" + String.valueOf(options.virtuosoPort));
 
-			/* Switches like -t (endpoint type; e.g. "VIRTUOSO") apply to all endpoints, unless there
+			/* The switches "-t" (endpoint type) and "-l" (query results limit) apply to all endpoints, unless there
 			 * is more than one occurrence on the command line.  In the latter case, each instance of 
-			 * "-t" applies to the endpoints *following* it, up until the next occurence of "-t".
+			 * "-t"/"-l" applies to the endpoints *following* it, up until the next occurence of "-t"/"-l".
 			 */
 			
 			int typeCount = 0;
@@ -1069,7 +835,41 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 			if(limitCount != 1)
 				resultsLimit = DEFAULT_RESULTS_LIMIT;
 			
+			/*
+			 * -R <rootURI> switches specify a root URI for indexing-by-breadth-first-traversal.
+			 * This is an ad-hoc method of indexing for cases when the endpoint is too large
+			 * to be indexed fully (due to query timeouts).  -R switches apply to the indexing
+			 * (-i) switch that immediately precedes them, and one may specify multiple -R switches
+			 * for the same indexing operation. (Typically, one would specify one -R switch for
+			 * each type of record in the endpoint.)
+			 */
 			
+			Map<Integer,List<String>> rootURIMap = new HashMap<Integer,List<String>>();
+			Integer lastIndexOp = -1;
+			Integer optionIndex = 0;
+			for(CommandLineOptions.Operation op : options.operations) {
+				if(op.opType == CommandLineOptions.OperationType.INDEX) {
+					lastIndexOp = optionIndex; 
+				}
+				if(op.opType == CommandLineOptions.OperationType.ADD_ROOT_URI_FOR_TRAVERSAL) {
+					if(lastIndexOp == -1) {
+						throw new CmdLineException("-R option must follow a -i option");
+					}
+					List<String> rootURIs = null;
+					if(rootURIMap.containsKey(lastIndexOp)) {
+						rootURIs = rootURIMap.get(lastIndexOp);
+					} else {
+						rootURIs = new ArrayList<String>();
+						rootURIMap.put(lastIndexOp, rootURIs);
+					}
+					rootURIs.add(op.arg);
+				}
+				optionIndex++;
+			}
+
+			/* Perform each operation, in the order specified on the command line */
+			
+			optionIndex = 0;
 			for (CommandLineOptions.Operation op : options.operations) {
 				
 				try {
@@ -1084,18 +884,14 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 						registry.addEndpoint(op.arg, endpointType);
 						break;
 					case INDEX:
-						registry.indexEndpoint(op.arg, endpointType, resultsLimit);
+						if(rootURIMap.containsKey(optionIndex)) {
+							registry.indexEndpointByTraversal(op.arg, endpointType, rootURIMap.get(optionIndex));
+						} else {
+							registry.indexEndpoint(op.arg, endpointType, resultsLimit);
+						}
 						break;
 					case REMOVE:
 						registry.removeEndpoint(op.arg);
-						break;
-					/*
-					case UPDATE_SUBJECT_REGEX:
-						registry.updateRegex(op.arg, endpointType, true);
-						break;
-					*/
-					case REMOVE_AMBIGUOUS_PROPERTIES:
-						registry.removeAmbiguousPropertiesFromOntology();
 						break;
 					case SET_ENDPOINT_STATUS:
 						String statusArg[] = op.arg.split(",");
@@ -1104,28 +900,39 @@ public class VirtuosoSPARQLRegistryAdmin extends VirtuosoSPARQLRegistry implemen
 						ServiceStatus newStatus = ServiceStatus.valueOf(StringUtils.upperCase(statusArg[1]));
 						registry.setEndpointStatus(statusArg[0], newStatus);
 						break;
-					case ADD_PREDICATES_BY_SUBJECT_URI:
-						String subjectArg[] = op.arg.split(",");
-						if(subjectArg.length != 2)
-							throw new CmdLineException("format of arg to -A must be '<endpointURI>,<subjectURI>'");
-						registry.addPredicatesBySubjectURI(subjectArg[0], endpointType, subjectArg[1]);
-						break;
 					case CLEAR_REGISTRY:
 						registry.clearRegistry();
 						break;
 						
 					default:
+					
 					}
+					
+					optionIndex++;
+					
 				} catch (Exception e) {
 					log.error("operation " + op.opType + " failed on " + op.arg, e);
+					exitCode = 1;
 				}
 			}
 		} catch (CmdLineException e) {
+			
 			log.error(e);
 			log.error("Usage: sparqlreg [-t endpointType] [-r registryURI] [-i endpointURI] [-a endpointURI] [-d endpointURI] [-c] [-R]");
 			cmdLineParser.printUsage(System.err);
+			try {
+				log.error(getUsageNotes());
+			} catch(IOException e2) {
+				log.error("could not read usage notes file: " + e2.getMessage());
+			}
+			System.exit(1);
 		}
-
+		
+		System.exit(exitCode);
 	}
-
+	
+	protected static String getUsageNotes() throws IOException {
+		Reader reader = new BufferedReader(new FileReader(VirtuosoSPARQLRegistryAdmin.class.getResource("resource/usage.notes.txt").toString()));
+		return IOUtils.toString(reader);
+	}
 }

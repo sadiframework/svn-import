@@ -23,7 +23,10 @@ public class BoundedBreadthFirstIterator<V> extends BreadthFirstIterator<V> {
 			throw new RuntimeException("all search nodes must be DepthAnnotatedSearchNode's");
 		}
 		DepthAnnotatedSearchNode<V> depthNode = (DepthAnnotatedSearchNode<V>)node;
-		return !visitedNodes.contains(depthNode) && (depthNode.getDepth() <= getMaxDepth());
+		if(depthNode.getDepth() <= getMaxDepth()) {
+			return super.nodeIsVisitable(node);
+		} 
+		return false;
 	}
 	
 	@Override 

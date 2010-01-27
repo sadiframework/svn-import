@@ -23,7 +23,7 @@ public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 	
 	public VirtuosoSPARQLEndpoint(String endpointURI)
 	{
-		super(endpointURI);
+		super(endpointURI, EndpointType.VIRTUOSO);
 	}
 	
 	public VirtuosoSPARQLEndpoint(String endpointURI, String username, String password) throws MalformedURLException

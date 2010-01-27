@@ -12,6 +12,10 @@
   	<testOutputDirectory>bin</testOutputDirectory>
   </build>
   <repositories>
+  	<repository>
+  		<id>dev.biordf.net</id>
+  		<url>http://dev.biordf.net/maven</url>
+  	</repository>
   </repositories>
   <dependencies>
   	<dependency>
@@ -70,5 +74,20 @@
   		<artifactId>sadi-share</artifactId>
   		<version>0.0.2-SNAPSHOT</version>
   	</dependency>
+  	<dependency>
+  		<groupId>com.hp.hpl.jena</groupId>
+  		<artifactId>jena</artifactId>
+  		<version>2.5.5</version>
+  	</dependency>
+	<dependency>
+		<groupId>com.openlinksw.virtuoso</groupId>
+		<artifactId>virt_jena</artifactId>
+		<version>5.0.11.3039</version>
+	</dependency>
+	<dependency>
+		<groupId>com.openlinksw.virtuoso</groupId>
+		<artifactId>virtjdbc3</artifactId>
+		<version>5.0.11.3039</version>
+	</dependency>  	
   </dependencies>
 </project>
