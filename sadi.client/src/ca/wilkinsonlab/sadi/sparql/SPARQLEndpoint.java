@@ -43,7 +43,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
  */
 public class SPARQLEndpoint
 {
-	public enum EndpointType { VIRTUOSO, D2R  };
+	public enum EndpointType { VIRTUOSO, D2R, UNKNOWN };
 	public enum SelectQueryResultsFormat  { SPARQL_RESULTS_XML, JSON };
 	public enum ConstructQueryResultsFormat { RDFXML, N3 };
 	
@@ -53,31 +53,59 @@ public class SPARQLEndpoint
 	
 	protected SelectQueryResultsFormat selectResultsFormat;
 	protected ConstructQueryResultsFormat constructResultsFormat;
-
+	protected EndpointType endpointType;
+	
 	protected final static String RESULTS_LIMIT_KEY = "sadi.sparqlResultsLimit";
 	public final static long NO_RESULTS_LIMIT = -1;
 	
 
 	public SPARQLEndpoint(String uri) 
 	{
-		this(uri, SelectQueryResultsFormat.SPARQL_RESULTS_XML, ConstructQueryResultsFormat.RDFXML);
+		this(uri, EndpointType.UNKNOWN, SelectQueryResultsFormat.SPARQL_RESULTS_XML, ConstructQueryResultsFormat.RDFXML);
+	}
+
+	public SPARQLEndpoint(String uri, EndpointType type) {
+		this(uri, type, SelectQueryResultsFormat.SPARQL_RESULTS_XML, ConstructQueryResultsFormat.RDFXML);
 	}
 	
-	public SPARQLEndpoint(String uri, SelectQueryResultsFormat selectFormat,  ConstructQueryResultsFormat constructFormat)
+	public SPARQLEndpoint(String uri, EndpointType type, SelectQueryResultsFormat selectFormat,  ConstructQueryResultsFormat constructFormat)
 	{
 		endpointURI = uri;
+		setEndpointType(type);
 		setSelectResultsFormat(selectFormat);
 		setConstructResultsFormat(constructFormat);
 		
 	}
 
-	protected SelectQueryResultsFormat getSelectResultsFormat()	{ return selectResultsFormat; }
-	protected void setSelectResultsFormat(SelectQueryResultsFormat selectResultsFormat) { this.selectResultsFormat = selectResultsFormat; }
-	protected ConstructQueryResultsFormat getConstructResultsFormat() { return constructResultsFormat; }
-	protected void setConstructResultsFormat(ConstructQueryResultsFormat constructResultsFormat) { this.constructResultsFormat = constructResultsFormat; }
+	protected SelectQueryResultsFormat getSelectResultsFormat()	{ 
+		return selectResultsFormat; 
+	}
+	protected void setSelectResultsFormat(SelectQueryResultsFormat selectResultsFormat) { 
+		this.selectResultsFormat = selectResultsFormat; 
+	}
+	
+	protected ConstructQueryResultsFormat getConstructResultsFormat() { 
+		return constructResultsFormat; 
+	}
+	protected void setConstructResultsFormat(ConstructQueryResultsFormat constructResultsFormat) { 
+		this.constructResultsFormat = constructResultsFormat; 
+	}
 
-	public String getURI()  { return endpointURI; }
-	public String toString() { return getURI(); }
+	public String getURI()  { 
+		return endpointURI; 
+	}
+	
+	public String toString() { 
+		return getURI(); 
+	}
+	
+	public EndpointType getEndpointType() {
+		return endpointType;
+	}
+
+	public void setEndpointType(EndpointType type) {
+		this.endpointType = type;
+	}
 
 	public boolean ping() 
 	{
@@ -214,7 +242,7 @@ public class SPARQLEndpoint
 		log.trace("querying predicate list from " + getURI());
 		Set<String> predicates = new HashSet<String>();
 		List<Map<String,String>> results = selectQuery("SELECT DISTINCT ?p WHERE { ?s ?p ?o }");
-		for(Map<String,String> binding : results)
+		for(Map<String,String> binding : results) 
 			predicates.add(binding.get("p"));
 		return predicates;
 	}
@@ -472,10 +500,17 @@ public class SPARQLEndpoint
 		
 		public boolean hasNext() throws IOException 
 		{
-			if(tripleCache == null || cacheIndex >= tripleCache.size())
+			if(tripleCache == null) {
 				return retrieveNextBlock();
-			else 
+			} else if(cacheIndex >= tripleCache.size()) {
+				// if current block is not the full size, then it is the last one
+				if(tripleCache.size() < blockSize) {
+					return false;
+				}
+				return retrieveNextBlock();
+			} else {
 				return true;
+			}
 		}
 
 		public Triple next() throws IOException 

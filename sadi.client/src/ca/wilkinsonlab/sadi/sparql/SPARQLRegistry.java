@@ -21,7 +21,6 @@ public interface SPARQLRegistry extends Registry
 	public long getNumTriples(String endpointURI) throws IOException;
 	
 	public boolean hasPredicate(String predicateURI) throws IOException;
-	public boolean isDatatypeProperty(String predicateURI) throws IOException;
 	
 	public List<SPARQLEndpoint> getAllEndpoints() throws IOException;
 	public Collection<SPARQLEndpoint> findEndpointsByPredicate(String predicate) throws IOException;

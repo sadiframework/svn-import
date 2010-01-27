@@ -18,10 +18,8 @@ public class SPARQLEndpointFactory
 		case VIRTUOSO:
 			return new VirtuosoSPARQLEndpoint(endpointURI);
 		case D2R:
-			return createEndpoint(endpointURI);
 		default:
-			log.warn(String.format("unrecognized SPARQL endpoint type %s, creating plain SPARQLEndpoint object", type.toString()));
-			return createEndpoint(endpointURI);
+			return new SPARQLEndpoint(endpointURI, type);
 		}
 	}
 	
