@@ -17,11 +17,12 @@ import org.apache.log4j.Logger;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
+import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.sparql.SPARQLServiceWrapper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
-import ca.wilkinsonlab.sadi.utils.OwlUtils.PropertyRestrictionVisitor;
+import ca.wilkinsonlab.sadi.utils.OwlUtils.PropertyRestrictionAdapter;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -230,7 +231,7 @@ public class SHAREKnowledgeBase
 		
 		log.debug(String.format("gathering triples to find instances of %s", c));
 		
-		OwlUtils.decompose(c, new PropertyRestrictionVisitor() {
+		OwlUtils.decompose(c, new PropertyRestrictionAdapter() {
 			public void onProperty(OntProperty onProperty)
 			{
 				PotentialValues objects = getNewVariableBinding();
@@ -503,8 +504,14 @@ public class SHAREKnowledgeBase
 		/* if so configured, use SADI to attempt to dynamically attach
 		 * properties to the failed nodes so that they will pass...
 		 */
-		if (dynamicInputInstanceClassification && service.getInputClass() != null) {
-			log.trace(String.format("using SADI to test membership in %s", service.getInputClass()));
+		OntClass inputClass = null;
+		try {
+			inputClass = service.getInputClass();
+		} catch (SADIException e) {
+			log.error(String.format("error loading input class for service %s", service), e);
+		}
+		if (dynamicInputInstanceClassification && inputClass != null) {
+			log.trace(String.format("using SADI to test membership in %s", inputClass));
 			
 			PotentialValues s = getNewVariableBinding();
 			for (Iterator<RDFNode> i = unfiltered.iterator(); i.hasNext(); ) {
@@ -512,14 +519,19 @@ public class SHAREKnowledgeBase
 				if (!subjects.contains(node))
 					s.add(node);
 			}
-			Triple typePattern = Triple.create(s.variable, RDF.type.asNode(), service.getInputClass().asNode());
+			Triple typePattern = Triple.create(s.variable, RDF.type.asNode(), inputClass.asNode());
 			processPattern(typePattern);
 		}
 	}
 
 	private void filterByInputClassInBulk(Set<RDFNode> subjects, Service service)
 	{
-		OntClass inputClass = service.getInputClass();
+		OntClass inputClass = null;
+		try {
+			inputClass = service.getInputClass();
+		} catch (SADIException e) {
+			log.error(String.format("error loading input class for service %s", service), e);
+		}
 		
 		/* I really, really hate this special case coding, but if we want
 		 * to be able to use literals as input to the SPARQL services 
@@ -621,7 +633,11 @@ public class SHAREKnowledgeBase
 					 * we know it's been dynamically classified as such...
 					 * TODO this shouldn't be necessary and is probably a bug
 					 */
-					inputResource.addProperty(RDF.type, service.getInputClass());
+					try {
+						inputResource.addProperty(RDF.type, service.getInputClass());
+					} catch (SADIException e) {
+						log.error(String.format("error loading input class for service %s", service), e);
+					}
 				}
 				return service.invokeService(inputResources);
 			}

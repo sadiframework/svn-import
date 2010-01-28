@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.lang.time.StopWatch;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.share.SHAREQueryClient;
 
@@ -20,6 +21,10 @@ import com.hp.hpl.jena.ontology.OntDocumentManager;
  */
 public class SingleQueryTest
 {
+	private static final Logger log = Logger.getLogger( SingleQueryTest.class );
+	
+	private static final String OUTPUT_FILENAME = "/tmp/SingleQueryTest.rdf";
+	
 	public static void main(String[] args)
 	{
 		OntDocumentManager.getInstance().setCacheModels(true);
@@ -103,7 +108,9 @@ public class SingleQueryTest
 //					"?patient pred:latestCreatinine ?creat . " +
 //				"}";
 		
-		query = ExampleQueries.getQueryByHtmlListIndex(13);
+		query = ExampleQueries.getQueryByHtmlListIndex(1);
+		
+		log.info( String.format("executing query\n%s", query) );
 		
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
@@ -113,14 +120,21 @@ public class SingleQueryTest
 		
 		stopWatch.stop();
 		
-		try {
-			client.getDataModel().write(new FileOutputStream("/tmp/SingleQueryTest.rdf"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		StringBuffer buf = new StringBuffer("query finished in ");
+		buf.append( DurationFormatUtils.formatDurationHMS(stopWatch.getTime()) );
+		if (results.isEmpty())
+			buf.append("\nno results");
+		else
+			for (Map<String, String> binding: results) {
+				buf.append("\n");
+				buf.append(binding);
+			}
+		log.info( buf.toString() );
 		
-		for (Map<String, String> binding: results)
-			System.out.println(binding);
-		System.out.println(String.format("query finished in %s", DurationFormatUtils.formatDurationHMS(stopWatch.getTime())));
+		try {
+			client.getDataModel().write(new FileOutputStream(OUTPUT_FILENAME));
+		} catch (Exception e) {
+			log.error( String.format("error writing to %s: %s", OUTPUT_FILENAME, e) );
+		}
 	}
 }

@@ -41,7 +41,7 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	 * retrieve a document from the real URL.
 	 */
 	private void initJenaLocationMapper() {
-		URL mappingFile = Config.class.getResource("resource/jena.url.mapping.n3"); 
+		URL mappingFile = Config.class.getResource("jena.url.mapping.n3"); 
 		FileManager.get().setLocationMapper(new LocationMapper(mappingFile.toString()));
 		/* by default, OntDocumentManager does not point to the global FileManager 
 		 * (see javadoc for OntDocumentManager) -- BV */
