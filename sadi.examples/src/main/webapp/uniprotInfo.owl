@@ -5,6 +5,7 @@
   <!ENTITY owl "http://www.w3.org/2002/07/owl#">
   <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
   <!ENTITY benv "http://sadiframework.org/ontologies/predicates.owl#">
+  <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/">
   <!ENTITY common "http://sadiframework.org/examples/common.owl#">
 ]>
 <rdf:RDF
@@ -12,7 +13,9 @@
     xmlns:rdfs="&rdfs;"
     xmlns:owl="&owl;"
     xmlns:xsd="&xsd;"
-    xmlns:benv="&benv;">
+    xmlns:benv="&benv;"
+    xmlns:lsrn="&lsrn;"
+    xmlns:common="&common;">
     
   <owl:Ontology rdf:about=""/>
   
@@ -22,25 +25,17 @@
   <owl:DatatypeProperty rdf:about="&benv;belongsToOrganism"/>
   
   <owl:Class rdf:ID="AnnotatedUniProtRecord">
-    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+    <rdfs:subClassOf rdf:resource="&lsrn;UniProt_Record"/>
     <rdfs:subClassOf>
       <owl:Restriction>
         <owl:onProperty rdf:resource="&benv;hasName"/>
-        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</owl:minCardinality>
+        <owl:someValuesFrom rdf:resource="&xsd;string"/>
       </owl:Restriction>
     </rdfs:subClassOf>
-    <!--
-    <rdfs:subClassOf>
-      <owl:Restriction>
-        <owl:onProperty rdf:resource="&benv;hasDescription"/>
-        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
-      </owl:Restriction>
-    </rdfs:subClassOf>
-    -->
     <rdfs:subClassOf>
       <owl:Restriction>
         <owl:onProperty rdf:resource="&benv;belongsToOrganism"/>
-        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+        <owl:someValuesFrom rdf:resource="&xsd;string"/>
       </owl:Restriction>
     </rdfs:subClassOf>
   </owl:Class>

@@ -2,7 +2,6 @@ package ca.wilkinsonlab.sadi.service;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -14,8 +13,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.rdf.RdfService;
-import ca.wilkinsonlab.sadi.service.example.LocalServiceWrapper;
 import ca.wilkinsonlab.sadi.utils.ModelDiff;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
@@ -24,11 +23,14 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.util.LocationMapper;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 public abstract class ServiceServletTestBase extends TestCase
 {
 	private static final Log log = LogFactory.getLog(ServiceServletTestBase.class);
+	static String uriPrefix = "http://sadiframework.org/examples/";
+	static String altPrefix = "http://localhost:8080/sadi-examples/";
 	
 	protected Model getInputModel()
 	{
@@ -56,9 +58,9 @@ public abstract class ServiceServletTestBase extends TestCase
 		return model;
 	}
 	
-	protected RdfService getLocalServiceInstance() throws MalformedURLException
+	protected RdfService getLocalServiceInstance() throws SADIException
 	{
-		return new LocalServiceWrapper(getServiceURI(), getLocalServiceURL());
+		return new RdfService(getLocalServiceURL());
 	}
 	
 	protected Collection<Resource> getInputNodes()
@@ -82,12 +84,14 @@ public abstract class ServiceServletTestBase extends TestCase
 	public static void setUpBeforeClass() throws Exception
 	{
 		System.setProperty("sadi.service.ignoreForcedURL", "true");
+		LocationMapper.get().addAltPrefix(uriPrefix, altPrefix);
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception
 	{
 		System.setProperty("sadi.service.ignoreForcedURL", null);
+		LocationMapper.get().removeAltPrefix(uriPrefix);
 	}
 	
 	@Test
