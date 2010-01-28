@@ -81,6 +81,7 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 
 	public void computeStatsForAllPredicates(int samplesPerPredicate, Date stalenessDate) throws IOException
 	{
+		/* TODO: Replace this code.  getPredicateOntology() is no longer part of the Registry API.
 		OntModel ontology = registry.getPredicateOntology();
 		Iterator it = ontology.listAllOntProperties();
 
@@ -89,6 +90,7 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 			computeStatsForPredicate(predicate, samplesPerPredicate, stalenessDate);
 		}
 		updateAverageStats();
+		*/
 	}
 
 	public void computeStatsForEndpoint(String endpointURI, int numSamples, Date stalenessDate) throws IOException
