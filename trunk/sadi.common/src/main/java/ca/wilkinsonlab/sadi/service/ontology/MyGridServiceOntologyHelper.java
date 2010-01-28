@@ -31,17 +31,17 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 	private Resource input;
 	private Resource output;
 	
-	public MyGridServiceOntologyHelper(Resource serviceNode)
+	public MyGridServiceOntologyHelper(Resource serviceNode) throws ServiceOntologyException
 	{
 		this(serviceNode, false);
 	}
 	
-	public MyGridServiceOntologyHelper(Model model, String serviceUrl)
+	public MyGridServiceOntologyHelper(Model model, String serviceUrl) throws ServiceOntologyException
 	{
 		this(model, serviceUrl, true);
 	}
 	
-	public MyGridServiceOntologyHelper(Model model, String serviceUrl, boolean createResources)
+	public MyGridServiceOntologyHelper(Model model, String serviceUrl, boolean createResources) throws ServiceOntologyException
 	{
 		this(model.createResource(StringUtils.defaultString(serviceUrl)), createResources);
 	}
@@ -103,7 +103,7 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 
 	public void setName(String name)
 	{
-		Literal nameValue = model.createTypedLiteral(name);
+		Literal nameValue = model.createTypedLiteral(StringUtils.defaultString(name));
 		root.addProperty(nameProperty, nameValue);
 	}
 	
@@ -118,11 +118,11 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 
 	public void setDescription(String description)
 	{
-		Literal descValue = model.createLiteral(description);
+		Literal descValue = model.createLiteral(StringUtils.defaultString(description));
 		root.addProperty(descProperty, descValue);
 	}
 	
-	public Resource getInputClass()
+	public Resource getInputClass() throws ServiceOntologyException
 	{
 		try {
 			return input.getRequiredProperty(objectTypeProperty).getResource();
@@ -137,7 +137,7 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 		input.addProperty(objectTypeProperty, inputValue);
 	}
 	
-	public Resource getOutputClass()
+	public Resource getOutputClass() throws ServiceOntologyException
 	{
 		try {
 			return output.getRequiredProperty(objectTypeProperty).getResource();

@@ -16,9 +16,9 @@ public interface ServiceOntologyHelper
 	public String getDescription();
 	public void setDescription(String string);
 
-	public Resource getInputClass();
+	public Resource getInputClass() throws ServiceOntologyException;
 	public void setInputClass(String string);
 
-	public Resource getOutputClass();
+	public Resource getOutputClass() throws ServiceOntologyException;
 	public void setOutputClass(String string);
 }
