@@ -1,8 +1,0 @@
-PREFIX moby: <http://moby/>
-
-SELECT ?pred
-FROM <http://mobyreg/servicepredicates/>
-WHERE
-{
-    ?pred moby:isDatatypeProperty "true" .
- }

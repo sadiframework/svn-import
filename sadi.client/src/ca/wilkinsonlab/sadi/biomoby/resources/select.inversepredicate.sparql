@@ -1,9 +1,0 @@
-PREFIX moby: <http://moby/>
-PREFIX owl: <http://www.w3.org/2002/07/owl#>
-
-SELECT ?inverse
-FROM <http://mobyreg/servicepredicates/>
-WHERE
-{
-   ?inverse owl:inverseOf %u% .
-}
