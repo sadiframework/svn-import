@@ -1,0 +1,15 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX sadi: <http://sadiframework.org/ontologies/sadi.owl#>
+PREFIX mygrid: <http://www.mygrid.org.uk/mygrid-moby-service#>
+
+SELECT *
+WHERE
+{
+	?serviceURI mygrid:hasOperation ?op .
+	?serviceURI mygrid:hasServiceNameText ?name .
+	?serviceURI mygrid:hasServiceDescriptionText ?description .
+	?op mygrid:inputParameter ?input .
+	?input mygrid:objectType ?inputClassURI .
+	?op mygrid:outputParameter ?output .
+	?output mygrid:objectType ?outputClassURI .
+}

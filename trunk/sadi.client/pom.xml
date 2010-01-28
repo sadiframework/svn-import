@@ -4,13 +4,9 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-client</artifactId>
   <name>SADI client classes</name>
-  <version>0.0.2-SNAPSHOT</version>
+  <version>0.0.3-SNAPSHOT</version>
   <description>Classes used by SADI clients</description>
   <build>
-    <sourceDirectory>src</sourceDirectory>
-    <outputDirectory>bin</outputDirectory>
-    <testSourceDirectory>test</testSourceDirectory>
-    <testOutputDirectory>bin</testOutputDirectory>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -52,41 +48,19 @@
   	</repository>
   </repositories>
   <dependencies>
+  
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-common</artifactId>
-      <version>0.0.2-SNAPSHOT</version>
+      <version>0.0.3-SNAPSHOT</version>
     </dependency>
-    <dependency>
-      <groupId>commons-configuration</groupId>
-      <artifactId>commons-configuration</artifactId>
-      <version>1.5</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-lang</groupId>
-      <artifactId>commons-lang</artifactId>
-      <version>2.4</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
-    </dependency>
+    
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>1.4</version>
     </dependency>
-    <dependency>
-      <groupId>com.hp.hpl.jena</groupId>
-      <artifactId>jena</artifactId>
-      <version>2.6.0</version>
-    </dependency>
-  	<dependency>
-  		<groupId>org.slf4j</groupId>
-  		<artifactId>slf4j-log4j12</artifactId>
-  		<version>1.5.6</version>
-  	</dependency>
+    
     <dependency>
       <groupId>org.biomoby</groupId>
       <artifactId>jmoby</artifactId>
@@ -100,13 +74,19 @@
           <groupId>com.hp.hpl.jena</groupId>
           <artifactId>jena</artifactId>
       	</exclusion>
+        <exclusion>
+          <groupId>org.jvnet.staxex</groupId>
+          <artifactId>stax-ex</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
+    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.1</version>
       <scope>test</scope>
     </dependency>
+    
   </dependencies>
 </project>
