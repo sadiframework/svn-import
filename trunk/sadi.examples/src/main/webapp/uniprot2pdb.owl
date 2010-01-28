@@ -1,22 +1,35 @@
 <?xml version="1.0"?>
+<!DOCTYPE rdf:RDF [
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+  <!ENTITY owl "http://www.w3.org/2002/07/owl#">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+  <!ENTITY benv "http://sadiframework.org/ontologies/predicates.owl#">
+  <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/">
+  <!ENTITY common "http://sadiframework.org/examples/common.owl#">
+]>
 <rdf:RDF
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:rdf="&rdf;"
+    xmlns:rdfs="&rdfs;"
+    xmlns:owl="&owl;"
+    xmlns:xsd="&xsd;"
+    xmlns:benv="&benv;"
+    xmlns:lsrn="&lsrn;"
+    xmlns:common="&common;"
     xmlns="http://sadiframework.org/examples/uniprot2pdb.owl#"
     xml:base="http://sadiframework.org/examples/uniprot2pdb.owl#">
+
   <owl:Ontology rdf:about=""/>
   
   <!-- in lieu of importing the whole ontology... -->
-  <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#has3DStructure"/>
+  <owl:ObjectProperty rdf:about="&benv;has3DStructure"/>
   
   <owl:Class rdf:ID="AnnotatedUniProtRecord">
-    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+    <rdfs:subClassOf rdf:resource="&lsrn;UniProt_Record"/>
     <rdfs:subClassOf>
       <owl:Restriction>
-        <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/predicates.owl#has3DStructure"/>
-        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+        <owl:onProperty rdf:resource="&benv;has3DStructure"/>
+        <owl:someValuesFrom rdf:resource="&lsrn;PDB_Record"/>
       </owl:Restriction>
     </rdfs:subClassOf>
   </owl:Class>

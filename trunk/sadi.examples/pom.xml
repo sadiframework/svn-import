@@ -24,6 +24,15 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/*ServletTest.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
       	<groupId>org.mortbay.jetty</groupId>
       	<artifactId>maven-jetty-plugin</artifactId>
       </plugin>
@@ -45,71 +54,62 @@
 	</repository>
   </repositories>
   <dependencies>
+  
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-service</artifactId>
       <version>0.0.2-SNAPSHOT</version>
     </dependency>
-    <dependency>
-      <groupId>ca.wilkinsonlab.sadi</groupId>
-      <artifactId>sadi-client</artifactId>
-      <version>0.0.2-SNAPSHOT</version>
-    </dependency>
-  	<dependency>
-  		<groupId>org.slf4j</groupId>
-  		<artifactId>slf4j-log4j12</artifactId>
-  		<version>1.5.6</version>
-  	</dependency>
+    
     <dependency>
       <groupId>commons-math</groupId>
       <artifactId>commons-math</artifactId>
       <version>1.2</version>
     </dependency>
+    
     <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.0.1</version>
+    	<groupId>joda-time</groupId>
+    	<artifactId>joda-time</artifactId>
+    	<version>1.6</version>
     </dependency>
+    
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
       <version>1.6.2</version>
     </dependency>
+    
     <dependency>
     	<groupId>uk.ac.ebi.uniprot.kraken</groupId>
     	<artifactId>uniprotjapi</artifactId>
    		<version>15.13</version>
+   		<exclusions>
+          <exclusion>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+          </exclusion>
+        </exclusions> 
 	</dependency>
-  	<dependency>
-  		<groupId>ubic</groupId>
-  		<artifactId>baseCode</artifactId>
-  		<version>2009-05-24</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>cern.colt</groupId>
-  		<artifactId>colt</artifactId>
-  		<version>2009-06-04</version>
-  	</dependency>
+	
   	<dependency>
   		<groupId>ubic.ermineJ</groupId>
   		<artifactId>ermineJ-app</artifactId>
   		<version>2009-05-24</version>
   	</dependency>
-  	<dependency>
-  		<groupId>ubic.ermineJ</groupId>
-  		<artifactId>ermineJ-help</artifactId>
-  		<version>2009-05-24</version>
-  	</dependency>
+  	
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.1</version>
       <scope>test</scope>
     </dependency>
+    
     <dependency>
-    	<groupId>joda-time</groupId>
-    	<artifactId>joda-time</artifactId>
-    	<version>1.6</version>
+      <groupId>ca.wilkinsonlab.sadi</groupId>
+      <artifactId>sadi-client</artifactId>
+      <version>0.0.3-SNAPSHOT</version>
+      <scope>test</scope>
     </dependency>
+    
   </dependencies>
 </project>
