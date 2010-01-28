@@ -91,8 +91,12 @@ public class OwlUtils
 	 */
 	public static OntClass getUsefulRange(OntProperty p)
 	{
-		if (p.getRange() == null)
-			return (OntClass) OWL.Thing;
+		if (p.getRange() == null) {
+			if (p.isDatatypeProperty())
+				return p.getOntModel().getOntClass(RDFS.Literal.getURI());
+			else
+				return p.getOntModel().getOntClass(OWL.Thing.getURI());
+		}
 		
 		Set<OntClass> ancestors = new HashSet<OntClass>();
 		List<OntClass> range = new ArrayList<OntClass>();
@@ -249,7 +253,22 @@ public class OwlUtils
 	{
 		PropertyEnumerationVisitor visitor = new PropertyEnumerationVisitor();
 		decompose(clazz, visitor);
-		return visitor.listProperties();
+		return visitor.properties;
+	}
+	
+	public static Set<Restriction> listRestrictions(OntClass clazz)
+	{
+		RestrictionEnumerationVisitor visitor = new RestrictionEnumerationVisitor();
+		decompose(clazz, visitor);
+		return visitor.restrictions;
+	}
+	
+	public static Set<Restriction> listRestrictions(OntClass clazz, OntClass relativeTo)
+	{
+		Set<Restriction> base = listRestrictions(relativeTo);
+		Set<Restriction> relative = listRestrictions(clazz);
+		relative.removeAll(base);
+		return relative;
 	}
 	
 	/**
@@ -289,9 +308,35 @@ public class OwlUtils
 	 */
 	public static interface PropertyRestrictionVisitor
 	{
-		void onProperty(OntProperty onProperty);
-		void hasValue(OntProperty onProperty, RDFNode hasValue);
-		void valuesFrom(OntProperty onProperty, OntResource valuesFrom);
+		void hasRestriction(Restriction restriction);
+	}
+	
+	public static abstract class PropertyRestrictionAdapter implements PropertyRestrictionVisitor
+	{
+		public void hasRestriction(Restriction restriction)
+		{
+			OntProperty onProperty = restriction.getOnProperty();
+			if (onProperty != null) {
+				if ( restriction.isAllValuesFromRestriction() ) {
+					Resource valuesFrom = restriction.asAllValuesFromRestriction().getAllValuesFrom();
+					OntResource ontValuesFrom = onProperty.getOntModel().getOntResource(valuesFrom);
+					valuesFrom(onProperty, ontValuesFrom);
+				} else if ( restriction.isSomeValuesFromRestriction() ) {
+					Resource valuesFrom = restriction.asSomeValuesFromRestriction().getSomeValuesFrom();
+					OntResource ontValuesFrom = onProperty.getOntModel().getOntResource(valuesFrom);
+					valuesFrom(onProperty, ontValuesFrom);			
+				} else if ( restriction.isHasValueRestriction() ) {
+					RDFNode hasValue = restriction.asHasValueRestriction().getHasValue();
+					hasValue(onProperty, hasValue);
+				} else {
+					onProperty(onProperty);
+				}
+			}
+		}
+		
+		public abstract void onProperty(OntProperty onProperty);
+		public abstract void hasValue(OntProperty onProperty, RDFNode hasValue);
+		public abstract void valuesFrom(OntProperty onProperty, OntResource valuesFrom);
 	}
 	
 	private static class VisitingDecomposer
@@ -341,6 +386,7 @@ public class OwlUtils
 				 * isn't defined in the ontology; this is technically correct,
 				 * but it's often better for us to just add the property...
 				 */
+				@SuppressWarnings("unused")
 				OntProperty onProperty = null;
 				try {
 					onProperty = restriction.getOnProperty();
@@ -356,22 +402,7 @@ public class OwlUtils
 					}
 				}
 				
-				if (onProperty != null) {
-					if ( restriction.isAllValuesFromRestriction() ) {
-						Resource valuesFrom = restriction.asAllValuesFromRestriction().getAllValuesFrom();
-						OntResource ontValuesFrom = onProperty.getOntModel().getOntResource(valuesFrom);
-						visitor.valuesFrom(onProperty, ontValuesFrom);
-					} else if ( restriction.isSomeValuesFromRestriction() ) {
-						Resource valuesFrom = restriction.asSomeValuesFromRestriction().getSomeValuesFrom();
-						OntResource ontValuesFrom = onProperty.getOntModel().getOntResource(valuesFrom);
-						visitor.valuesFrom(onProperty, ontValuesFrom);			
-					} else if ( restriction.isHasValueRestriction() ) {
-						RDFNode hasValue = restriction.asHasValueRestriction().getHasValue();
-						visitor.hasValue(onProperty, hasValue);
-					} else {
-						visitor.onProperty(onProperty);
-					}
-				}
+				visitor.hasRestriction(restriction);
 			}
 
 			/* extended case: is this a composition of several classes? if
@@ -413,37 +444,44 @@ public class OwlUtils
 		}
 	}
 	
+	private static class RestrictionEnumerationVisitor implements PropertyRestrictionVisitor
+	{
+		Set<Restriction> restrictions;
+		
+		public RestrictionEnumerationVisitor()
+		{
+			restrictions = new HashSet<Restriction>();
+		}
+		
+		public void hasRestriction(Restriction restriction)
+		{
+			restrictions.add(restriction);
+		}
+	}
+	
 	private static class PropertyEnumerationVisitor implements PropertyRestrictionVisitor
 	{
-		private Set<OntProperty> properties;
+		Set<OntProperty> properties;
 		
 		public PropertyEnumerationVisitor()
 		{
 			properties = new HashSet<OntProperty>();
 		}
 		
-		public void onProperty(OntProperty onProperty)
+		public void hasRestriction(Restriction restriction)
 		{
-			properties.add(onProperty);
-		}
-
-		public void hasValue(OntProperty onProperty, RDFNode hasValue)
-		{
-			onProperty(onProperty);
-		}
-
-		public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
-		{
-			properties.add(onProperty);
-		}
-
-		public Set<OntProperty> listProperties()
-		{
-			return properties;
+			try {
+				OntProperty p = restriction.getOnProperty();
+				if (p != null)
+					properties.add(p);
+			} catch (ConversionException e) {
+				// we should already have warned about this above, but just in case...
+				log.warn(String.format("undefined restricted property %s"), e);
+			}
 		}
 	}
 	
-	private static class MinimalModelVisitor implements PropertyRestrictionVisitor
+	private static class MinimalModelVisitor extends PropertyRestrictionAdapter
 	{
 		private Model model;
 		private Resource subject;
