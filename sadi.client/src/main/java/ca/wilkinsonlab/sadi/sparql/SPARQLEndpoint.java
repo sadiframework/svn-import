@@ -195,6 +195,11 @@ public class SPARQLEndpoint
 				Model resultTriples = ModelFactory.createDefaultModel();
 				resultTriples.read(response.getInputStream(), "", lang);
 				results.add(new ConstructQueryResult(originalQuery, resultTriples));
+				try {
+					response.getInputStream().close();
+				} catch(IOException e) {
+					log.warn("failed to close InputStream for response to query: " + originalQuery, e);
+				}
 			}
 		}
 		
