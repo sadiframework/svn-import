@@ -20,15 +20,12 @@ import org.apache.log4j.Logger;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.vocab.W3C;
 
 import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
@@ -80,28 +77,19 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 
 	public String getRegistryURI() { return this.getURI(); }
 
-	public OntModel getPredicateOntology() 
+	public Collection<String> getAllPredicates() throws IOException 
 	{
-		log.trace("building ontology for predicates in registry");
+		log.trace("retrieving list of all predicates from SPARQL registry");
 		
-		OntModel ontology = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
 		String predicateQuery = "SELECT DISTINCT ?o FROM %u% WHERE { ?s %u% ?o }";
-	
-		List<Map<String,String>> results = null;
-		try {
-			predicateQuery = SPARQLStringUtils.strFromTemplate(predicateQuery, getIndexGraphURI(), SPARQLRegistryOntology.HAS_PREDICATE);
-			results = selectQuery(predicateQuery);
-		}
-		catch(IOException e) {
-			throw new RuntimeException(e);
-		}
+		predicateQuery = SPARQLStringUtils.strFromTemplate(predicateQuery, getIndexGraphURI(), SPARQLRegistryOntology.HAS_PREDICATE);
 
-		for(Map<String,String> binding : results) {
-			String propertyURI = binding.get("o");
-			log.trace("resolving " + propertyURI);
-			OwlUtils.getOntPropertyWithLoad(ontology, propertyURI);
+		Set<String> predicates = new HashSet<String>();
+		for(Map<String,String> binding : selectQuery(predicateQuery)) {
+			predicates.add(binding.get("o"));
 		}
-		return ontology;
+		
+		return predicates;
 	}
 
 	private void initRegExMaps() throws IOException
@@ -159,14 +147,10 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	
 	public Collection<SPARQLEndpoint> findEndpointsByPredicate(String predicate) throws IOException
 	{
-		
 		if(predicateToEndpointCache.containsKey(predicate))
 			return predicateToEndpointCache.get(predicate);
 
 		Set<String> matchingEndpointURIs = findEndpointsByPredicateUsingIndex(predicate);
-
-		// This step is too slow to be practical.
-		//matchingEndpointURIs.addAll(findPartiallyIndexedEndpointsByPredicate(predicate, matchingEndpointURIs));
 
 		Set<SPARQLEndpoint> matches = new HashSet<SPARQLEndpoint>();
 		for(String uri : matchingEndpointURIs) 
