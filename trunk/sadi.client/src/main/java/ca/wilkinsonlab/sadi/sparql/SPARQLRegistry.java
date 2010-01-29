@@ -25,6 +25,7 @@ public interface SPARQLRegistry extends Registry
 	public List<SPARQLEndpoint> getAllEndpoints() throws IOException;
 	public Collection<SPARQLEndpoint> findEndpointsByPredicate(String predicate) throws IOException;
 	public Collection<String> getPredicatesForEndpoint(String endpointURI) throws IOException;
+	public Collection<String> getAllPredicates() throws IOException;
 
 	public boolean subjectMatchesRegEx(String endpointURI, String uri) throws IOException;
 	public boolean objectMatchesRegEx(String endpointURI, String uri) throws IOException;
