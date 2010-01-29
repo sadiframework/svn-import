@@ -251,8 +251,7 @@ public class SPARQLServiceWrapper implements Service
 		
 		for(ConstructQueryResult result : results) {
 			if(result.exceptionOccurred()) {
-				String originalQuery = result.getOriginalQuery();
-				throw new ServiceInvocationException("exception occurred executing query: " +  originalQuery, result.getException());
+				throw new ServiceInvocationException("exception occurred executing query: " +  result.getOriginalQuery(), result.getException());
 			}			
 		}
 		
@@ -331,6 +330,8 @@ public class SPARQLServiceWrapper implements Service
 		queryPattern.addTriple(triplePattern);
 		constructQuery.setQueryPattern(queryPattern);		
 
+		constructQuery.setLimit(getResultsLimit());
+		
 		return constructQuery.serialize();
 	}
 	
