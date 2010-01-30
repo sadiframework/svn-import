@@ -3,6 +3,8 @@ package ca.wilkinsonlab.sadi.utils.graph;
 import static org.junit.Assert.*;
 import ca.wilkinsonlab.sadi.utils.graph.OpenGraphIterator.NodeVisitationConstraint;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -51,6 +53,59 @@ public class BreadthFirstIteratorTest extends GraphIteratorTest {
 		assertTrue(position.get(0) < position.get(6));
 		assertTrue(position.get(0) < position.get(7));
 		assertTrue(position.get(0) < position.get(8));
+		
+		assertTrue(position.get(1) < position.get(4));
+		assertTrue(position.get(1) < position.get(5));
+		assertTrue(position.get(1) < position.get(6));
+		assertTrue(position.get(1) < position.get(7));
+		assertTrue(position.get(1) < position.get(8));
+
+		assertTrue(position.get(2) < position.get(4));
+		assertTrue(position.get(2) < position.get(5));
+		assertTrue(position.get(2) < position.get(6));
+		assertTrue(position.get(2) < position.get(7));
+		assertTrue(position.get(2) < position.get(8));
+		
+		assertTrue(position.get(3) < position.get(4));
+		assertTrue(position.get(3) < position.get(5));
+		assertTrue(position.get(3) < position.get(6));
+		assertTrue(position.get(3) < position.get(7));
+		assertTrue(position.get(3) < position.get(8));
+		
+	}
+
+	@Test
+	public void testBreadthFirstIteratorWithMultipleStartNodes() {
+		
+		// keeps track of the order of iteration over the nodes
+		Map<Integer,Integer> position = new HashMap<Integer,Integer>();
+		
+		// nodes in the test graph are labelled with Integers; we choose nodes 1, 2, 3 as the starting nodes.
+		Collection<SearchNode<Integer>> startNodes = new ArrayList<SearchNode<Integer>>();
+		startNodes.add(new TestSearchNode(1));
+		startNodes.add(new TestSearchNode(2));
+		startNodes.add(new TestSearchNode(3));
+		
+		Iterator<Integer> i = new BreadthFirstIterator<Integer>(startNodes);
+		
+		int curPosition = 0;
+		//  track the number of times each node is visited (should be at most once!)
+		Map<Integer,Integer> visitCount = new HashMap<Integer,Integer>();
+
+		while(i.hasNext()) {
+			Integer currentNode = i.next();
+			int count = visitCount.containsKey(currentNode) ? visitCount.get(currentNode) : 1;
+			visitCount.put(currentNode, count);
+			position.put(currentNode, curPosition++);
+		}
+		
+		// make sure all nodes are visited exactly once (except 0, which is unreachable from the chosen start nodes)
+		for(int node = 1; node <= 8; node++) {
+			assertTrue(visitCount.get(node) == 1);
+		}
+		assertTrue(!visitCount.containsKey(0));
+		
+		// check for correct ordering of iteration
 		
 		assertTrue(position.get(1) < position.get(4));
 		assertTrue(position.get(1) < position.get(5));
