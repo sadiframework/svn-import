@@ -24,7 +24,6 @@ import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.vocab.W3C;
 
-import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
