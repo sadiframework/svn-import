@@ -1,5 +1,7 @@
 package ca.wilkinsonlab.sadi.utils.graph;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
@@ -19,15 +21,23 @@ public class BreadthFirstIterator<V> extends OpenGraphIterator<V> {
 	Queue<SearchNode<V>> BFSQueue;
 	
 	public BreadthFirstIterator(SearchNode<V> startNode) {
-		this(startNode, null);
-	}
-
-	public BreadthFirstIterator(SearchNode<V> startNode, NodeVisitationConstraint<V> nodeVistationConstraint) {
-		super(startNode, nodeVistationConstraint);
-		BFSQueue = new LinkedList<SearchNode<V>>();
-		BFSQueue.add(startNode);
+		this(Collections.singleton(startNode), null);
 	}
 	
+	public BreadthFirstIterator(Collection<? extends SearchNode<V>> startNodes) {
+		this(startNodes, null);
+	}
+	
+	public BreadthFirstIterator(SearchNode<V> startNode, NodeVisitationConstraint<V> nodeVistationConstraint) {
+		this(Collections.singleton(startNode), nodeVistationConstraint);
+	}
+
+	public BreadthFirstIterator(Collection<? extends SearchNode<V>> startNodes, NodeVisitationConstraint<V> nodeVistationConstraint) {
+		super(nodeVistationConstraint);
+		BFSQueue = new LinkedList<SearchNode<V>>();
+		BFSQueue.addAll(startNodes);
+	}
+
 	@Override
 	public boolean hasNext() {
 
@@ -46,9 +56,8 @@ public class BreadthFirstIterator<V> extends OpenGraphIterator<V> {
 		
 		for(SearchNode<V> node = getQueue().poll(); node != null; node = getQueue().poll()) {
 			if(nodeIsVisitable(node)) {
-				setCurrentNode(node);
 				addVisitedNode(node);
-				appendToQueue(getCurrentNode().getSuccessors());
+				appendToQueue(node.getSuccessors());
 				return node.getNode();
 			}
 		}
@@ -57,7 +66,7 @@ public class BreadthFirstIterator<V> extends OpenGraphIterator<V> {
 
 	@Override
 	public void remove() {
-		throw new UnsupportedOperationException("remove() operation is not supported, this is iterator is read-only");
+		throw new UnsupportedOperationException("remove() operation is not supported, this iterator is read-only");
 	}
 
 

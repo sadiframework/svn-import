@@ -23,27 +23,15 @@ import java.util.Set;
  */
 public abstract class OpenGraphIterator<V> implements Iterator<V> {
 
-	SearchNode<V> currentNode;
 	Set<SearchNode<V>> visitedNodes = new HashSet<SearchNode<V>>();
-	boolean successorsRetrievedForCurrentNode;
 	NodeVisitationConstraint<V> nodeVistationConstraint;
 
-	public OpenGraphIterator(SearchNode<V> startNode) {
-		this(startNode, null);
+	public OpenGraphIterator() {
+		this(null);
 	}
 
-	public OpenGraphIterator(SearchNode<V> startNode, NodeVisitationConstraint<V> nodeVistationConstraint) {
-		setCurrentNode(startNode);
-		setSuccessorsRetrievedForCurrentNode(false);
+	public OpenGraphIterator(NodeVisitationConstraint<V> nodeVistationConstraint) {
 		setNodeVistationConstraint(nodeVistationConstraint);
-	}
-
-	protected SearchNode<V> getCurrentNode() {
-		return currentNode;
-	}
-
-	protected void setCurrentNode(SearchNode<V> currentNode) {
-		this.currentNode = currentNode;
 	}
 
 	protected void addVisitedNode(SearchNode<V> node) {
@@ -58,14 +46,6 @@ public abstract class OpenGraphIterator<V> implements Iterator<V> {
 		return !visitedNodes.contains(node);
 	}
 	
-	protected boolean successorsRetrievedForCurrentNode() {
-		return successorsRetrievedForCurrentNode;
-	}
-
-	protected void setSuccessorsRetrievedForCurrentNode(boolean successorsRetrievedForCurrentNode) {
-		this.successorsRetrievedForCurrentNode = successorsRetrievedForCurrentNode;
-	}
-
 	public NodeVisitationConstraint<V> getNodeVistationConstraint() {
 		return nodeVistationConstraint;
 	}
