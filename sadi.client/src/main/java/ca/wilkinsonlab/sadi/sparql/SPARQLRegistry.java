@@ -1,8 +1,12 @@
 package ca.wilkinsonlab.sadi.sparql;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
 
 import ca.wilkinsonlab.sadi.client.Registry;
 
@@ -24,6 +28,8 @@ public interface SPARQLRegistry extends Registry
 	
 	public List<SPARQLEndpoint> getAllEndpoints() throws IOException;
 	public Collection<SPARQLEndpoint> findEndpointsByPredicate(String predicate) throws IOException;
+	public Collection<SPARQLEndpoint> findEndpointsByTriplePattern(Triple triplePattern) throws IOException;
+
 	public Collection<String> getPredicatesForEndpoint(String endpointURI) throws IOException;
 	public Collection<String> getAllPredicates() throws IOException;
 
@@ -35,4 +41,5 @@ public interface SPARQLRegistry extends Registry
 	
 	public long getNumTriplesLowerBound(String endpointURI) throws IOException;
 	public long getNumTriplesOrLowerBound(String endpointURI) throws IOException;
+
 }
