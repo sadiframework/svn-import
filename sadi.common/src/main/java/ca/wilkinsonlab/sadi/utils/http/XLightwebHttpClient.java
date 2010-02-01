@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 import org.apache.log4j.Logger;
 import org.xlightweb.HttpRequestHeader;
@@ -83,25 +85,37 @@ public class XLightwebHttpClient implements HttpClient {
 	}
 
 	public Collection<HttpResponse> batchRequest(Collection<HttpRequest> requests) {
-		
 		Collection<HttpResponse> responses = Collections.synchronizedList(new ArrayList<HttpResponse>());
+
+		// xLightweb does not automatically keep the number of active connections below the
+		// limits specified xLightWebClient.setMaxActive() and xLightWebClient.setMaxActivePerServer().
+		// (I was very surprised by this!) It merely throws an MaxConnectionsExceededException when the 
+		// limits are exceeded, and it's up to us to retry or whatever.
+		//
+		// Here, I handle this problem by waiting until the number of active connections is below the limit, before 
+		// sending a new request.
 		
-		// fire off each request asynchronously
-		for(HttpRequest request : requests) {
-			try {
-				IHttpRequest xLightwebRequest = getXLightwebHttpRequest(request);
-				xLightWebClient.send(xLightwebRequest, new XLightwebCallback(request, responses));
-			} catch(IOException e) {
-				responses.add(new HttpResponse(request, e));
-			}
-		}
+		// TODO: In the future we can do something smarter here
+		int maxActive = Math.min(xLightWebClient.getMaxActive(), xLightWebClient.getMaxActivePerServer());
 		
-		// wait until all responses have failed or succeeded
+		Queue<HttpRequest> requestQueue = new LinkedList<HttpRequest>(requests);
 		while(responses.size() < requests.size()) {
-			try {
-				Thread.sleep(300);
-			} catch(InterruptedException e) {
-				throw new RuntimeException("unhandled InterruptedException for thread " + Thread.currentThread(), e);
+
+			if(requestQueue.size() > 0 && (xLightWebClient.getNumActive() < maxActive)) {
+				HttpRequest request = requestQueue.remove();
+				try {
+					IHttpRequest xLightwebRequest = getXLightwebHttpRequest(request);
+					// fire off request asynchronously
+					xLightWebClient.send(xLightwebRequest, new XLightwebCallback(request, responses));
+				} catch(IOException e) {
+					responses.add(new HttpResponse(request, e));
+				}
+			} else {
+				try {
+					Thread.sleep(300);
+				} catch(InterruptedException e) {
+					throw new RuntimeException("unhandled InterruptedException for thread " + Thread.currentThread(), e);
+				}
 			}
 		}
 		
@@ -158,18 +172,6 @@ public class XLightwebHttpClient implements HttpClient {
 		}
 		httpState.setCredentials(new AuthScope(host, port, realm), new UsernamePasswordCredentials(username, password));
 	}
-	
-	/*
-	public long getResponseTimeout() {
-		return theXLightWebClient.getResponseTimeoutMillis();
-	}
-	
-	public long setResponseTimeout(long timeoutInMilliseconds) {
-		long oldValue = getResponseTimeout();
-		theXLightWebClient.setResponseTimeoutMillis(timeoutInMilliseconds);
-		return oldValue;
-	}
-	*/
 	
 	protected String getCachedAuthHeader(URL targetURL) {
 		for(URL url : cachedAuthHeaderMap.keySet()) {
@@ -267,7 +269,7 @@ public class XLightwebHttpClient implements HttpClient {
 		@Override
 		public void onException(IOException e) throws IOException 
 		{
-			log.warn("exception occurred for asynchronous HTTP request " + originalRequest + ": " + e.getMessage()); 
+			log.warn("exception occurred for asynchronous HTTP request " + originalRequest + ": " + e.getMessage());
 			responses.add(new HttpResponse(originalRequest, e));
 		}
 
