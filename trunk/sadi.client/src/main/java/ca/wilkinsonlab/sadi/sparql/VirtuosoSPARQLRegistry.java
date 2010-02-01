@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -24,7 +23,13 @@ import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.vocab.W3C;
 
+import com.hp.hpl.jena.graph.Node;
+import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.NodeIterator;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
@@ -144,6 +149,40 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		
 	}
 	
+	public Collection<SPARQLEndpoint> findEndpointsByTriplePattern(Triple triplePattern) throws IOException 
+	{
+		Node s = triplePattern.getSubject();
+		Node p = triplePattern.getPredicate();
+		Node o = triplePattern.getObject();
+
+		if(s.isBlank() || p.isBlank() || o.isBlank()) {
+			throw new IllegalArgumentException("blank nodes are not allowed in any position of the triple pattern");
+		}
+		
+		Collection<SPARQLEndpoint> unfiltered = p.isVariable() ? getAllEndpoints() : findEndpointsByPredicate(p.getURI());
+		Collection<SPARQLEndpoint> matches = new ArrayList<SPARQLEndpoint>();  
+		
+		for(SPARQLEndpoint endpoint : unfiltered) {
+			boolean subjectMatches = (s.isVariable() || (s.isURI() && subjectMatchesRegEx(endpoint.getURI(), s.getURI())));
+			boolean objectMatches = (o.isVariable() || (o.isURI() && objectMatchesRegEx(endpoint.getURI(), o.getURI())));
+			if(subjectMatches && objectMatches) {
+				matches.add(endpoint);
+			}
+		}
+		return matches;
+	}
+	
+	public Collection<SPARQLServiceWrapper> findServicesByTriplePattern(Triple pattern, boolean patternIsInverted) throws IOException
+	{
+		Collection<SPARQLEndpoint> endpoints = findEndpointsByTriplePattern(pattern);
+		Collection<SPARQLServiceWrapper> services = new ArrayList<SPARQLServiceWrapper>();
+		
+		for(SPARQLEndpoint endpoint: endpoints)
+			services.add(new SPARQLServiceWrapper(endpoint, this, patternIsInverted));
+		
+		return services;
+	}
+	
 	public Collection<SPARQLEndpoint> findEndpointsByPredicate(String predicate) throws IOException
 	{
 		if(predicateToEndpointCache.containsKey(predicate))
@@ -190,24 +229,25 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	
 	public Collection<SPARQLServiceWrapper> findServicesByPredicate(String predicate) throws IOException
 	{
-		boolean isInverted = false; 
-
+		Node s = NodeCreateUtils.create("?var1");
+		Node p = NodeCreateUtils.create(predicate);
+		Node o = NodeCreateUtils.create("?var2");
+		
 		// TODO: Remove this hack; this will only be possible when "predicate" is being
 		// passed in as a Jena Property rather than as a String.  (Having access to the predicate
 		// as a Property allows for the retrieval of synonyms and inverses.) -- BV
-		
+
+		boolean isInverted = false;
 		if(predicate.endsWith("-inverse")) {
-			predicate = StringUtils.substringBeforeLast(predicate, "-inverse");
-			isInverted = true; 
-		}
-		
-		Set<SPARQLServiceWrapper> services = new HashSet<SPARQLServiceWrapper>();
-		Collection<SPARQLEndpoint> endpoints = findEndpointsByPredicate(predicate);
-		
-		for(SPARQLEndpoint endpoint: endpoints)
-			services.add(new SPARQLServiceWrapper(endpoint, this, predicate, isInverted));
-		
-		return services;
+			p = NodeCreateUtils.create(StringUtils.substringBeforeLast(predicate, "-inverse"));
+			Node tmp = s;
+			s = o;
+			o = tmp;
+			isInverted = true;
+		} 
+
+		Triple pattern = new Triple(s, p, o);
+		return findServicesByTriplePattern(pattern, isInverted);
 	}
 
 	public EndpointType getEndpointType(String endpointURI) throws HttpException, IOException
@@ -410,17 +450,6 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 			return ".*";
 	}
 	
-	public Collection<String> findPredicatesBySubject(String subject) throws IOException 
-	{
-		log.warn("This method is not implemented.");
-		return new ArrayList<String>(0);
-	}
-
-	public Collection<SPARQLServiceWrapper> findServices(String subject, String predicate) throws URIException, HttpException, IOException
-	{
-		return findServicesByPredicate(predicate);
-	}
-
 	public SPARQLEndpoint getEndpoint(String endpointURI) throws IOException
 	{
 		if(!hasEndpoint(endpointURI))
@@ -435,25 +464,85 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 
 	public Collection<String> findPredicatesBySubject(Resource subject) throws IOException
 	{
-		return findPredicatesBySubject(subject.getURI());
+		// Note: This method could be implemented by returning all predicates 
+		// from every endpoint with a matching subject regex.  However this 
+		// highly inaccurate and probably not wise.
+		
+		return new ArrayList<String>();
 	}
 
 	public Collection<SPARQLServiceWrapper> findServices(Resource subject, String predicate) throws IOException
 	{
-		return findServices(subject.getURI(), predicate);
-	}
+		Node s = subject.asNode();
+		Node p = NodeCreateUtils.create(predicate);
+		Node o = NodeCreateUtils.create("?var");
+		
+		// TODO: Remove this hack; this will only be possible when "predicate" is being
+		// passed in as a Jena Property rather than as a String.  (Having access to the predicate
+		// as a Property allows for the retrieval of synonyms and inverses.) -- BV
 
+		boolean isInverted = false;
+		if(predicate.endsWith("-inverse")) {
+			p = NodeCreateUtils.create(StringUtils.substringBeforeLast(predicate, "-inverse"));
+			Node tmp = s;
+			s = o;
+			o = tmp;
+			isInverted = true;
+		} 
+		
+		Triple pattern = new Triple(s, p, o);
+		return findServicesByTriplePattern(pattern, isInverted);
+	}
+	
 	public Collection<ServiceInputPair> discoverServices(Model model) throws IOException
 	{
-		throw new UnsupportedOperationException();
+		// At the current time, the only thing that act as input to a SPARQLServiceWrapper is a bare URI.
+		// Hence, we just iterate through all Resources in the model and find endpoints that might
+		// have some triples about them. We exclude literals from consideration here, because each literal 
+		// would match *all* SPARQL endpoints.
+		
+		Collection<ServiceInputPair> serviceInputPairs = new ArrayList<ServiceInputPair>();
+
+		Set<Resource> resourcesSeen = new HashSet<Resource>();
+
+		for(ResIterator i = model.listSubjects(); i.hasNext(); ) {
+			Resource input = i.next();
+			if(!resourcesSeen.contains(input)) {
+				for(SPARQLServiceWrapper service : findServicesByInputInstance(input)) {
+					serviceInputPairs.add(new ServiceInputPair(service, input));
+				}
+				resourcesSeen.add(input);
+			}
+		}
+		
+		for(NodeIterator i = model.listObjects(); i.hasNext(); ) {
+			RDFNode node = i.next();
+			if(node.isResource()) {
+				Resource input = node.as(Resource.class);
+				if(!resourcesSeen.contains(input)) {
+					for(SPARQLServiceWrapper service : findServicesByInputInstance(input)) {
+						serviceInputPairs.add(new ServiceInputPair(service, input));
+					}
+					resourcesSeen.add(input);
+				}
+			}
+		}
+		
+		return serviceInputPairs;
 	}
 
 	public Collection<SPARQLServiceWrapper> findServicesByInputInstance(Resource subject) throws IOException
 	{
-		throw new UnsupportedOperationException();
+		Node s = subject.asNode();
+		Node p = NodeCreateUtils.create("?var1");
+		Node o = NodeCreateUtils.create("?var2");
+		
+		Collection<SPARQLServiceWrapper> services = new HashSet<SPARQLServiceWrapper>();
+		
+		services.addAll(findServicesByTriplePattern(new Triple(s, p, o), false));
+		services.addAll(findServicesByTriplePattern(new Triple(o, p, s), true));
+		
+		return services;
 	}
 	
-	protected static class DeadEndpointCache {
-		
-	}
 }

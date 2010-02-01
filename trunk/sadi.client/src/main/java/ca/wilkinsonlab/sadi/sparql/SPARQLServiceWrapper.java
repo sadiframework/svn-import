@@ -38,27 +38,34 @@ public class SPARQLServiceWrapper implements Service
 	
 	protected SPARQLEndpoint endpoint;
 	protected SPARQLRegistry registry;
-	protected String predicate;
-	protected boolean predicateIsInverse;
+	protected boolean mapInputsToObjectPosition;
 	
 	public SPARQLServiceWrapper(SPARQLEndpoint endpoint, SPARQLRegistry registry) {
-		this(endpoint, registry, null, false);
+		this(endpoint, registry, false);
 	}
 	
-	public SPARQLServiceWrapper(SPARQLEndpoint endpoint, SPARQLRegistry registry, String predicate, boolean predicateIsInverse) {
-		
+	public SPARQLServiceWrapper(SPARQLEndpoint endpoint, SPARQLRegistry registry, boolean mapInputsToObjectPosition) 
+	{
 		setEndpoint(endpoint);
 		setRegistry(registry);
-		setPredicate(predicate);
-		setPredicateIsInverse(predicateIsInverse);
+		setMapInputsToObjectPosition(mapInputsToObjectPosition);
 
-		if(Config.getConfiguration().containsKey(RESULTS_LIMIT_CONFIG_KEY)) {
-			setResultsLimit(Config.getConfiguration().getLong(RESULTS_LIMIT_CONFIG_KEY, SPARQLEndpoint.NO_RESULTS_LIMIT));
+		setResultsLimit(Config.getConfiguration().getLong(RESULTS_LIMIT_CONFIG_KEY, SPARQLEndpoint.NO_RESULTS_LIMIT));
+		setBatchQueries(Config.getConfiguration().getBoolean(BATCH_QUERIES_CONFIG_KEY, true));
+	}
+	
+	@Override
+	public int hashCode() {
+		return (getServiceURI() + ":" + String.valueOf(mapInputsToObjectPosition())).hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof SPARQLServiceWrapper) {
+			SPARQLServiceWrapper asService = (SPARQLServiceWrapper)o;
+			return getServiceURI().equals(asService.getServiceURI()) && (mapInputsToObjectPosition() == asService.mapInputsToObjectPosition());
 		}
-		
-		if(Config.getConfiguration().containsKey(BATCH_QUERIES_CONFIG_KEY)) {
-			setBatchQueries(Config.getConfiguration().getBoolean(BATCH_QUERIES_CONFIG_KEY, true));
-		}
+		return false;
 	}
 	
 	/* (non-Javadoc)
@@ -136,7 +143,7 @@ public class SPARQLServiceWrapper implements Service
 		boolean matches = false;
 
 		try {
-			if(predicateIsInverse()) {
+			if(mapInputsToObjectPosition()) {
 				matches = getRegistry().objectMatchesRegEx(getEndpoint().getURI(), resource.getURI());
 			}
 			else {
@@ -170,11 +177,10 @@ public class SPARQLServiceWrapper implements Service
 	public SPARQLRegistry getRegistry() { return registry; }
 	public void setRegistry(SPARQLRegistry registry) { this.registry = registry; }
 
-	public boolean predicateIsInverse() { return predicateIsInverse; }
-	public void setPredicateIsInverse(boolean predicateInverted) { this.predicateIsInverse = predicateInverted; }
+	public boolean mapInputsToObjectPosition() { return mapInputsToObjectPosition; }
+	public void setMapInputsToObjectPosition(boolean predicateInverted) { this.mapInputsToObjectPosition = predicateInverted; }
 
-	public String getPredicate() { return predicate; }
-	public void setPredicate(String predicate) {this.predicate = predicate; }
+
 	
 	protected Collection<Triple> invokeServiceOnRDFNode(RDFNode inputURIorLiteral) throws ServiceInvocationException
 	{
@@ -275,7 +281,7 @@ public class SPARQLServiceWrapper implements Service
 		Node var1 = NodeCreateUtils.create("?var1");
 		Node var2 = NodeCreateUtils.create("?var2");
 
-		if(predicateIsInverse()) {
+		if(mapInputsToObjectPosition()) {
 			triplePattern = new Triple(var1, var2, inputURIorLiteral.asNode());
 		}
 		else {
@@ -293,7 +299,7 @@ public class SPARQLServiceWrapper implements Service
 		Node var1 = NodeCreateUtils.create("?var1");
 		Node p = NodeCreateUtils.create(predicate);
 
-		if(predicateIsInverse()) {
+		if(mapInputsToObjectPosition()) {
 			triplePattern = new Triple(var1, p, inputURIorLiteral.asNode());
 		}
 		else {
@@ -330,7 +336,9 @@ public class SPARQLServiceWrapper implements Service
 		queryPattern.addTriple(triplePattern);
 		constructQuery.setQueryPattern(queryPattern);		
 
-		constructQuery.setLimit(getResultsLimit());
+		if(getResultsLimit() != SPARQLEndpoint.NO_RESULTS_LIMIT) {
+			constructQuery.setLimit(getResultsLimit());
+		}
 		
 		return constructQuery.serialize();
 	}
