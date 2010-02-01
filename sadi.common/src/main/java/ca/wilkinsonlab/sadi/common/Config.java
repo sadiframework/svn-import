@@ -44,7 +44,7 @@ public class Config extends CompositeConfiguration
 		try {
 			defaultConfig = new PropertiesConfiguration(defaultPropertiesFile);
 		} catch (ConfigurationException e) {
-			log.warn(String.format("error loading %s", defaultPropertiesFile), e);
+			log.error(e.getMessage()); // looks like "Cannot locate configuration source %s"
 			defaultConfig = new PropertiesConfiguration();
 		}
 		
@@ -52,7 +52,7 @@ public class Config extends CompositeConfiguration
 		try {
 			localConfig = new PropertiesConfiguration(localPropertiesFile);
 		} catch (ConfigurationException e) {
-			log.warn(String.format("error loading %s", localPropertiesFile), e);
+			log.warn(String.format("no user-space configuration source %s", localPropertiesFile));
 			localConfig = new PropertiesConfiguration();
 		}
 		
