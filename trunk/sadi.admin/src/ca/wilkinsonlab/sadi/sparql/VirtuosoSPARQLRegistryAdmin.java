@@ -695,6 +695,7 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 	}
 	
 	public void setEndpointStatus(String endpointURI, ServiceStatus status) {
+		setEndpointStatus(getIndexModel(), endpointURI, status);
 	}
 
 	protected Set<SPARQLEndpoint> getAllEndpoints() {
@@ -747,15 +748,15 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 		public List<Operation> operations = new ArrayList<Operation>();
 
 		@Option(name = "-H", usage = "virtuoso hostname")
-		public String virtuosoHost = virtuosoConfig.getString(VIRTUOSO_HOSTNAME_CONFIG_KEY);
+		public String virtuosoHost = virtuosoConfig.getString(VIRTUOSO_HOSTNAME_CONFIG_KEY, "localhost");
 
 		@Option(name = "-P", usage = "virtuoso port")
-		public int virtuosoPort = virtuosoConfig.getInt(VIRTUOSO_PORT_CONFIG_KEY);
-		
-		@Option(name = "-p", usage = "virtuoso username")
-		public String virtuosoUsername = virtuosoConfig.getString(VIRTUOSO_USERNAME_CONFIG_KEY);
+		public int virtuosoPort = virtuosoConfig.getInt(VIRTUOSO_PORT_CONFIG_KEY, 1111);
 		
 		@Option(name = "-u", usage = "virtuoso username")
+		public String virtuosoUsername = virtuosoConfig.getString(VIRTUOSO_USERNAME_CONFIG_KEY);
+		
+		@Option(name = "-p", usage = "virtuoso password")
 		public String virtuosoPassword = virtuosoConfig.getString(VIRTUOSO_PASSWORD_CONFIG_KEY);
 		
 		@Option(name = "-g", usage = "URI of index graph")
