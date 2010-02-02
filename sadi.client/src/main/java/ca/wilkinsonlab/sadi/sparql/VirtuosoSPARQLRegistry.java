@@ -45,10 +45,8 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	protected static final String USERNAME_CONFIG_KEY = "username";
 	protected static final String PASSWORD_CONFIG_KEY = "password";
 
-	//private OntModel predicateOntology;
 	private String indexGraphURI;
 
-	private Map<String, Collection<SPARQLEndpoint>> predicateToEndpointCache;
 	private Map<String, String> subjectRegExMap;
 	private Map<String, String> objectRegExMap;
 
@@ -70,7 +68,6 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	{
 		super(URI, username, password);
 		this.indexGraphURI = indexGraphURI;
-		predicateToEndpointCache = new Hashtable<String,Collection<SPARQLEndpoint>>();
 		initRegExMaps();
 	}
 
@@ -136,15 +133,16 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 
 		for(Map<String,String> bindings: results) 
 		{
+			// Note: For performance reasons, we intentionally ignore the regExIsComplete property here.
+			// (All regexes which are not guaranteed to be complete are close to complete.)
+			
 			String endpointURI = bindings.get("endpoint");
-			boolean regexIsComplete = bindings.get("isComplete").equals(String.valueOf(true));
 			String regex = bindings.get("regex");
 
 			if(regexMap.containsKey(endpointURI))
 				throw new RuntimeException("registry is corrupt! " + endpointURI + " has more than one regex for its subject/object URIs");
 			
-			if(regexIsComplete)
-				regexMap.put(endpointURI, regex);
+			regexMap.put(endpointURI, regex);
 		}
 		
 	}
@@ -185,17 +183,12 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	
 	public Collection<SPARQLEndpoint> findEndpointsByPredicate(String predicate) throws IOException
 	{
-		if(predicateToEndpointCache.containsKey(predicate))
-			return predicateToEndpointCache.get(predicate);
-
 		Set<String> matchingEndpointURIs = findEndpointsByPredicateUsingIndex(predicate);
 
 		Set<SPARQLEndpoint> matches = new HashSet<SPARQLEndpoint>();
 		for(String uri : matchingEndpointURIs) 
 			matches.add(getEndpoint(uri));
 
-		predicateToEndpointCache.put(predicate, matches);
-		
 		return matches;
 	}
 	
