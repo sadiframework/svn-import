@@ -329,17 +329,8 @@ public class Registry
 		}
 		restrictionNode.addProperty(OWL.onProperty, p);
 		
-		OntResource valuesFrom;
-		if (restriction.isAllValuesFromRestriction()) {
-			valuesFrom = restriction.getOntModel().getOntResource(restriction.asAllValuesFromRestriction().getAllValuesFrom());
-			attachRestrictionValuesFrom(restrictionNode, valuesFrom);
-		} else if (restriction.isSomeValuesFromRestriction()) {
-			valuesFrom = restriction.getOntModel().getOntResource(restriction.asSomeValuesFromRestriction().getSomeValuesFrom());
-			attachRestrictionValuesFrom(restrictionNode, valuesFrom);
-		} else if (p.isProperty()){
-			valuesFrom = OwlUtils.getUsefulRange(p.asProperty());
-			attachRestrictionValuesFrom(restrictionNode, valuesFrom);
-		}
+		OntResource valuesFrom = OwlUtils.getValuesFrom(restriction);
+		attachRestrictionValuesFrom(restrictionNode, valuesFrom);
 	}
 	
 	/* The point of storing the restricted valuesFrom of attached properties
