@@ -207,12 +207,59 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 		return services;
 	}
 	
+	public Collection<RdfService> findServicesByConnectedClass(OntClass clazz)
+	throws IOException
+	{
+		return findServicesByConnectedClass(clazz, true);
+	}
+	
+	public Collection<RdfService> findServicesByConnectedClass(OntClass clazz, boolean withReasoning)
+	throws IOException
+	{
+		Collection<RdfService> services = new ArrayList<RdfService>();
+		if (withReasoning) {
+			services.addAll(findServicesByConnectedClass(clazz, false));
+			for (Iterator<OntClass> subClasses = clazz.listSubClasses(); subClasses.hasNext(); ) {
+				services.addAll(findServicesByConnectedClass(subClasses.next(), false));
+			}
+		} else {
+			if (!clazz.isURIResource())
+				return services;
+			String query = SPARQLStringUtils.strFromTemplate(
+					SPARQLStringUtils.readFully(RdfRegistry.class.getResource("findServicesByConnectedClass.sparql")),
+					clazz.getURI()
+			);
+			for (Map<String, String> binding: executeQuery(query)) {
+				try {
+					services.add(getService(binding));
+				} catch (SADIException e) {
+					log.error(String.format("error creating service from registry data %s", binding), e);
+				}
+		
+			}
+		}
+		return services;
+	}
+	
+	/**
+	 * @deprecated not useful
+	 * @param clazz
+	 * @return
+	 * @throws IOException
+	 */
 	public Collection<RdfService> findServicesByOutputClass(OntClass clazz)
 	throws IOException
 	{
 		return findServicesByOutputClass(clazz, true);
 	}
 	
+	/**
+	 * @deprecated not useful
+	 * @param clazz
+	 * @param withReasoning
+	 * @return
+	 * @throws IOException
+	 */
 	public Collection<RdfService> findServicesByOutputClass(OntClass clazz, boolean withReasoning)
 	throws IOException
 	{
