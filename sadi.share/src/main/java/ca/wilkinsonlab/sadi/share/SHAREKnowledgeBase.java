@@ -381,6 +381,7 @@ public class SHAREKnowledgeBase
 			return;
 		}
 		
+		log.trace(String.format("finding services by predicate %s", predicate));
 		Set<Service> services = getServicesByPredicate(predicate);
 		log.debug(String.format("found %d service%s total", services.size(), services.size() == 1 ? "" : "s"));
 		for (Service service : services) {
@@ -458,14 +459,7 @@ public class SHAREKnowledgeBase
 	 */
 	private Set<Service> getServicesByPredicate(OntProperty p)
 	{
-		/* in some reasoners, listEquivalentProperties doesn't include the
-		 * property itself; also, some reasoners return an immutable list here,
-		 * so we need to create our own copy (incidentally solving an issue
-		 * with generics...)
-		 */
-		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>(p.listEquivalentProperties().toSet());
-		equivalentProperties.add(p);
-		
+		Set<OntProperty> equivalentProperties = getEquivalentProperties(p);
 		Set<Service> services = new HashSet<Service>();
 		for (OntProperty equivalentProperty: equivalentProperties) {
 			log.trace(String.format("finding services for equivalent property %s", equivalentProperty));
@@ -475,6 +469,26 @@ public class SHAREKnowledgeBase
 		}
 		
 		return services;
+	}
+	
+	private Set<OntProperty> getEquivalentProperties(OntProperty p)
+	{
+		/* in some reasoners, listEquivalentProperties doesn't include the
+		 * property itself; also, some reasoners return an immutable list here,
+		 * so we need to create our own copy (incidentally solving an issue
+		 * with generics...)
+		 */
+		log.trace(String.format("finding all properties equivalent to %s", p));
+		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
+		for (Iterator<? extends OntProperty> i = p.listEquivalentProperties(); i.hasNext(); ) {
+			OntProperty q = i.next();
+			log.trace(String.format("found equivalent property %s", q));
+			equivalentProperties.add(q);
+		}
+		log.trace(String.format("adding original property %s", p));
+		equivalentProperties.add(p);
+		
+		return equivalentProperties;
 	}
 	
 	/* TODO fix this redundancy by making it so that Services can return 
