@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.utils;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.After;
@@ -14,6 +15,8 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.ontology.OntResource;
+import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -85,6 +88,17 @@ public class OwlUtilsTest
 				propertyCollectionContains(properties, NS + "restrictedProperty"));
 	}
 	
+//	@Test
+//	public void testGetUsefulRangeExpectedValues()
+//	{
+//		OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF);
+//		OntProperty p = OwlUtils.getOntPropertyWithLoad(model, "http://sadiframework.org/ontologies/predicates.owl#has3DStructure");
+//		OntClass range = OwlUtils.getUsefulRange(p);
+//		String expected = "http://purl.oclc.org/SADI/LSRN/PDB_Record";
+//		assertTrue(String.format("getUsefulRange of %s did not return %s", p, expected),
+//				range.getURI().equals(expected));
+//	}
+	
 	@Test
 	public void testGetUsefulRangeOnRangedObjectProperty()
 	{
@@ -119,5 +133,19 @@ public class OwlUtilsTest
 		OntClass c = OwlUtils.getUsefulRange(p);
 		assertTrue("getUsefulRange did not return expected class",
 				c.getURI().equals("http://www.w3.org/2000/01/rdf-schema#Literal"));
+	}
+	
+	@Test
+	public void testGetValuesFrom()
+	{
+		OntClass c = model.getOntClass(NS + "ClassWithRestriction");
+		Set<String> restrictionValuesFrom = new HashSet<String>();
+		for (Restriction r: OwlUtils.listRestrictions(c)) {
+			OntResource valuesFrom = OwlUtils.getValuesFrom(r);
+			if (valuesFrom.isURIResource())
+				restrictionValuesFrom.add(valuesFrom.getURI());
+		}
+		assertTrue("getValuesFrom did not return expected class",
+				restrictionValuesFrom.contains(NS + "ValuesFromClass"));
 	}
 }
