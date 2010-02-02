@@ -24,7 +24,6 @@ public class RdfRegistryTest
 	private static final String TEST_REGISTRY_ENDPOINT = "http://biordf.net/sparql";
 	private static final String TEST_REGISTRY_GRAPH = "http://sadiframework.org/test/registry/";
 
-
 	private static final Logger log = Logger.getLogger(RdfRegistryTest.class);
 	
 	
@@ -32,7 +31,7 @@ public class RdfRegistryTest
 	private static final String SERVICE_PREDICATE = "http://sadiframework.org/examples/regression.owl#hasRegressionModel";
 	private static final String DIRECT_INPUT_INSTANCE = "http://sadiframework.org/examples/input/regressionDirect";
 	private static final String INFERRED_INPUT_INSTANCE = "http://sadiframework.org/examples/input/regressionInferred";
-	
+	private static final String CONNECTED_CLASS = "http://sadiframework.org/examples/regression.owl#RegressionModel";
 	static RdfRegistry registry;
 	static Model inputModel;
 	
@@ -88,12 +87,20 @@ public class RdfRegistryTest
 				serviceCollectionContains(registry.findServicesByInputClass(inputClass), SERVICE_URI));
 	}
 	
+//	@Test
+//	public void testFindServicesByOutputClass() throws Exception
+//	{
+//		OntClass outputClass = registry.getService(SERVICE_URI).getOutputClass();
+//		assertTrue(String.format("failed to find service %s matching output class %s", SERVICE_URI, outputClass),
+//				serviceCollectionContains(registry.findServicesByOutputClass(outputClass), SERVICE_URI));
+//	}
+	
 	@Test
-	public void testFindServicesByOutputClass() throws Exception
+	public void testFindServicesByConnectedClass() throws Exception
 	{
-		OntClass outputClass = registry.getService(SERVICE_URI).getOutputClass();
-		assertTrue(String.format("failed to find service %s matching output class %s", SERVICE_URI, outputClass),
-				serviceCollectionContains(registry.findServicesByOutputClass(outputClass), SERVICE_URI));
+		OntClass connectedClass = registry.getService(SERVICE_URI).getOutputClass().getOntModel().getOntClass(CONNECTED_CLASS);
+		assertTrue(String.format("failed to find service %s matching connected class %s", SERVICE_URI, connectedClass),
+				serviceCollectionContains(registry.findServicesByConnectedClass(connectedClass), SERVICE_URI));
 	}
 	
 	@Test
