@@ -271,6 +271,26 @@ public class OwlUtils
 		return relative;
 	}
 	
+	public static OntClass getValuesFromAsClass(Restriction restriction)
+	{
+		OntResource valuesFrom = getValuesFrom(restriction);
+		if (valuesFrom.isClass())
+			return valuesFrom.asClass();
+		else
+			return null;
+	}
+	
+	public static OntResource getValuesFrom(Restriction restriction)
+	{
+		if (restriction.isAllValuesFromRestriction()) {
+			return restriction.getOntModel().getOntResource(restriction.asAllValuesFromRestriction().getAllValuesFrom());
+		} else if (restriction.isSomeValuesFromRestriction()) {
+			return restriction.getOntModel().getOntResource(restriction.asSomeValuesFromRestriction().getSomeValuesFrom());
+		} else {
+			return OwlUtils.getUsefulRange(restriction.getOnProperty());
+		}
+	}
+	
 	/**
 	 * Return the minimal RDF required for the specified individual to satisfy
 	 * the specified class description. Note that the RDF will not be complete
