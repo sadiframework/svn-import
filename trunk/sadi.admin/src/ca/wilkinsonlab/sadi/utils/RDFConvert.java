@@ -17,6 +17,8 @@ import org.kohsuke.args4j.Option;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 public class RDFConvert {
 	
@@ -28,7 +30,7 @@ public class RDFConvert {
 		@Option(name = "-i", required = true, usage = "input RDF format (options: \"RDF/XML\", \"N3\", \"N-TRIPLES\"")
 		public String inputFormat = "RDF/XML";
 
-		@Option(name = "-o", required = true, usage = "output RDF format (options: \"RDF/XML\", \"N3\", \"N-TRIPLES\"")
+		@Option(name = "-o", required = true, usage = "output RDF format (options: \"RDF/XML\", \"N3\", \"N-TRIPLES\", \"TSV\"")
 		public String outputFormat = "RDF/XML";
 
 	}
@@ -69,7 +71,17 @@ public class RDFConvert {
 		}
 		
 		Writer writer = new PrintWriter(System.out);
-		model.write(writer, options.outputFormat);
+		
+		if(options.outputFormat.toUpperCase().equals("TSV")) {
+			for(StmtIterator i = model.listStatements(); i.hasNext(); ) {
+				Statement stmt = i.next();
+				writer.write(stmt.getResource() + " " + stmt.getPredicate() + " " + stmt.getObject() + "\n");
+			}
+		} else {
+			model.write(writer, options.outputFormat);
+		}
+		
+		model.close();
 		writer.close();
 	}
 	
