@@ -20,7 +20,8 @@
     xmlns:common="&common;">
 
   <owl:Ontology rdf:about="">
-    <owl:imports rdf:resource="&dumontier;"/>
+    <owl:imports rdf:resource="&dumontier;hasReference"/>
+    <owl:imports rdf:resource="&lsrn;"/>
   </owl:Ontology>
   
   <owl:Class rdf:ID="AnnotatedUniProtRecord">
@@ -28,7 +29,7 @@
     <rdfs:subClassOf>
       <owl:Restriction>
         <owl:onProperty rdf:resource="&dumontier;hasReference"/>
-        <owl:someValuesFrom rdf:resource="&lsrn;PubMed_Record"/>
+        <owl:someValuesFrom rdf:resource="&lsrn;PMID_Record"/>
       </owl:Restriction>
     </rdfs:subClassOf>
   </owl:Class>
