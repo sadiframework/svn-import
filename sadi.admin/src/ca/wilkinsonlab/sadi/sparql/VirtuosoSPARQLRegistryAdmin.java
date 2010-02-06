@@ -26,6 +26,7 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -666,7 +667,7 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 	}
 
 	protected void setEndpointStatus(Model endpointIndex, String endpointURI, ServiceStatus status) {
-		log.trace("updating status " + status.toString() + " for " + endpointURI);
+		log.trace("updating status to " + status.toString() + " for " + endpointURI);
 		endpointIndex.removeAll(getResource(endpointURI), getProperty(SPARQLRegistryOntology.ENDPOINT_STATUS), (RDFNode)null);
 		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.ENDPOINT_STATUS), endpointIndex.createTypedLiteral(status.toString()));
 	}
@@ -707,7 +708,11 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 			if(typeTriple == null) {
  				endpoints.add(SPARQLEndpointFactory.createEndpoint(endpoint.getURI()));
 			} else {
-				EndpointType type = EndpointType.valueOf(typeTriple.getObject().toString());
+				if(!typeTriple.getObject().isLiteral()) {
+					throw new RuntimeException(String.format("registry corrupt!, endpoint type of %s is not a literal", endpoint.toString()));
+				}
+				Literal typeAsLiteral = (Literal)typeTriple.getObject().as(Literal.class);
+				EndpointType type = EndpointType.valueOf(typeAsLiteral.getString());
 				endpoints.add(SPARQLEndpointFactory.createEndpoint(endpoint.getURI(), type));
 			}
 		}
@@ -732,7 +737,8 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 			REMOVE_AMBIGUOUS_PROPERTIES,
 			SET_ENDPOINT_STATUS,
 			ADD_PREDICATES_BY_SUBJECT_URI,
-			ADD_ROOT_URI_FOR_TRAVERSAL
+			ADD_ROOT_URI_FOR_TRAVERSAL,
+			UPDATE_STATUS_OF_ALL_ENDPOINTS
 		};
 
 		public static class Operation {
@@ -782,7 +788,10 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 
 		@Option(name = "-S", usage = "manually set endpoint status (choices: '<endpoint>,DEAD', '<endpoint>,SLOW', '<endpoint>,OK')")
 		public void updateEndpointStatus(String endpointAndStatus) { operations.add(new Operation(endpointAndStatus, OperationType.SET_ENDPOINT_STATUS)); }
-		
+
+		@Option(name = "-U", usage = "update status of all endpoints") 
+		public void updateStatusOfAllEndpoints(boolean unused) { operations.add(new Operation(null, OperationType.UPDATE_STATUS_OF_ALL_ENDPOINTS)); }
+
 		@Option(name = "-R", usage = "specify a root URI for indexing-by-traversal")
 		public void addRootURIForTraversal(String rootURI) { operations.add(new Operation(rootURI, OperationType.ADD_ROOT_URI_FOR_TRAVERSAL)); }
 	}
@@ -901,12 +910,14 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 						ServiceStatus newStatus = ServiceStatus.valueOf(StringUtils.upperCase(statusArg[1]));
 						registry.setEndpointStatus(statusArg[0], newStatus);
 						break;
+					case UPDATE_STATUS_OF_ALL_ENDPOINTS:
+						registry.updateStatusOfAllEndpoints();
+						break;
 					case CLEAR_REGISTRY:
 						registry.clearRegistry();
 						break;
-						
 					default:
-					
+						break;
 					}
 					
 					optionIndex++;
