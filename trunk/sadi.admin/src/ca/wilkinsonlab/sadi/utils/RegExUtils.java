@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLRegistryAdmin;
+import ca.wilkinsonlab.sadi.admin.Config;
 
 public class RegExUtils {
 
@@ -35,10 +35,20 @@ public class RegExUtils {
 		protected int maxRegExLengthInChars;
 		protected Set<String> prefixes = new HashSet<String>();
 		protected boolean regExHasExceededMaxLength;
+		/** 
+		 * Exceptions to the normal procedure of extracting a prefix from a URI,
+		 * which is to take the string up to the last occurrence 
+		 * of "#", "/", ":".
+		 */
+		protected Set<String> predefinedPrefixes;
 		
 		public URIRegExBuilder(int maxRegExLengthInChars) {
 			setMaxRegExLengthInChars(maxRegExLengthInChars);
 			setRegExHasExceededMaxLength(false);
+			predefinedPrefixes = new HashSet<String>();
+			for(Object prefix : Config.getConfiguration().getList("sadi.registry.sparql.predefinedURIPrefix")) {
+				predefinedPrefixes.add((String)prefix);
+			}
 		}
 	
 		protected int getMaxRegExLengthInChars() {
@@ -57,7 +67,7 @@ public class RegExUtils {
 			this.regExHasExceededMaxLength = regExHasExceededMaxLength;
 		}
 		
-		public void addURIPrefixToRegEx(String uri) {
+		public void addPrefixOfURIToRegEx(String uri) {
 			
 			if(uri.trim().length() == 0) {
 				throw new IllegalArgumentException("expected non-empty string for uri");
@@ -135,8 +145,15 @@ public class RegExUtils {
 			return true;
 		}
 		
-		public static String getURIPrefix(String uri) 
+		public String getURIPrefix(String uri) 
 		{
+			// check for special cases first
+			for(String prefix : predefinedPrefixes) {
+				if(uri.startsWith(prefix)) {
+					return prefix;
+				}
+			}
+
 			final String delimiters[] = { "/", "#", ":" };
 			
 			// ignore delimiters that occur as the last character
