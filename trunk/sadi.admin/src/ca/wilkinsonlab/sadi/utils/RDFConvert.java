@@ -74,7 +74,7 @@ public class RDFConvert {
 		
 		if(options.outputFormat.toUpperCase().equals("TSV")) {
 			for(StmtIterator i = model.listStatements(); i.hasNext(); ) {
-				Statement stmt = i.next();
+				Statement stmt = (Statement)i.next();
 				writer.write(stmt.getResource() + " " + stmt.getPredicate() + " " + stmt.getObject() + "\n");
 			}
 		} else {

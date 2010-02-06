@@ -15,5 +15,6 @@ public interface SPARQLRegistryAdmin
 	public abstract void removeEndpoint(String endpointURI) throws IOException;
 	public abstract void addEndpoint(String endpointURI, EndpointType type) throws IOException;
 	public abstract void setEndpointStatus(String endpointURI, ServiceStatus status) throws IOException;
+	public abstract void updateStatusOfAllEndpoints() throws IOException;
 	public abstract void clearRegistry() throws IOException;
 }
