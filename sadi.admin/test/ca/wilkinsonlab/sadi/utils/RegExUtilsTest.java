@@ -38,13 +38,13 @@ public class RegExUtilsTest {
 		
 		Set<String> testURIs = new HashSet<String>();
 		
-		testURIs.add("http://kegg.bio2rdf.org/kegg:a:gene1");
-		testURIs.add("http://kegg.bio2rdf.org/kegg:b:gene2");
+		testURIs.add("http://kegg.bio2rdf.org/fake:a:gene1");
+		testURIs.add("http://kegg.bio2rdf.org/fake:b:gene2");
 		testURIs.add("http://uniprot.org/core:protein1");
 
 		URIRegExBuilder largeRegExBuilder = new URIRegExBuilder(2048);
 		for(String uri : testURIs) {
-			largeRegExBuilder.addURIPrefixToRegEx(uri);
+			largeRegExBuilder.addPrefixOfURIToRegEx(uri);
 		}
 		
 		int totalLength = largeRegExBuilder.getRegEx().length();
@@ -53,12 +53,12 @@ public class RegExUtilsTest {
 		URIRegExBuilder smallRegExBuilder = new URIRegExBuilder(totalLength - 1);
 		
 		for(String uri : testURIs) {
-			smallRegExBuilder.addURIPrefixToRegEx(uri);
+			smallRegExBuilder.addPrefixOfURIToRegEx(uri);
 		}
 		
-		assertFalse(smallRegExBuilder.getRegEx().contains("^http://kegg\\.bio2rdf\\.org/kegg:a:"));
-		assertFalse(smallRegExBuilder.getRegEx().contains("^http://kegg\\.bio2rdf\\.org/kegg:b:"));
-		assertTrue(smallRegExBuilder.getRegEx().contains("^http://kegg\\.bio2rdf\\.org/kegg:"));
+		assertFalse(smallRegExBuilder.getRegEx().contains("^http://kegg\\.bio2rdf\\.org/fake:a:"));
+		assertFalse(smallRegExBuilder.getRegEx().contains("^http://kegg\\.bio2rdf\\.org/fake:b:"));
+		assertTrue(smallRegExBuilder.getRegEx().contains("^http://kegg\\.bio2rdf\\.org/fake:"));
 		assertTrue(smallRegExBuilder.getRegEx().contains("^http://uniprot\\.org/core:"));
 	}
 }

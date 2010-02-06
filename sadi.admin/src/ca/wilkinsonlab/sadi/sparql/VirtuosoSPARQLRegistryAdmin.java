@@ -371,11 +371,11 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 			// Believe it or not, this actually happens in some of the Bio2RDF data. -- BV
 
 			if(s.isURI() && s.getURI().trim().length() > 0) {
-				subjectRegExBuilder.addURIPrefixToRegEx(s.getURI());
+				subjectRegExBuilder.addPrefixOfURIToRegEx(s.getURI());
 			}
 			
 			if(o.isURI() && o.getURI().trim().length() > 0) {
-				objectRegExBuilder.addURIPrefixToRegEx(o.getURI());
+				objectRegExBuilder.addPrefixOfURIToRegEx(o.getURI());
 			}
 		}
 
@@ -468,7 +468,7 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 							continue;
 						}
 						
-						subjectRegExBuilder.addURIPrefixToRegEx(uri);
+						subjectRegExBuilder.addPrefixOfURIToRegEx(uri);
 
 						log.trace("visiting subject " + uri);
 						
@@ -485,7 +485,7 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 								addPredicate(endpointIndex, endpoint, getResource(p.getURI()));
 							}
 							if(o.isURI()) {
-								objectRegExBuilder.addURIPrefixToRegEx(o.getURI());
+								objectRegExBuilder.addPrefixOfURIToRegEx(o.getURI());
 							}
 							if(p.toString().equals(RDF.type.getURI()) && o.isURI()) {
 								Resource rdfType = ResourceFactory.createResource(o.getURI());
@@ -616,7 +616,7 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 				return false;
 			}
 			
-			regExBuilder.addURIPrefixToRegEx(uri);
+			regExBuilder.addPrefixOfURIToRegEx(uri);
 		}
 
 		String regex = regExBuilder.getRegEx();
@@ -919,7 +919,6 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 					default:
 						break;
 					}
-					
 					optionIndex++;
 					
 				} catch (Exception e) {
