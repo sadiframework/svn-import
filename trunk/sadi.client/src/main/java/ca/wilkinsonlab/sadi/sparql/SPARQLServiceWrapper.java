@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
+import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.graph.Node;
@@ -22,6 +23,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.TemplateGroup;
+import com.hp.hpl.jena.vocabulary.OWL;
 
 /**
  * A proxy object which exposes a SPARQL endpoint as a Service.
@@ -29,7 +31,7 @@ import com.hp.hpl.jena.sparql.syntax.TemplateGroup;
  */
 public class SPARQLServiceWrapper implements Service
 {
-	protected static final Logger log = Logger.getLogger(SPARQLServiceWrapper.class);
+	private static final Logger log = Logger.getLogger(SPARQLServiceWrapper.class);
 
 	protected static final String RESULTS_LIMIT_CONFIG_KEY = "sadi.sparql.resultsLimit";
 	protected static final String BATCH_QUERIES_CONFIG_KEY = "share.sparql.batchQueries";
@@ -95,7 +97,7 @@ public class SPARQLServiceWrapper implements Service
 	 */
 	public OntClass getInputClass()
 	{
-		return null;
+		return OwlUtils.getOWLModel().getOntClass(OWL.Nothing.getURI());
 	}
 
 	/* (non-Javadoc)
@@ -103,7 +105,7 @@ public class SPARQLServiceWrapper implements Service
 	 */
 	public OntClass getOutputClass()
 	{
-		return null;
+		return OwlUtils.getOWLModel().getOntClass(OWL.Nothing.getURI());
 	}
 
 	/* (non-Javadoc)
@@ -364,5 +366,23 @@ public class SPARQLServiceWrapper implements Service
 			filtered.add(triple);
 		}
 		return filtered;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getInputClassURI()
+	 */
+	@Override
+	public String getInputClassURI()
+	{
+		return getInputClass().getURI();
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getOutputClassURI()
+	 */
+	@Override
+	public String getOutputClassURI()
+	{
+		return getOutputClass().getURI();
 	}
 }

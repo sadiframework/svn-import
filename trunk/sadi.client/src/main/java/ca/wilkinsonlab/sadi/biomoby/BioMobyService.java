@@ -699,4 +699,22 @@ public class BioMobyService extends MobyService implements Service
 			return String.format("%s:%s", predicate, outputTypeURI);
 		}
 	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getInputClassURI()
+	 */
+	@Override
+	public String getInputClassURI()
+	{
+		return getInputClass().getURI();
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getOutputClassURI()
+	 */
+	@Override
+	public String getOutputClassURI()
+	{
+		return getOutputClass().getURI();
+	}
 }

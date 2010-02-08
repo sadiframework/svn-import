@@ -63,7 +63,7 @@ public class OwlUtilsTest
 //	}
 
 	@Test
-	public void testListRestrictedPropertiesString()
+	public void testListRestrictedPropertiesString() throws Exception
 	{
 		String NS = "http://sadiframework.org/ontologies/test.owl#";
 		Set<OntProperty> properties = OwlUtils.listRestrictedProperties(NS + "ClassWithRestriction");

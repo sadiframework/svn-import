@@ -309,12 +309,19 @@ public class SHAREKnowledgeBase
 	 */
 	private OntClass getOntClass(String uri)
 	{
-		OntClass c = OwlUtils.getOntClassWithLoad(reasoningModel, uri);
-		if (c != null)
-			return c;
+		OntClass c = null;
+		try {
+			OwlUtils.getOntClassWithLoad(reasoningModel, uri);
+		} catch (SADIException e) {
+			log.error(e.getMessage());
+		}
 		
-		log.warn(String.format("creating undefined and unresolvable property %s", uri));
-		return reasoningModel.createClass(uri);
+		if (c != null) {
+			return c;
+		} else {
+			log.warn(String.format("creating undefined and unresolvable class %s", uri));
+			return reasoningModel.createClass(uri);
+		}
 	}
 
 	/* look up the specified URI in the reasoning model; if it's not there,
@@ -326,12 +333,19 @@ public class SHAREKnowledgeBase
 	 */
 	private OntProperty getOntProperty(String uri)
 	{
-		OntProperty p = OwlUtils.getOntPropertyWithLoad(reasoningModel, uri);
-		if (p != null)
-			return p;
+		OntProperty p = null;
+		try {
+			OwlUtils.getOntPropertyWithLoad(reasoningModel, uri);
+		} catch (SADIException e) {
+			log.error(e.getMessage());
+		}
 		
-		log.warn(String.format("creating undefined and unresolvable property %s", uri));
-		return reasoningModel.createOntProperty(uri);
+		if (p != null) {
+			return p;
+		} else {
+			log.warn(String.format("creating undefined and unresolvable property %s", uri));
+			return reasoningModel.createOntProperty(uri);
+		}
 	}
 	
 	private OntProperty getInverseProperty(OntProperty p)

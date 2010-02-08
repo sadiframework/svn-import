@@ -166,7 +166,7 @@ public class RdfService extends ServiceBase
 	}
 	
 	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#getInputClassUri()
+     * @see ca.wilkinsonlab.sadi.client.Service#getInputClassURI()
      */
 	public String getInputClassURI()
 	{
@@ -174,7 +174,7 @@ public class RdfService extends ServiceBase
 	}
 	
 	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#getOutputClassUri()
+     * @see ca.wilkinsonlab.sadi.client.Service#getOutputClassURI()
      */
 	public String getOutputClassURI()
 	{

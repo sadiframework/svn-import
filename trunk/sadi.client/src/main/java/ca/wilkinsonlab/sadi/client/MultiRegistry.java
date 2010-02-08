@@ -149,8 +149,12 @@ public class MultiRegistry implements Registry
 		return results;
 	}
 	
-	public Collection<Service> getAllServices() throws IOException {
-		throw new UnsupportedOperationException();
+	public Collection<Service> getAllServices() {
+		return accumulate(new Accumulator<Service>() {
+			public Collection<? extends Service> get(Registry registry) throws Exception {
+				return registry.getAllServices();
+			}	
+		});
 	}
 
 	public ServiceStatus getServiceStatus(String serviceURI) throws IOException {

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 
 import com.hp.hpl.jena.ontology.OntModel;
@@ -90,9 +91,15 @@ public class OntologyTest
 		}
 
 		public boolean runTest() {
-			OntProperty belongsToPathway = OwlUtils.getOntPropertyWithLoad(getOntModel(), "http://sadiframework.org/ontologies/predicates.owl#belongsToPathway");
-			OntProperty inverseProperty = belongsToPathway.getInverse();
-			return inverseProperty != null;
+			OntProperty belongsToPathway;
+			try {
+				belongsToPathway = OwlUtils.getOntPropertyWithLoad(getOntModel(), "http://sadiframework.org/ontologies/predicates.owl#belongsToPathway");
+				OntProperty inverseProperty = belongsToPathway.getInverse();
+				return inverseProperty != null;
+			} catch (SADIException e) {
+				log.error(e.getMessage());
+				return false;
+			}
 		}
 	}
 	
@@ -103,8 +110,14 @@ public class OntologyTest
 		}
 
 		public boolean runTest() {
-			OntProperty p = OwlUtils.getOntPropertyWithLoad(getOntModel(), "http://sadiframework.org/ontologies/predicates.owl#has3DStructure");
-			return p.getRange().getURI().equals("http://purl.oclc.org/SADI/LSRN/PDB_Record");
+			OntProperty p;
+			try {
+				p = OwlUtils.getOntPropertyWithLoad(getOntModel(), "http://sadiframework.org/ontologies/predicates.owl#has3DStructure");
+				return p.getRange().getURI().equals("http://purl.oclc.org/SADI/LSRN/PDB_Record");
+			} catch (SADIException e) {
+				log.error(e.getMessage());
+				return false;
+			}
 		}
 	}	
 	
