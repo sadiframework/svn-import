@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.client;
+package ca.wilkinsonlab.sadi.test;
 
 import java.util.List;
 import java.util.Map;
@@ -12,7 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import ca.wilkinsonlab.sadi.test.ExampleQueries;
+import ca.wilkinsonlab.sadi.client.QueryClient;
 
 public abstract class QueryClientTest
 {

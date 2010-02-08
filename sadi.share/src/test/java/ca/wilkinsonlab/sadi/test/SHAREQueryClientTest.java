@@ -1,7 +1,7 @@
-package ca.wilkinsonlab.sadi.share;
+package ca.wilkinsonlab.sadi.test;
 
 import ca.wilkinsonlab.sadi.client.QueryClient;
-import ca.wilkinsonlab.sadi.client.QueryClientTest;
+import ca.wilkinsonlab.sadi.share.SHAREQueryClient;
 
 public class SHAREQueryClientTest extends QueryClientTest
 {

@@ -22,7 +22,6 @@
         <configuration>
           <excludes>
             <exclude>ca/wilkinsonlab/sadi/test/*</exclude>
-            <exclude>**/SHAREQueryClientTest.java</exclude>
           </excludes>
         </configuration>
       </plugin>
