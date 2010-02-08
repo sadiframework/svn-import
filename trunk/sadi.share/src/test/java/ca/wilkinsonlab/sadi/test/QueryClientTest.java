@@ -1,5 +1,7 @@
 package ca.wilkinsonlab.sadi.test;
 
+import static org.junit.Assert.assertFalse;
+
 import java.util.List;
 import java.util.Map;
 
@@ -8,9 +10,7 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import ca.wilkinsonlab.sadi.client.QueryClient;
 
@@ -23,21 +23,16 @@ public abstract class QueryClientTest
 	
 	protected abstract QueryClient getClient();
 	
-	@BeforeClass
-	protected void setUpBeforeClass()
-	{
-		stopWatch = new StopWatch();
-	}
-	
 	
 	@Before
-	protected void setUp()
+	public void setUp()
 	{
+		stopWatch = new StopWatch();
 		client = getClient();
 	}
 
 	@After
-	protected void tearDown()
+	public void tearDown()
 	{
 		stopWatch.reset();
 		client = null;
