@@ -32,6 +32,7 @@ import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
+import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.virtuoso.VirtuosoRegistry;
@@ -223,8 +224,13 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	
 	boolean isDatatypeProperty(String predicate)
 	{
-		OntProperty p = OwlUtils.getOntPropertyWithLoad(getPredicateOntology(), predicate);
-		return p.isDatatypeProperty();
+		try {
+			OntProperty p = OwlUtils.getOntPropertyWithLoad(getPredicateOntology(), predicate);
+			return p.isDatatypeProperty();
+		} catch (SADIException e) {
+			log.error(e.getMessage());
+			return false;
+		}
 	}
 
 	/**

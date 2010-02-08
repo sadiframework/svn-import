@@ -102,7 +102,7 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 			} else if (bindings.size() > 1) {
 				throw new SADIException(String.format("URI %s maps to more than one service in this registry", serviceURI));
 			}
-			service = getService(bindings.get(0));
+			service = createService(bindings.get(0));
 			} catch (SADIException e) {
 				throw new IOException(e);
 			}
@@ -121,7 +121,7 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 	 * @return 
 	 * @throws SADIException
 	 */
-	RdfService getService(Map<String, String> binding) throws SADIException
+	RdfService createService(Map<String, String> binding) throws SADIException
 	{
 		String serviceURI = binding.get("serviceURI");
 		RdfService service = serviceCache.get(serviceURI);
@@ -145,7 +145,7 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 		String query = SPARQLStringUtils.readFully(RdfRegistry.class.getResource("getAllServices.sparql"));
 		for (Map<String, String> binding: executeQuery(query)) {
 			try {
-				services.add(getService(binding));
+				services.add(createService(binding));
 			} catch (SADIException e) {
 				log.error(String.format("error creating service from registry data %s", binding), e);
 			}
@@ -166,7 +166,7 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 		);
 		for (Map<String, String> binding: executeQuery(query)) {
 			try {
-				services.add(getService(binding));
+				services.add(createService(binding));
 			} catch (SADIException e) {
 				log.error(String.format("error creating service from registry data %s", binding), e);
 			}
@@ -198,7 +198,7 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 			);
 			for (Map<String, String> binding: executeQuery(query)) {
 				try {
-					services.add(getService(binding));
+					services.add(createService(binding));
 				} catch (SADIException e) {
 					log.error(String.format("error creating service from registry data %s", binding), e);
 				}
@@ -231,7 +231,7 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 			);
 			for (Map<String, String> binding: executeQuery(query)) {
 				try {
-					services.add(getService(binding));
+					services.add(createService(binding));
 				} catch (SADIException e) {
 					log.error(String.format("error creating service from registry data %s", binding), e);
 				}
@@ -278,7 +278,7 @@ public class RdfRegistry extends VirtuosoRegistry implements Registry
 			);
 			for (Map<String, String> binding: executeQuery(query)) {
 				try {
-					services.add(getService(binding));
+					services.add(createService(binding));
 				} catch (SADIException e) {
 					log.error(String.format("error creating service from registry data %s", binding), e);
 				}

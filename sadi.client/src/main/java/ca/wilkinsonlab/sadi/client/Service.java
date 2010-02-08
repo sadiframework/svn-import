@@ -36,16 +36,35 @@ public interface Service
 	public abstract String getDescription();
 	
 	/**
+	 * Returns the URI of an OWL class describing the input this service
+	 * can consume. This URI should resolve to a definition of the class.
+	 * @return the URI of the service's input class
+	 */
+	public abstract String getInputClassURI();
+	
+	/**
 	 * Returns an OntClass describing the input this service can consume.
-	 * Any input to this service must be an instance of this class.
+	 * Any input to this service must be an instance of this class and must
+	 * be explicitly typed as such. This operation causes the ontology
+	 * defining the input class to be loaded along with any imported
+	 * ontologies.
 	 * @return an OntClass describing the input this service can consume
 	 * @throws SADIException if there is a problem with the class definition
 	 */
 	public abstract OntClass getInputClass() throws SADIException;
 	
 	/**
+	 * Returns the URI of an OWL class describing the output this service
+	 * produces. This URI should resolve to a definition of the class.
+	 * @return the URI of the service's output class
+	 */
+	public abstract String getOutputClassURI();
+	
+	/**
 	 * Returns an OntClass describing the output this service produces.
-	 * Any output from this service will be an instance of this class.
+	 * Any output from this service will be an instance of this class. This
+	 * operation causes the ontology defining the input class to be loaded
+	 * along with any imported ontologies.
 	 * @return an OntClass describing the output this service produces
 	 * @throws SADIException if there is a problem with the class definition
 	 */

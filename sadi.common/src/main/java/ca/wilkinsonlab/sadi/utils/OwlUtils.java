@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.common.Config;
+import ca.wilkinsonlab.sadi.common.SADIException;
 
 import com.hp.hpl.jena.ontology.ConversionException;
 import com.hp.hpl.jena.ontology.OntClass;
@@ -31,10 +32,22 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 public class OwlUtils 
 {
 	private static final Logger log = Logger.getLogger( OwlUtils.class );
+	private static final OntModel owlModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
 	
 	/**
-	 * Returns a human-readable label for the specified resource.  The value
-	 * returned will be the first of the following that is present:
+	 * Return an OntModel view of the base OWL ontology.  This is useful
+	 * for things like getting an OntClass view of OWL.Thing, etc.
+	 * @return
+	 */
+	public static OntModel getOWLModel()
+	{
+		return owlModel;
+	}
+	
+	/**
+	 * Returns a human-readable label for the specified resource. 
+	 * The value returned will be the first of the following that is
+	 * present:
 	 * 	getLabel() [usually the value of the rdfs:label property]
 	 * 	getLocalName() [usually the last path element of the URI]
 	 * 	toString()
@@ -140,16 +153,16 @@ public class OwlUtils
 	}
 	
 	/**
-	 * Resolve the specified URI and load the resulting statements
-	 * into the specified OntModel. Resolve imports and relevant
-	 * isDefinedBy URIs as well.
+	 * Resolve the specified URI and load the resulting statements into the
+	 * specified OntModel. Resolve imports and relevant isDefinedBy URIs as
+	 * well.
 	 * TODO we should probably make the import/isDefinedBy behaviour
 	 * configurable, including an option to load only the relevant
 	 * parts of each ontology (using ResourceUtils.reachableClosure)
 	 * @param model the OntModel
 	 * @param uri the URI
 	 */
-	public static void loadOntologyForUri(OntModel model, String uri)
+	public static void loadOntologyForUri(OntModel model, String uri) throws SADIException
 	{
 		log.debug(String.format("loading ontology for %s", uri));
 		
@@ -163,7 +176,10 @@ public class OwlUtils
 		try {
 			model.read( ontologyUri );
 		} catch (Exception e) {
-			log.error(String.format("error reading ontology from %s", ontologyUri), e);
+			if (e instanceof SADIException)
+				throw (SADIException)e;
+			else
+				throw new SADIException(e.toString(), e);
 		}
 		
 		/* Michel Dumontier's predicates resolve to a minimal definition that
@@ -185,7 +201,7 @@ public class OwlUtils
 	 * @param uri the URI
 	 * @return the OntProperty
 	 */
-	public static OntProperty getOntPropertyWithLoad(OntModel model, String uri)
+	public static OntProperty getOntPropertyWithLoad(OntModel model, String uri) throws SADIException
 	{
 		OntProperty p = model.getOntProperty(uri);
 		if (p != null)
@@ -196,13 +212,13 @@ public class OwlUtils
 	}
 	
 	/**
-	 * Return the OntClass with the specified URI, resolving it and
-	 * loading the resulting ontology into the model if necessary.
+	 * Return the OntClass with the specified URI, resolving it and loading
+	 * the resolved ontology into the model if it is not already there.
 	 * @param model the OntModel
 	 * @param uri the URI
 	 * @return the OntClass
 	 */
-	public static OntClass getOntClassWithLoad(OntModel model, String uri)
+	public static OntClass getOntClassWithLoad(OntModel model, String uri) throws SADIException
 	{
 		OntClass c = model.getOntClass(uri);
 		if (c != null)
@@ -219,7 +235,7 @@ public class OwlUtils
 	 * @param uri the URI
 	 * @return the OntResource
 	 */
-	public static OntResource getOntResourceWithLoad(OntModel model, String uri)
+	public static OntResource getOntResourceWithLoad(OntModel model, String uri) throws SADIException
 	{
 		OntResource r = model.getOntResource(uri);
 		if (r != null)
@@ -236,7 +252,7 @@ public class OwlUtils
 	 * @param classUri the URI of the OWL class
 	 * @return the set of properties the OWL class has restrictions on
 	 */
-	public static Set<OntProperty> listRestrictedProperties(String classUri)
+	public static Set<OntProperty> listRestrictedProperties(String classUri) throws SADIException
 	{
 		// TODO do we need more reasoning here?
 		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
@@ -418,7 +434,7 @@ public class OwlUtils
 						onProperty = resolveUndefinedPropery(clazz.getOntModel(), uri, undefinedPropertiesPolicy);
 					} else {
 						// TODO call a new method on PropertyRestrictionVisitor?
-						log.warn(String.format("found non-URI property %s in clsas %s", p, clazz));
+						log.warn(String.format("found non-URI property %s in class %s", p, clazz));
 					}
 				}
 				
@@ -452,15 +468,28 @@ public class OwlUtils
 
 		private static OntProperty resolveUndefinedPropery(OntModel model, String uri, int undefinedPropertiesPolicy)
 		{
+			// first, try to resolve the property (if we're allowed to...)
 			if ((undefinedPropertiesPolicy & RESOLVE) != 0) {
 				log.debug(String.format("resolving property %s during decomposition", uri));
-				return OwlUtils.getOntPropertyWithLoad(model, uri);
+				try {
+					OntProperty p = OwlUtils.getOntPropertyWithLoad(model, uri);
+					if (p != null)
+						return p;
+					// fall-through to create...
+				} catch (SADIException e) {
+					log.error(String.format("error loading property %s: %s", uri, e.getMessage()));
+					// fall-through to create...
+				}
 			}
-			if ((undefinedPropertiesPolicy & CREATE) != 0 && (model.getOntProperty(uri) == null)) {
+			
+			// if we're here, we failed to resolve or weren't allowed to...
+			if ((undefinedPropertiesPolicy & CREATE) != 0) {
 				log.debug(String.format("creating property %s during decomposition", uri));
 				return model.createOntProperty(uri);
 			}
-			return model.getOntProperty(uri);
+			
+			// if we're here, we can't do anything...
+			return null;
 		}
 	}
 	
