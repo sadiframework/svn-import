@@ -3,10 +3,12 @@ package ca.wilkinsonlab.sadi.client;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -16,28 +18,53 @@ public abstract class QueryClientTest
 {
 	public final static Logger log = Logger.getLogger(QueryClientTest.class);
 	
+	protected StopWatch stopWatch;
 	protected QueryClient client;
 	
+	protected abstract QueryClient getClient();
+	
+	@BeforeClass
+	protected void setUpBeforeClass()
+	{
+		stopWatch = new StopWatch();
+	}
+	
+	
 	@Before
-	public abstract void setUp() throws Exception;
+	protected void setUp()
+	{
+		client = getClient();
+	}
 
 	@After
-	public abstract void tearDown() throws Exception;
+	protected void tearDown()
+	{
+		stopWatch.reset();
+		client = null;
+	}
 
 	/* TODO find a better way to iterate over the example queries...
 	 */
-	private void testQuery(String query)
+	protected void testQuery(String query)
 	{
-		log.info("Query: " + query);
-		StopWatch stopWatch = new StopWatch();
+		log.info( String.format("executing query\n%s", query) );
+		
 		stopWatch.start();
 		List<Map<String, String>> results = client.synchronousQuery(query);
 		stopWatch.stop();
-		log.info(String.format("query finished in %d seconds", stopWatch.getTime()/1000));
-		assertFalse(String.format("query \"%s\" returned no results", query), results.isEmpty());
 		
-		for (Map<String, String> binding : results)
-			System.out.println(binding.toString());
+		StringBuffer buf = new StringBuffer("query finished in ");
+		buf.append( DurationFormatUtils.formatDurationHMS(stopWatch.getTime()) );
+		if (results.isEmpty())
+			buf.append("\nno results");
+		else
+			for (Map<String, String> binding: results) {
+				buf.append("\n");
+				buf.append(binding);
+			}
+		log.info( buf.toString() );
+		
+		assertFalse(String.format("query \"%s\" returned no results", query), results.isEmpty());
 	}
 	
 	@Test
