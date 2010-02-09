@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.virtuoso;
+package ca.wilkinsonlab.sadi.client.virtual.virtuoso;
 
 import java.net.URL;
 import java.util.List;
@@ -8,14 +8,16 @@ import junit.framework.TestCase;
 
 import org.junit.Test;
 
+import ca.wilkinsonlab.sadi.virtuoso.VirtuosoSPARQLEndpoint;
+
 public class VirtuosoRegistryTest extends TestCase
 {
 	private static final String SELECT_ALL = "SELECT ?s ?p ?o WHERE { ?s ?p ?o } LIMIT 50";
-	private VirtuosoRegistry registry;
+	private VirtuosoSPARQLEndpoint registry;
 	
 	protected void setUp() throws Exception
 	{
-		registry = new VirtuosoRegistry(new URL("http://biordf.net/sparql"));
+		registry = new VirtuosoSPARQLEndpoint(new URL("http://biordf.net/sparql"));
 	}
 
 	protected void tearDown() throws Exception
