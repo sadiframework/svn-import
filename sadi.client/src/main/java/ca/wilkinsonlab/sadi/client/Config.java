@@ -9,9 +9,6 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.biomoby.BioMobyRegistry;
-import ca.wilkinsonlab.sadi.sparql.SPARQLRegistry;
-
 /**
  * Client configuration class, containing information about which service
  * registries are available.  The defaults can be overridden in
@@ -46,21 +43,32 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	 * exceptions from the configured registries.
 	 * @return the aggregated Registry object
 	 */
-	public static MultiRegistry getMasterRegistry()
+	public MultiRegistry getMasterRegistry()
 	{
-		return getConfiguration().masterRegistry;
+		return masterRegistry;
 	}
 
 	/**
 	 * Return a list of configured registries.
 	 * @return the configured registries
 	 */
-	public static List<Registry> getRegistries()
+	public List<Registry> getRegistries()
 	{
-		return getConfiguration().registries;
+		return priorityList;
+	}
+	
+	/**
+	 * 
+	 * @param key the configuration key associated with the registry
+	 * @return
+	 */
+	public Registry getRegistry(String key)
+	{
+		return registries.get(key);
 	}
 
-	private List<Registry> registries;
+	private Map<String, Registry> registries;
+	private List<Registry> priorityList;
 	private MultiRegistry masterRegistry;
 
 	private Config(String defaultPropertiesFile, String localPropertiesFile)
@@ -68,13 +76,14 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 		super(defaultPropertiesFile, localPropertiesFile);
 		
 		registries = configureRegistries();
-		masterRegistry = new MultiRegistry(registries);
+		priorityList = buildPriorityList(registries, getString(REGISTRY_PRIORITY_KEY));
+		masterRegistry = new MultiRegistry(priorityList);
 	}
 	
-	private List<Registry> configureRegistries()
+	private Map<String, Registry> configureRegistries()
 	{
 		StopWatch stopWatch = new StopWatch();
-		Map<String, Registry> registries = new HashMap<String, Registry>();
+		registries = new HashMap<String, Registry>();
 		Configuration registryConfig = subset(REGISTRY_SUBSET_KEY);
 		for (Iterator<?> registryKeys = registryConfig.getKeys(); registryKeys.hasNext(); ) {
 			String registryKey = (String)registryKeys.next();
@@ -91,41 +100,39 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 				stopWatch.reset();
 			}
 		}
-		
-		return buildPriorityList(registries, getString(REGISTRY_PRIORITY_KEY));
+		return registries;
 	}
 	
-	/** 
-	 * Return the SADI SPARQL registry.  For now, we assume that there is exactly
-	 * one such registry. In the long run, this method should no longer be
-	 * needed, as all SADI registries should be treated uniformly.
-	 * 
-	 * @return the SADI SPARQL registry
-	 */
-	public static SPARQLRegistry getSPARQLRegistry() 
-	{
-		for(Registry r: getRegistries()) {
-			if(r instanceof SPARQLRegistry)
-				return (SPARQLRegistry)r;
-		}
-		return null;
-	}
-	
-	/** 
-	 * Return the SADI BioMoby registry.  For now, we assume that there is exactly
-	 * one such registry. In the long run, this method should no longer be
-	 * needed, as all SADI registries should be treated uniformly.
-	 * 
-	 * @return the SADI BioMoby registry
-	 */
-	public static BioMobyRegistry getMobyRegistry()
-	{
-		for (Registry reg: Config.getRegistries())
-			if (reg instanceof BioMobyRegistry)
-				return (BioMobyRegistry)reg;
-		return null;
-	}
-	
+//	/** 
+//	 * Return the SADI SPARQL registry.  For now, we assume that there is exactly
+//	 * one such registry. In the long run, this method should no longer be
+//	 * needed, as all SADI registries should be treated uniformly.
+//	 * 
+//	 * @return the SADI SPARQL registry
+//	 */
+//	public static SPARQLRegistry getSPARQLRegistry() 
+//	{
+//		for(Registry r: getRegistries()) {
+//			if(r instanceof SPARQLRegistry)
+//				return (SPARQLRegistry)r;
+//		}
+//		return null;
+//	}
+//	
+//	/** 
+//	 * Return the SADI BioMoby registry.  For now, we assume that there is exactly
+//	 * one such registry. In the long run, this method should no longer be
+//	 * needed, as all SADI registries should be treated uniformly.
+//	 * 
+//	 * @return the SADI BioMoby registry
+//	 */
+//	public static BioMobyRegistry getMobyRegistry()
+//	{
+//		for (Registry reg: Config.getRegistries())
+//			if (reg instanceof BioMobyRegistry)
+//				return (BioMobyRegistry)reg;
+//		return null;
+//	}
 	
 //	private List<Resolver> configureResolvers()
 //	{

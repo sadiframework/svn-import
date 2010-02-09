@@ -15,10 +15,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.Config;
+import ca.wilkinsonlab.sadi.client.MultiRegistry;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLServiceWrapper;
 import ca.wilkinsonlab.sadi.common.SADIException;
-import ca.wilkinsonlab.sadi.sparql.SPARQLServiceWrapper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
@@ -47,6 +48,8 @@ public class SHAREKnowledgeBase
 {
 	private static final Logger log = Logger.getLogger( SHAREKnowledgeBase.class );
 	
+	private MultiRegistry registry;
+	
 	private OntModel reasoningModel;
 	private Model dataModel;
 	
@@ -71,6 +74,8 @@ public class SHAREKnowledgeBase
 	public SHAREKnowledgeBase(OntModel reasoningModel, Model dataModel)
 	{
 		log.debug("new ca.wilkinsonlab.sadi.share.DynamicKnowledgeBase instantiated");
+		
+		this.registry = Config.getConfiguration().getMasterRegistry();
 		
 		this.reasoningModel = reasoningModel;
 		this.dataModel = dataModel;
@@ -440,7 +445,7 @@ public class SHAREKnowledgeBase
 	private Collection<Triple> maybeCallService(Service service, Set<RDFNode> subjects)
 	{
 		log.trace(String.format("found service %s", service));
-		if (deadServices.contains(service.getServiceURI())) {
+		if (deadServices.contains(service.getURI())) {
 			log.debug(String.format("skipping dead service %s", service));
 			return Collections.emptyList();
 		}
@@ -477,7 +482,7 @@ public class SHAREKnowledgeBase
 		Set<Service> services = new HashSet<Service>();
 		for (OntProperty equivalentProperty: equivalentProperties) {
 			log.trace(String.format("finding services for equivalent property %s", equivalentProperty));
-			Collection<Service> equivalentPropertyServices = Config.getMasterRegistry().findServicesByPredicate(equivalentProperty.getURI());
+			Collection<Service> equivalentPropertyServices = registry.findServicesByPredicate(equivalentProperty.getURI());
 			log.debug(String.format("found %d service%s for property %s", equivalentPropertyServices.size(), equivalentPropertyServices.size() == 1 ? "" : "s", equivalentProperty));
 			services.addAll(equivalentPropertyServices);
 		}
@@ -673,7 +678,7 @@ public class SHAREKnowledgeBase
 			log.error(String.format("failed to invoke service %s", service), e);
 			
 			if (e.isServiceDead()) {
-				String serviceURI = service.getServiceURI();
+				String serviceURI = service.getURI();
 				log.warn(String.format("adding %s to dead services", serviceURI));
 				deadServices.add(serviceURI);
 			}
@@ -796,7 +801,7 @@ public class SHAREKnowledgeBase
 		private String getHashKey(Service service, RDFNode input)
 		{
 			// two URIS, or one URI and one literal, so this should be safe...
-			return String.format("%s %s", service.getServiceURI(), input.toString());
+			return String.format("%s %s", service.getURI(), input.toString());
 		}
 
 		private String getHashKey(PotentialValues instances, OntClass asClass)

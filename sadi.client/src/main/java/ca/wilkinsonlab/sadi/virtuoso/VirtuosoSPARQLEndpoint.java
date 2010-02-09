@@ -14,17 +14,17 @@ import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
  * Virtuoso triple store through a SPARQL endpoint.
  * @author Luke McCarthy
  */
-public class VirtuosoRegistry
+public class VirtuosoSPARQLEndpoint
 {
 	protected URL sparqlEndpoint;
 	protected String graphName;
 	
-	public VirtuosoRegistry(URL sparqlEndpoint)
+	public VirtuosoSPARQLEndpoint(URL sparqlEndpoint)
 	{
 		this(sparqlEndpoint, null);
 	}
 	
-	public VirtuosoRegistry(URL sparqlEndpoint, String graphName)
+	public VirtuosoSPARQLEndpoint(URL sparqlEndpoint, String graphName)
 	{
 		this.sparqlEndpoint = sparqlEndpoint;
 		this.graphName = graphName;
@@ -37,7 +37,7 @@ public class VirtuosoRegistry
 	 * @return a list of variable bindings that satisfy the query
 	 * @throws IOException 
 	 */
-	protected List<Map<String, String>> executeQuery(String query)
+	public List<Map<String, String>> executeQuery(String query)
 	throws IOException
 	{
 		Object result = HttpUtils.postAndFetchJson(sparqlEndpoint, getPostParameters(query));

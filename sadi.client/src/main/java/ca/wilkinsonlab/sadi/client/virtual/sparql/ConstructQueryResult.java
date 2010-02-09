@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.sparql;
+package ca.wilkinsonlab.sadi.client.virtual.sparql;
 
 import com.hp.hpl.jena.rdf.model.Model;
 

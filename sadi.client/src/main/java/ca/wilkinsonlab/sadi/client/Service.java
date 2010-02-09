@@ -21,7 +21,7 @@ public interface Service
 	 * Returns the URI of the service.
 	 * @return the URI of the service
 	 */
-	public abstract String getServiceURI();
+	public abstract String getURI();
 	
 	/**
 	 * Returns the name of the service.

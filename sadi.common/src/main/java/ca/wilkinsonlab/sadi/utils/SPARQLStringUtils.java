@@ -69,7 +69,7 @@ public class SPARQLStringUtils
 	 * strings into 'template'.
 	 */
 	public static String strFromTemplate(String template, String ... substStrings)
-	throws URIException, IllegalArgumentException
+	throws IllegalArgumentException
 	{
 		Matcher matcher = CONVERSION_SPECIFIERS.matcher(template);
 		String output = template;
@@ -159,9 +159,13 @@ public class SPARQLStringUtils
 	 * 
 	 * @return a new escaped string.
 	 */
-	public static String escapeURI(String uri) throws URIException
+	public static String escapeURI(String uri)
 	{
-		return new URI(uri, false).getEscapedURIReference();
+		try {
+			return new URI(uri, false).getEscapedURIReference();
+		} catch (URIException e) {
+			throw new IllegalArgumentException(e.toString());
+		}
 	}
 	
 	/**
@@ -261,16 +265,10 @@ public class SPARQLStringUtils
 		String o = RdfUtils.getPlainString(oNode);
 		String tripleStr = null;
 		
-		try {
-
-			if(objectDatatypeURI != null)
-				tripleStr = strFromTemplate(template.toString(), s, p, o, objectDatatypeURI);
-			else
-				tripleStr = strFromTemplate(template.toString(), s, p, o);
-		}
-		catch(URIException e) {
-			throw new RuntimeException(e);
-		}
+		if(objectDatatypeURI != null)
+			tripleStr = strFromTemplate(template.toString(), s, p, o, objectDatatypeURI);
+		else
+			tripleStr = strFromTemplate(template.toString(), s, p, o);
 		
 		return tripleStr;
 	}

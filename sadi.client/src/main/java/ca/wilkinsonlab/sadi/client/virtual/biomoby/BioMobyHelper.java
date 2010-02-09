@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.biomoby;
+package ca.wilkinsonlab.sadi.client.virtual.biomoby;
 
 import java.io.StringReader;
 import java.io.StringWriter;

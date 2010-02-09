@@ -21,6 +21,6 @@ public class ConfigTest
 	@Test
 	public void testGetRegistries()
 	{
-		assertFalse("Client.config contains no registry entries", Config.getRegistries().isEmpty());
+		assertFalse("Client.config contains no registry entries", Config.getConfiguration().getRegistries().isEmpty());
 	}
 }
