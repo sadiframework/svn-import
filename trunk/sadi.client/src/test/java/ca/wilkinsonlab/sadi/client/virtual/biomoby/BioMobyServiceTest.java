@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.biomoby;
+package ca.wilkinsonlab.sadi.client.virtual.biomoby;
 
 import static org.junit.Assert.*;
 
@@ -12,6 +12,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 import ca.wilkinsonlab.sadi.client.Service;
+import ca.wilkinsonlab.sadi.client.virtual.biomoby.BioMobyRegistry;
 
 public class BioMobyServiceTest
 {

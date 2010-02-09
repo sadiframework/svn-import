@@ -1,14 +1,14 @@
-package ca.wilkinsonlab.sadi.biomoby;
+package ca.wilkinsonlab.sadi.client.virtual.biomoby;
 
 import java.util.Collection;
 
 import junit.framework.TestCase;
 
 import org.biomoby.shared.data.MobyDataObject;
+import org.junit.Before;
 import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.client.Config;
-import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.Service;
 
 public class BioMobyRegistryTest extends TestCase
@@ -18,14 +18,12 @@ public class BioMobyRegistryTest extends TestCase
 //	private static final String SubjNamespaces[] = { "KEGG" };
 //	private static final String ObjNamespaces[] = { "KEGG_PATHWAY" };
 	
-	private static final BioMobyRegistry registry = getBioMobyRegistry();
+	private BioMobyRegistry registry;
 	
-	private static BioMobyRegistry getBioMobyRegistry()
+	@Before
+	public void setUp()
 	{
-		for (Registry registry: Config.getRegistries())
-			if (registry instanceof BioMobyRegistry)
-				return (BioMobyRegistry)registry;
-		return null;
+		registry = (BioMobyRegistry)Config.getConfiguration().getRegistry("biomoby");
 	}
 	
 //	@Test
@@ -37,7 +35,7 @@ public class BioMobyRegistryTest extends TestCase
 	
 	@Test
 	public final void testGetServicesByPredicate() throws Exception
-	{	
+	{
 		Collection<Service> services = registry.findServicesByPredicate(PREDICATE_URI);
 		for (Service service: services) {
 			BioMobyService mobyService = (BioMobyService)service;
