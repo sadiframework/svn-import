@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.rdf;
+package ca.wilkinsonlab.sadi.client;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -13,18 +13,21 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ca.wilkinsonlab.sadi.client.RegistryImpl;
+import ca.wilkinsonlab.sadi.client.ServiceImpl;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
+import ca.wilkinsonlab.sadi.utils.QueryExecutorFactory;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
-public class RdfRegistryTest
+public class RegistryImplTest
 {
 	private static final String TEST_REGISTRY_ENDPOINT = "http://biordf.net/sparql";
 	private static final String TEST_REGISTRY_GRAPH = "http://sadiframework.org/test/registry/";
 
-	private static final Logger log = Logger.getLogger(RdfRegistryTest.class);
+	private static final Logger log = Logger.getLogger(RegistryImplTest.class);
 	
 	
 	private static final String SERVICE_URI = "http://sadiframework.org/examples/linear";
@@ -32,7 +35,7 @@ public class RdfRegistryTest
 	private static final String DIRECT_INPUT_INSTANCE = "http://sadiframework.org/examples/input/regressionDirect";
 	private static final String INFERRED_INPUT_INSTANCE = "http://sadiframework.org/examples/input/regressionInferred";
 	private static final String CONNECTED_CLASS = "http://sadiframework.org/examples/regression.owl#RegressionModel";
-	static RdfRegistry registry;
+	static RegistryImpl registry;
 	static Model inputModel;
 	
 	StopWatch timer;
@@ -40,10 +43,10 @@ public class RdfRegistryTest
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
-		registry = new RdfRegistry(TEST_REGISTRY_ENDPOINT, TEST_REGISTRY_GRAPH);
+		registry = new RegistryImpl(QueryExecutorFactory.createVirtuosoSPARQLEndpointQueryExecutor(TEST_REGISTRY_ENDPOINT, TEST_REGISTRY_GRAPH));
 		
 		inputModel = ModelFactory.createMemModelMaker().createFreshModel();
-		inputModel.read( RdfRegistryTest.class.getResourceAsStream("regression-input.rdf"), "");
+		inputModel.read( RegistryImplTest.class.getResourceAsStream("regression-input.rdf"), "");
 	}
 	
 	@Before
@@ -132,10 +135,10 @@ public class RdfRegistryTest
 		assertTrue("failed to find predicate for inferred input", predicates.contains(SERVICE_PREDICATE));
 	}
 	
-	private boolean serviceCollectionContains(Collection<RdfService> services, String serviceUri)
+	private boolean serviceCollectionContains(Collection<ServiceImpl> services, String serviceUri)
 	{
-		for (RdfService service: services)
-			if (service.getServiceURI().equals(serviceUri))
+		for (ServiceImpl service: services)
+			if (service.getURI().equals(serviceUri))
 				return true;
 		
 		return false;
@@ -144,7 +147,7 @@ public class RdfRegistryTest
 	private boolean serviceInputPairCollectionContains(Collection<ServiceInputPair> pairs, String serviceUri, String inputUri)
 	{
 		for (ServiceInputPair pair: pairs)
-			if (pair.getService().getServiceURI().equals(serviceUri) && pair.getInput().getURI().equals(inputUri))
+			if (pair.getService().getURI().equals(serviceUri) && pair.getInput().getURI().equals(inputUri))
 				return true;
 		
 		return false;

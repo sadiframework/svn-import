@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.rdf;
+package ca.wilkinsonlab.sadi.client;
 
 import static org.junit.Assert.assertTrue;
 
@@ -10,6 +10,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ca.wilkinsonlab.sadi.client.ServiceImpl;
 import ca.wilkinsonlab.sadi.common.SADIException;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -17,10 +18,10 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-public class RdfServiceTest
+public class ServiceImplTest
 {
 	@SuppressWarnings("unused")
-	private static final Logger log = Logger.getLogger(RdfServiceTest.class);
+	private static final Logger log = Logger.getLogger(ServiceImplTest.class);
 
 	private static final String DUMMY_SERVICE = "http://localhost/dummy";
 	private static final String DUMMY_INPUT_CLASS = "http://elmonline.ca/sw/explore.owl#ParentClass";
@@ -30,7 +31,7 @@ public class RdfServiceTest
 	private static final String INFERRED_INSTANCE = "http://localhost/dummy/inferredInstance";
 	private static final String DIRECT_INSTANCE_NO_PROPERTY = "http://localhost/dummy/directInstanceNoProperty";
 	
-	static RdfService service;
+	static ServiceImpl service;
 	static Model inputModel;
 	
 	@BeforeClass
@@ -48,9 +49,9 @@ public class RdfServiceTest
 	}
 	
 	@SuppressWarnings("serial")
-	private static RdfService createDummyService() throws SADIException
+	private static ServiceImpl createDummyService() throws SADIException
 	{
-		RdfService service = new RdfService( new HashMap<String, String>() {{
+		ServiceImpl service = new ServiceImpl( new HashMap<String, String>() {{
 			put("serviceURI", DUMMY_SERVICE);
 			put("inputClassURI", DUMMY_INPUT_CLASS);
 			put("outputClassURI", DUMMY_OUTPUT_CLASS);

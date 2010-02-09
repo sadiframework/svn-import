@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.sparql;
+package ca.wilkinsonlab.sadi.client.virtual.sparql;
 
 import java.io.IOException;
 import java.io.InputStream;

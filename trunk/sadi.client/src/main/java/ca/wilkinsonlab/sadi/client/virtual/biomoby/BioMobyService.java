@@ -1,6 +1,5 @@
-package ca.wilkinsonlab.sadi.biomoby;
+package ca.wilkinsonlab.sadi.client.virtual.biomoby;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -12,7 +11,6 @@ import java.util.Map;
 
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.biomoby.shared.MobyData;
@@ -27,6 +25,7 @@ import org.biomoby.shared.data.MobyDataObject;
 
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
+import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Triple;
@@ -237,7 +236,7 @@ public class BioMobyService extends MobyService implements Service
 	}
 
 	private String serviceURI = null;
-	public String getServiceURI()
+	public String getURI()
 	{
 		if (serviceURI == null) {
 			serviceURI = BioMobyHelper.getServiceURI(getMobyServiceDefinition());
@@ -253,7 +252,7 @@ public class BioMobyService extends MobyService implements Service
 	public synchronized OntClass getInputClass()
 	{
 		if (inputClass == null) {
-			String inputClassUri = getServiceURI() + "#input";
+			String inputClassUri = getURI() + "#input";
 			inputClass = sourceRegistry.getTypeOntology().getOntClass(inputClassUri);
 			if (inputClass == null) {
 				if (getNumPrimaryInputs() > 1) {
@@ -279,7 +278,7 @@ public class BioMobyService extends MobyService implements Service
 	{
 		log.warn("getOutputClass not yet implemented");
 		if (outputClass == null) {
-			String outputClassUri = getServiceURI() + "#output";
+			String outputClassUri = getURI() + "#output";
 			outputClass = sourceRegistry.getTypeOntology().getOntClass(outputClassUri);
 			if (outputClass == null) {
 				outputClass = sourceRegistry.getTypeOntology().createClass(outputClassUri);
@@ -550,7 +549,7 @@ public class BioMobyService extends MobyService implements Service
 				}
 			} catch (TransformerException e) {
 				log.error("failed to convert MobyDataObject to RDF", e);
-			} catch (URIException e) {
+			} catch (IllegalArgumentException e) {
 				log.error(String.format("failed to parse URI <%s>", subject), e);
 			}
 		}
@@ -684,7 +683,7 @@ public class BioMobyService extends MobyService implements Service
 			if (query == null) {
 				try {
 					query = sourceRegistry.getConstructQueryForPredicate(predicate, outputTypeURI);
-				} catch (IOException e) {
+				} catch (SADIException e) {
 					log.error(String.format("error retrieving construct query for predicate <%s>", predicate), e);
 				}
 				if (query == null)

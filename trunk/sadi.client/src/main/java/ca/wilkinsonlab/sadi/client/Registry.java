@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
+import ca.wilkinsonlab.sadi.common.SADIException;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -20,7 +21,7 @@ public interface Registry
 	 * @return a Service object corresponding to the specified service URI
 	 * @throws IOException if there is a problem communicating with the registry
 	 */
-	public Service getService(String serviceURI) throws IOException;
+	public Service getService(String serviceURI) throws SADIException;
 	
 	/**
 	 * Returns a collection of services that can attach the specified predicate.
@@ -28,7 +29,7 @@ public interface Registry
 	 * @return a collection of matching services
 	 * @throws IOException if there is a problem communicating with the registry
 	 */
-	public Collection<? extends Service> findServicesByPredicate(String predicate) throws IOException;
+	public Collection<? extends Service> findServicesByPredicate(String predicate) throws SADIException;
 	
 	/**
 	 * Returns a collection of services that can attach predicates to the
@@ -37,7 +38,7 @@ public interface Registry
 	 * @return a collection of matching services
 	 * @throws IOException
 	 */
-	public Collection<? extends Service> findServicesByInputInstance(Resource subject) throws IOException;
+	public Collection<? extends Service> findServicesByInputInstance(Resource subject) throws SADIException;
 	
 	/**
 	 * Returns a collection of services that can attach the specified predicate
@@ -47,7 +48,7 @@ public interface Registry
 	 * @return the collection of matching services
 	 * @throws IOException if there is a problem communicating with the registry
 	 */
-	public Collection<? extends Service> findServices(Resource subject, String predicate) throws IOException;
+	public Collection<? extends Service> findServices(Resource subject, String predicate) throws SADIException;
 	
 	/**
 	 * Returns a collection of service/input pairs discovered by searching the
@@ -57,8 +58,7 @@ public interface Registry
 	 * @return the collection of service/input pairs
 	 * @throws IOException 
 	 */
-	public Collection<? extends ServiceInputPair> discoverServices(Model model) throws IOException;
-	
+	public Collection<? extends ServiceInputPair> discoverServices(Model model) throws SADIException;
 	
 	/**
 	 * Returns a collection of predicates that are mapped to services that
@@ -67,19 +67,19 @@ public interface Registry
 	 * @return a collection of matching predicates
 	 * @throws IOException if there is a problem communicating with the registry
 	 */
-	public Collection<String> findPredicatesBySubject(Resource subject) throws IOException;
+	public Collection<String> findPredicatesBySubject(Resource subject) throws SADIException;
 	
 	/**
 	 * Returns all services in the registry.
 	 * @return the complete collection of services registered in the registry
 	 * @throws IOException
 	 */
-	public Collection<? extends Service> getAllServices() throws IOException;
+	public Collection<? extends Service> getAllServices() throws SADIException;
 	
 	/**
 	 * Return the status of the specified service.
 	 * @return the service status
 	 * @throws IOException
 	 */
-	public ServiceStatus getServiceStatus(String serviceURI) throws IOException;
+	public ServiceStatus getServiceStatus(String serviceURI) throws SADIException;
 }

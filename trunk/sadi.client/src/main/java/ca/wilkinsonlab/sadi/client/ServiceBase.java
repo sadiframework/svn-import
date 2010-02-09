@@ -53,7 +53,7 @@ public abstract class ServiceBase implements Service
 	 * @see ca.wilkinsonlab.sadi.client.Service#getServiceURI()
 	 */
 	@Override
-	public String getServiceURI()
+	public String getURI()
 	{
 		// TODO Auto-generated method stub
 		return null;

@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.sparql;
+package ca.wilkinsonlab.sadi.client.virtual.sparql;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,14 +58,14 @@ public class SPARQLServiceWrapper implements Service
 	
 	@Override
 	public int hashCode() {
-		return (getServiceURI() + ":" + String.valueOf(mapInputsToObjectPosition())).hashCode();
+		return (getURI() + ":" + String.valueOf(mapInputsToObjectPosition())).hashCode();
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 		if(o instanceof SPARQLServiceWrapper) {
 			SPARQLServiceWrapper asService = (SPARQLServiceWrapper)o;
-			return getServiceURI().equals(asService.getServiceURI()) && (mapInputsToObjectPosition() == asService.mapInputsToObjectPosition());
+			return getURI().equals(asService.getURI()) && (mapInputsToObjectPosition() == asService.mapInputsToObjectPosition());
 		}
 		return false;
 	}
@@ -73,7 +73,7 @@ public class SPARQLServiceWrapper implements Service
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.Service#getServiceURI()
 	 */
-	public String getServiceURI() {
+	public String getURI() {
 		return getEndpoint().getURI();
 	}
 	
@@ -81,7 +81,7 @@ public class SPARQLServiceWrapper implements Service
 	 * @see ca.wilkinsonlab.sadi.client.Service#getName()
 	 */
 	public String getName() {
-		return getServiceURI();
+		return getURI();
 	}
 
 	/* (non-Javadoc)
@@ -274,7 +274,7 @@ public class SPARQLServiceWrapper implements Service
 	@Override
 	public String toString()
 	{
-		return getServiceURI();
+		return getURI();
 	}
 	
 	protected Triple getTriplePatternRepresentingServiceInvocation(RDFNode inputURIorLiteral) 

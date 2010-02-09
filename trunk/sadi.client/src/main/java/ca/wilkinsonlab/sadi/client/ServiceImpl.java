@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.rdf;
+package ca.wilkinsonlab.sadi.client;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,8 +19,6 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.client.ServiceBase;
-import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
@@ -46,9 +44,9 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-public class RdfService extends ServiceBase
+public class ServiceImpl extends ServiceBase
 {
-	private static final Logger log = Logger.getLogger(RdfService.class);
+	private static final Logger log = Logger.getLogger(ServiceImpl.class);
 	
 	String serviceURI;
 	String name;
@@ -56,7 +54,7 @@ public class RdfService extends ServiceBase
 	String inputClassURI;
 	String outputClassURI;
 	
-	RdfRegistry sourceRegistry;
+	RegistryImpl sourceRegistry;
 	
 	Model model;
 	OntModel ontModel;
@@ -72,7 +70,7 @@ public class RdfService extends ServiceBase
 	 * @param serviceURL the service URL
 	 * @throws SADIException
 	 */
-	public RdfService(String serviceURL) throws SADIException
+	public ServiceImpl(String serviceURL) throws SADIException
 	{
 		this();
 		
@@ -96,7 +94,7 @@ public class RdfService extends ServiceBase
 	 * by the registry.
 	 * @param serviceInfo a map containing the service information
 	 */
-	RdfService(Map<String, String> serviceInfo) throws SADIException
+	ServiceImpl(Map<String, String> serviceInfo) throws SADIException
 	{
 		this();
 		
@@ -116,7 +114,7 @@ public class RdfService extends ServiceBase
 	/* Perform initialization common to all constructors. Jena models are
 	 * created here so they can be used as locks for the thread-safe blocks.
 	 */
-	RdfService()
+	ServiceImpl()
 	{
 		model = ModelFactory.createDefaultModel();
 		ontModel = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
@@ -127,13 +125,13 @@ public class RdfService extends ServiceBase
 	
 	void loadServiceModel() throws Exception
 	{
-		log.debug("fetching service model from " + getServiceURI());
+		log.debug("fetching service model from " + getURI());
 		
-		model.read(getServiceURI());
+		model.read(getURI());
 		if (errorHandler.hasLastError())
 			throw errorHandler.getLastError();
 		
-		Resource serviceRoot = model.getResource(getServiceURI());
+		Resource serviceRoot = model.getResource(getURI());
 		ServiceOntologyHelper helper = new MyGridServiceOntologyHelper(serviceRoot);
 		name = helper.getName();
 		description = helper.getDescription();
@@ -144,7 +142,7 @@ public class RdfService extends ServiceBase
 	/* (non-Javadoc)
      * @see ca.wilkinsonlab.sadi.client.Service#getServiceURI()
      */
-	public String getServiceURI()
+	public String getURI()
 	{
 		return serviceURI;
 	}
@@ -322,7 +320,7 @@ public class RdfService extends ServiceBase
 	 */
 	public Model invokeServiceUnparsed(Model inputModel) throws IOException
 	{
-		InputStream is = HttpUtils.postToURL(new URL(getServiceURI()), inputModel);
+		InputStream is = HttpUtils.postToURL(new URL(getURI()), inputModel);
 		Model model = ModelFactory.createDefaultModel();
 		model.read(is, "");
 		is.close();
@@ -460,6 +458,6 @@ public class RdfService extends ServiceBase
 	@Override
 	public String toString()
 	{
-		return getServiceURI();
+		return getURI();
 	}
 }

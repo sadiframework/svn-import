@@ -1,6 +1,5 @@
 package ca.wilkinsonlab.sadi.client;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -9,6 +8,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
+import ca.wilkinsonlab.sadi.common.SADIException;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
@@ -157,8 +157,17 @@ public class MultiRegistry implements Registry
 		});
 	}
 
-	public ServiceStatus getServiceStatus(String serviceURI) throws IOException {
-		throw new UnsupportedOperationException();
+	public ServiceStatus getServiceStatus(String serviceURI) throws SADIException {
+		for (Registry registry: registries) {
+			try {
+				Service service = registry.getService(serviceURI);
+				if (service != null)
+					return registry.getServiceStatus(serviceURI);
+			} catch (Exception e) {
+				log.error(String.format("error contacting registry %s", registry), e);
+			}
+		}
+		return null;
 	}
 
 	private interface Accumulator<T>

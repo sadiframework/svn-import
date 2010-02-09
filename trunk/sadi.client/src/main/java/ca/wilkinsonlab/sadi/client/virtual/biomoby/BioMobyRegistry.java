@@ -1,17 +1,16 @@
-package ca.wilkinsonlab.sadi.biomoby;
+package ca.wilkinsonlab.sadi.client.virtual.biomoby;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
@@ -28,14 +27,13 @@ import org.biomoby.shared.MobyPrimaryDataSimple;
 import org.biomoby.shared.MobySecondaryData;
 import org.biomoby.shared.data.MobyDataObject;
 
-import ca.wilkinsonlab.sadi.client.Registry;
+import ca.wilkinsonlab.sadi.client.RegistryBase;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.virtuoso.VirtuosoRegistry;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
@@ -45,78 +43,56 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-public class BioMobyRegistry extends VirtuosoRegistry implements Registry
+public class BioMobyRegistry extends RegistryBase
 {
 	private static final Logger log = Logger.getLogger(BioMobyRegistry.class);
 	
 	private static final String LSRN_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
-	private static final boolean CACHE_ENABLED = true;
 
 	private static final String INPUT_ARGUMENT_URI = "http://www.mygrid.org.uk/mygrid-moby-service#inputParameter";
 	private static final String OUTPUT_ARGUMENT_URI = "http://www.mygrid.org.uk/mygrid-moby-service#outputParameter";
-	private static final String DEFAULT_SPARQL_ENDPOINT = "http://biordf.net/sparql";
-	private static final String ENDPOINT_CONFIG_KEY = "endpoint";
-	private static final String GRAPH_CONFIG_KEY = "graph";
-	private static final String URI_PATTERN_KEY = "uriPattern";
-	private static final String OUTPUT_URI_KEY = "outputUriPattern";
+	private static final String INPUT_URI_PATTERN_KEY = "inputUriPattern";
+	private static final String OUTPUT_URI_PATTERN_KEY = "outputUriPattern";
 
-	private Map<String, BioMobyService> serviceCache;
 	private OntModel predicateOntology;
 	private OntModel typeOntology;
-	private Collection<Pattern> urlPatterns;
+	private Collection<Pattern> inputUriPatterns;
 	private String outputUriPattern;
-		
-	public BioMobyRegistry() throws IOException
-	{
-		this(DEFAULT_SPARQL_ENDPOINT);
-	}
 	
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.RegistryBase#(java.lang.String)
+	 */
 	public BioMobyRegistry(Configuration config) throws IOException
 	{
-		this(config.getString(ENDPOINT_CONFIG_KEY));
+		super(config);
 		
-		graphName = config.getString(GRAPH_CONFIG_KEY);
-		
-		for (Object o: config.getList(URI_PATTERN_KEY)) {
+		inputUriPatterns = new ArrayList<Pattern>();
+		for (Object o: config.getList(INPUT_URI_PATTERN_KEY)) {
 			String pattern = (String)o;
 			try {
-				urlPatterns.add( Pattern.compile( pattern ) );
+				inputUriPatterns.add( Pattern.compile( pattern ) );
 			} catch (Exception e) {
 				log.error( String.format("error processing URL pattern: %s", pattern), e );
 			}
 		}
+		outputUriPattern = config.getString(OUTPUT_URI_PATTERN_KEY);
 		
-		outputUriPattern = config.getString(OUTPUT_URI_KEY);
-	}
-	
-	public BioMobyRegistry(String sparqlEndpoint) throws IOException
-	{
-		this(new URL(sparqlEndpoint));
-	}
-	
-	public BioMobyRegistry(URL sparqlEndpoint) throws IOException
-	{
-		super(sparqlEndpoint);
-		
-		/* TODO replace this with some more sophisticated caching mechanism;
-		 * I assume EHCache.
-		 */
-		serviceCache = new HashMap<String, BioMobyService>();
-		
-		/* TODO we'll probably have to manage this more carefully as the
-		 * number of ontologies we're importing predicates from grows.
-		 */
-		try {
-			predicateOntology = createPredicateOntology();
-		} catch (Exception e) {
-			log.error("failed to initialize predicate ontology", e);
-			predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
-		}
-		
+		predicateOntology = createPredicateOntology();
 		typeOntology = createTypeOntology();
-
-		urlPatterns = new ArrayList<Pattern>();
-		outputUriPattern = "http://biordf.net/moby/$NS/$ID";
+	}
+	
+	public BioMobyRegistry() throws IOException
+	{
+		this(createDefaultConfig());
+	}
+	
+	private static Configuration createDefaultConfig()
+	{
+		Configuration config = new BaseConfiguration();
+		config.addProperty(SPARQL_ENDPOINT_KEY, "http://biordf.net/sparql");
+		config.addProperty(INPUT_URI_PATTERN_KEY, "http://lsrn.org/(.+?):([\\S]+)");
+		config.addProperty(OUTPUT_URI_PATTERN_KEY, "http://lsrn.org/$NS:$ID");
+		return config;
 	}
 	
 	/* TODO figure out why this method takes so long initially and maybe
@@ -128,7 +104,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	public MobyDataObject convertUriToMobyDataObject(String uri) throws URISyntaxException
 	{
 		log.debug( String.format("converting %s to MobyDataObject", uri) );
-		for (Pattern pattern: urlPatterns) {
+		for (Pattern pattern: inputUriPatterns) {
 			log.trace( String.format("testing %s =~ / %s /", uri, pattern) );
 			
 			/* use find() and not matches() to better emulate perl semantics by
@@ -159,26 +135,11 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		return uri;
 	}
 
-	/* TODO I'd be much happier if we didn't load this up front, but only as
-	 * required currently only by isDatatypeProperty...
-	 */
-	private OntModel createPredicateOntology() throws IOException
+	private OntModel createPredicateOntology()
 	{
-		// TODO do we need more reasoning here?
-		OntModel predicateOntology = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
-
-		// we're now loading properties dynamically...
-//		String query = SPARQLStringUtils.readFully(BioMobyRegistry.class.getResource("select.all.predicates.sparql"));
-//		for (Map<String, String> binding: executeQuery(query)) {
-//			String predicate = binding.get("pred");
-//			try {
-//				OwlUtils.loadOntologyForUri(predicateOntology, predicate);
-//			} catch (Exception e) {
-//				log.error(String.format("failed to load ontology for predicate %s", predicate), e);
-//			}
-//		}
-
-		return predicateOntology;
+		/* TODO remove this once we're passing around actual Jena properties...
+		 */
+		return ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
 	}
 	
 	private OntModel createTypeOntology()
@@ -233,30 +194,18 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		}
 	}
 
-	/**
-	 * Returns a Service object corresponding to the specified service URI.
-	 * @param serviceURI a URI identifying the desired service
-	 * @return a Service object corresponding to the specified service URI
-	 * @throws IOException if there is a problem communicating with the registry
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.RegistryBase#createService(java.lang.String)
 	 */
-	public Service getService(String serviceURI)
-	throws IOException
+	public Service createService(String serviceURI) throws SADIException
 	{
-		BioMobyService service = serviceCache.get(serviceURI);
-		if (service != null)
-			return service;
-			
-		service = new BioMobyService();
+		BioMobyService service = new BioMobyService();
 		service.setSourceRegistry(this);
 		// TODO store service URI somewhere in the object ffs
 		fillBasicInfo(service, serviceURI);
 		fillArgumentInfo(service, serviceURI, INPUT_ARGUMENT_URI);
 		fillArgumentInfo(service, serviceURI, OUTPUT_ARGUMENT_URI);
 		fillPredicateInfo(service, serviceURI);
-		
-		if (CACHE_ENABLED)
-			serviceCache.put(serviceURI, service);
-		
 		return service;
 	}
 	
@@ -268,7 +217,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	 * @return the collection of matching services
 	 * @throws IOException 
 	 */
-	public Collection<Service> findServices(String subject, String predicate) throws IOException
+	public Collection<Service> findServices(String subject, String predicate) throws SADIException
 	{
 		/* TODO actually restrict this by the input namespace...
 		 */
@@ -293,8 +242,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	 * @throws URIException if any of the predicate URIs are invalid
 	 * @throws IOException if there is a problem communicating with the registry
 	 */
-	Collection<Service> findServicesByPredicate(List<String> predicates)
-	throws IOException
+	Collection<Service> findServicesByPredicate(List<String> predicates) throws SADIException
 	{
 		List<Service> matches = new ArrayList<Service>();
 		
@@ -303,10 +251,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		 * all of the SPARQL is in one place, either all in code or all in
 		 * resource files.
 		 */
-		String query = SPARQLStringUtils.strFromTemplate(
-				BioMobyRegistry.class.getResource("select.bypred.sparql"),
-				getSynonymSubquery("?inputarg %u% ?outputarg", predicates)
-		);
+		String query = buildQuery("select.bypred.sparql", getSynonymSubquery("?inputarg %u% ?outputarg", predicates));
 		for (Map<String, String> binding: executeQuery(query))
 			matches.add(getService(binding.get("service")));
 		
@@ -320,8 +265,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	 * @throws URIException if the predicate URI is invalid
 	 * @throws IOException if there is a problem communicating with the registry
 	 */
-	public Collection<Service> findServicesByPredicate(String predicate)
-	throws IOException
+	public Collection<Service> findServicesByPredicate(String predicate) throws SADIException
 	{
 		return findServicesByPredicate( Collections.singletonList(predicate));
 	}
@@ -333,8 +277,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	 * @return a collection of matching predicates
 	 * @throws IOException if there is a problem communicating with the registry
 	 */
-	public Collection<String> findPredicatesBySubject(String subject)
-	throws IOException
+	public Collection<String> findPredicatesBySubject(String subject) throws SADIException
 	{
 		try {
 			String namespace = convertUriToMobyDataObject(subject).getNamespaces()[0].getName();
@@ -345,13 +288,9 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		
 	}
 	
-	Collection<String> findPredicatesByInputNamespace(String namespace)
-	throws IOException
+	Collection<String> findPredicatesByInputNamespace(String namespace) throws SADIException
 	{
-		String query = SPARQLStringUtils.strFromTemplate(
-				BioMobyRegistry.class.getResource("select.predbyns.sparql"),
-				namespace
-		);
+		String query = buildQuery("select.predbyns.sparql", namespace);
 		List<Map<String, String>> bindings = executeQuery(query);
 		Collection<String> results = new ArrayList<String>(bindings.size());
 		for (Map<String, String> binding: bindings)
@@ -376,8 +315,7 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	 * @return a SPARQL construct query, if one is available, null otherwise.
 	 * @throws IOException 
 	 */
-	String getConstructQueryForPredicate(List<String> predicates, String outputDatatypeURI)
-	throws IOException
+	String getConstructQueryForPredicate(List<String> predicates, String outputDatatypeURI) throws SADIException
 	{
 		/* TODO cache these; they are probably slowing us down...
 		 */
@@ -387,11 +325,8 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		 * all of the SPARQL is in one place, either all in code or all in
 		 * resource files.
 		 */
-		String query = SPARQLStringUtils.strFromTemplate(
-				BioMobyRegistry.class.getResource("select.constructquery.for.pred.sparql"),
-				getSynonymSubquery("%u% moby:hasOutputType ?outputType", predicates),
-				outputDatatypeURI
-		);
+		String query = buildQuery("select.constructquery.for.pred.sparql",
+				getSynonymSubquery("%u% moby:hasOutputType ?outputType", predicates), outputDatatypeURI);
 		List<Map<String, String>> bindings = executeQuery(query);
 		if (bindings.size() != 1) {
 			log.debug(String.format("%s construct queries for %s/%s", bindings.size(), outputDatatypeURI, predicates));
@@ -409,17 +344,14 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	 * @return the SPARQL construct query
 	 * @throws IOException 
 	 */
-	String getConstructQueryForPredicate(String predicateURI, String outputDatatypeURI)
-	throws IOException
+	String getConstructQueryForPredicate(String predicateURI, String outputDatatypeURI) throws SADIException
 	{
 		return getConstructQueryForPredicate( Collections.singletonList(predicateURI), outputDatatypeURI);
 	}
 
-	private void fillBasicInfo(BioMobyService service, String serviceURI)
-	throws IOException
+	private void fillBasicInfo(BioMobyService service, String serviceURI) throws SADIException
 	{
-		String query = SPARQLStringUtils.strFromTemplate(
-				BioMobyRegistry.class.getResource("select.servicebasic.sparql"),
+		String query = buildQuery("select.servicebasic.sparql",
 				serviceURI,
 				serviceURI,
 				serviceURI,
@@ -447,15 +379,10 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		service.setType(StringUtils.substringAfter(binding.get("servicetype"), "#"));
 	}
 
-	private void fillArgumentInfo(BioMobyService service, String serviceURI, String inOutURI)
-	throws IOException
+	private void fillArgumentInfo(BioMobyService service, String serviceURI, String inOutURI) throws SADIException
 	{
 		boolean input = inOutURI == INPUT_ARGUMENT_URI;
-		String query = SPARQLStringUtils.strFromTemplate(
-				BioMobyRegistry.class.getResource("select.args.sparql"),
-				serviceURI,
-				inOutURI
-		);
+		String query = buildQuery("select.args.sparql", serviceURI, inOutURI);
 		for (Map<String, String> binding: executeQuery(query)) {
 			String articleName = binding.get("articlename");
 			
@@ -530,11 +457,9 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	 * @param articleName
 	 * @throws IOException 
 	 */
-	private void fillNamespaceInfo(MobyPrimaryData primaryArg, String serviceURI, String inOutURI, String articleName)
-	throws IOException
+	private void fillNamespaceInfo(MobyPrimaryData primaryArg, String serviceURI, String inOutURI, String articleName) throws SADIException
 	{
-		String query = SPARQLStringUtils.strFromTemplate(
-				BioMobyRegistry.class.getResource("select.namespaces.sparql"),
+		String query = buildQuery("select.namespaces.sparql",
 				serviceURI,
 				inOutURI,
 				articleName
@@ -545,26 +470,15 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	}
 
 	private void fillPredicateInfo(BioMobyService service, String serviceURI)
-	throws IOException
+	throws SADIException
 	{
-		String query = SPARQLStringUtils.strFromTemplate(
-				BioMobyRegistry.class.getResource("select.predicates.sparql"),
-				serviceURI
-		);
+		String query = buildQuery("select.predicates.sparql", serviceURI);
 		for (Map<String, String> binding: executeQuery(query)) {
 			String predicate = binding.get("predicate");
 			String inputName = binding.get("inputname");
 			String outputName = binding.get("outputname");
 			
 			service.addPredicate(predicate, inputName, outputName);
-			
-
-			/*
-			// Add all of the registered synonyms for the predicate as well.   
-			// (Synonyms are asserted in the registry by owl:sameAs triples.)
-			for (String synonym : getPredicateSynonyms(predicate))
-				service.addPredicate(synonym, inputName, outputName);
-			*/
 		}
 	}
 
@@ -584,7 +498,6 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 	 * @throws URISyntaxException 
 	 */
 	private static String getSynonymSubquery(String tripleTemplate, List<String> predSynonyms)
-	throws URIException
 	{
 		StringBuilder buf = new StringBuilder();
 		for(String uri: predSynonyms) {	
@@ -600,27 +513,27 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		return buf.toString();
 	}
 
-	public Collection<String> findPredicatesBySubject(Resource subject) throws IOException
+	public Collection<String> findPredicatesBySubject(Resource subject) throws SADIException
 	{
 		return findPredicatesBySubject(subject.getURI());
 	}
 
-	public Collection<? extends Service> findServices(Resource subject, String predicate) throws IOException
+	public Collection<? extends Service> findServices(Resource subject, String predicate) throws SADIException
 	{
 		return findServices(subject.getURI(), predicate);
 	}
 
-	public Collection<ServiceInputPair> discoverServices(Model model) throws IOException
+	public Collection<ServiceInputPair> discoverServices(Model model) throws SADIException
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	public Collection<? extends Service> findServicesByInputInstance(Resource subject) throws IOException
+	public Collection<? extends Service> findServicesByInputInstance(Resource subject) throws SADIException
 	{
 		throw new UnsupportedOperationException();
 	}
 
-	public Collection<? extends Service> getAllServices() throws IOException {
+	public Collection<? extends Service> getAllServices() throws SADIException {
 		List<Service> matches = new ArrayList<Service>();
 		
 		/* TODO I don't like that the text in this string has to match text
@@ -628,16 +541,23 @@ public class BioMobyRegistry extends VirtuosoRegistry implements Registry
 		 * all of the SPARQL is in one place, either all in code or all in
 		 * resource files.
 		 */
-		String query = SPARQLStringUtils.readFully(
-				BioMobyRegistry.class.getResource("select.services.sparql")
-		);
+		String query = buildQuery("select.services.sparql");
 		for (Map<String, String> binding: executeQuery(query))
 			matches.add(getService(binding.get("service")));
 		
 		return matches;
 	}
 
-	public ServiceStatus getServiceStatus(String serviceURI) throws IOException {
+	public ServiceStatus getServiceStatus(String serviceURI) throws SADIException {
 		throw new UnsupportedOperationException();
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.RegistryBase#getLog()
+	 */
+	@Override
+	protected Logger getLog()
+	{
+		return log;
 	}
 }
