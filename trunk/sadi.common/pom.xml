@@ -4,7 +4,7 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-common</artifactId>
   <name>Common SADI classes</name>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <description>Classes used by both SADI clients and SADI services</description>
   <build>
     <plugins>
@@ -26,11 +26,15 @@
     </extensions>
   </build>
   <distributionManagement>
+    <repository>
+      <id>dev-repository</id>
+      <name>dev.biordf.net Repository</name>
+      <url>scpexe://dev.biordf.net/var/www/maven/</url>
+    </repository>
     <snapshotRepository>
       <id>dev-snapshot-repository</id>
       <name>dev.biordf.net Snapshot Repository</name>
       <url>scpexe://dev.biordf.net/var/www/maven/</url>
-      <uniqueVersion>false</uniqueVersion>
     </snapshotRepository>
   </distributionManagement>
   <repositories>
