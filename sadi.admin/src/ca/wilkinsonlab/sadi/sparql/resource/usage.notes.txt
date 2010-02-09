@@ -1,7 +1,0 @@
-USAGE NOTES:
-
-The switches  -t (endpoint type; e.g. "VIRTUOSO") and -l (results limit for individual queries to endpoints) apply to all endpoints, unless there is more than one occurrence on the command line.  In the latter case, each instance of "-t"/"-l" applies to the endpoints *following* it, up until the next occurence of "-t"/"-l".
-
--R <rootURI> switches specify a root URI for indexing-by-breadth-first-traversal. This is an ad-hoc method of indexing for cases when the endpoint is too large to be indexed fully (due to query timeouts).  -R switches apply to the indexing (-i) switch that immediately precedes them, and one may specify multiple -R switches for the same indexing operation. (Typically, one would specify one -R switch for each type of record in the endpoint.)
-
-			 

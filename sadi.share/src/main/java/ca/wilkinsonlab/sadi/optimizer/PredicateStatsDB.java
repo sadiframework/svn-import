@@ -8,8 +8,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.client.virtual.sparql.VirtuosoSPARQLEndpoint;
 import ca.wilkinsonlab.sadi.share.Config;
+import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLEndpoint;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.PredicateStats;
 import ca.wilkinsonlab.sadi.vocab.W3C;
