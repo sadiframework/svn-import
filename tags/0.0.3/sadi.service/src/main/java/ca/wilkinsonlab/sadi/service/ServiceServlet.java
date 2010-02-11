@@ -160,6 +160,7 @@ public abstract class ServiceServlet extends HttpServlet
 			processInput(call);
 			outputSuccessResponse(response, call.getOutputModel());
 		} catch (Exception e) {
+			log.error("exception processing service call", e);
 			outputErrorResponse(response, e);
 			call.getInputModel().close();
 			call.getOutputModel().close();
