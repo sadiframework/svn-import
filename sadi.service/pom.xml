@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ca.wilkinsonlab.sadi</groupId>
+  <artifactId>sadi-service</artifactId>
+  <name>SADI service classes</name>
+  <version>0.0.3-SNAPSHOT</version>
+  <description>Classes used by SADI services</description>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+    </plugins>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh-external</artifactId>
+        <version>1.0-alpha-5</version>
+      </extension>
+    </extensions>
+  </build>
+  <distributionManagement>
+    <repository>
+      <id>dev-repository</id>
+      <name>dev.biordf.net Repository</name>
+      <url>scpexe://dev.biordf.net/var/www/maven/</url>
+    </repository>
+    <snapshotRepository>
+      <id>dev-snapshot-repository</id>
+      <name>dev.biordf.net Snapshot Repository</name>
+      <url>scpexe://dev.biordf.net/var/www/maven/</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <repositories>
+  </repositories>
+  <dependencies>
+    <dependency>
+      <groupId>ca.wilkinsonlab.sadi</groupId>
+      <artifactId>sadi-common</artifactId>
+      <version>0.0.3-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
