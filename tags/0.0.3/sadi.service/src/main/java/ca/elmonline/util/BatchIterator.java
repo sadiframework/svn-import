@@ -1,0 +1,96 @@
+package ca.elmonline.util;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+public class BatchIterator<E> implements Iterable<Collection<E>>, Iterator<Collection<E>>
+{
+    private Iterator<E> individualIterator;
+    
+    private int batchSize;
+    
+    /**
+     * Returns a BatchIterator over the specified collection.
+     * @param collection the collection over which to iterate
+     * @param batchSize the maximum size of each batch returned
+     */
+    public BatchIterator( Collection<E> collection, int batchSize )
+    {
+        individualIterator = collection.iterator();
+        this.batchSize = batchSize;
+    }
+    
+    /**
+     * Returns a BatchIterator over the specified iterator.
+     * @param iterator the iterator over which to iterate
+     * @param batchSize the maximum size of each batch returned
+     */
+    public BatchIterator( Iterator<E> iterator, int batchSize )
+    {
+        individualIterator = iterator;
+        this.batchSize = batchSize;
+    }
+    
+    /**
+     * Returns a BatchIterator over the specified collection.
+     * This is a convenience method to simplify the code need to loop over an existing collection.
+     * @param collection the collection over which to iterate
+     * @param batchSize the maximum size of each batch returned
+     * @return a BatchIterator over the specified collection
+     */
+    public static <E> BatchIterator<E> batches( Collection<E> collection, int batchSize )
+    {
+        return new BatchIterator<E>( collection, batchSize );
+    }
+    
+    /**
+     * Returns a BatchIterator over the specified iterator.
+     * This is a convenience method to simplify the code need to loop over an existing collection.
+     * @param collection the collection over which to iterate
+     * @param batchSize the maximum size of each batch returned
+     * @return a BatchIterator over the specified collection
+     */
+    public static <E> BatchIterator<E> batches( Iterator<E> iterator, int batchSize )
+    {
+        return new BatchIterator<E>( iterator, batchSize );
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Iterable#iterator()
+     */
+    public Iterator<Collection<E>> iterator() {
+        return this;
+    }
+    
+    /* (non-Javadoc)
+     * @see java.util.Iterator#hasNext()
+     */
+    public boolean hasNext()
+    {
+        return individualIterator.hasNext();
+    }
+    
+    /* (non-Javadoc)
+     * @see java.util.Iterator#next()
+     */
+    public Collection<E> next()
+    {
+        if ( !individualIterator.hasNext() )
+            throw new NoSuchElementException();
+        
+        Collection<E> batch = new ArrayList<E>( batchSize );
+        while ( batch.size() < batchSize && individualIterator.hasNext() )
+            batch.add( individualIterator.next() );
+        return batch;
+    }
+    
+    /* (non-Javadoc)
+     * @see java.util.Iterator#remove()
+     */
+    public void remove()
+    {
+        throw new UnsupportedOperationException();
+    }
+}
