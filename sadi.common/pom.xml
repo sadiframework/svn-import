@@ -4,7 +4,7 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-common</artifactId>
   <name>Common SADI classes</name>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.3</version>
   <description>Classes used by both SADI clients and SADI services</description>
   <build>
     <plugins>
@@ -15,6 +15,22 @@
           <source>1.6</source>
           <target>1.6</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <!-- 
+        <configuration>
+          <attach>true</attach>
+        </configuration>
+        -->
       </plugin>
     </plugins>
     <extensions>
