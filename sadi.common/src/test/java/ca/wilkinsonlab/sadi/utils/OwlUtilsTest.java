@@ -20,6 +20,7 @@ import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public class OwlUtilsTest
 {
@@ -133,6 +134,16 @@ public class OwlUtilsTest
 		OntClass c = OwlUtils.getUsefulRange(p);
 		assertTrue("getUsefulRange did not return expected class",
 				c.getURI().equals("http://www.w3.org/2000/01/rdf-schema#Literal"));
+	}
+	
+	@Test
+	public void testGetUsefulRangeOnRDFProperty()
+	{
+		model.read(RDF.getURI());
+		OntProperty p = model.getOntProperty(RDF.value.getURI());
+		OntClass c = OwlUtils.getUsefulRange(p);
+		assertTrue("getUsefulRange did not return expected class",
+				c.getURI().equals("http://www.w3.org/2000/01/rdf-schema#Resource"));
 	}
 	
 	@Test
