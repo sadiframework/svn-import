@@ -107,8 +107,10 @@ public class OwlUtils
 		if (p.getRange() == null) {
 			if (p.isDatatypeProperty())
 				return p.getOntModel().getOntClass(RDFS.Literal.getURI());
-			else
+			else if (p.isObjectProperty())
 				return p.getOntModel().getOntClass(OWL.Thing.getURI());
+			else
+				return p.getOntModel().getOntClass(RDFS.Resource.getURI());
 		}
 		
 		Set<OntClass> ancestors = new HashSet<OntClass>();
