@@ -1,10 +1,10 @@
-package ca.wilkinsonlab.sadi.sparql;
+package ca.wilkinsonlab.sadi.client.virtual.sparql;
 
 import java.io.IOException;
 import java.util.List;
 
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint.EndpointType;
 
 public interface SPARQLRegistryAdmin
 {

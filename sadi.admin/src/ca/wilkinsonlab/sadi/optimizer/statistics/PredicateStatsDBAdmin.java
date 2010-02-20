@@ -29,10 +29,12 @@ import com.ibm.icu.text.DateFormat;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.PredicateStats;
 import ca.wilkinsonlab.sadi.client.QueryClient;
+import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint;
-import ca.wilkinsonlab.sadi.sparql.SPARQLRegistry;
-import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLEndpoint;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLRegistry;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.VirtuosoSPARQLEndpoint;
+import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.share.Config;
 import ca.wilkinsonlab.sadi.share.SHAREQueryClient;
 
@@ -65,15 +67,30 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 		super(endpointURI, username, password);
 		setGraphName(graphURI);
 		
-		if (ca.wilkinsonlab.sadi.client.Config.getSPARQLRegistry() != null) {
-			setRegistry(ca.wilkinsonlab.sadi.client.Config.getSPARQLRegistry());
+		if (getSPARQLRegistry() != null) {
+			setRegistry(getSPARQLRegistry());
 		} else {
 			throw new RuntimeException("cannot access SPARQL endpoint registry");
 		}
 		
 		setInputSampler(new InputSampler(getRegistry()));
 	}
-
+	
+	/** 
+	 * Return the SADI SPARQL registry.  For now, we assume that there is exactly
+	 * one such registry. 
+	 * 
+	 * @return the SADI SPARQL registry
+	 */
+	public static SPARQLRegistry getSPARQLRegistry() 
+	{
+		for(Registry r: ca.wilkinsonlab.sadi.client.Config.getConfiguration().getRegistries()) {
+			if(r instanceof SPARQLRegistry)
+				return (SPARQLRegistry)r;
+		}
+		return null;
+	}
+	
 	public String getGraphName() { 
 		return graphName; 
 	}
@@ -98,7 +115,7 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 		this.sampler = sampler;
 	}
 
-	public void computeStatsForAllPredicates(int samplesPerPredicate, Date stalenessDate) throws IOException
+	public void computeStatsForAllPredicates(int samplesPerPredicate, Date stalenessDate) throws SADIException, IOException
 	{
 		for(String predicate : getRegistry().getAllPredicates()) {
 			computeStatsForPredicate(predicate, samplesPerPredicate, stalenessDate);
@@ -106,7 +123,7 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 		updateAverageStats();
 	}
 
-	public void computeStatsForEndpoint(String endpointURI, int numSamples, Date stalenessDate) throws IOException
+	public void computeStatsForEndpoint(String endpointURI, int numSamples, Date stalenessDate) throws SADIException, IOException
 	{
 		Collection<String> predicates = getRegistry().getPredicatesForEndpoint(endpointURI);
 		for (String predicate : predicates)
@@ -114,7 +131,7 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 		updateAverageStats();
 	}
 
-	public void computeStatsForPredicate(String predicate, int numSamples, Date stalenessDate) throws IOException
+	public void computeStatsForPredicate(String predicate, int numSamples, Date stalenessDate) throws SADIException, IOException
 	{
 		log.trace("Sampling stats for predicate " + predicate);
 
@@ -131,7 +148,7 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 		computeStatsForPredicate(predicate, numReverseSelectivitySamples, numReverseTimeSamples, false);
 	}
 	
-	protected void computeStatsForPredicate(String predicate, int numSelectivitySamples, int numTimeSamples, boolean directionIsForward) 
+	protected void computeStatsForPredicate(String predicate, int numSelectivitySamples, int numTimeSamples, boolean directionIsForward) throws SADIException
 	{
 		int numQueries = Math.max(numSelectivitySamples, numTimeSamples);
 		List<Map<String,String>> results;
@@ -484,15 +501,15 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 			deadEndpoints.add("http://go.bio2rdf.org/sparql");
 		}
 
-		public Node sampleSubject(String predicate) throws IOException, NoSampleAvailableException, ExceededMaxAttemptsException {
+		public Node sampleSubject(String predicate) throws SADIException, IOException, NoSampleAvailableException, ExceededMaxAttemptsException {
 			return getSample(predicate, true);
 		}
 
-		public Node sampleObject(String predicate) throws IOException, NoSampleAvailableException, ExceededMaxAttemptsException {
+		public Node sampleObject(String predicate) throws SADIException, IOException, NoSampleAvailableException, ExceededMaxAttemptsException {
 			return getSample(predicate, false);
 		}
 
-		public Node getSample(String predicate, boolean positionIsSubject) throws IOException, NoSampleAvailableException, ExceededMaxAttemptsException
+		public Node getSample(String predicate, boolean positionIsSubject) throws SADIException, IOException, NoSampleAvailableException, ExceededMaxAttemptsException
 		{
 			String desc = positionIsSubject ? "subject URI" : "object value";
 
@@ -584,7 +601,7 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 			return sample;
 		}
 
-		protected long getUpperSampleLimit(SPARQLEndpoint endpoint, String predicate, boolean positionIsSubject) throws IOException
+		protected long getUpperSampleLimit(SPARQLEndpoint endpoint, String predicate, boolean positionIsSubject) throws SADIException, IOException
 		{
 			String filter = positionIsSubject ? "FILTER (!isBlank(?s))" : "FILTER (!isBlank(?o))";
 			String desc = positionIsSubject ? "subject URIs" : "object URIs/literals";
