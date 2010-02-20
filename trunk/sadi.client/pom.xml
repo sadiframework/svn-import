@@ -4,7 +4,7 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-client</artifactId>
   <name>SADI client classes</name>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <description>Classes used by SADI clients</description>
   <build>
     <plugins>
@@ -52,7 +52,7 @@
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-common</artifactId>
-      <version>0.0.3-SNAPSHOT</version>
+      <version>0.0.4-SNAPSHOT</version>
     </dependency>
     
     <dependency>
@@ -77,6 +77,10 @@
         <exclusion>
           <groupId>org.jvnet.staxex</groupId>
           <artifactId>stax-ex</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>java.xml</groupId>
+          <artifactId>jsr173</artifactId>	
         </exclusion>
       </exclusions>
     </dependency>
