@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.sparql;
+package ca.wilkinsonlab.sadi.client.virtual.sparql;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -44,10 +44,10 @@ import ca.wilkinsonlab.sadi.utils.graph.RDFTypeConstraint;
 import ca.wilkinsonlab.sadi.utils.graph.SPARQLSearchNode;
 import ca.wilkinsonlab.sadi.utils.graph.SearchNode;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpointFactory;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.EndpointType;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.TripleIterator;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpointFactory;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint.EndpointType;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint.TripleIterator;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 

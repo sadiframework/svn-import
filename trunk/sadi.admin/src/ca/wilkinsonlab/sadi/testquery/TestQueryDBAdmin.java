@@ -13,7 +13,10 @@ import org.kohsuke.args4j.Option;
 import com.hp.hpl.jena.graph.Triple;
 
 import ca.wilkinsonlab.sadi.optimizer.statistics.ExceededMaxAttemptsException;
-import ca.wilkinsonlab.sadi.sparql.VirtuosoSPARQLEndpoint;
+import ca.wilkinsonlab.sadi.client.Registry;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLRegistry;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.VirtuosoSPARQLEndpoint;
+import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.vocab.TestQueryDB;
 import ca.wilkinsonlab.sadi.utils.BasicGraphPatternUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
@@ -122,7 +125,22 @@ public class TestQueryDBAdmin extends VirtuosoSPARQLEndpoint {
 		public String graphName = Config.getConfiguration().subset(CONFIG_ROOT).getString(GRAPH_CONFIG_KEY);
 	}
 	
-	public static void main(String[] args) throws IOException, ExceededMaxAttemptsException
+	/** 
+	 * Return the SADI SPARQL registry.  For now, we assume that there is exactly
+	 * one such registry. 
+	 * 
+	 * @return the SADI SPARQL registry
+	 */
+	protected static SPARQLRegistry getSPARQLRegistry() 
+	{
+		for(Registry r: ca.wilkinsonlab.sadi.client.Config.getConfiguration().getRegistries()) {
+			if(r instanceof SPARQLRegistry)
+				return (SPARQLRegistry)r;
+		}
+		return null;
+	}
+	
+	public static void main(String[] args) throws SADIException, IOException, ExceededMaxAttemptsException
 	{
 		
 		CommandLineOptions options = new CommandLineOptions();
@@ -132,7 +150,7 @@ public class TestQueryDBAdmin extends VirtuosoSPARQLEndpoint {
 			cmdLineParser.parseArgument(args);
 
 			TestQueryDBAdmin queryDB = new TestQueryDBAdmin();
-			RandomQueryGenerator generator = new RandomQueryGenerator(ca.wilkinsonlab.sadi.client.Config.getSPARQLRegistry());
+			RandomQueryGenerator generator = new RandomQueryGenerator(TestQueryDBAdmin.getSPARQLRegistry());
 			
 			queryDB.setGraphName(options.graphName);
 			

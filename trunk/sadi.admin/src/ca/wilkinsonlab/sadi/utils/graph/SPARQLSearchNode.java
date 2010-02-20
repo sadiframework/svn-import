@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Node;

@@ -19,9 +19,9 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpointFactory;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint.AmbiguousPropertyTypeException;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpointFactory;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint.AmbiguousPropertyTypeException;
 import ca.wilkinsonlab.sadi.utils.graph.BoundedBreadthFirstIterator;
 import ca.wilkinsonlab.sadi.utils.graph.RDFTypeConstraint;
 import ca.wilkinsonlab.sadi.utils.graph.SPARQLSearchNode;

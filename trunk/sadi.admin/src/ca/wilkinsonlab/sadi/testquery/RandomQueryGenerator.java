@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.random.RandomData;
@@ -27,8 +26,9 @@ import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.optimizer.statistics.ExceededMaxAttemptsException;
 import ca.wilkinsonlab.sadi.optimizer.statistics.NoSampleAvailableException;
-import ca.wilkinsonlab.sadi.sparql.SPARQLEndpoint;
-import ca.wilkinsonlab.sadi.sparql.SPARQLRegistry;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLRegistry;
+import ca.wilkinsonlab.sadi.common.SADIException;
 
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
@@ -46,7 +46,7 @@ public class RandomQueryGenerator {
 		setRegistry(registry);
 	}
 
-	public List<Triple> generateRandomBasicGraphPattern(int maxConstants, int queryDepth, int maxFanout) throws IOException, ExceededMaxAttemptsException 
+	public List<Triple> generateRandomBasicGraphPattern(int maxConstants, int queryDepth, int maxFanout) throws SADIException, IOException, ExceededMaxAttemptsException 
 	{
 		// tracks the depth of each edge from the root. 
 		Map<Triple,Integer> depth = new HashMap<Triple,Integer>();
@@ -183,7 +183,7 @@ public class RandomQueryGenerator {
 		return outputTriples;
 	}
 	
-	public Collection<ReversibleTriple> getRandomNeighboringEdges(Node node, int maxFanout) throws IOException
+	public Collection<ReversibleTriple> getRandomNeighboringEdges(Node node, int maxFanout) throws SADIException, IOException 
 	{
 		List<ReversibleTriple> neighborEdges = getOutgoingEdges(node); //getIncomingAndOutgoingEdges(node, maxFanout);
 		if(neighborEdges.size() <= 1)
@@ -237,7 +237,7 @@ public class RandomQueryGenerator {
 	}
 
 	
-	public List<ReversibleTriple> getOutgoingEdges(Node node) throws IOException
+	public List<ReversibleTriple> getOutgoingEdges(Node node) throws SADIException, IOException
 	{
 		if(!node.isURI()) {
 			log.warn("outgoing edges cannot be retrieved for a blank node or a literal, returning empty list");
