@@ -5,17 +5,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.math.random.RandomDataImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -30,11 +25,10 @@ import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.PredicateStats;
 import ca.wilkinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.client.Registry;
-import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLRegistry;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.VirtuosoSPARQLEndpoint;
 import ca.wilkinsonlab.sadi.common.SADIException;
+
 import ca.wilkinsonlab.sadi.share.Config;
 import ca.wilkinsonlab.sadi.share.SHAREQueryClient;
 
@@ -485,185 +479,27 @@ public class PredicateStatsDBAdmin extends VirtuosoSPARQLEndpoint
 		updateQuery(query);
 	}
 
-	private static class InputSampler
-	{
-		protected SPARQLRegistry registry;
-		protected static final int MAX_ATTEMPTS = 3;
-		protected Set<String> deadEndpoints = new HashSet<String>();
-		protected UpperSampleLimitCache subjectSampleLimitCache = new UpperSampleLimitCache();
-		protected UpperSampleLimitCache objectSampleLimitCache = new UpperSampleLimitCache();
-		
-		// milliseconds
+	protected static class InputSampler extends TripleSampler {
 
 		public InputSampler(SPARQLRegistry registry) {
-			this.registry = registry;
-			//HACK: this endpoint generates invalid RDF/XML in response to construct queries, so skip it
-			deadEndpoints.add("http://go.bio2rdf.org/sparql");
+			super(registry);
 		}
-
-		public Node sampleSubject(String predicate) throws SADIException, IOException, NoSampleAvailableException, ExceededMaxAttemptsException {
-			return getSample(predicate, true);
+		public Node sampleSubject(String predicate) throws SADIException, IOException, NoSampleAvailableException, ExceededMaxAttemptsException{
+			return getSample(getTriplePattern(predicate)).getSubject(); 
 		}
-
-		public Node sampleObject(String predicate) throws SADIException, IOException, NoSampleAvailableException, ExceededMaxAttemptsException {
-			return getSample(predicate, false);
+		public Node sampleObject(String predicate) throws SADIException, IOException, NoSampleAvailableException, ExceededMaxAttemptsException{
+			return getSample(getTriplePattern(predicate)).getObject(); 
 		}
-
-		public Node getSample(String predicate, boolean positionIsSubject) throws SADIException, IOException, NoSampleAvailableException, ExceededMaxAttemptsException
+		protected Triple getTriplePattern(String predicate) 
 		{
-			String desc = positionIsSubject ? "subject URI" : "object value";
-
-			/* Choose an endpoint, and determine the number of candidates within that endpoint (upperSampleLimit) */
-			List<SPARQLEndpoint> endpoints = new ArrayList<SPARQLEndpoint>(registry.findEndpointsByPredicate(predicate));
-			
-			/* Filter out endpoints we already know are dead */
-			for(Iterator<SPARQLEndpoint> i = endpoints.iterator(); i.hasNext(); ) {
-				SPARQLEndpoint endpoint = i.next();
-				if(deadEndpoints.contains(endpoint.getURI())) {
-					log.trace("skipping dead endpoint " + endpoint);
-					i.remove();
-				}
-			}
-			
-			RandomDataImpl generator = new RandomDataImpl();
-			long upperSampleLimit = 0;
-			int attempts = 0;
-			SPARQLEndpoint endpoint = null;
-			
-			while (attempts < MAX_ATTEMPTS) {
-
-				if (endpoints.size() == 0)
-					throw new NoSampleAvailableException("there are no non-blank-node " + desc + "s for " + predicate + " in the data");
-
-				int endpointIndex = endpoints.size() > 1 ? generator.nextInt(0, endpoints.size() - 1) : 0;
-				endpoint = endpoints.get(endpointIndex);
-				
-				try {
-					upperSampleLimit = getUpperSampleLimit(endpoint, predicate, positionIsSubject);
-					if(upperSampleLimit > 0) {
-						try {
-							long sampleIndex = upperSampleLimit > 1 ? generator.nextLong(0, upperSampleLimit - 1) : 0;
-							return getSample(endpoint, predicate, sampleIndex, positionIsSubject);
-						}
-						catch(IOException e2) {
-							log.warn("failed to retrieve sample " + desc, e2);
-							deadEndpoints.add(endpoint.getURI());
-						}
-						catch(NoSampleAvailableException e2) {
-							log.warn("failed to retrieve sample " + desc, e2);
-						}
-					}
-				}
-				catch(IOException e) {
-					log.warn("failed to determine upper sample limit", e);
-					deadEndpoints.add(endpoint.getURI());
-				}
-				
-				endpoints.remove(endpointIndex);
-				attempts++;
-			}
-
-			throw new ExceededMaxAttemptsException("exceeded " + MAX_ATTEMPTS + " attempts when trying to retrieve a non-blank-node " + desc + " for " + predicate);
-		}
-
-		protected Node getSample(SPARQLEndpoint endpoint, String predicate, long sampleIndex, boolean positionIsSubject) throws IOException, NoSampleAvailableException
-		{
-			String filter = positionIsSubject ? "FILTER (!isBlank(?s))" : "FILTER (!isBlank(?o))";
-			String desc = positionIsSubject ? "subject URI" : "object URI/literal";
-
-			log.trace("retrieving " + desc + " #" + sampleIndex + " for " + predicate + " from " + endpoint.getURI());
-
-			String query = "CONSTRUCT { ?s %u% ?o } WHERE { ?s %u% ?o . " + filter + " } OFFSET %v% LIMIT 1";
-			query = SPARQLStringUtils.strFromTemplate(query, predicate, predicate, String.valueOf(sampleIndex));
-			Collection<Triple> triples = endpoint.constructQuery(query);
-			
-			if (triples.size() == 0)
-				throw new RuntimeException("no " + desc + " #" + sampleIndex + " exists in " + endpoint.getURI());
-
-			Triple triple = triples.iterator().next();
-			Node sample = positionIsSubject ? triple.getSubject() : triple.getObject();
-
-			// Sanity check. If the index is out of date with the data, the sample may not satisfy
-			// the regular expressions for the subject/object URIs. (In which case downstream queries
-			// will return no results.) The simplest thing to do in that case is just to fail and take another 
-			// sample.
-			if(sample.isURI()) {
-				String endpointURI = endpoint.getURI();
-				String uri = sample.toString();
-
-				boolean matches = positionIsSubject ? registry.subjectMatchesRegEx(endpointURI, uri) : registry.objectMatchesRegEx(endpointURI, uri);
-				if(!matches) {
-					String pos = positionIsSubject ? "subject" : "object";
-					throw new NoSampleAvailableException("sample " + pos + " uri " + uri + 
-							" does not match the regular expression for " + endpointURI + " (from which it was sampled)");
-				}
-			}
-			return sample;
-		}
-
-		protected long getUpperSampleLimit(SPARQLEndpoint endpoint, String predicate, boolean positionIsSubject) throws SADIException, IOException
-		{
-			String filter = positionIsSubject ? "FILTER (!isBlank(?s))" : "FILTER (!isBlank(?o))";
-			String desc = positionIsSubject ? "subject URIs" : "object URIs/literals";
-			
-			String uri = endpoint.getURI();
-			ServiceStatus status = registry.getServiceStatus(uri);
-
-			if (status == ServiceStatus.DEAD)
-				throw new IllegalArgumentException("status of " + uri + " is DEAD");
-
-			log.trace("determining number of triples with " + desc + " in " + uri);
-
-			// check for a cached value first
-			UpperSampleLimitCache upperSampleLimitCache = positionIsSubject ? subjectSampleLimitCache : objectSampleLimitCache;
-			if(upperSampleLimitCache.contains(uri, predicate)) {
-				log.trace("using previously cached value for upper sample limit");
-				return upperSampleLimitCache.get(uri, predicate);
-			}
-			
-			if (status != ServiceStatus.SLOW) {
-				try {
-					String query = "SELECT COUNT(*) WHERE { ?s %u% ?o . " + filter + " }";
-					query = SPARQLStringUtils.strFromTemplate(query, predicate);
-					List<Map<String, String>> results = endpoint.selectQuery(query);
-
-					Map<String, String> firstRow = results.iterator().next();
-					String firstColumn = firstRow.keySet().iterator().next();
-					
-					long limit = Long.parseLong(firstRow.get(firstColumn));
-					upperSampleLimitCache.put(uri, predicate, limit);
-					return limit;
-				}
-				catch (IOException e) {
-					log.warn("failed to COUNT number of " + desc + " for " + predicate + " in " + uri + ", trying for a lower bound instead.");
-				}
-			}
-			String lowerBoundQuery = "SELECT * WHERE { ?s %u% ?o . " + filter + " }";
-			lowerBoundQuery = SPARQLStringUtils.strFromTemplate(lowerBoundQuery, predicate);
-			long limit = endpoint.getResultsCountLowerBound(lowerBoundQuery, 50000); 
-			upperSampleLimitCache.put(uri, predicate, limit);
-			return limit;
-		}
-		
-		protected static class UpperSampleLimitCache {
-			
-			protected Map<String,Long> cache = new HashMap<String,Long>();
-
-			public void put(String endpointURI, String predicate, long upperSampleLimit) {
-				cache.put(getKey(endpointURI, predicate), upperSampleLimit);
-			}
-			public Long get(String endpointURI, String predicate) {
-				return cache.get(getKey(endpointURI, predicate));
-			}
-			public boolean contains(String endpointURI, String predicate) {
-				return cache.containsKey(getKey(endpointURI, predicate));
-			}
-			protected String getKey(String endpointURI, String predicate) {
-				return endpointURI + ":" + predicate;
-			}
+			Node s = NodeCreateUtils.create("?s");
+			Node p = NodeCreateUtils.create(predicate);
+			Node o = NodeCreateUtils.create("?o");
+			return new Triple(s, p, o);
 		}
 	}
-	
+
+
 	@SuppressWarnings("unused")
 	private static class CommandLineOptions
 	{

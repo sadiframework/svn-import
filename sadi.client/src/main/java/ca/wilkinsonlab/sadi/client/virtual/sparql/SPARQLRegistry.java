@@ -7,6 +7,7 @@ import java.util.List;
 import com.hp.hpl.jena.graph.Triple;
 
 import ca.wilkinsonlab.sadi.client.Registry;
+import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 
 /**
  * A registry that holds SPARQL endpoints.
@@ -40,4 +41,6 @@ public interface SPARQLRegistry extends Registry
 	public long getNumTriplesLowerBound(String endpointURI) throws IOException;
 	public long getNumTriplesOrLowerBound(String endpointURI) throws IOException;
 
+	public void setServiceStatus(String endpointURI, ServiceStatus newStatus) throws IOException;
+	public boolean isWritable();
 }

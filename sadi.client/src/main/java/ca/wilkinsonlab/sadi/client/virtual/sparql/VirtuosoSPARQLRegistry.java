@@ -331,6 +331,27 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		}
 	}
 	
+	public void setServiceStatus(String serviceURI, ServiceStatus newStatus) throws IOException 
+	{
+		String deleteQuery = "DELETE FROM GRAPH %u% { %u% %u% ?status } FROM %u% WHERE { %u% %u% ?status }";
+		deleteQuery = SPARQLStringUtils.strFromTemplate(deleteQuery, 
+				getIndexGraphURI(), 
+				serviceURI, 
+				SPARQLRegistryOntology.ENDPOINT_STATUS,
+				getIndexGraphURI(),
+				serviceURI,
+				SPARQLRegistryOntology.ENDPOINT_STATUS);
+		updateQuery(deleteQuery);
+		
+		String insertQuery = "INSERT INTO GRAPH %u% { %u% %u% %s% }";
+		insertQuery = SPARQLStringUtils.strFromTemplate(insertQuery,
+				getIndexGraphURI(),
+				serviceURI,
+				SPARQLRegistryOntology.ENDPOINT_STATUS,
+				newStatus.toString());
+		updateQuery(insertQuery);
+	}
+	
 	public long getNumTriplesOrLowerBound(String endpointURI) throws IOException 
 	{
 		long numTriples = getNumTriples(endpointURI);

@@ -682,12 +682,17 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.NUM_TRIPLES), endpointIndex.createTypedLiteral(numTriplesLowerBound));
 	}
 	
+	
 	public void updateStatusOfAllEndpoints() throws IOException 
 	{
+		/* this operation needs to be fixed (due to a problem with the Virtuoso Jena adapter)
+		
 		Collection<SPARQLEndpoint> endpoints = getAllEndpoints();
 		for (SPARQLEndpoint endpoint : endpoints) {
 			updateEndpointStatus(endpoint);
 		}
+		*/
+		throw new UnsupportedOperationException();
 	}
 	
 	public void updateEndpointStatus(SPARQLEndpoint endpoint) {
@@ -910,9 +915,11 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 						ServiceStatus newStatus = ServiceStatus.valueOf(StringUtils.upperCase(statusArg[1]));
 						registry.setEndpointStatus(statusArg[0], newStatus);
 						break;
+					/* this operation needs to be fixed (due to a problem with the Virtuoso Jena adapter)
 					case UPDATE_STATUS_OF_ALL_ENDPOINTS:
 						registry.updateStatusOfAllEndpoints();
 						break;
+					*/
 					case CLEAR_REGISTRY:
 						registry.clearRegistry();
 						break;

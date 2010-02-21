@@ -142,6 +142,7 @@ public class BreadthFirstIteratorTest extends GraphIteratorTest {
 					}
 					return false;
 				}
+				public void visit(Integer node) {}
 			};
 		
 		// nodes in the test graph are labelled with Integers; we choose 0 as the starting node.
