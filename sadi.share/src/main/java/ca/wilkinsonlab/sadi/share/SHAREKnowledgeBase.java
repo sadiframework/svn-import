@@ -42,6 +42,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitorBase;
 import com.hp.hpl.jena.sparql.syntax.ElementWalker;
+import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 public class SHAREKnowledgeBase
@@ -571,7 +572,7 @@ public class SHAREKnowledgeBase
 		 * (even though the SADI spec explicitly disallows this), we have
 		 * to do it this way...
 		 */
-		if (inputClass == null) {
+		if (inputClass == null || inputClass.equals(OWL.Nothing)) {
 			filterByInputClassIndividually(subjects, service);
 			return;
 		}
