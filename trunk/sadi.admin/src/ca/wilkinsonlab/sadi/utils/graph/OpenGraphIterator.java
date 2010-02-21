@@ -36,6 +36,9 @@ public abstract class OpenGraphIterator<V> implements Iterator<V> {
 
 	protected void addVisitedNode(SearchNode<V> node) {
 		visitedNodes.add(node);
+		if(getNodeVistationConstraint() != null) {
+			getNodeVistationConstraint().visit(node.getNode());
+		}
 	}
 
 	protected boolean nodeIsVisitable(SearchNode<V> node) {
@@ -56,6 +59,11 @@ public abstract class OpenGraphIterator<V> implements Iterator<V> {
 
 	public static interface NodeVisitationConstraint<V> {
 		public abstract boolean isVisitable(V node);
+		public abstract void visit(V node);
 	}
 
+	public static abstract class NodeVisitationConstraintBase<V> implements NodeVisitationConstraint<V> {
+		public boolean isVisitable(V node) { return true; }
+		public void visit(V node) {}
+	}
 }

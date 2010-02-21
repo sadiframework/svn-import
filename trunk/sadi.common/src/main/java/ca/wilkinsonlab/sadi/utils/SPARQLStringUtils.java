@@ -17,6 +17,9 @@ import org.apache.log4j.Logger;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
+import com.hp.hpl.jena.sparql.syntax.TemplateGroup;
 
 /*********************************************************
  * Various routines for building SPARQL query strings
@@ -272,4 +275,28 @@ public class SPARQLStringUtils
 		
 		return tripleStr;
 	}
+
+	public static String getConstructQueryString(List<Triple> constructClause, List<Triple> whereClause) {
+		return getConstructQuery(constructClause, whereClause).serialize();
+	}
+
+	public static Query getConstructQuery(List<Triple> constructClause, List<Triple> whereClause) 
+	{
+		Query constructQuery = new Query();
+		constructQuery.setQueryConstructType();
+		
+		TemplateGroup constructTemplate = new TemplateGroup();
+		for(Triple triple : constructClause) { 
+			constructTemplate.addTriple(triple);
+		}
+		constructQuery.setConstructTemplate(constructTemplate);
+
+		ElementTriplesBlock queryPattern = new ElementTriplesBlock();
+		for(Triple triple : whereClause) {
+			queryPattern.addTriple(triple);
+		}
+		constructQuery.setQueryPattern(queryPattern);		
+
+		return constructQuery;
+	}	
 }

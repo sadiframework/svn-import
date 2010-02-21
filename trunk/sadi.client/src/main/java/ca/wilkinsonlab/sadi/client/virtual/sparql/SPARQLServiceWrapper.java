@@ -3,6 +3,7 @@ package ca.wilkinsonlab.sadi.client.virtual.sparql;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.log4j.Logger;
 
@@ -11,18 +12,16 @@ import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntClass;
-import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
-import com.hp.hpl.jena.sparql.syntax.TemplateGroup;
 import com.hp.hpl.jena.vocabulary.OWL;
 
 /**
@@ -188,7 +187,8 @@ public class SPARQLServiceWrapper implements Service
 	{
 		try {
 			Triple queryPattern = getTriplePatternRepresentingServiceInvocation(inputURIorLiteral);
-			return filterOutTriplesWithBlankNodes(getEndpoint().constructQuery(getConstructQuery(queryPattern)));
+			String query = SPARQLStringUtils.getConstructQueryString(Collections.singletonList(queryPattern), Collections.singletonList(queryPattern));
+			return filterOutTriplesWithBlankNodes(getEndpoint().constructQuery(query));
 		} catch (IOException e) {
 			throw new ServiceInvocationException(e.getMessage(),e);
 		}
@@ -198,7 +198,8 @@ public class SPARQLServiceWrapper implements Service
 	{
 		try {
 			Triple queryPattern = getTriplePatternRepresentingServiceInvocation(inputURIorLiteral, predicate);
-			return filterOutTriplesWithBlankNodes(getEndpoint().constructQuery(getConstructQuery(queryPattern)));
+			String query = SPARQLStringUtils.getConstructQueryString(Collections.singletonList(queryPattern), Collections.singletonList(queryPattern));
+			return filterOutTriplesWithBlankNodes(getEndpoint().constructQuery(query));
 		} catch (IOException e) {
 			throw new ServiceInvocationException(e.getMessage());
 		}
@@ -316,33 +317,13 @@ public class SPARQLServiceWrapper implements Service
 	protected String getConstructQuery(RDFNode inputURIorLiteral, String predicate) 
 	{
 		Triple triplePattern = getTriplePatternRepresentingServiceInvocation(inputURIorLiteral, predicate);
-		return getConstructQuery(triplePattern);
+		return SPARQLStringUtils.getConstructQueryString(Collections.singletonList(triplePattern), Collections.singletonList(triplePattern));
 	}
 	
 	protected String getConstructQuery(RDFNode inputURIorLiteral) 
 	{
 		Triple triplePattern = getTriplePatternRepresentingServiceInvocation(inputURIorLiteral);
-		return getConstructQuery(triplePattern);
-	}
-	
-	protected String getConstructQuery(Triple triplePattern) 
-	{
-		Query constructQuery = new Query();
-		constructQuery.setQueryConstructType();
-		
-		TemplateGroup constructTemplate = new TemplateGroup();
-		constructTemplate.addTriple(triplePattern);
-		constructQuery.setConstructTemplate(constructTemplate);
-
-		ElementTriplesBlock queryPattern = new ElementTriplesBlock();
-		queryPattern.addTriple(triplePattern);
-		constructQuery.setQueryPattern(queryPattern);		
-
-		if(getResultsLimit() != SPARQLEndpoint.NO_RESULTS_LIMIT) {
-			constructQuery.setLimit(getResultsLimit());
-		}
-		
-		return constructQuery.serialize();
+		return SPARQLStringUtils.getConstructQueryString(Collections.singletonList(triplePattern), Collections.singletonList(triplePattern));
 	}
 	
 	/**

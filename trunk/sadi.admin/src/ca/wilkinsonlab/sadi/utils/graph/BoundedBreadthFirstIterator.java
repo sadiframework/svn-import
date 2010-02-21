@@ -14,7 +14,7 @@ public class BoundedBreadthFirstIterator<V> extends BreadthFirstIterator<V> {
 		this(Collections.singleton(startNode), null, maxDepth);
 	}
 	
-	public BoundedBreadthFirstIterator(Collection<SearchNode<V>> startNodes, int maxDepth) {
+	public BoundedBreadthFirstIterator(Collection<? extends SearchNode<V>> startNodes, int maxDepth) {
 		this(startNodes, null, maxDepth);
 	}
 	
@@ -22,7 +22,7 @@ public class BoundedBreadthFirstIterator<V> extends BreadthFirstIterator<V> {
 		this(Collections.singleton(startNode), nodeVistationConstraint, maxDepth);
 	}
 	
-	public BoundedBreadthFirstIterator(Collection<SearchNode<V>> startNodes, NodeVisitationConstraint<V> nodeVistationConstraint, int maxDepth) 
+	public BoundedBreadthFirstIterator(Collection<? extends SearchNode<V>> startNodes, NodeVisitationConstraint<V> nodeVistationConstraint, int maxDepth) 
 	{
 		super(startNodes, nodeVistationConstraint);
 

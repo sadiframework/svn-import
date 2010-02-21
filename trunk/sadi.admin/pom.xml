@@ -75,11 +75,6 @@
 		<version>5.0.11.3039</version>
 	</dependency>
   	<dependency>
-  		<groupId>com.hp.hpl.jena</groupId>
-  		<artifactId>jena</artifactId>
-  		<version>2.5.5</version>
-  	</dependency>
-  	<dependency>
   		<groupId>ca.wilkinsonlab.sadi</groupId>
   		<artifactId>sadi-common</artifactId>
   		<version>0.0.4-SNAPSHOT</version>

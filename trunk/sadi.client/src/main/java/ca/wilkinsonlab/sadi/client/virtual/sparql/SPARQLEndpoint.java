@@ -21,10 +21,10 @@ import ca.wilkinsonlab.sadi.utils.JsonUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLResultsXMLUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.http.GetRequest;
 import ca.wilkinsonlab.sadi.utils.http.HttpRequest;
 import ca.wilkinsonlab.sadi.utils.http.HttpResponse;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
+import ca.wilkinsonlab.sadi.utils.http.PostRequest;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 import com.hp.hpl.jena.graph.Node;
@@ -58,6 +58,7 @@ public class SPARQLEndpoint
 	protected final static String RESULTS_LIMIT_KEY = "sadi.sparqlResultsLimit";
 	public final static long NO_RESULTS_LIMIT = -1;
 	
+	protected boolean writable;
 
 	public SPARQLEndpoint(String uri) 
 	{
@@ -74,7 +75,18 @@ public class SPARQLEndpoint
 		setEndpointType(type);
 		setSelectResultsFormat(selectFormat);
 		setConstructResultsFormat(constructFormat);
-		
+		setWritable(false);
+	}
+	
+	public int hashCode() {
+		return getURI().hashCode();
+	}
+	
+	public boolean equals(Object o) {
+		if(o instanceof SPARQLEndpoint) {
+			return getURI().equals(((SPARQLEndpoint) o).getURI());
+		}
+		return false;
 	}
 
 	protected SelectQueryResultsFormat getSelectResultsFormat()	{ 
@@ -105,6 +117,14 @@ public class SPARQLEndpoint
 
 	public void setEndpointType(EndpointType type) {
 		this.endpointType = type;
+	}
+
+	public boolean isWritable() {
+		return writable;
+	}
+
+	protected void setWritable(boolean writable) {
+		this.writable = writable;
 	}
 
 	public boolean ping() 
@@ -149,7 +169,7 @@ public class SPARQLEndpoint
 	
 	public List<Map<String,String>> selectQuery(String query) throws IOException 
 	{
-		InputStream is = HttpUtils.GET(new URL(getURI()), getParamsForSelectQuery(query));
+		InputStream is = HttpUtils.POST(new URL(getURI()), getParamsForSelectQuery(query));
 		
 		try {
 			return convertSelectResponseToBindings(is);
@@ -159,9 +179,24 @@ public class SPARQLEndpoint
 		}
 	}
 
+	public List<Map<String,String>> selectQueryBestEffort(String query) throws IOException 
+	{
+		try {
+			return selectQuery(query);
+			
+		} catch(HttpStatusException e) {
+			if(e.getStatusCode() != HttpResponse.HTTP_STATUS_GATEWAY_TIMEOUT) {
+				throw e;
+			}
+			return getPartialQueryResults(query);
+		} catch(IOException e) {
+			return getPartialQueryResults(query);
+		}
+	}
+	
 	public Collection<Triple> constructQuery(String query) throws IOException
 	{
-		InputStream is = HttpUtils.GET(new URL(getURI()), getParamsForConstructQuery(query));
+		InputStream is = HttpUtils.POST(new URL(getURI()), getParamsForConstructQuery(query));
 
 		try {
 			return convertConstructResponseToTriples(is);
@@ -178,7 +213,7 @@ public class SPARQLEndpoint
 		
 		for(String query : constructQueries) {
 			try {
-				requests.add(new GetRequest(new URL(getURI()), getParamsForConstructQuery(query)));
+				requests.add(new PostRequest(new URL(getURI()), getParamsForConstructQuery(query)));
 			} catch(MalformedURLException e) {
 				results.add(new ConstructQueryResult(query, e));
 			}
@@ -228,6 +263,10 @@ public class SPARQLEndpoint
 	 */
 	public void updateQuery(String query) throws IOException
 	{
+		if(!isWritable()) {
+			throw new IOException(String.format("unable to perform update query on %s, endpoint is not writable (check username/password)", getURI()));
+		}
+		
 		InputStream is = HttpUtils.POST(new URL(getURI()), getParamsForUpdateQuery(query));
 		is.close();
 	}
