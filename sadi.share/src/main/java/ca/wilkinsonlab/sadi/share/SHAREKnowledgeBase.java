@@ -185,10 +185,6 @@ public class SHAREKnowledgeBase
 			return;
 		}
 		
-		if (pattern.getPredicate().getURI().equals(RDF.type.getURI())) {
-			processTypePattern(pattern);
-			return;
-		}
 		OntProperty p = getOntProperty(pattern.getPredicate().getURI());
 
 		PotentialValues subjects = expandQueryNode(pattern.getSubject());
@@ -214,6 +210,13 @@ public class SHAREKnowledgeBase
 		}
 		
 		populateVariableBinding(subjects, p, objects);
+		
+		/* note: this must come after normal processing of the triple pattern,
+		 * so that rdf:type patterns are also resolved against SPARQL endpoints. --BV */
+		if (pattern.getPredicate().getURI().equals(RDF.type.getURI())) {
+			processTypePattern(pattern);
+		}
+
 	}
 	
 	/* this now expands a class definition into the triple patterns
