@@ -206,7 +206,7 @@ public class SHAREKnowledgeBase
 		} else if (!objects.isEmpty()) { // unbound subject, bound object...
 			OntProperty inverse = getInverseProperty(p);
 			gatherTriplesByPredicate(objects, inverse, subjects);
-		} else { // unbound subject, unbound object...
+		} else { // unbound subject, unbound object...mygrid.org.uk/ontology#bioi
 			/* TODO try to find subjects by looking for instances of input
 			 * classes for services that generate the required property...
 			 */
@@ -419,13 +419,21 @@ public class SHAREKnowledgeBase
 	
 	private void populateVariableBinding(PotentialValues subjects, OntProperty predicate, PotentialValues objects)
 	{
-		log.trace(String.format("populating variable %s", objects.variable));
-		
 		if (subjects.isEmpty()) {
-			for (Iterator<Statement> i = reasoningModel.listStatements((Resource)null, predicate, (RDFNode)null); i.hasNext(); ) {
-				Statement statement = i.next();
-				subjects.add(statement.getSubject());
-				objects.add(statement.getObject());
+			log.trace(String.format("populating variable %s", subjects.variable));
+			if(objects.isEmpty()) {
+				log.trace(String.format("populating variable %s", objects.variable));
+				for (Iterator<Statement> i = reasoningModel.listStatements((Resource)null, predicate, (RDFNode)null); i.hasNext(); ) {
+					Statement statement = i.next();
+					subjects.add(statement.getSubject());
+					objects.add(statement.getObject());
+				}
+			} else {
+				for (RDFNode node: objects.values) {
+					for(Iterator<Resource> i = reasoningModel.listResourcesWithProperty(predicate, node); i.hasNext(); ) {
+						subjects.add(i.next());
+					}
+				}
 			}
 		} else {
 			for (RDFNode node: subjects.values) {
