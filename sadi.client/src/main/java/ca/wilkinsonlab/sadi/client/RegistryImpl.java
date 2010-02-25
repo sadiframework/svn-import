@@ -42,7 +42,7 @@ public class RegistryImpl extends RegistryBase
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.RegistryBase#(ca.wilkinsonlab.sadi.utils.QueryExecutor)
 	 */
-	RegistryImpl(QueryExecutor backend)
+	public RegistryImpl(QueryExecutor backend)
 	{
 		super(backend);
 	}
