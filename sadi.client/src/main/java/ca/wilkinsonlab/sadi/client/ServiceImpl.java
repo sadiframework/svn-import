@@ -14,7 +14,6 @@ import java.util.Set;
 import org.apache.commons.httpclient.HeaderElement;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -395,7 +394,7 @@ public class ServiceImpl extends ServiceBase
 				} catch (InterruptedException e) {
 					log.warn(e);
 				}
-			} else if (statusCode == HttpStatus.SC_OK) {
+			} else if (statusCode >= 200 && statusCode < 300) {
 				return method.getResponseBodyAsStream();
 			} else {
 				throw new HttpStatusException(statusCode);
