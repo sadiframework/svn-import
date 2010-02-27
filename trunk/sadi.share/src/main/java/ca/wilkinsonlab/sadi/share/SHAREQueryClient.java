@@ -12,18 +12,22 @@ import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 
 public class SHAREQueryClient extends QueryClient
 {
-	private static final Logger log = Logger.getLogger(SHAREQueryClient.class)
-	;
+	private static final Logger log = Logger.getLogger(SHAREQueryClient.class);
+		
+	/** allow/disallow use of ARQ extensions to the SPARQL query language (e.g. GROUP BY, HAVING, arithmetic expressions) */
+	protected final static String ALLOW_ARQ_SYNTAX_CONFIG_KEY = "share.sparql.allowARQSyntax";
+	protected Syntax querySyntax;
 	protected SHAREKnowledgeBase kb;
 	
 	public SHAREQueryClient()
 	{
-		this(new SHAREKnowledgeBase());
+		this(new SHAREKnowledgeBase(Config.getConfiguration().getBoolean(ALLOW_ARQ_SYNTAX_CONFIG_KEY, true)));
 	}
 	
 	public SHAREQueryClient(SHAREKnowledgeBase kb)
@@ -56,7 +60,7 @@ public class SHAREQueryClient extends QueryClient
 		
 		protected QueryExecution getQueryExecution(String query, Model model)
 		{
-			return QueryExecutionFactory.create(query, model);
+			return QueryExecutionFactory.create(query, kb.getQuerySyntax(), model);
 		}
 		
 		public void run()

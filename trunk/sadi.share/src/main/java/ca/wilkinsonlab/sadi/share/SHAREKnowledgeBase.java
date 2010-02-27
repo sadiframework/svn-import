@@ -34,11 +34,14 @@ import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.sparql.core.TriplePath;
+import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitorBase;
 import com.hp.hpl.jena.sparql.syntax.ElementWalker;
@@ -58,23 +61,36 @@ public class SHAREKnowledgeBase
 	
 	private Tracker tracker;
 	private Set<String> deadServices;
+	/** allow ARQ-specific extensions to SPARQL query syntax (e.g. GROUP BY, HAVING, arithmetic expressions) */ 
+	protected boolean allowARQSyntax;
 
 	// TODO rename to something less unwieldy?
 	private boolean dynamicInputInstanceClassification;
 	
+	
 	public SHAREKnowledgeBase()
 	{
-		this(ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF));
+		this(ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF), false);
+	}
+
+	public SHAREKnowledgeBase(boolean allowARQSyntax) {
+		this(ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF), allowARQSyntax);
 	}
 	
-	public SHAREKnowledgeBase(OntModel reasoningModel)
+	public SHAREKnowledgeBase(OntModel reasoningModel) {
+		this(reasoningModel, false);
+	}
+	
+	public SHAREKnowledgeBase(OntModel reasoningModel, boolean allowARQSyntax)
 	{
-		this(reasoningModel, ModelFactory.createDefaultModel());
+		this(reasoningModel, ModelFactory.createDefaultModel(), allowARQSyntax);
 	}
 	
-	public SHAREKnowledgeBase(OntModel reasoningModel, Model dataModel)
+	public SHAREKnowledgeBase(OntModel reasoningModel, Model dataModel, boolean allowARQSyntax)
 	{
 		log.debug("new ca.wilkinsonlab.sadi.share.DynamicKnowledgeBase instantiated");
+
+		setAllowARQSyntax(allowARQSyntax);
 		
 		this.registry = Config.getConfiguration().getMasterRegistry();
 		
@@ -96,8 +112,21 @@ public class SHAREKnowledgeBase
 		
 		dynamicInputInstanceClassification = config.getBoolean("share.dynamicInputInstanceClassification", false);
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
+		
 	}
 	
+	protected void setAllowARQSyntax(boolean allowARQSyntax) {
+		this.allowARQSyntax = allowARQSyntax;
+	}
+	
+	public boolean allowARQSyntax() {
+		return this.allowARQSyntax;
+	}
+	
+	public Syntax getQuerySyntax() {
+		return (allowARQSyntax() ? Syntax.syntaxARQ : Syntax.syntaxSPARQL);
+	}
+
 	public void dispose()
 	{
 		/* this is not working because (unbelievably) it closes the root OWL ontology model...
@@ -136,12 +165,12 @@ public class SHAREKnowledgeBase
 	
 	public void executeQuery(String query)
 	{
-		executeQuery(QueryFactory.create(query));
+		executeQuery(QueryFactory.create(query, getQuerySyntax()));
 	}
 	
 	public void executeQuery(String query, QueryPatternOrderingStrategy strategy)
 	{
-		executeQuery(QueryFactory.create(query), strategy);
+		executeQuery(QueryFactory.create(query, getQuerySyntax()), strategy);
 	}
 	
 	public void executeQuery(Query query)
@@ -422,6 +451,9 @@ public class SHAREKnowledgeBase
 	
 	private void populateVariableBinding(PotentialValues subjects, OntProperty predicate, PotentialValues objects)
 	{
+		boolean subjectIsUnboundVar = subjects.isEmpty();
+		boolean objectIsUnboundVar = objects.isEmpty();
+		
 		if (subjects.isEmpty()) {
 			log.trace(String.format("populating variable %s", subjects.variable));
 			if(objects.isEmpty()) {
@@ -451,6 +483,13 @@ public class SHAREKnowledgeBase
 					}
 				}
 			}
+		}
+		
+		if(subjectIsUnboundVar) {
+			log.trace(String.format("assigned %d bindings to variable %s", subjects.values.size(), subjects.variable));
+		}
+		if(objectIsUnboundVar) {
+			log.trace(String.format("assigned %d bindings to variable %s", objects.values.size(), objects.variable));
 		}
 	}
 
@@ -728,6 +767,23 @@ public class SHAREKnowledgeBase
 		{
 			for (Iterator<Triple> i = el.patternElts(); i.hasNext(); ) {
 				queryPatterns.add((Triple)i.next());
+			}
+		}
+		
+		/* 
+		 * If the ARQ extensions to SPARQL are turned on (i.e. if the variable "share.sparql.useARQSyntax" 
+		 * not set to false in the share.properties file), then a basic triple pattern consists of list of
+		 * "TriplePaths" rather than Triples.  TriplePaths are like Triples, but they allow XPath-like 
+		 * expressions in the predicate position, as described at http://jena.sourceforge.net/ARQ/property_paths.html.
+		 * -- BV
+		 */
+		public void visit(ElementPathBlock el) {
+			for (TriplePath triplePath : el.getPattern()) {
+				if(triplePath.asTriple() == null) {
+					log.error(String.format("this version of SHARE does not support ARQ TriplePaths, ignoring TriplePath: %s", triplePath));
+					continue;
+				} 
+				queryPatterns.add(triplePath.asTriple());
 			}
 		}
 	}
