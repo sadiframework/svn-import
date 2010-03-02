@@ -255,18 +255,13 @@ public class SPARQLServiceWrapper implements Service
 	{
 		Collection<ConstructQueryResult> results = getEndpoint().constructQueryBatch(queries);
 		
-		// if something goes awry during a batch of queries, the best recovery strategy is to 
-		// re-run the whole batch (if recovery is possible/appropriate for the given exception) -- BV
-		
-		for(ConstructQueryResult result : results) {
-			if(result.exceptionOccurred()) {
-				throw new ServiceInvocationException("exception occurred executing query: " +  result.getOriginalQuery(), result.getException());
-			}			
-		}
-		
 		Model mergedModel = ModelFactory.createDefaultModel();
 		for(ConstructQueryResult result : results) {
-			mergedModel.add(result.getResultModel());
+			if(result.exceptionOccurred()) {
+				log.error("exception occurred executing query: " + result.getOriginalQuery(), result.getException());
+			} else {			
+				mergedModel.add(result.getResultModel());
+			}
 		}
 
 		return filterOutTriplesWithBlankNodes(RdfUtils.modelToTriples(mergedModel));
