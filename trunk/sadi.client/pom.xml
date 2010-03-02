@@ -79,7 +79,7 @@
           <artifactId>stax-ex</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>java.xml</groupId>
+          <groupId>javax.xml</groupId>
           <artifactId>jsr173</artifactId>	
         </exclusion>
       </exclusions>
