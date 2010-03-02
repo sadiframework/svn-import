@@ -31,6 +31,7 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.shared.JenaException;
 
 /**
  * <p>Encapsulates access to a SPARQL endpoint (via HTTP).</p>
@@ -226,14 +227,22 @@ public class SPARQLEndpoint
 			if(response.exceptionOccurred()) {
 				results.add(new ConstructQueryResult(originalQuery, response.getException()));
 			} else {
-				String lang = getJenaRDFLangString(getConstructResultsFormat());
-				Model resultTriples = ModelFactory.createDefaultModel();
-				resultTriples.read(response.getInputStream(), "", lang);
-				results.add(new ConstructQueryResult(originalQuery, resultTriples));
 				try {
-					response.getInputStream().close();
-				} catch(IOException e) {
-					log.warn("failed to close InputStream for response to query: " + originalQuery, e);
+					String lang = getJenaRDFLangString(getConstructResultsFormat());
+					Model resultTriples = ModelFactory.createDefaultModel();
+					resultTriples.read(response.getInputStream(), "", lang);
+					results.add(new ConstructQueryResult(originalQuery, resultTriples));
+				}  
+				catch(JenaException e) {
+					log.error("failed to load service output into Jena model", e);
+				} 
+				finally {
+					try {
+						response.getInputStream().close();
+					}
+					catch(IOException e) {
+						log.warn("failed to close InputStream for response to query: " + originalQuery, e);
+					}
 				}
 			}
 		}
