@@ -1,8 +1,11 @@
 package ca.wilkinsonlab.sadi.commandline;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.share.SHAREQueryClient;
@@ -15,22 +18,19 @@ public class CommandLineClient
 	
 	public final static Logger log = Logger.getLogger(CommandLineClient.class);
 
-	private static final String USAGE = "java -jar SHARE.jar \"<SPARQL query>\"";
+	private static final String USAGE = "java -jar share.jar < sparql.query.txt";
 	
 	public static void main(String[] args) 
 	{
 		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+			String query = IOUtils.toString(in);
 			
-			if(args.length < 0 || args.length > 1) 
-				throw new Exception("incorrect number of arguments");
-
-			String query = args[0];
 			List<Map<String, String>> results = new SHAREQueryClient().synchronousQuery(query);
 			for (Map<String, String> binding : results)
 				System.out.println(binding);	
 			
-			System.exit((results.size() > 0) ? EXIT_CODE_SUCCESS : EXIT_CODE_NO_RESULTS); 
-			
+			System.exit((results.size() > 0) ? EXIT_CODE_SUCCESS : EXIT_CODE_NO_RESULTS);
 		}
 		catch(Exception e) {
 			System.err.println(e.getMessage());
