@@ -104,14 +104,8 @@ public class OwlUtils
 	 */
 	public static OntClass getUsefulRange(OntProperty p)
 	{
-		if (p.getRange() == null) {
-			if (p.isDatatypeProperty())
-				return p.getOntModel().getOntClass(RDFS.Literal.getURI());
-			else if (p.isObjectProperty())
-				return p.getOntModel().getOntClass(OWL.Thing.getURI());
-			else
-				return p.getOntModel().getOntClass(RDFS.Resource.getURI());
-		}
+		if (p.getRange() == null)
+			return getDefaultRange(p);
 		
 		Set<OntClass> ancestors = new HashSet<OntClass>();
 		List<OntClass> range = new ArrayList<OntClass>();
@@ -148,10 +142,22 @@ public class OwlUtils
 				unionList = unionList.with(c);
 			}
 			return model.createUnionClass(unionUri, unionList);
-		} else {
+		} else if (range.size() == 1) {
 			log.debug("pruned range to single class " + range);
 			return range.get(0);
+		} else {
+			return getDefaultRange(p);
 		}
+	}
+
+	private static OntClass getDefaultRange(OntProperty p)
+	{
+		if (p.isDatatypeProperty())
+			return p.getOntModel().getOntClass(RDFS.Literal.getURI());
+		else if (p.isObjectProperty())
+			return p.getOntModel().getOntClass(OWL.Thing.getURI());
+		else
+			return p.getOntModel().getOntClass(RDFS.Resource.getURI());
 	}
 	
 	/**
