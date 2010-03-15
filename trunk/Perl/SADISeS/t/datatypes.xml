@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xml:base="http://sadiframework.org/examples/example.owl#">
+  <owl:Ontology rdf:about=""/>
+  
+  <!-- in lieu of importing the whole ontology... -->
+  <owl:DatatypeProperty rdf:about="http://ontology.dumontierlab.com/hasSymbol"/>
+  <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#hasDescription"/>
+  <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#hasProteinName"/>
+  <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#hasName"/>
+  
+  <!-- in lieu of importing the whole ontology -->
+  <owl:Class rdf:about="http://purl.oclc.org/SADI/LSRN/GeneID_Record"/>
+  
+  <owl:Class rdf:ID="AnnotatedGeneID_Record">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/GeneID_Record"/>
+    <rdfs:subClassOf>
+      <owl:Class>
+        <owl:intersectionOf rdf:parseType="Collection">
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="http://ontology.dumontierlab.com/hasSymbol"/>
+            <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</owl:minCardinality>
+          </owl:Restriction>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/predicates.owl#hasDescription"/>
+            <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</owl:minCardinality>
+          </owl:Restriction>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/predicates.owl#hasProteinName"/>
+            <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</owl:minCardinality>
+          </owl:Restriction>
+          <owl:Restriction>
+            <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/predicates.owl#hasName"/>
+            <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">0</owl:minCardinality>
+          </owl:Restriction>
+        </owl:intersectionOf>
+      </owl:Class>
+    </rdfs:subClassOf>
+  </owl:Class>
+</rdf:RDF>

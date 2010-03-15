@@ -1,0 +1,22 @@
+[%# A template for a sadi service error
+    ===========================
+
+    Expected/recognized parameters:
+      message - the exception message
+      comment - a comment on the exception
+      stack   - the stack trace
+-%]
+<rdf:RDF
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:sadi="http://sadiframework.org/ontologies/sadi.owl#">
+  <sadi:Exception>
+    <rdfs:label>[% message %]</rdfs:label>
+    <rdfs:comment>[% comment %]</rdfs:comment>
+    <sadi:hasStackTrace rdf:parseType="Collection">
+      <sadi:StackTraceElement>
+        <rdfs:label>[% stack %]</rdfs:label>
+      </sadi:StackTraceElement>
+    </sadi:hasStackTrace>
+  </sadi:Exception>
+</rdf:RDF>

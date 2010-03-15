@@ -1,0 +1,72 @@
+#!/usr/bin/perl -w
+# This is a CGI-BIN script, invoked by a web server when an HTTP
+# POST comes in, dispatching requests to the appropriate module
+# (SADI web service).
+#
+# It includes some hard-coded paths - they were added during the
+# generate service call.
+#
+# $Id: service-cgi.tt,v 1.12 2010-01-21 15:56:36 ubuntu Exp $
+# Contact: Edward Kawas <edward.kawas@gmail.com>
+# ---------------------------------------------------------------
+[%# A template for a sadi service.
+    ===================================
+
+    Expected/recognized parameters:
+      obj            ... a service definition, type SADI::Service::Instance
+      services_dir   ... the directory to the impl files
+      home_dir       ... the SADI-Perl user home directory
+      definition_dir ... the definitions directory
+-%]
+
+#-----------------------------------------------------------------
+# Authority:    [% obj.Authority %]
+# Service name: [% obj.ServiceName %]
+# Generated:    [% USE Date (format = '%d-%b-%Y %H:%M:%S %Z') %][% Date.format %]
+# Contact: Edward Kawas <edward.kawas@gmail.com>
+#-----------------------------------------------------------------
+
+use strict;
+
+
+# --- during service generation --- 
+# leave at the top!
+use lib '[% generated_dir %]';
+use lib '[% services_dir %]';
+use lib '[% home_dir %]';
+
+use CGI;
+use CGI::Carp qw(fatalsToBrowser);
+
+use SADI::Service::Instance;
+use SADI::RDF::Core;
+use SADI::Generators::GenServices;
+
+# here we require the service module and add it to ISA hierarchy
+use base 'Service::[% obj.ServiceName %]';
+
+# if this is a GET, send the service interface
+if ($ENV{REQUEST_METHOD} eq 'GET') {
+    # send the signature for this service
+	# instantiate a new SADI::RDF::Core object
+ 	my $core = SADI::RDF::Core->new;
+ 	# set the Instance for $core
+ 	$core->Signature(__PACKAGE__->get_service_signature('[% obj.ServiceName %]'));
+ 	my $q = new CGI;
+	print $q->header(-type=>'application/rdf+xml');
+    print $core->getServiceInterface();
+} else {
+    # call the service
+
+    # get the posted data
+    my $data = join "",<STDIN>;
+    # call the service
+    my $x =  __PACKAGE__->[% obj.ServiceName %]($data);
+    # print the results
+    my $q = new CGI;
+    print $q->header(-type=>'application/rdf+xml');
+    print $x;
+}
+
+__END__
+

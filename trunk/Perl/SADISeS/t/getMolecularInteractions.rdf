@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <rdf:RDF
+     xmlns="http://www.w3.org/2002/07/owl#"
+     xmlns:a="http://www.mygrid.org.uk/mygrid-moby-service#"
+     xmlns:b="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#" 
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">    
+<rdf:Description rdf:about="http://sadiframework.org/services/getMolecularInteractions">
+    <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#serviceDescription"/>
+    <b:format>sadi</b:format>
+    <b:identifier>urn:lsid:sadiframework.org:serviceinstances:sadiframework.net,getMolecularInteractions</b:identifier>
+    <a:locationURI>http://sadiframework.org/services/getMolecularInteractions</a:locationURI>
+    <a:hasServiceDescriptionText>gets the BIND interaction ids for a given UniProt protein</a:hasServiceDescriptionText>
+    <a:hasServiceDescriptionLocation>http://foo.bar/myServiceDescription/location.rdf</a:hasServiceDescriptionLocation>
+    <a:hasServiceNameText>getMolecularInteractions</a:hasServiceNameText>
+    <a:providedBy>
+        <rdf:Description rdf:about="illuminae.comgetMolecularInteractionsaaa">
+            <a:authoritative>0</a:authoritative>
+            <b:creator>anonymous@sadiframework.org</b:creator>
+            <b:publisher>illuminae.com</b:publisher>
+            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#organisation"/>
+        </rdf:Description>
+    </a:providedBy>
+    <a:hasOperation>
+        <rdf:Description rdf:about="illuminae.comgetMolecularInteractionsbbb">
+            <a:hasOperationNameText>getMolecularInteractions</a:hasOperationNameText>
+            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#operation"/>
+            <a:performsTask>
+                <rdf:Description rdf:about="illuminae.comgetMolecularInteractionsccc">
+                    <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#operationTask"/>
+                    <rdf:type rdf:resource="http://sadiframework.org/RESOURCES/_______whattoputhere______"/>
+                </rdf:Description>
+            </a:performsTask>
+             <a:inputParameter>
+                <a:parameter rdf:about="illuminae.comgetMolecularInteractionsddd">
+                    <a:hasParameterNameText>input</a:hasParameterNameText>
+                    <a:objectType rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+                </a:parameter>
+            </a:inputParameter>
+            <a:outputParameter>
+                <a:parameter rdf:about="illuminae.comgetMolecularInteractionseee">
+                    <a:hasParameterNameText>output</a:hasParameterNameText>
+                    <a:objectType rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#getMolecularInteractions_Output"/>
+                </a:parameter>
+            </a:outputParameter>
+        </rdf:Description>
+    </a:hasOperation>
+</rdf:Description>
+</rdf:RDF>
