@@ -2,9 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-webapp</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>SADI webapp parent POM</name>
-  <version>0.0.1-SNAPSHOT</version>
   <build>
     <plugins>
       <plugin>
@@ -35,7 +35,6 @@
       <id>dev-snapshot-repository</id>
       <name>dev.biordf.net Snapshot Repository</name>
       <url>scpexe://dev.biordf.net/var/www/maven/</url>
-      <uniqueVersion>false</uniqueVersion>
     </snapshotRepository>
   </distributionManagement>
 </project>
