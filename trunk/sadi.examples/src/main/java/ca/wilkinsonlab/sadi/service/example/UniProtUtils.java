@@ -100,10 +100,10 @@ public class UniProtUtils
 		}
 		
 		if (!uncachedIds.isEmpty()) {
-			log.debug("calling UniProt query service");
+			log.debug(String.format("calling UniProt query service on %d uncached UniProt records", uncachedIds.size()));
 			UniProtQueryService uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
-			log.trace("building UniProt query");
 			for (Collection<String> batch: BatchIterator.batches(uncachedIds, MAX_IDS_PER_REQUEST)) {
+				log.trace("building UniProt query");
 				Query query = UniProtQueryBuilder.buildIDListQuery((List<String>)batch);
 				log.trace("executing UniProt query");
 				for (UniProtEntry entry: uniProtQueryService.getEntryIterator(query)) {
@@ -118,6 +118,7 @@ public class UniProtUtils
 						}
 					}
 				}
+				log.trace("finished executing UniProt query");
 			}
 		}
 		
