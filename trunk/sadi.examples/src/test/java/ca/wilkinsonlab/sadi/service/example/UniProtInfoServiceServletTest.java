@@ -1,7 +1,11 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import java.util.Collection;
+
 import ca.wilkinsonlab.sadi.service.ServiceServlet;
 import ca.wilkinsonlab.sadi.service.ServiceServletTestBase;
+
+import com.hp.hpl.jena.rdf.model.Resource;
 
 public class UniProtInfoServiceServletTest extends ServiceServletTestBase
 {
@@ -20,7 +24,13 @@ public class UniProtInfoServiceServletTest extends ServiceServletTestBase
 	@Override
 	protected String getInputURI()
 	{
-		return "http://purl.uniprot.org/uniprot/P12345";
+		return null;
+	}
+
+	@Override
+	protected Collection<Resource> getInputNodes()
+	{
+		return getInputModel().listSubjects().toList();
 	}
 
 	@Override
