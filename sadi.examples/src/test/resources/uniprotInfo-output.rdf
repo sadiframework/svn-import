@@ -11,4 +11,9 @@
     <j.0:hasName>Transaminase A</j.0:hasName>
     <j.0:hasName>Aspartate aminotransferase, mitochondrial (mAspAT)</j.0:hasName>
   </rdf:Description>
+  <rdf:Description rdf:about="http://purl.uniprot.org/uniprot/Q7Z591">
+    <j.0:hasName>AT-hook-containing transcription factor</j.0:hasName>
+    <rdf:type rdf:resource="http://sadiframework.org/examples/uniprotInfo.owl#AnnotatedUniProtRecord"/>
+    <j.0:belongsToOrganism>Homo sapiens</j.0:belongsToOrganism>
+  </rdf:Description>
 </rdf:RDF>
