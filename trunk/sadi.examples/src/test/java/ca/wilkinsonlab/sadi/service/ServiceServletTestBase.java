@@ -13,8 +13,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ca.wilkinsonlab.sadi.client.ServiceImpl;
 import ca.wilkinsonlab.sadi.common.SADIException;
-import ca.wilkinsonlab.sadi.rdf.RdfService;
 import ca.wilkinsonlab.sadi.utils.ModelDiff;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
@@ -58,9 +58,9 @@ public abstract class ServiceServletTestBase extends TestCase
 		return model;
 	}
 	
-	protected RdfService getLocalServiceInstance() throws SADIException
+	protected ServiceImpl getLocalServiceInstance() throws SADIException
 	{
-		return new RdfService(getLocalServiceURL());
+		return new ServiceImpl(getLocalServiceURL());
 	}
 	
 	protected Collection<Resource> getInputNodes()
@@ -129,15 +129,9 @@ public abstract class ServiceServletTestBase extends TestCase
 	@Test
 	public void testServiceInvocation() throws Exception
 	{
-		RdfService regressionService = getLocalServiceInstance();
+		ServiceImpl regressionService = getLocalServiceInstance();
 		Model expectedOutputModel = getExpectedOutputModel();
 		Model actualOutputModel = RdfUtils.triplesToModel( regressionService.invokeService(getInputNodes()) );
-		String outputPath = String.format("/tmp/%s.output.rdf", getClass().getSimpleName());
-		try {
-			actualOutputModel.write( new FileOutputStream(outputPath) );
-		} catch (Exception e) {
-			log.error( String.format("error writing output model to %s", outputPath), e);
-		}
 		
 		if (log.isTraceEnabled()) {
 			Model inputModel = ModelFactory.createDefaultModel();
