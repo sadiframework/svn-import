@@ -1,0 +1,25 @@
+NOTES
+
+***** COMPILE SADI PLUGIN AND RUN PROTEGE *****
+The steps (and items) needed to compile the SADI plugin for protege 4.1+.
+
+1. Download the protege source plugins [1]
+
+2. Follow the guide 'Setup and run the Protege 4 OWL editor from Eclipse'[2]
+   Once you can run protege from eclipse, proceed to the next step.
+
+3. Checkout the SADI plugin from the google code SVN. 
+
+4. Run protege from within eclipse to play around with the SADI plugin.
+   NOTE: the ant build file will automatically copy over the SADI plugin
+         archive file to ${PROTEGE_HOME}/plugins, so make sure to specify
+         PROTEGE_HOME in your environment.
+
+[1] http://smi-protege.stanford.edu/protege4/Protege41SourcePlugins.zip 
+[2] http://protegewiki.stanford.edu/index.php/CompileProtege4InEclipse
+
+
+***** What are the x.launch files? *****
+
+We have included some launch configurations to help you use the plugin while
+developing it. They can be found in the home directory of the plugin source code.

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+
+<plugin>
+    <extension id="SADIEditorView"
+     point="org.protege.editor.core.application.ViewComponent">
+        <label value="SADI Editor"/>
+        <class value="org.sadiframework.editor.views.SadiEditorView"/>
+        <headerColor value="@org.protege.classcolor"/>
+    </extension>
+	<extension id="SADIDefinitionView"
+     point="org.protege.editor.core.application.ViewComponent">
+        <label value="SADI Definition Editor"/>
+        <class value="org.sadiframework.editor.views.SadiDefinitionEditorView"/>
+        <headerColor value="@org.protege.classcolor"/>
+    </extension>
+	
+	<extension id="SadiSimpleClientView"
+     point="org.protege.editor.core.application.ViewComponent">
+        <label value="SADI Simple Client"/>
+        <class value="org.sadiframework.editor.views.SadiSimpleClientView"/>
+        <headerColor value="@org.protege.classcolor"/>
+    </extension>
+	
+	<extension id="SADIServiceGeneratorView"
+     point="org.protege.editor.core.application.ViewComponent">
+        <label value="SADI Service Generator"/>
+        <class value="org.sadiframework.editor.views.SadiServiceGeneratorView"/>
+        <headerColor value="@org.protege.classcolor"/>
+    </extension>
+	
+    <extension id="SADITab"
+               point="org.protege.editor.core.application.WorkspaceTab">
+       <label value="SADI"/>
+       <class value="org.protege.editor.core.ui.workspace.WorkspaceViewsTab"/>
+       <defaultViewConfigFileName value="viewconfig-SADI.xml"/>
+       <index value="S"/>
+       <editorKitId value="OWLEditorKit"/>
+   </extension>
+   <extension
+         id="AnnotationViewPreferencesPanel"
+         point="org.protege.editor.core.application.preferencespanel">
+        <label value="SADI Preferences"/>
+        <class value="org.sadiframework.editor.views.SADIPreferencePanel"/>
+   </extension>
+   
+</plugin>
