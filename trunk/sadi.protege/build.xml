@@ -179,6 +179,8 @@ author=Edward Kawas (SADI Project)
      <javac srcdir = "${src}"
             destdir = "${classes}" 
             debug="on"
+			source="1.5"
+			target="1.5"
             includeAntRuntime="false">
        <classpath refid = "project.classpath"/>  
      </javac>
