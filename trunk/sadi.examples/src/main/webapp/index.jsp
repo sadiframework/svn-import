@@ -19,12 +19,13 @@
         </div>
         <div id='content'>
           <h2>Example Services</h2>
+          <!--
 	      <ul>
-	       <!--<c:forEach var="service" items="${services}" varStatus="status">
+	       <c:forEach var="service" items="${services}" varStatus="status">
 	        <li><a href='${service.serviceURI}'><c:out value='${service.name}' default='${service.serviceURI}'/></a></li>
 	       </c:forEach>
-	       -->
 	      </ul>
+	       -->
 	      <ul>
 	      	<li><a href="echo">Simply echo input</a></li>
 	      	<li><a href="linear">Compute linear regression model (synchronous)</a></li>
@@ -34,6 +35,7 @@
 	      	<li><a href="uniprot2pdb">Find PDB entries corresponding to a given UniProt ID</a></li>
 	      	<li><a href="uniprot2pubmed">Find published papers associated with a given UniProt ID</a></li>
 	      </ul>
+	      <p>Updated Thu Feb 25 12:17:28 PST 2010</p>
         </div> <!-- content -->
         <div id='footer'>
           <img class="sponsor" style="margin-top: 10px;" src="http://sadiframework.org/images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
