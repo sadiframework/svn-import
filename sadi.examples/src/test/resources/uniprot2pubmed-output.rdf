@@ -183,6 +183,12 @@
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:1694291"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:17904127"/>
     <j.2:hasReference rdf:resource="http://lsrn.org/PMID:8875926"/>
+    <j.2:hasReference rdf:resource="http://lsrn.org/PMID:19369195"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://lsrn.org/PMID:19369195">
+    <rdfs:label>Oppermann F.S. et al, Large-scale proteomics analysis of the human kinome.</rdfs:label>
+    <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/19369195"/>
+    <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/PubMed_Record"/>
   </rdf:Description>
   <rdf:Description rdf:about="http://lsrn.org/PMID:19536131">
     <rdfs:label>Lee E.-W. et al, Differential regulation of p53 and p21 by MKRN1 E3 ligase controls cell cycle arrest and apoptosis.</rdfs:label>
