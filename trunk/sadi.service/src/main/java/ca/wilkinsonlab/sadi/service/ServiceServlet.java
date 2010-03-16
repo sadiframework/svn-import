@@ -1,7 +1,6 @@
 package ca.wilkinsonlab.sadi.service;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -18,7 +17,6 @@ import org.apache.log4j.Logger;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyException;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
-import ca.wilkinsonlab.sadi.utils.ExceptionUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 
@@ -55,7 +53,7 @@ public abstract class ServiceServlet extends HttpServlet
 	protected QueryableErrorHandler errorHandler;
 	
 	@Override
-	public void init() throws ServletException
+	public synchronized void init() throws ServletException
 	{
 		try {
 			config = Config.getConfiguration().getServiceConfiguration(this);
@@ -161,8 +159,10 @@ public abstract class ServiceServlet extends HttpServlet
 			outputSuccessResponse(response, call.getOutputModel());
 		} catch (Exception e) {
 			outputErrorResponse(response, e);
-			call.getInputModel().close();
-			call.getOutputModel().close();
+			if (inputModel != null)
+				inputModel.close();
+			if (outputModel != null)
+				outputModel.close();
 		}
 	}
 	
@@ -217,11 +217,11 @@ public abstract class ServiceServlet extends HttpServlet
 		/* we can't just write to the response because Jena calls flush() on
 		 * the writer or stream, which commits the response...
 		 */
-		Model exceptionModel = ExceptionUtils.createExceptionModel(error);
-		StringWriter buffer = new StringWriter();
-		exceptionModel.write(buffer);
-		response.getWriter().print(buffer.toString());
-		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+//		Model exceptionModel = ExceptionUtils.createExceptionModel(error);
+//		StringWriter buffer = new StringWriter();
+//		exceptionModel.write(buffer);
+//		response.getWriter().print(buffer.toString());
+		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, error.toString());
 	}
 	
 	protected OntModel createOntologyModel()
