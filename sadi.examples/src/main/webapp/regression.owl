@@ -1,12 +1,14 @@
 <?xml version="1.0"?>
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
     xmlns:owl="http://www.w3.org/2002/07/owl#"
     xmlns="http://sadiframework.org/examples/regression.owl#"
     xml:base="http://sadiframework.org/examples/regression.owl#">
-  <owl:Ontology rdf:about=""/>
+  <owl:Ontology rdf:about="">
+    <owl:imports rdf:resource="http://purl.org/dc/elements/1.1/date"/>
+  </owl:Ontology>
   
   <owl:Class rdf:ID="Collection"/>
   
@@ -68,11 +70,11 @@
       <owl:intersectionOf rdf:parseType="Collection">
         <owl:Restriction>
           <owl:onProperty rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#value"/>
-          <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality> 
+          <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#double"/>
         </owl:Restriction>
         <owl:Restriction>
           <owl:onProperty rdf:resource="http://purl.org/dc/elements/1.1/date"/>
-          <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+          <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
         </owl:Restriction>
       </owl:intersectionOf>
      </owl:Class>
