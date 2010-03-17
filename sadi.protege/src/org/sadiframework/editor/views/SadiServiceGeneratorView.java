@@ -15,6 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -32,7 +33,9 @@ import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.protege.editor.core.ui.util.ComponentFactory;
 import org.protege.editor.core.ui.util.Icons;
 import org.protege.editor.owl.ui.view.cls.AbstractOWLClassViewComponent;
-import org.sadiframework.generator.perl.ServiceGenerator;
+import org.sadiframework.generator.perl.DatatypeGeneratorPerlWorker;
+import org.sadiframework.generator.perl.Generator;
+import org.sadiframework.generator.perl.ServiceGeneratorPerlWorker;
 import org.sadiframework.preferences.PreferenceManager;
 import org.sadiframework.swing.AbstractButton;
 import org.sadiframework.swing.JTextFieldWithHistory;
@@ -59,12 +62,17 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
     private PreferenceManager manager = PreferenceManager.newInstance();
     private String selectedClassAsString = "";
 
-    // PERL privates
-    private static final String PERL_GENERATOR_SERVICE_NAME = "perl-generator-service-name";
-    private static final String PERL_GENERATOR_SERVICE_ASYNC = "perl-generator-service-async";
-    private static final String PERL_GENERATOR_OWL_ONT_FILENAME = "perl-generator-owl-ont-filename";
-    private static final String PERL_GENERATOR_OWL_BY_FILE = "perl-generator-owl-by-file";
-    private static final String PERL_GENERATOR_OWL_CLASS = "perl-generator-owl-class";
+    // generator preference keys
+    public static final String DO_SERVICE_GENERATION = "service-generator-processing";
+    public static final String DO_DATATYPE_GENERATION = "datatype-generator-processing";
+    
+    // PERL vars
+    //preference keys
+    public static final String PERL_GENERATOR_SERVICE_NAME = "perl-generator-service-name";
+    public static final String PERL_GENERATOR_SERVICE_ASYNC = "perl-generator-service-async";
+    public static final String PERL_GENERATOR_OWL_ONT_FILENAME = "perl-generator-owl-ont-filename";
+    public static final String PERL_GENERATOR_OWL_BY_FILE = "perl-generator-owl-by-file";
+    public static final String PERL_GENERATOR_OWL_CLASS = "perl-generator-owl-class";
 
     // what to show when no owl individual is selected
     private String NO_OWL_INDIVIDUAL = String.format("<html><b>%s</b></html>", bundle
@@ -72,6 +80,8 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
     private JButton perlGenerateBtn, perlCancelGenBtn, perlGenOWLBtn, perlCancelGenOWLBtn,
             perlOpenOnt;
     private JLabel owlLabel;
+    private ServiceGeneratorPerlWorker perlServiceWorker;
+    private DatatypeGeneratorPerlWorker perlDatatypeWorker;
 
     // JAVA privates
 
@@ -161,48 +171,20 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
         JLabel label = new JLabel(bundle.getString("sadi_generator_perl_service_name"));
         JTextFieldWithHistory service = new JTextFieldWithHistory(25, PERL_GENERATOR_SERVICE_NAME);
         label.setLabelFor(service);
+                
         perlGenerateBtn = new AbstractButton(bundle.getString("generate"), true,
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        perlGenerateBtn.setEnabled(false);
-                        perlCancelGenBtn.setEnabled(true);
-                        String perl = manager.getPreference(SADIPreferencePanel.PERL_PATH, "");
-                        String libs = manager.getPreference(SADIPreferencePanel.PERL_5LIB_DIR, "");
-                        String scriptDir = manager.getPreference(
-                                SADIPreferencePanel.PERL_SADI_SCRIPTS_DIR, "");
-                        boolean isAsync = manager.getBooleanPreference(
-                                PERL_GENERATOR_SERVICE_ASYNC, true);
-                        String name = manager.getPreference(PERL_GENERATOR_SERVICE_NAME, "");
-
-                        // TODO make sure that the service name is not blank!
-                        ServiceGenerator gen = new ServiceGenerator(perl, libs, scriptDir);
-                        String str;
-                        try {
-                            str = gen.generateService(name, isAsync);
-                            System.out.println(str);
-                        } catch (IOException ioe) {
-                            ErrorLogPanel.showErrorDialog(ioe);
-                            perlGenerateBtn.setEnabled(true);
-                            perlCancelGenBtn.setEnabled(false);
-                            return;
-                        } catch (InterruptedException ie) {
-                            ErrorLogPanel.showErrorDialog(ie);
-                            perlGenerateBtn.setEnabled(true);
-                            perlCancelGenBtn.setEnabled(false);
-                            return;
-                        }
-                        perlGenerateBtn.setEnabled(true);
-                        perlCancelGenBtn.setEnabled(false);
+                        manager.saveBooleanPreference(DO_SERVICE_GENERATION, true);
+                        perlServiceWorker = new ServiceGeneratorPerlWorker();
+                        perlServiceWorker.execute();
                     }
                 });
 
         perlCancelGenBtn = new AbstractButton(bundle.getString("cancel"), false,
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        System.out.println("Cancel Generate Service");
-                        perlGenerateBtn.setEnabled(true);
-                        perlCancelGenBtn.setEnabled(false);
-
+                        manager.saveBooleanPreference(DO_SERVICE_GENERATION, false);
                     }
                 });
 
@@ -229,6 +211,38 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
         } else {
             sync.setSelected(true);
         }
+        
+     // what to do when the property DO_SERVICE_GENERATION property changes
+        manager.addPropertyChangeListener(DO_SERVICE_GENERATION, new PropertyChangeListener() {
+            
+            public void propertyChange(PropertyChangeEvent evt) {
+                // start our generation
+                if (manager.getBooleanPreference(DO_SERVICE_GENERATION, false)) {
+                    perlGenerateBtn.setEnabled(false);
+                    perlCancelGenBtn.setEnabled(true);
+                } else {
+                    // task is cancelled or we are finished
+                    perlGenerateBtn.setEnabled(true);
+                    perlCancelGenBtn.setEnabled(false);
+                    if (perlServiceWorker != null && perlServiceWorker.isDone() && !perlServiceWorker.isCancelled()) {
+                        String s = "";
+                        try {
+                            if (perlServiceWorker.get() instanceof String) {
+                                s = (String) perlServiceWorker.get();
+                                // TODO - show this string to the user
+                                System.out.println(s);
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    perlServiceWorker = null;
+                }
+            }
+        });
+        
         // add the components
         UIUtils.addComponent(servicePanel, label, 0, 0, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(servicePanel, service, 1, 0, 2, 1, UIUtils.WEST, UIUtils.BOTH, 1.0,
@@ -314,8 +328,6 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
         perlGenOWLBtn = new AbstractButton(bundle.getString("generate"), true,
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        perlGenOWLBtn.setEnabled(false);
-                        perlCancelGenOWLBtn.setEnabled(true);
                         String ontFilename = "";
                         if (manager.getBooleanPreference(PERL_GENERATOR_OWL_BY_FILE, true)) {
                             // generate code for file ontology
@@ -325,8 +337,7 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                                 ontFilename = new File(ontFilename).toURI().toURL().toString();
                             } catch (MalformedURLException e1) {
                                 ErrorLogPanel.showErrorDialog(e1);
-                                perlGenOWLBtn.setEnabled(true);
-                                perlCancelGenOWLBtn.setEnabled(false);
+                                manager.saveBooleanPreference(DO_DATATYPE_GENERATION, false);
                                 return;
                             }
                         } else {
@@ -334,7 +345,7 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                             // save the ontology to a temp file ...
                             try {
                                 // Create temp file.
-                                File temp = File.createTempFile("SADI_PERL_ONT_TMP", ".owl");
+                                File temp = File.createTempFile("SADI_PERL_ONT_TMP-", ".owl");
                                 ontFilename = temp.toURI().toURL().toString();
                                 // Delete temp file when program exits.
                                 temp.deleteOnExit();
@@ -344,46 +355,53 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                                 out.close();
                             } catch (IOException ioe) {
                                 ErrorLogPanel.showErrorDialog(ioe);
-                                perlGenOWLBtn.setEnabled(true);
-                                perlCancelGenOWLBtn.setEnabled(false);
+                                manager.saveBooleanPreference(DO_DATATYPE_GENERATION, false);
                                 return;
                             }
                         }
-                        String perl = manager.getPreference(SADIPreferencePanel.PERL_PATH, "");
-                        String libs = manager.getPreference(SADIPreferencePanel.PERL_5LIB_DIR, "");
-                        String scriptDir = manager.getPreference(
-                                SADIPreferencePanel.PERL_SADI_SCRIPTS_DIR, "");
-
-                        // TODO make sure that the service name is not blank!
-                        ServiceGenerator gen = new ServiceGenerator(perl, libs, scriptDir);
-                        String str;
-                        try {
-                            str = gen.generateDatatypes(ontFilename);
-                            System.out.println(str);
-                        } catch (IOException ioe) {
-                            ErrorLogPanel.showErrorDialog(ioe);
-                            perlGenOWLBtn.setEnabled(true);
-                            perlCancelGenOWLBtn.setEnabled(false);
-                            return;
-                        } catch (InterruptedException ie) {
-                            ErrorLogPanel.showErrorDialog(ie);
-                            perlGenOWLBtn.setEnabled(true);
-                            perlCancelGenOWLBtn.setEnabled(false);
-                            return;
-                        }
-                        perlGenOWLBtn.setEnabled(true);
-                        perlCancelGenOWLBtn.setEnabled(false);
+                        manager.saveBooleanPreference(DO_DATATYPE_GENERATION, true);
+                        perlDatatypeWorker = new DatatypeGeneratorPerlWorker(ontFilename);
+                        perlDatatypeWorker.execute();
                     }
                 });
 
         perlCancelGenOWLBtn = new AbstractButton(bundle.getString("cancel"), false,
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        perlGenOWLBtn.setEnabled(true);
-                        perlCancelGenOWLBtn.setEnabled(false);
-                        System.out.println("Cancel Generate owl");
+                        manager.saveBooleanPreference(DO_DATATYPE_GENERATION, false);
                     }
                 });
+        
+        manager.addPropertyChangeListener(DO_DATATYPE_GENERATION, new PropertyChangeListener() {
+            
+            public void propertyChange(PropertyChangeEvent evt) {                
+             // start our generation
+                if (manager.getBooleanPreference(DO_DATATYPE_GENERATION, false)) {
+                    perlGenOWLBtn.setEnabled(false);
+                    perlCancelGenOWLBtn.setEnabled(true);
+                } else {
+                    // task is cancelled or we are finished
+                    perlGenOWLBtn.setEnabled(true);
+                    perlCancelGenOWLBtn.setEnabled(false);
+                    if (perlDatatypeWorker != null && perlDatatypeWorker.isDone() && !perlDatatypeWorker.isCancelled()) {
+                        String s = "";
+                        try {
+                            if (perlDatatypeWorker.get() instanceof String) {
+                                s = (String) perlDatatypeWorker.get();
+                                // TODO - show this string to the user
+                                System.out.println(s);
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    perlDatatypeWorker = null;
+                }
+            }
+        });
+        
         // add the components to the datatype panel
         UIUtils.addComponent(datatypePanel, byFile, 0, 0, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0,
                 0.0);
