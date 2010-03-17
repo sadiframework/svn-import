@@ -42,6 +42,8 @@ public class AbstractFileFilter extends FileFilter {
 
 	@Override
 	public boolean accept(File f) {
+	    if (f.isDirectory())
+	        return true;
 		for (String s : filter) {
 			if (f != null && f.isFile())
 				if (f.getName().toLowerCase().endsWith(s))
