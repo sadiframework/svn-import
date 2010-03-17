@@ -22,7 +22,6 @@ public class RegressionUtils
 {
 	private static final Log log = LogFactory.getLog(RegressionUtils.class);
 
-
 	public static final Resource PairedValue = ResourceFactory.createProperty("http://sadiframework.org/examples/regression.owl#PairedValue");
 	public static final Resource DatedValue = ResourceFactory.createProperty("http://sadiframework.org/examples/regression.owl#DatedValue");
 	public static final Property element = ResourceFactory.createProperty("http://sadiframework.org/examples/regression.owl#element");
