@@ -146,9 +146,9 @@ public class ServiceDefinition {
 		sb.append("# dont change the service name! if you find that you need to modify" + newline);
 		sb.append("# the service name, regenerate a new file and remove this one!" + newline);
 		sb.append( String.format("ServiceName = %s", getName()) + newline);
-		sb.append("modify this value only if you have NOT generated" + newline + "your service implementation!" + newline + newline);
+		sb.append("#modify this value only if you have NOT generated" + newline + "#your service implementation!" + newline + newline);
 		sb.append( String.format("Authority = %s", getAuthority()) + newline);
-		sb.append("modify these values as you see fit!" + newline);
+		sb.append("#modify these values as you see fit!" + newline);
 		sb.append( String.format("ServiceType = %s", getServiceType()) + newline);
 		sb.append( String.format("InputClass = \"%s\"", getInputClass()) + newline);
 		sb.append( String.format("OutputClass = \"%s\"", getOutputClass()) + newline);
