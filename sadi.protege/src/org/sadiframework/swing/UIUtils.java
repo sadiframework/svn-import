@@ -1,7 +1,9 @@
 package org.sadiframework.swing;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 
@@ -11,7 +13,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.filechooser.FileFilter;
 
@@ -143,6 +147,18 @@ public class UIUtils {
         area.setEditable(isEditable);
         return area;
     }
+    
+    public static void showScrollableMsgDialog(String title, String msg, Component parent) {
+        JPanel panel = new JPanel();
+        panel.setPreferredSize(new Dimension(400, 400));
+        panel.setLayout(new BorderLayout());
+        JTextArea textArea = createArea(msg==null?"":msg, false);
+        JPanel contentPane = new JPanel(new BorderLayout(7, 7));
+        contentPane.add(new JScrollPane(textArea));
+        panel.add(contentPane, BorderLayout.CENTER);
+        JOptionPane.showMessageDialog(parent, panel, title==null ? "" : title, JOptionPane.INFORMATION_MESSAGE);
+    }
+
     
     public static JButton createHelpButton(String help) {
         JButton button = new AbstractButton("?", true, new HelpActionListener(help));
