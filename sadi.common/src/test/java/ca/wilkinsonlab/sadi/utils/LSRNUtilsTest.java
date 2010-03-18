@@ -58,11 +58,11 @@ public class LSRNUtilsTest
 	 * Test method for {@link ca.wilkinsonlab.sadi.utils.LSRNUtils#getInstance(com.hp.hpl.jena.ontology.OntClass, java.lang.String)}.
 	 */
 	@Test
-	public void testGetInstance() throws SADIException
+	public void testCreateInstance() throws SADIException
 	{
 		OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
 		OntClass c = OwlUtils.getOntClassWithLoad(model, "http://purl.oclc.org/SADI/LSRN/UniProt_Record");
-		Resource instance = LSRNUtils.getInstance(c, "P12345");
+		Resource instance = LSRNUtils.createInstance(c, "P12345");
 		assertTrue(String.format("new instance has incorrect URI %s", instance.getURI()),
 				instance.getURI().equals("http://lsrn.org/UniProt:P12345"));
 		assertTrue("new instance does not have the correct type",
