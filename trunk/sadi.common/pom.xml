@@ -59,8 +59,7 @@
     </dependency>
     
     <!--
-     Apparently xlightweb doesn't do basic authentication, so we still
-     need both libraries for now...
+     xlightweb doesn't do basic authentication, so we still need both libraries for now...
      -->
     <dependency>
       <groupId>commons-httpclient</groupId>
@@ -70,7 +69,10 @@
     <dependency>
     	<groupId>org.xlightweb</groupId>
     	<artifactId>xlightweb</artifactId>
-    	<version>2.10</version>
+    	<!--
+    	 xlightweb has a dependency with a version range that breaks Raven, Taverna's runtime Maven thingy...
+    	 -->
+    	<version>2.10-taverna</version>
     </dependency>
     
     <!--
