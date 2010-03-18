@@ -16,7 +16,7 @@ import org.sadiframework.preferences.PreferenceManager;
  * @author Eddie
  *
  */
-public class ServiceGeneratorPerlWorker extends SwingWorker {
+public class ServiceGeneratorPerlWorker extends SwingWorker<String, Object> {
 
     private PreferenceManager manager = PreferenceManager.newInstance();
     
@@ -37,7 +37,7 @@ public class ServiceGeneratorPerlWorker extends SwingWorker {
     /* (non-Javadoc)
      * @see org.jdesktop.swingworker.SwingWorker#doInBackground()
      */
-    protected Object doInBackground() throws Exception {
+    protected String doInBackground() throws Exception {
         String perl = manager.getPreference(SADIPreferencePanel.PERL_PATH, "");
         String libs = manager.getPreference(SADIPreferencePanel.PERL_5LIB_DIR, "");
         String scriptDir = manager.getPreference(

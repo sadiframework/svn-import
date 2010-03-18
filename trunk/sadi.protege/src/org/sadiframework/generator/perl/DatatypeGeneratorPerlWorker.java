@@ -5,14 +5,9 @@ package org.sadiframework.generator.perl;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
 import org.jdesktop.swingworker.SwingWorker;
-import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.sadiframework.editor.views.SADIPreferencePanel;
 import org.sadiframework.editor.views.SadiServiceGeneratorView;
 import org.sadiframework.preferences.PreferenceManager;
@@ -21,7 +16,7 @@ import org.sadiframework.preferences.PreferenceManager;
  * @author Eddie
  * 
  */
-public class DatatypeGeneratorPerlWorker extends SwingWorker {
+public class DatatypeGeneratorPerlWorker extends SwingWorker<String, Object> {
 
     private String filename;
     private PreferenceManager manager = PreferenceManager.newInstance();
@@ -50,13 +45,12 @@ public class DatatypeGeneratorPerlWorker extends SwingWorker {
      * @see org.jdesktop.swingworker.SwingWorker#doInBackground()
      */
     @Override
-    protected Object doInBackground() {
+    protected String doInBackground() {
 
         String perl = manager.getPreference(SADIPreferencePanel.PERL_PATH, "");
         String libs = manager.getPreference(SADIPreferencePanel.PERL_5LIB_DIR, "");
         String scriptDir = manager.getPreference(SADIPreferencePanel.PERL_SADI_SCRIPTS_DIR, "");
-
-        // TODO make sure that the service name is not blank!
+        
         Generator gen = new Generator(perl, libs, scriptDir);
         String str = "";
         try {
