@@ -19,6 +19,7 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 @SuppressWarnings("serial")
 public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
@@ -109,7 +110,10 @@ public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 
 	private String getProbeId(Resource probe)
 	{
-		return probe.getURI();
+		if (probe.isURIResource())
+			return probe.getURI();
+		else
+			return probe.getId().toString();
 	}
 
 	private Double getExpressionLevel(Resource probe)
@@ -119,13 +123,20 @@ public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 
 	private String getGeneId(Resource gene)
 	{
-		return gene.getURI();
+		if (gene.isURIResource())
+			return gene.getURI();
+		else
+			return gene.getId().toString();
 	}
 
 	private String getTerm(Resource term)
 	{
-//		return term.getProperty(RDFS.label).getString();
-		return term.getURI();
+		if (term.hasProperty(RDFS.label))
+			return term.getProperty(RDFS.label).getString();
+		else if (term.isURIResource())
+			return term.getURI();
+		else
+			return term.getId().toString();
 	}
 
 	private ClassScoreSimple runORA(List<String> probeIds, List<Double> expressionLevels, List<String> geneIds, List<Collection<String>> termCollections)
