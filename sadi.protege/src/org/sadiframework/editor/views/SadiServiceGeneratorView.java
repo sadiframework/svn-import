@@ -23,18 +23,17 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
-
 
 import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.protege.editor.core.ui.util.ComponentFactory;
 import org.protege.editor.core.ui.util.Icons;
 import org.protege.editor.owl.ui.view.cls.AbstractOWLClassViewComponent;
 import org.sadiframework.generator.perl.DatatypeGeneratorPerlWorker;
-import org.sadiframework.generator.perl.Generator;
 import org.sadiframework.generator.perl.ServiceGeneratorPerlWorker;
 import org.sadiframework.preferences.PreferenceManager;
 import org.sadiframework.swing.AbstractButton;
@@ -65,9 +64,9 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
     // generator preference keys
     public static final String DO_SERVICE_GENERATION = "service-generator-processing";
     public static final String DO_DATATYPE_GENERATION = "datatype-generator-processing";
-    
+
     // PERL vars
-    //preference keys
+    // preference keys
     public static final String PERL_GENERATOR_SERVICE_NAME = "perl-generator-service-name";
     public static final String PERL_GENERATOR_SERVICE_ASYNC = "perl-generator-service-async";
     public static final String PERL_GENERATOR_OWL_ONT_FILENAME = "perl-generator-owl-ont-filename";
@@ -171,7 +170,7 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
         JLabel label = new JLabel(bundle.getString("sadi_generator_perl_service_name"));
         JTextFieldWithHistory service = new JTextFieldWithHistory(25, PERL_GENERATOR_SERVICE_NAME);
         label.setLabelFor(service);
-                
+
         perlGenerateBtn = new AbstractButton(bundle.getString("generate"), true,
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
@@ -211,10 +210,10 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
         } else {
             sync.setSelected(true);
         }
-        
-     // what to do when the property DO_SERVICE_GENERATION property changes
+
+        // what to do when the property DO_SERVICE_GENERATION property changes
         manager.addPropertyChangeListener(DO_SERVICE_GENERATION, new PropertyChangeListener() {
-            
+
             public void propertyChange(PropertyChangeEvent evt) {
                 // start our generation
                 if (manager.getBooleanPreference(DO_SERVICE_GENERATION, false)) {
@@ -224,14 +223,13 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                     // task is cancelled or we are finished
                     perlGenerateBtn.setEnabled(true);
                     perlCancelGenBtn.setEnabled(false);
-                    if (perlServiceWorker != null && perlServiceWorker.isDone() && !perlServiceWorker.isCancelled()) {
+                    if (perlServiceWorker != null && perlServiceWorker.isDone()
+                            && !perlServiceWorker.isCancelled()) {
                         String s = "";
                         try {
-                            if (perlServiceWorker.get() instanceof String) {
-                                s = (String) perlServiceWorker.get();
-                                // TODO - show this string to the user
-                                System.out.println(s);
-                            }
+                            s = perlServiceWorker.get();
+                            String title = bundle.getString("result");
+                            UIUtils.showScrollableMsgDialog(title, s, getTopLevelAncestor());
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } catch (ExecutionException e) {
@@ -242,7 +240,7 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                 }
             }
         });
-        
+
         // add the components
         UIUtils.addComponent(servicePanel, label, 0, 0, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(servicePanel, service, 1, 0, 2, 1, UIUtils.WEST, UIUtils.BOTH, 1.0,
@@ -333,6 +331,15 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                             // generate code for file ontology
                             ontFilename = manager
                                     .getPreference(PERL_GENERATOR_OWL_ONT_FILENAME, "");
+                            // check that filename is not empty
+                            if (ontFilename == null || ontFilename.trim().equals("")) {
+                                String msg = bundle.getString("sadi_generator_perl_datatype_empty");
+                                String title = bundle.getString("error");
+                                JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+                                        JOptionPane.ERROR_MESSAGE);
+                                manager.saveBooleanPreference(DO_DATATYPE_GENERATION, false);
+                                return;
+                            }
                             try {
                                 ontFilename = new File(ontFilename).toURI().toURL().toString();
                             } catch (MalformedURLException e1) {
@@ -343,6 +350,15 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                         } else {
                             // generate owl for specific node
                             // save the ontology to a temp file ...
+                            if (selectedClassAsString == null
+                                    || selectedClassAsString.trim().equals("")) {
+                                String msg = bundle.getString("sadi_generator_perl_datatype_empty");
+                                String title = bundle.getString("error");
+                                JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+                                        JOptionPane.ERROR_MESSAGE);
+                                manager.saveBooleanPreference(DO_DATATYPE_GENERATION, false);
+                                return;
+                            }
                             try {
                                 // Create temp file.
                                 File temp = File.createTempFile("SADI_PERL_ONT_TMP-", ".owl");
@@ -359,6 +375,7 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                                 return;
                             }
                         }
+
                         manager.saveBooleanPreference(DO_DATATYPE_GENERATION, true);
                         perlDatatypeWorker = new DatatypeGeneratorPerlWorker(ontFilename);
                         perlDatatypeWorker.execute();
@@ -371,11 +388,11 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                         manager.saveBooleanPreference(DO_DATATYPE_GENERATION, false);
                     }
                 });
-        
+
         manager.addPropertyChangeListener(DO_DATATYPE_GENERATION, new PropertyChangeListener() {
-            
-            public void propertyChange(PropertyChangeEvent evt) {                
-             // start our generation
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                // start our generation
                 if (manager.getBooleanPreference(DO_DATATYPE_GENERATION, false)) {
                     perlGenOWLBtn.setEnabled(false);
                     perlCancelGenOWLBtn.setEnabled(true);
@@ -383,14 +400,13 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                     // task is cancelled or we are finished
                     perlGenOWLBtn.setEnabled(true);
                     perlCancelGenOWLBtn.setEnabled(false);
-                    if (perlDatatypeWorker != null && perlDatatypeWorker.isDone() && !perlDatatypeWorker.isCancelled()) {
+                    if (perlDatatypeWorker != null && perlDatatypeWorker.isDone()
+                            && !perlDatatypeWorker.isCancelled()) {
                         String s = "";
                         try {
-                            if (perlDatatypeWorker.get() instanceof String) {
-                                s = (String) perlDatatypeWorker.get();
-                                // TODO - show this string to the user
-                                System.out.println(s);
-                            }
+                            s = perlDatatypeWorker.get();
+                            String title = bundle.getString("result");
+                            UIUtils.showScrollableMsgDialog(title, s, getTopLevelAncestor());
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         } catch (ExecutionException e) {
@@ -401,7 +417,7 @@ public class SadiServiceGeneratorView extends AbstractOWLClassViewComponent {
                 }
             }
         });
-        
+
         // add the components to the datatype panel
         UIUtils.addComponent(datatypePanel, byFile, 0, 0, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0,
                 0.0);
