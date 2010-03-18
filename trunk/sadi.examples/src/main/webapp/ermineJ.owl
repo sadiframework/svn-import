@@ -6,6 +6,7 @@
   <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
   <!ENTITY benv "http://sadiframework.org/ontologies/predicates.owl#">
   <!ENTITY common "http://sadiframework.org/examples/common.owl#">
+  <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/">
 ]>
 
 <rdf:RDF
@@ -14,17 +15,15 @@
     xmlns:owl="&owl;"
     xmlns:xsd="&xsd;"
     xmlns:common="&common;"
+    xmlns:lsrn="&lsrn;"
     xml:base="http://sadiframework.org/examples/ermineJ.owl#"
     xmlns="http://sadiframework.org/examples/ermineJ.owl#">
     
   <owl:Ontology rdf:about="">
-    <!-- this ontology is huge, just declare the single property we need...
-    <owl:imports rdf:resource="&benv;"/>
-    -->
     <owl:imports rdf:resource="&common;"/>
+    <owl:imports rdf:resource="&benv;"/>
+    <owl:imports rdf:resource="&lsrn;"/>
   </owl:Ontology>
-  
-  <owl:ObjectProperty rdf:about="&benv;hasGOTerm"/>
   
   <owl:DatatypeProperty rdf:ID="expressionLevel">
     <rdfs:range rdf:resource="&xsd;double"/>
@@ -59,7 +58,7 @@
   <owl:Class rdf:ID="ProbeSet">
     <rdfs:subClassOf rdf:resource="&common;Collection"/>
     <owl:equivalentClass>
-      <owl:Restriction rdf:ID="SomeValuesFromProbe">
+      <owl:Restriction>
         <owl:onProperty rdf:resource="&common;element"/>
         <owl:someValuesFrom rdf:resource="#Probe"/>
       </owl:Restriction>
@@ -69,12 +68,8 @@
   <owl:Class rdf:ID="GoAnnotated">
     <owl:equivalentClass>
       <owl:Restriction>
-        <!--
-        <owl:onProperty rdf:resource="&common;hasAnnotation"/>
-        <owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/GO_Record"/>
-        -->
         <owl:onProperty rdf:resource="&benv;hasGOTerm"/>
-        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+        <owl:someValuesFrom rdf:resource="&lsrn;GO_Record"/>
       </owl:Restriction>
     </owl:equivalentClass>
   </owl:Class>
@@ -124,29 +119,28 @@
     </rdfs:subClassOf>
   </owl:Class>
   
+  <owl:Class rdf:ID="OverrepresentedGOTerm">
+  	<rdfs:subClassOf rdf:resource="#OverrepresentedTerm"/>
+  	<rdfs:subClassOf>
+  	  <owl:Restriction>
+  	    <owl:onProperty rdf:resource="#term"/>
+  	    <owl:someValuesFrom rdf:resource="&lsrn;GO_Record"/>
+  	  </owl:Restriction>
+  	</rdfs:subClassOf>
+  </owl:Class>
+  
   <owl:Class rdf:ID="AnnotatedProbeSet">
-    <rdfs:subClassOf rdf:resource="#ProbeSet"/>
+    <rdfs:subClassOf rdf:resource="#GoProbeSet"/>
     <owl:equivalentClass>
       <owl:Restriction>
         <owl:onProperty rdf:resource="#hasOverrepresentedTerm"/>
-        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+        <owl:someValuesFrom rdf:resource="#OverrepresentedGOTerm"/>
       </owl:Restriction>
     </owl:equivalentClass>
   </owl:Class>
-  
-  <owl:ObjectProperty rdf:ID="hasAnnotation"/>
   
   <rdf:Description rdf:about="&benv;hasGOTerm">
     <rdfs:subPropertyOf rdf:resource="#hasAnnotation"/>
   </rdf:Description>
-  
-  <owl:Class rdf:ID="AnnotatedObject">
-    <owl:equivalentClass>
-      <owl:Restriction>
-        <owl:onProperty rdf:resource="#hasAnnotation"/>
-        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
-      </owl:Restriction>
-    </owl:equivalentClass>
-  </owl:Class>
   
 </rdf:RDF>
