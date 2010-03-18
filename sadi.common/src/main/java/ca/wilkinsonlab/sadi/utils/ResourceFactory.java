@@ -17,7 +17,7 @@ public class ResourceFactory
 	 * @param id
 	 * @return
 	 */
-	public Resource createInstance(Resource type, String id)
+	public static Resource createInstance(Resource type, String id)
 	{
 		return createInstance(ModelFactory.createDefaultModel(), type, id);
 	}
@@ -30,7 +30,7 @@ public class ResourceFactory
 	 * @param id
 	 * @return
 	 */
-	public Resource createInstance(Model model, Resource type, String id)
+	public static Resource createInstance(Model model, Resource type, String id)
 	{
 		if (LSRNUtils.isLSRNType(type))
 			return LSRNUtils.createInstance(model, type, id);
