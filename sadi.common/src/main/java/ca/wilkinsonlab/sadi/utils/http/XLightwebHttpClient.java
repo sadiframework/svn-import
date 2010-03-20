@@ -100,21 +100,22 @@ public class XLightwebHttpClient implements HttpClient {
 		
 		Queue<HttpRequest> requestQueue = new LinkedList<HttpRequest>(requests);
 		while(responses.size() < requests.size()) {
-
-			if(requestQueue.size() > 0 && (xLightWebClient.getNumActive() < maxActive)) {
-				HttpRequest request = requestQueue.remove();
-				try {
-					IHttpRequest xLightwebRequest = getXLightwebHttpRequest(request);
-					// fire off request asynchronously
-					xLightWebClient.send(xLightwebRequest, new XLightwebCallback(request, responses));
-				} catch(IOException e) {
-					responses.add(new HttpResponse(request, e));
-				}
-			} else {
-				try {
-					Thread.sleep(300);
-				} catch(InterruptedException e) {
-					throw new RuntimeException("unhandled InterruptedException for thread " + Thread.currentThread(), e);
+			synchronized(this) {
+				if(requestQueue.size() > 0 && (xLightWebClient.getNumActive() < maxActive)) {
+					HttpRequest request = requestQueue.remove();
+					try {
+						IHttpRequest xLightwebRequest = getXLightwebHttpRequest(request);
+						// fire off request asynchronously
+						xLightWebClient.send(xLightwebRequest, new XLightwebCallback(request, responses));
+					} catch(IOException e) {
+						responses.add(new HttpResponse(request, e));
+					}
+				} else {
+					try {
+						Thread.sleep(300);
+					} catch(InterruptedException e) {
+						throw new RuntimeException("unhandled InterruptedException for thread " + Thread.currentThread(), e);
+					}
 				}
 			}
 		}
