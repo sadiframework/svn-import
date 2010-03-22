@@ -28,18 +28,19 @@ public class PerlDefinitionFieldGenerator extends
 						.getString("definition_output_class"), DROP_TEXT_FIELD),
 				new DefinitionField("Description", bundle
 						.getString("definition_description"), TEXT_FIELD),
-				new DefinitionField("UniqueIdentifier", bundle
-						.getString("definition_unique_id"), TEXT_FIELD),
+//				new DefinitionField("UniqueIdentifier", bundle
+//						.getString("definition_unique_id"), TEXT_FIELD),
 				new DefinitionField("Authoritative", bundle
 						.getString("definition_authoritative"), BOOLEAN_FIELD),
 				new DefinitionField("Provider", bundle
 						.getString("definition_provider"), TEXT_FIELD),
-				new DefinitionField("ServiceURI", bundle
-						.getString("definition_service_uri"), TEXT_FIELD),
+//				new DefinitionField("ServiceURI", bundle
+//						.getString("definition_service_uri"), TEXT_FIELD),
 				new DefinitionField("URL", bundle
 						.getString("definition_endpoint"), TEXT_FIELD),
-				new DefinitionField("SignatureURL", bundle
-						.getString("definition_signature_url"), TEXT_FIELD), };
+//				new DefinitionField("SignatureURL", bundle
+//						.getString("definition_signature_url"), TEXT_FIELD), 
+		};
 	}
 
 }
