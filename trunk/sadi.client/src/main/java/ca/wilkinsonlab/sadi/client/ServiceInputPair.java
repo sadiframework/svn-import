@@ -1,6 +1,8 @@
 package ca.wilkinsonlab.sadi.client;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -13,9 +15,14 @@ import com.hp.hpl.jena.rdf.model.Resource;
 public class ServiceInputPair
 {
 	Service service;
-	Resource input;
+	Collection<Resource> input;
 	
 	public ServiceInputPair(Service service, Resource input)
+	{
+		this(service, new ArrayList<Resource>(Collections.singleton(input)));
+	}
+	
+	public ServiceInputPair(Service service, Collection<Resource> input)
 	{
 		this.service = service;
 		this.input = input;
@@ -26,7 +33,7 @@ public class ServiceInputPair
 		return service;
 	}
 	
-	public Resource getInput()
+	public Collection<Resource> getInput()
 	{
 		return input;
 	}
