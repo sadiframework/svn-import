@@ -124,6 +124,16 @@ public class ServiceDefinition {
 
 	public void setEndpoint(String endpoint) {
 		this.endpoint = endpoint;
+		// set the signatureURL to be endpoint if it is not defined
+		if (getSignatureURL() == null || getSignatureURL().trim().equals(""))
+		    setSignatureURL(endpoint);
+		// set the Unique ID to be endpoint if it is not defined
+		if (getUniqueID() == null || getUniqueID().trim().equals(""))
+		    setUniqueID(endpoint);
+		// set the service uri to be the endpoint if it is not defined
+		if (getServiceURI() == null || getServiceURI().trim().equals(""))
+		    setServiceURI(endpoint);
+		
 	}
 
 	public String getSignatureURL() {
