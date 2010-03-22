@@ -18,6 +18,7 @@ import ca.wilkinsonlab.sadi.utils.QueryExecutorFactory;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 public class RegistryImplTest
 {
@@ -144,8 +145,11 @@ public class RegistryImplTest
 	private boolean serviceInputPairCollectionContains(Collection<? extends ServiceInputPair> pairs, String serviceUri, String inputUri)
 	{
 		for (ServiceInputPair pair: pairs)
-			if (pair.getService().getURI().equals(serviceUri) && pair.getInput().getURI().equals(inputUri))
-				return true;
+			if (pair.getService().getURI().equals(serviceUri)) {
+				for (Resource r: pair.getInput())
+					if (r.getURI().equals(inputUri))
+						return true;
+			}
 		
 		return false;
 	}
