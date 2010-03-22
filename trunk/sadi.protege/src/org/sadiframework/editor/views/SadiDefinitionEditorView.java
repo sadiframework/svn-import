@@ -216,12 +216,12 @@ public class SadiDefinitionEditorView extends AbstractOWLSelectionViewComponent 
                 String inputClass = ((JTextComponent) fields.get(3)).getText();
                 String outputClass = ((JTextComponent) fields.get(4)).getText();
                 String description = ((JTextComponent) fields.get(5)).getText();
-                String uniqueID = ((JTextComponent) fields.get(6)).getText();
-                boolean authoritative = ((JCheckBox) fields.get(7)).isSelected();
-                String provider = ((JTextComponent) fields.get(8)).getText();
-                String serviceURI = ((JTextComponent) fields.get(9)).getText();
-                String endpoint = ((JTextComponent) fields.get(10)).getText();
-                String signatureURL = ((JTextComponent) fields.get(11)).getText();
+                //String uniqueID = ((JTextComponent) fields.get(6)).getText();
+                boolean authoritative = ((JCheckBox) fields.get(6)).isSelected();
+                String provider = ((JTextComponent) fields.get(7)).getText();
+                //String serviceURI = ((JTextComponent) fields.get(9)).getText();
+                String endpoint = ((JTextComponent) fields.get(8)).getText();
+                //String signatureURL = ((JTextComponent) fields.get(11)).getText();
 
                 // TODO validate the fields
                 if (name.trim().equals("")) {
@@ -239,9 +239,9 @@ public class SadiDefinitionEditorView extends AbstractOWLSelectionViewComponent 
                 def.setOutputClass(outputClass);
                 def.setProvider(provider);
                 def.setServiceType(serviceType);
-                def.setServiceURI(serviceURI);
-                def.setSignatureURL(signatureURL);
-                def.setUniqueID(uniqueID);
+//                def.setServiceURI(serviceURI);
+//                def.setSignatureURL(signatureURL);
+//                def.setUniqueID(uniqueID);
 
                 // get chooser for directories
                 File dir = null;
