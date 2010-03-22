@@ -142,7 +142,11 @@ public class SPARQLServiceWrapper implements Service
 	public boolean isInputInstance(Resource resource)
 	{
 		boolean matches = false;
-
+		
+		// we can't use blank nodes as input to a SPARQL endpoint
+		if(resource.isAnon())
+			return false;
+		
 		try {
 			if(mapInputsToObjectPosition()) {
 				matches = getRegistry().objectMatchesRegEx(getEndpoint().getURI(), resource.getURI());
