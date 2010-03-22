@@ -87,12 +87,8 @@ public class RegistryImpl extends RegistryBase
 		}
 		return services;
 	}
-	
-	public Collection<ServiceImpl> findServicesByInputClass(OntClass clazz) throws SADIException
-	{
-		return findServicesByInputClass(clazz, true);
-	}
 
+	@Override
 	public Collection<ServiceImpl> findServicesByInputClass(OntClass clazz, boolean withReasoning) throws SADIException
 	{
 		Collection<ServiceImpl> services = new ArrayList<ServiceImpl>();
@@ -116,11 +112,7 @@ public class RegistryImpl extends RegistryBase
 		return services;
 	}
 	
-	public Collection<ServiceImpl> findServicesByConnectedClass(OntClass clazz) throws SADIException
-	{
-		return findServicesByConnectedClass(clazz, true);
-	}
-	
+	@Override
 	public Collection<ServiceImpl> findServicesByConnectedClass(OntClass clazz, boolean withReasoning) throws SADIException
 	{
 		Collection<ServiceImpl> services = new ArrayList<ServiceImpl>();

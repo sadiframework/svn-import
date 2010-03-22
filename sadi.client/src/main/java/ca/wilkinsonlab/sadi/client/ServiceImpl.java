@@ -43,6 +43,11 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+/**
+ * The native SADI Service class.
+ * 
+ * @author Luke McCarthy
+ */
 public class ServiceImpl extends ServiceBase
 {
 	private static final Logger log = Logger.getLogger(ServiceImpl.class);

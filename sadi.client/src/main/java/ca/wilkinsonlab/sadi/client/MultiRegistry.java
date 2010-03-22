@@ -136,19 +136,6 @@ public class MultiRegistry implements Registry
 		});
 	}
 	
-	private <T> Collection<T> accumulate(Accumulator<T> accum)
-	{
-		Collection<T> results = new HashSet<T>();
-		for (Registry registry: registries) {
-			try {
-				results.addAll(accum.get(registry));
-			} catch (Exception e) {
-				log.error(String.format("error contacting registry %s", registry), e);
-			}
-		}
-		return results;
-	}
-	
 	public Collection<Service> getAllServices() {
 		return accumulate(new Accumulator<Service>() {
 			public Collection<? extends Service> get(Registry registry) throws Exception {
@@ -170,10 +157,61 @@ public class MultiRegistry implements Registry
 		return null;
 	}
 
+	@Override
+	public Collection<Service> findServicesByInputClass(final OntClass clazz) throws SADIException
+	{
+		return accumulate(new Accumulator<Service>() {
+			public Collection<? extends Service> get(Registry registry) throws Exception {
+				return registry.findServicesByInputClass(clazz);
+			}
+		});
+	}
+
+	@Override
+	public Collection<Service> findServicesByInputClass(final OntClass clazz, final boolean withReasoning) throws SADIException
+	{
+		return accumulate(new Accumulator<Service>() {
+			public Collection<? extends Service> get(Registry registry) throws Exception {
+				return registry.findServicesByInputClass(clazz, withReasoning);
+			}
+		});
+	}
+
+	@Override
+	public Collection<Service> findServicesByConnectedClass(final OntClass clazz) throws SADIException
+	{
+		return accumulate(new Accumulator<Service>() {
+			public Collection<? extends Service> get(Registry registry) throws Exception {
+				return registry.findServicesByConnectedClass(clazz);
+			}
+		});
+	}
+
+	@Override
+	public Collection<Service> findServicesByConnectedClass(final OntClass clazz, final boolean withReasoning) throws SADIException
+	{
+		return accumulate(new Accumulator<Service>() {
+			public Collection<? extends Service> get(Registry registry) throws Exception {
+				return registry.findServicesByConnectedClass(clazz, withReasoning);
+			}
+		});
+	}
+	
+	private <T> Collection<T> accumulate(Accumulator<T> accum)
+	{
+		Collection<T> results = new HashSet<T>();
+		for (Registry registry: registries) {
+			try {
+				results.addAll(accum.get(registry));
+			} catch (Exception e) {
+				log.error(String.format("error contacting registry %s", registry), e);
+			}
+		}
+		return results;
+	}
+
 	private interface Accumulator<T>
 	{	
 		public Collection<? extends T> get(Registry registry) throws Exception;
 	}
-
-
 }

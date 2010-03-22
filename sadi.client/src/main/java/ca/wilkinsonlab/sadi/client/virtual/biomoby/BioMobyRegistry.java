@@ -525,12 +525,12 @@ public class BioMobyRegistry extends RegistryBase
 
 	public Collection<ServiceInputPair> discoverServices(Model model) throws SADIException
 	{
-		throw new UnsupportedOperationException();
+		return Collections.emptyList();
 	}
 
 	public Collection<? extends Service> findServicesByInputInstance(Resource subject) throws SADIException
 	{
-		throw new UnsupportedOperationException();
+		return Collections.emptyList();
 	}
 
 	public Collection<? extends Service> getAllServices() throws SADIException {
@@ -548,8 +548,21 @@ public class BioMobyRegistry extends RegistryBase
 		return matches;
 	}
 
-	public ServiceStatus getServiceStatus(String serviceURI) throws SADIException {
+	public ServiceStatus getServiceStatus(String serviceURI) throws SADIException
+	{
 		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Collection<? extends Service> findServicesByInputClass(OntClass clazz, boolean withReasoning) throws SADIException
+	{
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Collection<BioMobyService> findServicesByConnectedClass(OntClass clazz, boolean withReasoning) throws SADIException
+	{
+		return Collections.emptyList();
 	}
 
 	/* (non-Javadoc)

@@ -1,6 +1,7 @@
 package ca.wilkinsonlab.sadi.client;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import ca.wilkinsonlab.sadi.utils.QueryExecutor;
 import ca.wilkinsonlab.sadi.utils.QueryExecutorFactory;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
 /**
@@ -124,6 +126,18 @@ public abstract class RegistryBase implements Registry
 		} else {
 			return createService(serviceURI);
 		}
+	}
+	
+	@Override
+	public Collection<? extends Service> findServicesByInputClass(OntClass clazz) throws SADIException
+	{
+		return findServicesByInputClass(clazz, true);
+	}
+	
+	@Override
+	public Collection<? extends Service> findServicesByConnectedClass(OntClass clazz) throws SADIException
+	{
+		return findServicesByConnectedClass(clazz, true);
 	}
 	
 	/**

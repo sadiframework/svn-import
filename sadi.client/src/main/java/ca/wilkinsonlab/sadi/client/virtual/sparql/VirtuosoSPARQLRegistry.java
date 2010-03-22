@@ -3,6 +3,7 @@ package ca.wilkinsonlab.sadi.client.virtual.sparql;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -27,6 +28,7 @@ import ca.wilkinsonlab.sadi.vocab.W3C;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -584,4 +586,27 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		}
 	}
 	
+	@Override
+	public Collection<SPARQLServiceWrapper> findServicesByInputClass(OntClass clazz) throws SADIException
+	{
+		return findServicesByInputClass(clazz, true);
+	}
+	
+	@Override
+	public Collection<SPARQLServiceWrapper> findServicesByConnectedClass(OntClass clazz) throws SADIException
+	{
+		return findServicesByConnectedClass(clazz, true);
+	}
+
+	@Override
+	public Collection<SPARQLServiceWrapper> findServicesByInputClass(OntClass clazz, boolean withReasoning) throws SADIException
+	{
+		return Collections.emptyList();
+	}
+
+	@Override
+	public Collection<SPARQLServiceWrapper> findServicesByConnectedClass(OntClass clazz, boolean withReasoning) throws SADIException
+	{
+		return Collections.emptyList();
+	}
 }

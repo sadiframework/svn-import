@@ -12,8 +12,9 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
- * An abstract class so that Services of various types can keep the actual
- * code they have to provide to a minimum.
+ * An abstract class that naively implements most of the invocation methods
+ * in the Service interface, allowing a concrete Service class to be defined
+ * with as little code as possible.  
  * 
  * @author Luke McCarthy
  */

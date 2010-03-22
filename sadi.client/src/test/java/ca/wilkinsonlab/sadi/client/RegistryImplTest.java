@@ -13,9 +13,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ca.wilkinsonlab.sadi.client.RegistryImpl;
-import ca.wilkinsonlab.sadi.client.ServiceImpl;
-import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.utils.QueryExecutorFactory;
 
 import com.hp.hpl.jena.ontology.OntClass;
@@ -35,7 +32,7 @@ public class RegistryImplTest
 	private static final String DIRECT_INPUT_INSTANCE = "http://sadiframework.org/examples/input/regressionDirect";
 	private static final String INFERRED_INPUT_INSTANCE = "http://sadiframework.org/examples/input/regressionInferred";
 	private static final String CONNECTED_CLASS = "http://sadiframework.org/examples/regression.owl#RegressionModel";
-	static RegistryImpl registry;
+	static Registry registry;
 	static Model inputModel;
 	
 	StopWatch timer;
@@ -118,7 +115,7 @@ public class RegistryImplTest
 	@Test
 	public void testDiscoverServices() throws Exception
 	{
-		Collection<ServiceInputPair> pairs = registry.discoverServices(inputModel);
+		Collection<? extends ServiceInputPair> pairs = registry.discoverServices(inputModel);
 		assertTrue("failed to find direct service input pair",
 				serviceInputPairCollectionContains(pairs, SERVICE_URI, DIRECT_INPUT_INSTANCE));
 		assertTrue("failed to find inferred service input pair",
@@ -135,16 +132,16 @@ public class RegistryImplTest
 		assertTrue("failed to find predicate for inferred input", predicates.contains(SERVICE_PREDICATE));
 	}
 	
-	private boolean serviceCollectionContains(Collection<ServiceImpl> services, String serviceUri)
+	private boolean serviceCollectionContains(Collection<? extends Service> services, String serviceUri)
 	{
-		for (ServiceImpl service: services)
+		for (Service service: services)
 			if (service.getURI().equals(serviceUri))
 				return true;
 		
 		return false;
 	}
 	
-	private boolean serviceInputPairCollectionContains(Collection<ServiceInputPair> pairs, String serviceUri, String inputUri)
+	private boolean serviceInputPairCollectionContains(Collection<? extends ServiceInputPair> pairs, String serviceUri, String inputUri)
 	{
 		for (ServiceInputPair pair: pairs)
 			if (pair.getService().getURI().equals(serviceUri) && pair.getInput().getURI().equals(inputUri))
