@@ -6,6 +6,7 @@ import java.util.Collection;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.common.SADIException;
 
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -82,4 +83,12 @@ public interface Registry
 	 * @throws IOException
 	 */
 	public ServiceStatus getServiceStatus(String serviceURI) throws SADIException;
+	
+	public Collection<? extends Service> findServicesByInputClass(OntClass clazz) throws SADIException;
+	
+	public Collection<? extends Service> findServicesByInputClass(OntClass clazz, boolean withReasoning) throws SADIException;
+	
+	public Collection<? extends Service> findServicesByConnectedClass(OntClass clazz) throws SADIException;
+	
+	public Collection<? extends Service> findServicesByConnectedClass(OntClass clazz, boolean withReasoning) throws SADIException;
 }
