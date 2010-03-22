@@ -6,6 +6,7 @@ package org.sadiframework.generator.perl;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
@@ -87,10 +88,6 @@ public class Generator {
         validate();
         ArrayList<String> command = new ArrayList<String>();
         Process p;
-        StringBuffer inputstream = new StringBuffer();
-        StringBuffer errorstream = new StringBuffer();
-        inputstream = new StringBuffer();
-        errorstream = new StringBuffer();
         // construct the command to generate services ...
         // perl sadi-generate-services.pl [-A] service_name
         if (!getPerlPath().trim().equals("")) {
@@ -128,31 +125,19 @@ public class Generator {
         command.add(servicename);
         System.out.println(String.format("command: %s", command));
 
-        // execute the command
         p = Runtime.getRuntime().exec(command.toArray(new String[] {}));
-        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line = null;
-        while ((line = br.readLine()) != null) {
-            inputstream.append(line + System.getProperty("line.separator"));
-        }
-        BufferedReader errorBr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        line = null;
-        while ((line = errorBr.readLine()) != null) {
-            errorstream.append(line + System.getProperty("line.separator"));
-        }
+        GeneratorStream stdout = new GeneratorStream(p.getInputStream());
+        GeneratorStream stderr = new GeneratorStream(p.getErrorStream());
+        stdout.start();
+        stderr.start();
         p.waitFor();
-        return String.format("%s\nWarnings:\n%s", inputstream.toString(), errorstream
-                .toString());
+        return String.format("%s\nWarnings:\n%s", stdout.getStreamAsString(), stderr.getStreamAsString());
     }
 
     public String generateDatatypes(String ontURL) throws IOException, InterruptedException {
         validate();
         ArrayList<String> command = new ArrayList<String>();
         Process p;
-        StringBuffer inputstream = new StringBuffer();
-        StringBuffer errorstream = new StringBuffer();
-        inputstream = new StringBuffer();
-        errorstream = new StringBuffer();
         // construct the command to generate services ...
         // perl sadi-generate-services.pl [-A] service_name
         if (!getPerlPath().trim().equals("")) {
@@ -193,19 +178,12 @@ public class Generator {
 
         // execute the command
         p = Runtime.getRuntime().exec(command.toArray(new String[] {}));
-        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line = null;
-        while ((line = br.readLine()) != null) {
-            inputstream.append(line + System.getProperty("line.separator"));
-        }
-        BufferedReader errorBr = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        line = null;
-        while ((line = errorBr.readLine()) != null) {
-            errorstream.append(line + System.getProperty("line.separator"));
-        }
+        GeneratorStream stdout = new GeneratorStream(p.getInputStream());
+        GeneratorStream stderr = new GeneratorStream(p.getErrorStream());
+        stdout.start();
+        stderr.start();
         p.waitFor();
-        return String.format("%s\nWarnings:\n%s", inputstream.toString(), errorstream
-                .toString());
+        return String.format("%s\nWarnings:\n%s", stdout.getStreamAsString(), stderr.getStreamAsString());
     }
 
     /**
@@ -260,5 +238,37 @@ public class Generator {
     public boolean isWindowsPC() {
         return this.windowsPC;
     }
+    
+    /*
+     * a class that reads an input stream in a thread
+     */
+    class GeneratorStream extends Thread {
+        private InputStream is;
+        private StringBuilder sb;
+        private String newline = System.getProperty("line.separator");
+
+        GeneratorStream(InputStream is) {
+            this.is = is;
+            sb = new StringBuilder();
+        }
+
+        public void run() {
+            try {
+                InputStreamReader isr = new InputStreamReader(is);
+                BufferedReader br = new BufferedReader(isr);
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    sb.append(String.format("%s%s", line, newline));
+                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+        }
+        
+        public String getStreamAsString() {
+            return sb == null ? "" : sb.toString();
+        }
+    }
+
 
 }
