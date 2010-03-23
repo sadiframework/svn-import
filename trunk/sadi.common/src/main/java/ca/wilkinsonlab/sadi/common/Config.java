@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.common;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -77,16 +78,17 @@ public class Config extends CompositeConfiguration
 		return constructor.newInstance(instanceConfig);
 	}
 	
-	protected static <K, V> List<V> buildPriorityList(Map<K, V> map, String priorityList)
+	protected static <K, V> List<V> buildPriorityList(Map<K, V> map, List<K> priorityList)
 	{
 		List<V> values = new ArrayList<V>(map.size());
+		Map<K, V> mapCopy = new HashMap<K, V>(map);
 		if (priorityList != null) {
-			for (String key: priorityList.split(",\\s*")) {
-				values.add(map.get(key));
-				map.remove(key);
+			for (K key: priorityList) {
+				values.add(mapCopy.get(key));
+				mapCopy.remove(key);
 			}
 		}
-		values.addAll(map.values());
+		values.addAll(mapCopy.values());
 		return values;
 	}
 }
