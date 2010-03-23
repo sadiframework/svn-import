@@ -71,12 +71,13 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	private List<Registry> priorityList;
 	private MultiRegistry masterRegistry;
 
+	@SuppressWarnings("unchecked")
 	private Config(String defaultPropertiesFile, String localPropertiesFile)
 	{
 		super(defaultPropertiesFile, localPropertiesFile);
 		
 		registries = configureRegistries();
-		priorityList = buildPriorityList(registries, getString(REGISTRY_PRIORITY_KEY));
+		priorityList = buildPriorityList(registries, getList(REGISTRY_PRIORITY_KEY));
 		masterRegistry = new MultiRegistry(priorityList);
 	}
 	
