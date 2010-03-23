@@ -1,0 +1,28 @@
+<html>
+<body>
+<h2>SADI Plugin For Protege</h2>
+<p>The SADI plugin for Protege is a collection of views, available in a single tab, that simplify
+the provision of SADI services.</p>
+<p>Available to SADI service authors are views that:
+<ul>
+<li>generate service definition files (files that describe a SADI service)</li>
+<li>generate service skeleton code in either JAVA or Perl,</li>
+<li>generate Perl modules from OWL entities for use with SADI services,</li>
+<li>enable the editing of source code from within Protege, and</li>
+<li>enable the testing of SADI services with input taken from the currently opened ontology or from files.</li>
+</ul>
+</p>
+
+<p>Useful when developing in a consortium and some standard metadata set should always be entered.
+
+<p><a href="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/sadi_plugin.html">Documentation</a></p>
+
+<h3>Version info</h3>
+
+<h4>v1.0.0 (1st April 2010)</h4>
+<ul>
+<li>Initial release</li>
+</ul>
+
+</body>
+</hmtl>
