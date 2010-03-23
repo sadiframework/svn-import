@@ -50,7 +50,7 @@
        <format property="build.time" pattern="yyyy_MM_dd_hhmm"/>
      </tstamp>
      <property name="bundle.version"
-               value="${major.version}.${minor.version}.${micro.version}.${build.time}"/>
+               value="${major.version}.${minor.version}.${micro.version}"/>
      <mkdir dir = "${build}"/>
      <mkdir dir = "${classes}"/>
      <mkdir dir = "${classes}/lib"/>
@@ -169,7 +169,7 @@ id=${plugin}
 version=${bundle.version}
 download=http://sadiframework.org/protege/org.sadiframework/${plugin}.jar
 name=SADI service plugin
-readme=http://sadiframework.org/protege/org.sadiframework/version-info.txt
+readme=http://sadi.googlecode.com/svn/trunk/sadi.protege/version-info.txt
 license=http://www.opensource.org/licenses/bsd-license.php
 author=Edward Kawas (SADI Project)
        </echo>
