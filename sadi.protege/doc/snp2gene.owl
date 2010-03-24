@@ -20,7 +20,9 @@
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <owl:Ontology rdf:about="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/snp2gene.owl"/>
+    <owl:Ontology rdf:about="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/snp2gene.owl">
+        <owl:imports rdf:resource="http://www.mygrid.org.uk/ontology"/>
+    </owl:Ontology>
 
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////

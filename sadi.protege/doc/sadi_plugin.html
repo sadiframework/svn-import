@@ -1,43 +1,52 @@
-<em></em><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
-    <head>
-        <link href="http://sadiframework.org/style/sadi.css" type="text/css" rel="stylesheet"/>
-        <style type="text/css">
-            h2 {
-                margin-top: 2em;
-                margin-left: 2em
-            }
-            
-            h3 {
-                margin-top: 2em;
-                margin-left: 4em
-            }
-            
-            h4 {
-                margin-top: 2em;
-                margin-left: 6em
-            }
-            
-            p {
-                margin-left: 6em
-            }
-            
-            pre {
-                margin-left: 8em;
-                margin-right: 8em;
-                padding: 4px;
-                font-family: monospace;
-                font-size: 125%;
-                background: #eee;
-            }
-        </style>
-        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <title>SADI Plugin For Protege</title>
-    </head>
-    <body>
-        <h1>SADI Plugin For Protege</h1>
-<p>
-            Summarize the plugin and why it is needed</p>
+<head>
+<link href="http://sadiframework.org/style/sadi.css" type="text/css" rel="stylesheet"/>
+<style type="text/css">
+h2 {
+	margin-top: 2em;
+	margin-left: 2em
+}
+h3 {
+	margin-top: 2em;
+	margin-left: 4em
+}
+h4 {
+	margin-top: 2em;
+	margin-left: 6em
+}
+p {
+	margin-left: 6em
+}
+pre {
+	margin-left: 8em;
+	margin-right: 8em;
+	padding: 4px;
+	font-family: monospace;
+	font-size: 125%;
+	background: #eee;
+}
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>SADI Plugin For Protege</title>
+</head>
+<body>
+<h1>SADI Plugin For Protege</h1>
+<p>The SADI plugin for Protege is a collection of views, available in a single tab, that simplify
+  the provision of SADI services.</p>
+<p>Available to SADI service authors are views that:
+<ul>
+  <ul>
+    <ul>
+      <li>generate service definition files (files that describe a SADI service)</li>
+      <li>generate service skeleton code in either JAVA or Perl,</li>
+      <li>generate Perl modules from OWL entities for use with SADI services,</li>
+      <li>enable the editing of source code from within Protege, and</li>
+      <li>enable the testing of SADI services with input taken from the currently opened ontology or from files.</li>
+    </ul>
+  </ul>
+</ul>
+<p>Now SADI service writers can define the ontologies that their services will utilize and implement the services all from one common interface.</p>
 <h2>Table of Contents</h2>
 <ul>
   <ul>
@@ -50,20 +59,71 @@
     <li><a href="#5">Getting help</a><br/>
     </li>
   </ul>
-  </ul>
-  <h3><a name="prerequisites"/>Prerequisites</h3>
-    <p>outline what is needed for this plugin (protege 4.1 or higher, SADI from CPAN for perl services, maven for java services</p>
+</ul>
+<h3><a name="prerequisites"/>Prerequisites</h3>
+<p>In order to use this plugin, you will need to make sure to download <a href="http://protege.stanford.edu/download/download.html" target="_blank">Protege</a> version 4.1 or higher.</p>
+<p>For those of you wishing to implement your SADI services with Perl, you will need to download and install the <a href="http://search.cpan.org/dist/SADI/" target="_blank">SADI module</a> from CPAN. </p>
+<p>SADI services written with JAVA will need ... [TODO].</p>
+<p>Finally, in order to use the plugin, you will need to make sure that you have obtained and installed the plugin. You can download the plugin from Protege's plugin library [not true yet] or use the plugin finder from within Protege [also not true yet].</p>
+<p><strong>Currently, the plugin is available <a href="http://dev.biordf.net/~kawas/sadi.protege.jar">here</a> (copy the file to the /plugin/ subdirectory of Protege).</strong></p>
 <h3><a name="0"/>Features</h3>
-<p>Outline the features (tabs, preference panel, why use this plugin)</p>
+<p>SADI services require a lot of preliminary planning before you can realize them. One of the very first steps in creating a SADI service is to define their inputs and outputs. More often than not, a SADI service writer will use Protege to do this. Once the inputs and outputs have been defined, the next step is to define the SADI service signature and to generate an implementation. Once the implementation is complete, the next natural step is to test the service. The SADI plugin for Protege can help the user do all of these things!</p>
+<p>Features of the SADI plugin include:</p>
+<blockquote>
+  <h4>SADI Definition Editor: </h4>
+  <p>A special view that helps SADI service authors specify and generate SADI service definitions. SADI services written using the code generators require this file.</p>
+  <h4> SADI Editor:</h4>
+  <p>A view that allows you to open and edit files directly in Protege.</p>
+  <h4> SADI Service Generator:</h4>
+  <p>A view that helps you generate the scaffold of your service implementation. For those using the Perl code generators, this view also allows you to generate Perl modules from OWL classes. </p>
+  <h4>SADI Simple Client: </h4>
+  <p>This view provides an easy way for you to call SADI services with predefined input taken from files or with individuals selected from the Protege <em>Individuals</em> view.
+  </p>
+</blockquote>
 <h3><a name="1" id="1"/>Generate a service definition</h3>
-<p>what is a service definnition, outline how to generate a definition;</p>
+<p>The SADI code generators for Perl and Java utilize special property files in order to generate service scaffolds. These files can be generated by hand (assuming that you know the correct property keys to use), from the command line using special scripts, or by using the SADI Definition Editor in Protege. The definition file contains information about the service like the service name, the input OWL class, the output OWL class, etc.</p>
+<p>The very first step in constructing a SADI service is to generate a definition file for it. Using the SADI service definition view in Protege allows generate this file by editing a simple form. When specifying the service type, input or output OWL classes, you can drag and drop the OWL classes from the OWL Hierachy onto the appropriate field in the definition view.</p>
+<p>Once you are finished specifying the details for your service, you can save the file by clicking on the Save File button. Definition files are named according to their service name and so when saving the file, all you need to provide is the directory to save the file in.<em><strong>*</strong></em><strong></strong></p>
+<p>For those that wish to make changes to their service, you can load definition files as well. Once you are satisfied with your changes, use the definition view to save your file.</p>
+<p><strong><em>* The SADI code generators may require these files to be placed in specific locations. For instance, the Perl SADI code generator requires definitions be placed in your Perl-SADI/definitions directory that can be found in your home directory.</em></strong></p>
 <h3><a name="2"/>Editing your service files</h3>
-        <p>what is a service definnition, outline how to generate a definition;</p>
+<p>The SADI plugin for Protege comes bundled with a text editor (with Perl syntax highlighting) that you can use to edit your SADI service code. The editor doesn't discriminate and allows you to open and edit any file on your local filesystem.</p>
+<p>You may start a new document in the SADI Editor by typing in the textarea or load a pre-existing file by clicking on Open File and selecting the file to load in the area. If you made some edits and wish to save them, then click on the Save File button.</p>
 <h3><a name="3"/>Generating your service code</h3>
-        <p>Describe the service editor tab.</p>
+<p>The SADI Service Generator can generate code for SADI services in either Perl  or Java.</p>
+<h4>SADI Generator for Perl</h4>
+<p>The Perl SADI generator has the ability to generate fully compilable code for SADI services, as well as for OWL classes.</p>
+<blockquote>
+  <p><em>Service Generator</em></p>
+  <p>In order to utilize the service generator, a SADI definition file for a service must be created and placed in the definitions subfolder of the Perl-SADI directory in your home directory. Assuming that a service definition file was created, you can generate a service skeleton by entering the name of the service in the Service Name text field. </p>
+  <p>Depending on whether or not your service is time-consuming, you can choose to generate either a synchronous or asynchronous service skeleton. Once all of your selections have been made, click on the Generate button to have the SADI service skeleton created.</p>
+  <p><em>OWL to Perl Generator</em></p>
+  <p>The OWL to Perl Generator can generate Perl modules for OWL classes. These classes can come from either a file or by selecting an OWL class from Protege's OWL Class Hierarchy.</p>
+  <p>To generate Perl modules from an existing ontology, make sure to select Generate Code from OWL File and to either enter the full path to the ontology, or to select the ontology using the file chooser. When you click on Generate, the modules will be generated into the Perl-SADI/generated subfolder in your home directory. This process can take several minutes.</p>
+  <p>If you prefer to generate modules for just those OWL classes that you wish to use in your service, then selecting the OWL class from Protege's OWL Class Hierarchy and click on the Generate button. Again, the modules will be generated into the Perl-SADI/generated subfolder in your home directory.</p>
+</blockquote>
+<h4>SADI Generator for JAVA</h4>
+<p>TODO</p>
 <h3><a name="4"></a>Testing SADI services</h3>
-<p>outline how to generate service code; how to generate owl class code (perl)</p>
+<p>The SADI plugin for Protege has a very simple client that can be used to test SADI services. The SADI Simple Client view is composed of 3 sub panels: Service Invocation, Input Data and Service Results.</p>
+<h4>Service Invocation</h4>
+<blockquote>
+  <p>This sub	panel is where the URL for the service is specified. Assuming that you have already specified the input for the service (using the Input Data sub panel), you can call the service by clicking on the Call Service button. If you feel like cancelling the service call, then hit Cancel.</p>
+</blockquote>
+<h4>Input Data</h4>
+<blockquote>
+  <p>The Input Data sub panel allows you to either select a file to send a SADI service or to choose an OWL individual from Protege's OWL Individual view.</p>
+  <p>Choosing an individual from Protege's OWL Individual view allows you to also save the individual in a separate file. To save the selected individual, click on the Save Input button.</p>
+  <p>The last button in the Input Data subpanel is a button that allows you to create SADI unit tests. All that is required to create a unit test is the location of your input and output files for the SADI service that you would like to test. Click on the save button and the unit test will be saved.<em><strong>*</strong></em></p>
+  <p><strong><em>* The SADI code generators may require these files to be placed in specific locations. For instance, the Perl SADI code generator requires unit tests be placed in your Perl-SADI/unittest directory that can be found in your home directory.</em></strong></p>
+</blockquote>
+<h4>Service Results</h4>
+<blockquote>
+  <p>Service results are always shown in the Service Results sub panel.</p>
+</blockquote>
 <h3><a name="4"></a>Getting help</h3>
+<p>[TODO]</p>
+<p><a href="&#101;&#100;&#119;&#97;&#114;&#100;&#46;&#107;&#97;&#119;&#97;&#115;+&#115;&#97;&#100;&#105;&#115;&#101;&#115;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">Email me</a></p>
 <p>outline where to get help, how to request new features and who to send bug reports to</p>
 </body>
 </html>
