@@ -1,5 +1,9 @@
 package ca.wilkinsonlab.sadi.service;
 
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
+
 import com.hp.hpl.jena.rdf.model.Model;
 
 /**
@@ -9,10 +13,18 @@ import com.hp.hpl.jena.rdf.model.Model;
 @SuppressWarnings("serial")
 public abstract class SynchronousServiceServlet extends ServiceServlet
 {
+	@Override
+	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
+	{
+		super.outputSuccessResponse(response, outputModel);
+		closeOutputModel(outputModel);
+	}
+	
+	@Override
 	public void processInput(ServiceCall call)
 	{
 		processInput(call.getInputModel(), call.getOutputModel());
-		call.getInputModel().close();
+		closeInputModel(call.getInputModel());
 	}
 	
 	protected abstract void processInput(Model inputModel, Model outputModel);

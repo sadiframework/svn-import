@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
 
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 @SuppressWarnings("serial")
@@ -30,18 +31,18 @@ public abstract class UniProtServiceServlet extends AsynchronousServiceServlet
 	}
 	
 	@Override
-	protected InputProcessingTask getInputProcessingTask(Collection<Resource> inputNodes)
+	protected InputProcessingTask getInputProcessingTask(Model inputModel, Collection<Resource> inputNodes)
 	{
-		return new UniProtInputProcessingTask(inputNodes);
+		return new UniProtInputProcessingTask(inputModel, inputNodes);
 	}
 	
 	protected abstract void processInput(UniProtEntry input, Resource output);
 	
 	private class UniProtInputProcessingTask extends InputProcessingTask
 	{	
-		public UniProtInputProcessingTask(Collection<Resource> inputNodes)
+		public UniProtInputProcessingTask(Model inputModel, Collection<Resource> inputNodes)
 		{
-			super(inputNodes);
+			super(inputModel, inputNodes);
 		}
 
 		public void run()
