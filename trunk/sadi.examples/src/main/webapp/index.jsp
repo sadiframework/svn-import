@@ -28,6 +28,7 @@
 	       -->
 	      <ul>
 	      	<li><a href="echo">Simply echo input</a></li>
+	      	<li><a href="hello">Hello, world!</a></li>
 	      	<li><a href="linear">Compute linear regression model (synchronous)</a></li>
 	      	<li><a href="linear-async">Compute linear regression model (asynchronous)</a></li>
 	      	<li><a href="uniprotInfo">List name, description and organism for a given UniProt ID</a></li>
@@ -35,7 +36,7 @@
 	      	<li><a href="uniprot2pdb">Find PDB entries corresponding to a given UniProt ID</a></li>
 	      	<li><a href="uniprot2pubmed">Find published papers associated with a given UniProt ID</a></li>
 	      </ul>
-	      <p>Updated Thu Feb 25 12:17:28 PST 2010</p>
+	      <p>Updated Fri 26 Mar 2010 05:09:21 PDT</p>
         </div> <!-- content -->
         <div id='footer'>
           <img class="sponsor" style="margin-top: 10px;" src="http://sadiframework.org/images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
