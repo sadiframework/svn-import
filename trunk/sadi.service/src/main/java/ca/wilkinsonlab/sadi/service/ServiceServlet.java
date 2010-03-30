@@ -26,6 +26,7 @@ import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
@@ -40,22 +41,35 @@ import com.hp.hpl.jena.vocabulary.RDF;
 public abstract class ServiceServlet extends HttpServlet
 {
 	private static final Logger log = Logger.getLogger(ServiceServlet.class);
+
+	protected QueryableErrorHandler errorHandler;
+	protected ModelMaker modelMaker;
+	protected Model serviceModel;
 	
 	protected Configuration config;
 	protected String serviceName;
 	protected String serviceUrl;
-	protected Model serviceModel;
 	protected OntModel ontologyModel;
 	protected OntClass inputClass;
 	protected OntClass outputClass;
-	protected ModelMaker modelMaker;
 	protected ServiceOntologyHelper serviceOntologyHelper;
-	protected QueryableErrorHandler errorHandler;
 	
 	@Override
 	public synchronized void init() throws ServletException
 	{
+		log.trace("entering ServiceServlet.init()");
+		
+		if (serviceModel != null) {
+			log.fatal("multiple calls to ServiceServlet.init()");
+			throw new ServletException("multiple calls to ServiceServlet.init()");
+		}
+
+		errorHandler = new QueryableErrorHandler();
+		modelMaker = createModelMaker();  // TODO support persistent models in properties file?
+		serviceModel = createServiceModel();
+		
 		try {
+			log.trace("reading service configuration");
 			config = Config.getConfiguration().getServiceConfiguration(this);
 		} catch (ConfigurationException e) {
 			log.fatal("error configuring service servlet", e);
@@ -73,10 +87,6 @@ public abstract class ServiceServlet extends HttpServlet
 		serviceUrl = (System.getProperty("sadi.service.ignoreForcedURL") != null) ?
 				null : config.getString("url");
 		
-		modelMaker = createModelMaker();  // TODO support persistent models in properties file?
-		errorHandler = new QueryableErrorHandler();
-		serviceModel = createServiceModel();
-		
 		String serviceModelUrl = config.getString("rdf");
 		if (serviceModelUrl != null) {
 			try {
@@ -85,7 +95,9 @@ public abstract class ServiceServlet extends HttpServlet
 				 */
 				try {
 					serviceModel.read(new URL(serviceModelUrl).toString());
+					log.debug(String.format("read service model from URL %s", serviceModelUrl));
 				} catch (MalformedURLException e) {
+					log.debug(String.format("reading service model from classpath location %s", serviceModelUrl));
 					serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), StringUtils.defaultString(serviceUrl));
 				}
 				if (errorHandler.hasLastError())
@@ -99,6 +111,7 @@ public abstract class ServiceServlet extends HttpServlet
 			try {
 				/* create the service model from the information in the config...
 				 */
+				log.trace("creating service description model");
 				serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel, serviceUrl, true);
 				serviceOntologyHelper.setName(config.getString("name", "noname"));
 				serviceOntologyHelper.setDescription(config.getString("description", "no description"));
@@ -109,10 +122,12 @@ public abstract class ServiceServlet extends HttpServlet
 			}
 		}
 
+		log.trace("creating service ontology model");
 		ontologyModel = createOntologyModel();
 		
 		try {
 			String inputClassUri = serviceOntologyHelper.getInputClass().getURI();
+			log.trace(String.format("loading input class %s", inputClassUri));
 			OwlUtils.loadOntologyForUri(ontologyModel, inputClassUri);
 			inputClass = ontologyModel.getOntClass(inputClassUri);
 			if (errorHandler.hasLastError())
@@ -123,12 +138,13 @@ public abstract class ServiceServlet extends HttpServlet
 		
 		try {
 			String outputClassUri = serviceOntologyHelper.getOutputClass().getURI();
+			log.trace(String.format("loading output class %s", outputClassUri));
 			OwlUtils.loadOntologyForUri(ontologyModel, outputClassUri);
 			outputClass = ontologyModel.getOntClass(outputClassUri);
 			if (errorHandler.hasLastError())
 				throw errorHandler.getLastError();
 		} catch (Exception e) {
-			throw new ServletException("error loading input class: " + e.toString(), e);
+			throw new ServletException("error loading output class: " + e.toString(), e);
 		}
 	}
 
@@ -160,9 +176,9 @@ public abstract class ServiceServlet extends HttpServlet
 		} catch (Exception e) {
 			outputErrorResponse(response, e);
 			if (inputModel != null)
-				inputModel.close();
+				closeInputModel(inputModel);
 			if (outputModel != null)
-				outputModel.close();
+				closeOutputModel(outputModel);
 		}
 	}
 	
@@ -200,16 +216,18 @@ public abstract class ServiceServlet extends HttpServlet
 		 * relative URIs...
 		 */
 		response.setContentType("application/rdf+xml");
-		serviceModel.write(response.getWriter(), "RDF/XML", request.getRequestURL().toString());
+		RDFWriter writer = serviceModel.getWriter("RDF/XML-ABBREV");
+		writer.write(serviceModel, response.getWriter(), request.getRequestURL().toString());
 	}
 	
 	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
 	{
-		/* TODO add a mechanims to specify a web-accessible location on disk
+		/* TODO add a mechanism to specify a web-accessible location on disk
 		 * where the servlet can dump the output model and redirect to it...
 		 */
 		response.setContentType("application/rdf+xml");
-		outputModel.write(response.getWriter());
+		RDFWriter writer = outputModel.getWriter("RDF/XML-ABBREV");
+		writer.write(outputModel, response.getWriter(), "");
 	}
 	
 	protected void outputErrorResponse(HttpServletResponse response, Throwable error) throws IOException
@@ -226,8 +244,10 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	protected OntModel createOntologyModel()
 	{
-		// TODO do we actually need reasoning here?
-		OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_RULE_INF);
+		/* according to the SADI spec, input nodes are explicitly typed, so
+		 * we don't need any reasoning here...
+		 */
+		OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
 		model.getReader().setErrorHandler(errorHandler);
 		return model;
 	}
@@ -246,11 +266,27 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	protected Model createInputModel()
 	{
-		return modelMaker.createFreshModel();
+		Model model = modelMaker.createFreshModel();
+		log.trace(String.format("created input model %s", model.hashCode()));
+		return model;
+	}
+	
+	protected void closeInputModel(Model model)
+	{
+		model.close();
+		log.trace(String.format("closed input model %s", model.hashCode()));
 	}
 	
 	protected Model createOutputModel()
 	{
-		return modelMaker.createFreshModel();
+		Model model = modelMaker.createFreshModel();
+		log.trace(String.format("created output model %s", model.hashCode()));
+		return model;
+	}
+	
+	protected void closeOutputModel(Model model)
+	{
+		model.close();
+		log.trace(String.format("closed output model %s", model.hashCode()));
 	}
 }

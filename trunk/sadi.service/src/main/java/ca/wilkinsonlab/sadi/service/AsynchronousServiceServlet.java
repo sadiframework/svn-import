@@ -1,6 +1,7 @@
 package ca.wilkinsonlab.sadi.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -16,7 +17,9 @@ import ca.wilkinsonlab.sadi.utils.DurationUtils;
 import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.util.ResourceUtils;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
@@ -69,7 +72,8 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	{
 		response.setStatus(HttpServletResponse.SC_ACCEPTED);
 		response.setContentType("application/rdf+xml");
-		outputModel.write(response.getWriter());
+		RDFWriter writer = outputModel.getWriter("RDF/XML-ABBREV");
+		writer.write(outputModel, response.getWriter(), "");
 	}
 
 	private void outputInterimResponse(HttpServletResponse response, String redirectUrl, long waitTime) throws IOException
@@ -94,20 +98,37 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		Model outputModel = call.getOutputModel();
 		
 		for (Iterator<Collection<Resource>> batches = getInputBatches(inputModel); batches.hasNext(); ) {
+			Collection<Resource> batch = batches.next();
+			
+			/* create a new model for each input batch so that the task
+			 * can dispose of it when it's done (and we can dispose of the
+			 * encompassing model now...)
+			 */
+			Model subInputModel = createInputModel();
+			Collection<Resource> newBatch = new ArrayList<Resource>(batch.size());
+			for (Resource inputNode: batch) {
+				subInputModel.add(ResourceUtils.reachableClosure(inputNode));
+				newBatch.add(inputNode.inModel(subInputModel).as(Resource.class));
+			}
+			
 			/* process each input batch in it's own task thread...
 			 */
-			Collection<Resource> batch = batches.next();
-			InputProcessingTask task = getInputProcessingTask(batch);
+			InputProcessingTask task = getInputProcessingTask(subInputModel, newBatch);
 			TaskManager.getInstance().startTask(task);
 			
 			/* add the poll location data to the output that will be returned immediately...
 			 */
 			Resource pollResource = outputModel.createResource(getPollUrl(call.getRequest(), task.getId()));
-			for (Resource inputNode: batch) {
+			for (Resource inputNode: newBatch) {
 				Resource outputNode = outputModel.getResource(inputNode.getURI());
 				outputNode.addProperty(RDFS.isDefinedBy, pollResource);
 			}
 		}
+	
+		/* input model is partitioned among the input processing tasks, so
+		 * we can dispose of it here...
+		 */
+		closeInputModel(inputModel);
 	}
 	
 	protected String getPollUrl(HttpServletRequest request, String taskId)
@@ -129,15 +150,17 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		}
 	}
 	
-	protected abstract InputProcessingTask getInputProcessingTask(Collection<Resource> inputNodes);
+	protected abstract InputProcessingTask getInputProcessingTask(Model inputModel, Collection<Resource> inputNodes);
 	
 	protected abstract class InputProcessingTask extends Task
 	{
+		protected Model inputModel;
 		protected Collection<Resource> inputNodes;
 		protected Model outputModel;
 		
-		public InputProcessingTask(Collection<Resource> inputNodes)
+		public InputProcessingTask(Model inputModel, Collection<Resource> inputNodes)
 		{
+			this.inputModel = inputModel;
 			this.inputNodes = inputNodes;
 			outputModel = createOutputModel();
 		}
@@ -145,7 +168,8 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		public void dispose()
 		{
 			inputNodes.clear();
-			outputModel.close();
+			closeInputModel(inputModel);
+			closeOutputModel(outputModel);
 		}
 		
 		public Collection<Resource> getInputNodes()

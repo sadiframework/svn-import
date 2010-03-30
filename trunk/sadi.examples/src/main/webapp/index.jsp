@@ -36,7 +36,7 @@
 	      	<li><a href="uniprot2pdb">Find PDB entries corresponding to a given UniProt ID</a></li>
 	      	<li><a href="uniprot2pubmed">Find published papers associated with a given UniProt ID</a></li>
 	      </ul>
-	      <p>Updated Fri 26 Mar 2010 05:09:21 PDT</p>
+	      <p>updated Tue 30 Mar 2010 13:20:04 PDT</p>
         </div> <!-- content -->
         <div id='footer'>
           <img class="sponsor" style="margin-top: 10px;" src="http://sadiframework.org/images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
