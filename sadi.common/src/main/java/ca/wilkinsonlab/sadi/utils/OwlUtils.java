@@ -11,6 +11,8 @@ import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.common.Config;
 import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.utils.graph.BreadthFirstIterator;
+import ca.wilkinsonlab.sadi.utils.graph.SearchNode;
 
 import com.hp.hpl.jena.ontology.ConversionException;
 import com.hp.hpl.jena.ontology.OntClass;
@@ -25,6 +27,7 @@ import com.hp.hpl.jena.rdf.model.RDFList;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
@@ -200,6 +203,71 @@ public class OwlUtils
 				loadOntologyForUri(model, statement.getResource().getURI());
 			}
 		}
+	}
+	
+	public static void loadMinimalOntologyForUri(Model model, String uri) throws SADIException 
+	{
+		log.debug(String.format("loading minimal ontology for %s", uri));
+		String ontologyUri = StringUtils.substringBefore(uri, "#");
+		loadMinimalOntologyForUri(model, ontologyUri, uri);
+	}
+	
+	public static void loadMinimalOntologyForUri(Model model, String ontologyUri, String uri) throws SADIException
+	{
+		log.debug(String.format("loading minimal ontology for %s from %s", uri, ontologyUri));
+		loadMinimalOntologyForUri(model, ontologyUri, uri, new HashSet<OntologyUriPair>());
+	}
+
+	protected static void loadMinimalOntologyForUri(Model model, String ontologyUri, String uri, Set<OntologyUriPair> visitedUris) throws SADIException
+	{
+		OntologyUriPair ontologyUriPair = new OntologyUriPair(ontologyUri, uri);
+		if(visitedUris.contains(ontologyUriPair)) {
+			log.debug(String.format("skipping previously loaded uri %s from %s", uri, ontologyUri));
+			return;
+		}
+		visitedUris.add(ontologyUriPair);
+		
+		try {
+			OntModel wholeOntology = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
+			log.debug(String.format("reading whole ontology %s", ontologyUri));
+			wholeOntology.read(ontologyUri);
+
+			log.debug(String.format("computing reachable closure of %s in %s", uri, ontologyUri));
+			Model minimalOntology = getMinimalOntologyFromModel(wholeOntology, uri);
+			
+			/* Michel Dumontier's predicates resolve to a minimal definition that
+			 * doesn't include the inverse relationship, so we need to resolve
+			 * the ontology that contains the complete definition...
+			 * We extract to a list here to prevent concurrent modification exceptions...
+			 */
+			for (Statement statement: minimalOntology.getResource(uri).listProperties(RDFS.isDefinedBy).toList()) {
+				Resource s = statement.getSubject();
+				RDFNode o = statement.getObject();
+				if (s.isURIResource() && o.isURIResource()) {
+					log.debug(String.format("following (%s, rdfs:isDefinedBy, %s)", s, o));
+					loadMinimalOntologyForUri(minimalOntology, ((Resource)o).getURI(), s.getURI(), visitedUris);
+				}
+			}			
+			model.add(minimalOntology);
+		} catch(Exception e) {
+			if (e instanceof SADIException)
+				throw (SADIException)e;
+			else
+				throw new SADIException(e.toString(), e);			
+		}
+	}
+	
+	protected static Model getMinimalOntologyFromModel(Model sourceModel, String uriInSourceModel) 
+	{
+		Model minimalOntology = ModelFactory.createMemModelMaker().createFreshModel();
+		Resource root = sourceModel.getResource(uriInSourceModel);
+		Iterator<Resource> i = new BreadthFirstIterator<Resource>(new MinimalOntologySearchNode(sourceModel, minimalOntology, root));
+		// as BreadthFirstIterator iterates over the resources, it loads the 
+		// statements about each resource into the target model (minimalOntology)
+		while(i.hasNext()) {
+			i.next();
+		}
+		return minimalOntology;
 	}
 	
 	/**
@@ -619,4 +687,84 @@ public class OwlUtils
 			);
 		}
 	}
+	
+	protected static class MinimalOntologySearchNode extends SearchNode<Resource>
+	{
+		Model sourceModel;
+		Model targetModel;
+		
+		public MinimalOntologySearchNode(Model sourceModel, Model targetModel, Resource node)
+		{
+			super(node);
+			this.sourceModel = sourceModel;
+			this.targetModel = targetModel;
+		}
+		
+		@Override
+		public Set<SearchNode<Resource>> getSuccessors() 
+		{
+			Set<SearchNode<Resource>> successors = new HashSet<SearchNode<Resource>>();
+			Resource r = getNode();
+			
+			for(StmtIterator i = r.listProperties(); i.hasNext(); ) {
+				Statement stmt = i.next();
+				RDFNode o = stmt.getObject();
+				if(o.isResource()) {
+					targetModel.add(stmt);
+					successors.add(new MinimalOntologySearchNode(sourceModel, targetModel, o.as(Resource.class)));
+				}
+			}
+			
+			// If we just compute a normal directed closure starting from the root URI, we may miss  
+			// equivalent/inverse/disjoint properties.  (Since these relationships may only be asserted in 
+			// one direction.)  
+			
+			for(StmtIterator i = sourceModel.listStatements(null, OWL.equivalentProperty, r); i.hasNext(); ) {
+				Statement stmt = i.next();
+				targetModel.add(stmt);
+				successors.add(new MinimalOntologySearchNode(sourceModel, targetModel, stmt.getSubject()));
+			}
+
+			for(StmtIterator i = sourceModel.listStatements(null, OWL.inverseOf, r); i.hasNext(); ) {
+				Statement stmt = i.next();
+				targetModel.add(stmt);
+				successors.add(new MinimalOntologySearchNode(sourceModel, targetModel, stmt.getSubject()));
+			}
+
+			for(StmtIterator i = sourceModel.listStatements(null, OWL.disjointWith, r); i.hasNext(); ) {
+				Statement stmt = i.next();
+				targetModel.add(stmt);
+				successors.add(new MinimalOntologySearchNode(sourceModel, targetModel, stmt.getSubject()));
+			}
+			
+			return successors;
+		}
+		
+	}
+	
+	protected static class OntologyUriPair 
+	{
+		public String ontologyUri;
+		public String uri;
+		
+		public OntologyUriPair(String ontologyUri, String uri)
+		{
+			this.ontologyUri = ontologyUri;
+			this.uri = uri;
+		}
+		
+		public boolean equals(Object o) 
+		{
+			if(o instanceof OntologyUriPair) {
+				OntologyUriPair other = (OntologyUriPair)o;
+				return (ontologyUri.equals(other.ontologyUri) && uri.equals(other.uri));
+			}
+			return false;
+		}
+		
+		public int hashCode() 
+		{
+			return (ontologyUri + uri).hashCode();
+		}
+	}	
 }
