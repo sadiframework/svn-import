@@ -23,6 +23,7 @@ import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFList;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -207,7 +208,6 @@ public class OwlUtils
 	
 	public static void loadMinimalOntologyForUri(Model model, String uri) throws SADIException 
 	{
-		log.debug(String.format("loading minimal ontology for %s", uri));
 		String ontologyUri = StringUtils.substringBefore(uri, "#");
 		loadMinimalOntologyForUri(model, ontologyUri, uri);
 	}
@@ -229,10 +229,8 @@ public class OwlUtils
 		
 		try {
 			OntModel wholeOntology = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
-			log.debug(String.format("reading whole ontology %s", ontologyUri));
 			wholeOntology.read(ontologyUri);
 
-			log.debug(String.format("computing reachable closure of %s in %s", uri, ontologyUri));
 			Model minimalOntology = getMinimalOntologyFromModel(wholeOntology, uri);
 			
 			/* Michel Dumontier's predicates resolve to a minimal definition that
@@ -718,25 +716,25 @@ public class OwlUtils
 			// If we just compute a normal directed closure starting from the root URI, we may miss  
 			// equivalent/inverse/disjoint properties.  (Since these relationships may only be asserted in 
 			// one direction.)  
+			// 
+			// We also need to know all subproperties of an included property, or service discovery 
+			// will not work correctly.
 			
-			for(StmtIterator i = sourceModel.listStatements(null, OWL.equivalentProperty, r); i.hasNext(); ) {
-				Statement stmt = i.next();
-				targetModel.add(stmt);
-				successors.add(new MinimalOntologySearchNode(sourceModel, targetModel, stmt.getSubject()));
+			Property reverseProperties[] = {
+					OWL.equivalentProperty,
+					OWL.inverseOf,
+					OWL.disjointWith,
+					RDFS.subPropertyOf, 
+				};
+			
+			for(Property reverseProperty : reverseProperties) {
+				for(StmtIterator i = sourceModel.listStatements(null, reverseProperty, r); i.hasNext(); ) {
+					Statement stmt = i.next();
+					targetModel.add(stmt);
+					successors.add(new MinimalOntologySearchNode(sourceModel, targetModel, stmt.getSubject()));
+				}
 			}
 
-			for(StmtIterator i = sourceModel.listStatements(null, OWL.inverseOf, r); i.hasNext(); ) {
-				Statement stmt = i.next();
-				targetModel.add(stmt);
-				successors.add(new MinimalOntologySearchNode(sourceModel, targetModel, stmt.getSubject()));
-			}
-
-			for(StmtIterator i = sourceModel.listStatements(null, OWL.disjointWith, r); i.hasNext(); ) {
-				Statement stmt = i.next();
-				targetModel.add(stmt);
-				successors.add(new MinimalOntologySearchNode(sourceModel, targetModel, stmt.getSubject()));
-			}
-			
 			return successors;
 		}
 		
