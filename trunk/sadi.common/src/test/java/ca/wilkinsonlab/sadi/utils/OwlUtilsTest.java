@@ -179,6 +179,7 @@ public class OwlUtilsTest
 		Resource propB = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "PropertyB");
 		Resource propC = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "PropertyC");
 		Resource propD = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "PropertyD");
+		Resource propE = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "PropertyE");
 		
 		try {
 			OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF);
@@ -191,10 +192,11 @@ public class OwlUtilsTest
 			assertTrue(String.format("minimal ontology is missing %s", propA), ontModel.containsResource(propA));
 			assertTrue(String.format("minimal ontology is missing %s", propB), ontModel.containsResource(propB));
 			assertTrue(String.format("minimal ontology is missing %s", propC), ontModel.containsResource(propC));
+			assertTrue(String.format("minimal ontology is missing %s", propD), ontModel.containsResource(propD));
 
 			// stuff that the minimal model shouldn't have
 			assertFalse(String.format("minimal ontology should not contain %s", classC), ontModel.containsResource(classC));
-			assertFalse(String.format("minimal ontology should not contain %s", propD), ontModel.containsResource(propD));
+			assertFalse(String.format("minimal ontology should not contain %s", propE), ontModel.containsResource(propE));
 			
 		} catch(Exception e) {
 			fail(String.format("failed to load minimal ontology for %s:\n%s", rootUri, ExceptionUtils.getStackTrace(e)));

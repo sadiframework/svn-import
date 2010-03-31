@@ -60,7 +60,10 @@
         <rdfs:subPropertyOf rdf:resource="#PropertyA"/>
     </owl:ObjectProperty>
     
+    <!-- #PropertyE -->
 
+    <owl:ObjectProperty rdf:about="#PropertyE"/>
+    
 
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
