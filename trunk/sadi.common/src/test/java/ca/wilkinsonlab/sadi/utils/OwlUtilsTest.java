@@ -1,6 +1,8 @@
 package ca.wilkinsonlab.sadi.utils;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,12 +21,16 @@ import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 public class OwlUtilsTest
 {
 	static final String NS = "http://sadiframework.org/ontologies/OwlUtilsTest.owl#";
+	static final String MINIMAL_ONTOLOGY_NS = "http://sadiframework.org/ontologies/test/MinimalOntologyTest.owl#";
+	
 	static OntModel model;
 	
 	
@@ -158,5 +164,40 @@ public class OwlUtilsTest
 		}
 		assertTrue("getValuesFrom did not return expected class",
 				restrictionValuesFrom.contains(NS + "ValuesFromClass"));
+	}
+	
+	@Test
+	public void testLoadMinimalOntologyFromUri()
+	{
+		String rootUri = MINIMAL_ONTOLOGY_NS + "ClassD";
+
+		Resource classD = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "ClassD");
+		Resource classA = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "ClassA");
+		Resource classB = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "ClassB");
+		Resource classC = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "ClassC");
+		Resource propA = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "PropertyA");
+		Resource propB = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "PropertyB");
+		Resource propC = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "PropertyC");
+		Resource propD = ResourceFactory.createResource(MINIMAL_ONTOLOGY_NS + "PropertyD");
+		
+		try {
+			OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF);
+			OwlUtils.loadMinimalOntologyForUri(ontModel, rootUri);
+			
+			// stuff that the minimal model should have
+			assertTrue(String.format("minimal ontology is missing %s", classA), ontModel.containsResource(classA));
+			assertTrue(String.format("minimal ontology is missing %s", classB), ontModel.containsResource(classB));
+			assertTrue(String.format("minimal ontology is missing %s", classD), ontModel.containsResource(classD));
+			assertTrue(String.format("minimal ontology is missing %s", propA), ontModel.containsResource(propA));
+			assertTrue(String.format("minimal ontology is missing %s", propB), ontModel.containsResource(propB));
+			assertTrue(String.format("minimal ontology is missing %s", propC), ontModel.containsResource(propC));
+
+			// stuff that the minimal model shouldn't have
+			assertFalse(String.format("minimal ontology should not contain %s", classC), ontModel.containsResource(classC));
+			assertFalse(String.format("minimal ontology should not contain %s", propD), ontModel.containsResource(propD));
+			
+		} catch(Exception e) {
+			fail(String.format("failed to load minimal ontology for %s:\n%s", rootUri, ExceptionUtils.getStackTrace(e)));
+		}
 	}
 }
