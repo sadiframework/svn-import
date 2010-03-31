@@ -8,6 +8,8 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
+import com.hp.hpl.jena.datatypes.TypeMapper;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.rdf.model.Literal;
@@ -222,6 +224,18 @@ public class RdfUtils
 //			str = node.getLiteral().getLexicalForm().toString();
 			str = node.getLiteralLexicalForm();
 		return str;
+	}
+	
+	public static Literal createTypedLiteral(String jenaToString)
+	{
+		int splitPoint = jenaToString.lastIndexOf("^^");
+		if (splitPoint < 0)
+			return ResourceFactory.createPlainLiteral(jenaToString);
+		
+		String value = jenaToString.substring(0, splitPoint);
+		String datatypeURI = jenaToString.substring(splitPoint+2);
+		RDFDatatype datatype = TypeMapper.getInstance().getTypeByName(datatypeURI);
+		return ResourceFactory.createTypedLiteral(value, datatype);
 	}
 	
 //	/**
