@@ -26,11 +26,14 @@ import org.biomoby.shared.data.MobyDataObject;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -45,6 +48,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 public class BioMobyService extends MobyService implements Service
 {
 	private static final Logger log = Logger.getLogger(BioMobyService.class);
+	private static final String LSRN_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
 	
 	/* Maps article name => argument
 	 * 
@@ -90,6 +94,7 @@ public class BioMobyService extends MobyService implements Service
 	
 	private OntClass inputClass;
 	private OntClass outputClass;
+	private OntModel ontModel;
 	
 	BioMobyService()
 	{
@@ -100,6 +105,7 @@ public class BioMobyService extends MobyService implements Service
 		predicateInputMap = new HashMap<String, String>();
 		predicateOutputMap = new HashMap<String, String>();
 		constructQueryCache = new ConstructQueryCache();
+		ontModel = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
 	}
 	
 	void setSourceRegistry(BioMobyRegistry sourceRegistry)
@@ -252,22 +258,37 @@ public class BioMobyService extends MobyService implements Service
 	public synchronized OntClass getInputClass()
 	{
 		if (inputClass == null) {
+
+			if (getNumPrimaryInputs() > 1) {
+				log.warn("this interface is invalid for BioMoby services with more than one primary input");
+				return null;
+			} 
+			
 			String inputClassUri = getURI() + "#input";
-			inputClass = sourceRegistry.getTypeOntology().getOntClass(inputClassUri);
-			if (inputClass == null) {
-				if (getNumPrimaryInputs() > 1) {
-					log.warn("this interface is invalid for BioMoby services with more than one primary input");
-					inputClass = sourceRegistry.getTypeOntology().createClass(inputClassUri);
-				} else {
-					RDFList namespaceTypes = sourceRegistry.getTypeOntology().createList();
-					for (MobyNamespace namespace: getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces())
-						namespaceTypes = namespaceTypes.with(sourceRegistry.getTypeByNamespace(namespace));
-					inputClass = sourceRegistry.getTypeOntology().createUnionClass(inputClassUri, namespaceTypes);
-				}
-			}
+			RDFList namespaceTypes = ontModel.createList();
+			for (MobyNamespace namespace: getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces()) 
+				namespaceTypes = namespaceTypes.with(getTypeByNamespace(namespace));
+			inputClass = ontModel.createUnionClass(inputClassUri, namespaceTypes);
 		}
+		
 		return inputClass;
 	}
+	
+	public synchronized OntClass getTypeByNamespace(MobyNamespace ns)
+	{
+		String uri = String.format("%s%s_Record", LSRN_PREFIX, ns.getName());
+		try {
+			OwlUtils.loadMinimalOntologyForUri(ontModel, uri);
+		} catch(SADIException e) {
+			log.warn(String.format("error loading minimal ontology for %s", uri), e);
+		}
+		OntClass type = ontModel.getOntClass(uri);
+		if (type == null) {
+			log.trace(String.format("creating class %s", uri));
+			type = ontModel.createClass(uri);
+		}
+		return type;
+	}		
 	
 	/**
 	 * Returns an OntClass describing the output this service produces.

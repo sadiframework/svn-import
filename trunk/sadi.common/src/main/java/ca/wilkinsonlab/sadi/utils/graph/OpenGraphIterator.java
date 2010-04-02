@@ -34,6 +34,17 @@ public abstract class OpenGraphIterator<V> implements Iterator<V> {
 		setNodeVistationConstraint(nodeVistationConstraint);
 	}
 
+	/**
+	 * Iterate through the entire graph traversal, without stopping.  This 
+	 * method is useful when the caller is only interested in the side effects
+	 * of the complete traversal (e.g. a shortest path calculation). 
+	 */
+	public void iterate() {
+		while(this.hasNext()) { 
+			this.next(); 
+		}
+	}
+
 	protected void addVisitedNode(SearchNode<V> node) {
 		visitedNodes.add(node);
 		if(getNodeVistationConstraint() != null) {

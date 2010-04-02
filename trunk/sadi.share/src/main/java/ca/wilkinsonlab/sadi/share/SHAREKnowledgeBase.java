@@ -373,7 +373,7 @@ public class SHAREKnowledgeBase
 	{
 		OntProperty p = null;
 		try {
-			OwlUtils.getOntPropertyWithLoad(reasoningModel, uri);
+			p = OwlUtils.getOntPropertyWithLoad(reasoningModel, uri);
 		} catch (SADIException e) {
 			log.error(e.getMessage());
 		}
@@ -446,6 +446,20 @@ public class SHAREKnowledgeBase
 				log.trace(String.format("adding triple to data model %s", triple));
 				RdfUtils.addTripleToModel(dataModel, triple);
 			}
+			
+			/* load minimal ontologies for any undefined properties 
+			 * that appear in the output data
+			 */
+			for (Triple triple: output) {
+				if(triple.getPredicate().isURI()) {
+					try {
+						OwlUtils.getOntPropertyWithLoad(reasoningModel, triple.getPredicate().getURI());
+					} catch (SADIException e) {
+						log.error(e.getMessage());
+					}
+				}
+			}
+			
 		}
 	}
 	

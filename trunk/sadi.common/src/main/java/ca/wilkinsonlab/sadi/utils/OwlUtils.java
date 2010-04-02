@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import ca.wilkinsonlab.sadi.common.Config;
 import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.utils.graph.BreadthFirstIterator;
+import ca.wilkinsonlab.sadi.utils.graph.OpenGraphIterator;
 import ca.wilkinsonlab.sadi.utils.graph.SearchNode;
 
 import com.hp.hpl.jena.ontology.ConversionException;
@@ -214,7 +215,6 @@ public class OwlUtils
 	
 	public static void loadMinimalOntologyForUri(Model model, String ontologyUri, String uri) throws SADIException
 	{
-		log.debug(String.format("loading minimal ontology for %s from %s", uri, ontologyUri));
 		loadMinimalOntologyForUri(model, ontologyUri, uri, new HashSet<OntologyUriPair>());
 	}
 
@@ -225,6 +225,8 @@ public class OwlUtils
 			log.debug(String.format("skipping previously loaded uri %s from %s", uri, ontologyUri));
 			return;
 		}
+
+		log.debug(String.format("loading minimal ontology for %s from %s", uri, ontologyUri));
 		visitedUris.add(ontologyUriPair);
 		
 		try {
@@ -259,12 +261,11 @@ public class OwlUtils
 	{
 		Model minimalOntology = ModelFactory.createMemModelMaker().createFreshModel();
 		Resource root = sourceModel.getResource(uriInSourceModel);
-		Iterator<Resource> i = new BreadthFirstIterator<Resource>(new MinimalOntologySearchNode(sourceModel, minimalOntology, root));
-		// as BreadthFirstIterator iterates over the resources, it loads the 
-		// statements about each resource into the target model (minimalOntology)
-		while(i.hasNext()) {
-			i.next();
-		}
+		OpenGraphIterator<Resource> i = new BreadthFirstIterator<Resource>(new MinimalOntologySearchNode(sourceModel, minimalOntology, root));
+		// we are only interested in the side effect of the iteration, 
+		// which is to load statements about each of the visited resources
+		// into the target model (minimalOntology)
+		i.iterate();
 		return minimalOntology;
 	}
 	
@@ -281,7 +282,7 @@ public class OwlUtils
 		if (p != null)
 			return p;
 		
-		loadOntologyForUri(model, uri);
+		loadMinimalOntologyForUri(model, uri);
 		return model.getOntProperty(uri);
 	}
 	
@@ -298,7 +299,7 @@ public class OwlUtils
 		if (c != null)
 			return c;
 		
-		loadOntologyForUri(model, uri);
+		loadMinimalOntologyForUri(model, uri);
 		return model.getOntClass(uri);
 	}
 	
