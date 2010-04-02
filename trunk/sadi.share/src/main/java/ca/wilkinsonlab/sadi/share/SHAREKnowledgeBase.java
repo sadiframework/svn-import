@@ -628,10 +628,19 @@ public class SHAREKnowledgeBase
 		}
 
 		log.trace(String.format("finding instances of %s", inputClass));
-		inputClass = inOurModel(inputClass);
+
+		/* TODO this will cause a problem if different ontologies accessed in
+		 * the same query have conflicting definitions; it might be worth
+		 * changing OwlUtils.getOnt(Class|Property)WithLoad to only load the
+		 * reachable closure of each requested URI...  Also, we'll need a
+		 * really descriptive error message for when this happens...
+		 */
+		reasoningModel.addSubModel(inputClass.getOntModel());
+		OntClass inOurModel = reasoningModel.getOntClass(inputClass.getURI());		
+
 //		Set<? extends OntResource> instances = inputClass.listInstances().toSet();
 		Set<String> instanceURIs = new HashSet<String>();
-		for (Iterator<? extends OntResource> i = inputClass.listInstances(); i.hasNext(); ) {
+		for (Iterator<? extends OntResource> i = inOurModel.listInstances(); i.hasNext(); ) {
 			OntResource r = i.next();
 			instanceURIs.add(r.getURI());
 		}
@@ -645,18 +654,8 @@ public class SHAREKnowledgeBase
 				i.remove();
 			}
 		}
-	}
-	
-	private OntClass inOurModel(OntClass c)
-	{
-		/* TODO this will cause a problem if different ontologies accessed in
-		 * the same query have conflicting definitions; it might be worth
-		 * changing OwlUtils.getOnt(Class|Property)WithLoad to only load the
-		 * reachable closure of each requested URI...  Also, we'll need a
-		 * really descriptive error message for when this happens...
-		 */
-		reasoningModel.addSubModel(c.getOntModel());
-		return reasoningModel.getOntClass(c.getURI());
+		
+		reasoningModel.removeSubModel(inputClass.getOntModel());
 	}
 	
 	private void filterByInputClassIndividually(Set<RDFNode> subjects, Service service)
