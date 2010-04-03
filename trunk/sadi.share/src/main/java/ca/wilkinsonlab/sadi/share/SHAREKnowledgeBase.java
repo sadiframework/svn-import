@@ -881,8 +881,21 @@ public class SHAREKnowledgeBase
 		
 		private String getHashKey(Service service, RDFNode input)
 		{
-			// two URIS, or one URI and one literal, so this should be safe...
-			return String.format("%s %s", service.getURI(), input.toString());
+			StringBuilder builder = new StringBuilder();
+			
+			builder.append(service.getURI());
+			
+			// more special casing: must differentiate between
+			// inverted and non-inverted sparql services
+			if(service instanceof SPARQLServiceWrapper) {
+				builder.append("(inverted=");
+				builder.append(String.valueOf(((SPARQLServiceWrapper)service).mapInputsToObjectPosition()));
+				builder.append(")");
+			}
+			
+			builder.append(input.toString());
+
+			return builder.toString();
 		}
 
 		private String getHashKey(PotentialValues instances, OntClass asClass)
