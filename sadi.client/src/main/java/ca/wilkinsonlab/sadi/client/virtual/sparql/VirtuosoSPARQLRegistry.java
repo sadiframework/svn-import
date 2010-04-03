@@ -299,8 +299,11 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	{
 		List<SPARQLServiceWrapper> services = new ArrayList<SPARQLServiceWrapper>();
 		try {
-			for(SPARQLEndpoint endpoint: getAllEndpoints())
-				services.add(new SPARQLServiceWrapper(endpoint, this));
+			for(SPARQLEndpoint endpoint: getAllEndpoints()) {
+				// return both inverted and non-inverted versions of the SPARQL service
+				services.add(new SPARQLServiceWrapper(endpoint, this, false));
+				services.add(new SPARQLServiceWrapper(endpoint, this, true));
+			}
 			return services;
 		} catch (IOException e) {
 			throw new SADIException(e.toString());
