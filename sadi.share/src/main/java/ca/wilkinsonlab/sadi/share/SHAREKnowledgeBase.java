@@ -37,6 +37,7 @@ import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -202,51 +203,78 @@ public class SHAREKnowledgeBase
 		for (Triple pattern: queryPatterns) {
 			processPattern(pattern);
 		}
+		
 	}
 	
 	private void processPattern(Triple pattern)
 	{	
 		log.trace(String.format("query pattern %s", pattern));
 		
-		if (!pattern.getPredicate().isURI()) {
-			// this should never happen, but let's be safe...
-			log.warn(String.format("skipping non-URI predicate %s", pattern.getPredicate()));
+		PotentialValues subjects = expandQueryNode(pattern.getSubject());
+		PotentialValues predicates = expandQueryNode(pattern.getPredicate());
+		PotentialValues objects = expandQueryNode(pattern.getObject());
+		
+		Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(predicates.values));
+		
+		/* if the predicate position has bindings, but none of them are URIs, 
+		 * then this pattern has no solutions. 
+		 */
+		if(!predicates.isEmpty() && properties.size() == 0) {
+			log.trace(String.format("pattern has no solution, all bindings for predicate var %s are non-URI values", predicates.key));
 			return;
 		}
-		
-		OntProperty p = getOntProperty(pattern.getPredicate().getURI());
-
-		PotentialValues subjects = expandQueryNode(pattern.getSubject());
-		PotentialValues objects = expandQueryNode(pattern.getObject());
+			
 		if (!subjects.isEmpty()) { // bound subject...
 			if (!objects.isEmpty()) { // bound subject and object...
 				/* now we have a choice...
 				 * TODO this is where Ben's optimizer will plug in to figure
 				 * out which way to go; for now don't invert...
 				 */
-				gatherTriplesByPredicate(subjects, p, objects);
+				gatherTriples(subjects, properties, objects);
 			} else { // bound subject, unbound object...
-				gatherTriplesByPredicate(subjects, p, objects);
+				gatherTriples(subjects, properties, objects);
 			}
 		} else if (!objects.isEmpty()) { // unbound subject, bound object...
-			OntProperty inverse = getInverseProperty(p);
-			gatherTriplesByPredicate(objects, inverse, subjects);
+			gatherTriples(objects, getInverseProperties(properties), subjects);
 		} else { // unbound subject, unbound object...mygrid.org.uk/ontology#bioi
 			/* TODO try to find subjects by looking for instances of input
 			 * classes for services that generate the required property...
 			 */
 			log.warn(String.format("encountered a pattern whose subject and object are both unbound variables %s", pattern));
 		}
-		
-		populateVariableBinding(subjects, p, objects);
-		
-		/* note: this must come after normal processing of the triple pattern,
-		 * so that rdf:type patterns are also resolved against SPARQL endpoints. --BV */
-		if (pattern.getPredicate().getURI().equals(RDF.type.getURI())) {
+
+		populateVariableBinding(subjects, predicates, objects);
+
+		/*
+		 * note: this must come after normal processing of the triple pattern,
+		 * so that rdf:type patterns are also resolved against SPARQL endpoints.
+		 * --BV
+		 */
+		Node p = pattern.getPredicate();
+		if (p.isURI() && p.getURI().equals(RDF.type.getURI())) {
 			processTypePattern(pattern);
 		}
 
 	}
+
+	protected Set<OntProperty> getOntProperties(Collection<Resource> predicates) 
+	{
+		Set<OntProperty> predicateSet = new HashSet<OntProperty>();
+		for (Resource predicate : predicates) {
+			predicateSet.add(getOntProperty(predicate.getURI()));
+		}
+		return predicateSet;
+	}
+
+	protected Set<OntProperty> getInverseProperties(Collection<OntProperty> properties) 
+	{
+		Set<OntProperty> inverseProperties = new HashSet<OntProperty>();
+		for (OntProperty property : properties) {
+			inverseProperties.add(getInverseProperty(property));
+		}
+		return inverseProperties;
+	}		
+
 	
 	/* this now expands a class definition into the triple patterns
 	 * that describe it, so we should be able to use it to convert from
@@ -421,10 +449,10 @@ public class SHAREKnowledgeBase
 	
 	/* gather triples matching a predicate, optionally storing the subjects in an accumulator.
 	 */
-	private void gatherTriplesByPredicate(PotentialValues subjects, OntProperty predicate, PotentialValues objects)
+	private void gatherTriples(PotentialValues subjects, Collection<OntProperty> predicates, PotentialValues objects)
 	{
-		log.debug(String.format("gathering triples with predicate %s", predicate));
 		log.trace(String.format("potential subjects %s", subjects.values));
+
 		if (subjects == null) {
 			log.warn("attempt to call gatherTriplesByPredicate with null subject");
 			return;
@@ -433,13 +461,24 @@ public class SHAREKnowledgeBase
 			return;
 		}
 		
-		log.trace(String.format("finding services by predicate %s", predicate));
-		Set<Service> services = getServicesByPredicate(predicate);
+		Collection<Service> services;
+
+		/* an empty collection indicates that the predicate is an unbound variable */
+		if(predicates.size() == 0) {
+			log.trace("predicate is unbound variable, testing inputs against *all* registered services");
+			services = registry.getAllServices();
+		} else {
+			log.trace(String.format("finding services by predicate(s) %s", predicates));
+			services = getServicesByPredicate(predicates);
+		}
+
 		log.debug(String.format("found %d service%s total", services.size(), services.size() == 1 ? "" : "s"));
+		
 		for (Service service : services) {
 			/* copy the collection of potential inputs as they'll be filtered
 			 * for each service...
 			 */
+			
 			Set<RDFNode> inputs = new HashSet<RDFNode>(subjects.values);
 			Collection<Triple> output = maybeCallService(service, inputs);
 			for (Triple triple: output) {
@@ -459,53 +498,50 @@ public class SHAREKnowledgeBase
 					}
 				}
 			}
-			
 		}
+		
 	}
 	
-	private void populateVariableBinding(PotentialValues subjects, OntProperty predicate, PotentialValues objects)
+	protected void populateVariableBinding(PotentialValues subjects, PotentialValues predicates, PotentialValues objects) 
 	{
-		boolean subjectIsUnboundVar = subjects.isEmpty();
-		boolean objectIsUnboundVar = objects.isEmpty();
-		
-		if (subjects.isEmpty()) {
-			log.trace(String.format("populating variable %s", subjects.variable));
-			if(objects.isEmpty()) {
-				log.trace(String.format("populating variable %s", objects.variable));
-				for (Iterator<Statement> i = reasoningModel.listStatements((Resource)null, predicate, (RDFNode)null); i.hasNext(); ) {
-					Statement statement = i.next();
-					subjects.add(statement.getSubject());
-					objects.add(statement.getObject());
-				}
-			} else {
-				for (RDFNode node: objects.values) {
-					for(Iterator<Resource> i = reasoningModel.listResourcesWithProperty(predicate, node); i.hasNext(); ) {
-						subjects.add(i.next());
-					}
-				}
-			}
-		} else {
-			for (RDFNode node: subjects.values) {
-				if (node.isResource()) {
-					/* TODO make sure subject is in the reasoning model, or we'll
-					 * miss equivalent properties...
-					 */
-					Resource subject = node.inModel(reasoningModel).as(Resource.class);
-					for (Iterator<Statement> i = subject.listProperties(predicate); i.hasNext(); ) {
-						Statement statement = i.next();
-						objects.add(statement.getObject());
+		boolean sIsUnboundVar = subjects.isEmpty();
+		boolean pIsUnboundVar = predicates.isEmpty();
+		boolean oIsUnboundVar = objects.isEmpty();
+
+		// null represents a wildcard in call to reasoningModel.listStatements() below
+		Collection<Resource> subjectSet = sIsUnboundVar ? Collections.singleton((Resource) null) : RdfUtils.extractResources(subjects.values);
+		Set<? extends Property> predicateSet = pIsUnboundVar ? Collections.singleton((Property) null) : getOntProperties(RdfUtils.extractResources(predicates.values));
+		Set<RDFNode> objectSet = oIsUnboundVar ? Collections.singleton((RDFNode) null) : objects.values;
+
+		for (Resource s : subjectSet) {
+			for (Property p : predicateSet) {
+				for (RDFNode o : objectSet) {
+					for (Statement statement : reasoningModel.listStatements(s, p, o).toList()) {
+						if (sIsUnboundVar) {
+							subjects.add(statement.getSubject());
+						}
+						if (pIsUnboundVar) {
+							predicates.add(statement.getPredicate());
+						}
+						if (oIsUnboundVar) {
+							objects.add(statement.getObject());
+						}
 					}
 				}
 			}
 		}
-		
-		if(subjectIsUnboundVar) {
+
+		if (sIsUnboundVar) {
 			log.trace(String.format("assigned %d bindings to variable %s", subjects.values.size(), subjects.variable));
 		}
-		if(objectIsUnboundVar) {
+		if (pIsUnboundVar) {
+			log.trace(String.format("assigned %d bindings to variable %s", predicates.values.size(), predicates.variable));
+		}
+		if (oIsUnboundVar) {
 			log.trace(String.format("assigned %d bindings to variable %s", objects.values.size(), objects.variable));
 		}
 	}
+
 
 	private Collection<Triple> maybeCallService(Service service, Set<RDFNode> subjects)
 	{
@@ -541,9 +577,14 @@ public class SHAREKnowledgeBase
 	 * the OntProperty instead of just the URI, then it can return services
 	 * that match the synonyms as well...
 	 */
-	private Set<Service> getServicesByPredicate(OntProperty p)
+	private Set<Service> getServicesByPredicate(Collection<OntProperty> predicates)
 	{
-		Set<OntProperty> equivalentProperties = getEquivalentProperties(p);
+		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
+
+		for(OntProperty predicate : predicates) {
+			equivalentProperties.addAll(getEquivalentProperties(predicate));
+		}
+		
 		Set<Service> services = new HashSet<Service>();
 		for (OntProperty equivalentProperty: equivalentProperties) {
 			log.trace(String.format("finding services for equivalent property %s", equivalentProperty));
@@ -553,7 +594,7 @@ public class SHAREKnowledgeBase
 		}
 		
 		return services;
-	}
+	}	
 	
 	private Set<OntProperty> getEquivalentProperties(OntProperty p)
 	{
@@ -564,8 +605,7 @@ public class SHAREKnowledgeBase
 		 */
 		log.trace(String.format("finding all properties equivalent to %s", p));
 		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
-		for (Iterator<? extends OntProperty> i = p.listEquivalentProperties(); i.hasNext(); ) {
-			OntProperty q = i.next();
+		for (OntProperty q : p.listEquivalentProperties().toList()) {
 			log.trace(String.format("found equivalent property %s", q));
 			equivalentProperties.add(q);
 		}
@@ -654,8 +694,7 @@ public class SHAREKnowledgeBase
 
 //		Set<? extends OntResource> instances = inputClass.listInstances().toSet();
 		Set<String> instanceURIs = new HashSet<String>();
-		for (Iterator<? extends OntResource> i = inOurModel.listInstances(); i.hasNext(); ) {
-			OntResource r = i.next();
+		for (OntResource r : inOurModel.listInstances().toList()) {
 			instanceURIs.add(r.getURI());
 		}
 		for (Iterator<? extends RDFNode> i = subjects.iterator(); i.hasNext(); ) {
@@ -696,7 +735,8 @@ public class SHAREKnowledgeBase
 		if (input.isResource()) {
 			return service.isInputInstance(input.as(Resource.class));
 		} else if (input.isLiteral() && service instanceof SPARQLServiceWrapper) {
-			return true;
+			// a literal is only allowed as input if it is an "inverted" SPARQL service
+			return ((SPARQLServiceWrapper)service).mapInputsToObjectPosition();
 		} else {
 			return false;
 		}
@@ -749,7 +789,7 @@ public class SHAREKnowledgeBase
 			
 			return Collections.emptyList();
 		}
-	}
+	}	
 	
 	private String getServiceCallString(Service service, Collection<? extends RDFNode> inputs)
 	{
