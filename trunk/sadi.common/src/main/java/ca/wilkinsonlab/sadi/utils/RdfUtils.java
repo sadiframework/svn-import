@@ -238,6 +238,28 @@ public class RdfUtils
 		return ResourceFactory.createTypedLiteral(value, datatype);
 	}
 	
+	public static Collection<Resource> extractResources(Collection<RDFNode> nodes) 
+	{
+		Collection<Resource> resources = new ArrayList<Resource>(nodes.size());
+		for(RDFNode node : nodes) {
+			if(node.isResource()) {
+				resources.add(node.as(Resource.class));
+			}
+		}
+		return resources;
+	}
+	
+	public static Collection<Literal> extractLiterals(Collection<RDFNode> nodes) 
+	{	
+		Collection<Literal> literals = new ArrayList<Literal>(nodes.size());
+		for(RDFNode node : nodes) {
+			if(node.isLiteral()) {
+				literals.add(node.as(Literal.class));
+			}
+		}
+		return literals;
+	}		
+	
 //	/**
 //	 * Write a collection of triples to a file, as RDF.  
 //	 * @param filename The name of the file to write to

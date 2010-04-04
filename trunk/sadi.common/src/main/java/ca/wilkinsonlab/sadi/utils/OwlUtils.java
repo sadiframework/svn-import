@@ -29,7 +29,6 @@ import com.hp.hpl.jena.rdf.model.RDFList;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
@@ -705,8 +704,7 @@ public class OwlUtils
 			Set<SearchNode<Resource>> successors = new HashSet<SearchNode<Resource>>();
 			Resource r = getNode();
 			
-			for(StmtIterator i = r.listProperties(); i.hasNext(); ) {
-				Statement stmt = i.next();
+			for(Statement stmt : r.listProperties().toList()) { 
 				RDFNode o = stmt.getObject();
 				if(o.isResource()) {
 					targetModel.add(stmt);
@@ -729,8 +727,7 @@ public class OwlUtils
 				};
 			
 			for(Property reverseProperty : reverseProperties) {
-				for(StmtIterator i = sourceModel.listStatements(null, reverseProperty, r); i.hasNext(); ) {
-					Statement stmt = i.next();
+				for(Statement stmt : sourceModel.listStatements(null, reverseProperty, r).toList()) { 
 					targetModel.add(stmt);
 					successors.add(new MinimalOntologySearchNode(sourceModel, targetModel, stmt.getSubject()));
 				}
