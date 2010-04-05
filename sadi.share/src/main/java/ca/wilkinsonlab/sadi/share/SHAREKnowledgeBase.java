@@ -3,6 +3,7 @@ package ca.wilkinsonlab.sadi.share;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -64,10 +65,11 @@ public class SHAREKnowledgeBase
 	private Set<String> deadServices;
 	/** allow ARQ-specific extensions to SPARQL query syntax (e.g. GROUP BY, HAVING, arithmetic expressions) */ 
 	protected boolean allowARQSyntax;
-
+	/** decide ordering of query patterns as the query runs */
+	protected boolean useAdaptiveQueryPlanning;
+	
 	// TODO rename to something less unwieldy?
 	private boolean dynamicInputInstanceClassification;
-	
 	
 	public SHAREKnowledgeBase()
 	{
@@ -112,6 +114,8 @@ public class SHAREKnowledgeBase
 			deadServices.add((String)serviceUri);
 		
 		dynamicInputInstanceClassification = config.getBoolean("share.dynamicInputInstanceClassification", false);
+		useAdaptiveQueryPlanning = config.getBoolean("share.useAdaptiveQueryPlanning", false);
+		
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
 		
 	}
@@ -176,10 +180,59 @@ public class SHAREKnowledgeBase
 	
 	public void executeQuery(Query query)
 	{
-		executeQuery(query, new DefaultQueryPatternOrderingStrategy());
+		if(useAdaptiveQueryPlanning) {
+			executeQueryAdaptive(query);
+		} else {
+			executeQuery(query, new DefaultQueryPatternOrderingStrategy());
+		}
 	}
 	
 	public void executeQuery(Query query, QueryPatternOrderingStrategy strategy)
+	{
+		loadFromClauses(query);
+		
+		List<Triple> queryPatterns = new QueryPatternEnumerator(query).getQueryPatterns();
+		try {
+			queryPatterns = strategy.orderPatterns(queryPatterns);
+		} catch (UnresolvableQueryException e) {
+			log.error(String.format("failed to order query %s with strategy %s", query, strategy), e);
+		}
+		
+		for (Triple pattern: queryPatterns) {
+			processPattern(pattern);
+		}
+	}
+	
+	protected void executeQueryAdaptive(Query query)
+	{
+		loadFromClauses(query);
+
+		log.trace("using adaptive query planning");
+		
+		List<Triple> queryPatterns = new QueryPatternEnumerator(query).getQueryPatterns();
+		Set<Triple> visitedPatterns = new HashSet<Triple>();
+		QueryPatternComparator comparator = new QueryPatternComparator();
+		
+		while(visitedPatterns.size() < queryPatterns.size()) {
+			
+			Triple bestPattern = null;
+
+			for(Triple pattern : queryPatterns) {
+				if(visitedPatterns.contains(pattern)) {
+					continue;
+				}
+				if(bestPattern == null || comparator.compare(pattern, bestPattern) < 0) {
+					bestPattern = pattern;
+				}
+			}
+			
+			processPattern(bestPattern);
+			visitedPatterns.add(bestPattern);
+			
+		}
+	}
+	
+	protected void loadFromClauses(Query query) 
 	{
 		/* load all of the graphs referenced in the FROM clause into the kb
 		 * TODO might have to make this configurable or turn it off, if people
@@ -192,18 +245,6 @@ public class SHAREKnowledgeBase
 				log.error(String.format("failed to read FROM graph %s", sourceURI));
 			}
 		}
-		
-		List<Triple> queryPatterns = new QueryPatternEnumerator(query).getQueryPatterns();
-		try {
-			queryPatterns = strategy.orderPatterns(queryPatterns);
-		} catch (UnresolvableQueryException e) {
-			log.error(String.format("failed to order query %s with strategy %s", query, strategy), e);
-		}
-		
-		for (Triple pattern: queryPatterns) {
-			processPattern(pattern);
-		}
-		
 	}
 	
 	private void processPattern(Triple pattern)
@@ -226,11 +267,11 @@ public class SHAREKnowledgeBase
 			
 		if (!subjects.isEmpty()) { // bound subject...
 			if (!objects.isEmpty()) { // bound subject and object...
-				/* now we have a choice...
-				 * TODO this is where Ben's optimizer will plug in to figure
-				 * out which way to go; for now don't invert...
-				 */
-				gatherTriples(subjects, properties, objects);
+				if(bestDirectionIsForward(pattern)) {
+					gatherTriples(subjects, properties, objects);
+				} else {
+					gatherTriples(objects, getInverseProperties(properties), objects);
+				}
 			} else { // bound subject, unbound object...
 				gatherTriples(subjects, properties, objects);
 			}
@@ -256,7 +297,19 @@ public class SHAREKnowledgeBase
 		}
 
 	}
-
+	
+	protected boolean bestDirectionIsForward(Triple pattern) 
+	{
+		PotentialValues s = expandQueryNode(pattern.getSubject());
+		PotentialValues o = expandQueryNode(pattern.getObject());
+		
+		if(s.isEmpty() || o.isEmpty()) {
+			throw new RuntimeException("expected both subject and object positions to be bound");
+		}
+		
+		return (s.values.size() < o.values.size());
+	}
+	
 	protected Set<OntProperty> getOntProperties(Collection<Resource> predicates) 
 	{
 		Set<OntProperty> predicateSet = new HashSet<OntProperty>();
@@ -943,5 +996,69 @@ public class SHAREKnowledgeBase
 			// one variable name or URI, one URI, so this should be safe...
 			return String.format("%s %s", instances.key, asClass.getURI());
 		}
+	}
+	
+	/* rankings for expensive query patterns */
+	protected static int BAD = -1;
+	protected static int WORST = -2;
+
+	protected class QueryPatternComparator implements Comparator<Triple>
+	{
+		public int compare(Triple pattern1, Triple pattern2) 
+		{
+			int cost1 = cost(pattern1);
+			int cost2 = cost(pattern2);
+			
+			/* sanity check */
+			if(cost1 == 0 || cost2 == 0) {
+				throw new RuntimeException("query pattern cost should never be zero");
+			}
+			
+			/* Note: the first case handles when both numbers are both BAD, both WORST, etc. */ 
+			if(cost1 == cost2) {
+				return 0;
+			} else if(cost1 > 0 && cost2 < 0) {
+				return -1;
+			} else if(cost1 < 0 && cost2 > 0) {
+				return 1;
+			} else {
+				/* CASE: both costs have the same sign */
+				if(Math.abs(cost1) < Math.abs(cost2)) {
+					return -1;
+				} else {
+					return 1;
+				}
+			}
+		}
+		
+		protected int cost(Triple pattern) 
+		{
+			PotentialValues s = expandQueryNode(pattern.getSubject());
+			PotentialValues p = expandQueryNode(pattern.getPredicate());
+			PotentialValues o = expandQueryNode(pattern.getObject());
+			
+			if(s.isEmpty() && o.isEmpty()) {
+				
+				// CASES: (?s, ?p, ?o) or (?s, bound, ?o)
+				return WORST;
+				
+			} else if(p.isEmpty()) {
+				
+				// CASES: (bound, ?p, ?o) or (?s, ?p, bound)				
+				return BAD;
+			
+			} else if(o.isEmpty()) {
+				
+				// CASE: (bound, bound, ?o)
+				return s.values.size() * p.values.size();
+			
+			} else {
+				
+				// CASE: (?s, bound, bound)
+				return o.values.size() * p.values.size();
+
+			}
+		}
+		
 	}
 }
