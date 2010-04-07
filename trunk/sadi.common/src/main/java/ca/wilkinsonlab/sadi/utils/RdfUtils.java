@@ -241,8 +241,8 @@ public class RdfUtils
 	public static Collection<Resource> extractResources(Collection<RDFNode> nodes) 
 	{
 		Collection<Resource> resources = new ArrayList<Resource>(nodes.size());
-		for(RDFNode node : nodes) {
-			if(node.isResource()) {
+		for (RDFNode node :nodes) {
+			if (node.isResource()) {
 				resources.add(node.as(Resource.class));
 			}
 		}
@@ -252,8 +252,8 @@ public class RdfUtils
 	public static Collection<Literal> extractLiterals(Collection<RDFNode> nodes) 
 	{	
 		Collection<Literal> literals = new ArrayList<Literal>(nodes.size());
-		for(RDFNode node : nodes) {
-			if(node.isLiteral()) {
+		for (RDFNode node :nodes) {
+			if (node.isLiteral()) {
 				literals.add(node.as(Literal.class));
 			}
 		}

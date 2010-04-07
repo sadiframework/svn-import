@@ -115,7 +115,6 @@ public class SHAREKnowledgeBase
 		
 		dynamicInputInstanceClassification = config.getBoolean("share.dynamicInputInstanceClassification", false);
 		useAdaptiveQueryPlanning = config.getBoolean("share.useAdaptiveQueryPlanning", false);
-		
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
 		
 	}
@@ -180,7 +179,7 @@ public class SHAREKnowledgeBase
 	
 	public void executeQuery(Query query)
 	{
-		if(useAdaptiveQueryPlanning) {
+		if (useAdaptiveQueryPlanning) {
 			executeQueryAdaptive(query);
 		} else {
 			executeQuery(query, new DefaultQueryPatternOrderingStrategy());
@@ -213,22 +212,20 @@ public class SHAREKnowledgeBase
 		Set<Triple> visitedPatterns = new HashSet<Triple>();
 		QueryPatternComparator comparator = new QueryPatternComparator();
 		
-		while(visitedPatterns.size() < queryPatterns.size()) {
-			
+		while (visitedPatterns.size() < queryPatterns.size()) {	
 			Triple bestPattern = null;
 
-			for(Triple pattern : queryPatterns) {
-				if(visitedPatterns.contains(pattern)) {
+			for (Triple pattern : queryPatterns) {
+				if (visitedPatterns.contains(pattern)) {
 					continue;
 				}
-				if(bestPattern == null || comparator.compare(pattern, bestPattern) < 0) {
+				if (bestPattern == null || comparator.compare(pattern, bestPattern) < 0) {
 					bestPattern = pattern;
 				}
 			}
 			
 			processPattern(bestPattern);
 			visitedPatterns.add(bestPattern);
-			
 		}
 	}
 	
@@ -267,7 +264,7 @@ public class SHAREKnowledgeBase
 			
 		if (!subjects.isEmpty()) { // bound subject...
 			if (!objects.isEmpty()) { // bound subject and object...
-				if(bestDirectionIsForward(pattern)) {
+				if (bestDirectionIsForward(pattern)) {
 					gatherTriples(subjects, properties, objects);
 				} else {
 					gatherTriples(objects, getInverseProperties(properties), objects);
@@ -286,8 +283,7 @@ public class SHAREKnowledgeBase
 
 		populateVariableBinding(subjects, predicates, objects);
 
-		/*
-		 * note: this must come after normal processing of the triple pattern,
+		/* note: this must come after normal processing of the triple pattern,
 		 * so that rdf:type patterns are also resolved against SPARQL endpoints.
 		 * --BV
 		 */
@@ -303,7 +299,7 @@ public class SHAREKnowledgeBase
 		PotentialValues s = expandQueryNode(pattern.getSubject());
 		PotentialValues o = expandQueryNode(pattern.getObject());
 		
-		if(s.isEmpty() || o.isEmpty()) {
+		if (s.isEmpty() || o.isEmpty()) {
 			throw new RuntimeException("expected both subject and object positions to be bound");
 		}
 		
@@ -504,6 +500,7 @@ public class SHAREKnowledgeBase
 	 */
 	private void gatherTriples(PotentialValues subjects, Collection<OntProperty> predicates, PotentialValues objects)
 	{
+		log.debug(String.format("gathering triples with predicates %s", predicates));
 		log.trace(String.format("potential subjects %s", subjects.values));
 
 		if (subjects == null) {
@@ -515,9 +512,7 @@ public class SHAREKnowledgeBase
 		}
 		
 		Collection<Service> services;
-
-		/* an empty collection indicates that the predicate is an unbound variable */
-		if(predicates.size() == 0) {
+		if (predicates.size() == 0) {
 			log.trace("predicate is unbound variable, testing inputs against *all* registered services");
 			services = registry.getAllServices();
 		} else {
@@ -543,7 +538,7 @@ public class SHAREKnowledgeBase
 			 * that appear in the output data
 			 */
 			for (Triple triple: output) {
-				if(triple.getPredicate().isURI()) {
+				if (triple.getPredicate().isURI()) {
 					try {
 						OwlUtils.getOntPropertyWithLoad(reasoningModel, triple.getPredicate().getURI());
 					} catch (SADIException e) {
@@ -633,7 +628,6 @@ public class SHAREKnowledgeBase
 	private Set<Service> getServicesByPredicate(Collection<OntProperty> predicates)
 	{
 		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
-
 		for(OntProperty predicate : predicates) {
 			equivalentProperties.addAll(getEquivalentProperties(predicate));
 		}
@@ -658,7 +652,7 @@ public class SHAREKnowledgeBase
 		 */
 		log.trace(String.format("finding all properties equivalent to %s", p));
 		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
-		for (OntProperty q : p.listEquivalentProperties().toList()) {
+		for (OntProperty q: p.listEquivalentProperties().toList()) {
 			log.trace(String.format("found equivalent property %s", q));
 			equivalentProperties.add(q);
 		}
@@ -747,7 +741,7 @@ public class SHAREKnowledgeBase
 
 //		Set<? extends OntResource> instances = inputClass.listInstances().toSet();
 		Set<String> instanceURIs = new HashSet<String>();
-		for (OntResource r : inOurModel.listInstances().toList()) {
+		for (OntResource r: inOurModel.listInstances().toList()) {
 			instanceURIs.add(r.getURI());
 		}
 		for (Iterator<? extends RDFNode> i = subjects.iterator(); i.hasNext(); ) {
@@ -842,7 +836,7 @@ public class SHAREKnowledgeBase
 			
 			return Collections.emptyList();
 		}
-	}	
+	}
 	
 	private String getServiceCallString(Service service, Collection<? extends RDFNode> inputs)
 	{
@@ -1010,12 +1004,12 @@ public class SHAREKnowledgeBase
 			int cost2 = cost(pattern2);
 			
 			/* sanity check */
-			if(cost1 == 0 || cost2 == 0) {
+			if (cost1 == 0 || cost2 == 0) {
 				throw new RuntimeException("query pattern cost should never be zero");
 			}
 			
 			/* Note: the first case handles when both numbers are both BAD, both WORST, etc. */ 
-			if(cost1 == cost2) {
+			if (cost1 == cost2) {
 				return 0;
 			} else if(cost1 > 0 && cost2 < 0) {
 				return -1;
@@ -1023,7 +1017,7 @@ public class SHAREKnowledgeBase
 				return 1;
 			} else {
 				/* CASE: both costs have the same sign */
-				if(Math.abs(cost1) < Math.abs(cost2)) {
+				if (Math.abs(cost1) < Math.abs(cost2)) {
 					return -1;
 				} else {
 					return 1;
@@ -1037,28 +1031,19 @@ public class SHAREKnowledgeBase
 			PotentialValues p = expandQueryNode(pattern.getPredicate());
 			PotentialValues o = expandQueryNode(pattern.getObject());
 			
-			if(s.isEmpty() && o.isEmpty()) {
-				
+			if (s.isEmpty() && o.isEmpty()) {
 				// CASES: (?s, ?p, ?o) or (?s, bound, ?o)
 				return WORST;
-				
-			} else if(p.isEmpty()) {
-				
+			} else if (p.isEmpty()) {
 				// CASES: (bound, ?p, ?o) or (?s, ?p, bound)				
 				return BAD;
-			
-			} else if(o.isEmpty()) {
-				
+			} else if (o.isEmpty()) {
 				// CASE: (bound, bound, ?o)
 				return s.values.size() * p.values.size();
-			
 			} else {
-				
 				// CASE: (?s, bound, bound)
 				return o.values.size() * p.values.size();
-
 			}
 		}
-		
 	}
 }
