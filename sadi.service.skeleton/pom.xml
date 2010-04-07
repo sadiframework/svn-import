@@ -30,6 +30,11 @@
         <artifactId>sadi-generator</artifactId>
         <version>0.0.3</version>
       </plugin>
+      <plugin>
+        <groupId>ca.wilkinsonlab.sadi</groupId>
+        <artifactId>sadi-tester</artifactId>
+        <version>0.0.3</version>
+      </plugin>
     </plugins>
   </build>
   <pluginRepositories>
