@@ -6,7 +6,7 @@ Bundle-Category: protege
 Bundle-Description: SADI plugin to simplify service provision
 Bundle-Vendor: sadiframework.org
 Bundle-DocURL: http://sadiframework.org/protege_plugin/
-Update-Url: http://sadiframework.org/protege_plugin/update.properties
+Update-Url: http://sadi.googlecode.com/svn/trunk/sadi.protege/update.properties
 Bundle-ClassPath: .,
  resources/,
  lib/apache-mime4j-0.6.jar,
