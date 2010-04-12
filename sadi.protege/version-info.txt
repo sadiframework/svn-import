@@ -13,8 +13,6 @@ the provision of SADI services.</p>
 </ul>
 </p>
 
-<p>Useful when developing in a consortium and some standard metadata set should always be entered.
-
 <p><a href="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/sadi_plugin.html">Documentation</a></p>
 
 <h3>Version info</h3>
