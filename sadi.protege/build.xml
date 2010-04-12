@@ -163,15 +163,14 @@
 
    <target name = "create.update.properties">
        <property name="update.properties.file"
-                 location="${build}/update.properties"/>
-       <echo file="${update.properties.file}" append="true">
+                 location="update.properties"/>
+       <echo file="${update.properties.file}" append="false">name=SADI service plugin
 id=${plugin}
 version=${bundle.version}
 download=http://sadiframework.org/protege/org.sadiframework/${plugin}.jar
-name=SADI service plugin
 readme=http://sadi.googlecode.com/svn/trunk/sadi.protege/version-info.txt
 license=http://www.opensource.org/licenses/bsd-license.php
-author=Edward Kawas (SADI Project)
+author=Edward Kawas &amp; Luke McCarthy (SADI Project)
        </echo>
    </target>
 
@@ -198,6 +197,9 @@ author=Edward Kawas (SADI Project)
      <delete dir = "${protege.home}/configuration/org.eclipse.osgi"/>
      <copy file="${build}/${plugin}.jar" 
            todir = "${protege.plugins}"
+           overwrite = "true"/>
+	 <copy file="${build}/${plugin}.jar" 
+           todir = "."
            overwrite = "true"/>
    </target>
 	
