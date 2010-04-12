@@ -167,10 +167,10 @@
        <echo file="${update.properties.file}" append="false">name=SADI service plugin
 id=${plugin}
 version=${bundle.version}
-download=http://sadiframework.org/protege/org.sadiframework/${plugin}.jar
+download=http://sadi.googlecode.com/svn/trunk/sadi.protege/${plugin}.jar
 readme=http://sadi.googlecode.com/svn/trunk/sadi.protege/version-info.txt
 license=http://www.opensource.org/licenses/bsd-license.php
-author=Edward Kawas &amp; Luke McCarthy (SADI Project)
+author=Edward Kawas &amp; Luke McCarthy (SADI Project / University of BC)
        </echo>
    </target>
 
