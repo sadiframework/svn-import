@@ -65,6 +65,8 @@ public class SHAREKnowledgeBase
 	private Set<String> deadServices;
 	/** allow ARQ-specific extensions to SPARQL query syntax (e.g. GROUP BY, HAVING, arithmetic expressions) */ 
 	protected boolean allowARQSyntax;
+	/** allow variables in the predicate positions of triple patterns */
+	protected boolean allowPredicateVariables;
 	/** decide ordering of query patterns as the query runs */
 	protected boolean useAdaptiveQueryPlanning;
 	
@@ -115,6 +117,7 @@ public class SHAREKnowledgeBase
 		
 		dynamicInputInstanceClassification = config.getBoolean("share.dynamicInputInstanceClassification", false);
 		useAdaptiveQueryPlanning = config.getBoolean("share.useAdaptiveQueryPlanning", false);
+		allowPredicateVariables = config.getBoolean("share.allowPredicateVariables", false);
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
 		
 	}
@@ -254,6 +257,11 @@ public class SHAREKnowledgeBase
 		
 		Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(predicates.values));
 		
+		if(!allowPredicateVariables && predicates.isEmpty()) {
+			log.error(String.format("variables are not permitted in the predicate position of triple patterns"));
+			return;
+		}
+			
 		/* if the predicate position has bindings, but none of them are URIs, 
 		 * then this pattern has no solutions. 
 		 */
