@@ -22,9 +22,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.sadiframework.exceptions.SADIServiceException;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
+import org.semanticweb.owlapi.model.AxiomType;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotationAxiom;
-import org.semanticweb.owlapi.model.OWLAnnotationProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyChangeException;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -103,18 +103,29 @@ public class Execute {
             // extract all of the isDefinedBy URLs
             OWLOntologyManager manager = OWLManager.createOWLOntologyManager();
             OWLOntology ontology = manager.loadOntologyFromOntologyDocument(xml);
-            for (OWLAnnotationProperty oap : ontology.getAnnotationPropertiesInSignature()) {
-                // System.out.println(oap.getIRI().toString());
-                if (oap.getIRI().toString().equals(
-                        "http://www.w3.org/2000/01/rdf-schema#isDefinedBy")) {
-                    for (OWLAnnotationAxiom axiom : ontology.getAxioms(oap)) {
-                        if (axiom instanceof OWLAnnotationAssertionAxiomImpl) {
-                            OWLAnnotationAssertionAxiomImpl ax = (OWLAnnotationAssertionAxiomImpl) axiom;
-                            definedByURLs.put(ax.getValue().toString(), new Boolean(false));
-                        }
+            
+            // patch
+            for (OWLAnnotationAxiom axiom : ontology.getAxioms(AxiomType.ANNOTATION_ASSERTION)) {
+                if (axiom instanceof OWLAnnotationAssertionAxiomImpl) {
+                    if (((OWLAnnotationAssertionAxiomImpl) axiom).getProperty().getIRI().toString().equals(
+                    "http://www.w3.org/2000/01/rdf-schema#isDefinedBy")) {
+                        OWLAnnotationAssertionAxiomImpl ax = (OWLAnnotationAssertionAxiomImpl) axiom;
+                        definedByURLs.put(ax.getValue().toString(), new Boolean(false));
                     }
                 }
             }
+            // used to work ...
+                /*for (OWLAnnotationProperty oap : ontology.getAnnotationPropertiesInSignature()) {
+                    if (oap.getIRI().toString().equals(
+                            "http://www.w3.org/2000/01/rdf-schema#isDefinedBy")) {
+                        for (OWLAnnotationAxiom axiom : ontology.getAxioms(oap)) {
+                            if (axiom instanceof OWLAnnotationAssertionAxiomImpl) {
+                                OWLAnnotationAssertionAxiomImpl ax = (OWLAnnotationAssertionAxiomImpl) axiom;
+                                definedByURLs.put(ax.getValue().toString(), new Boolean(false));
+                            }
+                        }
+                    }
+                }*/
             manager.removeOntology(ontology);
         } catch (OWLOntologyCreationException e) {
             throw new SADIServiceException(e.getMessage());
