@@ -17,6 +17,10 @@ the provision of SADI services.</p>
 
 <h3>Version info</h3>
 
+<h4>v1.0.1 (15th April 2010)</h4>
+<ul>
+<li>Patch release that fixes the Simple SADI Client (broken by update of owlapi)</li>
+</ul>
 <h4>v1.0.0 (1st April 2010)</h4>
 <ul>
 <li>Initial release</li>
