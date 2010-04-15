@@ -9,7 +9,7 @@
    <property file="version.properties"/>
    <property name="major.version" value="1"/>
    <property name="minor.version" value="0"/>
-   <property name="micro.version" value="0"/>
+   <property name="micro.version" value="1"/>
 
    <property name = "plugin"          value = "sadi.protege"/>
 
@@ -212,7 +212,7 @@ author=Edward Kawas &amp; Luke McCarthy (SADI Project / University of BC)
      <echo message = "variable and use one of the following targets"/>
      <echo message = "jar - builds the jar (bundle) file for this project"/>
      <echo message = "install - installs  the bundle into the Protege distribution"/>
-     <echo message = "copy.resources - copyies resources into the classes directory"/>
+     <echo message = "copy.resources - copies resources into the classes directory"/>
      <echo message = "    this can  be useful for ide developers - see the wiki"/>
    </target>
 
