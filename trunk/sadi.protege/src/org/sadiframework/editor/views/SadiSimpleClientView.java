@@ -43,6 +43,7 @@ import org.sadiframework.swing.AbstractButton;
 import org.sadiframework.swing.JTextFieldWithHistory;
 import org.sadiframework.swing.SpringUtilities;
 import org.sadiframework.swing.UIUtils;
+import org.sadiframework.swing.UnitTestDialog;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
 import org.semanticweb.owlapi.model.AddAxiom;
@@ -264,9 +265,9 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
                 .getString("testing_input_data_panel_create_unit_test"), true,
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        // TODO
-                        System.out
-                                .println("get file input/output uri and service name for unit test");
+                        UnitTestDialog dialog = new UnitTestDialog();
+                        dialog.setLocationRelativeTo(getParent());
+                        dialog.setVisible(true);
                     }
                 });
 
@@ -353,12 +354,24 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
         callButton = new AbstractButton(bundle.getString("testing_service_invocation_panel_call"),
                 true, new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
+                        if (manager.getPreference(TESTING_SERVICE_ENDPOINT, "").equals("")) {
+                            // tell the user to enter an endpoint
+                            String msg = bundle.getString("testing_service_invocation_panel_no_endpoint_msg");
+                            String title = bundle.getString("error");
+                            JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
                         if (!manager.getBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, true)) {
-                            File file = new File(manager.getPreference(TESTING_CURRENT_FILE, null));
-                            if (file == null) {
-                                // TODO tell user to select a file
+                            if (manager.getPreference(TESTING_CURRENT_FILE, null) == null) {
+                                // tell the user to select a file
+                                String msg = bundle.getString("testing_service_invocation_panel_no_file_msg");
+                                String title = bundle.getString("error");
+                                JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+                                        JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
+                            File file = new File(manager.getPreference(TESTING_CURRENT_FILE, null));
                             try {
                                 StringBuilder sb = new StringBuilder();
                                 BufferedReader br = new BufferedReader(new FileReader(file));
@@ -372,9 +385,15 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
                                 ErrorLogPanel.showErrorDialog(ioe);
                             }
                         } else {
-                            // TODO make sure that an individual is chosen ...
+                            if (serviceInputXML == null || serviceInputXML.trim().equals("")) {
+                                // tell the user to select an individual
+                                String msg = bundle.getString("testing_service_invocation_panel_no_ind_msg");
+                                String title = bundle.getString("error");
+                                JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+                                        JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
                         }
-                        // TODO check the endpoint
                         createWorker();
                         worker.execute();
                     }
