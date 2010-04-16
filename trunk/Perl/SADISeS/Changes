@@ -2,6 +2,8 @@ Revision history for Perl extension SADI.
 
 0.99.6
     * Copied SADI::SADI to SADI
+    * UniqueID, ServiceURI and SignatureURL default to Service URL
+      if they are not defined.
     
 
 0.99.5
