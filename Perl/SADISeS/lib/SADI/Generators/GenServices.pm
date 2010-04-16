@@ -5,7 +5,7 @@
 #
 # For copyright and disclaimer see below.
 #
-# $Id: GenServices.pm,v 1.18 2010-03-09 17:45:50 ubuntu Exp $
+# $Id: GenServices.pm,v 1.19 2010-04-16 15:54:59 ubuntu Exp $
 #-----------------------------------------------------------------
 package SADI::Generators::GenServices;
 use SADI::Utils;
@@ -21,7 +21,7 @@ use strict;
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.18 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.19 $ =~ /: (\d+)\.(\d+)/;
 
 #-----------------------------------------------------------------
 # A list of allowed attribute names. See SADI::Base for details.
@@ -287,8 +287,9 @@ sub read_services {
 					 and defined $config{InputClass}
 					 and defined $config{OutputClass}
 					 and defined $config{Description}
-					 and defined $config{ServiceURI}
-					 and defined $config{UniqueIdentifier} );
+					 #and defined $config{ServiceURI}
+					 #and defined $config{UniqueIdentifier} 
+		);
 		my $service = SADI::Service::Instance->new;
 		map { $service->$_( $config{$_} ) } keys %config;
 
