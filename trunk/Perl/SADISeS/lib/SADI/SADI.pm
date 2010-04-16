@@ -23,7 +23,7 @@ __END__
 
 =head1 NAME
 
-SADI - !!Look Here First!! Perl extension for the automatic generation of SADI web services
+SADI - Perl extension for the automatic generation of SADI web services
 
 =head2 Upgrading From Version 0.99.4
 
