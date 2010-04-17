@@ -8,7 +8,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
-import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -68,47 +67,51 @@ public class PredicateVariablesTest
 		if(requireResults)
 			assertFalse(String.format("query \"%s\" returned no results", query), results.isEmpty());
 	}
-	
-	@Test
-	public void testQuery1()
-	{
-		testQueryFromFile("predicate.variable.query1.sparql");
-	}
-	@Test
-	public void testQuery2()
-	{
-		testQueryFromFile("predicate.variable.query2.sparql");
-	}
-	@Test
-	public void testQuery3()
-	{
-		testQueryFromFile("predicate.variable.query3.sparql");
-	}
-	@Test
-	public void testQuery4()
-	{
-		testQueryFromFile("predicate.variable.query4.sparql");
-	}
-	@Test
-	public void testQuery5()
-	{
-		testQueryFromFile("predicate.variable.query5.sparql");
-	}
-	@Test
-	public void testQuery6()
-	{
-		testQueryFromFile("predicate.variable.query6.sparql");
-	}
-	@Test
-	public void testQuery7()
-	{
-		/* This query is *supposed* to have no results.
-		 * The purpose of the test is to check for graceful
-		 * failure in the case where a predicate variable 
-		 * has only literal or blank-node bindings.
-		 */
-		testQueryFromFile("predicate.variable.query7.sparql", false);
-	}
-	
+
+	/* 
+	 * These tests are disabled because they are currently very 
+	 * slow and consume a huge amount of memory. 
+	 */
+
+//	@Test
+//	public void testQuery1()
+//	{
+//		testQueryFromFile("predicate.variable.query1.sparql");
+//	}
+//	@Test
+//	public void testQuery2()
+//	{
+//		testQueryFromFile("predicate.variable.query2.sparql");
+//	}
+//	@Test
+//	public void testQuery3()
+//	{
+//		testQueryFromFile("predicate.variable.query3.sparql");
+//	}
+//	@Test
+//	public void testQuery4()
+//	{
+//		testQueryFromFile("predicate.variable.query4.sparql");
+//	}
+//	@Test
+//	public void testQuery5()
+//	{
+//		testQueryFromFile("predicate.variable.query5.sparql");
+//	}
+//	@Test
+//	public void testQuery6()
+//	{
+//		testQueryFromFile("predicate.variable.query6.sparql");
+//	}
+//	@Test
+//	public void testQuery7()
+//	{
+//		/* This query is *supposed* to have no results.
+//		 * The purpose of the test is to check for graceful
+//		 * failure in the case where a predicate variable 
+//		 * has only literal or blank-node bindings.
+//		 */
+//		testQueryFromFile("predicate.variable.query7.sparql", false);
+//	}
 	
 }
