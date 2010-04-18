@@ -144,7 +144,7 @@ public class TripleSampler
 	
 	protected Triple getSampleFromEndpoint(SPARQLEndpoint endpoint, Triple triplePattern, long sampleIndex) throws IOException, NoSampleAvailableException
 	{
-		PredicateStatsDBAdmin.log.trace("retrieving triple #" + sampleIndex + " for " + triplePattern + " from " + endpoint.getURI());
+		log.trace("retrieving triple #" + sampleIndex + " for " + triplePattern + " from " + endpoint.getURI());
  
 		Query query = getConstructQuery(triplePattern); //SPARQLStringUtils.getConstructQuery(Collections.singletonList(triplePattern), Collections.singletonList(triplePattern));
 		query.setOffset(sampleIndex);
@@ -206,7 +206,7 @@ public class TripleSampler
 	{
 		String uri = endpoint.getURI();
 		
-		PredicateStatsDBAdmin.log.trace("determining number of triples matching " + triplePattern + " in " + uri);
+		log.trace("determining number of triples matching " + triplePattern + " in " + uri);
 
 		ServiceStatus status = ServiceStatus.OK;
 		if(getRegistry() != null) {
@@ -215,7 +215,7 @@ public class TripleSampler
 		
 		// check for a cached value first
 		if(upperSampleLimitCache.contains(endpoint, triplePattern)) {
-			PredicateStatsDBAdmin.log.trace("using previously cached value for upper sample limit");
+			log.trace("using previously cached value for upper sample limit");
 			return upperSampleLimitCache.get(endpoint, triplePattern);
 		}
 
