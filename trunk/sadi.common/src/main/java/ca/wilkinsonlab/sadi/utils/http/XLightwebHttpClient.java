@@ -148,6 +148,11 @@ public class XLightwebHttpClient implements HttpClient {
 			String challenge = xLightwebResponse.getHeader(WWW_AUTHENTICATE_HEADER);
 			String challengeResponse = getChallengeResponse(challenge, request);
 			
+			// no username/password has been set for this host/port
+			if(challengeResponse == null) {
+				throw new HttpStatusException(xLightwebResponse.getStatus());
+			}
+			
 			// xLightweb HTTP requests have a read-once message body; in order to try again, we must recreate the request 
 			xLightwebRequest = getXLightwebHttpRequest(request);
 			
@@ -192,6 +197,11 @@ public class XLightwebHttpClient implements HttpClient {
 		AuthScope authScope = new AuthScope(requestURL.getHost(), port, realm);
 		Credentials credentials = httpState.getCredentials(authScope);
 
+		/* no username/password is available for this host/port */
+		if(credentials == null) {
+			return null;
+		}
+		
 		AuthScheme authScheme = AuthPolicy.getAuthScheme(AuthChallengeParser.extractScheme(challenge));
 		authScheme.processChallenge(challenge);
 		
