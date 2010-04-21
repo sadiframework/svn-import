@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rdf:RDF [
+  <!ENTITY owl "http://www.w3.org/2002/07/owl#">
+  <!ENTITY service "http://sadiframework.org/ontologies/service_objects.owl#">
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+  <!ENTITY db "http://sadiframework.org/ontologies/Databases.owl#">
+  <!ENTITY misc "http://sadiframework.org/ontologies/miscellaneousObjects.owl#">
+  <!ENTITY pred "http://sadiframework.org/ontologies/predicates.owl#">
+  <!ENTITY dl "http://ontology.dumontierlab.com/">
+  <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/">
+  
+  
+]>
+<rdf:RDF
+         xml:base="&service;"
+         xmlns:service="&service;"
+         xmlns:owl="&owl;"
+         xmlns:pred="&pred;"
+         xmlns:dl="&dl;"
+         xmlns:lsrn="&lsrn;"
+         xmlns:rdf="&rdf;"
+         xmlns:db="&db;"
+         xmlns:rdfs="&rdfs;"
+         xmlns:misc="&misc;"
+         xmlns="&service;">
+
+<!-- Ontology Information -->
+  <owl:Ontology rdf:about="">
+    <owl:imports>
+      <owl:Ontology rdf:about="&pred;"/>
+    </owl:imports>
+    <owl:imports>
+      <owl:Ontology rdf:about="&lsrn;"/>
+    </owl:imports>
+    <owl:imports>
+      <owl:Ontology rdf:about="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl"/>
+    </owl:imports>
+  </owl:Ontology>
+
+
+
+
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#hasCHEBIEntry"/>
+
+
+
+
+
+ 
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#visualizedByImage"/>
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#isTargetOfDrug"/>
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#hasJmol3DStructureVisualization"/>
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#hasRefSeqProtein"/>
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#hasRefSeqTranscript"/>
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#correspondsToEntrezGene"/>
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#geneContainsSNP"/>
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#fromNCBITaxon"/>
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#includesCanadianSpeciesOccurrence"/>
+ <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#identityScore"/>
+ <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#bitScore"/>
+ <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#swScore"/>
+<!-- <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#hasCCDEntry"/>
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#has3DMETEntry"/> -->
+
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#participantInSSDBRecord">
+ 	<owl:inverseOf rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#hasSSDBParticipant"/>
+ </owl:ObjectProperty>
+
+ <owl:SymmetricProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#isOrthologOf"/>
+ <rdf:Description rdf:about="http://sadiframework.org/ontologies/service_objects.owl#isOrthologOf">
+      <owl:propertyChainAxiom rdf:parseType="Collection">
+              <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#participantInSSDBRecord"/>
+              <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#hasSSDBParticipant"/>
+      </owl:propertyChainAxiom>
+ </rdf:Description>
+
+ <owl:SymmetricProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#isParalogOf">
+     <rdfs:comment>This predicate is used to join two identifiers representing molecules - genes or proteins - that are biological paralogs of one 
+another </rdfs:comment>
+</owl:SymmetricProperty> 
+ 
+ <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#DrugBank_Record"/>
+ <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#hasDrugGenericName"/>
+ <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#hasDrugBrandName"/>
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getKEGGOrthologsByGene_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+	        <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#isOrthologOf"/>
+            	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getKEGGParalogsByGene_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+	        <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#isParalogOf"/>
+            	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getCanadianSpeciesObservationsFromTaxonID_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/taxon_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+	        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+        	<owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#includesCanadianSpeciesOccurrence"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getTaxIDFromUniProt_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+            	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/taxon_Record"/>
+	        <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#fromNCBITaxon"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getEntrezGeneIDsFromRefSeqTranscripts_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/NCBI_NM_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+            	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/GeneID_Record"/>
+	        <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#correspondsToEntrezGene"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getRefSeqEntriesByKEGG_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+    <rdfs:subClassOf>
+	 <owl:Class>
+        	<owl:intersectionOf rdf:parseType="Collection">
+                   <owl:Restriction>
+	            	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/NCBI_NP_Record"/>
+	               <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#hasRefSeqProtein"/>
+                   </owl:Restriction>
+                   <owl:Restriction>
+                    	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/NCBI_NM_Record"/>
+	               <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#hasRefSeqTranscript"/>
+                   </owl:Restriction>
+	        </owl:intersectionOf>
+	 </owl:Class>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getDrugNames_Output">
+    <rdfs:subClassOf rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#DrugBank_Record"/>
+    <rdfs:subClassOf>
+	 <owl:Class>
+        	<owl:intersectionOf rdf:parseType="Collection">
+                   <owl:Restriction>
+                       <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+	               <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#hasDrugGenericName"/>
+                   </owl:Restriction>
+                   <owl:Restriction>
+                       <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">0</owl:minCardinality>
+	               <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#hasDrugBrandName"/>
+                   </owl:Restriction>
+	        </owl:intersectionOf>
+	 </owl:Class>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getDrugBankByUniProt_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+    <rdfs:subClassOf>
+	<owl:Class>
+        	<owl:intersectionOf rdf:parseType="Collection">
+        		<owl:Restriction>
+	                    	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/DrugBank_Record"/>
+        			<owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#isTargetOfDrug"/>
+      			</owl:Restriction>
+	        </owl:intersectionOf>
+	</owl:Class>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+<!-- =============================== -->
+<!-- Classes -->
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#renderProteinStructure_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/PDB_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+        <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/service_objects.owl#hasJmol3DStructureVisualization"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+
+
+<rdf:Description rdf:about="&pred;hasMolecularInteractionWith">
+      <owl:propertyChainAxiom rdf:parseType="Collection">
+              <owl:ObjectProperty rdf:about="&pred;inBINDInteraction"/>
+              <owl:ObjectProperty rdf:about="&pred;hasInteractingParticipant"/>
+      </owl:propertyChainAxiom>
+</rdf:Description>
+
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getGOTerm_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/GO_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+        <owl:onProperty rdf:resource="&pred;hasTermName"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getKEGGIDFromUniProt_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+        <owl:onProperty rdf:resource="&pred;isEncodedBy"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getKEGGGenesByPathway_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+                    	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+        <owl:onProperty rdf:resource="&pred;hasPathwayGene"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getGOTermAssociations_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/GO_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+              	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+	        <owl:onProperty rdf:resource="&pred;hasAssociatedProtein"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getKEGGCompoundsByPathway_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+                    	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_COMPOUND_Record"/>
+        <owl:onProperty rdf:resource="&pred;hasMetabolite"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getKEGGPathwayDiagram_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+        <owl:onProperty rdf:resource="&pred;visualizedByPathwayDiagram"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getMolecularInteractions_Output">
+    <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+    <rdfs:subClassOf>
+	 <owl:Class>
+	<owl:intersectionOf rdf:parseType="Collection">
+	      <owl:Restriction>
+                   	<owl:someValuesFrom rdf:resource="http://ontology.dumontierlab.com/BIND"/>
+       		 <owl:onProperty rdf:resource="&pred;inBINDInteraction"/>
+      </owl:Restriction>
+      <owl:Restriction>
+                    	<owl:someValuesFrom rdf:resource="http://purl.oclc.org/SADI/LSRN/GI_Record"/>
+        <owl:onProperty rdf:resource="&pred;hasMolecularInteractionWith"/>
+      </owl:Restriction>
+	</owl:intersectionOf>
+	 </owl:Class>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+  <owl:Class rdf:about="http://sadiframework.org/ontologies/service_objects.owl#getDragonSimpleAnnotatedImages_Output">
+    <rdfs:subClassOf 
+rdf:resource="http://purl.oclc.org/SADI/LSRN/DragonDB_Allele_Record"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+	        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+        	<owl:onProperty rdf:resource="&service;visualizedByImage"/>
+        </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+
+
+
+
+
+
+ <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#hasDescription"/>
+
+
+<!--  <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#hasAssociatedProtein">
+	<rdfs:range rdf:resource="http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
+ </owl:ObjectProperty> -->
+
+
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#recordIsAboutEntity">
+	<rdfs:domain rdf:resource="http://www.mygrid.org.uk/ontology#bioinformatics_record"/>
+	<rdfs:range rdf:resource="http://purl.oclc.org/SADI/LSRN_Entity/Biological_Thing"/>
+ </owl:ObjectProperty>
+
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#describedInRecord">
+	<rdfs:domain rdf:resource="http://purl.oclc.org/SADI/LSRN_ENTITY/Biological_Thing"/>
+	<rdfs:range rdf:resource="http://www.mygrid.org.uk/ontology#bioinformatics_record"/>
+ </owl:ObjectProperty>
+
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#sharesProteinSequenceSimilarityWith">
+	<rdfs:range rdf:resource="http://www.mygrid.org.uk/ontology#bioinformatics_record"/>
+ </owl:ObjectProperty>
+
+ <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/service_objects.owl#sharesDNASequenceSimilarityWith">
+	<rdfs:range rdf:resource="http://www.mygrid.org.uk/ontology#bioinformatics_record"/>
+ </owl:ObjectProperty>
+
+
+
+
+</rdf:RDF>
