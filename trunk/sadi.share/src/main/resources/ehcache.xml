@@ -903,16 +903,5 @@ used with JMX monitors.
       <terracotta clustered="true"/>
 	</cache>
     -->
-   
-    <cache name="predicateStatsCache"
-           maxElementsInMemory="10000"
-           maxElementsOnDisk="0"
-           eternal="false"
-           overflowToDisk="false"
-           timeToIdleSeconds="600"
-           timeToLiveSeconds="600"
-           memoryStoreEvictionPolicy="LRU"
-           transactionalMode="off"
-            />
 
 </ehcache>
