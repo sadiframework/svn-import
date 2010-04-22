@@ -1,0 +1,14 @@
+Revision history for Perl extension OWL2Perl.
+
+0.92
+    * separated the logic contained in owl2perl-generate-modules.pl and placed
+      it into the OWL2Perl module.
+    * added some test cases for the OWL2Perl
+    * Revamped the OWL2Perl pod
+
+0.91
+    * created a serialize method in OWL2Perl::Utils that
+    serializes a list of OWL::Data::OWL::Class objects
+
+0.90 
+    * First version of this module
