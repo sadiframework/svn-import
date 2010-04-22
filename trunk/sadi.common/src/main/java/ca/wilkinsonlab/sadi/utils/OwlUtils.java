@@ -705,9 +705,9 @@ public class OwlUtils
 			Resource r = getNode();
 			
 			for(Statement stmt : r.listProperties().toList()) { 
+				targetModel.add(stmt);
 				RDFNode o = stmt.getObject();
 				if(o.isResource()) {
-					targetModel.add(stmt);
 					successors.add(new MinimalOntologySearchNode(sourceModel, targetModel, o.as(Resource.class)));
 				}
 			}
