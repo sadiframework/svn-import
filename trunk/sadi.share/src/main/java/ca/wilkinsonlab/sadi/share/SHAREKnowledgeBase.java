@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.Config;
@@ -21,6 +22,7 @@ import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLServiceWrapper;
 import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.stats.PredicateStatsDB;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
@@ -63,12 +65,19 @@ public class SHAREKnowledgeBase
 	
 	private Tracker tracker;
 	private Set<String> deadServices;
+	
+	/** stores statistics about predicates for query optimization */ 
+	protected PredicateStatsDB statsDB;
+	
 	/** allow ARQ-specific extensions to SPARQL query syntax (e.g. GROUP BY, HAVING, arithmetic expressions) */ 
 	protected boolean allowARQSyntax;
 	/** allow variables in the predicate positions of triple patterns */
 	protected boolean allowPredicateVariables;
 	/** decide ordering of query patterns as the query runs */
 	protected boolean useAdaptiveQueryPlanning;
+	/** record statistics during query execution */
+	protected boolean recordQueryStats;
+	
 	
 	// TODO rename to something less unwieldy?
 	private boolean dynamicInputInstanceClassification;
@@ -115,9 +124,12 @@ public class SHAREKnowledgeBase
 		for (Object serviceUri: config.getList("share.deadService"))
 			deadServices.add((String)serviceUri);
 		
+		statsDB = ca.wilkinsonlab.sadi.share.Config.getStatsDB();
+		
 		dynamicInputInstanceClassification = config.getBoolean("share.dynamicInputInstanceClassification", false);
 		useAdaptiveQueryPlanning = config.getBoolean("share.useAdaptiveQueryPlanning", false);
 		allowPredicateVariables = config.getBoolean("share.allowPredicateVariables", false);
+		recordQueryStats = config.getBoolean("share.recordQueryStats", false);
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
 		
 	}
@@ -258,7 +270,7 @@ public class SHAREKnowledgeBase
 		Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(predicates.values));
 		
 		if(!allowPredicateVariables && predicates.isEmpty()) {
-			log.error(String.format("variables are not permitted in the predicate position of triple patterns"));
+			log.error("variables are not permitted in the predicate position of triple patterns");
 			return;
 		}
 			
@@ -270,25 +282,52 @@ public class SHAREKnowledgeBase
 			return;
 		}
 			
+		boolean directionIsForward = true;
+		boolean patternIsResolvable = true;
+		
 		if (!subjects.isEmpty()) { // bound subject...
 			if (!objects.isEmpty()) { // bound subject and object...
-				if (bestDirectionIsForward(pattern)) {
-					gatherTriples(subjects, properties, objects);
-				} else {
-					gatherTriples(objects, getInverseProperties(properties), objects);
+				if(useAdaptiveQueryPlanning) {
+					directionIsForward = (new QueryPatternComparator()).bestDirectionIsForward(pattern);
+				} else { 
+					directionIsForward = true;
 				}
 			} else { // bound subject, unbound object...
-				gatherTriples(subjects, properties, objects);
+				directionIsForward = true;
 			}
 		} else if (!objects.isEmpty()) { // unbound subject, bound object...
-			gatherTriples(objects, getInverseProperties(properties), subjects);
+			directionIsForward = false;
 		} else { // unbound subject, unbound object...mygrid.org.uk/ontology#bioi
+
 			/* TODO try to find subjects by looking for instances of input
 			 * classes for services that generate the required property...
 			 */
 			log.warn(String.format("encountered a pattern whose subject and object are both unbound variables %s", pattern));
+			patternIsResolvable = false;
 		}
+		
+		if(patternIsResolvable) {
+			
+			StopWatch stopWatch = new StopWatch();
+			stopWatch.start();
 
+			boolean retrievedData;
+			
+			if(directionIsForward) {
+				retrievedData = gatherTriples(subjects, properties, objects);
+			} else {
+				retrievedData = gatherTriples(objects, getInverseProperties(properties), subjects);
+			}
+
+			stopWatch.stop();
+			log.trace(String.format("resolved pattern %s in %d seconds", pattern, stopWatch.getTime() / 1000));
+		
+			if(retrievedData && recordQueryStats) {
+				recordStats(subjects, predicates, objects, directionIsForward, (int)stopWatch.getTime());
+			}
+
+		}
+		
 		populateVariableBinding(subjects, predicates, objects);
 
 		/* note: this must come after normal processing of the triple pattern,
@@ -300,18 +339,6 @@ public class SHAREKnowledgeBase
 			processTypePattern(pattern);
 		}
 
-	}
-	
-	protected boolean bestDirectionIsForward(Triple pattern) 
-	{
-		PotentialValues s = expandQueryNode(pattern.getSubject());
-		PotentialValues o = expandQueryNode(pattern.getObject());
-		
-		if (s.isEmpty() || o.isEmpty()) {
-			throw new RuntimeException("expected both subject and object positions to be bound");
-		}
-		
-		return (s.values.size() < o.values.size());
 	}
 	
 	protected Set<OntProperty> getOntProperties(Collection<Resource> predicates) 
@@ -506,17 +533,17 @@ public class SHAREKnowledgeBase
 	
 	/* gather triples matching a predicate, optionally storing the subjects in an accumulator.
 	 */
-	private void gatherTriples(PotentialValues subjects, Collection<OntProperty> predicates, PotentialValues objects)
+	private boolean gatherTriples(PotentialValues subjects, Collection<OntProperty> predicates, PotentialValues objects)
 	{
 		log.debug(String.format("gathering triples with predicates %s", predicates));
 		log.trace(String.format("potential subjects %s", subjects.values));
 
 		if (subjects == null) {
 			log.warn("attempt to call gatherTriplesByPredicate with null subject");
-			return;
+			return false;
 		} else if (subjects.isEmpty()) {
 			log.trace("nothing to do");
-			return;
+			return false;
 		}
 		
 		Collection<Service> services;
@@ -530,6 +557,8 @@ public class SHAREKnowledgeBase
 
 		log.debug(String.format("found %d service%s total", services.size(), services.size() == 1 ? "" : "s"));
 		
+		boolean retrievedData = false; 
+		
 		for (Service service : services) {
 			/* copy the collection of potential inputs as they'll be filtered
 			 * for each service...
@@ -540,6 +569,7 @@ public class SHAREKnowledgeBase
 			for (Triple triple: output) {
 				log.trace(String.format("adding triple to data model %s", triple));
 				RdfUtils.addTripleToModel(dataModel, triple);
+				retrievedData = true;
 			}
 			
 			/* load minimal ontologies for any undefined properties 
@@ -556,6 +586,7 @@ public class SHAREKnowledgeBase
 			}
 		}
 		
+		return retrievedData;
 	}
 	
 	protected void populateVariableBinding(PotentialValues subjects, PotentialValues predicates, PotentialValues objects) 
@@ -564,26 +595,16 @@ public class SHAREKnowledgeBase
 		boolean pIsUnboundVar = predicates.isEmpty();
 		boolean oIsUnboundVar = objects.isEmpty();
 
-		// null represents a wildcard in call to reasoningModel.listStatements() below
-		Collection<Resource> subjectSet = sIsUnboundVar ? Collections.singleton((Resource) null) : RdfUtils.extractResources(subjects.values);
-		Set<? extends Property> predicateSet = pIsUnboundVar ? Collections.singleton((Property) null) : getOntProperties(RdfUtils.extractResources(predicates.values));
-		Set<RDFNode> objectSet = oIsUnboundVar ? Collections.singleton((RDFNode) null) : objects.values;
-
-		for (Resource s : subjectSet) {
-			for (Property p : predicateSet) {
-				for (RDFNode o : objectSet) {
-					for (Statement statement : reasoningModel.listStatements(s, p, o).toList()) {
-						if (sIsUnboundVar) {
-							subjects.add(statement.getSubject());
-						}
-						if (pIsUnboundVar) {
-							predicates.add(statement.getPredicate());
-						}
-						if (oIsUnboundVar) {
-							objects.add(statement.getObject());
-						}
-					}
-				}
+		for(Statement statement : getStatements(subjects, predicates, objects)) 
+		{
+			if (sIsUnboundVar) {
+				subjects.add(statement.getSubject());
+			}
+			if (pIsUnboundVar) {
+				predicates.add(statement.getPredicate());
+			}
+			if (oIsUnboundVar) {
+				objects.add(statement.getObject());
 			}
 		}
 
@@ -597,7 +618,89 @@ public class SHAREKnowledgeBase
 			log.trace(String.format("assigned %d bindings to variable %s", objects.values.size(), objects.variable));
 		}
 	}
+	
+	protected void recordStats(PotentialValues subjects, PotentialValues predicates, PotentialValues objects, boolean directionIsForward, int responseTime)
+	{
+		if(statsDB == null) {
+			log.error("statsDB was not successfully initialized, skipping recording of stats");
+			return;
+		}
+		
+		if((directionIsForward && subjects.isEmpty()) || (!directionIsForward && objects.isEmpty())) {
+			log.error("non-sensical value for directionIsForward, skipping recording of stats");
+			return;
+		}
 
+		Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(predicates.values));
+		
+		if(!predicates.isEmpty() && properties.size() == 0) {
+			log.trace("predicate has no bindings that are URIs, skipping recording of stats");
+			return;
+		}
+
+		/*
+		 * If the predicate of the pattern is an unbound variable, or
+		 * is a variable with multiple bindings, then we can't record
+		 * any stats.  (We don't have enough information to determine
+		 * the resolution time of the individual predicates.)
+		 */
+		
+		if(predicates.isEmpty() || properties.size() > 1) {
+			log.trace("pattern involves multiple predicates, skipping recording of stats");
+			return;
+		}
+		
+		/*
+		 * If the pattern has no solutions, we assume that this was
+		 * due to an user error in formulating the query, and do
+		 * not record any stats.  
+		 */
+		if(getStatements(subjects, predicates, objects).size() == 0) {
+			log.trace("pattern has no solutions, skipping recording of stats");
+			return;
+		}
+		
+		Property property = properties.iterator().next();
+		int numInputs = directionIsForward ? subjects.values.size() : objects.values.size();
+		
+		statsDB.recordSample(property, directionIsForward, numInputs, responseTime);
+		
+	}
+	
+	protected Collection<Statement> getStatements(PotentialValues subjects, PotentialValues predicates, PotentialValues objects)
+	{
+		Collection<Statement> statements = new ArrayList<Statement>();
+		
+		boolean sIsUnboundVar = subjects.isEmpty();
+		boolean pIsUnboundVar = predicates.isEmpty();
+		boolean oIsUnboundVar = objects.isEmpty();
+
+		// null represents a wildcard in call to reasoningModel.listStatements() below
+		
+		Collection<Resource> subjectSet = Collections.singleton((Resource)null);
+		Set<? extends Property> predicateSet = Collections.singleton((Property) null);
+		Set<RDFNode> objectSet = Collections.singleton((RDFNode) null);
+		
+		if(!sIsUnboundVar) {
+			subjectSet = RdfUtils.extractResources(subjects.values);
+		}
+		if(!pIsUnboundVar) {
+			predicateSet = getOntProperties(RdfUtils.extractResources(predicates.values));
+		}
+		if(!oIsUnboundVar) {
+			objectSet = objects.values;
+		}
+
+		for (Resource s : subjectSet) {
+			for (Property p : predicateSet) {
+				for (RDFNode o : objectSet) {
+					statements.addAll(reasoningModel.listStatements(s, p, o).toList());
+				}
+			}
+		}
+		
+		return statements;
+	}
 
 	private Collection<Triple> maybeCallService(Service service, Set<RDFNode> subjects)
 	{
@@ -1000,23 +1103,42 @@ public class SHAREKnowledgeBase
 		}
 	}
 	
-	/* rankings for expensive query patterns */
-	protected static int BAD = -1;
-	protected static int WORST = -2;
+	/* 
+	 * Rankings for expensive query patterns.
+	 * -1 is reserved for PredicateStatsDB.NO_STATS_AVAILABLE.
+	 */
+	
+	protected static int BAD = -2;
+	protected static int WORSE = -3;
+	protected static int WORST = -4;
 
 	protected class QueryPatternComparator implements Comparator<Triple>
 	{
+
 		public int compare(Triple pattern1, Triple pattern2) 
 		{
-			int cost1 = cost(pattern1);
-			int cost2 = cost(pattern2);
+			int cost1 = costByStats(pattern1);
+			int cost2 = costByStats(pattern2);
 			
-			/* sanity check */
-			if (cost1 == 0 || cost2 == 0) {
-				throw new RuntimeException("query pattern cost should never be zero");
+			/* 
+			 * If no stats were available for either pattern, compare them by 
+			 * the number of inputs that will be sent to matching services.
+			 */
+			
+			if(cost1 == PredicateStatsDB.NO_STATS_AVAILABLE && cost2 == PredicateStatsDB.NO_STATS_AVAILABLE) {
+				
+				cost1 = costByBindings(pattern1);
+				cost2 = costByBindings(pattern2);
+				
 			}
 			
+			return compare(cost1, cost2);
+		}
+		
+		protected int compare(int cost1, int cost2) 
+		{
 			/* Note: the first case handles when both numbers are both BAD, both WORST, etc. */ 
+			
 			if (cost1 == cost2) {
 				return 0;
 			} else if(cost1 > 0 && cost2 < 0) {
@@ -1024,34 +1146,200 @@ public class SHAREKnowledgeBase
 			} else if(cost1 < 0 && cost2 > 0) {
 				return 1;
 			} else {
+	
 				/* CASE: both costs have the same sign */
 				if (Math.abs(cost1) < Math.abs(cost2)) {
 					return -1;
-				} else {
+				} else if(Math.abs(cost1) > Math.abs(cost2)) {
 					return 1;
+				} else {
+					return 0;
 				}
 			}
 		}
 		
-		protected int cost(Triple pattern) 
+		protected int costByStats(Triple pattern) 
 		{
+			
 			PotentialValues s = expandQueryNode(pattern.getSubject());
 			PotentialValues p = expandQueryNode(pattern.getPredicate());
 			PotentialValues o = expandQueryNode(pattern.getObject());
 			
 			if (s.isEmpty() && o.isEmpty()) {
-				// CASES: (?s, ?p, ?o) or (?s, bound, ?o)
+				
+				/* CASES: (?s, ?p, ?o), (?s, bound, ?o) */
 				return WORST;
+			
 			} else if (p.isEmpty()) {
-				// CASES: (bound, ?p, ?o) or (?s, ?p, bound)				
-				return BAD;
-			} else if (o.isEmpty()) {
-				// CASE: (bound, bound, ?o)
-				return s.values.size() * p.values.size();
+			
+				/* CASES: (bound, ?p, ?o), (?s, ?p, bound), (bound, ?p, bound) */		
+				return WORSE;
+			
 			} else {
-				// CASE: (?s, bound, bound)
-				return o.values.size() * p.values.size();
+
+				/* CASES: (bound, bound, ?o), (?s, bound, bound), (bound, bound, bound) */
+				
+				Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(p.values));
+				
+				/* predicate has no bindings that are URIs */
+				if(properties.size() == 0) {
+					return 0;
+				}
+
+				if(!s.isEmpty() && !o.isEmpty()) {
+					
+					/* CASE: (bound, bound, bound) */
+					int forwardCost = costByStats(properties, true, s.values.size());
+					int reverseCost = costByStats(properties, false, o.values.size());
+					
+					if(compare(forwardCost, reverseCost) <= 0) {
+						return forwardCost;
+					} else {
+						return reverseCost;
+					}
+
+				}
+				else if(!s.isEmpty()) {
+				
+					/* CASE: (bound, bound, ?o) */
+					return costByStats(properties, true, s.values.size());
+				
+				} else {
+					
+					/* CASE: (?s, bound, bound) */
+					return costByStats(properties, false, o.values.size());
+				}
+				
 			}
 		}
+		
+		protected int costByStats(Set<OntProperty> predicates, boolean directionIsForward, int numInputs) 
+		{
+			if(predicates.size() == 0) {
+				return 0;
+			}
+			
+			if(statsDB == null) {
+				log.error("stats DB was not correctly initialized, returning NO_STATS_AVAILABLE for time estimate");
+				return PredicateStatsDB.NO_STATS_AVAILABLE;
+			}
+			
+			/*
+			 * Once we have added in the cost for resolving a property, ignore
+			 * the costs of any equivalent properties (since these 
+			 * will resolve to the same services). 
+			 */
+			
+			List<OntProperty> visitedPredicates = new ArrayList<OntProperty>(predicates.size());
+			
+			int totalCost = 0;
+			
+			for(OntProperty predicate : predicates) {
+				
+				boolean skipThisPredicate = false;;
+				
+				for(OntProperty visitedPredicate : visitedPredicates) {
+					if(equivalent(predicate, visitedPredicate)) {
+						skipThisPredicate = true;
+						break;
+					}
+				}
+				
+				if(skipThisPredicate) {
+					continue;
+				}
+				
+				int cost = statsDB.getEstimatedTime(predicate, directionIsForward, numInputs);
+				
+				/*
+				 * If even one of the predicates has no stats available,
+				 * then we can't estimate the overall cost.
+				 */
+				
+				if(cost == PredicateStatsDB.NO_STATS_AVAILABLE) {
+					return PredicateStatsDB.NO_STATS_AVAILABLE;
+				}
+				
+				visitedPredicates.add(predicate);
+				totalCost += cost;
+				
+			}
+			
+			return totalCost;
+		}
+		
+		protected boolean equivalent(OntProperty p1, OntProperty p2) 
+		{
+			for(OntProperty equivalentProperty : p1.listEquivalentProperties().toList()) {
+				if(equivalentProperty.getURI().equals(p2.getURI())) {
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		protected int costByBindings(Triple pattern)
+		{
+			PotentialValues s = expandQueryNode(pattern.getSubject());
+			PotentialValues o = expandQueryNode(pattern.getObject());
+
+			if(s.isEmpty() && o.isEmpty()) {
+				return WORST;
+			} else if(!s.isEmpty() && !o.isEmpty()) {
+				return Math.min(s.values.size(), o.values.size());
+			} else if(!s.isEmpty()) {
+				return s.values.size();
+			} else {
+				return o.values.size();
+			}
+		}
+		
+		protected boolean bestDirectionIsForward(Triple pattern) 
+		{
+			
+			PotentialValues s = expandQueryNode(pattern.getSubject());
+			PotentialValues p = expandQueryNode(pattern.getPredicate());
+			PotentialValues o = expandQueryNode(pattern.getObject());
+			
+			if(s.isEmpty() || o.isEmpty()) {
+				throw new RuntimeException("expected both subject and object positions to be bound");
+			}
+			
+			Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(p.values));
+			
+			/* 
+			 * CASE: The predicate is a variable with bindings, but none of the 
+			 * bindings are URIs.  It doesn't matter which direction we choose,
+			 * because the pattern has no solutions.
+			 */
+			
+			if(!p.isEmpty() && properties.size() == 0) {
+				return true;
+			}
+			
+			int forwardCost;
+			int reverseCost;
+			
+			/*
+			 * CASE: The predicate is an unbound variable, so we can't 
+			 * make use of our predicate-based stats. Instead, compare the 
+			 * number of bindings for the subject and object.
+			 */
+			
+			if(p.isEmpty()) {
+			
+				forwardCost = s.values.size();
+				reverseCost = o.values.size();
+		
+			} else {
+				
+				forwardCost = costByStats(properties, true, s.values.size());
+				reverseCost = costByStats(properties, false, o.values.size());
+				
+			}
+			
+			return (compare(forwardCost, reverseCost) <= 0);
+		}
+
 	}
 }

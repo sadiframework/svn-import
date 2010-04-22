@@ -55,11 +55,6 @@
   		<version>2.4</version>
   	</dependency>
   	<dependency>
-  		<groupId>commons-math</groupId>
-  		<artifactId>commons-math</artifactId>
-  		<version>20040218.045431</version>
-  	</dependency>
-  	<dependency>
   		<groupId>ca.wilkinsonlab.sadi</groupId>
   		<artifactId>sadi-share</artifactId>
   		<version>0.0.4-SNAPSHOT</version>
@@ -84,5 +79,10 @@
   		<artifactId>sadi-client</artifactId>
   		<version>0.0.4-SNAPSHOT</version>
   	</dependency>  	
+  	<dependency>
+  		<groupId>commons-math</groupId>
+  		<artifactId>commons-math</artifactId>
+  		<version>1.2</version>
+  	</dependency>
   </dependencies>
 </project>
