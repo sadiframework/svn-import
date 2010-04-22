@@ -4,14 +4,19 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.time.DurationFormatUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 
+import ca.wilkinsonlab.sadi.share.Config;
 import ca.wilkinsonlab.sadi.share.SHAREQueryClient;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
@@ -27,7 +32,26 @@ import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 public class PredicateVariablesTest 
 {
 	public final static Logger log = Logger.getLogger(PredicateVariablesTest.class);
+
+	protected Configuration config = Config.getConfiguration(); 
+	
+	protected final static String PREDICATE_VARIABLES_CONFIG_KEY = "share.allowPredicateVariables";
+	protected boolean allowPredicateVariablesOldValue;
+	
 	protected StopWatch stopWatch = new StopWatch();
+	
+	@Before
+	public void setUp()
+	{
+		allowPredicateVariablesOldValue = config.getBoolean(PREDICATE_VARIABLES_CONFIG_KEY, false);
+		config.setProperty(PREDICATE_VARIABLES_CONFIG_KEY, true);
+	}
+	
+	@After
+	public void tearDown()
+	{
+		config.setProperty(PREDICATE_VARIABLES_CONFIG_KEY, allowPredicateVariablesOldValue);
+	}
 	
 	protected void testQueryFromFile(String queryFile) 
 	{
@@ -73,45 +97,45 @@ public class PredicateVariablesTest
 	 * slow and consume a huge amount of memory. 
 	 */
 
-//	@Test
-//	public void testQuery1()
-//	{
-//		testQueryFromFile("predicate.variable.query1.sparql");
-//	}
-//	@Test
-//	public void testQuery2()
-//	{
-//		testQueryFromFile("predicate.variable.query2.sparql");
-//	}
-//	@Test
-//	public void testQuery3()
-//	{
-//		testQueryFromFile("predicate.variable.query3.sparql");
-//	}
-//	@Test
-//	public void testQuery4()
-//	{
-//		testQueryFromFile("predicate.variable.query4.sparql");
-//	}
-//	@Test
-//	public void testQuery5()
-//	{
-//		testQueryFromFile("predicate.variable.query5.sparql");
-//	}
-//	@Test
-//	public void testQuery6()
-//	{
-//		testQueryFromFile("predicate.variable.query6.sparql");
-//	}
-//	@Test
-//	public void testQuery7()
-//	{
-//		/* This query is *supposed* to have no results.
-//		 * The purpose of the test is to check for graceful
-//		 * failure in the case where a predicate variable 
-//		 * has only literal or blank-node bindings.
-//		 */
-//		testQueryFromFile("predicate.variable.query7.sparql", false);
-//	}
+	@Test
+	public void testQuery1()
+	{
+		testQueryFromFile("predicate.variable.query1.sparql");
+	}
+	@Test
+	public void testQuery2()
+	{
+		testQueryFromFile("predicate.variable.query2.sparql");
+	}
+	@Test
+	public void testQuery3()
+	{
+		testQueryFromFile("predicate.variable.query3.sparql");
+	}
+	@Test
+	public void testQuery4()
+	{
+		testQueryFromFile("predicate.variable.query4.sparql");
+	}
+	@Test
+	public void testQuery5()
+	{
+		testQueryFromFile("predicate.variable.query5.sparql");
+	}
+	@Test
+	public void testQuery6()
+	{
+		testQueryFromFile("predicate.variable.query6.sparql");
+	}
+	@Test
+	public void testQuery7()
+	{
+		/* This query is *supposed* to have no results.
+		 * The purpose of the test is to check for graceful
+		 * failure in the case where a predicate variable 
+		 * has only literal or blank-node bindings.
+		 */
+		testQueryFromFile("predicate.variable.query7.sparql", false);
+	}
 	
 }
