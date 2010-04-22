@@ -298,7 +298,7 @@ public class OwlUtils
 		if (c != null)
 			return c;
 		
-		loadOntologyForUri(model, uri);
+		loadMinimalOntologyForUri(model, uri);
 		return model.getOntClass(uri);
 	}
 	
