@@ -713,8 +713,8 @@ public class OwlUtils
 			}
 			
 			// If we just compute a normal directed closure starting from the root URI, we may miss  
-			// equivalent/inverse/disjoint properties.  (Since these relationships may only be asserted in 
-			// one direction.)  
+			// equivalent/inverse/disjoint properties, and equivalent/complementary classes.  
+			// (Since these relationships might be asserted in only one direction.)  
 			// 
 			// We also need to know all subproperties of an included property, or service discovery 
 			// will not work correctly.
@@ -723,6 +723,10 @@ public class OwlUtils
 					OWL.equivalentProperty,
 					OWL.inverseOf,
 					OWL.disjointWith,
+					OWL.complementOf,
+					OWL.equivalentClass,
+					OWL.sameAs,
+					OWL.differentFrom,
 					RDFS.subPropertyOf, 
 				};
 			
