@@ -25,7 +25,7 @@
 	requires 'HTTP::Date'			=> 5.81;	
 	requires 'Template'         	=> 2.22;
 	requires 'Params::Util'     	=> 0.38;
-	requires 'Scalar::List::Utils'  => 1.20;
+	requires 'Scalar::Util'         => 1.20;
     requires 'Class::Inspector' 	=> 1.17;
     requires 'Unicode::String'  	=> 2.09;
     requires 'IO::String'       	=> 1.08;
