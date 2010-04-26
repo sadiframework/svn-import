@@ -572,11 +572,11 @@ This wonderful module is used to construct the templates for our OWL entities.
 
 =item Params::Util
 
-=item Scalar::List::Utils
+=item Scalar::List::Utils (also known as Scalar::Util)
 
 There may be a problem obtaining the latest version of this module on windows.
 The most recent available version (on PPM) for windows is suffice to get this 
-working. 
+working.
 
 =item Class::Inspector
 
