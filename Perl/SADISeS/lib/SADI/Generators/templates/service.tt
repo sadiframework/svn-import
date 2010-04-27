@@ -119,15 +119,15 @@ use SADI::RDF::Predicates::RDFS;
 #                
 #                  args
 #                     node => $URI  (the URI string or RDF::Core::Resource of the subject node
-#                             or a subclass of SADI::Data::OWL::Class )
+#                             or a subclass of OWL::Data::OWL::Class )
 #                       NOTE:
-#                          if $URI->isa(SADI::Data::OWL::Class) created via
+#                          if $URI->isa(OWL::Data::OWL::Class) created via
 #                          sadi-generate-datatypes script then all RDF statements
 #                          for this resource are added to our model and all 
 #                          other arguments are ignored!
 #                     value => $val  (a string value)
 #                     predicate => $URI (required - the predicate to put between them.  
-#                                        unless your $URI->isa(SADI::Data::OWL::Class))
+#                                        unless your $URI->isa(OWL::Data::OWL::Class))
 #                     typed_as_output => boolean (if present output is rdf:typed as output class)
 #                     force_literal => boolean
 #                     label => $label (string); label for value node, only if value is a URI
