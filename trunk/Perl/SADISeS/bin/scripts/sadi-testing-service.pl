@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
 #
-# Calling a BioMoby services (with or without SOAP).
+# Calling a SADI service for testing purposes.
 #
 # $Id: sadi-testing-service.pl,v 1.12 2010-01-28 16:30:50 ubuntu Exp $
-# Contact: Martin Senger <martin.senger@gmail.com>
+# Contact: Edward Kawas <edward.kawas+sadi@gmail.com>
 # -----------------------------------------------------------
 
 BEGIN {
