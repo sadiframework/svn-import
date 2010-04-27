@@ -51,7 +51,7 @@ use_ok($_) foreach (@properties);
 my $class =
   sadiframework::org::examples::example::AnnotatedGeneID_Record->new(
 																		'#foo');
-isa_ok( $class, 'SADI::Data::OWL::Class' );
+isa_ok( $class, 'OWL::Data::OWL::Class' );
 is( $class->uri,   "#foo", "check uri - set in constructor" );
 is( $class->value, "#foo", "check value - set in constructor" );
 $class->uri('#bar');
