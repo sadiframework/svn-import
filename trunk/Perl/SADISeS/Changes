@@ -1,15 +1,17 @@
 Revision history for Perl extension SADI.
 
-0.99.6
-    * Copied SADI::SADI to SADI
-    * UniqueID, ServiceURI and SignatureURL default to Service URL
-      if they are not defined.
+1.00
     * updated Makefile.PL to include OWL2Perl (code excised from this
       module and placed into a new separate module to more modularize
       the codebase)
     * updated the sadi-generate-datatypes.pl script to use the new 
       OWL2Perl codebase. Whole script was re-written.
-    
+    * replaced SADI::Data::* with OWL::Data::* in most cases.
+
+0.99.6
+    * Copied SADI::SADI to SADI
+    * UniqueID, ServiceURI and SignatureURL default to Service URL
+      if they are not defined.    
 
 0.99.5
     * tweaked the synopsis in SADI::SADI (thanks to Mark)
