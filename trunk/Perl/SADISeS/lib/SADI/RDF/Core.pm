@@ -407,12 +407,12 @@ sub getObjects {
   args
 
      node => $URI  (the URI string, RDF::Core::Resource of the subject node or 
-             a SADI::Data::OWL::Class (object generated using sadi-generate-datatypes)).
+             a OWL::Data::OWL::Class (object generated using sadi-generate-datatypes)).
              In the event of an OWL class, all other args are ignored.
 
      value => $val  (a string value)
 
-     predicate => $URI (required unless node isa SADI::Data::OWL::Class- the predicate to put between them.)
+     predicate => $URI (required unless node isa OWL::Data::OWL::Class- the predicate to put between them.)
 
      typed_as_output => boolean (if present output is rdf:typed as output class)
 
@@ -428,7 +428,7 @@ sub addOutputData {
 	my $subject     = $args{node};
 	if ( ref($subject) =~ /RDF::Core::Resource/ ) {
 		$subject = RDF::Core::Resource->new( $subject->getURI );
-	} elsif ( UNIVERSAL::isa($subject, 'SADI::Data::OWL::Class') ) {
+	} elsif ( UNIVERSAL::isa($subject, 'OWL::Data::OWL::Class') ) {
 		# using generated modules, so get their statements and return
 		foreach ( @{ $subject->_get_statements } ) {
             $self->_addToModel( statement => $_ );
