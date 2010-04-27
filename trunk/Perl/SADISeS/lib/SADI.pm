@@ -3,7 +3,7 @@
 # Author: Edward Kawas
 # For copyright and disclaimer see below.
 #
-# $Id: SADI.pm,v 1.36 2010-03-09 18:04:43 ubuntu Exp $
+# $Id: SADI.pm,v 1.01 2010-03-09 18:04:43 ubuntu Exp $
 #-----------------------------------------------------------------
 package SADI;
 use strict 'vars';
@@ -13,7 +13,7 @@ use vars qw{$VERSION};
 
 BEGIN {
 	use vars qw{@ISA @EXPORT @EXPORT_OK};
-	$VERSION = sprintf "%d.%02d", q$Revision: 1.36 $ =~ /: (\d+)\.(\d+)/;
+	$VERSION = sprintf "%d.%02d", q$Revision: 1.01 $ =~ /: (\d+)\.(\d+)/;
 	*SADI::VERSION = *VERSION;
 }
 
