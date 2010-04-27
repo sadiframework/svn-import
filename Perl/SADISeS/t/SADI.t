@@ -28,11 +28,3 @@ use_ok('SADI::RDF::Predicates::OMG_LSID');
 use_ok('SADI::RDF::Predicates::OWL');
 use_ok('SADI::RDF::Predicates::RDF');
 use_ok('SADI::RDF::Predicates::RDFS');
-
-use_ok('SADI::Data::Def::DatatypeProperty');
-use_ok('SADI::Data::Def::ObjectProperty');
-use_ok('SADI::Data::Def::OWLClass');
-
-use_ok('SADI::Data::OWL::Class');
-use_ok('SADI::Data::OWL::DatatypeProperty');
-use_ok('SADI::Data::OWL::ObjectProperty');
