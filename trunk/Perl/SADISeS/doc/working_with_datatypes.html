@@ -129,6 +129,7 @@ Note: This script requires that the PERL module ODO, from IBM Semantic Layered
   &lt;owl:DatatypeProperty rdf:about=&quot;http://sadiframework.org/ontologies/predicates.owl#hasDescription&quot;/&gt;
   &lt;owl:DatatypeProperty rdf:about=&quot;http://sadiframework.org/ontologies/predicates.owl#hasProteinName&quot;/&gt;
   &lt;owl:DatatypeProperty rdf:about=&quot;http://sadiframework.org/ontologies/predicates.owl#hasName&quot;/&gt;
+  &lt;owl:Class rdf:about="http://purl.oclc.org/SADI/LSRN/GeneID_Record"/&gt;
   
   &lt;owl:Class rdf:ID=&quot;AnnotatedGeneID_Record&quot;&gt;
     &lt;rdfs:subClassOf rdf:resource=&quot;http://purl.oclc.org/SADI/LSRN/GeneID_Record&quot;/&gt;
@@ -432,18 +433,8 @@ $class-&gt;add_hasSymbol(
            new ontology::dumontierlab::com::hasSymbol(&#39;another symbol value&#39;) );
 
 # here we serialze the OWL class
-# construct a model
-my $model = new RDF::Core::Model( Storage =&gt; new RDF::Core::Storage::Memory );
-
-# add each statement
-$model-&gt;addStmt($_) foreach ( @{ $class-&gt;_get_statements } );
-
-# print out the XML
-my $serializer = new RDF::Core::Model::Serializer(
-                                    Model  =&gt; $model,
-                                    Output =&gt; \*STDOUT,
-);
-$serializer-&gt;serialize;</pre>
+use OWL::Utils;
+print OWL::Utils::serialize($class)</pre>
 <p>This produces the following RDF/XML:</p>
 <pre>&lt;rdf:RDF
   xmlns:a=&quot;http://sadiframework.org/ontologies/predicates.owl#&quot;
