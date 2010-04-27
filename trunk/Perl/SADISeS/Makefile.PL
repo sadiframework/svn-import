@@ -8,11 +8,11 @@
     
 	# Define metadata
 	name 'SADI';
-	version '0.99.6';
+	version '0.99.7';
 	license 'new BSD';
 	abstract
 'This distribution aids in the creation of SADI perl based web services.';
-	all_from 'lib/SADI/SADI.pm';
+	all_from 'lib/SADI.pm';
 
 	# Specific dependencies
 	requires 'Carp'             	=> 0;
@@ -33,6 +33,7 @@
     requires 'LS'                   => '1.1.7';
     requires 'HTTP::Request'        => 0;
     requires 'LWP'                  => 0;
+    requires 'OWL2Perl'             => 0.92;
     requires 'PLUTO'                => 0.25;
     requires 'URI'                  => 1.40;  
 
