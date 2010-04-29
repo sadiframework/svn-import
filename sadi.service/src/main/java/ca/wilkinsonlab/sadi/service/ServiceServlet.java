@@ -19,6 +19,7 @@ import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyException;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
+import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
@@ -193,6 +194,10 @@ public abstract class ServiceServlet extends HttpServlet
 		} else {
 			inputModel.read(request.getInputStream(), "");
 		}
+
+		if (log.isTraceEnabled())
+			log.trace("incoming input model:\n" + RdfUtils.logStatements(inputModel));
+		
 		return inputModel;
 	}
 	
