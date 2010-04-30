@@ -660,10 +660,16 @@ public class SHAREKnowledgeBase
 			return;
 		}
 		
-		Property property = properties.iterator().next();
+		OntProperty property = properties.iterator().next();
 		int numInputs = directionIsForward ? subjects.values.size() : objects.values.size();
 		
-		statsDB.recordSample(property, directionIsForward, numInputs, responseTime);
+		for(OntProperty p : getEquivalentProperties(property)) {
+			statsDB.recordSample(p, directionIsForward, numInputs, responseTime);
+		}
+		
+		for(OntProperty inverse : getInverseProperties(property)) {
+			statsDB.recordSample(inverse, !directionIsForward, numInputs, responseTime);
+		}
 		
 	}
 	
@@ -771,6 +777,18 @@ public class SHAREKnowledgeBase
 		equivalentProperties.add(p);
 		
 		return equivalentProperties;
+	}
+	
+	protected Set<OntProperty> getInverseProperties(OntProperty p) 
+	{
+		log.trace(String.format("finding all properties inverse to %s", p));
+		Set<OntProperty> inverseProperties = new HashSet<OntProperty>();
+		for (OntProperty q: p.listInverse().toList()) {
+			log.trace(String.format("found inverse property %s", q));
+			inverseProperties.add(q);
+		}
+
+		return inverseProperties;
 	}
 	
 	/* TODO fix this redundancy by making it so that Services can return 
@@ -1125,7 +1143,7 @@ public class SHAREKnowledgeBase
 			 * the number of inputs that will be sent to matching services.
 			 */
 			
-			if(cost1 == PredicateStatsDB.NO_STATS_AVAILABLE && cost2 == PredicateStatsDB.NO_STATS_AVAILABLE) {
+			if(cost1 == PredicateStatsDB.NO_STATS_AVAILABLE || cost2 == PredicateStatsDB.NO_STATS_AVAILABLE) {
 				
 				cost1 = costByBindings(pattern1);
 				cost2 = costByBindings(pattern2);
