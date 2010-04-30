@@ -24,7 +24,8 @@ public class PredicateStatsDBCommandLineClient
 	public static class CommandLineOptions {
 		
 		public enum OperationType {
-			RECOMPUTE_STATS
+			RECOMPUTE_STATS,
+			CLEAR_ALL,
 		};
 
 		public List<OperationType> operations = new ArrayList<OperationType>();
@@ -40,6 +41,9 @@ public class PredicateStatsDBCommandLineClient
 
 		@Option(name="-r", aliases={"--recompute-stats"}, usage="recompute summary statistics from samples")
 		protected void recomputeStats(boolean unused) { operations.add(OperationType.RECOMPUTE_STATS); }
+		
+		@Option(name="-c", aliases={"--clear-all"}, usage="delete all data in the database (both the samples and summary statistics)")
+		protected void clearAll(boolean unused) { operations.add(OperationType.CLEAR_ALL); }
 		
 	}
 	
@@ -65,6 +69,10 @@ public class PredicateStatsDBCommandLineClient
 				
 				case RECOMPUTE_STATS:
 					statsDB.recomputeStats();
+					break;
+					
+				case CLEAR_ALL:
+					statsDB.clear();
 					break;
 				
 				default:
