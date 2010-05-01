@@ -134,10 +134,11 @@ public class QueryPatternComparatorTest
 	@Test
 	public void testCompareWithoutStats3()
 	{
-		/* stats are only available for pattern1, so that pattern should be preferred */
+		/* stats are only available for pattern1, so the patterns should instead 
+		 * be compared by the number of inputs, and determined to be equal */
 		Triple pattern1 = createTriple(NODE_A, PREDICATE_A, "?unbound");
 		Triple pattern2 = createTriple("?unbound", NO_STATS_PREDICATE_E, NODE_B);
-		assertTrue(mockKB.comparator.compare(pattern1, pattern2) == -1);
+		assertTrue(mockKB.comparator.compare(pattern1, pattern2) == 0);
 	}
 	
 	@Test

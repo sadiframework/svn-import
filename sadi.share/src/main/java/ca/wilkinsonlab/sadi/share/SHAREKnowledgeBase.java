@@ -1139,7 +1139,7 @@ public class SHAREKnowledgeBase
 			int cost2 = costByStats(pattern2);
 			
 			/* 
-			 * If no stats were available for either pattern, compare them by 
+			 * If no stats were available for one or both patterns, compare them by 
 			 * the number of inputs that will be sent to matching services.
 			 */
 			
@@ -1353,6 +1353,18 @@ public class SHAREKnowledgeBase
 				
 				forwardCost = costByStats(properties, true, s.values.size());
 				reverseCost = costByStats(properties, false, o.values.size());
+				
+				/* 
+				 * If no stats were available for one or both patterns, compare them by 
+				 * the number of inputs that will be sent to matching services.
+				 */
+				
+				if(forwardCost == PredicateStatsDB.NO_STATS_AVAILABLE || reverseCost == PredicateStatsDB.NO_STATS_AVAILABLE) {
+					
+					forwardCost = s.values.size();
+					reverseCost = o.values.size();
+
+				}
 				
 			}
 			
