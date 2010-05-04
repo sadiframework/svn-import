@@ -3,6 +3,8 @@ package ca.wilkinsonlab.sadi.utils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Stole this from elmutils until I figure out how best to link the library.
  * @author Luke McCarthy
@@ -29,7 +31,7 @@ public class PatternSubstitution
 		/* use find() and not matches() to better emulate perl semantics by
 		 * not forcing a match to start at the beginning of the string...
 		 */
-		return inPattern.matcher(s).find();
+		return inPattern.matcher(StringUtils.defaultString(s)).find();
 	}
 	
 	public String execute(String s)
@@ -37,7 +39,7 @@ public class PatternSubstitution
 		/* use find() and not matches() to better emulate perl semantics by
 		 * not forcing a match over the whole string...
 		 */
-		Matcher match = inPattern.matcher(s);
+		Matcher match = inPattern.matcher(StringUtils.defaultString(s));
 		match.find();
 		
 		/* replace groups in out pattern according to perl semantics...
