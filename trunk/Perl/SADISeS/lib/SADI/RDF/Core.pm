@@ -428,7 +428,7 @@ sub addOutputData {
 	my $subject     = $args{node};
 	if ( ref($subject) =~ /RDF::Core::Resource/ ) {
 		$subject = RDF::Core::Resource->new( $subject->getURI );
-	} elsif ( UNIVERSAL::isa($subject, 'OWL::Data::OWL::Class') ) {
+	} elsif ( UNIVERSAL::isa($subject, 'OWL::Data::OWL::Class') or UNIVERSAL::isa($subject, 'SADI::Data::OWL::Class') ) {
 		# using generated modules, so get their statements and return
 		foreach ( @{ $subject->_get_statements } ) {
             $self->_addToModel( statement => $_ );
