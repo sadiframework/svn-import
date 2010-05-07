@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -66,18 +67,14 @@ public class SHAREKnowledgeBase
 	private Tracker tracker;
 	private Set<String> deadServices;
 	
-	/** stores statistics about predicates for query optimization */ 
-	protected PredicateStatsDB statsDB;
-	
 	/** allow ARQ-specific extensions to SPARQL query syntax (e.g. GROUP BY, HAVING, arithmetic expressions) */ 
-	protected boolean allowARQSyntax;
+	private boolean allowARQSyntax;
 	/** allow variables in the predicate positions of triple patterns */
-	protected boolean allowPredicateVariables;
+	private boolean allowPredicateVariables;
 	/** decide ordering of query patterns as the query runs */
-	protected boolean useAdaptiveQueryPlanning;
+	private boolean useAdaptiveQueryPlanning;
 	/** record statistics during query execution */
-	protected boolean recordQueryStats;
-	
+	private boolean recordQueryStats;
 	
 	// TODO rename to something less unwieldy?
 	private boolean dynamicInputInstanceClassification;
@@ -124,11 +121,9 @@ public class SHAREKnowledgeBase
 		for (Object serviceUri: config.getList("share.deadService"))
 			deadServices.add((String)serviceUri);
 		
-		statsDB = ca.wilkinsonlab.sadi.share.Config.getStatsDB();
-		
 		dynamicInputInstanceClassification = config.getBoolean("share.dynamicInputInstanceClassification", false);
 		useAdaptiveQueryPlanning = config.getBoolean("share.useAdaptiveQueryPlanning", false);
-		allowPredicateVariables = config.getBoolean("share.allowPredicateVariables", false);
+		setAllowPredicateVariables(config.getBoolean("share.allowPredicateVariables", false));
 		recordQueryStats = config.getBoolean("share.recordQueryStats", false);
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
 		
@@ -146,6 +141,20 @@ public class SHAREKnowledgeBase
 		return (allowARQSyntax() ? Syntax.syntaxARQ : Syntax.syntaxSPARQL);
 	}
 
+	protected void setAllowPredicateVariables(boolean allowPredicateVariables) {
+		this.allowPredicateVariables = allowPredicateVariables;
+	}
+
+	protected MultiRegistry getRegistry()
+	{
+		return registry;
+	}
+	
+	protected PredicateStatsDB getStatsDB() 
+	{
+		return ca.wilkinsonlab.sadi.share.Config.getStatsDB();
+	}
+	
 	public void dispose()
 	{
 		/* this is not working because (unbelievably) it closes the root OWL ontology model...
@@ -221,7 +230,7 @@ public class SHAREKnowledgeBase
 	{
 		loadFromClauses(query);
 
-		log.trace("using adaptive query planning");
+		log.trace("running query with adaptive query planning");
 		
 		List<Triple> queryPatterns = new QueryPatternEnumerator(query).getQueryPatterns();
 		Set<Triple> visitedPatterns = new HashSet<Triple>();
@@ -549,7 +558,7 @@ public class SHAREKnowledgeBase
 		Collection<Service> services;
 		if (predicates.size() == 0) {
 			log.trace("predicate is unbound variable, testing inputs against *all* registered services");
-			services = registry.getAllServices();
+			services = getRegistry().getAllServices();
 		} else {
 			log.trace(String.format("finding services by predicate(s) %s", predicates));
 			services = getServicesByPredicate(predicates);
@@ -621,7 +630,7 @@ public class SHAREKnowledgeBase
 	
 	protected void recordStats(PotentialValues subjects, PotentialValues predicates, PotentialValues objects, boolean directionIsForward, int responseTime)
 	{
-		if(statsDB == null) {
+		if(getStatsDB() == null) {
 			log.error("statsDB was not successfully initialized, skipping recording of stats");
 			return;
 		}
@@ -664,11 +673,11 @@ public class SHAREKnowledgeBase
 		int numInputs = directionIsForward ? subjects.values.size() : objects.values.size();
 		
 		for(OntProperty p : getEquivalentProperties(property)) {
-			statsDB.recordSample(p, directionIsForward, numInputs, responseTime);
+			getStatsDB().recordSample(p, directionIsForward, numInputs, responseTime);
 		}
 		
 		for(OntProperty inverse : getInverseProperties(property)) {
-			statsDB.recordSample(inverse, !directionIsForward, numInputs, responseTime);
+			getStatsDB().recordSample(inverse, !directionIsForward, numInputs, responseTime);
 		}
 		
 	}
@@ -752,7 +761,7 @@ public class SHAREKnowledgeBase
 		Set<Service> services = new HashSet<Service>();
 		for (OntProperty equivalentProperty: equivalentProperties) {
 			log.trace(String.format("finding services for equivalent property %s", equivalentProperty));
-			Collection<Service> equivalentPropertyServices = registry.findServicesByPredicate(equivalentProperty.getURI());
+			Collection<Service> equivalentPropertyServices = getRegistry().findServicesByPredicate(equivalentProperty.getURI());
 			log.debug(String.format("found %d service%s for property %s", equivalentPropertyServices.size(), equivalentPropertyServices.size() == 1 ? "" : "s", equivalentProperty));
 			services.addAll(equivalentPropertyServices);
 		}
@@ -782,6 +791,7 @@ public class SHAREKnowledgeBase
 	protected Set<OntProperty> getInverseProperties(OntProperty p) 
 	{
 		log.trace(String.format("finding all properties inverse to %s", p));
+	
 		Set<OntProperty> inverseProperties = new HashSet<OntProperty>();
 		for (OntProperty q: p.listInverse().toList()) {
 			log.trace(String.format("found inverse property %s", q));
@@ -1122,19 +1132,22 @@ public class SHAREKnowledgeBase
 	}
 	
 	/* 
-	 * Rankings for expensive query patterns.
+	 * Rankings for expensive/unresolvable query patterns.
 	 * -1 is reserved for PredicateStatsDB.NO_STATS_AVAILABLE.
 	 */
 	
-	protected static int BAD = -2;
-	protected static int WORSE = -3;
-	protected static int WORST = -4;
+	protected static int COST_EXPENSIVE = -2;
+	protected static int COST_UNRESOLVABLE = -3;
 
 	protected class QueryPatternComparator implements Comparator<Triple>
 	{
-
+		
+		/* use Hashtable here to be thread-safe */
+		protected Map<OntProperty, Boolean> isResolvableCache = new Hashtable<OntProperty, Boolean>();
+		
 		public int compare(Triple pattern1, Triple pattern2) 
 		{
+			
 			int cost1 = costByStats(pattern1);
 			int cost2 = costByStats(pattern2);
 			
@@ -1178,6 +1191,10 @@ public class SHAREKnowledgeBase
 		
 		protected int costByStats(Triple pattern) 
 		{
+
+			if(!isResolvable(pattern)) {
+				return COST_UNRESOLVABLE;
+			}
 			
 			PotentialValues s = expandQueryNode(pattern.getSubject());
 			PotentialValues p = expandQueryNode(pattern.getPredicate());
@@ -1185,13 +1202,17 @@ public class SHAREKnowledgeBase
 			
 			if (s.isEmpty() && o.isEmpty()) {
 				
-				/* CASES: (?s, ?p, ?o), (?s, bound, ?o) */
-				return WORST;
+				/* CASES: (?s, ?p, ?o), (?s, bound, ?o) 
+				 * 
+				 * These cases are included here for completeness, but they
+				 * should be caught by the isResolvable check above.
+				 */
+				return COST_UNRESOLVABLE;
 			
 			} else if (p.isEmpty()) {
 			
 				/* CASES: (bound, ?p, ?o), (?s, ?p, bound), (bound, ?p, bound) */		
-				return WORSE;
+				return COST_EXPENSIVE;
 			
 			} else {
 
@@ -1220,11 +1241,13 @@ public class SHAREKnowledgeBase
 				else if(!s.isEmpty()) {
 				
 					/* CASE: (bound, bound, ?o) */
+
 					return costByStats(properties, true, s.values.size());
 				
 				} else {
 					
 					/* CASE: (?s, bound, bound) */
+
 					return costByStats(properties, false, o.values.size());
 				}
 				
@@ -1237,7 +1260,7 @@ public class SHAREKnowledgeBase
 				return 0;
 			}
 			
-			if(statsDB == null) {
+			if(getStatsDB() == null) {
 				log.error("stats DB was not correctly initialized, returning NO_STATS_AVAILABLE for time estimate");
 				return PredicateStatsDB.NO_STATS_AVAILABLE;
 			}
@@ -1267,7 +1290,7 @@ public class SHAREKnowledgeBase
 					continue;
 				}
 				
-				int cost = statsDB.getEstimatedTime(predicate, directionIsForward, numInputs);
+				int cost = getStatsDB().getEstimatedTime(predicate, directionIsForward, numInputs);
 				
 				/*
 				 * If even one of the predicates has no stats available,
@@ -1298,22 +1321,49 @@ public class SHAREKnowledgeBase
 		
 		protected int costByBindings(Triple pattern)
 		{
+			
+			if(!isResolvable(pattern)) {
+				return COST_UNRESOLVABLE;
+			}
+			
 			PotentialValues s = expandQueryNode(pattern.getSubject());
 			PotentialValues o = expandQueryNode(pattern.getObject());
 
 			if(s.isEmpty() && o.isEmpty()) {
-				return WORST;
+			
+				/* 
+				 * CASES: (?s, ?p, ?o), (?s, bound, ?o) 
+				 * 
+				 * These cases are included here for completeness, but they
+				 * should be caught by the isResolvable check above.
+				 */
+				return COST_UNRESOLVABLE;
+		
 			} else if(!s.isEmpty() && !o.isEmpty()) {
+				
 				return Math.min(s.values.size(), o.values.size());
+			
 			} else if(!s.isEmpty()) {
+			
 				return s.values.size();
+			
 			} else {
+		
 				return o.values.size();
+			
 			}
 		}
 		
 		protected boolean bestDirectionIsForward(Triple pattern) 
 		{
+
+			/* 
+			 * If both the forward and reverse directions are unresolvable, then
+			 * it doesn't matter what value we return.
+			 */
+			if(!isResolvable(pattern)) {
+				return true;
+			}
 			
 			PotentialValues s = expandQueryNode(pattern.getSubject());
 			PotentialValues p = expandQueryNode(pattern.getPredicate());
@@ -1351,6 +1401,18 @@ public class SHAREKnowledgeBase
 		
 			} else {
 				
+				Collection<OntProperty> inverseProperties = getInverseProperties(properties);
+				
+				if(isResolvable(properties) && !isResolvable(inverseProperties)) {
+					
+					return true;
+					
+				} else if (!isResolvable(properties) && isResolvable(inverseProperties)) {
+					
+					return false;
+					
+				} 
+
 				forwardCost = costByStats(properties, true, s.values.size());
 				reverseCost = costByStats(properties, false, o.values.size());
 				
@@ -1370,6 +1432,116 @@ public class SHAREKnowledgeBase
 			
 			return (compare(forwardCost, reverseCost) <= 0);
 		}
+		
+		/**
+		 * Return true if this pattern can be mapped to at least one web service
+		 * in the forward or reverse direction.
+		 * 
+		 * @param pattern
+		 * @return true if the pattern is web-service-resolvable
+		 */
+		protected boolean isResolvable(Triple pattern) 
+		{
 
+			PotentialValues s = expandQueryNode(pattern.getSubject());
+			PotentialValues p = expandQueryNode(pattern.getPredicate());
+			PotentialValues o = expandQueryNode(pattern.getObject());
+			
+			if(p.isEmpty()) {
+			
+				/*
+				 * CASES: (?s, ?p, ?o), (bound, ?p, ?o), (?s, ?p, bound), (bound, ?p, bound) 
+				 * 
+				 * We assume that the bound subject and/or object will be a valid input
+				 * for at least one service.  (We have no efficient way of checking this
+				 * for sure.) 
+				 */
+
+				return (!s.isEmpty() || !o.isEmpty());
+
+			} else {
+				
+				/* CASES: (?s, bound, ?o), (bound, bound, ?o), (?s, bound, bound) */
+				
+				Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(p.values));
+				
+				/* CASE: predicate has no bindings that are URIs
+				 * 
+				 * This indicates that the query will have no solutions.
+				 */
+				
+				if(properties.size() == 0) {
+					return true;
+				}
+				
+				if(!s.isEmpty()) {
+					
+					if(isResolvable(properties)) {
+						return true;
+					}
+				
+				}
+				
+				if(!o.isEmpty()) {
+					
+					if(isResolvable(getInverseProperties(properties))) {
+						return true;
+					}
+		
+				}
+			
+			}
+
+			return false;
+		}
+
+		/** 
+		 * Return true if at least one of the given properties maps to a web service.
+		 * 
+		 * @param properties 
+		 * @return true if at least one of the given properties is resolvable
+		 */
+		protected boolean isResolvable(Collection<OntProperty> properties) 
+		{
+			
+			Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
+
+			for(OntProperty property : properties) {
+				equivalentProperties.addAll(getEquivalentProperties(property));
+			}
+			
+			for(OntProperty property : equivalentProperties) {
+
+				/* 
+				 * TODO: If one property is resolvable, we consider the whole collection resolvable. 
+				 * This heuristic might require some tweaking in the future.
+				 */
+				
+				if(isResolvableCache.containsKey(property)) {
+				
+					if(isResolvableCache.get(property) == true) {
+						return true;
+					} else {
+						continue;
+					}
+				
+				}
+				
+				if(getRegistry().findServicesByPredicate(property.getURI()).size() > 0) {
+					
+					isResolvableCache.put(property, true);
+					return true;
+					
+				} else {
+					
+					isResolvableCache.put(property, false);
+
+				}
+				
+			}
+			
+			return false;
+		}
+		
 	}
 }
