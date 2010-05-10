@@ -1,5 +1,8 @@
 Revision history for Perl extension OWL2Perl.
 
+0.93
+    * added 'use OWL::RDF::Predicates::*' statements to owl-class.tt
+    
 0.92
     * separated the logic contained in owl2perl-generate-modules.pl and placed
       it into the OWL2Perl module.
