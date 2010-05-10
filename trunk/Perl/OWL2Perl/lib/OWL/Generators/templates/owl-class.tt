@@ -29,6 +29,12 @@ use OWL::Data::Float;
 use OWL::Data::Boolean;
 use OWL::Data::DateTime;
 
+use OWL::RDF::Predicates::DC_PROTEGE;
+use OWL::RDF::Predicates::OMG_LSID;
+use OWL::RDF::Predicates::OWL;
+use OWL::RDF::Predicates::RDF;
+use OWL::RDF::Predicates::RDFS;
+
 [% FOREACH child IN obj.object_properties %]
 use [% child.module_name %];[% END %]
 [% FOREACH child IN obj.datatype_properties %]
