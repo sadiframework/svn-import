@@ -586,11 +586,7 @@ public class SHAREKnowledgeBase
 			 */
 			for (Triple triple: output) {
 				if (triple.getPredicate().isURI()) {
-					try {
-						OwlUtils.getOntPropertyWithLoad(reasoningModel, triple.getPredicate().getURI());
-					} catch (SADIException e) {
-						log.error(e.getMessage());
-					}
+					getOntProperty(triple.getPredicate().getURI());
 				}
 			}
 		}
