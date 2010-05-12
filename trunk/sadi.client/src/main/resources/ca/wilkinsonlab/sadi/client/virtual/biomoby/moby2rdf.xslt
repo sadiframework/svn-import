@@ -4,7 +4,7 @@
      xmlns:mobyobj='http://biomoby.org/RESOURCES/MOBY-S/Objects/'
      xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>
 
-<xsl:variable name="uri_prefix">http://biordf.net/moby/</xsl:variable>
+<xsl:variable name="uri_prefix">http://lsrn.org/</xsl:variable>
 
 <!--
 The root rule.  This is where the recursive application of templates
@@ -18,7 +18,7 @@ starts.
     <xsl:element name="moby:has{name(.)}">
     	<rdf:Description>
 	    <xsl:if test="(string-length(@namespace) > 0) and (string-length(@id) > 0)">
-	        <xsl:attribute name="rdf:about"><xsl:value-of select="$uri_prefix"/><xsl:value-of select="@namespace"/>/<xsl:value-of select="@id"/></xsl:attribute>
+	        <xsl:attribute name="rdf:about"><xsl:value-of select="$uri_prefix"/><xsl:value-of select="@namespace"/>:<xsl:value-of select="@id"/></xsl:attribute>
   	        <moby:hasNamespace><xsl:value-of select="@namespace"/></moby:hasNamespace>
 	        <moby:hasID><xsl:value-of select="@id"/></moby:hasID>
 	    </xsl:if>
@@ -37,7 +37,7 @@ there's only one of these in an XML document.
 <xsl:template match="/*">
     <rdf:Description>
 	<xsl:if test="(string-length(@namespace) > 0) and (string-length(@id) > 0)">
-	    <xsl:attribute name="rdf:about"><xsl:value-of select="$uri_prefix"/><xsl:value-of select="@namespace"/>/<xsl:value-of select="@id"/></xsl:attribute>
+	    <xsl:attribute name="rdf:about"><xsl:value-of select="$uri_prefix"/><xsl:value-of select="@namespace"/>:<xsl:value-of select="@id"/></xsl:attribute>
   	    <moby:hasNamespace><xsl:value-of select="@namespace"/></moby:hasNamespace>
 	    <moby:hasID><xsl:value-of select="@id"/></moby:hasID>
 	</xsl:if>
@@ -59,7 +59,7 @@ means "any number of intermediate nodes".
     <moby:hasComposite>
 	 <rdf:Description>
   	     <xsl:if test="(string-length(@namespace) > 0) and (string-length(@id) > 0)">
-	        <xsl:attribute name="rdf:about"><xsl:value-of select="$uri_prefix"/><xsl:value-of select="@namespace"/>/<xsl:value-of select="@id"/></xsl:attribute>
+	        <xsl:attribute name="rdf:about"><xsl:value-of select="$uri_prefix"/><xsl:value-of select="@namespace"/>:<xsl:value-of select="@id"/></xsl:attribute>
   	        <moby:hasNamespace><xsl:value-of select="@namespace"/></moby:hasNamespace>
 	        <moby:hasID><xsl:value-of select="@id"/></moby:hasID>
 	        </xsl:if>
