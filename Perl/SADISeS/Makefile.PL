@@ -33,7 +33,7 @@
     requires 'LS'                   => '1.1.7';
     requires 'HTTP::Request'        => 0;
     requires 'LWP'                  => 0;
-    requires 'OWL2Perl'             => 0.92;
+    requires 'OWL2Perl'             => 0.93;
     requires 'PLUTO'                => 0.25;
     requires 'URI'                  => 1.40;  
 
