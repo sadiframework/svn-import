@@ -1,5 +1,8 @@
 Revision history for Perl extension SADI.
 
+1.01
+    * Updated SADI::RDF::Core to allow datatypes created when owl2perl
+      was apart of the SADI module.
 1.00
     * updated Makefile.PL to include OWL2Perl (code excised from this
       module and placed into a new separate module to more modularize
