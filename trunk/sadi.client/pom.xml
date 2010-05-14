@@ -27,6 +27,12 @@
     </snapshotRepository>
   </distributionManagement>
   <repositories>
+    <!--
+      this repository is broken, so I moved jMoby to dev...
+      specifically, having this repo in the list causes the Eclipse maven
+      plugin to hang; current working theory is that repeated, multi-threaded
+      hits looking for multiple non-existant files are causing portal.open-bio.org
+      to think we're a DOS attack.
     <repository>
       <id>biomoby</id>
       <name>BioMoby releases</name>
@@ -38,6 +44,7 @@
         <checksumPolicy>warn</checksumPolicy>
       </releases>
     </repository>
+     -->
   	<repository>
   		<id>dev.biordf.net</id>
   		<name>dev.biordf.net</name>
