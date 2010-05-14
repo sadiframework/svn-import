@@ -1,6 +1,6 @@
 google.load("jquery", "1.3.2");
 google.setOnLoadCallback(function() {
-	jQuery.getScript("js/expandTable.js", function() {
+	jQuery.getScript("../js/expandTable.js", function() {
 		$("#services-table").expandTable(function(rowBody) {
 			rowBody.addClass("service-loading");
 			var row = rowBody.parent("tr");
@@ -11,7 +11,7 @@ google.setOnLoadCallback(function() {
 				row.addClass("odd");
 			}
 			var serviceURI = previous.attr("id");
-			rowBody.load("service.jsp", {"serviceURI" : serviceURI}, function() {
+			rowBody.load("../service.jsp", {"serviceURI" : serviceURI}, function() {
 				rowBody.removeClass("service-loading");
 			});
 		});

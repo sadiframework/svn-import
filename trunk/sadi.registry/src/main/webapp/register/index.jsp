@@ -17,7 +17,6 @@
 			service.setServiceURI(serviceURI);
 			request.setAttribute("service", service);
 			request.setAttribute("error", e.getMessage());
-			doGet(request, response);
 		}
 	}
 %>
@@ -41,8 +40,8 @@
         </div>
         <div id='nav'>
           <ul>
+            <!-- <li class="page_item"><a href="../validate">Validate</a></li> -->
             <li class="page_item current_page_item"><a href="../register">Register</a></li>
-            <li class="page_item"><a href="../validate">Validate</a></li>
             <li class="page_item"><a href="../services">Services</a></li>
             <!-- <li class="page_item"><a href="../sparql">SPARQL</a></li> -->
           </ul>
@@ -63,16 +62,16 @@
 	       <div id='registration-success'>
 	         <h3>Success</h3>
 	         <p>Successfully registered the service at <a href='${service.serviceURI}'>${service.serviceURI}</a>.</p>
-	         <!-- include service.jsp -->
+	         <jsp:include page="../service.jsp"/>
 	       </div>
 	     </c:otherwise>
 	    </c:choose>
 	   </c:if>
 
 	       <div id='registration-form'>
-	         <form method='POST' action=''>
+	         <form method='POST' action='.'>
 	           <label id='url-label' for='url-input'>Enter the URL of the service you want to register...</label>
-	           <input id='url-input' type='text' name='url' value='<c:if test='${error != null}'>${service.serviceURI}</c:if>'>
+	           <input id='url-input' type='text' name='serviceURI' value='<c:if test='${error != null}'>${service.serviceURI}</c:if>'>
 	           <input id='register-submit' type='submit' value='...and click here to register it'>
 	         </form>
 	       </div> <!-- registration-form -->

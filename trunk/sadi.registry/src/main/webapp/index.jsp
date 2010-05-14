@@ -1,1 +1,3 @@
-<jsp:forward page="services/"/>
+<%
+	response.sendRedirect("./register/");
+ %>
