@@ -31,12 +31,12 @@
 	      	<li><a href="hello">Hello, world!</a></li>
 	      	<li><a href="linear">Compute linear regression model (synchronous)</a></li>
 	      	<li><a href="linear-async">Compute linear regression model (asynchronous)</a></li>
-	      	<li><a href="uniprotInfo">List name, description and organism for a given UniProt ID</a></li>
+	      	<li><a href="uniprotInfo">List name, description, organism and sequence for a given UniProt ID</a></li>
 	      	<li><a href="uniprot2go">Find GO terms associated with a given UniProt ID</a></li>
 	      	<li><a href="uniprot2pdb">Find PDB entries corresponding to a given UniProt ID</a></li>
 	      	<li><a href="uniprot2pubmed">Find published papers associated with a given UniProt ID</a></li>
 	      </ul>
-	      <p>updated Tue 30 Mar 2010 13:20:04 PDT</p>
+	      <p>updated Wed 28 Apr 2010 17:10:02 PDT</p>
         </div> <!-- content -->
         <div id='footer'>
           <img class="sponsor" style="margin-top: 10px;" src="http://sadiframework.org/images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
