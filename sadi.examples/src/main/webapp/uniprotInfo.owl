@@ -38,6 +38,12 @@
         <owl:someValuesFrom rdf:resource="&xsd;string"/>
       </owl:Restriction>
     </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&benv;hasSequence"/>
+        <owl:someValuesFrom rdf:resource="&xsd;string"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
   </owl:Class>
   
 </rdf:RDF>

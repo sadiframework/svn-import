@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import uk.ac.ebi.kraken.interfaces.common.Sequence;
 import uk.ac.ebi.kraken.interfaces.uniprot.Organism;
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
@@ -27,6 +28,7 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 	public static final Property hasName = ResourceFactory.createProperty( ONT_PREFIX + "hasName" );
 	public static final Property hasDescription = ResourceFactory.createProperty( ONT_PREFIX + "hasDescription" );
 	public static final Property belongsToOrganism = ResourceFactory.createProperty( ONT_PREFIX + "belongsToOrganism" );
+	public static final Property hasSequence = ResourceFactory.createProperty( ONT_PREFIX + "hasSequence" );
 	
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
@@ -46,6 +48,11 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 		Organism organism = input.getOrganism();
 		if (organism != null) {
 			attachOrganism(output, organism);
+		}
+		
+		Sequence sequence = input.getSequence();
+		if (sequence != null) {
+			attachSequence(output, sequence);
 		}
 	}
 
@@ -141,5 +148,12 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 			return "null";
 		else
 			return o.toString();
+	}
+	
+	private void attachSequence(Resource uniProtNode, Sequence sequence)
+	{
+		String value = sequence.getValue();
+		if (!StringUtils.isEmpty(value))
+			uniProtNode.addProperty(hasSequence, value);
 	}
 }
