@@ -41,8 +41,8 @@
         </div>
         <div id='nav'>
           <ul>
-            <li class="page_item"><a href="../register">Register</a></li>
             <li class="page_item current_page_item"><a href="../validate">Validate</a></li>
+            <li class="page_item"><a href="../register">Register</a></li>
             <li class="page_item"><a href="../services">Services</a></li>
             <!-- <li class="page_item"><a href="../sparql">SPARQL</a></li> -->
           </ul>

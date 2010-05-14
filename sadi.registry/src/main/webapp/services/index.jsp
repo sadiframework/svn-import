@@ -17,7 +17,7 @@
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="../style/sadi.css">
     <script type='text/javascript' src='http://www.google.com/jsapi'></script>
-    <script type='text/javascript' src='../js/services.js'></script>
+    <script type='text/javascript' src='services.js'></script>
   </head>
   <body>
     <div id='outer-frame'>
@@ -28,8 +28,8 @@
         </div>
         <div id='nav'>
           <ul>
+            <!-- <li class="page_item"><a href="../validate">Validate</a></li> -->
             <li class="page_item"><a href="../register">Register</a></li>
-            <li class="page_item"><a href="../validate">Validate</a></li>
             <li class="page_item current_page_item"><a href="../services">Services</a></li>
             <!-- <li class="page_item"><a href="../sparql">SPARQL</a></li> -->
           </ul>
