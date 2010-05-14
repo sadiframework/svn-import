@@ -1,6 +1,5 @@
 package ca.wilkinsonlab.sadi.test;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
