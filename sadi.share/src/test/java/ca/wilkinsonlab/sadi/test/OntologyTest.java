@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.test;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,6 +19,8 @@ public class OntologyTest
 {
 	private static final Logger log = Logger.getLogger( OntologyTest.class );
 
+	private static final String ONTOLOGY_PREFIX = "http://test.ontology";
+	
 	@SuppressWarnings("serial")
 	public static void main(String[] args)
 	{
@@ -40,7 +43,8 @@ public class OntologyTest
 					new InversePropertiesTest(ontModel),
 					new EquivalentPropertiesTest(ontModel),
 					new TransitiveEquivalentPropertiesTest(ontModel),
-					new MultipleEquivalentPropertiesTest(ontModel)
+					new MultipleEquivalentPropertiesTest(ontModel),
+					new InferredInversePropertiesTest(ontModel),
 			};
 			
 			for(OntModelTest test : tests) {
@@ -210,5 +214,42 @@ public class OntologyTest
 		}
 	}
 
+	public static class InferredInversePropertiesTest extends OntModelTest {
+		
+		public InferredInversePropertiesTest(OntModel ontModel) {
+			super(ontModel, "inferred inverse properties test");
+		}
+		
+		@Override
+		public boolean runTest() {
+			
+			OntModel model = getOntModel();
+			
+			/*
+			 * Ontology contents:
+			 * 
+			 * => property A is equivalent to property B
+			 * => property A has inverse property C
+			 * => property B has inverse property D
+			 * 
+			 * Test: Is property D inferred to be an inverse of property A?
+			 */
+			
+			
+			String ontologyFile = InferredInversePropertiesTest.class.getResource("inferred.inverse.properties.test.owl").toString();
+			model.read(ontologyFile, ONTOLOGY_PREFIX, "RDF/XML");
+				
+			OntProperty propertyA = model.getOntProperty(ONTOLOGY_PREFIX + "#A");
+			OntProperty propertyD = model.getOntProperty(ONTOLOGY_PREFIX + "#D");
+			
+			for(OntProperty inverse : propertyA.listInverse().toList()) {
+				if(inverse.equals(propertyD)) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
+	}
 	
 }
