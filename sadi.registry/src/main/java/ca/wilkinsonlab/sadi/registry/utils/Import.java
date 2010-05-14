@@ -1,19 +1,18 @@
 package ca.wilkinsonlab.sadi.registry.utils;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import com.hp.hpl.jena.util.LocationMapper;
-
 import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.registry.Registry;
-import ca.wilkinsonlab.sadi.virtuoso.VirtuosoRegistry;
+import ca.wilkinsonlab.sadi.utils.QueryExecutor;
+import ca.wilkinsonlab.sadi.utils.QueryExecutorFactory;
+
+import com.hp.hpl.jena.util.LocationMapper;
 
 /**
  * Register all of the services listed in the old registry.
@@ -23,7 +22,7 @@ public class Import
 {
 	private static Logger log = Logger.getLogger(Import.class);
 	
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args) throws Exception
 	{
 		String uriPrefix = "http://sadiframework.org/examples/";
 		String altPrefix = "http://localhost:8080/sadi-examples/";
@@ -42,14 +41,16 @@ public class Import
 		}
 	}
 	
-	private static class OldRegistry extends VirtuosoRegistry
+	private static class OldRegistry
 	{
-		public OldRegistry() throws MalformedURLException
+		QueryExecutor backend;
+		
+		public OldRegistry() throws IOException
 		{
-			super(new URL("http://biordf.net/sparql"), "http://sadiframework.org/registry");
+			backend = QueryExecutorFactory.createVirtuosoSPARQLEndpointQueryExecutor("http://biordf.net/sparql", "http://sadiframework.org/registry");
 		}
 		
-		public Collection<String> getServiceURIs()
+		public Collection<String> getServiceURIs() throws SADIException
 		{
 			Collection<String> serviceURIs = new ArrayList<String>();
 			String query = 
@@ -60,14 +61,14 @@ public class Import
 					"?service rdf:type sadi:Service " +
 				"}";
 			try {
-				for (Map<String, String> binding: executeQuery(query)) {
+				for (Map<String, String> binding: backend.executeQuery(query)) {
 					String serviceURI = binding.get("service");
 					if (serviceURI != null)
 						serviceURIs.add(serviceURI);
 					else
 						log.error( String.format("query binding had no value for service variable:\n%s", binding) );
 				}
-			} catch (IOException e) {
+			} catch (SADIException e) {
 				log.error("error querying old registry", e);
 			}
 			return serviceURIs;

@@ -1,16 +1,23 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sadi" uri="/WEB-INF/sadi.tld" %>
+<%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
+<%
+	Logger log = Logger.getLogger("ca.wilkinsonlab.sadi.registry");
+	Registry registry = Registry.getRegistry();
 
+	pageContext.setAttribute("services", registry.getRegisteredServices());
+%>
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
  "http://www.w3.org/TR/html4/strict.dtd">
 <html>
   <head>
-    <title>SADI registry &mdash; SPARQL query</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" href="style/sadi.css">
+    <title>SADI registry &mdash; registered services</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="../style/sadi.css">
     <script type='text/javascript' src='http://www.google.com/jsapi'></script>
-    <script type='text/javascript' src='js/services.js'></script>
+    <script type='text/javascript' src='../js/services.js'></script>
   </head>
   <body>
     <div id='outer-frame'>
@@ -21,36 +28,16 @@
         </div>
         <div id='nav'>
           <ul>
-            <li class="page_item"><a href=".">Services</a></li>
-            <li class="page_item current_page_item"><a href="sparql.jsp">SPARQL</a></li>
+            <li class="page_item"><a href="../register">Register</a></li>
+            <li class="page_item"><a href="../validate">Validate</a></li>
+            <li class="page_item current_page_item"><a href="../services">Services</a></li>
+            <!-- <li class="page_item"><a href="../sparql">SPARQL</a></li> -->
           </ul>
         </div>
         <div id='content'>
-          <h2>SPARQL query</h2>
-          
-          <c:if test='${error != null}'>
-            <div id='registration-error'>
-              <h3>Error</h3>
-              <p>There was an error executing your query:</p>
-              <blockquote>${error}</blockquote>
-            </div>
-          </c:if>
-
-          <div id='sparql-form'>
-            <form method='POST' action=''>
-              <label id='sparql-label' for='sparql-input'>Enter a SPARQL query in the box below</label>
-              <textarea id='sparql-input' type='text' name='query'><c:if test='${error != null}'>value='${param.query}'</c:if></textarea>
-              <label id='canned-label' for='canned-select'>Or pick one from this menu</label>
-              <select id='canned-select' name='query'>
-              </select>
-              <input id='sparql-submit' type='submit' value='Go'>
-            </form>
-          </div> <!-- sparql-form -->
-      
-      <!-- 
-          <div id='results-table-div'>
-            <table id='results-table'>
-              <caption>Registered Services</caption>
+          <h2>Registered services</h2>
+      	  <div id='services-table-div'>
+            <table id='services-table'>
               <thead>
                 <tr>
                   <th>Service URL</th>
@@ -68,12 +55,11 @@
                </c:forEach>
               </tbody>
             </table>
-          </div> <!-- results-table-div -->
-      
+          </div> <!-- services-table-div -->
         </div> <!-- content -->
         <div id='footer'>
-          <img class="sponsor" style="margin-top: 10px;" src="images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
-          <img class="sponsor" style="margin-top: 16px;" src="images/CIHR.png" alt="CIHR logo" height="62" width="91"/>
+          <img class="sponsor" style="margin-top: 10px;" src="../images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
+          <img class="sponsor" style="margin-top: 16px;" src="../images/CIHR.png" alt="CIHR logo" height="62" width="91"/>
           <p>Development of SADI is generously supported by 
             <span class="nobreak">the Heart and Stroke Foundation of B.C. and Yukon</span>,
             <span class="nobreak">the Canadian Institutes of Health Research</span>, and 
