@@ -4,7 +4,7 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-common</artifactId>
   <name>Common SADI classes</name>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.0.5-SNAPSHOT</version>
   <description>Classes used by both SADI clients and SADI services</description>
   <build>
     <plugins>
