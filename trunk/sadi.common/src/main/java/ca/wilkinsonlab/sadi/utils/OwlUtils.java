@@ -320,6 +320,29 @@ public class OwlUtils
 	}
 	
 	/**
+	 * Returns a description of the specified OWL restriction
+	 * @param r the OWL restriction
+	 * @return a description of the OWL restriction
+	 */
+	public static String toString(Restriction r)
+	{
+		String type;
+		if (r.isAllValuesFromRestriction())
+			type = "allValuesFrom " + r.asAllValuesFromRestriction().getAllValuesFrom();
+		else if (r.isSomeValuesFromRestriction())
+			type = "someValuesFrom " + r.asSomeValuesFromRestriction().getSomeValuesFrom();
+		else if (r.isCardinalityRestriction())
+			type = (r.asCardinalityRestriction().isMinCardinalityRestriction() ?
+					"minCardinality" : "maxCardinality") + r.asCardinalityRestriction().getCardinality();
+		else if (r.isHasValueRestriction())
+			type = "hasValue " + r.asHasValueRestriction().getHasValue();
+		else
+			type = r.getClass().getSimpleName();
+		
+		return String.format("%s on %s", type, r.getOnProperty());
+	}
+	
+	/**
 	 * Return the set of properties the OWL class identified by a URI has restrictions on.
 	 * The ontology containing the OWL class (and any referenced imports) will be fetched
 	 * and processed.
@@ -571,14 +594,33 @@ public class OwlUtils
 	{
 		Set<Restriction> restrictions;
 		
+		/* if an OntClass comes from a model with reasoning, we may find
+		 * several copies of the same restriction from artifact equivalent
+		 * classes; we don't want to store these, so maintain our own table
+		 * of restrictions we've seen...
+		 */
+		Set<String> seen;
+		
 		public RestrictionEnumerationVisitor()
 		{
 			restrictions = new HashSet<Restriction>();
+			seen = new HashSet<String>();
 		}
 		
 		public void hasRestriction(Restriction restriction)
 		{
-			restrictions.add(restriction);
+
+			log.trace(String.format("found restriction %s", OwlUtils.toString(restriction)));
+			String key = getHashKey(restriction);
+			if (!seen.contains(key)) {
+				restrictions.add(restriction);
+				seen.add(key);
+			}
+		}
+		
+		String getHashKey(Restriction restriction)
+		{
+			return OwlUtils.toString(restriction);
 		}
 	}
 	
