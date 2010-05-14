@@ -4,7 +4,7 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-client</artifactId>
   <name>SADI client classes</name>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.0.5-SNAPSHOT</version>
   <description>Classes used by SADI clients</description>
   <build>
     <plugins>
@@ -59,7 +59,7 @@
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-common</artifactId>
-      <version>0.0.4-SNAPSHOT</version>
+      <version>0.0.5-SNAPSHOT</version>
     </dependency>
     
     <dependency>
