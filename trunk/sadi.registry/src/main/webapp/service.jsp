@@ -1,9 +1,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
 <%
-	String serviceURI = request.getParameter("serviceURI");
-	ServiceBean service = Registry.getRegistry().getServiceBean(serviceURI);
-	pageContext.setAttribute("service", service);
+	if (pageContext.getAttribute("service") == null) {
+		String serviceURI = request.getParameter("serviceURI");
+		ServiceBean service = Registry.getRegistry().getServiceBean(serviceURI);
+		pageContext.setAttribute("service", service);
+	}
 %>
 <table class='service-detail'>
   <tr>

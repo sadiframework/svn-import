@@ -11,12 +11,11 @@ import org.apache.commons.codec.net.URLCodec;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.Logger;
 
 import virtuoso.jena.driver.VirtModel;
+import ca.wilkinsonlab.sadi.client.ServiceImpl;
 import ca.wilkinsonlab.sadi.common.SADIException;
-import ca.wilkinsonlab.sadi.rdf.RdfService;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyException;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
@@ -53,7 +52,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
  */
 public class Registry
 {
-	private static final Log log = LogFactory.getLog(Registry.class);
+	private static final Logger log = Logger.getLogger(Registry.class);
 	
 	private static final Registry defaultRegistry = new Registry();
 	
@@ -288,7 +287,7 @@ public class Registry
 		 * queried...
 		 */
 		log.debug(String.format("fetching service definition from %s", serviceUrl));
-		RdfService service = new RdfService(serviceUrl);
+		ServiceImpl service = new ServiceImpl(serviceUrl);
 		getModel().add(service.getServiceModel());
 		
 		/* attach SADI type only after the service definition has been
@@ -301,7 +300,7 @@ public class Registry
 		return getServiceBean(serviceNode);
 	}
 	
-	private void attachMetaData(Resource serviceNode, RdfService service) throws SADIException
+	private void attachMetaData(Resource serviceNode, ServiceImpl service) throws SADIException
 	{
 		for (Restriction restriction: service.getRestrictions()) {
 			attachRestriction(serviceNode, restriction);
