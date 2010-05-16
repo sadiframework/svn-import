@@ -292,13 +292,14 @@ public class QueryPatternComparatorTest
 		private MultiRegistry mockRegistry;
 		private PredicateStatsDB mockStatsDB;
 		
-		public QueryPatternComparator comparator = new QueryPatternComparator();
+		public QueryPatternComparator comparator;
 		
 		public MockKnowledgeBase(OntModel reasoningModel) throws IOException
 		{
 			super(reasoningModel, true);
 			this.mockStatsDB = new MockPredicateStatsDB();
 			this.mockRegistry = new MockMultiRegistry();
+			this.comparator = new QueryPatternComparator();
 		}
 		
 		@Override 
