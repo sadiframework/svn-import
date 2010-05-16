@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +24,7 @@ import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLServiceWrapper;
 import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.stats.PredicateStatsDB;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
+import ca.wilkinsonlab.sadi.utils.PropertyResolvabilityCache;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils.PropertyRestrictionAdapter;
@@ -490,7 +490,7 @@ public class SHAREKnowledgeBase
 	 * it might be worthwhile given the number of different places we have
 	 * to implement this behaviour...
 	 */
-	private OntProperty getOntProperty(String uri)
+	protected OntProperty getOntProperty(String uri)
 	{
 		OntProperty p = null;
 		try {
@@ -507,7 +507,7 @@ public class SHAREKnowledgeBase
 		}
 	}
 	
-	private OntProperty getInverseProperty(OntProperty p)
+	protected OntProperty getInverseProperty(OntProperty p)
 	{
 		OntProperty inverse = p.getInverse();
 		if (inverse == null) {
@@ -668,7 +668,7 @@ public class SHAREKnowledgeBase
 		OntProperty property = properties.iterator().next();
 		int numInputs = directionIsForward ? subjects.values.size() : objects.values.size();
 		
-		for(OntProperty p : getEquivalentProperties(property)) {
+		for(OntProperty p : OwlUtils.getEquivalentProperties(property)) {
 			getStatsDB().recordSample(p, directionIsForward, numInputs, responseTime);
 		}
 		
@@ -751,7 +751,7 @@ public class SHAREKnowledgeBase
 	{
 		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
 		for(OntProperty predicate : predicates) {
-			equivalentProperties.addAll(getEquivalentProperties(predicate));
+			equivalentProperties.addAll(OwlUtils.getEquivalentProperties(predicate));
 		}
 		
 		Set<Service> services = new HashSet<Service>();
@@ -764,25 +764,6 @@ public class SHAREKnowledgeBase
 		
 		return services;
 	}	
-	
-	private Set<OntProperty> getEquivalentProperties(OntProperty p)
-	{
-		/* in some reasoners, listEquivalentProperties doesn't include the
-		 * property itself; also, some reasoners return an immutable list here,
-		 * so we need to create our own copy (incidentally solving an issue
-		 * with generics...)
-		 */
-		log.trace(String.format("finding all properties equivalent to %s", p));
-		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
-		for (OntProperty q: p.listEquivalentProperties().toList()) {
-			log.trace(String.format("found equivalent property %s", q));
-			equivalentProperties.add(q);
-		}
-		log.trace(String.format("adding original property %s", p));
-		equivalentProperties.add(p);
-		
-		return equivalentProperties;
-	}
 	
 	protected Set<OntProperty> getInverseProperties(OntProperty p) 
 	{
@@ -1137,9 +1118,7 @@ public class SHAREKnowledgeBase
 
 	protected class QueryPatternComparator implements Comparator<Triple>
 	{
-		
-		/* use Hashtable here to be thread-safe */
-		protected Map<OntProperty, Boolean> isResolvableCache = new Hashtable<OntProperty, Boolean>();
+		private PropertyResolvabilityCache resolvabilityCache = new PropertyResolvabilityCache(getRegistry());
 		
 		public int compare(Triple pattern1, Triple pattern2) 
 		{
@@ -1399,11 +1378,11 @@ public class SHAREKnowledgeBase
 				
 				Collection<OntProperty> inverseProperties = getInverseProperties(properties);
 				
-				if(isResolvable(properties) && !isResolvable(inverseProperties)) {
+				if(resolvabilityCache.isResolvable(properties) && !resolvabilityCache.isResolvable(inverseProperties)) {
 					
 					return true;
 					
-				} else if (!isResolvable(properties) && isResolvable(inverseProperties)) {
+				} else if (!resolvabilityCache.isResolvable(properties) && resolvabilityCache.isResolvable(inverseProperties)) {
 					
 					return false;
 					
@@ -1472,7 +1451,7 @@ public class SHAREKnowledgeBase
 				
 				if(!s.isEmpty()) {
 					
-					if(isResolvable(properties)) {
+					if(resolvabilityCache.isResolvable(properties)) {
 						return true;
 					}
 				
@@ -1480,7 +1459,7 @@ public class SHAREKnowledgeBase
 				
 				if(!o.isEmpty()) {
 					
-					if(isResolvable(getInverseProperties(properties))) {
+					if(resolvabilityCache.isResolvable(getInverseProperties(properties))) {
 						return true;
 					}
 		
@@ -1491,53 +1470,7 @@ public class SHAREKnowledgeBase
 			return false;
 		}
 
-		/** 
-		 * Return true if at least one of the given properties maps to a web service.
-		 * 
-		 * @param properties 
-		 * @return true if at least one of the given properties is resolvable
-		 */
-		protected boolean isResolvable(Collection<OntProperty> properties) 
-		{
-			
-			Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
-
-			for(OntProperty property : properties) {
-				equivalentProperties.addAll(getEquivalentProperties(property));
-			}
-			
-			for(OntProperty property : equivalentProperties) {
-
-				/* 
-				 * TODO: If one property is resolvable, we consider the whole collection resolvable. 
-				 * This heuristic might require some tweaking in the future.
-				 */
-				
-				if(isResolvableCache.containsKey(property)) {
-				
-					if(isResolvableCache.get(property) == true) {
-						return true;
-					} else {
-						continue;
-					}
-				
-				}
-				
-				if(getRegistry().findServicesByPredicate(property.getURI()).size() > 0) {
-					
-					isResolvableCache.put(property, true);
-					return true;
-					
-				} else {
-					
-					isResolvableCache.put(property, false);
-
-				}
-				
-			}
-			
-			return false;
-		}
-		
 	}
+	
+
 }

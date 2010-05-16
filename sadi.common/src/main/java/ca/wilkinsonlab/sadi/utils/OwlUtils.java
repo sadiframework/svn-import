@@ -404,6 +404,25 @@ public class OwlUtils
 		}
 	}
 	
+	public static Set<OntProperty> getEquivalentProperties(OntProperty p)
+	{
+		/* in some reasoners, listEquivalentProperties doesn't include the
+		 * property itself; also, some reasoners return an immutable list here,
+		 * so we need to create our own copy (incidentally solving an issue
+		 * with generics...)
+		 */
+		log.trace(String.format("finding all properties equivalent to %s", p));
+		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
+		for (OntProperty q: p.listEquivalentProperties().toList()) {
+			log.trace(String.format("found equivalent property %s", q));
+			equivalentProperties.add(q);
+		}
+		log.trace(String.format("adding original property %s", p));
+		equivalentProperties.add(p);
+		
+		return equivalentProperties;
+	}		
+	
 	/**
 	 * Return the minimal RDF required for the specified individual to satisfy
 	 * the specified class description. Note that the RDF will not be complete
