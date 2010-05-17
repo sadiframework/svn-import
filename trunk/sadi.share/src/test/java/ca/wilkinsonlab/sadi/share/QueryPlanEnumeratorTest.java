@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.share;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,12 +15,17 @@ import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.share.QueryPlanEnumerator;
 import ca.wilkinsonlab.sadi.utils.PropertyResolvabilityCache;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 
 public class QueryPlanEnumeratorTest 
 {
@@ -41,16 +47,15 @@ public class QueryPlanEnumeratorTest
 	private static final String NODE_A_URI = NODE_PREFIX + "A";
 	private static final String NODE_B_URI = NODE_PREFIX + "B";
 	
-	/*
-	 * PREFIX property: <http://test.property/>
-	 * PREFIX node: <http://test.node/>
-	 * SELECT * 
-	 * WHERE {
-	 *		node:A property:A ?var .
-	 *		?var property:B node:B .		
-	 * }
-	 */
-	private List<Triple> testQuery;
+	private String testQuery;
+	
+	/* there are four possible plans for the test query */
+	private String queryPlan1;
+	private String queryPlan2;
+	private String queryPlan3;
+	private String queryPlan4;
+	
+	private List<Triple> testQueryAsTriplesBlock;
 	
 	private Triple testQueryPattern1;
 	private Triple testQueryPattern1Inverted;
@@ -59,10 +64,18 @@ public class QueryPlanEnumeratorTest
 	
 	private SHAREKnowledgeBase kb;
 	
-	public QueryPlanEnumeratorTest()
+	public QueryPlanEnumeratorTest() throws IOException
 	{
 		
+		testQuery = SPARQLStringUtils.readFully(QueryPlanEnumeratorTest.class.getResource("test.query.for.enumerator.sparql"));
+		
 		kb = new SHAREKnowledgeBase(ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM), true);
+		
+		/* 
+		 * Note: We get the fake inverse URIs from the KB instead of
+		 * hardcoding them, in case the URI form (e.g. "-inverse") changes
+		 * in the future.
+		 */
 		
 		propertyA = kb.getOntProperty(PROPERTY_A_URI);
 		propertyAInverse = kb.getInverseProperty(propertyA);
@@ -92,34 +105,37 @@ public class QueryPlanEnumeratorTest
 				NodeCreateUtils.create(propertyBInverseUri),
 				NodeCreateUtils.create("?var"));
 		
-		testQuery = new ArrayList<Triple>();
-		testQuery.add(testQueryPattern1);
-		testQuery.add(testQueryPattern2);
+		testQueryAsTriplesBlock = new ArrayList<Triple>();
+		testQueryAsTriplesBlock.add(testQueryPattern1);
+		testQueryAsTriplesBlock.add(testQueryPattern2);
+		
+		List<Triple> plan1 = new ArrayList<Triple>(2);
+		plan1.add(testQueryPattern1);
+		plan1.add(testQueryPattern2);
+		queryPlan1 = getSelectStarQuery(plan1);
+
+		List<Triple> plan2 = new ArrayList<Triple>(2);
+		plan2.add(testQueryPattern1);
+		plan2.add(testQueryPattern2Inverted);
+		queryPlan2 = getSelectStarQuery(plan2);
+
+		List<Triple> plan3 = new ArrayList<Triple>(2);
+		plan3.add(testQueryPattern2);
+		plan3.add(testQueryPattern1);
+		queryPlan3 = getSelectStarQuery(plan3);
+		
+		List<Triple> plan4 = new ArrayList<Triple>(2);
+		plan4.add(testQueryPattern2);
+		plan4.add(testQueryPattern1Inverted);
+		queryPlan4 = getSelectStarQuery(plan4);
 		
 	}
 	
 	@Test
-	public void testEnumeratorAllPropertiesResolvable()
+	public void testEnumeratorWithQueryString()
 	{
-		
-		List<List<Triple>> expectedQueryPlans = new ArrayList<List<Triple>>(4);
+		List<String> expectedQueryPlans = new ArrayList<String>(4);
 
-		List<Triple> queryPlan1 = new ArrayList<Triple>(2);
-		queryPlan1.add(testQueryPattern1);
-		queryPlan1.add(testQueryPattern2);
-
-		List<Triple> queryPlan2 = new ArrayList<Triple>(2);
-		queryPlan2.add(testQueryPattern1);
-		queryPlan2.add(testQueryPattern2Inverted);
-
-		List<Triple> queryPlan3 = new ArrayList<Triple>(2);
-		queryPlan3.add(testQueryPattern2);
-		queryPlan3.add(testQueryPattern1);
-		
-		List<Triple> queryPlan4 = new ArrayList<Triple>(2);
-		queryPlan4.add(testQueryPattern2);
-		queryPlan4.add(testQueryPattern1Inverted);
-		
 		expectedQueryPlans.add(queryPlan1);
 		expectedQueryPlans.add(queryPlan2);
 		expectedQueryPlans.add(queryPlan3);
@@ -132,32 +148,19 @@ public class QueryPlanEnumeratorTest
 		resolvableProperties.add(propertyBInverse);
 		
 		QueryPlanEnumerator enumerator = new QueryPlanEnumeratorWithMockPropertyResolution(resolvableProperties);
-
-		assertTrue(planListsAreEqual(enumerator.getAllResolvableQueryPlans(testQuery), expectedQueryPlans));
 		
+		Collection<String> queryPlans = enumerator.getAllResolvableQueryPlans(testQuery);
+		assertTrue(queryStringCollectionsAreEqual(queryPlans, expectedQueryPlans));
 	}
-	
+
 	@Test
 	public void testEnumeratorWithUnidirectionalProperty()
 	{
-		
-		List<List<Triple>> expectedQueryPlans = new ArrayList<List<Triple>>(4);
+		List<String> expectedQueryPlans = new ArrayList<String>(4);
 
-		List<Triple> queryPlan1 = new ArrayList<Triple>(2);
-		queryPlan1.add(testQueryPattern1);
-		queryPlan1.add(testQueryPattern2Inverted);
-
-		List<Triple> queryPlan2 = new ArrayList<Triple>(2);
-		queryPlan2.add(testQueryPattern2);
-		queryPlan2.add(testQueryPattern1);
-		
-		List<Triple> queryPlan3 = new ArrayList<Triple>(2);
-		queryPlan3.add(testQueryPattern2);
-		queryPlan3.add(testQueryPattern1Inverted);
-
-		expectedQueryPlans.add(queryPlan1);
 		expectedQueryPlans.add(queryPlan2);
 		expectedQueryPlans.add(queryPlan3);
+		expectedQueryPlans.add(queryPlan4);
 
 		List<OntProperty> resolvableProperties = new ArrayList<OntProperty>();
 		resolvableProperties.add(propertyA);
@@ -165,16 +168,54 @@ public class QueryPlanEnumeratorTest
 		resolvableProperties.add(propertyBInverse);
 		
 		QueryPlanEnumerator enumerator = new QueryPlanEnumeratorWithMockPropertyResolution(resolvableProperties);
-
-		assertTrue(planListsAreEqual(enumerator.getAllResolvableQueryPlans(testQuery), expectedQueryPlans));
+		
+		Collection<String> queryPlans = enumerator.getAllResolvableQueryPlans(testQuery);
+		assertTrue(queryStringCollectionsAreEqual(queryPlans, expectedQueryPlans));
 		
 	}
 	
-	protected static boolean planListsAreEqual(List<List<Triple>> queryPlans1, List<List<Triple>> queryPlans2)
+	protected static boolean queryStringCollectionsAreEqual(Collection<String> queryPlans1, Collection<String> queryPlans2) 
+	{
+		Collection<List<Triple>> queryPlansAsTriples1= new ArrayList<List<Triple>>(queryPlans1.size());
+		Collection<List<Triple>> queryPlansAsTriples2 = new ArrayList<List<Triple>>(queryPlans2.size());
+		
+		for(String query : queryPlans1) {
+			Query jenaQuery = QueryFactory.create(query, Syntax.syntaxARQ);
+			queryPlansAsTriples1.add(QueryPlanEnumerator.getBasicGraphPattern(jenaQuery));
+		}
+		
+		for(String query : queryPlans2) {
+			Query jenaQuery = QueryFactory.create(query, Syntax.syntaxARQ);
+			queryPlansAsTriples2.add(QueryPlanEnumerator.getBasicGraphPattern(jenaQuery));
+		}
+		
+		return tripleListCollectionsAreEqual(queryPlansAsTriples1, queryPlansAsTriples2);
+	}
+	
+	protected static boolean tripleListCollectionsAreEqual(Collection<List<Triple>> queryPlans1, Collection<List<Triple>> queryPlans2)
 	{
 		return new HashBag(queryPlans1).equals(new HashBag(queryPlans2));
 	}
 
+	protected static String getSelectStarQuery(List<Triple> basicGraphPattern)
+	{
+        Query query = new Query();
+        query.setQuerySelectType();
+        query.setSyntax(Syntax.syntaxSPARQL);
+        
+        ElementTriplesBlock whereClause = new ElementTriplesBlock();
+        for(Triple pattern : basicGraphPattern) {
+        	whereClause.addTriple(pattern);
+        }
+        
+        query.setQueryPattern(whereClause);       
+
+        // Indicates a "*" in the SELECT clause.
+        query.setQueryResultStar(true);
+
+        return query.serialize();		
+	}
+	
 	protected static class QueryPlanEnumeratorWithMockPropertyResolution extends QueryPlanEnumerator
 	{
 		MockResolvabilityCache mockResolvabilityCache;
