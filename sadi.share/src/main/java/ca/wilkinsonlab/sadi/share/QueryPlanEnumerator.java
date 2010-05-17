@@ -12,6 +12,14 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.Syntax;
+import com.hp.hpl.jena.sparql.core.TriplePath;
+import com.hp.hpl.jena.sparql.syntax.Element;
+import com.hp.hpl.jena.sparql.syntax.ElementFilter;
+import com.hp.hpl.jena.sparql.syntax.ElementGroup;
+import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
 
 /**
  * A class that enumerates all orderings of a SPARQL query that are
@@ -36,8 +44,9 @@ public class QueryPlanEnumerator
 	}
 	
 	/**
-	 * <p>Return a list of all orderings of the given query that are resolvable by 
-	 * SHAREKnowledgeBase.</p>
+	 * <p>Return a list of all orderings of the given SELECT query that are resolvable by 
+	 * SHAREKnowledgeBase. This method expects a query with a single basic graph pattern 
+	 * (i.e. no nesting and no UNION or OPTIONAL constructs), and will fail otherwise.</p>
 	 * 
 	 * <p>The caller should be aware that this method may "invert" the given triple patterns in addition to 
 	 * reordering them, and that this inversion has significance.  The following paragraph explains 
@@ -60,15 +69,84 @@ public class QueryPlanEnumerator
 	 * @returns a list of all query orderings that are resolvable by SHAREKnowledgeBase (barring
 	 * the exceptions described above) 
 	 */
-	public List<List<Triple>> getAllResolvableQueryPlans(List<Triple> query)
+	
+	public Set<String> getAllResolvableQueryPlans(String query)
+	{
+		Set<String> queryPlans = new HashSet<String>();
+		
+		Query jenaQuery = QueryFactory.create(query, Syntax.syntaxARQ);
+		
+		for(Query queryPlan : getAllResolvableQueryPlans(jenaQuery)) {
+			queryPlans.add(queryPlan.serialize());
+		}
+		
+		return queryPlans;
+	}
+	
+	private Set<Query> getAllResolvableQueryPlans(Query query) 
+	{
+		if(query.getSyntax() != Syntax.syntaxARQ) {
+			throw new IllegalArgumentException("this method only supports Jena queries with syntax == Syntax.syntaxARQ");
+		}
+
+		List<Triple> basicGraphPattern = getBasicGraphPattern(query);
+
+		if(!(query.getQueryPattern() instanceof ElementGroup)) {
+			throw new IllegalArgumentException("expected top level of WHERE clause to be an ElementGroup");
+		}
+
+		ElementGroup whereClause = (ElementGroup)(query.getQueryPattern());
+
+		/* Check for illegal nested structures */
+
+		for(Element e : whereClause.getElements()) {
+			if(!(e instanceof ElementPathBlock || e instanceof ElementFilter)) {
+				throw new IllegalArgumentException("input query must consist of a single basic graph pattern (no nesting, no UNION/GRAPH/OPTIONAL constructs)");
+			}
+		}
+		
+		/* build Jena Query objects for each reordering of the WHERE clause */
+		
+		Set<Query> queryPlans = new HashSet<Query>();
+		
+		for(List<Triple> queryPlan : getAllResolvableQueryPlans(basicGraphPattern)) {
+			
+			ElementPathBlock planAsTripleBlock = new ElementPathBlock();
+
+			for(Triple pattern : queryPlan) {
+				planAsTripleBlock.addTriple(pattern);
+			}
+		
+			Query planAsQuery = query.cloneQuery();
+			
+			ElementGroup newWhereClause = new ElementGroup();
+			newWhereClause.addElement(planAsTripleBlock);
+			
+			/* copy FILTERs from original query */
+			
+			for(Element e : whereClause.getElements()) {
+				if(e instanceof ElementFilter) {
+					newWhereClause.addElementFilter((ElementFilter)e);
+				}
+			}
+
+			planAsQuery.setQueryPattern(newWhereClause);
+			queryPlans.add(planAsQuery);
+		
+		}
+		
+		return queryPlans;
+	}
+	
+	public Set<List<Triple>> getAllResolvableQueryPlans(List<Triple> query)
 	{
 		Set<Node> boundVars = new HashSet<Node>();
 		return getAllResolvableQueryPlans(query, boundVars); 
 	}
 
-	protected List<List<Triple>> getAllResolvableQueryPlans(List<Triple> remainingPatterns, Set<Node> boundVars) 
+	protected Set<List<Triple>> getAllResolvableQueryPlans(List<Triple> remainingPatterns, Set<Node> boundVars) 
 	{
-		List<List<Triple>> queryPlans = new ArrayList<List<Triple>>();
+		Set<List<Triple>> queryPlans = new HashSet<List<Triple>>();
 		
 		for(Triple pattern : remainingPatterns) {
 			
@@ -108,7 +186,7 @@ public class QueryPlanEnumerator
     				}
     			}
 
-    			List<List<Triple>> queryPlansTail;
+    			Set<List<Triple>> queryPlansTail;
 
     			if(remainingPatterns.size() == 1) {
     			
@@ -117,7 +195,7 @@ public class QueryPlanEnumerator
         			 * the remaining part of the query plan to an empty Triple
         			 * list.
         			 */
-    				queryPlansTail = new ArrayList<List<Triple>>();
+    				queryPlansTail = new HashSet<List<Triple>>();
     				queryPlansTail.add(new ArrayList<Triple>());
     			
     			} else {
@@ -179,6 +257,52 @@ public class QueryPlanEnumerator
 		}
 		
 		return queryPlans;
+	}
+	
+	protected static List<Triple> getBasicGraphPattern(Query query) 
+	{
+		List<Triple> basicGraphPattern = new ArrayList<Triple>();
+
+		if(query.getSyntax() != Syntax.syntaxARQ) {
+			throw new IllegalArgumentException("this method only supports Jena queries with syntax == Syntax.syntaxARQ");
+		}
+		
+		if(!(query.getQueryPattern() instanceof ElementGroup)) {
+			throw new IllegalArgumentException("expected top level of WHERE clause to be an ElementGroup");
+		}
+
+		ElementGroup whereClause = (ElementGroup)(query.getQueryPattern());
+
+		/* 
+		 * There may be multiple ElementPathBlocks separated by FILTERs.
+		 * Consolidate them into a single list of triples. 
+		 */
+
+		for(Element e : whereClause.getElements()) {
+
+			/* Check for illegal nested structures */
+
+			if(!(e instanceof ElementPathBlock || e instanceof ElementFilter)) {
+				throw new IllegalArgumentException("input query must consist of a single basic graph pattern (no nesting, no UNION/GRAPH/OPTIONAL constructs)");
+			}
+
+			if(e instanceof ElementPathBlock) {
+
+				for(TriplePath triplePath : ((ElementPathBlock)e).getPattern()) {
+
+					if(triplePath.asTriple() == null) {
+						throw new IllegalArgumentException(String.format("this method does not support ARQ TriplePaths, TriplePath: %s", triplePath));
+					} 
+				
+					basicGraphPattern.add(triplePath.asTriple());
+
+				}
+			
+			}
+		
+		}
+		
+		return basicGraphPattern;
 	}
 	
 }
