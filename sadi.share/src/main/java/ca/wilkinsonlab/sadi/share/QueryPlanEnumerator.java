@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.share;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +21,8 @@ import com.hp.hpl.jena.sparql.syntax.Element;
 import com.hp.hpl.jena.sparql.syntax.ElementFilter;
 import com.hp.hpl.jena.sparql.syntax.ElementGroup;
 import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
+import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
+import com.hp.hpl.jena.sparql.syntax.TripleCollector;
 
 /**
  * A class that enumerates all orderings of a SPARQL query that are
@@ -83,10 +86,14 @@ public class QueryPlanEnumerator
 		return queryPlans;
 	}
 	
-	private Set<Query> getAllResolvableQueryPlans(Query query) 
+	protected Set<Query> getAllResolvableQueryPlans(Query query) 
 	{
-		if(query.getSyntax() != Syntax.syntaxARQ) {
-			throw new IllegalArgumentException("this method only supports Jena queries with syntax == Syntax.syntaxARQ");
+		if(query.getSyntax() != Syntax.syntaxSPARQL && query.getSyntax() != Syntax.syntaxARQ) {
+			throw new IllegalArgumentException("this method only supports Jena queries with syntax Syntax.syntaxSPARQL or Syntax.syntaxARQ");
+		}
+
+		if(isQueryNested(query)) {
+			throw new IllegalArgumentException("input query must consist of a single basic graph pattern (no nesting, no UNION/GRAPH/OPTIONAL constructs)");
 		}
 
 		List<Triple> basicGraphPattern = getBasicGraphPattern(query);
@@ -97,22 +104,21 @@ public class QueryPlanEnumerator
 
 		ElementGroup whereClause = (ElementGroup)(query.getQueryPattern());
 
-		/* Check for illegal nested structures */
-
-		for(Element e : whereClause.getElements()) {
-			if(!(e instanceof ElementPathBlock || e instanceof ElementFilter)) {
-				throw new IllegalArgumentException("input query must consist of a single basic graph pattern (no nesting, no UNION/GRAPH/OPTIONAL constructs)");
-			}
-		}
-		
 		/* build Jena Query objects for each reordering of the WHERE clause */
 		
 		Set<Query> queryPlans = new HashSet<Query>();
 		
 		for(List<Triple> queryPlan : getAllResolvableQueryPlans(basicGraphPattern)) {
 			
-			ElementPathBlock planAsTripleBlock = new ElementPathBlock();
-
+			TripleCollector planAsTripleBlock;
+			
+			if(query.getSyntax() == Syntax.syntaxSPARQL) {
+				planAsTripleBlock = new ElementTriplesBlock();
+			} else {
+				// Syntax.syntaxARQ
+				planAsTripleBlock = new ElementPathBlock();
+			}
+			
 			for(Triple pattern : queryPlan) {
 				planAsTripleBlock.addTriple(pattern);
 			}
@@ -120,7 +126,7 @@ public class QueryPlanEnumerator
 			Query planAsQuery = query.cloneQuery();
 			
 			ElementGroup newWhereClause = new ElementGroup();
-			newWhereClause.addElement(planAsTripleBlock);
+			newWhereClause.addElement((Element)planAsTripleBlock);
 			
 			/* copy FILTERs from original query */
 			
@@ -261,12 +267,60 @@ public class QueryPlanEnumerator
 	
 	protected static List<Triple> getBasicGraphPattern(Query query) 
 	{
-		List<Triple> basicGraphPattern = new ArrayList<Triple>();
+		if(query.getSyntax() != Syntax.syntaxSPARQL && query.getSyntax() != Syntax.syntaxARQ) {
+			throw new IllegalArgumentException("this method only supports Jena queries with syntax Syntax.syntaxSPARQL or Syntax.syntaxARQ");
+		}
 
-		if(query.getSyntax() != Syntax.syntaxARQ) {
-			throw new IllegalArgumentException("this method only supports Jena queries with syntax == Syntax.syntaxARQ");
+		if(isQueryNested(query)) {
+			throw new IllegalArgumentException("input query must consist of a single basic graph pattern (no nesting, no UNION/GRAPH/OPTIONAL constructs)");
 		}
 		
+		List<Triple> basicGraphPattern = new ArrayList<Triple>();
+
+		if(!(query.getQueryPattern() instanceof ElementGroup)) {
+			throw new IllegalArgumentException("expected top level of WHERE clause to be an ElementGroup");
+		}
+
+		ElementGroup whereClause = (ElementGroup)(query.getQueryPattern());
+
+		/* 
+		 * There may be multiple ElementPathBlocks separated by FILTERs.
+		 * Consolidate them into a single list of triples. 
+		 */
+
+		for(Element e : whereClause.getElements()) {
+
+			if(e instanceof ElementPathBlock) {
+
+				for(TriplePath triplePath : ((ElementPathBlock)e).getPattern()) {
+
+					if(triplePath.asTriple() == null) {
+						throw new IllegalArgumentException(String.format("this method does not support ARQ TriplePaths, TriplePath: %s", triplePath));
+					} 
+				
+					basicGraphPattern.add(triplePath.asTriple());
+				}
+			
+			}
+			
+			if(e instanceof ElementTriplesBlock) {
+				
+				for(Iterator<Triple> i = ((ElementTriplesBlock)e).patternElts(); i.hasNext(); ) {
+					basicGraphPattern.add(i.next());
+				}
+			}
+		
+		}
+		
+		return basicGraphPattern;
+	}
+	
+	private static boolean isQueryNested(Query query) 
+	{
+		if(query.getSyntax() != Syntax.syntaxSPARQL && query.getSyntax() != Syntax.syntaxARQ) {
+			throw new IllegalArgumentException("this method only supports Jena queries with syntax Syntax.syntaxSPARQL or Syntax.syntaxARQ");
+		}
+	
 		if(!(query.getQueryPattern() instanceof ElementGroup)) {
 			throw new IllegalArgumentException("expected top level of WHERE clause to be an ElementGroup");
 		}
@@ -282,27 +336,12 @@ public class QueryPlanEnumerator
 
 			/* Check for illegal nested structures */
 
-			if(!(e instanceof ElementPathBlock || e instanceof ElementFilter)) {
-				throw new IllegalArgumentException("input query must consist of a single basic graph pattern (no nesting, no UNION/GRAPH/OPTIONAL constructs)");
+			if(!(e instanceof ElementPathBlock || e instanceof ElementTriplesBlock || e instanceof ElementFilter)) {
+				return true;
 			}
 
-			if(e instanceof ElementPathBlock) {
-
-				for(TriplePath triplePath : ((ElementPathBlock)e).getPattern()) {
-
-					if(triplePath.asTriple() == null) {
-						throw new IllegalArgumentException(String.format("this method does not support ARQ TriplePaths, TriplePath: %s", triplePath));
-					} 
-				
-					basicGraphPattern.add(triplePath.asTriple());
-
-				}
-			
-			}
-		
 		}
 		
-		return basicGraphPattern;
+		return false;
 	}
-	
 }

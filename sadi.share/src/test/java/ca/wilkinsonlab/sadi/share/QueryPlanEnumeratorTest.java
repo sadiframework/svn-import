@@ -154,6 +154,41 @@ public class QueryPlanEnumeratorTest
 	}
 
 	@Test
+	public void testEnumeratorJenaQuery()
+	{
+		List<OntProperty> resolvableProperties = new ArrayList<OntProperty>();
+		resolvableProperties.add(propertyA);
+		resolvableProperties.add(propertyAInverse);
+		resolvableProperties.add(propertyB);
+		resolvableProperties.add(propertyBInverse);
+		
+		QueryPlanEnumerator enumerator = new QueryPlanEnumeratorWithMockPropertyResolution(resolvableProperties);
+		
+		/*
+		 * Test that the enumeration works correctly with both 
+		 * allowable query syntaxes.
+		 */
+		Syntax syntaxes[] = { Syntax.syntaxSPARQL, Syntax.syntaxARQ };
+		
+		for(int i = 0; i < syntaxes.length; i++) {
+			
+			Syntax syntax = syntaxes[i];
+			Query jenaQuery = QueryFactory.create(testQuery, syntax);
+
+			List<Query> expectedQueryPlans = new ArrayList<Query>(4);
+
+			expectedQueryPlans.add(QueryFactory.create(queryPlan1, syntax));
+			expectedQueryPlans.add(QueryFactory.create(queryPlan2, syntax));
+			expectedQueryPlans.add(QueryFactory.create(queryPlan3, syntax));
+			expectedQueryPlans.add(QueryFactory.create(queryPlan4, syntax));
+
+			Collection<Query> queryPlans = enumerator.getAllResolvableQueryPlans(jenaQuery);
+			assertTrue(queryCollectionsAreEqual(queryPlans, expectedQueryPlans));
+		}
+		
+	}
+	
+	@Test
 	public void testEnumeratorWithUnidirectionalProperty()
 	{
 		List<String> expectedQueryPlans = new ArrayList<String>(4);
@@ -176,20 +211,40 @@ public class QueryPlanEnumeratorTest
 	
 	protected static boolean queryStringCollectionsAreEqual(Collection<String> queryPlans1, Collection<String> queryPlans2) 
 	{
-		Collection<List<Triple>> queryPlansAsTriples1= new ArrayList<List<Triple>>(queryPlans1.size());
-		Collection<List<Triple>> queryPlansAsTriples2 = new ArrayList<List<Triple>>(queryPlans2.size());
+		Collection<Query> jenaQueries1 = new ArrayList<Query>(queryPlans1.size());
+		Collection<Query> jenaQueries2 = new ArrayList<Query>(queryPlans2.size());
 		
 		for(String query : queryPlans1) {
-			Query jenaQuery = QueryFactory.create(query, Syntax.syntaxARQ);
-			queryPlansAsTriples1.add(QueryPlanEnumerator.getBasicGraphPattern(jenaQuery));
+			jenaQueries1.add(QueryFactory.create(query, Syntax.syntaxARQ));
 		}
 		
 		for(String query : queryPlans2) {
-			Query jenaQuery = QueryFactory.create(query, Syntax.syntaxARQ);
-			queryPlansAsTriples2.add(QueryPlanEnumerator.getBasicGraphPattern(jenaQuery));
+			jenaQueries2.add(QueryFactory.create(query, Syntax.syntaxARQ));
 		}
 		
-		return tripleListCollectionsAreEqual(queryPlansAsTriples1, queryPlansAsTriples2);
+		return queryCollectionsAreEqual(jenaQueries1, jenaQueries2);
+	}
+	
+	protected static boolean queryCollectionsAreEqual(Collection<Query> queryPlans1, Collection<Query> queryPlans2) 
+	{
+		/* 
+		 * I should be able to use Query.equals() here, but it doesn't seem to work.  
+		 * (perhaps because of differences in defined PREFIXes?).  Instead,
+		 * I extract the basic graph patterns and do the comparison based on those.
+		 */
+		
+		Collection <List<Triple>> plansAsTriples1 = new ArrayList<List<Triple>>(queryPlans1.size());
+		Collection <List<Triple>> plansAsTriples2 = new ArrayList<List<Triple>>(queryPlans2.size());
+		
+		for(Query query : queryPlans1) {
+			plansAsTriples1.add(QueryPlanEnumerator.getBasicGraphPattern(query));
+		}
+		
+		for(Query query : queryPlans2) {
+			plansAsTriples2.add(QueryPlanEnumerator.getBasicGraphPattern(query));
+		}
+		
+		return tripleListCollectionsAreEqual(plansAsTriples1, plansAsTriples2);
 	}
 	
 	protected static boolean tripleListCollectionsAreEqual(Collection<List<Triple>> queryPlans1, Collection<List<Triple>> queryPlans2)
