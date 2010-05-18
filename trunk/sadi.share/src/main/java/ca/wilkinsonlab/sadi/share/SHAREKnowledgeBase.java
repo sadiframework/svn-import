@@ -152,7 +152,7 @@ public class SHAREKnowledgeBase
 	
 	protected PredicateStatsDB getStatsDB() 
 	{
-		return ca.wilkinsonlab.sadi.share.Config.getStatsDB();
+		return PredicateStatsDB.theInstance();
 	}
 	
 	public void dispose()

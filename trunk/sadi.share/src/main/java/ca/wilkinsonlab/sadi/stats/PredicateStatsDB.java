@@ -59,7 +59,21 @@ public class PredicateStatsDB
 	/** an internal counter that tracks the current number of samples in the DB */
 	protected int numSamples = UNINITIALIZED;
 	
-	public PredicateStatsDB(Configuration config) throws IOException
+	public synchronized static PredicateStatsDB theInstance() 
+	{
+		if(theInstance == null) {
+			try {
+				Configuration config = ca.wilkinsonlab.sadi.client.Config.getConfiguration();
+				theInstance = new PredicateStatsDB(config.subset(PredicateStatsDB.ROOT_CONFIG_KEY));
+			} catch(IOException e) {
+				log.error("error creating stats db singleton: ", e);
+			}
+		}
+		
+		return theInstance;
+	}
+	
+	protected PredicateStatsDB(Configuration config) throws IOException
 	{
 		this(config.getString(ENDPOINT_URL_CONFIG_KEY), 
 			config.getString(USERNAME_CONFIG_KEY),
@@ -70,7 +84,7 @@ public class PredicateStatsDB
 			config.getInt(NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL_CONFIG_KEY, DEFAULT_NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL));
 	}
 	
-	public PredicateStatsDB(String endpointURL, String username, String password) throws IOException 
+	protected PredicateStatsDB(String endpointURL, String username, String password) throws IOException 
 	{
 		this(endpointURL,
 			username,
@@ -81,7 +95,7 @@ public class PredicateStatsDB
 			DEFAULT_NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL);
 	}
 	
-	public PredicateStatsDB(
+	protected PredicateStatsDB(
 			String endpointURL,
 			String username,
 			String password,
@@ -147,7 +161,7 @@ public class PredicateStatsDB
 		log.info(String.format("predicate stats db currently has %d samples", this.numSamples));
 	}
 	
-	public void recordSample(Property predicate, boolean directionIsForward, int numInputs, int responseTime)
+	public synchronized void recordSample(Property predicate, boolean directionIsForward, int numInputs, int responseTime)
 	{
 		if(this.numSamples >= this.sampleCacheSize) {
 			log.info(String.format("samples db has reached maximum size of %d samples, purging %d oldest samples", this.sampleCacheSize, this.numSamplesToPurgeOnCacheFull));
@@ -185,7 +199,7 @@ public class PredicateStatsDB
 		}
 	}
 	
-	public void recomputeStats()
+	public synchronized void recomputeStats()
 	{
 		log.info("recomputing summary stats");
 		for(Property p : getAllPredicatesWithSamples()) {
@@ -193,13 +207,13 @@ public class PredicateStatsDB
 		}
 	}
 	
-	public void recomputeStats(Property p) 
+	public synchronized void recomputeStats(Property p) 
 	{
 		recomputeStats(p, true);
 		recomputeStats(p, false);
 	}
 	
-	public void recomputeStats(Property p, boolean directionIsForward)
+	public synchronized void recomputeStats(Property p, boolean directionIsForward)
 	{
 		try {
 
@@ -358,7 +372,7 @@ public class PredicateStatsDB
 		return predicates;
 	}
 	
-	public void clear()
+	public synchronized void clear()
 	{
 		log.info("clearing predicate stats db");
 		
@@ -375,7 +389,7 @@ public class PredicateStatsDB
 		}
 	}
 	
-	public void clearSamplesGraph()
+	public synchronized void clearSamplesGraph()
 	{
 		try {
 		
@@ -399,7 +413,7 @@ public class PredicateStatsDB
 		return (statsEntry.getBaseTime() + (numInputs * statsEntry.getTimePerInput()));
 	}
 	
-	public void purgeSamples()
+	public synchronized void purgeSamples()
 	{
 		try {
 		

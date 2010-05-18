@@ -1,13 +1,10 @@
 package ca.wilkinsonlab.sadi.share;
 
-import java.io.IOException;
 import java.net.URL;
 
 import net.sf.ehcache.CacheManager;
 
 import org.apache.log4j.Logger;
-
-import ca.wilkinsonlab.sadi.stats.PredicateStatsDB;
 
 import com.hp.hpl.jena.ontology.OntDocumentManager;
 import com.hp.hpl.jena.util.FileManager;
@@ -22,6 +19,7 @@ import com.hp.hpl.jena.util.LocationMapper;
  */
 public class Config extends ca.wilkinsonlab.sadi.common.Config
 {
+	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(Config.class);
 	
 	protected static final String DEFAULT_PROPERTIES_FILENAME = "sadi.share.properties";
@@ -31,7 +29,6 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	private static final Config theInstance = new Config(DEFAULT_PROPERTIES_FILENAME, LOCAL_PROPERTIES_FILENAME);
 
 	private static CacheManager theCacheManager;
-	private static PredicateStatsDB theStatsDB;
 	
 	public static Config getConfiguration()
 	{
@@ -50,27 +47,11 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 		theCacheManager = new CacheManager(Config.class.getResource(CACHE_CONFIG_FILENAME));		
 
 		initJenaLocationMapper();
-		initStatsDB();
 	}
 
 	public static CacheManager getCacheManager() 
 	{
 		return theCacheManager;
-	}
-	
-	/**
-	 * Return the singleton stats DB, which stores statistics about predicates
-	 * for query optimization. The returned value may be null, if there was
-	 * an error initializing the stats DB at startup. Users of the stats DB
-	 * should fail gracefully in the case of null, as access to the stats DB is 
-	 * not vital to the operation of the query engine. 
-	 * 
-	 * @return the stats DB, or null if the statsDB was not successfully initialized
-	 * at startup
-	 */
-	public static PredicateStatsDB getStatsDB() 
-	{
-		return theStatsDB;
 	}
 	
 	/**
@@ -85,15 +66,6 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 		/* by default, OntDocumentManager does not point to the global FileManager 
 		 * (see javadoc for OntDocumentManager) -- BV */
 		OntDocumentManager.getInstance().setFileManager(FileManager.get());
-	}
-	
-	protected void initStatsDB()
-	{
-		try {
-			theStatsDB = new PredicateStatsDB(subset(PredicateStatsDB.ROOT_CONFIG_KEY));
-		} catch(IOException e) {
-			log.error("error initializing predicate stats db: ", e);
-		}
 	}
 	
 	@Override
