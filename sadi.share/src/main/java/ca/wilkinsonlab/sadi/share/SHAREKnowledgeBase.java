@@ -122,9 +122,9 @@ public class SHAREKnowledgeBase
 			deadServices.add((String)serviceUri);
 		
 		dynamicInputInstanceClassification = config.getBoolean("share.dynamicInputInstanceClassification", false);
-		useAdaptiveQueryPlanning = config.getBoolean("share.useAdaptiveQueryPlanning", false);
+		setUseAdaptiveQueryPlanning(config.getBoolean("share.useAdaptiveQueryPlanning", false));
 		setAllowPredicateVariables(config.getBoolean("share.allowPredicateVariables", false));
-		recordQueryStats = config.getBoolean("share.recordQueryStats", false);
+		setRecordQueryStats(config.getBoolean("share.recordQueryStats", false));
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
 		
 	}
@@ -144,7 +144,23 @@ public class SHAREKnowledgeBase
 	protected void setAllowPredicateVariables(boolean allowPredicateVariables) {
 		this.allowPredicateVariables = allowPredicateVariables;
 	}
+	
+	public void setUseAdaptiveQueryPlanning(boolean useAdaptiveQueryPlanning) {
+		this.useAdaptiveQueryPlanning = useAdaptiveQueryPlanning;
+	}
 
+	public boolean useAdaptiveQueryPlanning() {
+		return this.useAdaptiveQueryPlanning;
+	}
+	
+	public void setRecordQueryStats(boolean recordQueryStats) {
+		this.recordQueryStats = recordQueryStats;
+	}
+
+	public boolean recordQueryStats() {
+		return this.recordQueryStats;
+	}
+	
 	protected MultiRegistry getRegistry()
 	{
 		return registry;
@@ -203,7 +219,7 @@ public class SHAREKnowledgeBase
 	
 	public void executeQuery(Query query)
 	{
-		if (useAdaptiveQueryPlanning) {
+		if (useAdaptiveQueryPlanning()) {
 			executeQueryAdaptive(query);
 		} else {
 			executeQuery(query, new DefaultQueryPatternOrderingStrategy());
@@ -296,7 +312,7 @@ public class SHAREKnowledgeBase
 		
 		if (!subjects.isEmpty()) { // bound subject...
 			if (!objects.isEmpty()) { // bound subject and object...
-				if(useAdaptiveQueryPlanning) {
+				if(useAdaptiveQueryPlanning()) {
 					directionIsForward = (new QueryPatternComparator()).bestDirectionIsForward(pattern);
 				} else { 
 					directionIsForward = true;
@@ -331,7 +347,7 @@ public class SHAREKnowledgeBase
 			stopWatch.stop();
 			log.trace(String.format("resolved pattern %s in %d seconds", pattern, stopWatch.getTime() / 1000));
 		
-			if(retrievedData && recordQueryStats) {
+			if(retrievedData && recordQueryStats()) {
 				recordStats(subjects, predicates, objects, directionIsForward, (int)stopWatch.getTime());
 			}
 
