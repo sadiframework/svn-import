@@ -13,7 +13,7 @@ use vars qw{$VERSION};
 
 BEGIN {
 	use vars qw{@ISA @EXPORT @EXPORT_OK};
-	$VERSION           = 0.93;
+	$VERSION           = 0.94;
 	*OWL2Perl::VERSION = *VERSION;
 }
 
