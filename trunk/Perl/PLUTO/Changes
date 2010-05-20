@@ -1,5 +1,8 @@
-$Id: Changes,v 1.13 2010-02-17 17:21:20 ubuntu Exp $
+$Id: Changes,v 1.14 2010-05-20 17:29:09 ubuntu Exp $
 
+0.26
+    - fixed how Module::Conditional::Load was being called
+      because the way we were doing it broke all of a sudden
 0.25
     - added a select_parser method so that you can specify
       the sax parser to use (defaulted in the past to pureperl
