@@ -1,5 +1,8 @@
 Revision history for Perl extension OWL2Perl.
 
+0.94
+    * updated version of PLUTO required to 0.26
+
 0.93
     * added 'use OWL::RDF::Predicates::*' statements to owl-class.tt
     
