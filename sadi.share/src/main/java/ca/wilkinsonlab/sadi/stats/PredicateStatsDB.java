@@ -34,16 +34,16 @@ public class PredicateStatsDB
 	protected Cache statsCache = null;
 
 	public final static String ROOT_CONFIG_KEY = "sadi.statsdb";
-	protected final static String ENDPOINT_URL_CONFIG_KEY = "endpoint";
-	protected final static String USERNAME_CONFIG_KEY = "username";
-	protected final static String PASSWORD_CONFIG_KEY = "password";
-	protected final static String SAMPLES_GRAPH_CONFIG_KEY = "samplesGraph";
-	protected final static String STATS_GRAPH_CONFIG_KEY = "statsGraph";
-	protected final static String SAMPLE_CACHE_SIZE_CONFIG_KEY = "sampleCacheSize";
-	protected final static String NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL_CONFIG_KEY = "numSamplesToPurgeOnCacheFull";
+	public final static String ENDPOINT_URL_CONFIG_KEY = "endpoint";
+	public final static String USERNAME_CONFIG_KEY = "username";
+	public final static String PASSWORD_CONFIG_KEY = "password";
+	public final static String SAMPLES_GRAPH_CONFIG_KEY = "samplesGraph";
+	public final static String STATS_GRAPH_CONFIG_KEY = "statsGraph";
+	public final static String SAMPLE_CACHE_SIZE_CONFIG_KEY = "sampleCacheSize";
+	public final static String NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL_CONFIG_KEY = "numSamplesToPurgeOnCacheFull";
 	
-	protected final static String DEFAULT_SAMPLES_GRAPH = "http://sadiframework.org/predicateStats/samples";
-	protected final static String DEFAULT_STATS_GRAPH = "http://sadiframework.org/predicateStats/summaryStats";
+	public final static String DEFAULT_SAMPLES_GRAPH = "http://sadiframework.org/predicateStats/samples";
+	public final static String DEFAULT_STATS_GRAPH = "http://sadiframework.org/predicateStats/summaryStats";
 	protected final static int DEFAULT_SAMPLE_CACHE_SIZE = 10000;
 	protected final static int DEFAULT_NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL = 200; 
 
