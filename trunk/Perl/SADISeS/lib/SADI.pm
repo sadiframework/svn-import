@@ -13,7 +13,7 @@ use vars qw{$VERSION};
 
 BEGIN {
 	use vars qw{@ISA @EXPORT @EXPORT_OK};
-	$VERSION = sprintf "%d.%02d", q$Revision: 1.01 $ =~ /: (\d+)\.(\d+)/;
+	$VERSION = sprintf "%d.%02d", q$Revision: 1.02 $ =~ /: (\d+)\.(\d+)/;
 	*SADI::VERSION = *VERSION;
 }
 

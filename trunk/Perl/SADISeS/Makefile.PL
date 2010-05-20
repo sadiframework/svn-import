@@ -8,7 +8,7 @@
     
 	# Define metadata
 	name 'SADI';
-	version '1.01';
+	version '1.02';
 	license 'new BSD';
 	abstract
 'This distribution aids in the creation of SADI perl based web services.';
@@ -33,8 +33,8 @@
     requires 'LS'                   => '1.1.7';
     requires 'HTTP::Request'        => 0;
     requires 'LWP'                  => 0;
-    requires 'OWL2Perl'             => 0.93;
-    requires 'PLUTO'                => 0.25;
+    requires 'OWL2Perl'             => 0.94;
+    requires 'PLUTO'                => 0.26;
     requires 'URI'                  => 1.40;  
 
     # windows doesn't need this
