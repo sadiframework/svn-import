@@ -63,8 +63,7 @@ public class PredicateStatsDB
 	{
 		if(theInstance == null) {
 			try {
-				Configuration config = ca.wilkinsonlab.sadi.client.Config.getConfiguration();
-				theInstance = new PredicateStatsDB(config.subset(PredicateStatsDB.ROOT_CONFIG_KEY));
+				theInstance = new PredicateStatsDB(Config.getConfiguration().subset(PredicateStatsDB.ROOT_CONFIG_KEY));
 			} catch(IOException e) {
 				log.error("error creating stats db singleton: ", e);
 			}
