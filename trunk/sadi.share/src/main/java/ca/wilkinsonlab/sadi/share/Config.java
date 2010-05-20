@@ -7,6 +7,8 @@ import net.sf.ehcache.CacheManager;
 import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.ontology.OntDocumentManager;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.util.FileManager;
 import com.hp.hpl.jena.util.LocationMapper;
 
@@ -19,7 +21,6 @@ import com.hp.hpl.jena.util.LocationMapper;
  */
 public class Config extends ca.wilkinsonlab.sadi.common.Config
 {
-	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(Config.class);
 	
 	protected static final String DEFAULT_PROPERTIES_FILENAME = "sadi.share.properties";
@@ -60,12 +61,39 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	 */
 	private void initJenaLocationMapper() 
 	{
-		URL mappingFile = Config.class.getResource("jena.url.mapping.n3"); 
-		FileManager.get().setLocationMapper(new LocationMapper(mappingFile.toString()));
 		
-		/* by default, OntDocumentManager does not point to the global FileManager 
-		 * (see javadoc for OntDocumentManager) -- BV */
-		OntDocumentManager.getInstance().setFileManager(FileManager.get());
+		/* 
+		 * Note: LocationMapper doesn't understand references to files
+		 * inside jars using the jar protocol, e.g.
+		 * 
+		 *     jar:file:myapp.jar!/com/company/resource.txt
+		 * 
+		 * and this causes our URL mapping to fail in the SHARE
+		 * commandline client (which is a standalone jar).  To work around
+		 * this problem, we load the mapping file into a Jena model first,
+		 * and then use that model to initialize the LocationMapper. 
+		 */
+		
+		URL mappingFile = Config.class.getResource("jena.url.mapping.n3");
+		
+		try {
+			
+			Model model = ModelFactory.createMemModelMaker().createFreshModel();
+			model.read(mappingFile.toString(), "N3");
+			FileManager.get().setLocationMapper(new LocationMapper(model));
+
+			/* 
+			 * By default, OntDocumentManager does not point to the global FileManager 
+			 * (see javadoc for OntDocumentManager) 
+			 */
+			OntDocumentManager.getInstance().setFileManager(FileManager.get());
+
+		} catch(Exception e) {
+			
+			log.error(String.format("failed to load Jena URL mapping configuration %s", mappingFile), e);
+		
+		}
+		
 	}
 	
 	@Override
