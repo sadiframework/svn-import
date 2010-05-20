@@ -71,6 +71,7 @@ sub find_sql_library_file {
 
 =cut
 
+1;
 
 package ODO::Jena::SQL::Library;
 
