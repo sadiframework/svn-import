@@ -9,7 +9,7 @@
 # File:        $Source: /var/lib/cvs/ODO/lib/ODO.pm,v $
 # Created by:  Stephen Evanchik( <a href="mailto:evanchik@us.ibm.com">evanchik@us.ibm.com </a>)
 # Created on:  10/05/2004
-# Revision:	$Id: ODO.pm,v 1.6 2010-02-16 15:51:06 ubuntu Exp $
+# Revision:	$Id: ODO.pm,v 1.7 2010-05-20 17:34:48 ubuntu Exp $
 # 
 # Contributors:
 #     IBM Corporation - initial API and implementation
@@ -19,7 +19,7 @@ package ODO;
 use strict;
 use warnings;
 
-our $VERSION = '0.25';
+our $VERSION = '0.26';
 
 use base qw/Exporter Class::Base Class::Accessor::Fast Class::ParamParser/;
 
