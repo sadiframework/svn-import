@@ -9,7 +9,7 @@
 # File:        $Source: /var/lib/cvs/ODO/lib/ODO/Graph.pm,v $
 # Created by:  Stephen Evanchik( <a href="mailto:evanchik@us.ibm.com">evanchik@us.ibm.com </a>)
 # Created on:  01/18/2005
-# Revision:	$Id: Graph.pm,v 1.2 2009-11-25 17:46:52 ubuntu Exp $
+# Revision:	$Id: Graph.pm,v 1.3 2010-05-20 17:29:00 ubuntu Exp $
 # 
 # Contributors:
 #     IBM Corporation - initial API and implementation
@@ -26,7 +26,7 @@ use ODO::Exception;
 use Module::Load::Conditional qw/can_load/;
 
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.2 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.3 $ =~ /: (\d+)\.(\d+)/;
 
 use Class::Interfaces('ODO::Graph'=> 
 	{
@@ -50,7 +50,7 @@ sub AUTOLOAD {
 	return undef
 		if($storage_type =~ /::DESTROY$/);
 	
-	my $backend_loaded = can_load( modules => {"ODO::Graph::Storage::$storage_type"=> ''} );
+	my $backend_loaded = can_load( modules => {"ODO::Graph::Storage::$storage_type"=> undef} );
 	
 	throw ODO::Exception::Module(error=> "Could not load graph storage module: 'ODO::Graph::Storage::$storage_type'\n==> $@")
 		if(!defined($backend_loaded) || !UNIVERSAL::can("ODO::Graph::Storage::$storage_type", 'new'));
@@ -143,7 +143,7 @@ sub init {
 	
 	$self->params($config, qw/name storage_package/);
 	
-	my $backend_loaded = can_load( modules => {$self->{'storage_package'}=> ''} );
+	my $backend_loaded = can_load( modules => {$self->{'storage_package'}=> undef} );
 	throw ODO::Exception::Module(error=> "Could not load graph storage module: '". $self->{'storage_package'} ."'\n==> $@")
 		if(!defined($backend_loaded));
 	
