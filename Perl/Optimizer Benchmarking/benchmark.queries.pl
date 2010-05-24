@@ -2,7 +2,7 @@
 
 use strict;
 use File::Basename;
-use Getopt::Long qw(:config pass_through);
+use Getopt::Long;
 use Switch;
 
 #--------------------------------------------------
@@ -13,7 +13,7 @@ my $EXIT_CODE_SUCCESS = 0;
 my $EXIT_CODE_NO_RESULTS = 1;
 my $EXIT_CODE_FAILURE = 2;
 
-my $USAGE = "USAGE: ./benchmark.queries.pl --share-jar <path-to-SHARE-jar> [--training-query training.query1.file --training-query training.query2.file ...] [--test-query test.query1.file --test-query test.query2.file ...] [--training-runs <INT> ] [--test-runs <INT>] [--trials-per-test-run <INT>]";
+my $USAGE = "USAGE: ./benchmark.queries.pl [--training-query training.query1.file --training-query training.query2.file ...] [--test-query test.query1.file --test-query test.query2.file ...] [--training-runs <INT> ] [--test-runs <INT>] [--trials-per-test-run <INT>] [--samples-graph <URI>] [--summary-stats-graph <URI>] <share-standalone-jar> <stats endpoint URL> <stats endpoint username> <stats endpoint password>";
 
 my @trainingQueries = ();
 my @testQueries = ();
@@ -23,6 +23,11 @@ my $generatedFilePrefix = "";
 my $clearStats = 0;
 my $numTrialsPerTestRun = 3;
 my $shareJar;
+my $samplesGraph;
+my $summaryStatsGraph;
+my $statsEndpointURL;
+my $statsUsername;
+my $statsPassword;
 
 #--------------------------------------------------
 # Parse commandline
@@ -37,10 +42,17 @@ my $getoptSuccess =
 		"trials-per-test-run=i" => \$numTrialsPerTestRun,
 		"prefix=s" => $generatedFilePrefix,
 		"clear-stats" => \$clearStats,
-		"share-jar" => \$shareJar
+		"samplesGraph" => \$samplesGraph,
+		"summaryStatsGraph" => \$summaryStatsGraph,
     );
 
 die "error parsing command line options:\n$USAGE\n" unless ($getoptSuccess);
+
+if(@ARGV != 4) {
+	die "Incorrect number of arguments. Did you provide a path to the SHARE jar and a stats endpoint/username/password?:\n$USAGE\n";	
+}
+
+($shareJar, $statsEndpointURL, $statsUsername, $statsPassword) = @ARGV;
 
 # it is legal to run the script without training queries,
 # or without test queries, but not both.
@@ -57,6 +69,15 @@ if(length($generatedFilePrefix) > 0) {
 	$generatedFilePrefix .= ".";
 }
 
+my @shareStatsOptions = (
+	"--stats-endpoint", $statsEndpointURL,
+	"--stats-username", $statsUsername,
+	"--stats-password", $statsPassword
+);
+
+push(@shareStatsOptions, "--samples-graph", $samplesGraph) if defined($samplesGraph);
+push(@shareStatsOptions, "--summary-stats-graph", $summaryStatsGraph) if defined($summaryStatsGraph);
+
 #--------------------------------------------------
 # Clear stats (if requested)
 #--------------------------------------------------
@@ -64,7 +85,7 @@ if(length($generatedFilePrefix) > 0) {
 if($clearStats) {
 		
     msg("clearing stats");
-    clearStats(@ARGV);
+    clearStats(@shareStatsOptions);
 
 }
 
@@ -81,7 +102,7 @@ msg("generating random input query orderings for training runs");
 foreach my $queryFile (@trainingQueries) {
 	
 	my ($basename) = fileparse($queryFile);
-	my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTrainingRuns, "${generatedFilePrefix}${basename}", @ARGV);
+	my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTrainingRuns, "${generatedFilePrefix}${basename}", @shareStatsOptions);
 	$trainingQueryOrderings{ $queryFile } = \@generatedFiles;
 
 }
@@ -91,7 +112,7 @@ msg("generating random input query orderings for test runs");
 foreach my $queryFile (@testQueries) {
 
 	my ($basename) = fileparse($queryFile);
-	my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTestRuns, "${generatedFilePrefix}${basename}", @ARGV);
+	my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTestRuns, "${generatedFilePrefix}${basename}", @shareStatsOptions);
 	$testQueryOrderings{ $queryFile } = \@generatedFiles;
 
 }
@@ -111,7 +132,7 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 			my ($basename) = fileparse($queryOrderingFile);
 			my $filePrefix = "${generatedFilePrefix}${basename}";
 
-			query($queryOrderingFile, $filePrefix, "--no-reordering", "--record-stats", @ARGV);
+			query($queryOrderingFile, $filePrefix, "--no-reordering", "--record-stats", @shareStatsOptions);
 
 		}
 
@@ -150,10 +171,10 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 					my $filePrefix = "${generatedFilePrefix}${basename}.no.opt.trial.${k}";
 
 					msg("running $basename without optimization (trial $k)");
-					my ($exitCode) = query($queryOrderingFile, $filePrefix, "--no-reordering", @ARGV);
+					my ($exitCode) = query($queryOrderingFile, $filePrefix, "--no-reordering", @shareStatsOptions);
 					
 					# don't repeat queries that fail, run out memory, etc.
-					last if ($exitCode != EXIT_CODE_SUCCESS);
+					last if ($exitCode != $EXIT_CODE_SUCCESS);
 
 				}
 
@@ -166,10 +187,10 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 				my $filePrefix = "${generatedFilePrefix}${basename}.opt.trial.${k}";
 				
 				msg("running $basename with optimization (trial $k)");
-				query($queryOrderingFile, $filePrefix, "--optimize", @ARGV);
+				my ($exitCode) = query($queryOrderingFile, $filePrefix, "--optimize", @shareStatsOptions);
 
 				# don't repeat queries that fail, run out memory, etc.
-				last if ($exitCode != EXIT_CODE_SUCCESS);
+				last if ($exitCode != $EXIT_CODE_SUCCESS);
 
 			}
 			
@@ -189,9 +210,10 @@ sub share
     my @shareOptions = @_;
 
     my $options = join(" ", @shareOptions);
-	
-	msg("running SHARE: java -jar $SHARE_JAR $options");
-    my $stdout = qx(java -jar $SHARE_JAR $options);
+
+	my $commandString = "java -Xmx2000M -jar $shareJar $options";	
+	msg("running SHARE: $commandString");
+    my $stdout = qx($commandString);
 
     return (($? >> 8), $stdout);
 }
@@ -294,7 +316,7 @@ sub query
 		case { $EXIT_CODE_SUCCESS } { msg("query completed successfully"); }
 		case { $EXIT_CODE_NO_RESULTS } { msg("QUERY RETURNED NO RESULTS"); $elapsedTime .= "(NO_RESULTS)"; }
 		case { $EXIT_CODE_FAILURE } { msg("QUERY FAILED DURING EXECUTION"); $elapsedTime .= "(ERROR)"; }
-		else { msg("unrecognized return code from $SHARE_JAR"); }
+		else { msg("unrecognized return code from $shareJar"); }
     }
 
 	writeStringToFile($elapsedTime, "$generatedFilePrefix.time");
