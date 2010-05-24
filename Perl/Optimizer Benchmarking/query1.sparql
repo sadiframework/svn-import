@@ -1,0 +1,12 @@
+PREFIX bio2rdf: <http://bio2rdf.org/ns/bio2rdf#>
+PREFIX taxonomy: <http://bio2rdf.org/taxonomy:>
+PREFIX core: <http://purl.uniprot.org/core/>
+PREFIX prosite: <http://bio2rdf.org/ns/prosite#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?motif
+WHERE {
+    ?protein core:organism taxonomy:8081 .
+    ?motif bio2rdf:xUniProt ?protein .
+    ?motif rdf:type prosite:Site .
+}
