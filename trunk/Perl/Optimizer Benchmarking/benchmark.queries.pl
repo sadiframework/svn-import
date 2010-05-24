@@ -42,8 +42,8 @@ my $getoptSuccess =
 		"trials-per-test-run=i" => \$numTrialsPerTestRun,
 		"prefix=s" => $generatedFilePrefix,
 		"clear-stats" => \$clearStats,
-		"samplesGraph" => \$samplesGraph,
-		"summaryStatsGraph" => \$summaryStatsGraph,
+		"samples-graph=s" => \$samplesGraph,
+		"summary-stats-graph=s" => \$summaryStatsGraph,
     );
 
 die "error parsing command line options:\n$USAGE\n" unless ($getoptSuccess);
