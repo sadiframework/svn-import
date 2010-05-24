@@ -5,7 +5,7 @@ PREFIX affy: <http://bio2rdf.org/ns/affymetrix#>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-SELECT ?geneID ?proteinID ?substitution ?start ?end ?dbCrossRef ?paperTitle
+SELECT ?geneID ?proteinID ?substitution ?start ?end ?dbCrossRef 
 WHERE {
    
     # gene IDs
@@ -16,12 +16,6 @@ WHERE {
 
     probeset:53701_at affy:xSwissProt ?proteinID .
 
-    # GO terms
-
-#    probeset:53701_at affy:xGene_Ontology_Biological_Process ?goProcess .
-#    probeset:53701_at affy:xGene_Ontology_Cellular_Component ?goComponent .
-#    probeset:53701_at affy:xGene_Ontology_Molecular_Function ?goFunction .
- 
     # SNPs
    
     ?proteinID core:annotation ?annotation .
@@ -32,9 +26,4 @@ WHERE {
     ?range core:begin ?start .
     ?range core:end ?end .
        
-    # literature
-
-#    ?proteinID core:citation ?paper .
-#    ?paper core:title ?paperTitle .  
-    
 }
