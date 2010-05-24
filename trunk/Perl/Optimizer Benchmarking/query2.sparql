@@ -1,0 +1,14 @@
+PREFIX kegg: <http://bio2rdf.org/ns/kegg#>
+PREFIX cpd: <http://bio2rdf.org/cpd:>
+PREFIX bio2rdf: <http://bio2rdf.org/ns/bio2rdf#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX prosite: <http://bio2rdf.org/ns/prosite#>
+
+SELECT ?motif
+WHERE {
+    ?enzyme kegg:xCofactor cpd:C00023 .
+    ?hgncID bio2rdf:xEnzyme ?enzyme .
+    ?hgncID bio2rdf:xUniProt ?proteinID .
+    ?motif bio2rdf:xUniProt ?proteinID .
+    ?motif rdf:type prosite:Site .
+}
