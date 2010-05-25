@@ -382,12 +382,9 @@ sub runTimedCommand
 
 	if($pid == 0) {
 		# child process
-#   print "CHILD: exec " . join(", ", @cmd) . "\n";
 		exec {$cmd[0]} @cmd;
 		die "exec failed!";
 	}
-
-#    print "PARENT\n";
 
 	# the parent process waits until either query finishes or
 	# the timeout elapses.
@@ -395,7 +392,6 @@ sub runTimedCommand
 	eval {
 		local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
 		alarm($timeout);
-#   print "PARENT: timed wait on pid $pid\n";
 		waitpid($pid, 0);
 		alarm 0;
 	};
@@ -404,18 +400,16 @@ sub runTimedCommand
 	my $exitCode = $EXIT_CODE_SUCCESS;
 
 	if ($@) {
+
 		# query timed out
-#   print "PARENT: child pid $pid timed out\n";
 		die unless $@ eq "alarm\n"; # propagate unexpected errors
-#   print "PARENT: sending kill to pid $pid\n";
 		kill(15, $pid);
-#	print "PARENT: wait on child, pid $pid\n";
 		waitpid($pid, 0);
 		$exitCode = $EXIT_CODE_TIMEOUT;
+
 	}
 	else {
 		# query finished
-#   print "PARENT: child pid $pid completed\n";
 		$exitCode = ($? >> 8);
 	}
 
