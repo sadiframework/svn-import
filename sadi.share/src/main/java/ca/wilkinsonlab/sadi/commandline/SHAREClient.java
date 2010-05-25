@@ -75,7 +75,7 @@ public class SHAREClient
 		@Option(name="-l", metaVar="<FILENAME>", aliases={"--log-file"}, usage="output log messages to this file")
 		String logFilename = null;
 		
-		@Option(name="-o", metaVar="<FILENAME>", aliases={"--output-file"}, usage="output query results to this file (otherwise STDOUT)")
+		@Option(name="-o", metaVar="<FILENAME>", aliases={"--output-file"}, usage="output query results/enumerations to this file (otherwise STDOUT)")
 		String outputFilename = null;
 		
 		/* stats related options */
@@ -272,7 +272,7 @@ public class SHAREClient
 			
 			/*
 			 * These options print alternate orderings of the input query
-			 * to STDOUT, rather than actually running the query. 
+			 * to output file, rather than actually running the query. 
 			 */
 			
 			if(options.randomOrdering || options.enumerateOrderings) {
@@ -283,20 +283,32 @@ public class SHAREClient
 
 				List<String> queryPlans = new ArrayList<String>(enumerator.getAllResolvableQueryPlans(inputQuery));
 
-				if(options.randomOrdering) {
-					
-					int index = RandomUtils.nextInt(queryPlans.size());
-					System.out.println(queryPlans.get(index));
-					
-				} else {
-				
-					for(String queryPlan : queryPlans) {
-						System.out.println(queryPlan);
-						System.out.println();
-					}
-				
-				}
+				try {
 
+					if(options.randomOrdering) {
+
+						int index = RandomUtils.nextInt(queryPlans.size());
+						outputFile.write(queryPlans.get(index));
+
+					} else {
+
+						for(String queryPlan : queryPlans) {
+							outputFile.write(queryPlan + "\n\n");
+						}
+
+					}
+
+					outputFile.flush();
+				
+				} catch(IOException e) {
+					
+					close(outputFile);
+					System.err.println("error writing results to output file: " + e.getMessage());
+					System.exit(EXIT_CODE_FAILURE);
+					
+				}
+				
+				close(outputFile);
 				System.exit(EXIT_CODE_SUCCESS);
 			
 			} 
@@ -360,6 +372,7 @@ public class SHAREClient
 				}
 				
 				outputFile.flush();
+				close(outputFile);
 				
 			} catch(IOException e) {
 				
