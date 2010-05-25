@@ -12,6 +12,10 @@ use Switch;
 my $EXIT_CODE_SUCCESS = 0;
 my $EXIT_CODE_NO_RESULTS = 1;
 my $EXIT_CODE_FAILURE = 2;
+my $EXIT_CODE_TIMEOUT = 3;
+
+# in seconds
+my $QUERY_TIMEOUT = 30 * 60;
 
 my $USAGE = "USAGE: ./benchmark.queries.pl [--training-query training.query1.file --training-query training.query2.file ...] [--test-query test.query1.file --test-query test.query2.file ...] [--training-runs <INT> ] [--test-runs <INT>] [--trials-per-test-run <INT>] [--samples-graph <URI>] [--summary-stats-graph <URI>] <share-standalone-jar> <stats endpoint URL> <stats endpoint username> <stats endpoint password>";
 
@@ -58,7 +62,7 @@ if(@ARGV != 4) {
 # or without test queries, but not both.
 
 if(@trainingQueries == 0 || @testQueries == 0) {
-    die "at least one training query file or test query file must be specified:\n$USAGE\n";
+	die "at least one training query file or test query file must be specified:\n$USAGE\n";
 }
 
 if(!defined($shareJar)) {
@@ -83,9 +87,9 @@ push(@shareStatsOptions, "--summary-stats-graph", $summaryStatsGraph) if defined
 #--------------------------------------------------
 
 if($clearStats) {
-		
-    msg("clearing stats");
-    clearStats(@shareStatsOptions);
+
+	msg("clearing stats");
+	clearStats(@shareStatsOptions);
 
 }
 
@@ -100,7 +104,7 @@ my %testQueryOrderings = ();
 msg("generating random input query orderings for training runs");
 
 foreach my $queryFile (@trainingQueries) {
-	
+
 	my ($basename) = fileparse($queryFile);
 	my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTrainingRuns, "${generatedFilePrefix}${basename}", @shareStatsOptions);
 	$trainingQueryOrderings{ $queryFile } = \@generatedFiles;
@@ -116,12 +120,12 @@ foreach my $queryFile (@testQueries) {
 	$testQueryOrderings{ $queryFile } = \@generatedFiles;
 
 }
-		
+
 for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 
 	if($i > 0) {
 
-	    #--------------------------------------------------
+		#--------------------------------------------------
 		# Run training queries
 		#--------------------------------------------------
 
@@ -142,14 +146,14 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 
 		msg("recomputing predicate stats");
 		recomputeStats(@ARGV);
-	
+
 	}
 
 	#--------------------------------------------------
 	# Run test queries
 	#--------------------------------------------------
 
-    foreach my $queryFile (@testQueries) {
+	foreach my $queryFile (@testQueries) {
 
 		for(my $j = 0; $j < $numTestRuns; $j++) {
 
@@ -161,31 +165,32 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 			}
 
 			my ($basename) = fileparse($queryOrderingFile);
+			my $filePrefix = "${generatedFilePrefix}${basename}";
 
 			# On the first test run, time each trial with optimization off (for comparison).
 
 			if($i == 0) {
 
 				for(my $k = 0; $k < $numTrialsPerTestRun; $k++) {
-					
-					my $filePrefix = "${generatedFilePrefix}${basename}.no.opt.trial.${k}";
+
+					my $filePrefix = "${filePrefix}.no.opt.trial.${k}";
 
 					msg("running $basename without optimization (trial $k)");
 					my ($exitCode) = query($queryOrderingFile, $filePrefix, "--no-reordering", @shareStatsOptions);
-					
+
 					# don't repeat queries that fail, run out memory, etc.
 					last if ($exitCode != $EXIT_CODE_SUCCESS);
 
 				}
 
 			}
-			
+
 			# Time each trial with optimation on.
 
 			for(my $k = 0; $k < $numTrialsPerTestRun; $k++) {
-				
-				my $filePrefix = "${generatedFilePrefix}${basename}.opt.trial.${k}";
-				
+
+				my $filePrefix = "${filePrefix}.test.run.${i}.opt.trial.${k}";
+
 				msg("running $basename with optimization (trial $k)");
 				my ($exitCode) = query($queryOrderingFile, $filePrefix, "--optimize", @shareStatsOptions);
 
@@ -193,11 +198,11 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 				last if ($exitCode != $EXIT_CODE_SUCCESS);
 
 			}
-			
+
 		} # for each test run
 
-    } # for each test query
-   
+	} # for each test query
+
 } # for each training run
 
 
@@ -207,61 +212,83 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 
 sub share
 {
-    my @shareOptions = @_;
+	my ($timeout, @shareOptions) = @_;
 
-    my $options = join(" ", @shareOptions);
+	my @command = ("java", "-Xmx2000M", "-jar", $shareJar, @shareOptions);	
+	my $commandString = join(" ", @command);
 
-	my $commandString = "java -Xmx2000M -jar $shareJar $options";	
-	msg("running SHARE: $commandString");
-    my $stdout = qx($commandString);
+	my $exitCode;
+	my $elapsedTime;
 
-    return (($? >> 8), $stdout);
+	if($timeout > 0) {
+
+		($exitCode, $elapsedTime) = runTimedCommand($timeout, @command);
+
+	} else {
+
+		my $startTime = time;
+		system { $command[0] } @command;
+		$exitCode = ($? >> 8);
+		$elapsedTime = time - $startTime;
+
+	}
+
+	return ($exitCode, $elapsedTime);
 }
 
 sub clearStats
 {
-    my @shareOptions = @_;
+	my @shareOptions = @_;
 
-    my ($exitCode) = share(
-	    "--clear-stats",
-	    "--log-file", "${generatedFilePrefix}clear.stats.log",
-	    @shareOptions
-		);
+	my ($exitCode) = share(
+		0,
+		"--clear-stats",
+		"--log-file", "${generatedFilePrefix}clear.stats.log",
+		@shareOptions
+	);
 
-    die "ERROR OCCURRED DURING CLEARING OF STATS\n" unless ($exitCode == $EXIT_CODE_SUCCESS);
+	die "ERROR OCCURRED DURING CLEARING OF STATS\n" unless ($exitCode == $EXIT_CODE_SUCCESS);
 }
 
 sub recomputeStats
 {
-    my @shareOptions =  @_;
+	my @shareOptions =  @_;
 
-    my ($exitCode) = share(
-	    "--recompute-stats",
-	    "--log-file", "${generatedFilePrefix}recomputestats.log",
-	    @shareOptions
-		);
+	my ($exitCode) = share(
+		0,
+		"--recompute-stats",
+		"--log-file", "${generatedFilePrefix}recomputestats.log",
+		@shareOptions
+	);
 
-    die "ERROR OCCURRED DURING COMPUTATION OF STATS\n" unless ($exitCode == $EXIT_CODE_SUCCESS);
+	die "ERROR OCCURRED DURING COMPUTATION OF STATS\n" unless ($exitCode == $EXIT_CODE_SUCCESS);
 }
 
 sub writeRandomQueryOrderingsToFile
 {
 	my ($queryFile, $numOrderings, $filePrefix, @shareOptions) = @_;
-	
-    # This command generates a list of SPARQL queries on STDOUT
-    my ($exitCode, $queryList) = share(
-	    "--enumerate-orderings",
-	    "--query-file", $queryFile,
-	    @shareOptions
-		);
+
+	# This command generates a list of SPARQL queries on STDOUT
+
+	my $orderingsFile = "$queryFile.orderings";
+
+	my ($exitCode) = share(
+		0,
+		"--output-file", $orderingsFile,
+		"--enumerate-orderings",
+		"--query-file", $queryFile,
+		@shareOptions
+	);
 
 	if($exitCode != $EXIT_CODE_SUCCESS) {
-    	warn "ERROR: QUERY ENUMERATION FAILED FOR $queryFile"; 
+		warn "ERROR: QUERY ENUMERATION FAILED FOR $queryFile"; 
 		return ();
 	}
 
-    # Note: this is Unix-dependent
-    my @queries = split(/\n\n\n/, $queryList);
+	my $queryList = readStringFromFile($orderingsFile);
+	# Note: this is Unix-dependent
+	my @queries = split(/\n\n\n/, $queryList);
+
 	my @generatedFiles = ();
 
 	if(@queries == 0) {
@@ -270,7 +297,7 @@ sub writeRandomQueryOrderingsToFile
 	}
 
 	for(my $i = 0; $i < $numOrderings; $i++) {
-    
+
 		my $queryIndex = int(rand(@queries));
 
 		my $query = $queries[ $queryIndex ];
@@ -287,54 +314,111 @@ sub writeRandomQueryOrderingsToFile
 
 sub query
 {
-    my ($queryFile, $generatedFilePrefix, @shareOptions) = @_;
+	my ($queryFile, $generatedFilePrefix, @shareOptions) = @_;
 
 	my ($basename) = fileparse($queryFile);
 
-	my $fh;
-	if(!open($fh, "<", $queryFile)) {
-		warn "ABORTING QUERY EXECUTION, COULD NOT OPEN FILE $queryFile";
-		return;
-	}
+	my $query = readStringFromFile($queryFile);
+	msg("running $basename:\n" . $query . "\n");
 
-    msg("running $basename:\n" . join("", <$fh>) . "\n");
-    
-    my $startTime = time;
+	my ($exitCode, $elapsedTime) = share(
+		$QUERY_TIMEOUT,
+		"--query-file", $queryFile,
+		"--log-file", "$generatedFilePrefix.log",
+		"--output-file", "$generatedFilePrefix.results",
+		@shareOptions
+	);
 
-    my ($exitCode) = share(
-	    "--query-file", $queryFile,
-	    "--log-file", "$generatedFilePrefix.log",
-	    "--output-file", "$generatedFilePrefix.results",
-	    @shareOptions
-		);
+	msg("query $basename finished in $elapsedTime seconds");
 
-    my $elapsedTime = time - $startTime;
+	my $statusFile = "$generatedFilePrefix.exit.status";
 
-    msg("query $basename finished in $elapsedTime seconds");
-
-    switch($exitCode) {
-		case { $EXIT_CODE_SUCCESS } { msg("query completed successfully"); }
-		case { $EXIT_CODE_NO_RESULTS } { msg("QUERY RETURNED NO RESULTS"); $elapsedTime .= "(NO_RESULTS)"; }
-		case { $EXIT_CODE_FAILURE } { msg("QUERY FAILED DURING EXECUTION"); $elapsedTime .= "(ERROR)"; }
+	switch($exitCode) {
+		case ( $EXIT_CODE_SUCCESS ) { msg("query completed successfully"); writeStringToFile("SUCCESS", $statusFile); }
+		case ( $EXIT_CODE_NO_RESULTS ) { msg("QUERY RETURNED NO RESULTS"); writeStringToFile("NO_RESULTS", $statusFile); }
+		case ( $EXIT_CODE_TIMEOUT ) { msg("QUERY TIMED OUT AFTER $QUERY_TIMEOUT SECONDS"); writeStringToFile("TIMEOUT", $statusFile); }
+		case ( $EXIT_CODE_FAILURE ) { msg("QUERY FAILED DURING EXECUTION"); writeStringToFile("ERROR", $statusFile); }
 		else { msg("unrecognized return code from $shareJar"); }
-    }
+	}
 
 	writeStringToFile($elapsedTime, "$generatedFilePrefix.time");
 
-    return ($exitCode, $elapsedTime);
+	return ($exitCode, $elapsedTime);
 }
 
 sub msg
 {
-    warn "=> " . shift(@_) . "\n";
+	warn "=> " . shift(@_) . "\n";
+}
+
+sub readStringFromFile
+{
+	my $filename = shift(@_);
+
+	open(my $filehandle, "<", $filename) or die "unable to open $filename for reading: $!";
+	my $string = join("", <$filehandle>);
+	close($filehandle) or warn "error closing $filename: $!";
+
+	return $string;
 }
 
 sub writeStringToFile 
 {
-    my ($string, $filename) = @_;
+	my ($string, $filename) = @_;
 
-    open(my $filehandle, ">", $filename) or die "unable to open $filename for writing: $!";
-    print $filehandle $string;
-    close($filehandle) or warn "error closing $filename: $!";
+	open(my $filehandle, ">", $filename) or die "unable to open $filename for writing: $!";
+	print $filehandle $string;
+	close($filehandle) or warn "error closing $filename: $!";
+}
+
+sub runTimedCommand
+{
+	my ($timeout, @cmd) = @_;
+
+	my $startTime = time;
+
+	my $pid = fork();
+	die "fork failed" unless defined($pid);
+
+	if($pid == 0) {
+		# child process
+#   print "CHILD: exec " . join(", ", @cmd) . "\n";
+		exec {$cmd[0]} @cmd;
+		die "exec failed!";
+	}
+
+#    print "PARENT\n";
+
+	# the parent process waits until either query finishes or
+	# the timeout elapses.
+
+	eval {
+		local $SIG{ALRM} = sub { die "alarm\n" }; # NB: \n required
+		alarm($timeout);
+#   print "PARENT: timed wait on pid $pid\n";
+		waitpid($pid, 0);
+		alarm 0;
+	};
+
+	my $elapsedTime = time - $startTime;  
+	my $exitCode = $EXIT_CODE_SUCCESS;
+
+	if ($@) {
+		# query timed out
+#   print "PARENT: child pid $pid timed out\n";
+		die unless $@ eq "alarm\n"; # propagate unexpected errors
+#   print "PARENT: sending kill to pid $pid\n";
+		kill(15, $pid);
+#	print "PARENT: wait on child, pid $pid\n";
+		waitpid($pid, 0);
+		$exitCode = $EXIT_CODE_TIMEOUT;
+	}
+	else {
+		# query finished
+#   print "PARENT: child pid $pid completed\n";
+		$exitCode = ($? >> 8);
+	}
+
+	return ($exitCode, $elapsedTime);
 }
 
