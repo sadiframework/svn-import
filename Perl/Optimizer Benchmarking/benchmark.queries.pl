@@ -145,7 +145,7 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 		#--------------------------------------------------
 
 		msg("recomputing predicate stats");
-		recomputeStats(@ARGV);
+		recomputeStats(@shareStatsOptions);
 
 	}
 
