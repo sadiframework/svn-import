@@ -313,7 +313,7 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 				run_test_query_trials(
 					$queryOrderingFile,
 				   	$numTrialsPerTestRun,
-				   	"${filePrefix}.no.opt.trial",
+				   	"${filePrefix}.no.opt",
 				   	$resume,
 				   	"--no-reordering",
 				   	@statsOptions);
@@ -327,7 +327,7 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 			run_test_query_trials(
 				$queryOrderingFile,
 			   	$numTrialsPerTestRun,
-			   	"${filePrefix}.test.run.${i}.opt.trial",
+			   	"${filePrefix}.test.run.${i}.opt",
 			   	$resume,
 				"--optimize",
 			   	@statsOptions);
