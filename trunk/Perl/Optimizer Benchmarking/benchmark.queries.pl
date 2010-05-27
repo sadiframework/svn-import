@@ -112,7 +112,10 @@ my @statsOptions = (
 # the original commandline arguments for use by
 # --resume.
 
-writeStringToFile(join(" ", @origARGV), $RESUME_ARGS_FILE) unless $resume;
+if(!$resume) {
+	unlink <*.complete>;
+	writeStringToFile(join(" ", @origARGV), $RESUME_ARGS_FILE) unless $resume;
+}
 
 #--------------------------------------------------
 # Clear stats (if requested)
