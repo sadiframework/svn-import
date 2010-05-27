@@ -1,2 +1,2 @@
 #!/bin/sh
-rm *ordering.? *.log *.results *.time
+rm *.args *.ordering.? *.log *.results *.time *.exit.status *.last *.complete 2>/dev/null
