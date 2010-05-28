@@ -252,6 +252,7 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 			);
 
 			my $copyCommand = join(" ", @copyCommand);
+			print "copy command: $copyCommand\n";
 			my $httpStatus = qx($copyCommand);
 
 			die "error copying samples from $sourceGraph to $targetGraph: HTTP $httpStatus" unless ($httpStatus == 200);
@@ -290,12 +291,12 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 	# Run test queries
 	#--------------------------------------------------
 
-	foreach my $queryFile (@testQueries) {
+	msg("------------------------------------");
+	msg("RUNNING TEST QUERIES ($i TRAINING RUNS)");
+	msg("------------------------------------");
 
-		msg("------------------------------------");
-		msg("RUNNING TEST QUERIES ($i TRAINING RUNS)");
-		msg("------------------------------------");
-		
+	foreach my $queryFile (@testQueries) {
+	
 		for(my $j = 0; $j < $numTestRuns; $j++) {
 
 			my $queryOrderingFile = "$queryFile.ordering.$j";
