@@ -44,8 +44,19 @@ add_line "library(Hmisc)"
 # and this makes the standard error for that set of trials undefined.  For our
 # purposes, we just want standard error to be zero in this case.
 
+add_line "# user defined functions"
+add_line ""
 add_line "safe.standard.error <- function(row.vector) { if (length(row.vector) > 1) { sd(t(row.vector)) / sqrt(length(row.vector)) } else { 0 } }"
 add_line "safe.mean <- function(vector) { if (length(vector) > 0) { mean(vector) } else { 0 } }"
+add_line "safe.nrow <- function(elem) { if (is.null(elem)) { 0 } else { nrow(elem) } }"
+add_line "pad.right <- function(row.vector, pad.elem, padded.length) {"
+add_line "  if (length(row.vector) < padded.length) {"
+add_line "    row.vector <- c(row.vector, rep(padded.length - length(row.vector), pad.elem))"
+add_line "  } else {"
+add_line "    row.vector"
+add_line "  }"
+add_line "}"
+add_line ""
 
 test_query_prefixes=$(ls $RESULT_FILES_PATH/*.test.run.*.time | perl -ple 's/(.*)\.ordering.*/\1/g' | sort | uniq) 
 
@@ -157,9 +168,9 @@ for test_query_prefix in $test_query_prefixes; do
 		# standard errors.
 		#------------------------------------------------------------
 
-		add_line "mean.matrix <- cbind(mean.matrix, t(means))"
-		add_line "stderr.matrix <- cbind(stderr.matrix, t(stderrs))"
-		add_line "annotation.matrix <- cbind(annotation.matrix, t(bar.annotations))"
+		add_line "mean.matrix <- cbind(mean.matrix, pad.right(t(means), 0, safe.nrow(mean.matrix)))"
+		add_line "stderr.matrix <- cbind(stderr.matrix, pad.right(t(stderrs), 0, safe.nrow(stderr.matrix)))"
+		add_line "annotation.matrix <- cbind(annotation.matrix, pad.right(t(bar.annotations), 0, safe.nrow(annotation.matrix)))"
 
 	done # for each query ordering
 
@@ -198,7 +209,7 @@ done # for each test query
 
 R --vanilla < plot.graphs.R > plot.graphs.R.out 2>&1
 
-if [ $? ]; then 
+if [ $? -ne 0 ]; then 
 	echo -e "error occurred during execution of R:\n" 
 	tail -n 20 plot.graphs.R.out
 fi
