@@ -197,3 +197,8 @@ for test_query_prefix in $test_query_prefixes; do
 done # for each test query
 
 R --vanilla < plot.graphs.R > plot.graphs.R.out 2>&1
+
+if [ $? ]; then 
+	echo -e "error occurred during execution of R:\n" 
+	tail -n 20 plot.graphs.R.out
+fi
