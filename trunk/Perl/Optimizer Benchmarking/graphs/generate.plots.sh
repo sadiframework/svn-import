@@ -190,7 +190,7 @@ for test_query_prefix in $test_query_prefixes; do
 	add_line "# generate labels for bar groups"
 	add_line "group.labels <- c()"
 	add_line "for(i in 1:ncol(mean.matrix)) {"
-	add_line "  group.labels <- rbind(group.labels, paste('Ordering ',i))"
+	add_line "  group.labels <- rbind(group.labels, paste('Ordering ', i - 1))"
 	add_line "}"
 	add_line
 	add_line "xvals.matrix <- barplot(mean.matrix, main='Results for ${test_query}', legend.text=bar.labels, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
