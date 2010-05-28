@@ -108,7 +108,14 @@ public class SingleQueryTest
 //					"?patient pred:latestCreatinine ?creat . " +
 //				"}";
 		
-		query = ExampleQueries.getQueryByHtmlListIndex(1);
+		query = "PREFIX pred: <http://sadiframework.org/ontologies/predicates.owl#> " +
+				"PREFIX uniprot: <http://bio2rdf.org/uniprot:> " +
+				"SELECT ?name " +
+				"WHERE { " +
+					"uniprot:P15923 pred:hasName ?name " +
+				"}";
+		
+//		query = ExampleQueries.getQueryByHtmlListIndex(1);
 		
 		log.info( String.format("executing query\n%s", query) );
 		
