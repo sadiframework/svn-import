@@ -5,8 +5,10 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,10 +55,13 @@ public class BioMobyRegistry extends RegistryBase
 	private static final String OUTPUT_ARGUMENT_URI = "http://www.mygrid.org.uk/mygrid-moby-service#outputParameter";
 	private static final String INPUT_URI_PATTERN_KEY = "inputUriPattern";
 	private static final String OUTPUT_URI_PATTERN_KEY = "outputUriPattern";
+	
+	private static final String NAMESPACE_PROPERTIES = "namespace.properties";
 
 	private OntModel predicateOntology;
 	private OntModel typeOntology;
 	private Collection<Pattern> inputUriPatterns;
+	private Map<String, String> namespaceMap;
 	private String outputUriPattern;
 	
 	/* (non-Javadoc)
@@ -76,6 +81,19 @@ public class BioMobyRegistry extends RegistryBase
 			}
 		}
 		outputUriPattern = config.getString(OUTPUT_URI_PATTERN_KEY);
+		
+		namespaceMap = new HashMap<String, String>();
+		try {
+			Properties namespaces = new Properties();
+			namespaces.load( getClass().getResourceAsStream(NAMESPACE_PROPERTIES) );
+			for (String fromNamespace: namespaces.stringPropertyNames()) {
+				String toNamespace = namespaces.getProperty(fromNamespace);
+				if (!StringUtils.isEmpty(toNamespace))
+					namespaceMap.put(fromNamespace, toNamespace);
+			}
+		} catch (Exception e) {
+			log.error("failed to load namespace map", e);
+		}
 		
 		predicateOntology = createPredicateOntology();
 		typeOntology = createTypeOntology();
@@ -114,6 +132,8 @@ public class BioMobyRegistry extends RegistryBase
 			if (match.find()) {
 				try {
 					String namespace = match.group(1);
+					if (namespaceMap.containsKey(namespace))
+						namespace = namespaceMap.get(namespace);
 					String id = match.group(2);
 					log.trace( String.format("matched on %s / %s", namespace, id) );
 					return new MobyDataObject(namespace, id);
