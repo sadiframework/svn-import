@@ -231,17 +231,12 @@ public class PredicateStatsDB
 			
 			SimpleRegression regressionModel = new SimpleRegression();
 
-			long responseTimeSum = 0;
-			
 			for(Map<String,String> binding : results) {
 				int numInputs = Integer.valueOf(binding.get("numInputs"));
 				int responseTime = Integer.valueOf(binding.get("responseTime"));
-				responseTimeSum += responseTime;
 				regressionModel.addData(numInputs, responseTime);
 			}
 
-			int responseTimeAverage = (int)Math.round( ((double)responseTimeSum) / results.size() ); 
-			
 			/* 
 			 * NaN indicates that the regression line could not be computed.
 			 * This happens if there aren't at least two data points with
@@ -253,8 +248,22 @@ public class PredicateStatsDB
 			
 			if(Double.isNaN(regressionModel.getIntercept())) {
 
-				estimatedBaseTime = responseTimeAverage;
-				estimatedTimePerInput = 0;
+				/* 
+				 * We can't compute a regression line, so
+				 * calculate estimatedTimePerInput based on
+				 * the assumption that estimatedBaseTime == 0.
+				 */
+				
+				float timePerInputSum = 0;
+				
+				for(Map<String, String> binding : results) {
+					int numInputs = Integer.valueOf(binding.get("numInputs"));
+					int responseTime = Integer.valueOf(binding.get("responseTime"));
+					timePerInputSum += (((float)responseTime) / numInputs);
+				}
+				
+				estimatedBaseTime = 0;
+				estimatedTimePerInput = Math.round(timePerInputSum / results.size());
 
 			} else {
 			
