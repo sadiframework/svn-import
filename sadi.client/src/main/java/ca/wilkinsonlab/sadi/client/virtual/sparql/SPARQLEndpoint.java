@@ -36,9 +36,15 @@ import com.hp.hpl.jena.shared.JenaException;
 /**
  * <p>Encapsulates access to a SPARQL endpoint (via HTTP).</p>
  * 
- * <p>This is an abstract base class.  The specific behaviour for each type
- * of SPARQL endpoint (e.g. Jena, Virtuoso, etc.) will differ based 
- * on the parameters that are used in the HTTP GET/POST request.</p>
+ * <p>This is a generic base class which assumes that:
+ *
+ * => the GET/POST parameter for a SPARQL query is called "query"
+ * => the default results format for SELECT queries is SPARQL Results XML
+ * => the default results format for CONSTRUCT queries is RDF/XML
+ * 
+ * At the current time (May 29, 2010), these assumptions hold true for both
+ * D2R and Virtuoso SPARQL endpoints, and there are no other types
+ * of endpoints that we use.
  * 
  * @author Ben Vandervalk
  */
