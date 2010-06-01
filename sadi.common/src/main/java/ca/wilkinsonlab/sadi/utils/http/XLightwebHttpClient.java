@@ -280,7 +280,7 @@ public class XLightwebHttpClient implements HttpClient {
 		@Override
 		public void onException(IOException e) throws IOException 
 		{
-			log.warn("exception occurred for asynchronous HTTP request " + originalRequest + ": " + e.getMessage());
+			log.error(String.format("exception occurred for asynchronous HTTP request %s:", originalRequest.toString()), e);
 			responses.add(new HttpResponse(originalRequest, e));
 		}
 
