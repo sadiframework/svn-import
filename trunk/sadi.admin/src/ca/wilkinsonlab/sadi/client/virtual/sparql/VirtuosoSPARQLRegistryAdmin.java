@@ -26,14 +26,11 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
@@ -388,6 +385,7 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 		addObjectRegEx(endpointIndex, endpointURI, objectRegExBuilder.getRegEx());
 		addObjectRegExStatus(endpointIndex, endpointURI, true);
 		addIndexCreationTime(endpointIndex, endpointURI, new Date());
+		updateResultsLimitWithDefault(endpointIndex, endpoint, SPARQLEndpoint.NO_RESULTS_LIMIT);
 		
 		log.trace("completed building index for " + endpointURI + " by iteration");
 		
@@ -413,6 +411,7 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 		addSubjectRegExStatus(endpointIndex, endpointURI, regExComplete);
 		regExComplete = addRegexByQuery(endpointIndex, endpoint, false);
 		addObjectRegExStatus(endpointIndex, endpointURI, regExComplete);
+		updateResultsLimitWithDefault(endpointIndex, endpoint, SPARQLEndpoint.NO_RESULTS_LIMIT);
 		
 		addIndexCreationTime(endpointIndex, endpointURI, new Date());
 		
@@ -518,6 +517,7 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 		// it is impossible to be certain that the subject/object regexes are complete 
 		addObjectRegExStatus(endpointIndex, endpointURI, false);
 		addIndexCreationTime(endpointIndex, endpointURI, new Date());
+		updateResultsLimitWithDefault(endpointIndex, endpoint, SPARQLEndpoint.NO_RESULTS_LIMIT);
 
 		return endpointIndex;
 	}
@@ -672,6 +672,28 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.ENDPOINT_STATUS), endpointIndex.createTypedLiteral(status.toString()));
 	}
 
+	protected void setResultsLimit(Model endpointIndex, String endpointURI, long resultsLimit) {
+		log.trace(String.format("setting results limit to %d for %s", resultsLimit, endpointURI));
+		endpointIndex.removeAll(getResource(endpointURI), getProperty(SPARQLRegistryOntology.RESULTS_LIMIT), (RDFNode)null);
+		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.RESULTS_LIMIT), endpointIndex.createTypedLiteral(resultsLimit));
+	}
+
+	protected void updateResultsLimitWithDefault(Model endpointIndex, SPARQLEndpoint endpoint, long defaultResultsLimit) 
+	{
+
+		try {
+			
+			setResultsLimit(endpointIndex, endpoint.getURI(), getResultsLimit(endpoint));
+		
+		} catch(IOException e) {
+			
+			log.trace(String.format("failed to determine result limit for %s (assuming value NO_RESULTS_LIMIT): ", endpoint.getURI()), e);
+			setResultsLimit(endpointIndex, endpoint.getURI(), defaultResultsLimit);
+			
+		}
+
+	}
+	
 	public void addNumTriples(Model endpointIndex, String endpointURI, long numTriples) {
 		log.trace("adding number of triples = " + String.valueOf(numTriples) + " for " + endpointURI);
 		endpointIndex.add(getResource(endpointURI), getProperty(SPARQLRegistryOntology.NUM_TRIPLES), endpointIndex.createTypedLiteral(numTriples));
@@ -685,27 +707,43 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 	
 	public void updateStatusOfAllEndpoints() throws IOException 
 	{
-		/* this operation needs to be fixed (due to a problem with the Virtuoso Jena adapter)
+		/* this operation needs to be fixed due to a problem with the Virtuoso Jena adapter.
+		 * See getAllEndpoints() */
 		
+		throw new UnsupportedOperationException();
+		
+		/*
 		Collection<SPARQLEndpoint> endpoints = getAllEndpoints();
 		for (SPARQLEndpoint endpoint : endpoints) {
 			updateEndpointStatus(endpoint);
 		}
 		*/
-		throw new UnsupportedOperationException();
+
 	}
 	
-	public void updateEndpointStatus(SPARQLEndpoint endpoint) {
+	public void updateEndpointStatus(SPARQLEndpoint endpoint) 
+	{
 		ServiceStatus newStatus = endpoint.ping() ? ServiceStatus.OK : ServiceStatus.DEAD;
 		setEndpointStatus(getIndexModel(), endpoint.getURI(), newStatus); 
 	}
 	
-	public void setEndpointStatus(String endpointURI, ServiceStatus status) {
+	public void setEndpointStatus(String endpointURI, ServiceStatus status) 
+	{
 		setEndpointStatus(getIndexModel(), endpointURI, status);
 	}
 
-	protected Set<SPARQLEndpoint> getAllEndpoints() {
+	protected Set<SPARQLEndpoint> getAllEndpoints() 
+	{
+		/**
+		 * TODO: This method should use the Virtuoso-backed Jena
+		 * model, but this is not possible due to some problem with 
+		 * the Virtuoso jar. (getIndexModel().listSubjects() fails with a
+		 * java.lang.NoSuchField exception.) 
+		 */
 
+		throw new UnsupportedOperationException();
+		
+		/*
 		Set<SPARQLEndpoint> endpoints = new HashSet<SPARQLEndpoint>();
 		for(ResIterator i = getIndexModel().listSubjects(); i.hasNext(); ) {
 			Resource endpoint = (Resource)i.next();
@@ -721,13 +759,137 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 				endpoints.add(SPARQLEndpointFactory.createEndpoint(endpoint.getURI(), type));
 			}
 		}
+
 		return endpoints;
+		*/
+		
 	}
 	
 	public void removeEndpoint(String uri) {
 		log.trace("removing endpoint " + uri + " from registry");
 		getIndexModel().removeAll(getResource(uri), (Property)null, (RDFNode)null);
 	}
+
+	public void setEndpointResultsLimit(String endpointURI, long resultsLimit) 
+	{
+		setResultsLimit(getIndexModel(), endpointURI, resultsLimit);
+	}
+	
+	public void updateEndpointResultsLimit(String endpointURI, EndpointType type) throws IOException
+	{
+		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
+		setResultsLimit(getIndexModel(), endpoint.getURI(), getResultsLimit(endpoint));
+	}
+	
+	public long getResultsLimit(SPARQLEndpoint endpoint) throws IOException
+	{
+
+		log.trace(String.format("determining results limit for %s", endpoint.getURI()));
+
+		if(!endpoint.ping()) {
+			throw new IOException(String.format("%s not responding, unable to update results limit", endpoint.getURI()));
+		}
+
+		String query = "SELECT * WHERE { ?s ?p ?o }";
+
+		log.trace(String.format("issuing probe query %s", query));
+		List<Map<String, String>> results = endpoint.selectQuery(query);
+
+		log.trace(String.format("%s has a result limit of %d", endpoint.getURI(), results.size()));
+		return results.size();
+
+	}
+
+	/**
+	 * <p>Determine the results limit for the given SPARQL endpoint.  
+	 * There is no clean way to determine this, so we do it by 
+	 * iterative querying.</p>
+	 *
+	 * <p>We might simply issue the query "SELECT * WHERE { ?s ?p ?o }"
+	 * and see how many results we get to determine the limit. However, 
+	 * in the case that the endpoint administrator has not set a limit, 
+	 * we will end up issuing a very expensive query, which is not
+	 * very nice for the endpoint administrator.  For this reason,
+	 * we specify a hard upper bound (<code>maxResultsLimit</code>) on 
+	 * the limit value. If the true limit is something greater than
+	 * <code>maxResultsLimit</code>, then the method will return
+	 * <code>maxResultsLimit</code>.</p>
+	 * 
+	 * @param maxResultsLimit 
+	 * @param endpoint the SPARQL endpoint
+	 */
+	
+//	public void updateResultsLimitOld(SPARQLEndpoint endpoint, long maxResultsLimit) 
+//	{
+//
+//		log.debug(String.format("determining results limit for %s", endpoint.getURI()));
+//		
+//		if(!endpoint.ping()) {
+//			log.error(String.format("%s not responding, unable to update results limit", endpoint.getURI()));
+//			return;
+//		}
+//	
+//		/* 
+//		 * We may execute the entire loop below without hitting the limit,
+//		 * in which case, the limit should be maxResultLimit.
+//		 */
+//		long resultsLimit = maxResultsLimit;
+//		
+//		for(int i = 1, lasti = 1; i < maxResultsLimit; lasti = i, i *= 2) {
+//			
+//			String query = String.format("SELECT * WHERE { ?s ?p ?o } LIMIT %d", i);
+//			
+//			try {
+//		
+//				log.debug(String.format("issuing probe query %s", query));
+//				List<Map<String, String>> results = endpoint.selectQuery(query);
+//
+//				if(results.size() < i) {
+//					log.debug(String.format("determined results limit to be %d", results.size()));
+//					resultsLimit = results.size();
+//					break;
+//				}
+//			
+//			} catch(HttpStatusException e) {
+//				
+//				/*
+//				 * There are two reasons a gateway timeout could occur:
+//				 * 
+//				 * 1) the SPARQL endpoint went offline
+//				 * 2) the SPARQL endpoint did not finish processing the
+//				 * query before the gateway timed out
+//				 * 
+//				 * 1) is a pretty rare case (endpoints will usually 
+//				 * return HTTP 503 if they are down temporarily), but 
+//				 * we do our best to check for it by pinging the endpoint.
+//				 */
+//				
+//				if(e.getStatusCode() == HttpResponse.HTTP_STATUS_GATEWAY_TIMEOUT) {
+//					
+//					if(!endpoint.ping()) {
+//						log.error(String.format("%s has stopped responding, unable to determine results limit", endpoint.getURI()));
+//						return;
+//					}
+//					
+//					/* 
+//					 * We can't determine the results limit exactly, so  
+//					 * set it to a safe value (i.e one that is less than the
+//					 * real limit.)  
+//					 */
+//					
+//					resultsLimit = lasti;
+//					break;
+//					
+//				}
+//
+//			} catch(IOException e) {
+//				
+//				log.error(String.format("failed to determine results limit for %s"), e);
+//				return;
+//			}
+//			
+//		}
+//	}
 	
 	public static class CommandLineOptions {
 
@@ -743,7 +905,9 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 			SET_ENDPOINT_STATUS,
 			ADD_PREDICATES_BY_SUBJECT_URI,
 			ADD_ROOT_URI_FOR_TRAVERSAL,
-			UPDATE_STATUS_OF_ALL_ENDPOINTS
+			UPDATE_STATUS_OF_ALL_ENDPOINTS,
+			UPDATE_ENDPOINT_RESULTS_LIMIT,
+			SET_ENDPOINT_RESULTS_LIMIT,
 		};
 
 		public static class Operation {
@@ -799,6 +963,12 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 
 		@Option(name = "-R", usage = "specify a root URI for indexing-by-traversal")
 		public void addRootURIForTraversal(String rootURI) { operations.add(new Operation(rootURI, OperationType.ADD_ROOT_URI_FOR_TRAVERSAL)); }
+		
+		@Option(name = "-r", usage = "update the results limit for the given endpoint")
+		public void updateResultsLimit(String endpointURI) { operations.add(new Operation(endpointURI, OperationType.UPDATE_ENDPOINT_RESULTS_LIMIT)); }
+		
+		@Option(name = "-b", usage = "manually set the results limit for an given endpoint (arg format: '<endpointURL>,<resultsLimit>')")
+		public void setResultsLimit(String endpointURI) { operations.add(new Operation(endpointURI, OperationType.SET_ENDPOINT_RESULTS_LIMIT)); }
 	}
 
 	public static void main(String[] args) throws IOException 
@@ -910,18 +1080,30 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 						break;
 					case SET_ENDPOINT_STATUS:
 						String statusArg[] = op.arg.split(",");
-						if(statusArg.length != 2)
-							throw new CmdLineException("format of arg to -S must be '<endpointURI>,<status>'");
+						if(statusArg.length != 2) {
+							throw new CmdLineException("format of arg to -S must be '<endpointURL>,<status>'");
+						}
 						ServiceStatus newStatus = ServiceStatus.valueOf(StringUtils.upperCase(statusArg[1]));
 						registry.setEndpointStatus(statusArg[0], newStatus);
 						break;
-					/* this operation needs to be fixed (due to a problem with the Virtuoso Jena adapter)
+					/* this operation needs to be fixed (due to a problem with the Virtuoso Jena adapter) */
+					/*
 					case UPDATE_STATUS_OF_ALL_ENDPOINTS:
 						registry.updateStatusOfAllEndpoints();
 						break;
-					*/
+					 */
 					case CLEAR_REGISTRY:
 						registry.clearRegistry();
+						break;
+					case UPDATE_ENDPOINT_RESULTS_LIMIT:
+						registry.updateEndpointResultsLimit(op.arg, endpointType);
+						break;
+					case SET_ENDPOINT_RESULTS_LIMIT:
+						String arg[] = op.arg.split(",");
+						if(arg.length != 2) {
+							throw new CmdLineException("format of arg to -r must be '<endpointURL>,<results limit>'");
+						}
+						registry.setEndpointResultsLimit(arg[0], Long.valueOf(arg[1]));
 						break;
 					default:
 						break;
@@ -933,6 +1115,7 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 					exitCode = 1;
 				}
 			}
+			
 		} catch (CmdLineException e) {
 			
 			log.error(e);

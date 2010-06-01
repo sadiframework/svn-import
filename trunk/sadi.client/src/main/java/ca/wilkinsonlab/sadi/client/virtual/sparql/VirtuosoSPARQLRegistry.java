@@ -252,7 +252,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 
 	public EndpointType getEndpointType(String endpointURI) throws HttpException, IOException
 	{
-		if(!hasEndpoint(endpointURI))
+		if(!hasEndpoint(endpointURI)) 
 			return null;
 		String typeQuery = "SELECT ?type FROM %u% WHERE { %u% %u% ?type }";
 		typeQuery = SPARQLStringUtils.strFromTemplate(typeQuery, getIndexGraphURI(), endpointURI, W3C.PREDICATE_RDF_TYPE);
@@ -262,6 +262,21 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		return EndpointType.valueOf(results.get(0).get("type"));
 	}
 
+	public long getResultsLimit(String endpointURI) throws IOException 
+	{
+		if(!hasEndpoint(endpointURI)) {
+			throw new IllegalArgumentException(String.format("registry does not contain endpoint %s", endpointURI));
+		}
+		String query = "SELECT ?limit FROM %u% WHERE { %u% %u% ?limit }";
+		query = SPARQLStringUtils.strFromTemplate(query, getIndexGraphURI(), endpointURI, SPARQLRegistryOntology.RESULTS_LIMIT);
+		List<Map<String,String>> results = selectQuery(query);
+		if(results.size() == 0) { 
+			log.warn(String.format("no results limit was found for %s, returning NO_RESULTS_LIMIT", endpointURI));
+			return SPARQLEndpoint.NO_RESULTS_LIMIT;
+		}
+		return Long.valueOf(results.get(0).get("limit"));
+	}
+	
 	public boolean hasEndpoint(String endpointURI) throws HttpException, IOException 
 	{
 		String existsQuery = "SELECT * FROM %u% WHERE { %u% %u% ?o } LIMIT 1";
@@ -290,7 +305,10 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		List<Map<String,String>> results = selectQuery(endpointQuery);
 		for(Map<String,String> binding : results) {
 			EndpointType type = EndpointType.valueOf(binding.get("type"));
-			endpoints.add(SPARQLEndpointFactory.createEndpoint(binding.get("endpoint"), type));
+			String endpointURI = binding.get("endpoint");
+			SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
+			endpoint.setResultsLimit(getResultsLimit(endpointURI));
+			endpoints.add(endpoint);
 		}
 		return endpoints;
 	}
@@ -487,7 +505,9 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	{
 		if(!hasEndpoint(endpointURI))
 			throw new IllegalArgumentException("The SPARQL registry does not contain an entry for the endpoint " + endpointURI);
-		return SPARQLEndpointFactory.createEndpoint(endpointURI, getEndpointType(endpointURI));
+		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, getEndpointType(endpointURI));
+		endpoint.setResultsLimit(getResultsLimit(endpointURI));
+		return endpoint;
 	}
 	
 	public Service getService(String serviceURI) throws SADIException 

@@ -261,9 +261,11 @@ public class SPARQLServiceWrapper implements Service
 		
 		Model mergedModel = ModelFactory.createDefaultModel();
 		for(ConstructQueryResult result : results) {
-			if(result.exceptionOccurred()) {
-				log.error("exception occurred executing query: " + result.getOriginalQuery(), result.getException());
-			} else {			
+			/* 
+			 * The result model may be null if an exception occurred during the query,
+			 * before any partial results could be retrieved.
+			 */
+			if(result.getResultModel() != null) {		
 				mergedModel.add(result.getResultModel());
 			}
 		}

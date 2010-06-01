@@ -11,12 +11,17 @@ public abstract class HttpRequest
 	
 	public static final String HTTP_METHOD_POST = "POST";
 	public static final String HTTP_METHOD_GET = "GET";
+
+	private static long nextRequestID = 0;
+	private long requestID;
+	
 	String method;
 	
 	public HttpRequest(String method, URL url, Map<String,String> params) {
 		setMethod(method);
 		setURL(url);
 		setParams(params);
+		setRequestID(getNextRequestID());
 	}
 	
 	public HttpRequest(String method, URL url) {
@@ -46,6 +51,14 @@ public abstract class HttpRequest
 	public void setMethod(String method) {
 		this.method = method;
 	}
+	
+	public long getRequestID() {
+		return requestID;
+	}
+	
+	protected void setRequestID(long requestID) {
+		this.requestID = requestID;
+	}
 
 	public String toString() {
 		
@@ -65,6 +78,31 @@ public abstract class HttpRequest
 			}
 		}
 		return str.toString();
+	}
+	
+	protected static long getNextRequestID() 
+	{
+		if(nextRequestID == Long.MAX_VALUE) {
+			nextRequestID = 0;
+			return nextRequestID;
+		}
+		
+		return ++nextRequestID;
+	}
+	
+	@Override
+	public boolean equals(Object other) 
+	{
+		if(other instanceof HttpRequest) {
+			return (getRequestID() == ((HttpRequest)other).getRequestID());
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return (int)(getRequestID() % Integer.MAX_VALUE);
 	}
 	
 
