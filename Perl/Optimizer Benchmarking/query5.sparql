@@ -6,7 +6,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 SELECT ?targetProtein ?gene ?disease ?diseaseName
 WHERE {
-    drug:DB01273 drugbank:target ?targetProtein .
+    drug:DB00421 drugbank:target ?targetProtein .
     ?targetProtein drugbank:hgncId ?gene .
     ?gene bio2rdf:xOMIM ?omim .
     ?disease diseasome:omim ?omim .
