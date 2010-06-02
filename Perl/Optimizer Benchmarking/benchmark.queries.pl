@@ -270,7 +270,7 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 				die "UNABLE TO FIND TRAINING QUERY FILE $queryOrderingFile" unless (-e $queryOrderingFile);
 				
 				msg("running training query $basename (training run $i)");
-				query($queryOrderingFile, $filePrefix, "--no-reordering", "--record-stats", @statsOptions);
+				query($queryOrderingFile, $filePrefix, "--optimize", "--record-stats", @statsOptions);
 
 			}
 
