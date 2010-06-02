@@ -36,11 +36,20 @@ public class QueryPlanEnumeratorTest
 	private static final String PROPERTY_PREFIX = "http://test.property/";
 	private static final String NODE_PREFIX = "http://test.node/";
 	
+	/*
+	 * Note: The use of "/inverse" here rather than "-inverse" is
+	 * important, as QueryPlanEnumerator recognizes "-inverse" properties
+	 * as fake inverses that may not be used in a generated query.
+	 */
+	private static final String INVERSE_SUFFIX = "/inverse";
+	
 	private static final String PROPERTY_A_URI = PROPERTY_PREFIX + "A";
+	private static final String PROPERTY_A_INVERSE_URI = PROPERTY_A_URI + INVERSE_SUFFIX;
 	private static OntProperty propertyA;
 	private static OntProperty propertyAInverse;
 	
 	private static final String PROPERTY_B_URI = PROPERTY_PREFIX + "B";
+	private static final String PROPERTY_B_INVERSE_URI = PROPERTY_B_URI + INVERSE_SUFFIX;
 	private static OntProperty propertyB;
 	private static OntProperty propertyBInverse;
 	
@@ -69,7 +78,7 @@ public class QueryPlanEnumeratorTest
 		
 		testQuery = SPARQLStringUtils.readFully(QueryPlanEnumeratorTest.class.getResource("test.query.for.enumerator.sparql"));
 		
-		kb = new SHAREKnowledgeBase(ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM), true);
+		kb = new SHAREKnowledgeBase(ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF), true);
 		
 		/* 
 		 * Note: We get the fake inverse URIs from the KB instead of
@@ -78,12 +87,12 @@ public class QueryPlanEnumeratorTest
 		 */
 		
 		propertyA = kb.getOntProperty(PROPERTY_A_URI);
-		propertyAInverse = kb.getInverseProperty(propertyA);
-		String propertyAInverseUri = propertyAInverse.getURI(); 
-		
+		propertyAInverse = kb.getOntProperty(PROPERTY_A_INVERSE_URI);
+		propertyA.addInverseOf(propertyAInverse);
+
 		propertyB = kb.getOntProperty(PROPERTY_B_URI);
-		propertyBInverse = kb.getInverseProperty(propertyB);
-		String propertyBInverseUri = propertyBInverse.getURI();
+		propertyBInverse = kb.getOntProperty(PROPERTY_B_INVERSE_URI);
+		propertyB.addInverseOf(propertyBInverse);
 		
 		testQueryPattern1 = new Triple(
 				NodeCreateUtils.create(NODE_A_URI),
@@ -92,7 +101,7 @@ public class QueryPlanEnumeratorTest
 
 		testQueryPattern1Inverted = new Triple(
 				NodeCreateUtils.create("?var"),
-				NodeCreateUtils.create(propertyAInverseUri),
+				NodeCreateUtils.create(PROPERTY_A_INVERSE_URI),
 				NodeCreateUtils.create(NODE_A_URI));
 		
 		testQueryPattern2 = new Triple(
@@ -102,7 +111,7 @@ public class QueryPlanEnumeratorTest
 		
 		testQueryPattern2Inverted = new Triple(
 				NodeCreateUtils.create(NODE_B_URI),
-				NodeCreateUtils.create(propertyBInverseUri),
+				NodeCreateUtils.create(PROPERTY_B_INVERSE_URI),
 				NodeCreateUtils.create("?var"));
 		
 		testQueryAsTriplesBlock = new ArrayList<Triple>();
@@ -147,7 +156,7 @@ public class QueryPlanEnumeratorTest
 		resolvableProperties.add(propertyB);
 		resolvableProperties.add(propertyBInverse);
 		
-		QueryPlanEnumerator enumerator = new QueryPlanEnumeratorWithMockPropertyResolution(resolvableProperties);
+		QueryPlanEnumerator enumerator = new QueryPlanEnumeratorWithMockPropertyResolution(kb, resolvableProperties);
 		
 		Collection<String> queryPlans = enumerator.getAllResolvableQueryPlans(testQuery);
 		assertTrue(queryStringCollectionsAreEqual(queryPlans, expectedQueryPlans));
@@ -162,7 +171,7 @@ public class QueryPlanEnumeratorTest
 		resolvableProperties.add(propertyB);
 		resolvableProperties.add(propertyBInverse);
 		
-		QueryPlanEnumerator enumerator = new QueryPlanEnumeratorWithMockPropertyResolution(resolvableProperties);
+		QueryPlanEnumerator enumerator = new QueryPlanEnumeratorWithMockPropertyResolution(kb, resolvableProperties);
 		
 		/*
 		 * Test that the enumeration works correctly with both 
@@ -202,7 +211,7 @@ public class QueryPlanEnumeratorTest
 		resolvableProperties.add(propertyAInverse);
 		resolvableProperties.add(propertyBInverse);
 		
-		QueryPlanEnumerator enumerator = new QueryPlanEnumeratorWithMockPropertyResolution(resolvableProperties);
+		QueryPlanEnumerator enumerator = new QueryPlanEnumeratorWithMockPropertyResolution(kb, resolvableProperties);
 		
 		Collection<String> queryPlans = enumerator.getAllResolvableQueryPlans(testQuery);
 		assertTrue(queryStringCollectionsAreEqual(queryPlans, expectedQueryPlans));
@@ -275,9 +284,9 @@ public class QueryPlanEnumeratorTest
 	{
 		MockResolvabilityCache mockResolvabilityCache;
 		
-		public QueryPlanEnumeratorWithMockPropertyResolution(Collection<OntProperty> resolvableProperties)
+		public QueryPlanEnumeratorWithMockPropertyResolution(SHAREKnowledgeBase kb, Collection<OntProperty> resolvableProperties)
 		{
-			super(new SHAREKnowledgeBase(ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF), true));
+			super(kb);
 			mockResolvabilityCache = new MockResolvabilityCache(resolvableProperties);
 		}
 		

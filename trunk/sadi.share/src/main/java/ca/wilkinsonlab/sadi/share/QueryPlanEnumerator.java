@@ -167,6 +167,13 @@ public class QueryPlanEnumerator
 
     			OntProperty property = kb.getOntProperty(p.getURI());
 				OntProperty inverseProperty = kb.getInverseProperty(property);
+
+				/* 
+    			 * We are not able to use "fake" inverse properties within
+    			 * our generated queries, so we track whether the property
+    			 * has a real inverse.  (See comment below.)
+    			 */
+    			boolean propertyHasRealInverse = !inverseProperty.getURI().endsWith("-inverse");
 				
 				boolean patternIsForwardResolvable = (!sIsUnboundVar && getResolvabilityCache().isResolvable(property));
 				boolean patternIsReverseResolvable = (!oIsUnboundVar && getResolvabilityCache().isResolvable(inverseProperty));
@@ -224,7 +231,7 @@ public class QueryPlanEnumerator
     				
     				}
     				
-    				if(patternIsReverseResolvable  && !sIsUnboundVar && !oIsUnboundVar) {
+    				if(patternIsReverseResolvable && !sIsUnboundVar && !oIsUnboundVar) {
     					
     					/* 
     					 * If both s and o are both bound, the query plan can either resolve
@@ -235,26 +242,28 @@ public class QueryPlanEnumerator
     					 * right, and so we force the reverse direction by inverting
     					 * the predicate and swapping the subject and object.
     					 * 
-    					 * The one flaw in this approach is that patterns with a
-    					 * a literal constant in the object position cannot be
-    					 * resolved in the reverse direction, because SPARQL syntax
-    					 * does not permit a literal constant in the subject position.
-    					 * Query plans that require this are omitted.  
+    					 * This is only possible the predicate has an inverse defined
+    					 * in its ontology. (By definition, this precludes the inversion 
+    					 * of triple patterns with datatype properties.) Note also that
+    					 * it is not possible use the fake ("*-inverse") inverse properties 
+    					 * that the KB generates in lieu of a real inverse.  (The
+    					 * fake inverses do not resolve correctly when explicitly used 
+    					 * within queries.)
     					 */
     					
-    					if(o.isLiteral()) {
-    						continue;
+    					if(propertyHasRealInverse) {
+    					
+    						List<Triple> queryPlan = new ArrayList<Triple>(queryPlanTail.size() + 1);
+    						Triple invertedPattern = new Triple(o, NodeCreateUtils.create(inverseProperty.getURI()), s);
+
+    						queryPlan = new ArrayList<Triple>(queryPlanTail.size() + 1);
+    						queryPlan.add(invertedPattern);
+    						queryPlan.addAll(queryPlanTail);
+
+    						queryPlans.add(queryPlan);
+
     					}
-    					
-    					List<Triple> queryPlan = new ArrayList<Triple>(queryPlanTail.size() + 1);
-    					Triple invertedPattern = new Triple(o, NodeCreateUtils.create(inverseProperty.getURI()), s);
-
-    					queryPlan = new ArrayList<Triple>(queryPlanTail.size() + 1);
-    					queryPlan.add(invertedPattern);
-    					queryPlan.addAll(queryPlanTail);
-    					
-    					queryPlans.add(queryPlan);
-
+    				
     				}
     				
     			}
