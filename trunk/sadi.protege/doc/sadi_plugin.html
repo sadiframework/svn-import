@@ -40,11 +40,9 @@ pre {
 <p>Available to SADI service authors are views that:
 <ul>
   <ul>
-    <ul>
-      <li>generate service definition files (files that describe a SADI service)</li>
+  <ul>
       <li>generate service skeleton code in either JAVA or Perl,</li>
-      <li>generate Perl modules from OWL entities for use with SADI services,</li>
-      <li>enable the editing of source code from within Protege, and</li>
+      <li>generate JAVA classes or Perl modules from OWL entities for use with SADI services, and</li>
       <li>enable the testing of SADI services with input taken from the currently opened ontology or from files.</li>
     </ul>
   </ul>
@@ -54,70 +52,107 @@ pre {
 <ul>
   <ul>
     <li><a href="#prerequisites">Prerequisites</a></li>
-    <li><a href="#0">Features</a></li>
-    <li><a href="#1">Generate a service definition</a></li>
-    <li><a href="#2">Editing your service files</a></li>
-    <li><a href="#3">Generating your service code</a></li>
-    <li><a href="#4">Testing SADI services</a></li>
-    <li>Creating your first service in
-      <ul>
-        <li><a href="#perl">Perl</a></li>
-        <li><a href="#java">Java</a></li>
-      </ul>
-    </li>
-    <li><a href="#5">Getting help</a><br/>
-    </li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#generate_services">Generating your service code</a></li>
+    <li><a href="#owl2code">Generating Java classes or Perl modules from OWL ontologies</a></li>
+    <li><a href="#testing">Testing SADI services</a> </li>
+    <li><a href="#help">Getting help<br/>
+    </a></li>
   </ul>
 </ul>
 <h3><a name="prerequisites"/>Prerequisites</h3>
 <p>In order to use this plugin, you will need to make sure to download <a href="http://protege.stanford.edu/download/download.html" target="_blank">Protege</a> version <em><strong>4.1</strong></em> or higher.</p>
 <p>For those of you wishing to implement your SADI services with Perl, you will need to download and install the <a href="http://search.cpan.org/dist/SADI/" target="_blank">SADI module</a> from CPAN. </p>
-<p>SADI services written with JAVA will need ... [TODO].</p>
-<p>Finally, in order to use the plugin, you will need to make sure that you have obtained and installed the plugin. You can install the plugin using Protege's &quot;<em><strong>Check for plugins ...</strong></em>&quot; feature.</p>
-<h3><a name="0"/>Features</h3>
+<p>SADI services written with JAVA will need a JAVA JDK version 1.6 or higher.</p>
+<p>Finally,  you will need to make sure that you have obtained and installed the plugin. You can install the plugin using Protege's &quot;<em><strong>Check for plugins ...</strong></em>&quot; feature.</p>
+<h3><a name="features"/>Features</h3>
 <p>SADI services require a lot of preliminary planning before you can realize them. One of the very first steps in creating a SADI service is to define their inputs and outputs. More often than not, a SADI service writer will use Protege to do this. Once the inputs and outputs have been defined, the next step is to define the SADI service signature and to generate an implementation. Once the implementation is complete, the next natural step is to test the service. The SADI plugin for Protege can help the user do all of these things!</p>
 <p>Features of the SADI plugin include:</p>
 <blockquote>
-  <h4>SADI Definition Editor: </h4>
-  <p>A special view that helps SADI service authors specify and generate SADI service definitions. SADI services written using the code generators require this file.</p>
-  <p class="indented-image"><a href="img/SADI004.gif"><img src="img/SADI004_thumb.gif" alt="SADI definition editor view" width="333" height="228" border="0"></a></p>
-  <h4> SADI Editor:</h4>
-  <p>A view that allows you to open and edit files directly in Protege.</p>
-  <p class="indented-image"><a href="img/SADI014.gif"><img src="img/SADI014_thumb.gif" alt="SADI editor view" width="275" height="186" border="0"></a></p>
-  <h4> SADI Service Generator:</h4>
-  <p>A view that helps you generate the scaffold of your service implementation. For those using the Perl code generators, this view also allows you to generate Perl modules from OWL classes. </p>
-  <p class="indented-image"><a href="img/SADI015.gif"><img src="img/SADI015_thumb.gif" alt="SADI service generator view" width="481" height="253" border="0"></a></p>
-  <h4>SADI Simple Client: </h4>
+  <h4> SADI Code Generator:</h4>
+<p>A view that helps you generate the scaffold of your service implementation.</p>
+  <p class="indented-image"><a href="img/code_generator_java.png" target="_blank"><img src="img/code_generator_java.png" alt="SADI service generator view" width="869" height="486" border="0"></a></p>
+  <h4>SADI OWL 2 Code Generator:</h4>
+  <p>A view that helps you generate JAVA classes or Perl modules from OWL entities for use with your SADI services or other OWL related projects. </p>
+  <p class="indented-image"><a href="img/owl2code.png" target="_blank"><img src="img/owl2code.png" alt="SADI OWL 2 Code Generator View" width="872" height="196" border="0"></a></p>
+<h4>SADI Simple Client: </h4>
   <p>This view provides an easy way for you to call SADI services with predefined input taken from files or with individuals selected from the Protege <em>Individuals</em> view.
-  <p class="indented-image"><a href="img/SADI016.gif"><img src="img/SADI016_thumb.gif" alt="SADI simple client view" width="487" height="255" border="0"></a></p>
+  <p class="indented-image"><a href="img/testing_client.png" target="_blank"><img src="img/testing_client.png" alt="SADI simple client view" width="872" height="445" border="0"></a></p>
   </p>
 </blockquote>
-<h3><a name="1" id="1"/>Generate a service definition</h3>
-<p>The SADI code generators for Perl and Java utilize special property files in order to generate service scaffolds. These files can be generated by hand (assuming that you know the correct property keys to use), from the command line using special scripts, or by using the SADI Definition Editor in Protege. The definition file contains information about the service like the service name, the input OWL class, the output OWL class, etc.</p>
-<p>The very first step in constructing a SADI service is to generate a definition file for it. Using the SADI service definition view in Protege allows generate this file by editing a simple form. When specifying the service type, input or output OWL classes, you can drag and drop the OWL classes from the OWL Hierachy onto the appropriate field in the definition view.</p>
-<p>Once you are finished specifying the details for your service, you can save the file by clicking on the Save File button. Definition files are named according to their service name and so when saving the file, all you need to provide is the directory to save the file in.<em><strong>*</strong></em><strong></strong></p>
-<p>For those that wish to make changes to their service, you can load definition files as well. Once you are satisfied with your changes, use the definition view to save your file.</p>
-<p><strong><em>* The SADI code generators may require these files to be placed in specific locations. For instance, the Perl SADI code generator requires definitions be placed in your Perl-SADI/definitions directory that can be found in your home directory.</em></strong></p>
-<h3><a name="2"/>Editing your service files</h3>
-<p>The SADI plugin for Protege comes bundled with a text editor (with Perl syntax highlighting) that you can use to edit your SADI service code. The editor doesn't discriminate and allows you to open and edit any file on your local filesystem.</p>
-<p>You may start a new document in the SADI Editor by typing in the textarea or load a pre-existing file by clicking on Open File and selecting the file to load in the area. If you made some edits and wish to save them, then click on the Save File button.</p>
-<h3><a name="3"/>Generating your service code</h3>
-<p>The SADI Service Generator can generate code for SADI services in either Perl  or Java.</p>
-<h4>SADI Generator for Perl</h4>
-<p>The Perl SADI generator has the ability to generate fully compilable code for SADI services, as well as for OWL classes.</p>
+<h3><a name="generate_services"/>Generating your service code</h3>
+<p>The SADI Service Generator can generate source code for SADI services in either Perl  or Java. Depending on the language you wish to generate your service code in, you will see 2 subsections for this view. </p>
+<p>One the subsections is called the <em>SADI Service Signature</em> section. This section remains constant regardless of whether you choose to generate services in JAVA or Perl. The second subsection is language specific and is either called  <em>Java Generator User Fields</em> or <em>Perl Generator User Fields</em>. This subsection allows you to provide language specific options for generating your services. The specifics of this second subsection will be outlined later on.</p>
+<h4>SADI Service Signature</h4>
+<p>The SADI Service Signature subsection allows you to provide the key pieces of information required to describe a SADI service. In order to describe a SADI service, you need to provide:</p>
+<ul>
+  <ul>
+    <ul>
+      <li>Service Name - a name for the service that you wish to create.</li>
+      <li>Service Provider URI - a URI representing your organization (e.g. yourdomain.com); no http-prefix, and no trailing path information is allowed.</li>
+      <li>Service Type - the category of service that you are creating; usually values for this field come from <a href="http://www.mygrid.org.uk/ontology/" target="_blank">http://www.mygrid.org.uk/ontology/</a>.</li>
+      <li>Input Class - the OWL class that your service operates on; this needs to be a complete OWL URI.</li>
+      <li>Output Class - the OWL class that describes the properties that your service attaches to the input class; this needs to be a complete OWL URI.</li>
+      <li>Description - a comprehensive human readable description of your service.</li>
+      <li>Authoriative - a boolean value that indicates whether or not your service is using your resources or if you have proxied a pre-existing service.</li>
+      <li>Email Address - your email address; used to notify you of service errors, etc.</li>
+      <li>Service Endpoint - the complete URL of your service.</li>
+    </ul>
+  </ul>
+</ul>
+<h4>Generating service code in Perl</h4>
 <blockquote>
-  <p><em>Service Generator</em></p>
-  <p>In order to utilize the service generator, a SADI definition file for a service must be created and placed in the definitions subfolder of the Perl-SADI directory in your home directory. Assuming that a service definition file was created, you can generate a service skeleton by entering the name of the service in the Service Name text field. </p>
-  <p>Depending on whether or not your service is time-consuming, you can choose to generate either a synchronous or asynchronous service skeleton. Once all of your selections have been made, click on the Generate button to have the SADI service skeleton created.</p>
-  <p><em>OWL to Perl Generator</em></p>
-  <p>The OWL to Perl Generator can generate Perl modules for OWL classes. These classes can come from either a file or by selecting an OWL class from Protege's OWL Class Hierarchy.</p>
-  <p>To generate Perl modules from an existing ontology, make sure to select Generate Code from OWL File and to either enter the full path to the ontology, or to select the ontology using the file chooser. When you click on Generate, the modules will be generated into the Perl-SADI/generated subfolder in your home directory. This process can take several minutes.</p>
-  <p>If you prefer to generate modules for just those OWL classes that you wish to use in your service, then selecting the OWL class from Protege's OWL Class Hierarchy and click on the Generate button. Again, the modules will be generated into the Perl-SADI/generated subfolder in your home directory.</p>
+  <p>The Perl SADI Code Generator has the ability to generate fully compilable code for SADI services. In order to generate Perl source code using the <em>SADI Code Generator</em>, all that is needed is to ensure that the Perl radio button is selected (as is shown below):</p>
+  <p><img src="img/code_generator_perl.png" width="872" height="444" alt="SADI Code Generator for Perl Services"></p>
+  <p>There are 2 sections to this view: a SADI Service Signature section (as described above) and a Perl Generator User Fields section.</p>
+  <h4>Perl Generator User Fields
+  </h4>
+  <blockquote>
+    <p>The Perl Generator User Fields subsection is where you enter configuration required for the Perl-SADI  module and choose to either generate synchronous or asynchronous SADI services.</p>
+    <p>In order to successfully generate a SADI service in Perl, you will need to specify the <em>Perl-SADI home directory</em>. This directory is created automatically when you <a href="http://search.cpan.org/dist/SADI/lib/SADI.pm#Installation" target="_blank">install the Perl-SADI module</a>. This directory is usually located in your home directory.</p>
+    <p>Depending on whether or not your service is time-consuming, you can choose to generate either a synchronous or asynchronous service skeleton.    </p>
+    <p>Once you have filled out both sections of the SADI Code Generator, you can click the Generate button and your service will be generated for you!</p>
+    <p>For more information on SADI service provision, unrelated to this plugin but useful in writing services, using the Perl language, please review the appropriate documentation in <a href="#help"><em>Getting Help</em></a><em></em>.</p>
+  </blockquote>
 </blockquote>
-<h4>SADI Generator for JAVA</h4>
-<p>TODO</p>
-<h3><a name="4"></a>Testing SADI services</h3>
+<h4>Generating Service Code in JAVA</h4>
+<blockquote>
+  <p>The JAVA SADI Code Generator is much like the Perl generator in that it can produce source code for your SADI services. In addition to generating source code for your SADI services, the JAVA generator can also create WAR files for you to deploy to a JAVA Servlet container like Tomcat or Jetty, as well as deploy your services locally for testing purposes. All that is needed for you to use the JAVA generator is to ensure that the Java radio button is selected (as shown below):</p>
+  <p><img src="img/code_generator_java.png" width="869" height="486" alt="SADI Code Generator in JAVA"></p>
+  <p>There are 2 sections to this view: a SADI Service Signature section (as described above) and a Java Generator User Fields section.</p>
+  <h4>Java Generator User Fields </h4>
+  <blockquote>
+    <p>The Java Generator User Fields subsection is where you enter configuration required for service provision in Java and choose to either generate synchronous or asynchronous SADI services.</p>
+    <p>In contrast to the Perl Generator, the Java generator treats each service as a separate project and packages them up accordingly. Additionally, the Java generator uses Maven to build and manage your services.</p>
+    <p>In order to successfully generate a SADI service in Java, you will need to specify a couple of things:</p>
+    <ul>
+      <ul>
+        <ul>
+          <li>SADI Service Target Directory - the main directory to store each of your generated services.</li>
+          <li>Package - the java namespace that you would like your generated SADI service to be a part of (e.g. com.example.sadi).</li>
+          <li>Optional maven arguments - this is the place to enter any optional maven parameters that you think you may need.</li>
+        </ul>
+      </ul>
+    </ul>
+    <p>Depending on whether or not your service is time-consuming, you can choose to generate either a synchronous or asynchronous service skeleton. </p>
+    <p>Once you have filled out both sections of the SADI Code Generator, you can click the Generate button and your service will be generated for you!</p>
+    <p>For more information on SADI service provision, unrelated to this plugin but useful in writing services, using the Java language, please review the appropriate documentation in <a href="#help"><em>Getting Help</em></a><em></em>.</p>
+  </blockquote>
+</blockquote>
+<h3><a name="owl2code"></a>Generating JAVA classes or Perl modules from OWL ontologies</h3>
+<p>The SADI Service Generator can generate code for SADI services in either Perl  or Java.</p>
+<blockquote>
+  <p><em>OWL to Perl Generator</em></p>
+<p>The OWL 2 Code Generator can generate either Perl modules or Java classes from your OWL classes. These classes can come from either a file or by selecting an OWL class from Protege's OWL Class Hierarchy.</p>
+<p><img src="img/owl2code.png" width="872" height="196" alt="OWL 2 Code Generator"></p>
+  <p>To generate code from an existing ontology, make sure to select Generate Code from OWL File and to enter the absolute path to the ontology. </p>
+  <p>If you prefer to generate code for just those OWL classes that you wish to use in your service, then click on the radio button <em>Choose OWL Class from ontology</em> and then select the OWL class from Protege's OWL Class Hierarchy. </p>
+  <p>Before generating any code, you will need to decide which language, Java or Perl, you would like your OWL classes defined in. To generate Perl modules, select the Perl radio button. Similarly, to generate Java modules, select the Java radio button.</p>
+  <p>When you click on Generate, the modules will be generated for you. This process can take several minutes.</p>
+</blockquote>
+<h3><a name="testing" id="testing"></a>Testing SADI services</h3>
 <p>The SADI plugin for Protege has a very simple client that can be used to test SADI services. The SADI Simple Client view is composed of 3 sub panels: <em>Service Invocation</em>, <em>Input Data</em> and <em>Service Results</em>.</p>
+<p><img src="img/testing_client.png" width="872" height="445" alt="SADI Simple Client"></p>
 <h4>Service Invocation</h4>
 <blockquote>
   <p>This sub	panel is where the URL for the service is specified. Assuming that you have already specified the input for the service (using the Input Data sub panel), you can call the service by clicking on the Call Service button. If you feel like cancelling the service call, then hit Cancel.</p>
@@ -126,139 +161,48 @@ pre {
 <blockquote>
   <p>The Input Data sub panel allows you to either select a file to send a SADI service or to choose an OWL individual from Protege's OWL Individual view.</p>
   <p>Choosing an individual from Protege's OWL Individual view allows you, in addition, to also save the individual in a separate file. To save the selected individual, click on the Save Input button.</p>
-  <p>The last button in the Input Data subpanel is a button that allows you to create SADI unit tests. All that is required to create a unit test is the location of your input and output files for the SADI service that you would like to test. Click on the save button and the unit test will be saved.<em><strong>*</strong></em></p>
-  <p><strong><em>* The SADI code generators may require these files to be placed in specific locations. For instance, the Perl SADI code generator requires unit tests be placed in your Perl-SADI/unittest directory that can be found in your home directory.</em></strong></p>
 </blockquote>
 <h4>Service Results</h4>
 <blockquote>
   <p>Service results are always shown in the Service Results sub panel. The results of a successful invocations of a service, as well as any errors are shown in this panel.</p>
 </blockquote>
-<h3><a name="perl"></a>Creating your first service in Perl</h3>
-<p>Assuming that you now wish to create a SADI service using Perl and the SADI plugin for Protege, you will need to make sure that you have the following installed and configured on your machine:</p>
-<ol>
-    <ol>
-                <ol>
-                    <li>
-                        <strong>Perl</strong>
-                        - perl has to be installed on your machine 
-                    </li>
-
-                    <li>
-                        <strong>A web server</strong>
-                        - this document assumes that you are using Apache2 
-                    </li>
-                    <li>
-                        <strong>Perl SADI</strong>
-                    - available on <a href="http://search.cpan.org/dist/SADI/" target="_blank">cpan</a></li>
-
-                </ol>
-  </ol>
-</ol>
-<p>With all of the prerequisites taken care of, creating your first SADI service in Perl using the SADI plugin for Protege couldn't be any easier!</p>
-<p>There are 3 things that we need to do to implement a SADI service using the plugin.</p>
-<ol>
-  <ol>
-    <ol>
-      <li>Generate the service definition,</li>
-      <li>generate the skeleton code, and</li>
-      <li>implement the service logic</li>
-    </ol>
-  </ol>
-</ol>
-<p>To demonostrate, we will create a very simple SADI service that consumes one or more http://purl.oclc.org/SADI/LSRN/dbSNP_Record and fetches the  corresponding entrez gene id.</p>
-<p><em>The ontology describing some of the OWL entities used by our service has been created and should be opened in Protege now. You can fetch this ontology from <br>
-<a href="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/snp2gene.owl" target="_blank">http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/snp2gene.owl.</a></em><a href="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/snp2gene.owl" target="_blank"></a></p>
-<h4>1. Generate the service definition</h4>
-<p>From the SADI Definition Editor view, we will fill out the details for our service:</p>
+<h3><a name="4"></a>Getting help</h3>
+<h4>Obtaining Human Contact</h4>
+<p>For help with this plugin, or to report any bugs or inconsistencies, feel free to contact me via <a href="mailto:&#101;&#100;&#119;&#97;&#114;&#100;&#46;&#107;&#97;&#119;&#97;&#115;+&#115;&#97;&#100;&#105;&#115;&#101;&#115;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">email</a>.</p>
+<p>The best place to get information about the SADI framework is to visit the SADI home page located at <a href="http://sadiframework.org" target="_blank">http://sadiframework.org</a>. </p>
+<p>There are numerous mailing lists for users/developers of the SADI framework, some of the more common ones are:</p>
 <ul>
   <ul>
     <ul>
-      <li>Service Name = snp2gene</li>
-      <li>Service Provider URI = sadiframework.org</li>
-      <li>Service Type = <em>retrieving</em>*</li>
-      <li>Input Class = <em>http://purl.oclc.org/SADI/LSRN/dbSNP_Record</em>*</li>
-      <li>Output Class = <em>dbSNP2Gene_OutputClass</em>*</li>
-      <li>Description = This service returns entrez gene ids corresponding to the input SNP ids</li>
-      <li>Email Address = some@address.com</li>
-      <li>Service Endpoint = http://dev.biordf.net/~kawas/cgi-bin/snp2gene</li>
+      <li><a href="http://groups.google.com/group/sadi-dev" target="_blank">SADI Developers Forum</a></li>
+      <li><a href="http://groups.google.com/group/sadi-discuss" target="_blank">SADI General Discussion</a></li>
     </ul>
   </ul>
 </ul>
-<p>Items denoted by <em>*</em> can be filled in by dragging the appropriate entity in Proteges' Class Hierarchy and dropping it nto the appropriate definition field. The service endpont that we used is for the publicly available version of the SADI service being implemented here and is being used for demonstration purposes only.</p>
-<p class="indented-image"><a href="img/SADI017.gif"><img src="img/SADI017_thumb.gif" alt="our snp2gene service definition" width="282" height="231" border="0"></a></p>
-<p>Once you have completely filled out the definition for our snp2gene service, please the definition to disk (using the <em>Save File</em> button!).</p>
-<h4>2. Generate the skeleton code</h4>
-<p>Having saved our SADI service definition to disk, we can now generate skeleton code for our service, as well as code describing the OWL classes for use in our service.</p>
-<h5>The skeleton code</h5>
-<p>First we will generate a service skeleton for our snp2gene service. From the SADI Service Generator view, enter our service name, <em>snp2gene</em>, into the <em>Service Name</em> textbox and then click the <em>Generate</em> button.</p>
-<p>In the background, a few things happen when you hit the Generate button. Regardless whether you choose to generate a synchronous or asynchronous service skeleton, 2 files are generated for you. The first file, an entry script, is a CGI-BIN script, invoked by a web server when an HTTP request comes in for your service and calls the module that implements the actual logic for your service. The second file that is generated is the service skeleton where the logic for the service belongs. </p>
-<p>The entry script is generated and placed into the <em>Perl-SADI/cgi</em> subfolder (in your home directory), while the service skeleton is generated into the <em>Perl-SADI/services/Service</em> subfolder.</p>
-<p class="indented-image"><a href="img/SADI018.gif"><img src="img/SADI018_thumb.gif" alt="generating skeleton code in perl" width="377" height="144" border="0"></a></p>
-<h5>The OWL classes to Perl modules</h5>
-<p>Now that the skeleton code for our SADI service has been generated, we will now generate Perl modules representing OWL classes that our service will use. The SADI service generator view for protege contains a sub panel for generating these modules. The sub panel, <em>Generate OWL to Perl Code</em>, allows you to either specify an OWL ontology contained in a file or to specify an OWL Class using Proteges' Class Hierarchy. For our snp2gene service, we will be choosing and OWL class from the OWL class tree called <em>dbSNP2Gene_OutputClass</em>. Once it is selected, click the <em>Generate</em> button. </p>
-<p>Once you have pressed the <em>Generate</em> button, a perl script is being called in the background that generates Perl modules from OWL classes. These modules, once generated, are placed into your <em>Perl-SADI/generated</em> subfolder (located in your home directory). Your SADI service can use them because the subfolder <em>Perl-SADI/generated</em> is placed on the INC for Perl by your entry script generated when you generated the skeleton code for your service.</p>
-<p>The generated modules contain getters and setters for the various properties that the OWL class defines. Additionally, each generated module also contains perldoc outlining what you can do with each module.</p>
-<p class="indented-image"><a href="img/SADI020.gif"><img src="img/SADI020_thumb.gif" alt="generating oel to perl code" width="747" height="215" border="0"></a></p>
-<p>Now that everything has been generated, it is time to provide the business logic for our service.</p>
-<h4>Implementing the business logic</h4>
-<p>The only thing left to us is to add our business logic to our SADI service skeleton. As mentioned before, our skeleton is located in the Perl-SADI/service subfolder of our home directory. Locate the file snp2gene.pm and open it with either your favorite text editor or with the <em>SADI Editor</em> view within Protege. Once the file is opened, locate the subroutine <em>process_it</em> and replace the foreach loop</p>
-<pre># iterate over each input
-foreach my $input (@inputs) {
-...
-}</pre>
-<p>with the following snippet:</p>
-<pre>
-# iterate over each input
-foreach my $input (@inputs) {
-    use LWP::Simple qw(!head);<br>    use XML::LibXML;<br>    use sadi::googlecode::com::svn::trunk::sadi::protege::doc::snp2gene::dbSNP2Gene_OutputClass;<br>    use sadiframework::org::ontologies::service_objects::correspondsToEntrezGene;<br>    use URI::Escape;<br>    use purl::oclc::org::SADI::LSRN::GeneID_Record;
-
-    my $accession = $input-&gt;getURI;
-    # get just the id number
-    $accession = $1 if $accession =~ /.*#(\w+)$/;
-    $accession = $1 if $accession =~ /.*\/(\w+)$/;
-    $accession = $1 if $accession =~ /.*:(\w+)$/;
-    $accession = $1 if $accession =~ /^rs(\w+)$/i;
-    my $url =&quot;http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?&quot; . 
-             &quot;db=snp&amp;retmode=xml&amp;id=$accession&amp;tool=sadiframework&amp;email=&quot; .
-             uri_escape_utf8( 'some@address.com'); # put your email here!
-    
-    # now get the URL
-    my $xml = get($url);
-    # here we execute only every 1 second ...
-    sleep(1);
-    next unless defined $xml;
-    
-     # xml was obtained, now use XPATH to extract gene information
-    my $parser = XML::LibXML-&gt;new();
-    my $doc    = $parser-&gt;parse_string($xml);
-    my $xpath =
-      &quot;//*[local-name() = 'FxnSet'][\@geneId]&quot;;
-    my $xpc = XML::LibXML::XPathContext-&gt;new();
-    my $nodes = $xpc-&gt;findnodes( $xpath, $doc-&gt;documentElement );
-    
-    my %ids;
-    # get unique ids ..
-    foreach my $context ( $nodes-&gt;get_nodelist ) {
-        my $pmid = $context-&gt;getAttribute('geneId');
-        next unless defined $pmid;
-        $ids{$pmid} = 1;
-    }
-    my $class = 
-sadi::googlecode::com::svn::trunk::sadi::protege::doc::snp2gene::dbSNP2Gene_OutputClass-&gt;new($input-&gt;getURI());
-    foreach my $pmid (keys %ids) {
-        $class-&gt;add_correspondsToEntrezGene(
-  purl::oclc::org::SADI::LSRN::GeneID_Record-&gt;new(&quot;http://lsrn.org/GeneID:$pmid&quot;)
-        );
-    }
-    $core-&gt;addOutputData( node =&gt; $class);
-}</pre>
-
-<p>That is all there is to our SADI service. For more information on the generated modules or Perl-SADI, please go to the CPAN page for <a href="http://search.cpan.org/dist/SADI/" target="_blank">SADI</a>.</p>
-<h3><a name="java"></a>Creating your first service in Java</h3>
-<p>[TODO]</p>
-<h3><a name="4"></a>Getting help</h3>
-<p>[TODO]</p>
-<p><a href="mailto:&#101;&#100;&#119;&#97;&#114;&#100;&#46;&#107;&#97;&#119;&#97;&#115;+&#115;&#97;&#100;&#105;&#115;&#101;&#115;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">Email me</a></p>
-<p>outline where to get help, how to request new features and who to send bug reports to</p>
+<h4>Tutorials</h4>
+<blockquote>
+  <h4>Perl Resources</h4>
+  <ul>
+    <ul>
+      <ul>
+        <li><a href="http://sadi.googlecode.com/svn/trunk/Perl/SADISeS/doc/sync_service.html" target="_blank">Building a Synchronous SADI Service With Perl</a></li>
+        <li><a href="http://sadi.googlecode.com/svn/trunk/Perl/SADISeS/doc/sync_service_advanced.html" target="_blank">Building a Synchronous SADI Service With Perl (Advanced)</a></li>
+        <li><a href="http://sadi.googlecode.com/svn/trunk/Perl/SADISeS/doc/sync_service_auto_advanced.html" target="_blank">Building a Synchronous SADI Service With Perl and Generated OWL Modules (Advanced ... but more simple!)</a></li>
+        <li><a href="http://sadi.googlecode.com/svn/trunk/Perl/SADISeS/doc/async_service.html" target="_blank">Building an Asynchronous SADI Service With Perl</a></li>
+        <li><a href="http://sadi.googlecode.com/svn/trunk/Perl/SADISeS/doc/async_service_auto_advanced.html" target="_blank">Building an Asynchronous SADI Service With Perl and Generated OWL Modules (Advanced ... but more simple!)</a></li>
+        <li><a href="http://sadi.googlecode.com/svn/trunk/Perl/SADISeS/doc/create_unit_tests.html" target="_blank">Adding a Unit Test to your Service</a></li>
+        <li><a href="http://sadi.googlecode.com/svn/trunk/Perl/SADISeS/doc/working_with_datatypes.html" target="_blank">Working with Perl Modules Representing OWL Classes</a></li>
+      </ul>
+    </ul>
+  </ul>
+  <h4>Java</h4>
+  <ul>
+    <ul>
+      <ul>
+        <li><a href="http://sadiframework.org/content/getting-involved/building-a-sadi-service-in-java/" target="_blank">Building a Sadi Service in Java</a></li>
+      </ul>
+    </ul>
+  </ul>
+</blockquote>
 </body>
 </html>
