@@ -113,7 +113,7 @@ my @statsOptions = (
 # --resume.
 
 if(!$resume) {
-	unlink <*.complete>;
+	removeFilesGeneratedFromPreviousRuns;
 	writeStringToFile(join(" ", @origARGV), $RESUME_ARGS_FILE) unless $resume;
 }
 
@@ -545,6 +545,11 @@ sub query
 	writeStringToFile($elapsedTime, "$generatedFilePrefix.time");
 
 	return ($exitCode, $elapsedTime);
+}
+
+sub removeFilesGeneratedFromPreviousRuns
+{
+	unlink glob "*ordering*"
 }
 
 sub msg
