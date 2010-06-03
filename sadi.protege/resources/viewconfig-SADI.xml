@@ -15,18 +15,20 @@
                     <VSNode splits="0.002818158077994429">
                         <HSNode splits="7.045395194986072E-4">
                             <CNode>
-                                <Component label="SADI Definition Editor">
-                                    <Property id="pluginId" value="sadi.protege.SADIDefinitionView"/>
+								<Component label="SADI Code Generator">
+                                    <Property id="pluginId" value="sadi.protege.SadiCodeGeneratorView"/>
                                 </Component>
-								<Component label="SADI Editor">
-                                    <Property id="pluginId" value="sadi.protege.SADIEditorView"/>
-                                </Component>
-                                <Component label="SADI Service Generator">
-                                    <Property id="pluginId" value="sadi.protege.SADIServiceGeneratorView"/>
+								<Component label="SADI OWL 2 Code Generator">
+                                    <Property id="pluginId" value="sadi.protege.SADIOwlCodeGeneratorView"/>
                                 </Component>
                                 <Component label="SADI Simple Client">
                                     <Property id="pluginId" value="sadi.protege.SadiSimpleClientView"/>
                                 </Component>
+								<!-- editor isnt important functionality 
+								<Component label="SADI Editor">
+                                    <Property id="pluginId" value="sadi.protege.SADIEditorView"/>
+                                </Component>
+								-->
                             </CNode>
                         </HSNode>
                     </VSNode>
