@@ -21,6 +21,7 @@ public class ServiceDefinition {
 	private String serviceURI = "";
 	private String endpoint = "";
 	private String signatureURL = "";
+	private boolean async = false;
 
 	/**
 	 * Default constructor
@@ -43,7 +44,7 @@ public class ServiceDefinition {
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.name = name == null ? "" : name.trim();
 	}
 
 	public String getAuthority() {
@@ -51,7 +52,7 @@ public class ServiceDefinition {
 	}
 
 	public void setAuthority(String authority) {
-		this.authority = authority;
+		this.authority = authority == null ? "" : authority.trim();
 	}
 
 	public String getServiceType() {
@@ -59,7 +60,7 @@ public class ServiceDefinition {
 	}
 
 	public void setServiceType(String serviceType) {
-		this.serviceType = serviceType;
+		this.serviceType = serviceType == null ? "" : serviceType.trim();
 	}
 
 	public String getInputClass() {
@@ -67,7 +68,7 @@ public class ServiceDefinition {
 	}
 
 	public void setInputClass(String inputClass) {
-		this.inputClass = inputClass;
+		this.inputClass = inputClass == null ? "" : inputClass.trim();
 	}
 
 	public String getOutputClass() {
@@ -75,7 +76,7 @@ public class ServiceDefinition {
 	}
 
 	public void setOutputClass(String outputClass) {
-		this.outputClass = outputClass;
+		this.outputClass = outputClass == null ? "" : outputClass.trim();
 	}
 
 	public String getDescription() {
@@ -91,7 +92,7 @@ public class ServiceDefinition {
 	}
 
 	public void setUniqueID(String uniqueID) {
-		this.uniqueID = uniqueID;
+		this.uniqueID = uniqueID == null ? "" : uniqueID.trim();
 	}
 
 	public boolean isAuthoritative() {
@@ -107,7 +108,7 @@ public class ServiceDefinition {
 	}
 
 	public void setProvider(String provider) {
-		this.provider = provider;
+		this.provider = provider == null ? "" : provider.trim();
 	}
 
 	public String getServiceURI() {
@@ -115,7 +116,7 @@ public class ServiceDefinition {
 	}
 
 	public void setServiceURI(String serviceURI) {
-		this.serviceURI = serviceURI;
+		this.serviceURI = serviceURI == null ? "" : serviceURI.trim();
 	}
 
 	public String getEndpoint() {
@@ -123,7 +124,7 @@ public class ServiceDefinition {
 	}
 
 	public void setEndpoint(String endpoint) {
-		this.endpoint = endpoint;
+		this.endpoint = endpoint == null ? "" : endpoint.trim();
 		// set the signatureURL to be endpoint if it is not defined
 		if (getSignatureURL() == null || getSignatureURL().trim().equals(""))
 		    setSignatureURL(endpoint);
@@ -141,7 +142,7 @@ public class ServiceDefinition {
 	}
 
 	public void setSignatureURL(String signatureURL) {
-		this.signatureURL = signatureURL;
+		this.signatureURL = signatureURL == null ? "" : signatureURL.trim();
 	}
 
 	@Override
@@ -172,5 +173,19 @@ public class ServiceDefinition {
 		
 		return sb.toString();
 	}
+
+    /**
+     * @param async the async to set
+     */
+    public void setAsync(boolean async) {
+        this.async = async;
+    }
+
+    /**
+     * @return the async
+     */
+    public boolean isAsync() {
+        return async;
+    }
 
 }
