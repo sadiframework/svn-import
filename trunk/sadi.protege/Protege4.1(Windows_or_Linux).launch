@@ -6,7 +6,7 @@
 <stringAttribute key="bootstrap" value=""/>
 <stringAttribute key="checked" value="[NONE]"/>
 <booleanAttribute key="clearConfig" value="false"/>
-<stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/Protege"/>
+<stringAttribute key="configLocation" value="${workspace_loc}/.metadata/.plugins/org.eclipse.pde.core/Protege4.1(Windows_or_Linux)"/>
 <booleanAttribute key="default_auto_start" value="true"/>
 <intAttribute key="default_start_level" value="4"/>
 <booleanAttribute key="includeOptional" value="true"/>
@@ -21,5 +21,5 @@
 <stringAttribute key="target_bundles" value="org.eclipse.core.runtime.compatibility.registry@default:false,org.apache.commons.logging@default:default,org.apache.log4j@default:default,org.apache.commons.lang@default:default,org.eclipse.equinox.common@2:true,org.eclipse.equinox.registry@default:default,org.eclipse.core.jobs@default:default,org.eclipse.osgi@-1:true"/>
 <booleanAttribute key="tracing" value="false"/>
 <booleanAttribute key="useDefaultConfigArea" value="true"/>
-<stringAttribute key="workspace_bundles" value="sadi.protege@default:default,org.protege.editor.owl@default:default,org.protege.common@default:default,org.protege.editor.core.application@default:default,org.semanticweb.owl.owlapi@default:default"/>
+<stringAttribute key="workspace_bundles" value="sadi.protege*1.0.0@default:default,org.protege.editor.owl@default:default,org.protege.common@default:default,org.protege.editor.core.application@default:default,org.semanticweb.owl.owlapi@default:default"/>
 </launchConfiguration>
