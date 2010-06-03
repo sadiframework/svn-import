@@ -259,6 +259,7 @@ public class Generator {
                 String line = null;
                 while ((line = br.readLine()) != null) {
                     sb.append(String.format("%s%s", line, newline));
+                    System.out.println(String.format("%s", line));
                 }
             } catch (IOException ioe) {
                 ioe.printStackTrace();
