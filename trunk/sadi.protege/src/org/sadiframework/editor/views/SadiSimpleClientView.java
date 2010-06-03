@@ -30,7 +30,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SpringLayout;
 
-
 import org.jdesktop.swingworker.SwingWorker;
 import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.protege.editor.core.ui.util.ComponentFactory;
@@ -43,7 +42,6 @@ import org.sadiframework.swing.AbstractButton;
 import org.sadiframework.swing.JTextFieldWithHistory;
 import org.sadiframework.swing.SpringUtilities;
 import org.sadiframework.swing.UIUtils;
-import org.sadiframework.swing.UnitTestDialog;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
 import org.semanticweb.owlapi.model.AddAxiom;
@@ -178,6 +176,7 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
         // panel for first radio button
         JPanel panel = new JPanel(new GridBagLayout(), true);
         JTextFieldWithHistory inputXML = new JTextFieldWithHistory(25, TESTING_CURRENT_FILE);
+        inputXML.setEditable(false);
 
         JRadioButton inputFromXML = new JRadioButton(bundle
                 .getString("testing_input_data_panel_from_xml"));
@@ -256,20 +255,25 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
                         ErrorLogPanel.showErrorDialog(ioe);
                     }
                 } else {
-
+                    JOptionPane.showMessageDialog(
+                            SadiSimpleClientView.this, 
+                            bundle.getString("testing_input_data_panel_from_individual_error"),
+                            bundle.getString("error"), 
+                            JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
             }
         });
 
-        JButton createTestButton = new AbstractButton(bundle
-                .getString("testing_input_data_panel_create_unit_test"), true,
-                new ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        UnitTestDialog dialog = new UnitTestDialog();
-                        dialog.setLocationRelativeTo(getParent());
-                        dialog.setVisible(true);
-                    }
-                });
+//        JButton createTestButton = new AbstractButton(bundle
+//                .getString("testing_input_data_panel_create_unit_test"), true,
+//                new ActionListener() {
+//                    public void actionPerformed(ActionEvent e) {
+//                        UnitTestDialog dialog = new UnitTestDialog();
+//                        dialog.setLocationRelativeTo(getParent());
+//                        dialog.setVisible(true);
+//                    }
+//                });
 
         // place radio button in a group
         ButtonGroup group = new ButtonGroup();
@@ -313,8 +317,9 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
         UIUtils.addComponent(panel, inputFromIndividual, 0, 1, 1, 1, UIUtils.NWEST, UIUtils.NONE,
                 0.0, 0.0);
         UIUtils.addComponent(panel, owlLabel, 1, 1, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
-        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { saveButton,
-                createTestButton }), 0, 2, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+//        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { saveButton,
+//                createTestButton }), 0, 2, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { saveButton,}), 0, 2, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, Box.createGlue(), 0, 2, 2, 1, UIUtils.WEST, UIUtils.BOTH, 1.0,
                 1.0);
 
