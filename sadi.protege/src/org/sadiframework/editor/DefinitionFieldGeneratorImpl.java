@@ -7,7 +7,7 @@ import java.util.ResourceBundle;
  * @author Eddie Kawas
  *
  */
-public class PerlDefinitionFieldGenerator extends
+public class DefinitionFieldGeneratorImpl extends
 		AbstractDefinitionFieldGenerator {
 
 	private final ResourceBundle bundle = ResourceBundle
