@@ -8,8 +8,8 @@
 
    <property file="version.properties"/>
    <property name="major.version" value="1"/>
-   <property name="minor.version" value="0"/>
-   <property name="micro.version" value="1"/>
+   <property name="minor.version" value="1"/>
+   <property name="micro.version" value="0"/>
 
    <property name = "plugin"          value = "sadi.protege"/>
 
@@ -25,6 +25,7 @@
    <property name = "lib"               location = "./lib"/>
    <property name = "genlib"            location = "${build}/lib"/>
    <property name = "manifest"          location = "${build}/manifest.mf"/>
+   <property name = "plexus"            location = "${build}/components.xml"/>
 
    <property name = "protege.common"    location="${protege.home}/bundles"/>
    <property name = "protege.plugins"   location="${protege.home}/plugins"/>
@@ -112,6 +113,8 @@
    <target name="build.manifest">
      <copy tofile="${manifest}" 
            file="META-INF/MANIFEST.MF" overwrite="true"/>
+     <copy tofile="${plexus}" 
+           file="META-INF/plexus/components.xml" overwrite="true"/>
      <manifest file="${manifest}" 
                mode = "update">
         <attribute name="Built-By" value = "${user.name}"/>
@@ -135,6 +138,7 @@
          <exclude name="**/*.java"/>
          <exclude name="**/MANIFEST.MF"/>
          <exclude name="**/manifest.mf"/>
+		 <exclude name="**/components.xml"/>
        </fileset>
      </copy>
 	 <!-- copy resource directory -->
@@ -144,6 +148,7 @@
          <exclude name="**/*.java"/>
          <exclude name="**/MANIFEST.MF"/>
          <exclude name="**/manifest.mf"/>
+		 <exclude name="**/components.xml"/>
        </fileset>
      </copy>
 	 
@@ -156,9 +161,12 @@
        </fileset>
      </copy>
    	 <!-- the manifest doesn't belong here but this is good for IDE's -->
-     <mkdir dir="${classes}/META-INF"/>  
+     <mkdir dir="${classes}/META-INF"/>
+	 <mkdir dir="${classes}/META-INF/plexus"/>  
      <copy todir="${classes}/META-INF"   
            file = "${manifest}"/>
+     <copy todir="${classes}/META-INF/plexus"   
+           file = "${plexus}"/>
    </target>
 
    <target name = "create.update.properties">
