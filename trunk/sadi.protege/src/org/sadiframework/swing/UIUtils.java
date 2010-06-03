@@ -79,8 +79,8 @@ public class UIUtils {
 
     private static PreferenceManager manager = PreferenceManager.newInstance();
 
-    public static JFileChooser getOpenFileChooser(String title, String directory, FileFilter filter) {
-        JFileChooser chooser = new JFileChooser(manager.getPreference(directory, System
+    public static JFileChooser getOpenFileChooser(String title, String prefKey, FileFilter filter) {
+        JFileChooser chooser = new JFileChooser(manager.getPreference(prefKey, System
                 .getProperty("user.dir")));
         chooser.setDialogTitle(title);
         chooser.setDialogType(JFileChooser.OPEN_DIALOG);
@@ -91,8 +91,8 @@ public class UIUtils {
         return chooser;
     }
 
-    public static JFileChooser getOpenDirectoryChooser(String title, String directory) {
-        JFileChooser chooser = new JFileChooser(manager.getPreference(directory, System
+    public static JFileChooser getOpenDirectoryChooser(String title, String prefKey) {
+        JFileChooser chooser = new JFileChooser(manager.getPreference(prefKey, System
                 .getProperty("user.dir")));
         chooser.setDialogTitle(title);
         chooser.setDialogType(JFileChooser.OPEN_DIALOG);
@@ -100,8 +100,8 @@ public class UIUtils {
         return chooser;
     }
 
-    public static JFileChooser getSaveFileChooser(String title, String directory, FileFilter filter) {
-        JFileChooser chooser = new JFileChooser(manager.getPreference(directory, System
+    public static JFileChooser getSaveFileChooser(String title, String prefKey, FileFilter filter) {
+        JFileChooser chooser = new JFileChooser(manager.getPreference(prefKey, System
                 .getProperty("user.dir")));
         chooser.setDialogTitle(title);
         chooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -158,7 +158,16 @@ public class UIUtils {
         panel.add(contentPane, BorderLayout.CENTER);
         JOptionPane.showMessageDialog(parent, panel, title==null ? "" : title, JOptionPane.INFORMATION_MESSAGE);
     }
-
+    
+    public static void showMsgDialog(String title, String msg, Component parent) {
+        JPanel panel = new JPanel();
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
+        panel.setAlignmentY(Component.TOP_ALIGNMENT);
+        panel.setLayout(new BorderLayout());
+        JTextArea textArea = createArea(msg==null?"":msg, false);
+        panel.add(textArea, BorderLayout.CENTER);
+        JOptionPane.showMessageDialog(parent, panel, title==null ? "" : title, JOptionPane.INFORMATION_MESSAGE);
+    }
     
     public static JButton createHelpButton(String help) {
         JButton button = new AbstractButton("?", true, new HelpActionListener(help));
