@@ -68,6 +68,7 @@ public class UnitTestDialog extends JDialog {
         // create the input label, textfield and button
         JLabel inputLabel = new JLabel(bundle.getString("testing_service_unit_test_input"), JLabel.LEADING);
         inputFile = new JTextField(25);
+        inputFile.setEditable(false);
         inputLabel.setLabelFor(inputFile);
         // no label for button (has an icon set below)
         input = new AbstractButton("", true, new ActionListener() {
@@ -96,6 +97,7 @@ public class UnitTestDialog extends JDialog {
         // create the output label, textfield and button
         JLabel outputLabel = new JLabel(bundle.getString("testing_service_unit_test_output"), JLabel.LEADING);
         outputFile = new JTextField(25);
+        outputFile.setEditable(false);
         outputLabel.setLabelFor(outputFile);
         // no label for button (has an icon set below)
         output = new AbstractButton("", true, new ActionListener() {
