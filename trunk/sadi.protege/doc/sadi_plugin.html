@@ -56,7 +56,8 @@ pre {
     <li><a href="#generate_services">Generating your service code</a></li>
     <li><a href="#owl2code">Generating Java classes or Perl modules from OWL ontologies</a></li>
     <li><a href="#testing">Testing SADI services</a> </li>
-    <li><a href="#help">Getting help<br/>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#help">Getting help</a><a href="#faq"><br/>
     </a></li>
   </ul>
 </ul>
@@ -130,7 +131,7 @@ pre {
         <ul>
           <li>SADI Service Target Directory - the main directory to store each of your generated services.</li>
           <li>Package - the java namespace that you would like your generated SADI service to be a part of (e.g. com.example.sadi).</li>
-          <li>Optional maven arguments - this is the place to enter any optional maven parameters that you think you may need.</li>
+          <li>Optional maven arguments - this is the place to enter any optional maven parameters that you think you may need. <em>Optional parameters must be separated by spaces.</em></li>
         </ul>
       </ul>
     </ul>
@@ -166,7 +167,17 @@ pre {
 <blockquote>
   <p>Service results are always shown in the Service Results sub panel. The results of a successful invocations of a service, as well as any errors are shown in this panel.</p>
 </blockquote>
-<h3><a name="4"></a>Getting help</h3>
+<h3><a name="faq"></a>FAQ</h3>
+<h4>Errors while generating SADI services in JAVA</h4>
+<blockquote>
+  <p>Why do I get the error <em>java.lang.ClassNotFoundException: org.protege.common.log.ProtegeRotatingAppender</em>?</p>
+  <blockquote>
+    <p>Our plugin cannot find that class, but you knew that. You can silence this error by adding an <em>Optional maven argument</em>:</p>
+    <pre>-Dlog4j.configuration=log4j.xml  </pre>
+    <p>      SADI service generation is unaffected by that reported error.</p>
+  </blockquote>
+</blockquote>
+<h3><a name="help"></a>Getting help</h3>
 <h4>Obtaining Human Contact</h4>
 <p>For help with this plugin, or to report any bugs or inconsistencies, feel free to contact me via <a href="mailto:&#101;&#100;&#119;&#97;&#114;&#100;&#46;&#107;&#97;&#119;&#97;&#115;+&#115;&#97;&#100;&#105;&#115;&#101;&#115;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">email</a>.</p>
 <p>The best place to get information about the SADI framework is to visit the SADI home page located at <a href="http://sadiframework.org" target="_blank">http://sadiframework.org</a>. </p>
