@@ -612,34 +612,78 @@ public class SHAREKnowledgeBase
 	
 	protected void populateVariableBinding(PotentialValues subjects, PotentialValues predicates, PotentialValues objects) 
 	{
-		boolean sIsUnboundVar = subjects.isEmpty();
-		boolean pIsUnboundVar = predicates.isEmpty();
-		boolean oIsUnboundVar = objects.isEmpty();
+
+		boolean sIsBoundVar = subjects.isVariable() && !subjects.isEmpty();
+		boolean pIsBoundVar = predicates.isVariable() && !predicates.isEmpty();
+		boolean oIsBoundVar = objects.isVariable() && !objects.isEmpty();
+
+		Set<RDFNode> sValues = new HashSet<RDFNode>();
+		Set<RDFNode> pValues = new HashSet<RDFNode>();
+		Set<RDFNode> oValues = new HashSet<RDFNode>();
 
 		for(Statement statement : getStatements(subjects, predicates, objects)) 
 		{
-			if (sIsUnboundVar) {
-				subjects.add(statement.getSubject());
-			}
-			if (pIsUnboundVar) {
-				predicates.add(statement.getPredicate());
-			}
-			if (oIsUnboundVar) {
-				objects.add(statement.getObject());
-			}
+			sValues.add(statement.getSubject());
+			pValues.add(statement.getPredicate());
+			oValues.add(statement.getObject());
+		}
+		
+		if(subjects.isVariable()) {
+
+			if(sIsBoundVar) {
+				
+				log.trace(String.format("pattern has %d solutions for %s that match existing bindings for %s (%s has %d existing bindings)", 
+						sValues.size(), 
+						subjects.variable, 
+						subjects.variable,
+						subjects.variable,
+						subjects.values.size()));
+			
+			} 
+			
+			log.trace(String.format("assigning %d bindings to variable %s", sValues.size(), subjects.variable));
+			subjects.setBindings(sValues);
+
 		}
 
-		if (sIsUnboundVar) {
-			log.trace(String.format("assigned %d bindings to variable %s", subjects.values.size(), subjects.variable));
+		if(predicates.isVariable()) {
+
+			if(pIsBoundVar) {
+
+				log.trace(String.format("pattern has %d solutions for %s that match existing bindings for %s (%s has %d existing bindings)", 
+						pValues.size(), 
+						predicates.variable, 
+						predicates.variable,
+						predicates.variable,
+						predicates.values.size()));
+
+			} 
+				
+			log.trace(String.format("assigning %d bindings to variable %s", pValues.size(), predicates.variable));
+			predicates.setBindings(pValues);
+
 		}
-		if (pIsUnboundVar) {
-			log.trace(String.format("assigned %d bindings to variable %s", predicates.values.size(), predicates.variable));
+		
+		if(objects.isVariable()) {
+
+			if(oIsBoundVar) {
+
+				log.trace(String.format("pattern has %d solutions for %s that match existing bindings for %s (%s has %d existing bindings)", 
+						oValues.size(), 
+						objects.variable, 
+						objects.variable,
+						objects.variable,
+						objects.values.size()));
+
+			}
+			
+			log.trace(String.format("assigning %d bindings to variable %s", oValues.size(), objects.variable));
+			objects.setBindings(oValues);
+
 		}
-		if (oIsUnboundVar) {
-			log.trace(String.format("assigned %d bindings to variable %s", objects.values.size(), objects.variable));
-		}
+
 	}
-	
+
 	protected void recordStats(PotentialValues subjects, PotentialValues predicates, PotentialValues objects, boolean directionIsForward, int responseTime)
 	{
 		if(getStatsDB() == null) {
@@ -698,9 +742,9 @@ public class SHAREKnowledgeBase
 	{
 		Collection<Statement> statements = new ArrayList<Statement>();
 		
-		boolean sIsUnboundVar = subjects.isEmpty();
-		boolean pIsUnboundVar = predicates.isEmpty();
-		boolean oIsUnboundVar = objects.isEmpty();
+		boolean sIsUnboundVar = (subjects == null || subjects.isEmpty());
+		boolean pIsUnboundVar = (predicates == null || predicates.isEmpty());
+		boolean oIsUnboundVar = (objects == null || objects.isEmpty());
 
 		// null represents a wildcard in call to reasoningModel.listStatements() below
 		
@@ -1055,6 +1099,15 @@ public class SHAREKnowledgeBase
 		{
 			log.trace(String.format("adding %s to variable %s", node, variable));
 			values.add(node);
+		}
+		
+		public void setBindings(Collection<RDFNode> bindings) 
+		{
+			log.trace(String.format("clearing bindings for variable %s", variable));
+			values.clear();
+			for(RDFNode binding : bindings) {
+				add(binding);
+			}
 		}
 		
 		public String toString()
