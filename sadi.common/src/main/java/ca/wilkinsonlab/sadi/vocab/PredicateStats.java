@@ -24,4 +24,7 @@ public class PredicateStats
 	public static final String ESTIMATED_TIME_PER_INPUT_REVERSE = NS + "timePerInputReverse";
 	public static final String NUM_SAMPLES_REVERSE = NS + "numSamplesReverse";
 	
+	public static final String AVERAGE_BASE_TIME = NS + "averageBaseTime";
+	public static final String AVERAGE_TIME_PER_INPUT = NS + "averageTimePerInput";
+	
 }
