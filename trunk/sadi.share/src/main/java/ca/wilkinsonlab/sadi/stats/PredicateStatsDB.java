@@ -3,8 +3,10 @@ package ca.wilkinsonlab.sadi.stats;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
@@ -29,7 +31,7 @@ public class PredicateStatsDB
 	protected final static Logger log = Logger.getLogger(PredicateStatsDB.class);
 
 	public final static int NO_STATS_AVAILABLE = -1;
-
+	
 	protected static PredicateStatsDB theInstance = null;
 	protected Cache statsCache = null;
 
@@ -200,19 +202,40 @@ public class PredicateStatsDB
 	
 	public synchronized void recomputeStats()
 	{
+		
 		log.info("recomputing summary stats");
+		
+		Set<Property> propertiesToEstimateForward = new HashSet<Property>();
+		Set<Property> propertiesToEstimateReverse = new HashSet<Property>();
+		
 		for(Property p : getAllPredicatesWithSamples()) {
-			recomputeStats(p);
+			
+			if(!recomputeStats(p, true)) {
+				propertiesToEstimateForward.add(p);
+			}
+			if(!recomputeStats(p, false)) {
+				propertiesToEstimateReverse.add(p);
+			}
+		
 		}
+		
+		recomputeAverageStats();
+		
+		for(Property p : propertiesToEstimateForward) {
+			recomputeEstimatedStats(p, true);
+		}
+		
+		for(Property p : propertiesToEstimateReverse) {
+			recomputeEstimatedStats(p, false);
+		}
+		
 	}
 	
 	public synchronized void recomputeStats(Property p) 
 	{
-		recomputeStats(p, true);
-		recomputeStats(p, false);
 	}
 	
-	public synchronized void recomputeStats(Property p, boolean directionIsForward)
+	public synchronized boolean recomputeStats(Property p, boolean directionIsForward)
 	{
 		try {
 
@@ -223,8 +246,8 @@ public class PredicateStatsDB
 			List<Map<String,String>> results = endpoint.selectQuery(query);
 			
 			if(results.size() == 0) {
-				log.info(String.format("no samples for %s in %s direction", p.getURI(), direction));
-				return;
+				log.info(String.format("no samples for %s in %s direction, skipping computation of stats", p.getURI(), direction));
+				return false;
 			}
 			
 			log.info(String.format("computing summary statistics for %s in %s direction", p.getURI(), direction));
@@ -243,41 +266,218 @@ public class PredicateStatsDB
 			 * distinct x values.
 			 */
 
-			int estimatedBaseTime;
-			int estimatedTimePerInput;
-			
 			if(Double.isNaN(regressionModel.getIntercept())) {
-
-				/* 
-				 * We can't compute a regression line, so
-				 * calculate estimatedTimePerInput based on
-				 * the assumption that estimatedBaseTime == 0.
-				 */
-				
-				float timePerInputSum = 0;
-				
-				for(Map<String, String> binding : results) {
-					int numInputs = Integer.valueOf(binding.get("numInputs"));
-					int responseTime = Integer.valueOf(binding.get("responseTime"));
-					timePerInputSum += (((float)responseTime) / numInputs);
-				}
-				
-				estimatedBaseTime = 0;
-				estimatedTimePerInput = Math.round(timePerInputSum / results.size());
-
-			} else {
-			
-				estimatedBaseTime = (int)Math.round(Math.max(0, regressionModel.getIntercept()));
-				estimatedTimePerInput = (int)Math.round(Math.max(0, regressionModel.getSlope()));
-
+				log.trace(String.format("insufficient samples to calculate regression line for %s, stats will be estimated using available samples and average-time-per-input", p.getURI()));
+				return false;
 			}
 			
+			int estimatedBaseTime = (int)Math.round(Math.max(0, regressionModel.getIntercept()));
+			int estimatedTimePerInput = (int)Math.round(Math.max(0, regressionModel.getSlope()));
 			recordSummaryStats(p, directionIsForward, estimatedBaseTime, estimatedTimePerInput, results.size());
 			
 		} catch(IOException e) {
 			
-			log.error("error querying predicate stats db: ", e);
+			log.error("error querying/updating predicate stats db: ", e);
+			return false;
+		
 		}
+		
+		return true;
+	}
+	
+	protected void recomputeAverageStats() 
+	{
+		
+		try {
+			
+			log.trace("recomputing averages for base time and time-per-input");
+			
+			String queryTemplate;
+			String query;
+			List<Map<String,String>> results;
+			
+			/* update averageBaseTime */
+			
+			queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("get.all.base.times.sparql.template"));
+			query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.statsGraph);
+			results = endpoint.selectQuery(query);
+			
+			if(results.size() == 0) {
+
+				log.trace("unable to compute average base time, no stats available");
+			
+			} else {
+
+				long baseTimeSum = 0;
+				for(Map<String, String> result : results) {
+					baseTimeSum += Integer.valueOf(result.get("baseTime"));
+				}
+
+	            int averageBaseTime = (int)(baseTimeSum / results.size());
+
+				queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("update.avg.base.time.sparql.template"));
+				query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.statsGraph, this.statsGraph, String.valueOf(averageBaseTime), this.statsGraph, String.valueOf(averageBaseTime));
+				
+				endpoint.updateQuery(query);
+				
+			}
+
+			/* update averageTimePerInput */
+			
+			queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("get.all.time.per.inputs.sparql.template"));
+			query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.statsGraph);
+			results = endpoint.selectQuery(query);
+			
+			if(results.size() == 0) {
+				
+				log.trace("unable to compute average time per input, no stats available");
+				
+			} else {
+
+				long timePerInputSum = 0;
+				for(Map<String, String> result : results) {
+					timePerInputSum += Integer.valueOf(result.get("timePerInput"));
+				}
+
+	            int averageTimePerInput = (int)(timePerInputSum / results.size());
+				
+				queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("update.avg.time.per.input.sparql.template"));
+				query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.statsGraph, this.statsGraph, String.valueOf(averageTimePerInput), this.statsGraph, String.valueOf(averageTimePerInput));
+				
+				endpoint.updateQuery(query);
+				
+			}
+			
+		} catch(IOException e) {
+
+			log.error("error querying/updating predicate stats db: ", e);
+		}
+		
+	}
+	
+	protected void recomputeEstimatedStats(Property p, boolean directionIsForward) 
+	{
+		try {
+
+			String direction = directionIsForward ? "forward" : "reverse";
+
+			String queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("get.samples.by.predicate.sparql.template"));
+			String query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.samplesGraph, p.getURI(), String.valueOf(directionIsForward));
+			List<Map<String,String>> results = endpoint.selectQuery(query);
+			
+			if(results.size() == 0) {
+				log.info(String.format("no samples for %s in %s direction, stats db will use average base time and average time-per-input to estimate %s", p.getURI(), direction, p.getURI()));
+				return;
+			}
+			
+			log.info(String.format("computing estimated statistics for %s in %s direction, based on existing samples and average time-per-input", p.getURI(), direction));
+			
+			int numInputsSum = 0;
+			int responseTimeSum = 0;
+			
+			for(Map<String,String> binding : results) {
+
+				int numInputs = Integer.valueOf(binding.get("numInputs"));
+				int responseTime = Integer.valueOf(binding.get("responseTime"));
+
+				numInputsSum += numInputs;
+				responseTimeSum += responseTime;
+				
+			}
+
+			int numInputsAvg = numInputsSum / results.size();
+			int responseTimeAvg = responseTimeSum / results.size();
+			
+			if(getAverageTimePerInput() != NO_STATS_AVAILABLE) {
+
+				int estimatedTimePerInput = getAverageTimePerInput();
+				int estimatedBaseTime = (responseTimeAvg - (estimatedTimePerInput * numInputsAvg)); 
+
+				recordSummaryStats(p, directionIsForward, estimatedBaseTime, estimatedTimePerInput, results.size());
+
+			}
+			
+		} catch(IOException e) {
+			
+			log.error("error querying/updating predicate stats db: ", e);
+		}
+		
+	}
+	
+	protected int getAverageBaseTime() throws IOException
+	{
+		Integer averageBaseTime;
+		
+		Element cacheEntry = statsCache.get(PredicateStats.AVERAGE_BASE_TIME);
+
+		if(cacheEntry != null) {
+		
+			averageBaseTime = (Integer)(cacheEntry.getObjectValue());
+
+		} else {
+
+			String queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("get.avg.base.time.sparql.template"));
+			String query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.statsGraph, this.statsGraph);
+			List<Map<String,String>> results = endpoint.selectQuery(query);
+
+			if(results.size() == 0) {
+
+				averageBaseTime = NO_STATS_AVAILABLE;
+
+			} else {
+
+				Map<String, String> firstRow = results.iterator().next();
+				averageBaseTime =  Integer.valueOf(firstRow.get("averageBaseTime"));
+
+			}
+
+			statsCache.put(new Element(PredicateStats.AVERAGE_BASE_TIME, averageBaseTime));
+		
+		}
+
+		if(averageBaseTime == NO_STATS_AVAILABLE) {
+			log.trace("no value available for average base time");
+		}
+
+		return averageBaseTime;
+	}
+	
+	protected int getAverageTimePerInput() throws IOException
+	{
+		Integer averageTimePerInput;
+		
+		Element cacheEntry = statsCache.get(PredicateStats.AVERAGE_TIME_PER_INPUT);
+
+		if(cacheEntry != null) {
+
+			averageTimePerInput = (Integer)(cacheEntry.getObjectValue());
+		
+		} else {
+		
+			String queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("get.avg.time.per.input.sparql.template"));
+			String query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.statsGraph, this.statsGraph);
+			List<Map<String,String>> results = endpoint.selectQuery(query);
+
+			if(results.size() == 0) {
+
+				averageTimePerInput = NO_STATS_AVAILABLE;
+
+			} else {
+
+				Map<String, String> firstRow = results.iterator().next();
+				averageTimePerInput = Integer.valueOf(firstRow.get("averageTimePerInput"));
+
+			}
+
+			statsCache.put(new Element(PredicateStats.AVERAGE_TIME_PER_INPUT, averageTimePerInput));
+		
+		}
+		
+		if(averageTimePerInput == NO_STATS_AVAILABLE) {
+			log.trace("no value available for average time-per-input");
+		}
+		
+		return averageTimePerInput;
 	}
 	
 	protected void recordSummaryStats(Property p, boolean directionIsForward, int estimatedBaseTime, int estimatedTimePerInput, int numSamples)
@@ -415,7 +615,22 @@ public class PredicateStatsDB
 			
 		/* there are no stats for the given predicate/direction in the DB */
 		if(statsEntry == null) {
-			return NO_STATS_AVAILABLE;
+			
+			try {
+			
+				if(getAverageBaseTime() == NO_STATS_AVAILABLE || getAverageTimePerInput() == NO_STATS_AVAILABLE) {
+					return NO_STATS_AVAILABLE;
+				} else {
+					return (getAverageBaseTime() + (numInputs * getAverageTimePerInput()));
+				}
+			
+			} catch(IOException e){
+			
+				log.error("error occurred querying stats db for average base time and average time-per-input, returning NO_STATS_AVAILABLE instead:", e);
+				return NO_STATS_AVAILABLE;
+
+			}
+			
 		}
 		
 		return (statsEntry.getBaseTime() + (numInputs * statsEntry.getTimePerInput()));
