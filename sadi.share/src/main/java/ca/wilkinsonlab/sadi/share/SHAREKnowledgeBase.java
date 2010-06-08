@@ -75,6 +75,14 @@ public class SHAREKnowledgeBase
 	private boolean useAdaptiveQueryPlanning;
 	/** record statistics during query execution */
 	private boolean recordQueryStats;
+	/** 
+	 * Compute intersections of bindings, if variables are encountered more than once 
+	 * in a query. In many cases this will speed up query evaluation significantly.
+	 * 
+	 * NOTE: Queries with OPTIONAL clauses will not be resolved correctly when
+	 * this option is on, and so it turned is off by default.
+	 */
+	private boolean intersectVariableBindings;
 	
 	// TODO rename to something less unwieldy?
 	private boolean dynamicInputInstanceClassification;
@@ -125,6 +133,11 @@ public class SHAREKnowledgeBase
 		setUseAdaptiveQueryPlanning(config.getBoolean("share.useAdaptiveQueryPlanning", false));
 		setAllowPredicateVariables(config.getBoolean("share.allowPredicateVariables", false));
 		setRecordQueryStats(config.getBoolean("share.recordQueryStats", false));
+		/*
+		 * NOTE: default value should be false here, OPTIONAL queries 
+		 * will not work when this option is on (see note above) 
+		 */
+		this.intersectVariableBindings = config.getBoolean("share.intersectVariableBindings", false);
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
 		
 	}
@@ -353,7 +366,11 @@ public class SHAREKnowledgeBase
 
 		}
 		
-		populateVariableBinding(subjects, predicates, objects);
+		if(this.intersectVariableBindings) {
+			populateVariableBindingWithIntersection(subjects, predicates, objects);
+		} else {
+			populateVariableBinding(subjects, predicates, objects);
+		}
 
 		/* note: this must come after normal processing of the triple pattern,
 		 * so that rdf:type patterns are also resolved against SPARQL endpoints.
@@ -610,6 +627,80 @@ public class SHAREKnowledgeBase
 		return retrievedData;
 	}
 	
+	protected void populateVariableBindingWithIntersection(PotentialValues subjects, PotentialValues predicates, PotentialValues objects) 
+	{
+
+		boolean sIsBoundVar = subjects.isVariable() && !subjects.isEmpty();
+		boolean pIsBoundVar = predicates.isVariable() && !predicates.isEmpty();
+		boolean oIsBoundVar = objects.isVariable() && !objects.isEmpty();
+
+		Set<RDFNode> sValues = new HashSet<RDFNode>();
+		Set<RDFNode> pValues = new HashSet<RDFNode>();
+		Set<RDFNode> oValues = new HashSet<RDFNode>();
+
+		for(Statement statement : getStatements(subjects, predicates, objects)) 
+		{
+			sValues.add(statement.getSubject());
+			pValues.add(statement.getPredicate());
+			oValues.add(statement.getObject());
+		}
+		
+		if(subjects.isVariable()) {
+
+			if(sIsBoundVar) {
+				
+				log.trace(String.format("pattern has %d solutions for %s that match existing bindings for %s (%s has %d existing bindings)", 
+						sValues.size(), 
+						subjects.variable, 
+						subjects.variable,
+						subjects.variable,
+						subjects.values.size()));
+			
+			} 
+			
+			log.trace(String.format("assigning %d bindings to variable %s", sValues.size(), subjects.variable));
+			subjects.setBindings(sValues);
+
+		}
+
+		if(predicates.isVariable()) {
+
+			if(pIsBoundVar) {
+
+				log.trace(String.format("pattern has %d solutions for %s that match existing bindings for %s (%s has %d existing bindings)", 
+						pValues.size(), 
+						predicates.variable, 
+						predicates.variable,
+						predicates.variable,
+						predicates.values.size()));
+
+			} 
+				
+			log.trace(String.format("assigning %d bindings to variable %s", pValues.size(), predicates.variable));
+			predicates.setBindings(pValues);
+
+		}
+		
+		if(objects.isVariable()) {
+
+			if(oIsBoundVar) {
+
+				log.trace(String.format("pattern has %d solutions for %s that match existing bindings for %s (%s has %d existing bindings)", 
+						oValues.size(), 
+						objects.variable, 
+						objects.variable,
+						objects.variable,
+						objects.values.size()));
+
+			}
+			
+			log.trace(String.format("assigning %d bindings to variable %s", oValues.size(), objects.variable));
+			objects.setBindings(oValues);
+
+		}
+
+	}
+	
 	protected void populateVariableBinding(PotentialValues subjects, PotentialValues predicates, PotentialValues objects) 
 	{
 		boolean sIsUnboundVar = subjects.isEmpty();
@@ -638,7 +729,7 @@ public class SHAREKnowledgeBase
 		if (oIsUnboundVar) {
 			log.trace(String.format("assigned %d bindings to variable %s", objects.values.size(), objects.variable));
 		}
-	}
+	}	
 	
 	protected void recordStats(PotentialValues subjects, PotentialValues predicates, PotentialValues objects, boolean directionIsForward, int responseTime)
 	{
@@ -1055,6 +1146,15 @@ public class SHAREKnowledgeBase
 		{
 			log.trace(String.format("adding %s to variable %s", node, variable));
 			values.add(node);
+		}
+		
+		public void setBindings(Collection<RDFNode> bindings) 
+		{
+			log.trace(String.format("clearing bindings for variable %s", variable));
+			values.clear();
+			for(RDFNode binding : bindings) {
+				add(binding);
+			}
 		}
 		
 		public String toString()
