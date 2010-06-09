@@ -86,7 +86,7 @@ public class UniProtUtils
 	 * @param ids the UniProt ids of the records to retrieve
 	 * @return the map of ID to UniProtEntry
 	 */
-	public static Map<String, UniProtEntry> getUniProtEntries(Collection<String> ids)
+	public synchronized static Map<String, UniProtEntry> getUniProtEntries(Collection<String> ids)
 	{
 		Map<String, UniProtEntry> entries = new HashMap<String, UniProtEntry>(ids.size());
 		List<String> uncachedIds = new ArrayList<String>(ids.size());
