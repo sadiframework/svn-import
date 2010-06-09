@@ -1,5 +1,8 @@
 Revision history for Perl extension OWL2Perl.
 
+0.95
+    * generate modules script now checks to see whether or not the
+      install script has been run.
 0.94
     * updated version of PLUTO required to 0.26
 
