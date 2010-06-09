@@ -73,6 +73,18 @@ say "Output is going to $opt_o\n" if $opt_o;
 
 say "Using SAX parser $OWLCFG::XML_PARSER" if defined $OWLCFG::XML_PARSER and $opt_v;
 
+# make sure that owl2perl-install was run!
+unless ($opt_o) {
+	unless (defined ($OWLCFG::GENERATORS_OUTDIR)) {
+		print STDOUT <<EOT; 
+	 Unable to detect that you have run the 'owl2perl-install.pl' script!
+	 This only has to be done once. Shall I proceed [n]?
+EOT
+	    my $tmp = <STDIN>;  $tmp =~ s/\s//g; 
+	    exit() unless $tmp =~ /y/i;
+	}
+}
+
 if (@ARGV) {
 	foreach my $arg (@ARGV) {
 		say 'Generating perl modules for: ' . $arg;
