@@ -15,6 +15,11 @@ the provision of SADI services.</p>
 
 <h3>Version info</h3>
 
+<h4>v1.1.1 (10th June 2010)</h4>
+<ul>
+    <li>removed the exception thrown by the logger when generating Java services.</li>
+</ul>
+
 <h4>v1.1.0 (3rd June 2010)</h4>
 <ul>
     <li>Revamp of the user interface</li>
