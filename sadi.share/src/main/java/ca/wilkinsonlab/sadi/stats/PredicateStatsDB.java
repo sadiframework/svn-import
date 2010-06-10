@@ -159,19 +159,19 @@ public class PredicateStatsDB
 
 		this.numSamples = Integer.valueOf(firstRow.get(firstColumn));	
 
-		log.info(String.format("predicate stats db currently has %d samples", this.numSamples));
+		log.debug(String.format("predicate stats db currently has %d samples", this.numSamples));
 	}
 	
 	public synchronized void recordSample(Property predicate, boolean directionIsForward, int numInputs, int responseTime)
 	{
 		if(this.numSamples >= this.sampleCacheSize) {
-			log.info(String.format("samples db has reached maximum size of %d samples, purging %d oldest samples", this.sampleCacheSize, this.numSamplesToPurgeOnCacheFull));
+			log.debug(String.format("samples db has reached maximum size of %d samples, purging %d oldest samples", this.sampleCacheSize, this.numSamplesToPurgeOnCacheFull));
 			purgeSamples();
 		}	
 		
 		try {
 
-			log.info(String.format("recording sample for predicate stats (predicate = %s, direction = %s, numInputs = %d, responseTime = %d ms)", 
+			log.debug(String.format("recording sample for predicate stats (predicate = %s, direction = %s, numInputs = %d, responseTime = %d ms)", 
 					predicate.getURI(),	directionIsForward ? "forward" : "reverse",	numInputs, responseTime));
 			
 			String queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("record.sample.sparql.template"));
@@ -203,7 +203,7 @@ public class PredicateStatsDB
 	public synchronized void recomputeStats()
 	{
 		
-		log.info("recomputing summary stats");
+		log.debug("recomputing summary stats");
 		
 		Set<Property> propertiesToEstimateForward = new HashSet<Property>();
 		Set<Property> propertiesToEstimateReverse = new HashSet<Property>();
@@ -246,11 +246,11 @@ public class PredicateStatsDB
 			List<Map<String,String>> results = endpoint.selectQuery(query);
 			
 			if(results.size() == 0) {
-				log.info(String.format("no samples for %s in %s direction, skipping computation of stats", p.getURI(), direction));
+				log.debug(String.format("no samples for %s in %s direction, skipping computation of stats", p.getURI(), direction));
 				return false;
 			}
 			
-			log.info(String.format("computing summary statistics for %s in %s direction", p.getURI(), direction));
+			log.debug(String.format("computing summary statistics for %s in %s direction", p.getURI(), direction));
 			
 			SimpleRegression regressionModel = new SimpleRegression();
 
@@ -267,7 +267,7 @@ public class PredicateStatsDB
 			 */
 
 			if(Double.isNaN(regressionModel.getIntercept())) {
-				log.trace(String.format("insufficient samples to calculate regression line for %s, stats will be estimated using available samples and average-time-per-input", p.getURI()));
+				log.debug(String.format("insufficient samples to calculate regression line for %s, stats will be estimated using available samples and average base time", p.getURI()));
 				return false;
 			}
 			
@@ -290,7 +290,7 @@ public class PredicateStatsDB
 		
 		try {
 			
-			log.trace("recomputing averages for base time and time-per-input");
+			log.debug("recomputing averages for base time and time-per-input");
 			
 			String queryTemplate;
 			String query;
@@ -304,7 +304,7 @@ public class PredicateStatsDB
 			
 			if(results.size() == 0) {
 
-				log.trace("unable to compute average base time, no stats available");
+				log.debug("unable to compute average base time, no stats available");
 			
 			} else {
 
@@ -315,9 +315,11 @@ public class PredicateStatsDB
 
 	            int averageBaseTime = (int)(baseTimeSum / results.size());
 
+	            log.debug(String.format("recording average base time: %d", averageBaseTime));
+	            
 				queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("update.avg.base.time.sparql.template"));
 				query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.statsGraph, this.statsGraph, String.valueOf(averageBaseTime), this.statsGraph, String.valueOf(averageBaseTime));
-				
+
 				endpoint.updateQuery(query);
 				
 			}
@@ -330,7 +332,7 @@ public class PredicateStatsDB
 			
 			if(results.size() == 0) {
 				
-				log.trace("unable to compute average time per input, no stats available");
+				log.debug("unable to compute average time per input, no stats available");
 				
 			} else {
 
@@ -341,6 +343,8 @@ public class PredicateStatsDB
 
 	            int averageTimePerInput = (int)(timePerInputSum / results.size());
 				
+	            log.debug(String.format("recording average time-per-input: %d", averageTimePerInput));
+	            
 				queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("update.avg.time.per.input.sparql.template"));
 				query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.statsGraph, this.statsGraph, String.valueOf(averageTimePerInput), this.statsGraph, String.valueOf(averageTimePerInput));
 				
@@ -366,11 +370,11 @@ public class PredicateStatsDB
 			List<Map<String,String>> results = endpoint.selectQuery(query);
 			
 			if(results.size() == 0) {
-				log.info(String.format("no samples for %s in %s direction, stats db will use average base time and average time-per-input to estimate %s", p.getURI(), direction, p.getURI()));
+				log.debug(String.format("no samples for %s in %s direction, stats db will use average base time and average time-per-input to estimate %s", p.getURI(), direction, p.getURI()));
 				return;
 			}
 			
-			log.info(String.format("computing estimated statistics for %s in %s direction, based on existing samples and average time-per-input", p.getURI(), direction));
+			log.debug(String.format("computing estimated statistics for %s in %s direction, based on existing samples and average base time", p.getURI(), direction));
 			
 			int numInputsSum = 0;
 			int responseTimeSum = 0;
@@ -436,7 +440,7 @@ public class PredicateStatsDB
 		}
 
 		if(averageBaseTime == NO_STATS_AVAILABLE) {
-			log.trace("no value available for average base time");
+			log.debug("no value available for average base time");
 		}
 
 		return averageBaseTime;
@@ -474,7 +478,7 @@ public class PredicateStatsDB
 		}
 		
 		if(averageTimePerInput == NO_STATS_AVAILABLE) {
-			log.trace("no value available for average time-per-input");
+			log.debug("no value available for average time-per-input");
 		}
 		
 		return averageTimePerInput;
@@ -502,7 +506,7 @@ public class PredicateStatsDB
 
 			}
 
-			log.info(String.format("computed %s stats for %s: baseTime = %d, timePerInput = %d, numSamples = %d", 
+			log.debug(String.format("computed %s stats for %s: baseTime = %d, timePerInput = %d, numSamples = %d", 
 					directionIsForward ? "forward" : "reverse",
 					p.getURI(),
 					estimatedBaseTime, 
@@ -582,7 +586,7 @@ public class PredicateStatsDB
 	
 	public synchronized void clear()
 	{
-		log.info("clearing predicate stats db");
+		log.debug("clearing predicate stats db");
 		
 		clearSamplesGraph();
 		clearStatsGraph();
@@ -734,7 +738,7 @@ public class PredicateStatsDB
 			List<Map<String,String>> results = endpoint.selectQuery(query);
 			
 			if(results.size() == 0) {
-				log.info(String.format("no stats available for %s in the %s direction", p.getURI(), direction));
+				log.debug(String.format("no stats available for %s in the %s direction", p.getURI(), direction));
 				return null;
 			}
 			
