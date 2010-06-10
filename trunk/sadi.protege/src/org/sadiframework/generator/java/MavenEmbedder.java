@@ -37,9 +37,7 @@ public class MavenEmbedder {
      */
     public MavenEmbedder()
             throws ComponentLookupException, PlexusContainerException {
-        
-        
-        ClassLoader cl = Maven.class.getClassLoader();    
+        ClassLoader cl = this.getClass().getClassLoader();//Maven.class.getClassLoader();    
         ContainerConfiguration cc = new DefaultContainerConfiguration().setClassWorld(new ClassWorld(mavenCoreRealmId, cl)).setName("sadiMavenCore");
         PlexusContainer plexus = new DefaultPlexusContainer(cc);
         this.plexus = plexus;
