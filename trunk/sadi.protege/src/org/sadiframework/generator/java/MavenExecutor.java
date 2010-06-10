@@ -74,6 +74,9 @@ public class MavenExecutor {
         }
         if (cli == null)
             return false;
+        
+        // remove proteges log4j.configuration property before we populate the maven ones
+        String prop  = System.setProperty("log4j.configuration", "");
         populateProperties(cli, systemProperties, userProperties);
 
         try {
@@ -87,17 +90,18 @@ public class MavenExecutor {
             request.setUserProperties(userProperties);
             setVerbatimLevels(cli, request);
             MavenExecutionResult result = m.execute(request);
+            System.setProperty("log4j.configuration", prop == null ? "" : prop);
             if (result == null || result.getBuildSummary(result.getProject()) instanceof BuildFailure) {
                 return false;
             }
             return true;
         } catch (ComponentLookupException e) {
             e.printStackTrace();
-            return false;
         } catch (PlexusContainerException e) {
             e.printStackTrace();
-            return false;
         }
+        System.setProperty("log4j.configuration", prop == null ? "" : prop);
+        return false;
     }
 
     /**
@@ -120,6 +124,8 @@ public class MavenExecutor {
         }
         if (cli == null)
             return false;
+        // remove proteges log4j.configuration property before we populate the maven ones
+        String prop  = System.setProperty("log4j.configuration", "");
         populateProperties(cli, systemProperties, userProperties);
         try {
             directory = directory.trim();
@@ -134,17 +140,19 @@ public class MavenExecutor {
             request.setUserProperties(userProperties);
             setVerbatimLevels(cli, request);
             MavenExecutionResult result = m.execute(request);
+            // set the property back to its previous value
+            System.setProperty("log4j.configuration", prop == null ? "" : prop);
             if (result == null || result.getBuildSummary(result.getProject()) instanceof BuildFailure) {
                 return false;
             }
             return true;
         } catch (ComponentLookupException e) {
             e.printStackTrace();
-            return false;
         } catch (PlexusContainerException e) {
             e.printStackTrace();
-            return false;
         }
+        System.setProperty("log4j.configuration", prop == null ? "" : prop);
+        return false;
     }
 
     /**
@@ -168,6 +176,8 @@ public class MavenExecutor {
         }
         if (cli == null)
             return false;
+        // remove proteges log4j.configuration property before we populate the maven ones
+        String prop  = System.setProperty("log4j.configuration", "");
         populateProperties(cli, systemProperties, userProperties);
 
         try {
@@ -181,17 +191,18 @@ public class MavenExecutor {
             request.setSystemProperties(systemProperties);
             setVerbatimLevels(cli, request);
             MavenExecutionResult result = m.execute(request);
+            System.setProperty("log4j.configuration", prop == null ? "" : prop);
             if (result == null || result.getBuildSummary(result.getProject()) instanceof BuildFailure) {
                 return false;
             }
             return true;
         } catch (ComponentLookupException e) {
             e.printStackTrace();
-            return false;
         } catch (PlexusContainerException e) {
             e.printStackTrace();
-            return false;
         }
+        System.setProperty("log4j.configuration", prop == null ? "" : prop);
+        return false;
     }
 
     /**
@@ -214,6 +225,8 @@ public class MavenExecutor {
         }
         if (cli == null)
             return false;
+        // remove proteges log4j.configuration property before we populate the maven ones
+        String prop  = System.setProperty("log4j.configuration", "");
         populateProperties(cli, systemProperties, userProperties);
         try {
             directory = directory.trim();
@@ -226,17 +239,18 @@ public class MavenExecutor {
             request.setSystemProperties(systemProperties);
             setVerbatimLevels(cli, request);
             MavenExecutionResult result = m.execute(request);
+            System.setProperty("log4j.configuration", prop == null ? "" : prop);
             if (result == null || result.getBuildSummary(result.getProject()) instanceof BuildFailure) {
                 return false;
             }
             return true;
         } catch (ComponentLookupException e) {
             e.printStackTrace();
-            return false;
         } catch (PlexusContainerException e) {
             e.printStackTrace();
-            return false;
         }
+        System.setProperty("log4j.configuration", prop == null ? "" : prop);
+        return false;
     }
 
     /**
@@ -246,7 +260,6 @@ public class MavenExecutor {
      * @return true if we successfully created the WAR for the SADI service project, false otherwise
      */
     public static boolean PackageService(String directory, String[] extraOptions) {
-        boolean success = true;
         Properties systemProperties = new Properties();
         Properties userProperties = new Properties();
 
@@ -260,6 +273,8 @@ public class MavenExecutor {
         }
         if (cli == null)
             return false;
+        // remove proteges log4j.configuration property before we populate the maven ones
+        String prop  = System.setProperty("log4j.configuration", "");
         populateProperties(cli, systemProperties, userProperties);
         try {
             directory = directory.trim();
@@ -273,21 +288,24 @@ public class MavenExecutor {
             request.setUserProperties(userProperties);
             setVerbatimLevels(cli, request);
             MavenExecutionResult result = m.execute(request);
+            System.setProperty("log4j.configuration", prop == null ? "" : prop);
             if (result == null || result.getBuildSummary(result.getProject()) instanceof BuildFailure) {
-                success = false;
+                return false;
             }
+            return true;
         } catch (ComponentLookupException e) {
             e.printStackTrace();
-            success = false;
         } catch (PlexusContainerException e) {
             e.printStackTrace();
-            success = false;
         }
-        return success;
+        System.setProperty("log4j.configuration", prop == null ? "" : prop);
+        return false;
     }
 
     private static void setVerbatimLevels(CommandLine cli, MavenExecutionRequest request) {
-        boolean debug = cli.hasOption(CLIManager.DEBUG);
+        // load the logger
+       // PropertyConfigurator.configure(MavenExecutor.class.getResource("/resources/log4j.xml"));
+        boolean debug = cli.hasOption(CLIManager.DEBUG); 
         boolean quiet = !debug && cli.hasOption(CLIManager.QUIET);
         if (debug) {
             request.setLoggingLevel(MavenExecutionRequest.LOGGING_LEVEL_DEBUG);
