@@ -3,6 +3,7 @@ package ca.wilkinsonlab.sadi.tasks;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.spi.LoggingEvent;
+import org.apache.log4j.spi.ThrowableInformation;
 
 public class StatusAppender extends AppenderSkeleton
 {
@@ -14,7 +15,11 @@ public class StatusAppender extends AppenderSkeleton
 		Task currentTask = taskManager.getTask(Thread.currentThread());
 		if (currentTask != null && event.getMessage() != null) {
 			if (event.getLevel().isGreaterOrEqual(Level.ERROR)) {
-				currentTask.setError(event.getThrowableInformation().getThrowable());
+				ThrowableInformation throwableInformation = event.getThrowableInformation();
+				if (throwableInformation != null)
+					currentTask.setError(throwableInformation.getThrowable());
+				else
+					currentTask.setError(new Exception());
 			} else if (event.getLevel().isGreaterOrEqual(Level.WARN)) {
 				currentTask.warn(event.getRenderedMessage());
 			}
