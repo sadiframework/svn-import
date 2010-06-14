@@ -125,13 +125,20 @@ public class Generator {
         command.add(servicename);
         System.out.println(String.format("command: %s", command));
 
-        p = Runtime.getRuntime().exec(command.toArray(new String[] {}));
+        // execute the command
+        ProcessBuilder pb = new ProcessBuilder(command.toArray(new String[]{}));
+        // merge the error stream with stdout
+        pb.redirectErrorStream(true);
+        // start our thread
+        p = pb.start();
+        // read the stream and redirect to stdout (so our console with gobble it up)
         GeneratorStream stdout = new GeneratorStream(p.getInputStream());
-        GeneratorStream stderr = new GeneratorStream(p.getErrorStream());
         stdout.start();
-        stderr.start();
-        p.waitFor();
-        return String.format("%s\nWarnings:\n%s", stdout.getStreamAsString(), stderr.getStreamAsString());
+        // block until we are done
+        int retVal = p.waitFor();
+        // done
+        System.out.println(String.format("(%s)", retVal));
+        return String.format("%s", stdout.getStreamAsString());
     }
 
     public String generateDatatypes(String ontURL) throws IOException, InterruptedException {
@@ -177,13 +184,19 @@ public class Generator {
         System.out.println(String.format("command: %s", command));
 
         // execute the command
-        p = Runtime.getRuntime().exec(command.toArray(new String[] {}));
+        ProcessBuilder pb = new ProcessBuilder(command.toArray(new String[]{}));
+        // merge the error stream with stdout
+        pb.redirectErrorStream(true);
+        // start our thread
+        p = pb.start();
+        // read the stream and redirect to stdout (so our console with gobble it up)
         GeneratorStream stdout = new GeneratorStream(p.getInputStream());
-        GeneratorStream stderr = new GeneratorStream(p.getErrorStream());
         stdout.start();
-        stderr.start();
-        p.waitFor();
-        return String.format("%s\nWarnings:\n%s", stdout.getStreamAsString(), stderr.getStreamAsString());
+        // block until we are done
+        int retVal = p.waitFor();
+        // done
+        System.out.println(String.format("(%s)", retVal));
+        return String.format("%s", stdout.getStreamAsString());
     }
 
     /**
@@ -269,6 +282,8 @@ public class Generator {
         public String getStreamAsString() {
             return sb == null ? "" : sb.toString();
         }
+        
+        
     }
 
 
