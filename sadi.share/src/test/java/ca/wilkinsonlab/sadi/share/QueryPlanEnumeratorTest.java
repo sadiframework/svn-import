@@ -19,6 +19,7 @@ import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
+import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.query.Query;
@@ -78,22 +79,18 @@ public class QueryPlanEnumeratorTest
 		
 		testQuery = SPARQLStringUtils.readFully(QueryPlanEnumeratorTest.class.getResource("test.query.for.enumerator.sparql"));
 		
-		kb = new SHAREKnowledgeBase(ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF), true);
+		OntModel reasoningModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF);
 		
-		/* 
-		 * Note: We get the fake inverse URIs from the KB instead of
-		 * hardcoding them, in case the URI form (e.g. "-inverse") changes
-		 * in the future.
-		 */
-		
-		propertyA = kb.getOntProperty(PROPERTY_A_URI);
-		propertyAInverse = kb.getOntProperty(PROPERTY_A_INVERSE_URI);
+		propertyA = reasoningModel.createOntProperty(PROPERTY_A_URI);
+		propertyAInverse = reasoningModel.createOntProperty(PROPERTY_A_INVERSE_URI);
 		propertyA.addInverseOf(propertyAInverse);
 
-		propertyB = kb.getOntProperty(PROPERTY_B_URI);
-		propertyBInverse = kb.getOntProperty(PROPERTY_B_INVERSE_URI);
+		propertyB = reasoningModel.createOntProperty(PROPERTY_B_URI);
+		propertyBInverse = reasoningModel.createOntProperty(PROPERTY_B_INVERSE_URI);
 		propertyB.addInverseOf(propertyBInverse);
-		
+
+		kb = new SHAREKnowledgeBase(reasoningModel, true);
+
 		testQueryPattern1 = new Triple(
 				NodeCreateUtils.create(NODE_A_URI),
 				NodeCreateUtils.create(PROPERTY_A_URI),
