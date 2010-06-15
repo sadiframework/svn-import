@@ -295,7 +295,7 @@ public class SHAREKnowledgeBase
 			try{ 
 				dataModel.read( sourceURI );
 			} catch (Exception e) {
-				log.error(String.format("failed to read FROM graph %s", sourceURI));
+				log.error(String.format("failed to read FROM graph %s", sourceURI), e);
 			}
 		}
 	}
@@ -311,7 +311,7 @@ public class SHAREKnowledgeBase
 		Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(predicates.values));
 		
 		if(!allowPredicateVariables && predicates.isEmpty()) {
-			log.error("variables are not permitted in the predicate position of triple patterns");
+			log.error(new Exception("skipping pattern, variables are not permitted in the predicate position of triple patterns"));
 			return;
 		}
 			
@@ -508,7 +508,7 @@ public class SHAREKnowledgeBase
 		try {
 			OwlUtils.getOntClassWithLoad(reasoningModel, uri);
 		} catch (SADIException e) {
-			log.error(e.getMessage());
+			log.error(String.format("failed to load OWL class %s", uri), e);
 		}
 		
 		if (c != null) {
@@ -532,7 +532,7 @@ public class SHAREKnowledgeBase
 		try {
 			p = OwlUtils.getOntPropertyWithLoad(reasoningModel, uri);
 		} catch (SADIException e) {
-			log.error(e.getMessage());
+			log.error(String.format("failed to load OWL property %s", uri), e);
 		}
 		
 		if (p != null) {
@@ -1357,7 +1357,7 @@ public class SHAREKnowledgeBase
 			}
 			
 			if(getStatsDB() == null) {
-				log.error("stats DB was not correctly initialized, returning NO_STATS_AVAILABLE for time estimate");
+				log.warn("stats DB was not correctly initialized, returning NO_STATS_AVAILABLE for time estimate");
 				return PredicateStatsDB.NO_STATS_AVAILABLE;
 			}
 			
