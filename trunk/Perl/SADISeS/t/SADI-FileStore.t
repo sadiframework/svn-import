@@ -6,17 +6,28 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 
 #use Test::More tests => 7;
+use strict;
 use Test::More qw/no_plan/;
+use vars qw /$outdir/;
 
 BEGIN {
 	use FindBin qw ($Bin);
 	use lib "$Bin/../lib";
 	use_ok('SADI::FileStore');
+	if ($Bin =~ m/t$/) {
+        $outdir = "$Bin/tmp";
+    } else {
+        $outdir = "$Bin/t/tmp";
+    }
 }
 
 END {
-
 	# destroy persistent data here
+	# check for the tmp directory that is created because of 
+	# the sadi-services.cfg file in the t/
+	use File::Path;
+	diag "Removing '$outdir' (it may have been created while testing SADI::FileStore)";
+	rmtree($outdir,{keep_root => 0}) if -e $outdir and -d $outdir;
 }
 #########################
 
