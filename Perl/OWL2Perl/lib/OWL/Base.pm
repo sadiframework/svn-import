@@ -212,22 +212,39 @@ sub uri2package {
 
 	# the thing after the # if it exists
 	my $frag = $u1->fragment || '';
-	$frag =~ s/^\/*//g;
-	
+
+    # remove any leading / or #
+	$frag =~ s/^[\/#]*//g;
+	# remove any trailing
+	$frag =~ s/[\/#]*$//g;
+
 	# convert . to _
 	$frag =~ s/\./_/g if $frag;
+
+	# remove from frag ~ 
+    $frag =~ s/~//g;
 
 	# the path
 	my $path = $u1->path || '';
 
 	# remove leading /
 	$path =~ s/^\///g;
-	
-	# sub fragment with : to _ 
+
+	# remove any trailing / or #
+	$path =~ s/[\/|#]*$//g;
+
+	# sub path with : to _ 
 	$path =~ s/:/_/g;
+
+    # remove from path ~ 
+    $path =~ s/~//g;
+
+    # replace any // with a single /; doesnt affect // in http://
+	$path =~ s/\/\//\//g;
 
 	# convert / and . to ::
 	$path =~ s/\/|\./::/g;
+
 	my $package = '';
 
 	# package name assuming that uri#foo
