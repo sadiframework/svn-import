@@ -10,7 +10,13 @@ use vars qw /$outdir/;
 BEGIN {
 	use FindBin qw ($Bin);
 	use lib "$Bin/../lib";
-	$outdir = "$Bin/owl";
+	if ($Bin =~ m/t$/) {
+		$outdir = "$Bin/owl";
+	} else {
+	   	$outdir = "$Bin/t/owl";
+	}
+	
+	
 	my $cmd = $Bin;
 	$cmd .= "/t" unless $cmd =~ /t$/;
 	$cmd =
@@ -27,7 +33,7 @@ END {
 	# delete outdir and its contents ...
 	use File::Path;
 	diag("\nremoving generated modules from $outdir ...");
-	rmtree($outdir);
+	rmtree($outdir, {keep_root => 0});
 	diag("done.");
 }
 #########################
