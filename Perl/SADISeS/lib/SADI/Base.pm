@@ -188,63 +188,80 @@ sub oProperty2module {
 # uri2package
 #-----------------------------------------------------------------
 sub uri2package {
-	my ( $self, $uri ) = @_;
-	return undef unless $uri;
+    my ( $self, $uri ) = @_;
+    return undef unless $uri;
 
-	# is $uri an LSID?
-	if ( lc($uri) =~ m/^urn\:lsid/gi ) {
-		my $lsid = LS::ID->new( $uri );
+    # is $uri an LSID?
+    if ( lc($uri) =~ m/^urn\:lsid/gi ) {
+        my $lsid = LS::ID->new( $uri );
 
-		# cheat a little ;-)
-		$uri =
-		    'http://'
-		  . $lsid->authority . '/'
-		  . $lsid->namespace . '#'
-		  . $lsid->object;
-	}
-	# strip off any '.owl' bits from the URI
-	$uri =~ s/\.owl//gi;
-	my $u1 = URI->new($uri);
+        # cheat a little ;-)
+        $uri =
+            'http://'
+          . $lsid->authority . '/'
+          . $lsid->namespace . '#'
+          . $lsid->object;
+    }
+    # strip off any '.owl' bits from the URI
+    $uri =~ s/\.owl//gi;
+    my $u1 = URI->new($uri);
 
-	# the domain from the uri
-	my $authority = $u1->authority || '';
+    # the domain from the uri
+    my $authority = $u1->authority || '';
 
-	# convert . to ::
-	$authority =~ s/\./::/g;
+    # convert . to ::
+    $authority =~ s/\./::/g;
 
-	# the thing after the # if it exists
-	my $frag = $u1->fragment || '';
-	$frag =~ s/^\/*//g;
-	
-	# convert . to _
-	$frag =~ s/\./_/g if $frag;
+    # the thing after the # if it exists
+    my $frag = $u1->fragment || '';
 
-	# the path
-	my $path = $u1->path || '';
+    # remove any leading / or #
+    $frag =~ s/^[\/#]*//g;
+    # remove any trailing
+    $frag =~ s/[\/#]*$//g;
 
-	# remove leading /
-	$path =~ s/^\///g;
-	
-	# sub fragment with : to _ 
-	$path =~ s/:/_/g;
+    # convert . to _
+    $frag =~ s/\./_/g if $frag;
 
-	# convert / and . to ::
-	$path =~ s/\/|\./::/g;
-	my $package = '';
+    # remove from frag ~ 
+    $frag =~ s/~//g;
 
-	# package name assuming that uri#foo
-	$package = "$authority\:\:$path\:\:$frag" if $frag and $frag ne '';
+    # the path
+    my $path = $u1->path || '';
 
-	# package name assuming uri/foo
-	$package = "$authority\:\:$path" if $package eq '';
+    # remove leading /
+    $path =~ s/^\///g;
 
-	# make sure that nothing funny happened ...
-	$package =~ s/^\:*//g;
-	$package =~ s/\:*$//g;
-	if ( $package =~ m/^genid/gi ) {
+    # remove any trailing / or #
+    $path =~ s/[\/|#]*$//g;
+
+    # sub path with : to _ 
+    $path =~ s/:/_/g;
+
+    # remove from path ~ 
+    $path =~ s/~//g;
+
+    # replace any // with a single /; doesnt affect // in http://
+    $path =~ s/\/\//\//g;
+
+    # convert / and . to ::
+    $path =~ s/\/|\./::/g;
+
+    my $package = '';
+
+    # package name assuming that uri#foo
+    $package = "$authority\:\:$path\:\:$frag" if $frag and $frag ne '';
+
+    # package name assuming uri/foo
+    $package = "$authority\:\:$path" if $package eq '';
+
+    # make sure that nothing funny happened ...
+    $package =~ s/^\:*//g;
+    $package =~ s/\:*$//g;
+    if ( $package =~ m/^genid/gi ) {
         $package = "Blank::$package";
-	}
-	return $package;
+    }
+    return $package;
 }
 
 #-----------------------------------------------------------------
