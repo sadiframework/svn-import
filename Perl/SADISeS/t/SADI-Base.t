@@ -23,5 +23,25 @@ END {
 # Insert your test code below, the Test::More module is use()ed here so read
 # its man page ( perldoc Test::More ) for help writing this test script.
 
+$data = SADI::Base->new( );
+my @packages = qw(
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl#UniprotByKeggGeneOutputClass
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl#~UniprotByKeggGeneOutputClass
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl#UniprotByKeggGeneOutputClass#
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl#UniprotByKeggGeneOutputClass##///
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl#UniprotByKeggGeneOutputClass/
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl#UniprotByKeggGeneOutputClass//
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl##UniprotByKeggGeneOutputClass
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl/UniprotByKeggGeneOutputClass
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl//UniprotByKeggGeneOutputClass
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl/#UniprotByKeggGeneOutputClass
+  http://dev.biordf.net/~kawas/owl/getUniprotByKeggGene.owl#/UniprotByKeggGeneOutputClass
+);
 
+my $pac = undef;
+$pac = $data->uri2package($_) and ok( $pac
+     eq
+'dev::biordf::net::kawas::owl::getUniprotByKeggGene::UniprotByKeggGeneOutputClass',
+    "check uri2package($_) = $pac"
+) foreach (@packages);
 
