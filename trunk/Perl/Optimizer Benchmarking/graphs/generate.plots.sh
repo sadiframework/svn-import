@@ -39,6 +39,8 @@ rm $R_FILE 2> /dev/null
 
 # required for the errbar() method
 add_line "library(Hmisc)"
+# required for the barplot2() method
+add_line "library(gplots)"
 
 # In some cases (timeouts or queries that die), we will only have one trial time
 # and this makes the standard error for that set of trials undefined.  For our
@@ -193,7 +195,7 @@ for test_query_prefix in $test_query_prefixes; do
 	add_line "  group.labels <- rbind(group.labels, paste('Ordering ', i - 1))"
 	add_line "}"
 	add_line
-	add_line "xvals.matrix <- barplot(mean.matrix, main='Results for ${test_query}', legend.text=bar.labels, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
+	add_line "xvals.matrix <- barplot2(mean.matrix, main='Results for ${test_query}', legend.text=bar.labels, log='y', ylim=c(1,2000), xjust=0, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
 	add_line "xvals <- xvals.matrix[ 1:length(xvals.matrix) ]"
 	add_line "yvals <- mean.matrix[ 1:length(mean.matrix) ]"
 	add_line "ydeltas <- stderr.matrix[ 1:length(stderr.matrix) ]"
