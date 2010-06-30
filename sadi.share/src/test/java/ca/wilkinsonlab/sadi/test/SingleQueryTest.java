@@ -115,7 +115,17 @@ public class SingleQueryTest
 					"uniprot:P15923 pred:hasName ?name " +
 				"}";
 		
-//		query = ExampleQueries.getQueryByHtmlListIndex(1);
+		query = ExampleQueries.getQueryByHtmlListIndex(5);
+		
+		query = 
+			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+			"PREFIX ss: <http://semanticscience.org/resource/> " +
+			"SELECT ?s " +
+			"FROM <http://sadiframework.org/ontologies/lipinski-modified.owl> " +
+			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
+			"WHERE { " +
+			"    ?s rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#lipinskismilesmolecule> . " +
+			"}";
 		
 		log.info( String.format("executing query\n%s", query) );
 		
