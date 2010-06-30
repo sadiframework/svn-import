@@ -60,6 +60,7 @@ sub BEGIN {
 		'onProperty',
 		'allValuesFrom',
 		'someValuesFrom',
+		'hasValue',
 		
 		'minCardinality',
 		'maxCardinality',
