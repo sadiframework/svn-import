@@ -24,7 +24,7 @@ use ODO::Node;
 use XML::Namespace	owl => 'http://www.w3.org/2002/07/owl#';
 
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.9 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.91 $ =~ /: (\d+)\.(\d+)/;
 
 use base qw/ODO::Ontology::Vocabulary/;
 
