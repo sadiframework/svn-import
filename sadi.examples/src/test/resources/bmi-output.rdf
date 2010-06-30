@@ -1,0 +1,28 @@
+<rdf:RDF
+    xmlns:j.0="http://sadiframework.org/examples/bmi.owl#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <j.0:OutputClass rdf:about="http://sadiframework.org/examples/bmi-input.rdf#patient2">
+    <j.0:BMI rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+    >29.28875455747341</j.0:BMI>
+  </j.0:OutputClass>
+  <j.0:OutputClass rdf:about="http://sadiframework.org/examples/bmi-input.rdf#patient3">
+    <j.0:BMI rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+    >24.074074074074073</j.0:BMI>
+  </j.0:OutputClass>
+  <j.0:OutputClass rdf:about="http://sadiframework.org/examples/bmi-input.rdf#patient4">
+    <j.0:BMI rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+    >20.449574952443204</j.0:BMI>
+  </j.0:OutputClass>
+  <j.0:OutputClass rdf:about="http://sadiframework.org/examples/bmi-input.rdf#patient6">
+    <j.0:BMI rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+    >22.733652343916475</j.0:BMI>
+  </j.0:OutputClass>
+  <j.0:OutputClass rdf:about="http://sadiframework.org/examples/bmi-input.rdf#patient1">
+    <j.0:BMI rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+    >26.32017237098755</j.0:BMI>
+  </j.0:OutputClass>
+  <j.0:OutputClass rdf:about="http://sadiframework.org/examples/bmi-input.rdf#patient5">
+    <j.0:BMI rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+    >17.630988686938796</j.0:BMI>
+  </j.0:OutputClass>
+</rdf:RDF>

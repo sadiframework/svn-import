@@ -35,8 +35,9 @@
 	      	<li><a href="uniprot2go">Find GO terms associated with a given UniProt ID</a></li>
 	      	<li><a href="uniprot2pdb">Find PDB entries corresponding to a given UniProt ID</a></li>
 	      	<li><a href="uniprot2pubmed">Find published papers associated with a given UniProt ID</a></li>
+	      	<li><a href="calculateBMI">Calculate Body Mass Index given height and weight</a></li>
 	      </ul>
-	      <p>updated Wed 28 Apr 2010 17:10:02 PDT</p>
+	      <p>updated Wed Jun 9 16:09:48 PDT 2010</p>
         </div> <!-- content -->
         <div id='footer'>
           <img class="sponsor" style="margin-top: 10px;" src="http://sadiframework.org/images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
