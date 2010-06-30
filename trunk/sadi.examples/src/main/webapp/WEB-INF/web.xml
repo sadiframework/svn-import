@@ -51,8 +51,8 @@
   </servlet>
   
   <servlet>
-    <servlet-name>addition</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.example.jowl.AdditionServiceServlet</servlet-class>
+    <servlet-name>calculateBMI</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.BMIServiceServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -101,11 +101,7 @@
   </servlet-mapping>
   
   <servlet-mapping>
-    <servlet-name>addition</servlet-name>
-    <url-pattern>/addition</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>addition</servlet-name>
-    <url-pattern>/addition/*</url-pattern>
+    <servlet-name>calculateBMI</servlet-name>
+    <url-pattern>/calculateBMI</url-pattern>
   </servlet-mapping>
 </web-app>
