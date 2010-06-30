@@ -6,6 +6,9 @@
 	<lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/P12345">
 	</lsrn:UniProt_Record>
 	
+	<lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q99497">
+	</lsrn:UniProt_Record>
+	
 	<!--
 	<lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/A2ABK8">
     </lsrn:UniProt_Record>
