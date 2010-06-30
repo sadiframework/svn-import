@@ -212,15 +212,14 @@ sub getClassRestriction {
 	#
 	my $owlAllValuesFrom  = $ODO::Ontology::OWL::Vocabulary::allValuesFrom->value();
 	my $owlSomeValuesFrom = $ODO::Ontology::OWL::Vocabulary::someValuesFrom->value();
+	my $owlHasValue       = $ODO::Ontology::OWL::Vocabulary::hasValue->value();
 	$queryString =
 	  "SELECT ?stmt WHERE (<$restrictionURI>, <$owlAllValuesFrom>, ?values)";
 	$queryResults = $self->graph()->query($queryString)->results();
 	if ( scalar( @{$queryResults} ) == 1 ) {
 		$restriction->{'allValuesFrom'} = $queryResults->[0]->object()->value();
-	} else {
-
-		# Do nothing
 	}
+	
 	$queryString =
 	  "SELECT ?stmt WHERE (<$restrictionURI>, <$owlSomeValuesFrom>, ?values)";
 	$queryResults = $self->graph()->query($queryString)->results();
@@ -231,10 +230,28 @@ sub getClassRestriction {
 "Can not specify owl:someValuesFrom because owl:allValuesFrom already exists"
 		) if ( exists( $restriction->{'allValuesFrom'} ) );
 		$restriction->{'someValuesFrom'} = $queryResults->[0]->object()->value();
-	} else {
-
-		# Do nothing
 	}
+	$queryString =
+      "SELECT ?stmt WHERE (<$restrictionURI>, <$owlHasValue>, ?values)";
+    $queryResults = $self->graph()->query($queryString)->results();
+    if ( scalar( @{$queryResults} ) == 1 ) {
+        # Can only have allValuesFrom or someValuesFrom
+        throw ODO::Exception::Ontology::OWL::Parse( error =>
+"Can not specify owl:hasValue because owl:allValuesFrom or owl:someValuesFrom already exists"
+        ) if ( exists( $restriction->{'allValuesFrom'} ) or exists( $restriction->{'someValuesFrom'} ) );
+        $restriction->{'hasValue'} = $queryResults->[0]->object()->value();
+        
+        # extract the type if possible
+        my $s = $queryResults->[0]->object()->value();
+        my $p = $ODO::Ontology::RDFS::Vocabulary::type->value();
+        $queryString = "SELECT ?stmt WHERE (<$s>, <$p>, ?values)";
+	    $queryResults = $self->graph()->query($queryString)->results();
+	    if ( scalar( @{$queryResults} ) == 1 ) {
+	        $restriction->{'type'} = $queryResults->[0]->object()->value();
+	    }
+        
+    }
+	
 	return bless $restriction, 'ODO::Ontology::OWL::Lite::Restriction';
 }
 
@@ -338,29 +355,46 @@ sub getEquivalentClasses {
 	#
 	my $owlAllValuesFrom  = $ODO::Ontology::OWL::Vocabulary::allValuesFrom->value();
 	my $owlSomeValuesFrom = $ODO::Ontology::OWL::Vocabulary::someValuesFrom->value();
+	my $owlHasValue       = $ODO::Ontology::OWL::Vocabulary::hasValue->value();
+	
 	$queryString =
 	  "SELECT ?stmt WHERE (<$restrictionURI>, <$owlAllValuesFrom>, ?values)";
 	$queryResults = $self->graph()->query($queryString)->results();
 	if ( scalar( @{$queryResults} ) == 1 ) {
 		$restriction->{'allValuesFrom'} = $queryResults->[0]->object()->value();
-	} else {
-
-		# Do nothing
 	}
+	
 	$queryString =
 	  "SELECT ?stmt WHERE (<$restrictionURI>, <$owlSomeValuesFrom>, ?values)";
 	$queryResults = $self->graph()->query($queryString)->results();
 	if ( scalar( @{$queryResults} ) == 1 ) {
 
-		# Can only have allValuesFrom or someValuesFrom
+		# Can only have allValuesFrom or someValuesFrom or hasValue
 		throw ODO::Exception::Ontology::OWL::Parse( error =>
 "Can not specify owl:someValuesFrom because owl:allValuesFrom already exists"
 		) if ( exists( $restriction->{'allValuesFrom'} ) );
 		$restriction->{'someValuesFrom'} = $queryResults->[0]->object()->value();
-	} else {
-
-		# Do nothing
 	}
+	
+	$queryString =
+      "SELECT ?stmt WHERE (<$restrictionURI>, <$owlHasValue>, ?values)";
+    $queryResults = $self->graph()->query($queryString)->results();
+    if ( scalar( @{$queryResults} ) == 1 ) {
+        # Can only have allValuesFrom or someValuesFrom or hasValue
+        throw ODO::Exception::Ontology::OWL::Parse( error =>
+"Can not specify owl:hasValue because owl:allValuesFrom or owl:someValuesFrom already exists"
+        ) if ( exists( $restriction->{'allValuesFrom'} ) or exists( $restriction->{'someValuesFrom'} ) );
+        $restriction->{'hasValue'} = $queryResults->[0]->object()->value();
+        # extract the type if possible
+        my $s = $queryResults->[0]->object()->value();
+        my $p = $ODO::Ontology::RDFS::Vocabulary::type->value();
+        $queryString = "SELECT ?stmt WHERE (<$s>, <$p>, ?values)";
+        $queryResults = $self->graph()->query($queryString)->results();
+        if ( scalar( @{$queryResults} ) == 1 ) {
+            $restriction->{'type'} = $queryResults->[0]->object()->value();
+        }
+    }
+	
 	return bless $restriction, 'ODO::Ontology::OWL::Lite::Fragments::EquivalentClass';
 }
 
