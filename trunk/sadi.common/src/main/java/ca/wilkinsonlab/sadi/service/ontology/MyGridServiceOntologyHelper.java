@@ -1,11 +1,14 @@
 package ca.wilkinsonlab.sadi.service.ontology;
 
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.shared.PropertyNotFoundException;
 import com.hp.hpl.jena.vocabulary.RDF;
 
@@ -64,8 +67,8 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 			root.addProperty(opProperty, operation);
 		} else {
 			try {
-				operation = root.getRequiredProperty(opProperty).getResource();
-			} catch (PropertyNotFoundException e) {
+				operation = getSinglePropertyValue(root, opProperty).getResource();
+			} catch (Exception e) {
 				throw new ServiceOntologyException(String.format("service node %s missing required property %s", root, opProperty));
 			}
 		}
@@ -79,17 +82,23 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 			output = model.createResource(serviceUrl + "#output", parameterType);
 			operation.addProperty(outputProperty, output);
 		} else {
-			try {
-				input = operation.getRequiredProperty(inputProperty).getResource();
-				output = operation.getRequiredProperty(outputProperty).getResource();
-			} catch (PropertyNotFoundException e) {
-				throw new ServiceOntologyException(String.format("operation node %s missing required property %s", operation, e.getMessage()));
-			}
+			input = getSinglePropertyValue(operation, inputProperty).getResource();
+			output = getSinglePropertyValue(operation, outputProperty).getResource();
 		}
 		
 		nameProperty = model.createProperty(NS + "hasServiceNameText");
 		descProperty = model.createProperty(NS + "hasServiceDescriptionText");
 		objectTypeProperty = model.createProperty(NS + "objectType");
+	}
+
+	private static Statement getSinglePropertyValue(Resource subject, Property property) throws ServiceOntologyException
+	{
+		List<Statement> statements = subject.listProperties(property).toList();
+		if (statements.isEmpty())
+			throw new ServiceOntologyException(String.format("node %s missing required property %s", subject, property));
+		else if (statements.size() > 1)
+			throw new ServiceOntologyException(String.format("node %s has more than one value for property %s", subject, property));
+		return subject.getRequiredProperty(property);
 	}
 	
 	public String getName()
@@ -125,7 +134,7 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 	public Resource getInputClass() throws ServiceOntologyException
 	{
 		try {
-			return input.getRequiredProperty(objectTypeProperty).getResource();
+			return getSinglePropertyValue(input, objectTypeProperty).getResource();
 		} catch (PropertyNotFoundException e) {
 			throw new ServiceOntologyException(String.format("input node %s missing required property %s", input, objectTypeProperty));
 		}
@@ -140,7 +149,7 @@ public class MyGridServiceOntologyHelper implements ServiceOntologyHelper
 	public Resource getOutputClass() throws ServiceOntologyException
 	{
 		try {
-			return output.getRequiredProperty(objectTypeProperty).getResource();
+			return getSinglePropertyValue(output, objectTypeProperty).getResource();
 		} catch (PropertyNotFoundException e) {
 			throw new ServiceOntologyException(String.format("output node %s missing required property %s", output, objectTypeProperty));
 		}
