@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.share;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +30,7 @@ import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils.PropertyRestrictionAdapter;
 
+import com.hp.hpl.jena.enhanced.UnsupportedPolymorphismException;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.OntClass;
@@ -50,7 +52,6 @@ import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitorBase;
 import com.hp.hpl.jena.sparql.syntax.ElementWalker;
-import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 public class SHAREKnowledgeBase
@@ -291,8 +292,15 @@ public class SHAREKnowledgeBase
 		 * are using the FROM clause in other ways...
 		 */
 		for (String sourceURI: query.getGraphURIs()) {
-			try{ 
-				dataModel.read( sourceURI );
+			try {
+				URL url = new URL(sourceURI);
+				if (url.getFile().endsWith(".owl")) {
+					log.info(String.format("reading %s into ontology model", sourceURI));
+					reasoningModel.read( sourceURI );
+				} else {
+					log.info(String.format("reading %s into data model", sourceURI));
+					dataModel.read( sourceURI );
+				}
 			} catch (Exception e) {
 				log.error(String.format("failed to read FROM graph %s", sourceURI), e);
 			}
@@ -310,7 +318,7 @@ public class SHAREKnowledgeBase
 		Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(predicates.values));
 		
 		if (!allowPredicateVariables && predicates.isEmpty()) {
-			log.error(new Exception("skipping pattern, variables are not permitted in the predicate position of triple patterns"));
+			log.error("variables are not permitted in the predicate position of triple patterns");
 			return;
 		}
 			
@@ -377,7 +385,7 @@ public class SHAREKnowledgeBase
 
 			boolean retrievedData;
 			
-			if(directionIsForward) {
+			if (directionIsForward) {
 				retrievedData = gatherTriples(subjects, properties, objects);
 			} else {
 				retrievedData = gatherTriples(objects, getInverseProperties(properties), subjects);
@@ -411,7 +419,10 @@ public class SHAREKnowledgeBase
 	{
 		Set<OntProperty> predicateSet = new HashSet<OntProperty>();
 		for (Resource predicate : predicates) {
-			predicateSet.add(getOntProperty(predicate.getURI()));
+			if (predicate.isURIResource())
+				predicateSet.add(getOntProperty(predicate.getURI()));
+			else
+				log.warn(String.format("skipping anonymous predicate %s", predicate));
 		}
 		return predicateSet;
 	}
@@ -432,14 +443,11 @@ public class SHAREKnowledgeBase
 	 */
 	private void processTypePattern(final Triple pattern)
 	{
-		/* if this starts happening (meaning we can have anonymous class
-		 * expressions in queries), we'll have to do something about it...
-		 */
-		if (!pattern.getObject().isURI()) {
-			log.warn(String.format("skipping non-URI object of rdf:type %s", pattern.getObject()));
+		OntClass c = getNodeAsClass(pattern.getObject());
+		if (c == null) {
+			log.warn(String.format("skipping type pattern with unknown class  %s", pattern.getObject()));
 			return;
 		}
-		OntClass c = getOntClass(pattern.getObject().getURI());
 		
 		final PotentialValues subjects = expandQueryNode(pattern.getSubject());
 		if (tracker.beenThere(subjects, c))
@@ -470,6 +478,32 @@ public class SHAREKnowledgeBase
 		});
 	}
 	
+	private OntClass getNodeAsClass(Node node)
+	{
+		
+		/* if the node already represents an OntClass, just return it;
+		 * this happens when an already-loaded OntClass is decomposed and
+		 * the triple patterns we added are processed (these classes
+		 * will frequently be anonymous, so we want to deal with them
+		 * before we start using the URI...)
+		 */
+		RDFNode rdfNode = reasoningModel.getRDFNode(node);
+		if (rdfNode != null && rdfNode.canAs(OntClass.class))
+			return rdfNode.as(OntClass.class);
+		
+		/* if the node isn't already an OntClass but does have a URI,
+		 * try to resolve that URI...
+		 */
+		if (node.isURI())
+			return getOntClass(node.getURI());
+		
+		/* if we make it this far, there's nothing we can do;
+		 * we probably have an anonymous node that isn't attached to
+		 * a class description (I don't know how this could happen...)
+		 */
+		return null;
+	}
+
 	/* return a set of potential values this query node represents;
 	 * this will be empty if the node is an unbound variable.
 	 */
@@ -527,7 +561,7 @@ public class SHAREKnowledgeBase
 	{
 		OntClass c = null;
 		try {
-			OwlUtils.getOntClassWithLoad(reasoningModel, uri);
+			c = OwlUtils.getOntClassWithLoad(reasoningModel, uri);
 		} catch (SADIException e) {
 			log.error(String.format("failed to load OWL class %s", uri), e);
 		}
@@ -700,7 +734,7 @@ public class SHAREKnowledgeBase
 			log.trace(String.format("assigning %d bindings to variable %s", pValues.size(), predicates.variable));
 			predicates.setBindings(pValues);
 		}
-		
+	
 		if (objects.isVariable()) {
 			if (oIsBoundVar) {
 				log.trace(String.format("pattern has %d solutions for %s that match existing bindings for %s (%s has %d existing bindings)", 
@@ -749,19 +783,19 @@ public class SHAREKnowledgeBase
 	
 	protected void recordStats(PotentialValues subjects, PotentialValues predicates, PotentialValues objects, boolean directionIsForward, int responseTime)
 	{
-		if(getStatsDB() == null) {
+		if (getStatsDB() == null) {
 			log.error("statsDB was not successfully initialized, skipping recording of stats");
 			return;
 		}
 		
-		if((directionIsForward && subjects.isEmpty()) || (!directionIsForward && objects.isEmpty())) {
+		if ((directionIsForward && subjects.isEmpty()) || (!directionIsForward && objects.isEmpty())) {
 			log.error("non-sensical value for directionIsForward, skipping recording of stats");
 			return;
 		}
 
 		Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(predicates.values));
 		
-		if(!predicates.isEmpty() && properties.size() == 0) {
+		if (!predicates.isEmpty() && properties.size() == 0) {
 			log.trace("predicate has no bindings that are URIs, skipping recording of stats");
 			return;
 		}
@@ -773,7 +807,7 @@ public class SHAREKnowledgeBase
 		 * the resolution time of the individual predicates.)
 		 */
 		
-		if(predicates.isEmpty() || properties.size() > 1) {
+		if (predicates.isEmpty() || properties.size() > 1) {
 			log.trace("pattern involves multiple predicates, skipping recording of stats");
 			return;
 		}
@@ -783,7 +817,7 @@ public class SHAREKnowledgeBase
 		 * due to an user error in formulating the query, and do
 		 * not record any stats.  
 		 */
-		if(getStatements(subjects, predicates, objects).size() == 0) {
+		if (getStatements(subjects, predicates, objects).size() == 0) {
 			log.trace("pattern has no solutions, skipping recording of stats");
 			return;
 		}
@@ -791,16 +825,15 @@ public class SHAREKnowledgeBase
 		OntProperty property = properties.iterator().next();
 		int numInputs = directionIsForward ? subjects.values.size() : objects.values.size();
 		
-		for(OntProperty p : OwlUtils.getEquivalentProperties(property)) {
+		for (OntProperty p : OwlUtils.getEquivalentProperties(property)) {
 			getStatsDB().recordSample(p, directionIsForward, numInputs, responseTime);
 		}
 		
-		for(OntProperty inverse : getInverseProperties(property)) {
-			if(!inverse.getURI().endsWith(AUTOGENERATED_INVERSE_PROPERTY_SUFFIX)) {
+		for (OntProperty inverse : getInverseProperties(property)) {
+			if (!inverse.getURI().endsWith(AUTOGENERATED_INVERSE_PROPERTY_SUFFIX)) {
 				getStatsDB().recordSample(inverse, !directionIsForward, numInputs, responseTime);
 			}
 		}
-		
 	}
 	
 	protected Collection<Statement> getStatements(PotentialValues subjects, PotentialValues predicates, PotentialValues objects)
@@ -882,6 +915,10 @@ public class SHAREKnowledgeBase
 		Set<Service> services = new HashSet<Service>();
 		for (OntProperty equivalentProperty: equivalentProperties) {
 			log.trace(String.format("finding services for equivalent property %s", equivalentProperty));
+//			if (equivalentProperty.equals(RDF.type) || equivalentProperty.isInverseOf(RDF.type)) {
+//				log.debug("refusing to find services for RDF.type or its inverse");
+//				continue;
+//			}
 			Collection<Service> equivalentPropertyServices = getRegistry().findServicesByPredicate(equivalentProperty.getURI());
 			log.debug(String.format("found %d service%s for property %s", equivalentPropertyServices.size(), equivalentPropertyServices.size() == 1 ? "" : "s", equivalentProperty));
 			services.addAll(equivalentPropertyServices);
@@ -925,64 +962,76 @@ public class SHAREKnowledgeBase
 		/* if so configured, use SADI to attempt to dynamically attach
 		 * properties to the failed nodes so that they will pass...
 		 */
-		OntClass inputClass = null;
-		try {
-			inputClass = service.getInputClass();
-		} catch (SADIException e) {
-			log.error(String.format("error loading input class for service %s", service), e);
-		}
-		if (dynamicInputInstanceClassification && inputClass != null) {
-			log.trace(String.format("using SADI to test membership in %s", inputClass));
-			
-			PotentialValues s = getNewVariableBinding();
-			for (Iterator<RDFNode> i = unfiltered.iterator(); i.hasNext(); ) {
-				RDFNode node = i.next();
-				if (!subjects.contains(node))
-					s.add(node);
+		if (dynamicInputInstanceClassification) {
+			OntClass inputClass = null;
+			try {
+				inputClass = service.getInputClass();
+			} catch (SADIException e) {
+				log.error(String.format("error loading input class for service %s", service), e);
 			}
-			Triple typePattern = Triple.create(s.variable, RDF.type.asNode(), inputClass.asNode());
-			processPattern(typePattern);
+			if (inputClass != null) {
+				log.trace(String.format("using SADI to test membership in %s", inputClass));
+
+				PotentialValues s = getNewVariableBinding();
+				for (Iterator<RDFNode> i = unfiltered.iterator(); i.hasNext(); ) {
+					RDFNode node = i.next();
+					if (!subjects.contains(node))
+						s.add(node);
+				}
+				Triple typePattern = Triple.create(s.variable, RDF.type.asNode(), inputClass.asNode());
+				processPattern(typePattern);
+			}
 		}
 	}
 
 	private void filterByInputClassInBulk(Set<RDFNode> subjects, Service service)
 	{
-		OntClass inputClass = null;
-		try {
-			inputClass = service.getInputClass();
-		} catch (SADIException e) {
-			log.error(String.format("error loading input class for service %s", service), e);
-		}
-		
 		/* I really, really hate this special case coding, but if we want
 		 * to be able to use literals as input to the SPARQL services 
 		 * (even though the SADI spec explicitly disallows this), we have
 		 * to do it this way...
 		 */
-		if (inputClass == null || inputClass.equals(OWL.Nothing)) {
+//		if (inputClass == null || inputClass.equals(OWL.Nothing)) {
+		if (service.getInputClassURI() == null ||
+			service.getInputClassURI().equals("http://www.w3.org/2002/07/owl#Nothing")) {
 			filterByInputClassIndividually(subjects, service);
 			return;
 		}
-
+		
+		OntClass inputClass = reasoningModel.getOntClass(service.getInputClassURI());
 		log.trace(String.format("finding instances of %s", inputClass));
-
-		/* TODO this will cause a problem if different ontologies accessed in
-		 * the same query have conflicting definitions; it might be worth
-		 * changing OwlUtils.getOnt(Class|Property)WithLoad to only load the
-		 * reachable closure of each requested URI...  Also, we'll need a
-		 * really descriptive error message for when this happens...
-		 */
-		reasoningModel.addSubModel(inputClass.getOntModel());
-		OntClass inOurModel = reasoningModel.getOntClass(inputClass.getURI());		
-
-//		Set<? extends OntResource> instances = inputClass.listInstances().toSet();
 		Set<String> instanceURIs = new HashSet<String>();
-		for (OntResource r: inOurModel.listInstances().toList()) {
-			instanceURIs.add(r.getURI());
+		
+		/* if the service input class is in our reasoning model already,
+		 * the user has explicitly imported it; in this case, there's no need
+		 * to go through the whole segregation rigamarole... 
+		 */
+		if (inputClass != null) {
+			for (OntResource r: inputClass.listInstances().toList()) {
+				instanceURIs.add(r.getURI());
+			}
+		} else {
+			try {
+				inputClass = service.getInputClass();
+			} catch (SADIException e) {
+				log.error(String.format("error loading input class for service %s", service), e);
+			}
+			
+			/* TODO this will cause a problem if different ontologies accessed in
+			 * the same query have conflicting definitions; it might be worth
+			 * changing OwlUtils.getOnt(Class|Property)WithLoad to only load the
+			 * reachable closure of each requested URI...  Also, we'll need a
+			 * really descriptive error message for when this happens...
+			 */
+			reasoningModel.addSubModel(inputClass.getOntModel());
+			OntClass inOurModel = reasoningModel.getOntClass(inputClass.getURI());
+			for (OntResource r: inOurModel.listInstances().toList()) {
+				instanceURIs.add(r.getURI());
+			}
+			reasoningModel.removeSubModel(inputClass.getOntModel());
 		}
 		for (Iterator<? extends RDFNode> i = subjects.iterator(); i.hasNext(); ) {
 			RDFNode node = i.next();
-//			if (instances.contains(node.inModel(reasoningModel))) {
 			if (node.isResource() && instanceURIs.contains(node.as(Resource.class).getURI())) {
 				log.trace(String.format("%s is a valid input to %s", node, service));
 			} else {
@@ -990,8 +1039,6 @@ public class SHAREKnowledgeBase
 				i.remove();
 			}
 		}
-		
-		reasoningModel.removeSubModel(inputClass.getOntModel());
 	}
 	
 	private void filterByInputClassIndividually(Set<RDFNode> subjects, Service service)
