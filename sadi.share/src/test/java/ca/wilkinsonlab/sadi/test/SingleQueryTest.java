@@ -31,6 +31,8 @@ public class SingleQueryTest
 		
 		String query;
 		
+		query = ExampleQueries.getQueryByHtmlListIndex(9);
+		
 //		query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
 //				"PREFIX simple: <http://biordf.net/cardioSHARE/simple.owl#> " +
 //				"SELECT ?gene " + //FROM <http://biordf.net/cardioSHARE/simple.owl> " +
@@ -108,24 +110,22 @@ public class SingleQueryTest
 //					"?patient pred:latestCreatinine ?creat . " +
 //				"}";
 		
-		query = "PREFIX pred: <http://sadiframework.org/ontologies/predicates.owl#> " +
-				"PREFIX uniprot: <http://bio2rdf.org/uniprot:> " +
-				"SELECT ?name " +
-				"WHERE { " +
-					"uniprot:P15923 pred:hasName ?name " +
-				"}";
+//		query = "PREFIX pred: <http://sadiframework.org/ontologies/predicates.owl#> " +
+//				"PREFIX uniprot: <http://bio2rdf.org/uniprot:> " +
+//				"SELECT ?name " +
+//				"WHERE { " +
+//					"uniprot:P15923 pred:hasName ?name " +
+//				"}";
 		
-		query = ExampleQueries.getQueryByHtmlListIndex(5);
-		
-		query = 
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-			"PREFIX ss: <http://semanticscience.org/resource/> " +
-			"SELECT ?s " +
-			"FROM <http://sadiframework.org/ontologies/lipinski-modified.owl> " +
-			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
-			"WHERE { " +
-			"    ?s rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#lipinskismilesmolecule> . " +
-			"}";
+//		query = 
+//			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+//			"PREFIX ss: <http://semanticscience.org/resource/> " +
+//			"SELECT ?s " +
+//			"FROM <http://sadiframework.org/ontologies/lipinski-modified.owl> " +
+//			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
+//			"WHERE { " +
+//			"    ?s rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#lipinskismilesmolecule> . " +
+//			"}";
 		
 		log.info( String.format("executing query\n%s", query) );
 		
