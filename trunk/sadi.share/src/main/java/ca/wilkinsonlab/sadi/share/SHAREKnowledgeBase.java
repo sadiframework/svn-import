@@ -30,7 +30,6 @@ import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils.PropertyRestrictionAdapter;
 
-import com.hp.hpl.jena.enhanced.UnsupportedPolymorphismException;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.OntClass;
