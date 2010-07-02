@@ -82,21 +82,7 @@ xRange[2] = xRange[2] + labelWidth
 
 drawAxes()
 
-# subtitle
-#mtext(args[3])
-
-plot(
-	c(),
-	c(),
-	xlab="Number of Inputs",
-	ylab="Average Response Time (ms)",
-	main=args[2],
-	xlim=xRange,
-	ylim=yRange,
-	log="y"
-)
-
-
+legend("topright", legend=c("forward response time", "reverse response time"), pch=c(24,25))
 
 errbar(
 	forwardMeanTimes[,3], 
