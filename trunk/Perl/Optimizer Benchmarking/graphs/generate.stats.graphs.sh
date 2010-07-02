@@ -24,7 +24,7 @@ for i in $(seq 1 $trainingRuns); do
 ($i Training Runs)" 
 
 	./getNonRegressedSamples.pl $samplesGraphURI | apply.sparql.prefixes.pl sparql.prefixes > $samplesFilename
-	$R_COMMAND $samplesFilename $samplesGraphTitle "non.regressed.averages.$i.png" < non.regressed.samples.scatter.plot.R
+	$R_COMMAND $samplesFilename "$samplesGraphTitle" "non.regressed.averages.$i.png" < non.regressed.samples.scatter.plot.R
 	rm $samplesFilename
 
 	echo "plotting graph for $summaryStatsGraphURI..." 1>&2
