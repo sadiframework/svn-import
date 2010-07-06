@@ -126,6 +126,23 @@ public class SingleQueryTest
 //			"WHERE { " +
 //			"    ?s rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#lipinskismilesmolecule> . " +
 //			"}";
+
+//		query = 
+//			"SELECT ?p " +
+//			"WHERE { " +
+//				"<http://elmonline.ca/sw/explore.rdf#id> ?p [] " +
+//			"}";
+		
+		query = 
+			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+			"SELECT ?x " +
+			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
+			"WHERE { " +
+//			"	?x rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#alogpsmilesmolecule> " + 
+			" ?x <http://semanticscience.org/resource/SIO_000008> ?attr . " +
+			" ?attr rdf:type <http://semanticscience.org/resource/CHEMIN_000251> . " +
+			" ?attr <http://semanticscience.org/resource/SIO_000300> ?value . " +
+			"}";
 		
 		log.info( String.format("executing query\n%s", query) );
 		
