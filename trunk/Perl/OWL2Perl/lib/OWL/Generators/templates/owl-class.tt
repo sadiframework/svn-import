@@ -39,10 +39,12 @@ use OWL::RDF::Predicates::RDFS;
 use [% child.module_name %];[% END %]
 [% FOREACH child IN obj.datatype_properties %]
 use [% child.module_name %];[% END %]
+[% FOREACH child IN obj.has_value_property %]
+use [% child.module %];[% END %]
 
 {
     my %_allowed = (
-    [% FOREACH child IN obj.object_properties %]
+[% FOREACH child IN obj.object_properties %]
         [% child.name %] => {
         	type => 'OWL::Data::OWL::Class',
         	# range checking of classes added 
@@ -60,12 +62,12 @@ use [% child.module_name %];[% END %]
         		$self->throw("\n" . $type->type() . "\nis not related to\n" . $range->type()) unless $type->isa(ref($range));
         	},
         	is_array => 1, },
-    [% END %]
-    [% FOREACH child IN obj.datatype_properties %]
+[% END %]
+[% FOREACH child IN obj.datatype_properties %]
         [% child.name %] => {
             type => '[% child.module_name %]',
             is_array => 1, },
-    [% END %]
+[% END %]
     );
 
     sub _accessible {
@@ -96,7 +98,10 @@ sub init {
     $self->[%- child -%]::init();
 [% END -%]
     $self->type('[% obj.type %]');
-    
+[% FOREACH child IN obj.has_value_property -%]
+    $self->add_[%- child.name -%]([%- child.module -%]->new('[%- child.object -%]'));
+[% END -%]
+
 }
 
 # every generated module implements this ...
@@ -123,20 +128,20 @@ sub _get_statements {
            )
         );
     }
-    
-    # for each attribute, if is array do:
+
 [% FOREACH child IN obj.object_properties -%]
+    # for each attribute, if is array do:
     if (defined $self->[%- child.name -%]){
 	    foreach (@{$self->[%- child.name -%]}) {
 	        # add all statements from $_
-	        my @statements = @{$_->_get_statements};
-	        $self->add_statements(@statements) if @statements;
+	        my @statements = @{$_->_get_statements} if defined $_->_get_statements;
+	        $self->add_statements(@statements) if @statements and scalar(@statements) > 0;
 	        # add a statement linking the graphs
 	        $self->add_statements(
 	          new RDF::Core::Statement(
 	              $subject,
 	              $subject->new('[%- child.uri -%]'), 
-	              $_->subject
+	              (defined $_->subject ? $_->subject : RDF::Core::Resource->new($_->value))
 	          )
 	        );
 	    }
@@ -168,7 +173,7 @@ sub _get_statements {
     		$add_type_statement ||= undef;
     	}
     };
-[% END %]
+[% END -%]
 
     # add the type
     $self->add_statements(
@@ -178,7 +183,7 @@ sub _get_statements {
             new RDF::Core::Resource( $self->type )
         )
     ) if $add_type_statement; # or scalar (@{ $self->statements }) > 0;
-    
+
     return $self->statements;
 }
 
@@ -198,25 +203,24 @@ __END__
   # get the uri for this class
   my $uri = $class->uri;
 
-[% IF obj.datatype_properties -%]
+[%- IF obj.datatype_properties -%]
   # add datatype properties 
-[% FOREACH child IN obj.datatype_properties -%]
+[%- FOREACH child IN obj.datatype_properties -%]
   use [% child.module_name %];
   my $[% child.name %] = new [% child.module_name %]('some value');
   $class->add_[% child.name %]($[% child.name %]);
   # get the [% child.name %] datatype properties
   my $[% child.name %]_property = $class->[% child.name %];
-[% END %][% END %]
-  
+[%- END -%][%- END -%]
 [% IF obj.object_properties -%]
   # add object properties 
-[% FOREACH child IN obj.object_properties -%]
+[%- FOREACH child IN obj.object_properties -%]
   # Make sure to use the appropriate OWL class! 
   # OWL::Data::OWL::Class used as an example
   $class->add_[% child.name %](new OWL::Data::OWL::Class('#someURI'));
   # get the [% child.name %] object properties
   my $[% child.name %]_objects = $class->[% child.name %];
-[% END %][% END %]
+[%- END -%][%- END -%]
 
 =head1 DESCRIPTION
 
