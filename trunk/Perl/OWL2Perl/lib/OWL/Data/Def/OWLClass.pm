@@ -107,6 +107,7 @@ The type of this owl class
 				$self->{type} = "" if $package =~ m/^genid/ig;
 			  }
 		},
+		has_value_property => {type => 'HASH', is_array => 1 },
 		object_properties =>
 		  { type => 'OWL::Data::Def::ObjectProperty', is_array => 1 },
 		datatype_properties =>
