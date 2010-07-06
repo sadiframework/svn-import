@@ -6,6 +6,9 @@ Revision history for Perl extension OWL2Perl.
     * added tests for uri2package
     * updated some of the tests that create files and/or directories
       to do better post test cleanup
+    * for those owl classes that have owl:hasValue restrictions, they
+      are now added to the generated OWL class (values are now automatically
+      added). 
 0.95
     * generate modules script now checks to see whether or not the
       install script has been run.
