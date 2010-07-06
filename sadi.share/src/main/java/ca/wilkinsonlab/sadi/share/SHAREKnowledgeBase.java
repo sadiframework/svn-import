@@ -392,7 +392,7 @@ public class SHAREKnowledgeBase
 
 			stopWatch.stop();
 			log.trace(String.format("resolved pattern %s in %d seconds", pattern, stopWatch.getTime() / 1000));
-		
+			
 			if (retrievedData && recordQueryStats()) {
 				recordStats(subjects, predicates, objects, directionIsForward, (int)stopWatch.getTime());
 			}
@@ -728,7 +728,6 @@ public class SHAREKnowledgeBase
 						predicates.variable,
 						predicates.variable,
 						predicates.values.size()));
-
 			}
 			log.trace(String.format("assigning %d bindings to variable %s", pValues.size(), predicates.variable));
 			predicates.setBindings(pValues);
