@@ -41,6 +41,7 @@ END {
 # its man page ( perldoc Test::More ) for help writing this test script.
 use lib "$outdir";
 use_ok('sadiframework::org::examples::example::AnnotatedGeneID_Record');
+use_ok('sadiframework::org::examples::example::getEcGeneComponentPartsHuman_Output');
 
 # check that the properties can be used
 my @properties = qw/ontology::dumontierlab::com::hasSymbol
@@ -185,3 +186,10 @@ is( @{ $class->hasName() }[0]->uri,
 is( @{ $class->hasName() }[1]->uri,
 	'http://sadiframework.org/ontologies/predicates.owl#hasName',
 	"check type of value in hasName slot" );
+
+$class = new sadiframework::org::examples::example::getEcGeneComponentPartsHuman_Output();
+is(@{ $class->hasName() }[0]->value(), 'some resource name', 'Check the hasValue field for datatype property');
+is(@{ $class->hasResource() }[0]->value(), 'http://lsrn.org/taxon:9606', 'Check the hasValue field for object property');
+is(@{ $class->hasResource2() }[0]->value(), 'http://lsrn.org/taxon:90100', 'Check the hasValue field for object property with no type');
+use OWL::Utils;
+print STDOUT OWL::Utils::serialize($class);

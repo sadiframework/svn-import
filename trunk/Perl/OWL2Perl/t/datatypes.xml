@@ -13,9 +13,16 @@
   <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#hasProteinName"/>
   <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#hasName"/>
   
+  <!-- in lieu of importing the whole ontology... -->
+  <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#hasResource"/>
+  <owl:ObjectProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#hasResource2"/>
+  
   <!-- in lieu of importing the whole ontology -->
   <owl:Class rdf:about="http://purl.oclc.org/SADI/LSRN/GeneID_Record"/>
-  
+  <owl:Class rdf:about="http://purl.oclc.org/SADI/LSRN/KEGG_ec_Record"/>
+  <owl:Class rdf:about="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+  <owl:Class rdf:about="http://purl.oclc.org/SADI/LSRN/taxon_Record"/>
+
   <owl:Class rdf:ID="AnnotatedGeneID_Record">
     <rdfs:subClassOf rdf:resource="http://purl.oclc.org/SADI/LSRN/GeneID_Record"/>
     <rdfs:subClassOf>
@@ -41,4 +48,33 @@
       </owl:Class>
     </rdfs:subClassOf>
   </owl:Class>
+  
+  <owl:Class rdf:ID="getEcGeneComponentPartsHuman_Output">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://purl.oclc.org/SADI/LSRN/KEGG_ec_Record"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/predicates.owl#hasName"/>
+                        <owl:hasValue>some resource name</owl:hasValue>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/predicates.owl#hasResource"/>
+                        <owl:hasValue rdf:resource="http://lsrn.org/taxon:9606"/>
+                    </owl:Restriction>
+					<owl:Restriction>
+                        <owl:onProperty rdf:resource="http://sadiframework.org/ontologies/predicates.owl#hasResource2"/>
+                        <owl:hasValue rdf:resource="http://lsrn.org/taxon:90100"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+  </owl:Class>
+
+    <!-- http://lsrn.org/taxon:9606 -->
+    <rdf:Description rdf:about="http://lsrn.org/taxon:9606">
+        <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/taxon_Record"/>
+        <rdfs:label>Human</rdfs:label>
+    </rdf:Description>
+  
 </rdf:RDF>
