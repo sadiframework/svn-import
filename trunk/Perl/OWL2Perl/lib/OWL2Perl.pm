@@ -315,6 +315,26 @@ sub _process_classes {
 			foreach
 			  my $restrict ( @{ $object->{'intersections'}->{'restrictions'} } )
 			{
+				# TODO check if $restrict->{'hasValue'} ? add the hasValue to class : process restriction
+                if (defined $restrict->{'hasValue'}) {
+                    # add hasValue: extract the value, 
+                    my $o = $restrict->{'hasValue'};
+                    my $p = $restrict->{'onProperty'};
+                    my $range = $restrict->{'range'};
+                    my %hv_hash;
+                    $hv_hash{object} = $o;
+                    $hv_hash{range} = $range;
+                    $hv_hash{name} = $restrict->{'propertyName'};
+                    if ( $dProps->{ $restrict->{'onProperty'} } ) {
+                    	$hv_hash{module} = $self->oProperty2module( $self->uri2package( $p ) );
+                    } else {
+	                    $hv_hash{module} = $self->oProperty2module( $self->uri2package( $range ) ) if $range;
+	                    $hv_hash{module} = 'OWL::Data::OWL::Class' unless $range;	
+                    }
+                                        
+                    $class->add_has_value_property(\%hv_hash);
+                    # no next, because we use the has_value stuff to init our stuff
+                }
 				if ( $dProps->{ $restrict->{'onProperty'} } ) {
 					my $dp = $dProps->{ $restrict->{'onProperty'} };
 
@@ -337,6 +357,27 @@ sub _process_classes {
 		{
 			foreach my $restrict ( @{ $object->{'restrictions'} } ) {
 				next unless defined $restrict->{'onProperty'};
+				
+				# TODO check if $restrict->{'hasValue'} ? add the hasValue to class : process restriction
+				if (defined $restrict->{'hasValue'}) {
+					# add hasValue: extract the value, 
+                    my $o = $restrict->{'hasValue'};
+                    my $p = $restrict->{'onProperty'};
+                    my $range = $restrict->{'range'};
+                    my %hv_hash;
+                    $hv_hash{object} = $o;
+                    $hv_hash{range} = $range;
+                    $hv_hash{name} = $restrict->{'propertyName'};
+                    if ( $dProps->{ $restrict->{'onProperty'} } ) {
+                        $hv_hash{module} = $self->oProperty2module( $self->uri2package( $p ) );
+                    } else {
+                        $hv_hash{module} = $self->oProperty2module( $self->uri2package( $range ) ) if $range;
+                        $hv_hash{module} = 'OWL::Data::OWL::Class' unless $range;   
+                    }
+                                        
+                    $class->add_has_value_property(\%hv_hash);
+                    # no next, because we use the has_value stuff to init our stuff
+				}
 				if ( $dProps->{ $restrict->{'onProperty'} } ) {
 					my $dp = $dProps->{ $restrict->{'onProperty'} };
 					$class->add_datatype_properties($dp);
