@@ -8,7 +8,11 @@ Revision history for Perl extension OWL2Perl.
       to do better post test cleanup
     * for those owl classes that have owl:hasValue restrictions, they
       are now added to the generated OWL class (values are now automatically
-      added). 
+      added).
+    * added some newlines in our test OWL/RDF documents to test for text content
+      handling.
+    * added some new tests for hasValue processing
+    
 0.95
     * generate modules script now checks to see whether or not the
       install script has been run.
