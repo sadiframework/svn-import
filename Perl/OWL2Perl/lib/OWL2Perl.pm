@@ -318,7 +318,7 @@ sub _process_classes {
 				# TODO check if $restrict->{'hasValue'} ? add the hasValue to class : process restriction
                 if (defined $restrict->{'hasValue'}) {
                     # add hasValue: extract the value, 
-                    my $o = $restrict->{'hasValue'};
+                    my $o = OWL::Utils->trim($restrict->{'hasValue'});
                     my $p = $restrict->{'onProperty'};
                     my $range = $restrict->{'range'};
                     my %hv_hash;
@@ -361,7 +361,7 @@ sub _process_classes {
 				# TODO check if $restrict->{'hasValue'} ? add the hasValue to class : process restriction
 				if (defined $restrict->{'hasValue'}) {
 					# add hasValue: extract the value, 
-                    my $o = $restrict->{'hasValue'};
+                    my $o = OWL::Utils->trim($restrict->{'hasValue'});
                     my $p = $restrict->{'onProperty'};
                     my $range = $restrict->{'range'};
                     my %hv_hash;
