@@ -3,6 +3,8 @@ $Id: Changes,v 1.14 2010-05-20 17:29:09 ubuntu Exp $
 0.27
     - Restrictions using hasValue now extracted and added to
       class restrictions.
+    - parsing of non empty text content wasnt handled properly
+      for different serializations of text.
 0.26
     - fixed how Module::Conditional::Load was being called
       because the way we were doing it broke all of a sudden
