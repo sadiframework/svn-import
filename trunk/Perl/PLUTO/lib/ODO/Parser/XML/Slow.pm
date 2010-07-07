@@ -417,8 +417,11 @@ sub start_element {
 
 sub characters {
 	my ($self, $chars) = @_;
-
-	$chars->{'Data'} =~ s/\n/\\n/g;
+	# trim space from characters
+	$chars->{'Data'} =~ s/^\s+//gm;
+	$chars->{'Data'} =~ s/\s+$//gm;
+	# if there is no text, return
+	return if $chars->{'Data'} eq ''; 
 	$self->stack()->[-1]->text($chars->{'Data'});
 	push @{ $self->stack()->[-1]->xtext() }, $chars->{'Data'};
 }
@@ -436,7 +439,6 @@ sub end_element {
     
 	if ( scalar(@{ $self->stack() }) > 0 ) {
 		push @{ $self->stack()->[-1]->children() }, $element;
-		
 		@{ $element->xtext() } = grep { defined($_) } @{ $element->xtext() };
 		$self->stack()->[-1]->xtext()->[1] = join('', @{ $element->xtext() } );
 	}
