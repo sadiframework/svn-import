@@ -17,9 +17,9 @@ END {
 
 	# destroy persistent data here
 	# delete outdir and its contents ...
-	use File::Path;
+	use File::Path qw(remove_tree);
 	diag("\nremoving generated modules from $outdir ...");
-	rmtree($outdir);
+	remove_tree($outdir, {keep_root => 0});
 	diag("done.");
 }
 #########################
