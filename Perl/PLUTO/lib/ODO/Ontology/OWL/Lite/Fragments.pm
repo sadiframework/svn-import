@@ -247,7 +247,7 @@ sub getClassRestriction {
         $queryString = "SELECT ?stmt WHERE (<$s>, <$p>, ?values)";
 	    $queryResults = $self->graph()->query($queryString)->results();
 	    if ( scalar( @{$queryResults} ) == 1 ) {
-	        $restriction->{'type'} = $queryResults->[0]->object()->value();
+	        $restriction->{'range'} = $queryResults->[0]->object()->value();
 	    }
         
     }
@@ -391,7 +391,7 @@ sub getEquivalentClasses {
         $queryString = "SELECT ?stmt WHERE (<$s>, <$p>, ?values)";
         $queryResults = $self->graph()->query($queryString)->results();
         if ( scalar( @{$queryResults} ) == 1 ) {
-            $restriction->{'type'} = $queryResults->[0]->object()->value();
+            $restriction->{'range'} = $queryResults->[0]->object()->value();
         }
     }
 	
