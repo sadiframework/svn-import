@@ -163,7 +163,7 @@ trims whitespace from the begining and end of a string
 sub trim {
 	my ($self, $text) = @_;
 	$text = $self 
-		unless ref($self) =~ m/^OWL::Utils/;
+		unless ref($self) =~ m/^OWL::Utils/ or $self =~ m/^OWL::Utils/;
 	# return empty string if $text is not defined
 	return "" unless $text;
 	$text =~ s/^\s+//;
