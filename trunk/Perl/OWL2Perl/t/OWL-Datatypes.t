@@ -16,7 +16,6 @@ BEGIN {
 	   	$outdir = "$Bin/t/owl";
 	}
 	
-	
 	my $cmd = $Bin;
 	$cmd .= "/t" unless $cmd =~ /t$/;
 	$cmd =
@@ -28,12 +27,11 @@ BEGIN {
 }
 
 END {
-
 	# destroy persistent data here
 	# delete outdir and its contents ...
-	use File::Path;
+	use File::Path qw(remove_tree);
 	diag("\nremoving generated modules from $outdir ...");
-	rmtree($outdir, {keep_root => 0});
+	remove_tree($outdir, {keep_root => 0});
 	diag("done.");
 }
 #########################
@@ -187,9 +185,12 @@ is( @{ $class->hasName() }[1]->uri,
 	'http://sadiframework.org/ontologies/predicates.owl#hasName',
 	"check type of value in hasName slot" );
 
+# class with specific hasValue restrictions
 $class = new sadiframework::org::examples::example::getEcGeneComponentPartsHuman_Output();
-is(@{ $class->hasName() }[0]->value(), 'some resource name', 'Check the hasValue field for datatype property');
+isa_ok($class, 'purl::oclc::org::SADI::LSRN::KEGG_ec_Record', 'Check our classes equivalent class');
+is(OWL::Utils->trim(@{ $class->hasName() }[0]->value()), 'some resource name', 'Check the hasValue field for datatype property');
+diag(@{ $class->hasName2() }[0]->value());
 is(@{ $class->hasResource() }[0]->value(), 'http://lsrn.org/taxon:9606', 'Check the hasValue field for object property');
+isa_ok(@{ $class->hasResource() }[0], 'purl::oclc::org::SADI::LSRN::taxon_Record', 'Confirm hasResource is a taxon_Record');
+isa_ok(@{ $class->hasResource2() }[0], 'OWL::Data::OWL::Class', 'Confirm hasResource2 is a OWL::Data::OWL::Class since its type is not explicitly set');
 is(@{ $class->hasResource2() }[0]->value(), 'http://lsrn.org/taxon:90100', 'Check the hasValue field for object property with no type');
-use OWL::Utils;
-print STDOUT OWL::Utils::serialize($class);
