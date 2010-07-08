@@ -17,7 +17,7 @@
 	# Specific dependencies
 	requires 'Carp'             	=> 0;
 	requires 'File::Spec'       	=> 0.80;    
-	requires 'File::Path'           => 0;
+	requires 'File::Path'           => 2.08;
 	requires 'File::HomeDir'    	=> 0.65;
 	requires 'File::ShareDir'   	=> 1.00;
 	requires 'Config::Simple'       => 4.58;
