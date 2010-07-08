@@ -5,7 +5,6 @@ INSTALL
 LICENSE
 Makefile.PL
 MANIFEST
-lib/RDFS.pm
 lib/ODO.pm
 lib/ODO/Aspect.pm
 lib/ODO/DB.pm
