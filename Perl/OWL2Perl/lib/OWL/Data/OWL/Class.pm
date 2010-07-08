@@ -140,6 +140,7 @@ sub init {
 # get all RDF::Core::Statements for this thing (array_ref)
 #-------------------------------------------------------------------
 sub _get_statements {
+	#return [];
 }
 1;
 __END__
