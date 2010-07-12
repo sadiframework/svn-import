@@ -44,7 +44,7 @@ use SADI::Generators::GenServices;
 use SADI::FileStore;
 
 # the suggested wait time for polling in milliseconds
-my $SUGGESTED_WAIT_TIME = 2*60*1000;
+my $SUGGESTED_WAIT_TIME = 0.5*60*1000;
 
 # here we require the service module and add it to ISA hierarchy
 use base 'Service::[% obj.ServiceName %]';
