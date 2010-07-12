@@ -393,7 +393,9 @@ sub start_element {
 	if ($element->uri() eq rdf->uri('RDF')) {
 		my $baseURI = $element->attributes()->{xml->uri('base')};
 		if ($baseURI) {
-			$baseURI =~ s/\#$//i;
+			# strip all trailing # from URI
+			$baseURI =~ s/#*$//i;
+			$baseURI .= '#';
 			$element->base_uri( $baseURI );
 			$self->base_uri( $baseURI );
 		}
@@ -543,8 +545,9 @@ sub nodeElement {
 		if ($idURI =~ m|.*://|){
 			$s = ODO::Node::Resource->new( $idURI );
 		} else {
-			$idURI = $baseURI . $idURI if $baseURI =~ m/\#$/;
-			$idURI = $baseURI . '#'. $idURI unless $baseURI =~ m/\#$/;
+			$idURI =~ s/^#*// if $idURI;
+			$idURI = $baseURI . $idURI if $baseURI =~ m/#$/;
+			$idURI = $baseURI . '#'. $idURI unless $baseURI =~ m/#$/;
 			$s = ODO::Node::Resource->new( $idURI);
 		}
 		
@@ -573,7 +576,12 @@ sub nodeElement {
 		if ($aboutUri =~ m|.*://|) {
 			$s = ODO::Node::Resource->new( $aboutUri);
 		} else {
-		  $s = ODO::Node::Resource->new( ($baseURI || '') . $aboutUri);
+			$aboutUri =~ s/^#*//;
+			if ($baseURI) {
+				$baseURI =~ s/^#*//;
+				$baseURI .= '#';
+			}
+			$s = ODO::Node::Resource->new( ($baseURI || '') . $aboutUri);
 		}
 		$e->subject( $s );
 	}
@@ -631,8 +639,11 @@ sub nodeElement {
 	#
 	foreach my $propertyElement (@{ $e->children() }) {
 		# Propagate the baseURI that was selected to the children
-		$propertyElement->base_uri( $baseURI ) 
-			if($baseURI);
+		if ($baseURI) {
+			$baseURI =~ s/#*$//i;
+            $baseURI .= '#';
+			$propertyElement->base_uri( $baseURI );
+		}
 
 		$self->propertyElt($propertyElement);
 	}
