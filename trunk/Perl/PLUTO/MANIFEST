@@ -100,6 +100,7 @@ t/71_query_simple.t
 t/72_query_rdql.t
 t/80_ontology.t
 t/81_ontology_rdfs.t
+t/81b_ontology_rdfs.t
 t/82_ontology_jena.t
 t/85_jena_graph_system.t
 t/data/sql_lib_1.sql
@@ -111,6 +112,7 @@ t/data/owllite_example_schema.xml
 t/data/rdfs.xml
 t/data/rdfs_data.xml
 t/data/rdfs_example_schema.xml
+t/data/rdfs_example_schema-2.xml
 t/data/rdf_tests.txt
 t/library.pl
 examples/owllite2perl.pl
