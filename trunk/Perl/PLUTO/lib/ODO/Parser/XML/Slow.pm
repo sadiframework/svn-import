@@ -25,7 +25,7 @@ use ODO::Parser::XML::RDFAttributes;
 use XML::SAX qw/Namespaces Validation/;
 
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.48 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.49 $ =~ /: (\d+)\.(\d+)/;
 
 use base qw/ODO::Parser::XML/;
 
