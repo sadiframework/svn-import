@@ -395,7 +395,8 @@ sub start_element {
 		if ($baseURI) {
 			# strip all trailing # from URI
 			$baseURI =~ s/#*$//i;
-			$baseURI .= '#';
+			# append a hash unless uri ends with /
+			$baseURI .= '#' unless $baseURI =~ m/\/$/;
 			$element->base_uri( $baseURI );
 			$self->base_uri( $baseURI );
 		}
@@ -546,8 +547,8 @@ sub nodeElement {
 			$s = ODO::Node::Resource->new( $idURI );
 		} else {
 			$idURI =~ s/^#*// if $idURI;
-			$idURI = $baseURI . $idURI if $baseURI =~ m/#$/;
-			$idURI = $baseURI . '#'. $idURI unless $baseURI =~ m/#$/;
+			$idURI = $baseURI . $idURI if $baseURI =~ m/#$/ or $baseURI =~ m/\/$/;
+			$idURI = $baseURI . '#'. $idURI unless $baseURI =~ m/#$/ or $baseURI =~ m/\/$/;
 			$s = ODO::Node::Resource->new( $idURI);
 		}
 		
@@ -579,7 +580,7 @@ sub nodeElement {
 			$aboutUri =~ s/^#*//;
 			if ($baseURI) {
 				$baseURI =~ s/^#*//;
-				$baseURI .= '#';
+				$baseURI .= '#' unless $baseURI =~ m/\/$/;
 			}
 			$s = ODO::Node::Resource->new( ($baseURI || '') . $aboutUri);
 		}
