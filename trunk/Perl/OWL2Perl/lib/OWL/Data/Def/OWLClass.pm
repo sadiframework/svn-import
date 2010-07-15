@@ -118,6 +118,8 @@ The type of this owl class
 		module_name   => undef,
 		# the full package names for parents
 		module_parent => { type => OWL::Base->STRING, is_array => 1 },
+		# HashOfHash: property_name => {keys: name, max, min}
+        cardinality_constraints => {type => 'HASH', is_array => 0 },
 	);
 
 	sub _accessible {
@@ -146,6 +148,8 @@ sub init {
 	my ($self) = shift;
 	$self->SUPER::init();
 	$self->add_parent('OWL::Data::OWL::Class');
+	# initialize empty hash for cardinality_constraints
+	$self->cardinality_constraints(\());
 }
 1;
 __END__
