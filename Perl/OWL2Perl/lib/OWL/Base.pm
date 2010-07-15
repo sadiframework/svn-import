@@ -33,7 +33,7 @@ BEGIN {
 	@ISA      = qw( Exporter );
 	@EXPORT   = qw( $LOG );
 	$VERSION  = sprintf "%d.%02d", q$Revision: 1.28 $ =~ /: (\d+)\.(\d+)/;
-	$Revision = '$Id: Base.pm,v 1.28 2010-02-11 00:02:51 ubuntu Exp $';
+	$Revision = '$Id: Base.pm,v 1.29 2010-02-11 00:02:51 ubuntu Exp $';
 
 	# initiate error handling
 	require Carp;
@@ -470,11 +470,13 @@ sub AUTOLOAD {
 			if ($attr_is_array) {
 				my @result =
 				  ( ref( $values[0] ) eq 'ARRAY' ? @{ $values[0] } : @values );
+				# TODO check if we have cardinality constraints ( size of @results )
 				foreach my $value (@result) {
 					$value = $this->check_type( $AUTOLOAD, $attr_type, $value );
 				}
 				$this->_setter( $attr_name, $attr_type, \@result );
 			} else {
+				# no need to check cardinality contraints here ... sets one value here ...
 				$this->_setter(
 								$attr_name,
 								$attr_type,
@@ -503,6 +505,7 @@ sub AUTOLOAD {
 								   ref( $values[0] ) eq 'ARRAY'
 								   ? @{ $values[0] }
 								   : @values );
+					# TODO check if we have cardinality constraints ( size of @results + size of existing values)
 					foreach my $value (@result) {
 						$value =
 						  $this->check_type( $AUTOLOAD, $attr_type, $value );
