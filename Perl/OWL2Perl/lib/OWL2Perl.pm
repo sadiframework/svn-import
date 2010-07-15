@@ -337,11 +337,35 @@ sub _process_classes {
                 }
 				if ( $dProps->{ $restrict->{'onProperty'} } ) {
 					my $dp = $dProps->{ $restrict->{'onProperty'} };
+					# extract any cardinality constraints
+					if ( defined $restrict->{'minCardinality'} or defined $restrict->{'maxCardinality'}) {
+						my $min = $restrict->{'minCardinality'} || '0';
+						my $max = $restrict->{'maxCardinality'} || undef;
+						my $hash;
+						$hash->{min} = $min if defined $min;
+						$hash->{max} = $max if defined $max;
+						$hash->{name} = $restrict->{'propertyName'};
+						my $hoh = $class->cardinality_constraints();
+						$hoh->{$restrict->{'propertyName'}} = $hash;
+						$class->cardinality_constraints($hoh);
+					}
 
 					# TODO add someValuesFrom, allValuesFrom to inheritance
 					$class->add_datatype_properties($dp);
 				} else {
 					my $op = $oProps->{ $restrict->{'onProperty'} };
+					# extract any cardinality constraints
+					if (defined $restrict->{'minCardinality'} or defined $restrict->{'maxCardinality'}) {
+                        my $min = $restrict->{'minCardinality'} || '0';
+                        my $max =$restrict->{'maxCardinality'} || undef;
+                        my $hash;
+                        $hash->{min} = $min if defined $min;
+                        $hash->{max} = $max if defined $max;
+                        $hash->{name} = $restrict->{'propertyName'};
+                        my $hoh = $class->cardinality_constraints();
+                        $hoh->{$restrict->{'propertyName'}} = $hash;
+                        $class->cardinality_constraints($hoh);
+                    }
 					$class->add_object_properties($op);
 				}
 			}
@@ -380,9 +404,33 @@ sub _process_classes {
 				}
 				if ( $dProps->{ $restrict->{'onProperty'} } ) {
 					my $dp = $dProps->{ $restrict->{'onProperty'} };
+					# extract any cardinality constraints
+                    if ( defined $restrict->{'minCardinality'} or defined $restrict->{'maxCardinality'}) {
+                        my $min = $restrict->{'minCardinality'} || '0';
+                        my $max = $restrict->{'maxCardinality'} || undef;
+                        my $hash;
+                        $hash->{min} = $min if defined $min;
+                        $hash->{max} = $max if defined $max;
+                        $hash->{name} = $restrict->{'propertyName'};
+                        my $hoh = $class->cardinality_constraints();
+                        $hoh->{$restrict->{'propertyName'}} = $hash;
+                        $class->cardinality_constraints($hoh);
+                    }
 					$class->add_datatype_properties($dp);
 				} elsif ( $oProps->{ $restrict->{'onProperty'} } ) {
 					my $op = $oProps->{ $restrict->{'onProperty'} };
+					# extract any cardinality constraints
+                    if (defined $restrict->{'minCardinality'} or defined $restrict->{'maxCardinality'}) {
+                        my $min = $restrict->{'minCardinality'} || '0';
+                        my $max = $restrict->{'maxCardinality'} || undef;
+                        my $hash;
+                        $hash->{min} = $min if defined $min;
+                        $hash->{max} = $max if defined $max;
+                        $hash->{name} = $restrict->{'propertyName'};
+                        my $hoh = $class->cardinality_constraints();
+                        $hoh->{$restrict->{'propertyName'}} = $hash;
+                        $class->cardinality_constraints($hoh);
+                    }
 					$class->add_object_properties($op);
 				} elsif ( $oProps->{ $restrict->{'restrictionURI'} } ) {
 
