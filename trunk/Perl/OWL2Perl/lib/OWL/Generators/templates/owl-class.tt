@@ -1,4 +1,4 @@
-[%# A template for an datatype property.
+[%# A template for an owl class property.
     ===========================
     Expected/recognized parameters:
     obj ... a OWL::Data::Def::OWLClass object
