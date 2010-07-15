@@ -195,6 +195,8 @@ __END__
 
 [% obj.module_name %] - an automatically generated owl class!
 
+=cut
+
 =head1 SYNOPSIS
 
   use [% obj.module_name %];
@@ -205,7 +207,7 @@ __END__
 
 [%- IF obj.datatype_properties -%]
   # add datatype properties 
-[%- FOREACH child IN obj.datatype_properties -%]
+[%- FOREACH child IN obj.datatype_properties %]
   use [% child.module_name %];
   my $[% child.name %] = new [% child.module_name %]('some value');
   $class->add_[% child.name %]($[% child.name %]);
@@ -222,12 +224,39 @@ __END__
   my $[% child.name %]_objects = $class->[% child.name %];
 [%- END -%][%- END -%]
 
+
+=cut
+
 =head1 DESCRIPTION
 
 I<Inherits from>:
 [% FOREACH child IN obj.module_parent -%]
 L<[% child %]>
 [% END %]
+
+[%- IF obj.cardinality_constraints and obj.cardinality_constraints.keys.size > 0 -%]
+=head2 Cardinality constraints:
+
+[%- FOREACH key IN obj.cardinality_constraints.keys.sort -%]
+
+=head3 [% obj.cardinality_constraints.$key.name %]
+
+=over
+
+[%- IF obj.cardinality_constraints.$key.min.defined %]
+=item * Minimum = [%- obj.cardinality_constraints.$key.min -%]
+[%- END -%]
+
+[% IF obj.cardinality_constraints.$key.max.defined %]
+=item * Maximum = [%- obj.cardinality_constraints.$key.max -%]
+[%- END -%]
+
+
+=back
+
+=cut
+[% END -%]
+[%- END -%]
 
 =cut
 
