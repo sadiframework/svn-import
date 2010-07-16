@@ -3,10 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-service-skeleton</artifactId>
-  <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
+  <packaging>war</packaging>
   <name>SADI skeleton webapp</name>
-  <url>http://maven.apache.org</url>
   <build>
     <finalName>sadi-services</finalName>
     <plugins>
@@ -21,6 +20,7 @@
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
         <artifactId>maven-jetty-plugin</artifactId>
+        <version>6.1.24</version>
         <configuration>
           <contextPath>/sadi-services</contextPath>
         </configuration>
