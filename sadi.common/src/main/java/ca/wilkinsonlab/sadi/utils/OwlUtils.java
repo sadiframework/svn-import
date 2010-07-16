@@ -523,6 +523,8 @@ public class OwlUtils
 			else
 				visited.add(clazz);
 			
+			log.trace(String.format("decomposing %s", clazz));
+			
 			/* bottom out explicitly at owl:Thing, or we'll have problems when
 			 * we enumerate equivalent classes...
 			 */
@@ -561,12 +563,15 @@ public class OwlUtils
 			 * so, visit all of them...
 			 */
 			if ( clazz.isUnionClass() ) {
+				log.trace("decomposing union classes");
 				for (Iterator<?> i = clazz.asUnionClass().listOperands(); i.hasNext(); )
 					decompose((OntClass)i.next());
 			} else if ( clazz.isIntersectionClass() ) {
+				log.trace("decomposing intersection classes");
 				for (Iterator<?> i = clazz.asIntersectionClass().listOperands(); i.hasNext(); )
 					decompose((OntClass)i.next());
 			} else if ( clazz.isComplementClass() ) {
+				log.trace("decomposing complement classes");
 				for (Iterator<?> i = clazz.asComplementClass().listOperands(); i.hasNext(); )
 					decompose((OntClass)i.next());
 			}
@@ -576,8 +581,10 @@ public class OwlUtils
 			 * properties to the ontology if they're undefined, which can
 			 * trigger a ConcurrentModificationException.
 			 */
+			log.trace("decomposing equivalent classes");
 			for (Object equivalentClass: clazz.listEquivalentClasses().toSet())
 				decompose((OntClass)equivalentClass);
+			log.trace("decomposing super classes");
 			for (Object superClass: clazz.listSuperClasses().toSet())
 				decompose((OntClass)superClass);
 		}
@@ -613,8 +620,8 @@ public class OwlUtils
 	{
 		Set<Restriction> restrictions;
 		
-		/* if an OntClass comes from a model with reasoning, we may find
-		 * several copies of the same restriction from artifact equivalent
+		/* if an OntClass comes from a model with reasoning, we can find
+		 * several "copies" of the same restriction from artifact equivalent
 		 * classes; we don't want to store these, so maintain our own table
 		 * of restrictions we've seen...
 		 */
@@ -628,7 +635,6 @@ public class OwlUtils
 		
 		public void hasRestriction(Restriction restriction)
 		{
-
 			log.trace(String.format("found restriction %s", OwlUtils.toString(restriction)));
 			String key = getHashKey(restriction);
 			if (!seen.contains(key)) {
@@ -637,7 +643,7 @@ public class OwlUtils
 			}
 		}
 		
-		String getHashKey(Restriction restriction)
+		private String getHashKey(Restriction restriction)
 		{
 			return OwlUtils.toString(restriction);
 		}
