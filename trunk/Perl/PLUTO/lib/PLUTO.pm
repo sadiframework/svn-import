@@ -10,7 +10,7 @@ use vars qw{$VERSION};
 
 BEGIN {
     use vars qw{@ISA @EXPORT @EXPORT_OK};
-    $VERSION = 0.26;
+    $VERSION = 0.27;
     *PLUTO::VERSION = *VERSION;
 }
 
