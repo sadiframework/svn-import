@@ -19,7 +19,7 @@ package ODO;
 use strict;
 use warnings;
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 
 use base qw/Exporter Class::Base Class::Accessor::Fast Class::ParamParser/;
 
