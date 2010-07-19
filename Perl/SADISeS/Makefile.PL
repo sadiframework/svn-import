@@ -33,8 +33,8 @@
     requires 'LS'                   => '1.1.7';
     requires 'HTTP::Request'        => 0;
     requires 'LWP'                  => 0;
-    requires 'OWL2Perl'             => 0.94;
-    requires 'PLUTO'                => 0.26;
+    requires 'OWL2Perl'             => 0.96;
+    requires 'PLUTO'                => 0.27;
     requires 'URI'                  => 1.40;  
 
     # windows doesn't need this
