@@ -1,5 +1,11 @@
 Revision history for Perl extension SADI.
 
+1.04
+    * updated the suggested wait time for async sadi services to 30 seconds.
+    * uses OWL2Perl version 0.96 or higher
+    * generated owl classes (sadi-generate-datatypes) now include property
+      constraints like hasValue and maxCardinality.
+
 1.03
     * fix uri2package: packages had # or / appended on odd uris ... broke
       our generated package names
