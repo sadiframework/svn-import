@@ -50,6 +50,15 @@ use [% child.module %];[% END %]
         	# range checking of classes added 
         	post => sub {
         		my ($self) = shift;
+[%- IF obj.cardinality_constraints and obj.cardinality_constraints.item(child.name) and obj.cardinality_constraints.item(child.name).max %]
+                # check cardinality constraints
+                my $size = scalar(@{$self->[% child.name %]});
+                if ($size > [%- obj.cardinality_constraints.item(child.name).max %] ) {
+                	# correct the size of the array (remove from the end) and throw an error
+                	splice(@{$self->[% child.name %]}, [%- obj.cardinality_constraints.item(child.name).max %] );
+                    $self->throw($self->_bad_cardinality_msg([%- obj.cardinality_constraints.item(child.name).max %], '[%- child.name -%]'));
+                }
+[%- END %]
                 my $type = @{$self->[% child.name %]}[-1];
                 return unless defined $type and $type->type;
                 my $range = new [% child.module_name %]->range();
@@ -66,6 +75,18 @@ use [% child.module %];[% END %]
 [% FOREACH child IN obj.datatype_properties %]
         [% child.name %] => {
             type => '[% child.module_name %]',
+[%- IF obj.cardinality_constraints and obj.cardinality_constraints.item(child.name) and obj.cardinality_constraints.item(child.name).max %]
+            post => sub {
+                my ($self) = shift;
+                # check cardinality constraints
+                my $size = scalar(@{$self->[% child.name %]});
+                if ($size > [%- obj.cardinality_constraints.item(child.name).max %] ) {
+                	# correct the size of the array (remove from the end) and throw an error
+                    splice(@{$self->[% child.name %]}, [%- obj.cardinality_constraints.item(child.name).max %] );
+                    $self->throw($self->_bad_cardinality_msg([%- obj.cardinality_constraints.item(child.name).max %], '[%- child.name -%]'));
+                }
+            },
+[%- END %]
             is_array => 1, },
 [% END %]
     );
