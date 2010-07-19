@@ -446,6 +446,24 @@ sub _wrong_type_msg {
 }
 
 #-----------------------------------------------------------------
+# Set methods test whether incoming value exceeds the cardinality
+# constraints for the OWL Class.
+# Here we return message explaining that it has exceeded.
+#-----------------------------------------------------------------
+sub _bad_cardinality_msg {
+    my ( $self, $expected_size, $method ) = @_;
+    my $msg = 'In method ';
+    if ( defined $method ) {
+        $msg .= $method;
+    } else {
+        $msg .= ( caller(1) )[3];
+    }
+    return (
+"$msg: Trying to add property but we have exceeded cardinality constraints of '$expected_size'."
+    );
+}
+
+#-----------------------------------------------------------------
 # Deal with 'set', 'get' and 'add_' methods.
 #-----------------------------------------------------------------
 sub AUTOLOAD {
@@ -470,7 +488,6 @@ sub AUTOLOAD {
 			if ($attr_is_array) {
 				my @result =
 				  ( ref( $values[0] ) eq 'ARRAY' ? @{ $values[0] } : @values );
-				# TODO check if we have cardinality constraints ( size of @results )
 				foreach my $value (@result) {
 					$value = $this->check_type( $AUTOLOAD, $attr_type, $value );
 				}
