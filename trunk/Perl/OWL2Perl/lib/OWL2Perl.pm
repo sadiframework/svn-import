@@ -606,6 +606,19 @@ OWL2Perl - Perl extension for the automatic generation of perl modules from OWL 
 A module to aid in the genesis of Perl modules that represent OWL entities in
 OWL ontologies.
 
+=head2 Upgrading from a version prior to Version 0.96
+
+For those of you upgrading from a version prior to version 0.96, you may need to 
+regenerate your modules for any OWL ontologies that you use. 
+
+Not every one will need to regenerate their source code. Only those of you that
+use owl:hasValue and owl:maxCardinality property restrictions. Even if you use
+these constructs, you dont have to regenerate your source code unless you want
+OWL2Perl to catch those instances where you may provide I<too many> property 
+restrictions or where you don't explicitly provide the I<hasValue> restriction.
+
+=cut
+
 =head2 OWL2Perl Installation
 
 Assuming that you have already installed this package, the very first thing
