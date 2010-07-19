@@ -12,6 +12,9 @@ Revision history for Perl extension OWL2Perl.
     * added some newlines in our test OWL/RDF documents to test for text content
       handling.
     * added some new tests for hasValue processing
+    * Version for OWL2Perl.pm matches version of cpans OWL2Perl distribution.
+    * added cardinality constraints (if they exist) for class properties. exceptions
+      are thrown now if you exceed the constraints when adding properties to classes. 
     
 0.95
     * generate modules script now checks to see whether or not the
