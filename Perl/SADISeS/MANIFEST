@@ -65,7 +65,6 @@ lib/SADI/RDF/Predicates/OMG_LSID.pm
 lib/SADI/RDF/Predicates/OWL.pm
 lib/SADI/RDF/Predicates/RDF.pm
 lib/SADI/RDF/Predicates/RDFS.pm
-lib/SADI/SADI.pm
 lib/SADI/Service/Instance.pm
 lib/SADI/Service/ServiceBase.pm
 lib/SADI/Service/UnitTest.pm
