@@ -13,7 +13,7 @@ use vars qw{$VERSION};
 
 BEGIN {
 	use vars qw{@ISA @EXPORT @EXPORT_OK};
-	$VERSION = sprintf "%d.%02d", q$Revision: 1.02 $ =~ /: (\d+)\.(\d+)/;
+	$VERSION = sprintf "%d.%02d", q$Revision: 1.03 $ =~ /: (\d+)\.(\d+)/;
 	*SADI::VERSION = *VERSION;
 }
 
@@ -24,6 +24,11 @@ __END__
 =head1 NAME
 
 SADI - Perl extension for the automatic generation of SADI web services
+
+=head2 Upgrading From Versions prior to 1.03 to Version 1.03
+
+This new version of SADI uses an updated OWL2Perl module that adds property restrictions to generated OWL classes. In order to use these 
+features to the fullest, you will need to regenerate all of your OWL2Perl generated OWL classes again, using I<sadi-generate-datatypes>. 
 
 =head2 Upgrading From Version 0.99.4
 
