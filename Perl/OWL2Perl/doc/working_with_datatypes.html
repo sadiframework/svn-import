@@ -29,11 +29,14 @@
                 font-size: 125%;
                 background: #eee;
             }
+        .new {
+	color: #F00;
+}
         </style>
-        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
         <title>Working with Perl Modules Representing OWL Classes</title>
     </head>
-    <body>
+<body>
         <h1>Working with Perl Modules Representing OWL Classes</h1>
 <p>
             This document summarises the creation and utilization of Perl modules, generated with the owl2perl-generate-modules.pl script, that represent OWL classes and their associated properties.</p>
@@ -47,7 +50,11 @@
     <li><a href="#0">Quick Synopsis for the Impatient</a></li>
     <li><a href="#1">Prerequisites</a></li>
     <li><a href="#2">Generating Perl Modules from OWL Classes</a></li>
-    <li><a href="#3">Using Perl Modules Representing OWL Classes</a></li>
+    <li><a href="#3">Using Perl Modules Representing OWL Classes</a>
+      <ul>
+        <li><a href="#constraints"><em class="new">New</em> Property Constraints (hasValue, minCardinality, maxCardinality) on OWL Classes</a></li>
+      </ul>
+    </li>
     <li><a href="#4">Putting it all together (a complete example script)</a><br/>
     </li>
   </ul>
@@ -300,6 +307,14 @@ use sadiframework::org::ontologies::predicates::hasName;
 <pre>$class-&gt;add_hasSymbol(ontology::dumontierlab::com::hasSymbol-&gt;new('Some_Gene_Symbol'));
 $class-&gt;add_hasSymbol(ontology::dumontierlab::com::hasSymbol-&gt;new('Another_Gene_Symbol'));
 </pre>
+<p>In addition to the above syntax, you could also set values for the datatype property like so (ignoring their types):</p>
+<pre>
+# add an additional value
+$class-&gt;add_hasSymbol('yet_another_Gene_Symbol');
+# or to add a single value to our class (clearing out any other values)
+$class-&gt;hasSymbol('yet_another_Gene_Symbol');
+</pre>
+<p>This works because OWL2Perl is aware of the type of literal, e.g. <em><strong>ontology::dumontierlab::com::hasSymbol</strong></em>, that you wish to add to the class and automatically types the literal upon addition to the class.</p>
 <p>All datatype properties use this convention.</p>
 <p><a name="object_properties"></a>Object properties are a bit different. Imagine for a second that our instances of our class AnnotatedGeneID_Record also had an object property called <em><strong>hasReference</strong></em>. Then the generated source might look something like:</p>
 <pre>#-----------------------------------------------------------------
@@ -382,6 +397,15 @@ $class-&gt;hasReference(sadiframework::org::examples::example::AnnotatedGeneID_R
 # for setting multiple values
 $class-&gt;add_hasReference(sadiframework::org::examples::example::AnnotatedGeneID_Record-&gt;new(&quot;http://lsrn.org/Gene:642&quot;));
 $class-&gt;add_hasReference(sadiframework::org::examples::example::AnnotatedGeneID_Record-&gt;new(&quot;http://lsrn.org/Gene:123&quot;));</pre>
+<h4><a name="constraints"></a>Property Constraints (hasValue, minCardinality, maxCardinality) on OWL Classes <em class="new">New</em></h4>
+<p>For those classes that constrain their properties with hasValue, minCardinality, and maxCardinality, OWL2Perl ensures that the constraints are followed in any generated source code.</p>
+<p>For those classes that specify the <a href="http://www.w3.org/TR/2004/REC-owl-guide-20040210/#hasValue" target="_blank">owl:hasValue</a> property constraint, OWL2Perl automatically adds the contraint to the generated modules source code. When the generatd module is serialzed as RDF/XML, any statements describing this contraint are serialized as well and require nothing additional.</p>
+<p>For those classes that specify a <a href="http://www.w3.org/TR/2004/REC-owl-guide-20040210/#owl_maxCardinality" target="_blank">owl:maxCardinality</a> property constraint, OWL2Perl automatically performs a check when properties are added to the generated OWL module. If a constraint is violated, an exception is thrown. If you are unsure about whether or not you will exceed any cardinality constraints, it may be wise to wrap calls to <strong><em>add_*</em></strong> in an <em><strong>eval block</strong></em>. For example:</p>
+<pre>foreach (@descriptions) {<br>	eval {$class-&gt;add_hasDescription($_);};
+ # check $@ for any errors
+ # any time you have an error, that 
+ # property is not added to the class<br>}</pre>
+<p>Currently, constraints on the minimum number of properties that a class can have are ignored. However, you can view the these constraints in the generated modules perldoc describing the OWL class of interest.</p>
 <p>When developing code with OWL2Perl, you will  have to add the location of generated modules.  You simply need to add a <em><strong>use lib</strong></em> statement to your Perl script.</p>
 <pre>#for example, 
 use lib '/your_home_directory/Perl-OWL2Perl/generated';</pre>
