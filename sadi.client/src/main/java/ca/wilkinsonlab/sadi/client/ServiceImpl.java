@@ -130,6 +130,8 @@ public class ServiceImpl extends ServiceBase
 	void loadServiceModel() throws Exception
 	{
 		log.debug("fetching service model from " + getURI());
+		if (!model.isEmpty())
+			log.warn(String.format("service %s may have been initialized twice; this could indicate multithreading problems", getURI()));
 		
 		model.read(getURI());
 		if (errorHandler.hasLastError())
