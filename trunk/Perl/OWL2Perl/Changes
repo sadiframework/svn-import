@@ -1,5 +1,32 @@
 Revision history for Perl extension OWL2Perl.
 
+0.97
+
+    THIS RELEASE requires that you re-generate all of your OWL2Perl modules!
+    
+    * fix: when bnodes with properties were added to a class, they had extra
+        stuff being added as well.
+    * fix: some ontologies caused owl2perl to serialize very slowly; modified
+        owl-class.tt to speed up _get_statements.
+    * added a method called clear_statements that removes the statements generated
+        when you use OWL::Utils::serialize or _get_statements.
+    * fix: when parsing ontologies, we ignore restrictions that dont act on
+        specific (declared) properties.
+    * fix: when some classes were generated, they had the same property added
+        greater than once. Duplicates should be filtered out now.
+    * added a 'strict' paramter to OWL::Data::OWL::Class that enables/disables
+      constraint checking (defaults to false)
+    * added a 'model' parameter to generated classes that is of type RDF::Core::Model.
+      This model is populated in calls to get_statements.
+    * removed 'statements' parameter from generated classes.
+    * internal subroutine '_get_statements' now returns an RDF::Core::Enumerator object
+    * better handles OWL classes that are equivalent to anonymous classes with
+      someValueFrom restrictions.
+    * Utils->serialize() updated to use our RDF::Core::Enumerator rather than an
+      arrayref of statements
+    
+    TODO- cardinality constraints are now broken for classes that use the same
+          property > once. 
 0.96
     * fix uri2package: packages had # or / appended on odd uris ... broke
       our generated package names
