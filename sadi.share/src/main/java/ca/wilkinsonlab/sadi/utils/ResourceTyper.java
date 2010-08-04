@@ -46,18 +46,19 @@ public class ResourceTyper
 		return null;
 	}
 	
-	public void attachType(Resource resource)
+	public Resource attachType(Resource resource)
 	{
 		if (resource == null)
 			throw new IllegalArgumentException("resource cannot be null");
 		
 		String typeUri = getType(resource);
 		if (typeUri == null) {
-			log.warn(String.format("Failed to attach type to node %s", resource));
-			return;
+			log.debug(String.format("Failed to attach type to node %s", resource));
+			return null;
 		}
 		
 		Resource type = resource.getModel().createResource(typeUri);
 		resource.addProperty(RDF.type, type);
+		return type;
 	}
 }
