@@ -84,8 +84,10 @@ public class Config extends CompositeConfiguration
 		Map<K, V> mapCopy = new HashMap<K, V>(map);
 		if (priorityList != null) {
 			for (K key: priorityList) {
-				values.add(mapCopy.get(key));
-				mapCopy.remove(key);
+				if (mapCopy.containsKey(key)) {
+					values.add(mapCopy.get(key));
+					mapCopy.remove(key);
+				}
 			}
 		}
 		values.addAll(mapCopy.values());
