@@ -50,6 +50,7 @@ use [% child.module %];[% END %]
         	# range checking of classes added 
         	post => sub {
         		my ($self) = shift;
+        		return unless $self->strict;
 [%- IF obj.cardinality_constraints and obj.cardinality_constraints.item(child.name) and obj.cardinality_constraints.item(child.name).max %]
                 # check cardinality constraints
                 my $size = scalar(@{$self->[% child.name %]});
@@ -59,7 +60,7 @@ use [% child.module %];[% END %]
                     $self->throw($self->_bad_cardinality_msg([%- obj.cardinality_constraints.item(child.name).max %], '[%- child.name -%]'));
                 }
 [%- END %]
-                my $type = @{$self->[% child.name %]}[-1];
+                my $type = @{$self->[% child.name %]}[-1] if defined $self->[% child.name %];
                 return unless defined $type and $type->type;
                 my $range = new [% child.module_name %]->range();
                 return unless $range;
@@ -78,6 +79,7 @@ use [% child.module %];[% END %]
 [%- IF obj.cardinality_constraints and obj.cardinality_constraints.item(child.name) and obj.cardinality_constraints.item(child.name).max %]
             post => sub {
                 my ($self) = shift;
+                return unless $self->strict;
                 # check cardinality constraints
                 my $size = scalar(@{$self->[% child.name %]});
                 if ($size > [%- obj.cardinality_constraints.item(child.name).max %] ) {
@@ -125,54 +127,61 @@ sub init {
 
 }
 
-# every generated module implements this ...
+# returns an RDF::Core::Enumerator object or undef;
 sub _get_statements {
-    my $self = shift;
+	# use_type is undef initially and 1 for super() calls
+	my ($self) = @_;
+
     # create a named resource or bnode for this object ....
     my $subject = new RDF::Core::Resource( $self->value ) if defined $self->value and $self->value ne '';
     $subject = 
         new RDF::Core::Resource( "_:a" . sprintf( "%08x%04x", time(), int(rand(0xFFFF))) )
       unless defined $self->value and $self->value ne '';
-    
     # set the subject so that this sub graph can be linked to other graphs
     $self->subject($subject);
-    my $add_type_statement = undef;
-    $add_type_statement = 1 if defined $self->value and $self->value ne '';
+    
+    my $add_type_statement = defined $self->value and $self->value ne '' ? 1 : undef;
 
-    # add a label if one is specified
-    if (defined $self->label()) {
-    	$self->add_statements(
-    	   new RDF::Core::Statement(
-            $subject,
-            $subject->new( OWL::RDF::Predicates::RDFS->label ),
-            new RDF::Core::Literal( $self->label )
-           )
-        );
-    }
+    # in case we have a bnode
+    $self->value($subject->getURI) unless defined $self->value and $self->value ne '';
+
+    # add parent statements too
+[% FOREACH child IN obj.module_parent -%]
+    eval {
+    	# add parent statements
+        $self->[%- child -%]::_get_statements();
+    };
+[% END -%]
 
 [% FOREACH child IN obj.object_properties -%]
     # for each attribute, if is array do:
     if (defined $self->[%- child.name -%]){
 	    foreach (@{$self->[%- child.name -%]}) {
 	        # add all statements from $_
-	        my @statements = @{$_->_get_statements} if defined $_->_get_statements;
-	        $self->add_statements(@statements) if @statements and scalar(@statements) > 0;
+	        my $enumerator = $_->_get_statements if defined $_->_get_statements;
+	        next unless defined $enumerator;
+            my $statement = $enumerator->getFirst;
+            while (defined $statement) {
+              $self->model->addStmt($statement);
+              $statement = $enumerator->getNext
+            }
+            $enumerator->close;
 	        # add a statement linking the graphs
-	        $self->add_statements(
+	        $self->model->addStmt(
 	          new RDF::Core::Statement(
 	              $subject,
 	              $subject->new('[%- child.uri -%]'), 
 	              (defined $_->subject ? $_->subject : RDF::Core::Resource->new($_->value))
 	          )
 	        );
+	        $add_type_statement = 1;
 	    }
-	    $add_type_statement = 1;
     }
 [% END -%]
 [% FOREACH child IN obj.datatype_properties -%]
     if (defined $self->[%- child.name -%]){
 	    foreach (@{$self->[%- child.name -%]}) {
-	        $self->add_statements(
+	        $self->model->addStmt(
 	          new RDF::Core::Statement(
 	              $subject,
 	              $subject->new('[%- child.uri -%]'), 
@@ -181,31 +190,31 @@ sub _get_statements {
 	              ),
 	          )
 	        );
+	        $add_type_statement = 1;
 	    }
-	    $add_type_statement = 1;
     }
 [% END -%]
-    # add parent statements too
-[% FOREACH child IN obj.module_parent -%]
-    eval {
-    	my @statements = @{$self->[%- child -%]::_get_statements()};
-    	if (scalar (@statements) > 0) {
-    		$self->add_statements(@statements);
-    		$add_type_statement ||= undef;
-    	}
-    };
-[% END -%]
 
+    # add a label if one is specified
+    if (defined $self->label()) {
+        $self->model->addStmt(
+           new RDF::Core::Statement(
+            $subject,
+            $subject->new( OWL::RDF::Predicates::RDFS->label ),
+            new RDF::Core::Literal( $self->label )
+           )
+        );
+    }
+    
     # add the type
-    $self->add_statements(
+    $self->model->addStmt(
         new RDF::Core::Statement(
             $subject,
             $subject->new( OWL::RDF::Predicates::RDF->type ),
             new RDF::Core::Resource( $self->type )
         )
-    ) if $add_type_statement; # or scalar (@{ $self->statements }) > 0;
-
-    return $self->statements;
+    ) if $add_type_statement;
+    return $self->model()->getStmts();
 }
 
 1;
