@@ -13,7 +13,7 @@ use vars qw{$VERSION};
 
 BEGIN {
 	use vars qw{@ISA @EXPORT @EXPORT_OK};
-	$VERSION           = 0.96;
+	$VERSION           = 0.97;
 	*OWL2Perl::VERSION = *VERSION;
 }
 
@@ -34,6 +34,7 @@ use ODO::Graph::Simple;
 use ODO::Ontology::OWL::Lite;
 use ODO::Graph::Simple;
 use ODO::Node;
+use ODO::Ontology::OWL::Lite::Restriction;
 
 #-----------------------------------------------------------------
 # A list of allowed attribute names. See OWL::Base for details.
@@ -101,7 +102,7 @@ sub generate_datatypes {
 
 	# process the owl classes
 	$LOG->info("\tProcessing owl classes");
-	$self->_process_classes( $lite, $oProps, $dProps, $code );
+	$self->_process_classes( $lite->classMap, $oProps, $dProps, $code );
 }
 
 # private sub
@@ -222,17 +223,19 @@ sub _process_datatype_properties {
 sub _process_classes {
 	my ( $self, $lite, $oProps, $dProps, $code ) = @_;
 
-	# oProps and dProps are hash refs ...
-	my %classes = %{ $lite->classMap };
+	# $lite, oProps and dProps are hash refs ...
+	my %classes = %{ $lite };
+	#my %classes = %{ $lite->classMap };
 	my %dProperties;
 	foreach my $key ( keys %classes ) {
 		my $object = $classes{$key};
-
 		# we only process ODO Nodes
 		next
 		  unless defined $object->{'object'}
 			  and UNIVERSAL::isa( $object->{'object'}, 'ODO::Node::Resource' );
 		my $class = new OWL::Data::Def::OWLClass;
+		# dont want to add the same property multiple times for a class
+		my %added_properties;
 
 		# set the uri / this also sets the name
 		$class->type($key);
@@ -272,10 +275,45 @@ sub _process_classes {
 						# suck in the restrictions
 						if ( $dProps->{ $equivalent->{'onProperty'} } ) {
 							my $dp = $dProps->{ $equivalent->{'onProperty'} };
+							# FIXME
 							$class->add_datatype_properties($dp);
-						} else {
-							my $op = $oProps->{ $equivalent->{'onProperty'} };
-							$class->add_object_properties($op);
+						} elsif ( $oProps->{ $equivalent->{'onProperty'} } ) {
+                            my $op = $oProps->{ $equivalent->{'onProperty'} };
+                            # FIXME
+                            $class->add_object_properties($op);
+                        } else {
+							# TODO is this a Bnode with a someValuesFrom clause in it?
+							# construct a new bnode object and add a restriction to
+							# then add this bnode class to $class parent 
+							
+							# check for some things first
+							next unless defined $equivalent->{'restrictionURI'};
+							next unless defined $equivalent->{'someValuesFrom'} 
+							     and ( defined $classes{$equivalent->{'someValuesFrom'}} and defined $classes{$equivalent->{'someValuesFrom'}}->{'object'} );
+							# should do the following, but sometimes the item is a url ...
+							# next unless $oProps->{ $equivalent->{'onProperty'} } or $dProps->{ $equivalent->{'onProperty'} };
+							
+							# construct our hash
+							my $bnode_hash;
+							$bnode_hash->{object} = new ODO::Node::Blank($equivalent->{'restrictionURI'});
+							$bnode_hash->{equivalent} = [];
+							$bnode_hash->{restrictions} = [];
+							$bnode_hash->{inheritance} = [];
+							my %bnode_intersection;
+							$bnode_intersection{classes} = [];
+							my $propertyName = $equivalent->{'onProperty'};
+							$propertyName = $1 if $propertyName =~ m/\w+[#\/]+(\w+)$/ or $propertyName =~ m/\w+[#\/]+(\w+)$/;
+							$bnode_intersection{restrictions} = [
+							     ODO::Ontology::OWL::Lite::Restriction->new(
+							         onProperty=>$equivalent->{'onProperty'},
+							         restrictionURI=>$equivalent->{'someValuesFrom'},
+							         propertyName=> $propertyName,
+							     )
+							];
+							$bnode_hash->{intersections} = \%bnode_intersection;
+							# generate an impl for this bnode
+							$self->_process_classes({$equivalent->{'restrictionURI'} => $bnode_hash}, $oProps, $dProps, $code);
+							$class->add_parent($equivalent->{'restrictionURI'});
 						}
 					}
 				} else {
@@ -294,6 +332,8 @@ sub _process_classes {
 						$LOG->warn("equivalent(else->else):->$key\n");
 						foreach my $restrict ( @{ $object->{'restrictions'} } )
 						{
+							next if defined $added_properties{$restrict->{'onProperty'}};
+							$added_properties{$restrict->{'onProperty'}} = 1;
 							if ( $dProps->{ $restrict->{'onProperty'} } ) {
 								my $dp = $dProps->{ $restrict->{'onProperty'} };
 								$class->add_datatype_properties($dp);
@@ -315,6 +355,9 @@ sub _process_classes {
 			foreach
 			  my $restrict ( @{ $object->{'intersections'}->{'restrictions'} } )
 			{
+				next unless defined $restrict->{'onProperty'};
+				next if defined $added_properties{$restrict->{'onProperty'}};
+                $added_properties{$restrict->{'onProperty'}} = 1;
 				# TODO check if $restrict->{'hasValue'} ? add the hasValue to class : process restriction
                 if (defined $restrict->{'hasValue'}) {
                     # add hasValue: extract the value, 
@@ -352,10 +395,10 @@ sub _process_classes {
 
 					# TODO add someValuesFrom, allValuesFrom to inheritance
 					$class->add_datatype_properties($dp);
-				} else {
+				} elsif ($oProps->{ $restrict->{'onProperty'} }) {
 					my $op = $oProps->{ $restrict->{'onProperty'} };
-					# extract any cardinality constraints
-					if (defined $restrict->{'minCardinality'} or defined $restrict->{'maxCardinality'}) {
+                    # extract any cardinality constraints
+                    if (defined $restrict->{'minCardinality'} or defined $restrict->{'maxCardinality'}) {
                         my $min = $restrict->{'minCardinality'} || '0';
                         my $max =$restrict->{'maxCardinality'} || undef;
                         my $hash;
@@ -366,7 +409,9 @@ sub _process_classes {
                         $hoh->{$restrict->{'propertyName'}} = $hash;
                         $class->cardinality_constraints($hoh);
                     }
-					$class->add_object_properties($op);
+                    $class->add_object_properties($op);
+				} else {
+					$LOG->warn(sprintf("Trying to use property, '%s', but it was not imported in your ontology!", $restrict->{'onProperty'}));
 				}
 			}
 			foreach my $iClass ( @{ $object->{'intersections'}->{'classes'} } )
@@ -381,7 +426,8 @@ sub _process_classes {
 		{
 			foreach my $restrict ( @{ $object->{'restrictions'} } ) {
 				next unless defined $restrict->{'onProperty'};
-				
+				next if defined $added_properties{$restrict->{'onProperty'}};
+                $added_properties{$restrict->{'onProperty'}} = 1;
 				# TODO check if $restrict->{'hasValue'} ? add the hasValue to class : process restriction
 				if (defined $restrict->{'hasValue'}) {
 					# add hasValue: extract the value, 
@@ -404,6 +450,7 @@ sub _process_classes {
 				}
 				if ( $dProps->{ $restrict->{'onProperty'} } ) {
 					my $dp = $dProps->{ $restrict->{'onProperty'} };
+					# FIXME
 					# extract any cardinality constraints
                     if ( defined $restrict->{'minCardinality'} or defined $restrict->{'maxCardinality'}) {
                         my $min = $restrict->{'minCardinality'} || '0';
@@ -419,6 +466,7 @@ sub _process_classes {
 					$class->add_datatype_properties($dp);
 				} elsif ( $oProps->{ $restrict->{'onProperty'} } ) {
 					my $op = $oProps->{ $restrict->{'onProperty'} };
+					# FIXME
 					# extract any cardinality constraints
                     if (defined $restrict->{'minCardinality'} or defined $restrict->{'maxCardinality'}) {
                         my $min = $restrict->{'minCardinality'} || '0';
