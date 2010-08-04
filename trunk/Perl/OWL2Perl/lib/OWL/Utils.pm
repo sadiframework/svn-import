@@ -21,7 +21,7 @@ use strict;
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.3 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.4 $ =~ /: (\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -185,9 +185,20 @@ sub serialize {
 
     # iterate over the list
 	foreach my $class (@$rdf_list) {
-		if (blessed $class && $class->isa('OWL::Data::OWL::Class')) {	
+		if (blessed $class && $class->isa('OWL::Data::OWL::Class')) {
+			# clear the statements
+            $class->clear_statements;
 			# add each statement
-			$model->addStmt($_) foreach ( @{ $class->_get_statements } );
+			my $enumerator = $class->_get_statements();
+			next unless defined $enumerator;
+			my $statement = $enumerator->getFirst;
+		    while (defined $statement) {
+		      $model->addStmt($statement);
+		      $statement = $enumerator->getNext
+		    }
+		    $enumerator->close;
+			# clear the statements
+			$class->clear_statements;
 		}
 	}
 	
@@ -197,6 +208,7 @@ sub serialize {
         Output => \$xml,
     );
 	$serializer->serialize;
+	
 	return $xml;
 }
 
