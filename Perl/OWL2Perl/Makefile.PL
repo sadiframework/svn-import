@@ -8,7 +8,7 @@
     
 	# Define metadata
 	name 'OWL2Perl';
-	version '0.96';
+	version '0.97';
 	license 'new BSD';
 	abstract
 'This distribution aids in the automatic generation of perl modules from owl ontologies.';
