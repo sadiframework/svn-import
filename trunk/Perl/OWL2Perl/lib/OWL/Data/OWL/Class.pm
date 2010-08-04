@@ -12,10 +12,12 @@ use URI;
 
 # imports
 use RDF::Core::Statement;
+use RDF::Core::Model;
+use RDF::Core::Storage::Memory;
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.12 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.13 $ =~ /: (\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -57,7 +59,7 @@ Details are in L<OWL::Base>. Here just a list of them:
 
 =item B<uri> a URI to an individual of this class (same as value, e.g. if you set this, you set uri too)
 
-=item B<statements> an array of RDF::Core::Statement objects describing the relationships in this class. Most users need not worry about this method.
+=item B<strict> a boolean value that determines whether or not to enforce class constraints. Default is false.
 
 =back
 
@@ -103,9 +105,10 @@ Details are in L<OWL::Base>. Here just a list of them:
                 $self->{ID} = $id;
               }
 		},
-		statements => { type => 'RDF::Core::Statement', is_array => 1 },
+		strict => {type => OWL::Base->BOOLEAN,},
 		# used internally / set during _get_statements
-		subject => => { type => 'RDF::Core::Resource' },				
+		subject => { type => 'RDF::Core::Resource' },
+		model   => { type => 'RDF::Core::Model' },
 	);
 
 	sub _accessible {
@@ -133,14 +136,29 @@ Details are in L<OWL::Base>. Here just a list of them:
 sub init {
 	my ($self) = shift;
 	$self->SUPER::init();
-	$self->statements( [] );
+	$self->strict(0);
+	$self->model(new RDF::Core::Model( Storage => new RDF::Core::Storage::Memory ));
 }
 
 #-------------------------------------------------------------------
-# get all RDF::Core::Statements for this thing (array_ref)
+# get an RDF::Core::Enumerator object or undef if there are no statements
 #-------------------------------------------------------------------
 sub _get_statements {
-	#return [];
+	return undef;
 }
+
+=head2 clear_statements
+
+clear_statements: clears statements from class; however, this does not remove properties.
+
+=cut
+
+sub clear_statements {
+    my ($self) = shift;
+    $self->model(new RDF::Core::Model( Storage => new RDF::Core::Storage::Memory ));
+}
+
+
+
 1;
 __END__
