@@ -29,6 +29,7 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	
 	private static final String REGISTRY_SUBSET_KEY = "sadi.registry";
 	private static final String REGISTRY_PRIORITY_KEY = "sadi.registryPriority";
+	private static final String REGISTRY_EXCLUDE_KEY = "exclude";
 
 	private static final Config theInstance = new Config(DEFAULT_PROPERTIES_FILENAME, LOCAL_PROPERTIES_FILENAME);
 	
@@ -90,9 +91,14 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 			String registryKey = (String)registryKeys.next();
 			if (registryKey.contains("."))
 				continue; // only interested in the root property
+			Configuration registrySubset = registryConfig.subset(registryKey);
+			if (registrySubset.getBoolean(REGISTRY_EXCLUDE_KEY, false)) {
+				log.info(String.format("excluding registry %s", registryKey));
+				continue;
+			}
 			try {
 				stopWatch.start();
-				registries.put(registryKey, (Registry)instantiate(registryConfig.subset(registryKey)));
+				registries.put(registryKey, (Registry)instantiate(registrySubset));
 			} catch (Exception e) {
 				log.error(String.format("Error configuring registry %s", registryKey), e);
 			} finally {
