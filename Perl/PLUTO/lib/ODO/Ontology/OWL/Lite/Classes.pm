@@ -32,7 +32,7 @@ use ODO::Ontology::OWL::Vocabulary;
 use base qw/ODO/;
 
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.26 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.27 $ =~ /: (\d+)\.(\d+)/;
 
 __PACKAGE__->mk_accessors(qw/graph/);
 __PACKAGE__->mk_ro_accessors(qw/classes fragments/);
@@ -83,6 +83,7 @@ sub __fill_class {
 	my $classURI = $class->{'object'}->value();
 	
 	$class->{'intersections'} = $self->fragments()->getClassIntersectionOf($classURI);
+	$class->{'unions'} = $self->fragments()->getClassUnionOf($classURI);
 		
     my @inheritance;
     my @restrictions;
