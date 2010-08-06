@@ -112,6 +112,40 @@ sub getClassIntersectionOf {
 	return $classIntersection;
 }
 
+sub getClassUnionOf {
+    my ( $self, $class ) = @_;
+    my $classURI = $class;
+    $classURI = $class->value()
+      if ( $class->isa( 'ODO::Node::Resource' ) );
+    my $owlUnionOf = $ODO::Ontology::OWL::Vocabulary::unionOf->value();
+    my $owlClass          = $ODO::Ontology::OWL::Vocabulary::Class->value();
+
+    # Find the owl:Class objects first
+    my $queryString  = "SELECT ?stmt WHERE (<$classURI>, <$owlUnionOf>, ?list)";
+    my $classResults = $self->graph()->query($queryString)->results();
+    my $classUnion = {
+                              classes      => [],
+                              restrictions => [],
+    };
+    if ( scalar( @{$classResults} ) ) {
+        my $list = ODO::RDFS::List->new( $classResults->[0]->object(), $self->graph() );
+        my $listIter = ODO::Ontology::RDFS::List::Iterator->new($list);
+        throw ODO::Exception::Runtime(
+                                   error => "Could not create iterator for ODO::RDFS::List" )
+          unless ( $listIter->isa( 'ODO::Ontology::RDFS::List::Iterator' ) );
+        my $iterElement;
+        while ( ( $iterElement = $listIter->next() ) ) {
+            if ( $iterElement->isa( 'ODO::Node::Blank' ) ) {
+                my $restriction = $self->getClassRestriction( $iterElement->value() );
+                push @{ $classUnion->{'restrictions'} }, $restriction;
+            } else {
+                push @{ $classUnion->{'classes'} }, $iterElement->value();
+            }
+        }
+    }
+    return $classUnion;
+}
+
 sub getClassRestriction {
 	my ( $self, $restrictionURI ) = @_;
 	my $restriction = { restrictionURI => $restrictionURI };
