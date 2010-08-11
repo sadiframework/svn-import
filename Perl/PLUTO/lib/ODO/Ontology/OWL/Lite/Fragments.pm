@@ -27,7 +27,7 @@ use ODO::Ontology::RDFS::List::Iterator;
 use base qw/ODO/;
 
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.63 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.62 $ =~ /: (\d+)\.(\d+)/;
 
 __PACKAGE__->mk_accessors(qw/graph/);
 
