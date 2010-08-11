@@ -11,7 +11,7 @@ use strict;
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.23 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.24 $ =~ /: (\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -107,6 +107,7 @@ The type of this owl class
 				$self->{type} = "" if $package =~ m/^genid/ig;
 			  }
 		},
+		# HashOfHash: property_name => {keys: object, range, name, module}
 		has_value_property => {type => 'HASH', is_array => 1 },
 		object_properties =>
 		  { type => 'OWL::Data::Def::ObjectProperty', is_array => 1 },
@@ -120,6 +121,8 @@ The type of this owl class
 		module_parent => { type => OWL::Base->STRING, is_array => 1 },
 		# HashOfHash: property_name => {keys: name, max, min}
         cardinality_constraints => {type => 'HASH', is_array => 0 },
+        # hash: key: onProperty, value: hash of restrictionURI strings as module names as keys with the value of 1
+        values_from_property => {type => 'HASH' },
 	);
 
 	sub _accessible {
@@ -150,6 +153,7 @@ sub init {
 	$self->add_parent('OWL::Data::OWL::Class');
 	# initialize empty hash for cardinality_constraints
 	$self->cardinality_constraints(\());
+	$self->values_from_property(\());
 }
 1;
 __END__
