@@ -14,7 +14,7 @@ use strict;
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.2 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.3 $ =~ /: (\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -162,6 +162,41 @@ sub trim {
 	$text =~ s/^\s+//;
 	$text =~ s/\s+$//;
 	return $text;
+}
+
+=head2 lsrnize
+
+Augments LSRN records with ('has attribute' some Class and ('has value' some String))
+ 
+Input: 
+    $class: the LSRN record (an OWL::Data::OWL::Class object), 
+    $id: a literal representation of the identifier
+    
+Output:
+    $class with the following added to it:
+
+<$class, SIO_000008, Y>
+<Y, rdf:type, $identifier>
+<Y, SIO_000300, $id>
+
+=cut
+
+sub LSRNize {
+	my ($self) = shift;
+	my ($class, $id);
+	if (ref($self) =~ /^SADI::Utils/) {
+		($class, $id) = @_;
+	} else {
+		$class = $self;
+		($id) = @_;
+	}
+	my $identifier = ref($class);
+	$identifier =~ s/_Record$/_Identifier/;
+	return $class unless defined $id and defined $identifier;
+	eval "require $identifier";
+	return $class if $@;
+	eval {$class->add_SIO_000008( $identifier->new( SIO_000300 => $id ) );};
+	return $class;
 }
 
 1;
