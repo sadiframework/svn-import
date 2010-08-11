@@ -15,8 +15,8 @@
     Expected/recognized parameters:
       obj            ... a service definition, type SADI::Service::Instance
       services_dir   ... the directory to the impl files
+      generated_dir  ... the directory to the 'generated' dir
       home_dir       ... the SADI-Perl user home directory
-      definition_dir ... the definitions directory
 -%]
 
 #-----------------------------------------------------------------
