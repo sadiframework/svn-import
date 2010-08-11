@@ -21,7 +21,7 @@ use strict;
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.19 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.20 $ =~ /: (\d+)\.(\d+)/;
 
 #-----------------------------------------------------------------
 # A list of allowed attribute names. See SADI::Base for details.
@@ -405,6 +405,7 @@ sub generate_impl {
 							 impl        => $impl,
 							 static_impl => $args{static_impl},
 							 module_name => $module_name,
+							 is_async    => defined $args{is_async} ? $args{is_async} : 0,  
 						  },
 						  $args{outcode}
 			) || $LOG->logdie( $tt->error() );
@@ -427,6 +428,7 @@ sub generate_impl {
 							 impl        => $impl,
 							 static_impl => $args{static_impl},
 							 module_name => $module_name,
+							 is_async    => defined $args{is_async} ? $args{is_async} : 0,
 						  },
 						  $outfile
 			) || $LOG->logdie( $tt->error() );
@@ -438,91 +440,91 @@ sub generate_impl {
 #-----------------------------------------------------------------
 # generate_async_impl
 #-----------------------------------------------------------------
-sub generate_async_impl {
-	my ( $self, @args ) = @_;
-	my %args = (    # some default values
-		impl_outdir => (
-						 $SADICFG::GENERATORS_IMPL_OUTDIR
-						   || SADI::Utils->find_file( $Bin, 'services' )
-		),
-		impl_prefix   => $SADICFG::GENERATORS_IMPL_PACKAGE_PREFIX,
-		service_names => [],
-		force_over    => 0,
-		static_impl   => 0,
-
-		# other args, with no default values
-		# authority     => 'authority'
-		# outcode       => ref SCALAR
-		# and the real parameters
-		@args
-	);
-	$self->_check_outcode(%args);
-	my $outdir = File::Spec->rel2abs( $args{impl_outdir} );
-	$LOG->debug( "Arguments for generating async service implementation:\n"
-				 . $self->toString( \%args ) )
-	  if ( $LOG->is_debug );
-	my @names = ();
-	push( @names, @{ $args{service_names} } )
-	  if defined $args{service_names};
-	my $services = $self->read_services(@names);
-	if ( scalar @$services == 0 ) {
-		my $msg = "Didn't find any services for @names!"
-		  . "\nPlease make sure that you create a service definition first!";
-		$LOG->warn($msg);
-		$self->throw($msg);
-	}
-
-	# generate from template
-	my $tt = Template->new( ABSOLUTE => 1 );
-	my $input = SADI::Utils->find_file( $Bin, 'SADI', 'Generators', 'templates',
-										'service-async.tt' );
-	foreach my $obj (@$services) {
-		my $name = $obj->ServiceName;
-		$LOG->debug("\tGenerating impl for $name\n");
-		my $module_name =
-		  $self->service2module( $obj->Authority, $obj->ServiceName );
-
-		#   print SADI::Base->toString (\%input_paths);
-		# create implementation specific object
-		my $impl =
-		  { package => ( $args{impl_prefix} || 'Service' ) . '::' . $name, };
-		if ( $args{outcode} ) {
-			$tt->process(
-						  $input,
-						  {
-							 base        => $obj,
-							 impl        => $impl,
-							 static_impl => $args{static_impl},
-							 module_name => $module_name,
-						  },
-						  $args{outcode}
-			) || $LOG->logdie( $tt->error() );
-		} else {
-			my $outfile =
-			  File::Spec->catfile( $outdir, split( /::/, $impl->{package} ) )
-			  . '.pm';
-
-			# do not overwrite an existing file (there may be already
-			# a real implementation code)
-			if ( -f $outfile and !$args{force_over} ) {
-				$LOG->logwarn( "Implementation '$outfile' already exists. "
-						 . "It will *not* be re-generated. Safety reasons.\n" );
-				next;
-			}
-			$tt->process(
-						  $input,
-						  {
-							 base        => $obj,
-							 impl        => $impl,
-							 static_impl => $args{static_impl},
-							 module_name => $module_name,
-						  },
-						  $outfile
-			) || $LOG->logdie( $tt->error() );
-			$LOG->debug("Created $outfile\n");
-		}
-	}
-}
+#sub generate_async_impl {
+#	my ( $self, @args ) = @_;
+#	my %args = (    # some default values
+#		impl_outdir => (
+#						 $SADICFG::GENERATORS_IMPL_OUTDIR
+#						   || SADI::Utils->find_file( $Bin, 'services' )
+#		),
+#		impl_prefix   => $SADICFG::GENERATORS_IMPL_PACKAGE_PREFIX,
+#		service_names => [],
+#		force_over    => 0,
+#		static_impl   => 0,
+#
+#		# other args, with no default values
+#		# authority     => 'authority'
+#		# outcode       => ref SCALAR
+#		# and the real parameters
+#		@args
+#	);
+#	$self->_check_outcode(%args);
+#	my $outdir = File::Spec->rel2abs( $args{impl_outdir} );
+#	$LOG->debug( "Arguments for generating async service implementation:\n"
+#				 . $self->toString( \%args ) )
+#	  if ( $LOG->is_debug );
+#	my @names = ();
+#	push( @names, @{ $args{service_names} } )
+#	  if defined $args{service_names};
+#	my $services = $self->read_services(@names);
+#	if ( scalar @$services == 0 ) {
+#		my $msg = "Didn't find any services for @names!"
+#		  . "\nPlease make sure that you create a service definition first!";
+#		$LOG->warn($msg);
+#		$self->throw($msg);
+#	}
+#
+#	# generate from template
+#	my $tt = Template->new( ABSOLUTE => 1 );
+#	my $input = SADI::Utils->find_file( $Bin, 'SADI', 'Generators', 'templates',
+#										'service-async.tt' );
+#	foreach my $obj (@$services) {
+#		my $name = $obj->ServiceName;
+#		$LOG->debug("\tGenerating impl for $name\n");
+#		my $module_name =
+#		  $self->service2module( $obj->Authority, $obj->ServiceName );
+#
+#		#   print SADI::Base->toString (\%input_paths);
+#		# create implementation specific object
+#		my $impl =
+#		  { package => ( $args{impl_prefix} || 'Service' ) . '::' . $name, };
+#		if ( $args{outcode} ) {
+#			$tt->process(
+#						  $input,
+#						  {
+#							 base        => $obj,
+#							 impl        => $impl,
+#							 static_impl => $args{static_impl},
+#							 module_name => $module_name,
+#						  },
+#						  $args{outcode}
+#			) || $LOG->logdie( $tt->error() );
+#		} else {
+#			my $outfile =
+#			  File::Spec->catfile( $outdir, split( /::/, $impl->{package} ) )
+#			  . '.pm';
+#
+#			# do not overwrite an existing file (there may be already
+#			# a real implementation code)
+#			if ( -f $outfile and !$args{force_over} ) {
+#				$LOG->logwarn( "Implementation '$outfile' already exists. "
+#						 . "It will *not* be re-generated. Safety reasons.\n" );
+#				next;
+#			}
+#			$tt->process(
+#						  $input,
+#						  {
+#							 base        => $obj,
+#							 impl        => $impl,
+#							 static_impl => $args{static_impl},
+#							 module_name => $module_name,
+#						  },
+#						  $outfile
+#			) || $LOG->logdie( $tt->error() );
+#			$LOG->debug("Created $outfile\n");
+#		}
+#	}
+#}
 
 #-----------------------------------------------------------------
 # generate_cgi
