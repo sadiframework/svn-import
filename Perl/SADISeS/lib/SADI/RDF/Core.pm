@@ -31,7 +31,7 @@ use base ("SADI::Base");
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.20 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.21 $ =~ /: (\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -430,9 +430,15 @@ sub addOutputData {
 		$subject = RDF::Core::Resource->new( $subject->getURI );
 	} elsif ( UNIVERSAL::isa($subject, 'OWL::Data::OWL::Class') or UNIVERSAL::isa($subject, 'SADI::Data::OWL::Class') ) {
 		# using generated modules, so get their statements and return
-		foreach ( @{ $subject->_get_statements } ) {
-            $self->_addToModel( statement => $_ );
+		
+		my $enumerator = $subject->_get_statements;
+        return unless defined $enumerator;
+        my $statement = $enumerator->getFirst;
+        while (defined $statement) {
+              $self->_addToModel( statement => $statement );
+              $statement = $enumerator->getNext
         }
+        $enumerator->close;
         return;
     } else {
 		$subject = RDF::Core::Resource->new($subject);
