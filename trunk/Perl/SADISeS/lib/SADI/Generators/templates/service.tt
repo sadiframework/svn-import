@@ -10,10 +10,12 @@
       impl         ... a service implementation details
                        (type HASH)
       static_impl  ... if true, the static option will be enabled
+      is_async     ... if true, generate async service, otherwise generate sync
       ref          ... a CODE returning ref() of the given argument
 -%]
 #-----------------------------------------------------------------
 # Service name: [% base.ServiceName %]
+# [% IF is_async == 1 %]   An asynchronous service[% ELSE %]   A synchronous service[% END %]
 # Authority:    [% base.Authority %]
 # Created:      [% USE Date (format = '%d-%b-%Y %H:%M:%S %Z') %][% Date.format %]
 # Contact:      [% base.Provider %]
@@ -35,15 +37,22 @@ use SADI::Base;
 # --- (1) this option loads dynamically everything
 [% opt1 %]BEGIN {
 [% opt1 %]    use SADI::Generators::GenServices;
-[% opt1 %]    new SADI::Generators::GenServices->load(
+[% opt1 %][% IF is_async == 1 %]    new SADI::Generators::GenServices->async_load( 
+[%- ELSE -%]    new SADI::Generators::GenServices->load( [%- END %]
 [% opt1 %]	 service_names => ['[% base.ServiceName %]']);
 [% opt1 %]}
 
 # --- (2) this option uses pre-generated module
 #  You can generate the module by calling a script:
-#    sadi-generate-services -b [% base.Authority %] [% base.ServiceName %]
+[%- IF is_async == 1 %]
+ #    sadi-generate-services -B [% base.ServiceName %]
+[%- ELSE %]
+#    sadi-generate-services -b [% base.ServiceName %]
+[%- END %]
 #  then comment out the whole option above, and uncomment
 #  the following line (and make sure that Perl can find it):
+[%- IF is_async == 1 %]
+[% opt2 %]use SADI::Generators::GenServices;[% END %]
 [% opt2 %]use [% module_name %];
 
 # (this to stay here with any of the options above)
@@ -159,6 +168,10 @@ sub process_it {
                 value => "$output",
         	    predicate => "http://sadiframework.org/ontologies/predicates.owl#somePredicate$output"
         	);
+[%- IF is_async == 1 %]
+            # mimic a long running service; sleep 15 seconds per addition of output
+            sleep(15); 
+[%- END %] 
         }
     }
 }
@@ -171,6 +184,28 @@ __END__
 [% impl.package %] - a SADI service
 
 =head1 SYNOPSIS
+
+ # the only thing that you need to do is provide your
+ # business logic in process_it()!
+ #
+ # This method consumes an array reference of input data
+ # (RDF::Core::Resource),$values, and a reference to 
+ # a SADI::RDF::Core object, $core.
+ #
+ # Basically, iterate over the the inputs, do your thing
+ # and then $core->addOutputData().
+ #
+[%- IF is_async == 1 %]
+ # Since this is an asynchronous implementation of a SADI
+ # web service, I am assuming that your task takes a while
+ # to run. So to save what you have so far, do store($core).
+ #  
+[%- ELSE %]
+ # Since this is an synchronous implementation of a SADI
+ # web service, I am assuming that your task doesn't take
+ # long to execute.
+ # 
+[%- END %]
 
 =head1 DESCRIPTION
 
