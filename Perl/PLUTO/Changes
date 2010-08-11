@@ -1,5 +1,11 @@
 $Id: Changes,v 1.14 2010-05-20 17:29:09 ubuntu Exp $
 
+0.28
+    - Added owl:unionOf to what is parsed out of OWL and
+      inserted in our class map.
+    - fix: hasValue range wasnt being set properly when > 1
+      rdf:types exist.
+
 0.27
     - Restrictions using hasValue now extracted and added to
       class restrictions.
