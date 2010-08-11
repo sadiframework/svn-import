@@ -27,7 +27,7 @@ use ODO::Ontology::RDFS::List::Iterator;
 use base qw/ODO/;
 
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.62 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.63 $ =~ /: (\d+)\.(\d+)/;
 
 __PACKAGE__->mk_accessors(qw/graph/);
 
@@ -280,9 +280,15 @@ sub getClassRestriction {
         my $p = $ODO::Ontology::RDFS::Vocabulary::type->value();
         $queryString = "SELECT ?stmt WHERE (<$s>, <$p>, ?values)";
 	    $queryResults = $self->graph()->query($queryString)->results();
-	    if ( scalar( @{$queryResults} ) == 1 ) {
-	        $restriction->{'range'} = $queryResults->[0]->object()->value();
+	    foreach (@{$queryResults}) {
+	    	# ignore nodes typed as named individuals
+	    	next if $_->object()->value() eq 'http://www.w3.org/2002/07/owl#NamedIndividual';
+	    	$restriction->{'range'} = $_->object()->value();
+	    	last;
 	    }
+#	    if ( scalar( @{$queryResults} ) == 1 ) {
+#	        $restriction->{'range'} = $queryResults->[0]->object()->value();
+#	    }
         
     }
 	
@@ -424,9 +430,15 @@ sub getEquivalentClasses {
         my $p = $ODO::Ontology::RDFS::Vocabulary::type->value();
         $queryString = "SELECT ?stmt WHERE (<$s>, <$p>, ?values)";
         $queryResults = $self->graph()->query($queryString)->results();
-        if ( scalar( @{$queryResults} ) == 1 ) {
-            $restriction->{'range'} = $queryResults->[0]->object()->value();
+        foreach (@{$queryResults}) {
+        	#ignore nodes typed as named individuals
+            next if $_->object()->value() eq 'http://www.w3.org/2002/07/owl#NamedIndividual';
+            $restriction->{'range'} = $_->object()->value();
+            last;
         }
+#        if ( scalar( @{$queryResults} ) == 1 ) {
+#            $restriction->{'range'} = $queryResults->[0]->object()->value();
+#        }
     }
 	
 	return bless $restriction, 'ODO::Ontology::OWL::Lite::Fragments::EquivalentClass';
