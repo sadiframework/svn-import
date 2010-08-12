@@ -8,7 +8,7 @@
 
 # some command-line options
 use Getopt::Std;
-use vars qw/ $opt_h $opt_A $opt_B $opt_d $opt_v  $opt_s $opt_b $opt_F $opt_S $opt_D $opt_T/;
+use vars qw/ $opt_h $opt_A $opt_B $opt_d $opt_v  $opt_s $opt_b $opt_F $opt_S $opt_D $opt_T $opt_g/;
 getopts('hdvsbFSADBT');
 
 # usage
@@ -26,17 +26,21 @@ Usage: [-vds] [-b|S|A|D] service-name [service-name...]
     -S ... generate implementation and the base of service[s], the
            implementation module has enabled option to read the base
            statically (that is why it is also generated here)
+
     -A ... generate an asynchronous based implementation of the given service
 
-    -D ... generate a definition file for the service that you can fill in       
+    -D ... generate a definition file for the service that you can fill in
 
-    -T ... generate a unit test for your service that you can fill in       
+    -T ... generate a unit test for your service that you can fill in
+
+    -g ... generate OWL2Perl modules for your services output OWL class 
+           if you havae already created a service definition.
 
     If none of {-b,-S} given, it generates/show implementation (not a base) of 
     service[s].
 
     -s ... show generated code on STDOUT
-           (no file is created, disabled when -a given)
+           (no file is created)
 
     -v ... verbose
     -d ... debug
@@ -74,12 +78,29 @@ if ($opt_s) {
 		$generator->generate_base( service_names => [@ARGV],
 								   outcode       => \$code );
 	} elsif ($opt_B) {
+
         # generate just the base
         $generator->generate_async_base( service_names => [@ARGV],
                                    outcode       => \$code );
+    } elsif ($opt_S) {
+
+        # generate impl/cgi/base
+        $generator->generate_impl(
+                                   service_names => [@ARGV],
+                                   outcode       => \$code,
+                                   force_over    => $opt_F,
+                                   static_impl   => 1
+        );
+        $generator->generate_base( service_names => [@ARGV],
+                                    outcode       => \$code );
+        $generator->generate_cgi( service_names => [@ARGV],
+                                  outcode       => \$code,
+                                  force_over    => $opt_F );
     } elsif ($opt_A) {
+
 		# generate async impl/cgi
-        $generator->generate_async_impl( service_names => [@ARGV],
+        $generator->generate_impl( service_names => [@ARGV],
+                                   is_async      => 1,
                                    outcode       => \$code );
         $generator->generate_async_cgi(
                                   service_names => [@ARGV],
@@ -109,11 +130,13 @@ if ($opt_s) {
 	}
 	say $code;
 } else {
+	# generate code for a file
 	if ($opt_b) {
 
 		# generate just the base
 		$generator->generate_base( service_names => [@ARGV] );
 	} elsif ($opt_B) {
+
         # generate just the base
         $generator->generate_async_base( service_names => [@ARGV] );
     } elsif ($opt_S) {
@@ -128,8 +151,10 @@ if ($opt_s) {
 		$generator->generate_cgi( service_names => [@ARGV],
 								  force_over    => $opt_F );
 	} elsif ($opt_A) {
+
 		# generate impl/cgi
-        $generator->generate_async_impl( service_names => [@ARGV],
+        $generator->generate_impl( service_names => [@ARGV],
+                                   is_async      => 1,
                                    force_over    => $opt_F );
         $generator->generate_async_cgi( service_names => [@ARGV],
                                   force_over    => $opt_F );
