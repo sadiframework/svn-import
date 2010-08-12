@@ -20,10 +20,11 @@ Revision history for Perl extension OWL2Perl.
       This model is populated in calls to get_statements.
     * removed 'statements' parameter from generated classes.
     * internal subroutine '_get_statements' now returns an RDF::Core::Enumerator object
-    * better handles OWL classes that are equivalent to anonymous classes with
+    * better handle of OWL classes that are equivalent to anonymous classes with
       someValueFrom restrictions.
     * Utils->serialize() updated to use our RDF::Core::Enumerator rather than an
       arrayref of statements
+    * Updated the perldoc for generated classes
     
     TODO- cardinality constraints are now broken for classes that use the same
           property > once. 
