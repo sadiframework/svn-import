@@ -358,8 +358,7 @@ sub _process_classes {
 				# TODO if the restriction is a someValuesFrom, then:
 				# add the onProperty to object/datatype_properties
 				# stop processing
-				if (defined $restrict->{'onProperty'} and not defined $added_properties{$restrict->{'onProperty'}}) {
-	                $added_properties{$restrict->{'onProperty'}} = 1;
+				if (defined $restrict->{'onProperty'} ){ #and not defined $added_properties{$restrict->{'onProperty'}}) {
 					# check if $restrict->{'hasValue'} ? add the hasValue to class : process restriction
 	                if (defined $restrict->{'hasValue'}) {
 	                    # add hasValue: extract the value, 
@@ -376,7 +375,6 @@ sub _process_classes {
 		                    $hv_hash{module} = $self->oProperty2module( $self->uri2package( $range ) ) if $range;
 		                    $hv_hash{module} = 'OWL::Data::OWL::Class' unless $range;	
 	                    }
-	                                        
 	                    $class->add_has_value_property(\%hv_hash);
 	                    # no next, because we use the has_value stuff to init our stuff
 	                }
@@ -396,7 +394,7 @@ sub _process_classes {
 						}
 	
 						# add someValuesFrom, allValuesFrom to inheritance
-						$class->add_datatype_properties($dp);
+						$class->add_datatype_properties($dp) unless defined $added_properties{$restrict->{'onProperty'}};
 					} elsif ($oProps->{ $restrict->{'onProperty'} }) {
 						my $op = $oProps->{ $restrict->{'onProperty'} };
 	                    # extract any cardinality constraints
@@ -411,14 +409,29 @@ sub _process_classes {
 	                        $hoh->{$restrict->{'propertyName'}} = $hash;
 	                        $class->cardinality_constraints($hoh);
 	                    }
-	                    $class->add_object_properties($op);
+	                    # add the valuesFrom to values_from_properties
+	                    if (defined $restrict->{'someValuesFrom'} and defined $restrict->{'propertyName'}) {
+	                        my $pname = $restrict->{'propertyName'};
+	                        my $svf = $self->owlClass2module( $self->uri2package($restrict->{'someValuesFrom'}) );
+	                        my $vfp_hash = $class->values_from_property() || ();
+	                        if (exists $vfp_hash->{$pname}) {
+	                            $vfp_hash->{$pname} = {%{$vfp_hash->{$pname}}, "$svf" => 1};
+	                            $class->values_from_property($vfp_hash);
+	                        } else {
+	                            $vfp_hash->{$pname} = {$svf => 1};
+	                            $class->values_from_property($vfp_hash);
+	                        }
+	                    }
+	                    $class->add_object_properties($op) unless defined $added_properties{$restrict->{'onProperty'}};
 					} else {
 						$LOG->warn(sprintf("Trying to use property, '%s', but it was not imported in your ontology!", $restrict->{'onProperty'}));
 					}
+					$added_properties{$restrict->{'onProperty'}} = 1;
 				} else {
 					# just a bnode? check if it exists
 					$class->add_parent($restrict->{restrictionURI}) if defined $classes{$restrict->{restrictionURI}};
 				}
+				
 			}
 			foreach my $iClass ( @{ $object->{'intersections'}->{'classes'} } )
 			{
@@ -438,8 +451,8 @@ sub _process_classes {
                 # add the onProperty to object/datatype_properties
                 # stop processing
                 next unless defined $restrict->{'onProperty'};
-                next if defined $added_properties{$restrict->{'onProperty'}};
-                $added_properties{$restrict->{'onProperty'}} = 1;
+                # next if defined $added_properties{$restrict->{'onProperty'}};
+
                 # check if $restrict->{'hasValue'} ? add the hasValue to class : process restriction
                 if (defined $restrict->{'hasValue'}) {
                     # add hasValue: extract the value, 
@@ -456,7 +469,7 @@ sub _process_classes {
                         $hv_hash{module} = $self->oProperty2module( $self->uri2package( $range ) ) if $range;
                         $hv_hash{module} = 'OWL::Data::OWL::Class' unless $range;   
                     }
-                                        
+                    
                     $class->add_has_value_property(\%hv_hash);
                     # no next, because we use the has_value stuff to init our stuff
                 }
@@ -475,7 +488,7 @@ sub _process_classes {
                         $class->cardinality_constraints($hoh);
                     }
 
-                    $class->add_datatype_properties($dp);
+                    $class->add_datatype_properties($dp) unless defined $added_properties{$restrict->{'onProperty'}};
                 } elsif ($oProps->{ $restrict->{'onProperty'} }) {
                     my $op = $oProps->{ $restrict->{'onProperty'} };
                     # extract any cardinality constraints
@@ -490,10 +503,24 @@ sub _process_classes {
                         $hoh->{$restrict->{'propertyName'}} = $hash;
                         $class->cardinality_constraints($hoh);
                     }
-                    $class->add_object_properties($op);
+                    # add the valuesFrom to values_from_properties
+                    if (defined $restrict->{'someValuesFrom'} and defined $restrict->{'propertyName'}) {
+                            my $pname = $restrict->{'propertyName'};
+                            my $svf = $self->owlClass2module( $self->uri2package($restrict->{'someValuesFrom'}) );
+                            my $vfp_hash = $class->values_from_property() || ();
+                            if (exists $vfp_hash->{$pname}) {
+                                $vfp_hash->{$pname} = {%{$vfp_hash->{$pname}}, "$svf" => 1};
+                                $class->values_from_property($vfp_hash);
+                            } else {
+                                $vfp_hash->{$pname} = {$svf => 1};
+                                $class->values_from_property($vfp_hash);
+                            }
+                    }
+                    $class->add_object_properties($op) unless defined $added_properties{$restrict->{'onProperty'}};
                 } else {
                     $LOG->warn(sprintf("Trying to use property, '%s', but it was not imported in your ontology!", $restrict->{'onProperty'}));
                 }
+                $added_properties{$restrict->{'onProperty'}} = 1;
             }
             foreach my $iClass ( @{ $object->{'unions'}->{'classes'} } )
             {
@@ -507,8 +534,7 @@ sub _process_classes {
 		{
 			foreach my $restrict ( @{ $object->{'restrictions'} } ) {
 				next unless defined $restrict->{'onProperty'};
-				next if defined $added_properties{$restrict->{'onProperty'}};
-                $added_properties{$restrict->{'onProperty'}} = 1;
+				#next if defined $added_properties{$restrict->{'onProperty'}};
 				# check if $restrict->{'hasValue'} ? add the hasValue to class : process restriction
 				if (defined $restrict->{'hasValue'}) {
 					# add hasValue: extract the value, 
@@ -544,7 +570,7 @@ sub _process_classes {
                         $hoh->{$restrict->{'propertyName'}} = $hash;
                         $class->cardinality_constraints($hoh);
                     }
-					$class->add_datatype_properties($dp);
+					$class->add_datatype_properties($dp) unless defined $added_properties{$restrict->{'onProperty'}};
 				} elsif ( $oProps->{ $restrict->{'onProperty'} } ) {
 					my $op = $oProps->{ $restrict->{'onProperty'} };
 					# FIXME
@@ -560,7 +586,7 @@ sub _process_classes {
                         $hoh->{$restrict->{'propertyName'}} = $hash;
                         $class->cardinality_constraints($hoh);
                     }
-					$class->add_object_properties($op);
+					$class->add_object_properties($op) unless defined $added_properties{$restrict->{'onProperty'}};
 				} elsif ( $oProps->{ $restrict->{'restrictionURI'} } ) {
 
 					# FIXME hack ...
@@ -568,10 +594,12 @@ sub _process_classes {
 					$class->add_parent($op)
 					  if defined $classes{ $restrict->{'restrictionURI'} };
 				}
+				$added_properties{$restrict->{'onProperty'}} = 1;
 			}
 		}
+		
+#use Data::Dumper; $LOG->info(Dumper($class)) if defined $class->values_from_property();
 
-		#$LOG->info(Dumper($class));
 		my $generator = OWL::Generators::GenOWL->new();
 		if ( defined $code ) {
 			$generator->generate_class(
