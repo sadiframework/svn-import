@@ -246,10 +246,19 @@ __END__
 [%- END -%][%- END -%]
 [% IF obj.object_properties -%]
   # add object properties 
-[%- FOREACH child IN obj.object_properties -%]
+[%- FOREACH child IN obj.object_properties %]
+[%- SET childname = child.name %]
+[%- IF obj.values_from_property.$childname %]
+[%- FOREACH key IN obj.values_from_property.$childname.sort %]
+  use [% key %];
+  # add a [% child.name %] property ([% key %])
+  $class->add_[% child.name %](new [% key %]());
+[%- END %]
+[%- ELSE %]
   # Make sure to use the appropriate OWL class! 
   # OWL::Data::OWL::Class used as an example
   $class->add_[% child.name %](new OWL::Data::OWL::Class('#someURI'));
+[% END %]
   # get the [% child.name %] object properties
   my $[% child.name %]_objects = $class->[% child.name %];
 [%- END -%][%- END -%]
@@ -285,8 +294,26 @@ L<[% child %]>
 =back
 
 =cut
-[% END -%]
+[% END %]
+=cut
 [%- END -%]
+
+
+[%- IF obj.has_value_property and obj.has_value_property.size > 0 %]
+=head2 Constraints on hasValue 
+
+This class has the following values
+
+=over
+[% FOREACH child IN obj.has_value_property %]
+=item '[%- child.name -%]' has value '[%- child.object -%]', for example, ([%- child.module -%]->new('[%- child.object -%]'));
+
+[%- END %]
+
+=back
+
+=cut
+[% END %]
 
 =cut
 
