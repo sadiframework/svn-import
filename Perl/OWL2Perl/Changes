@@ -26,7 +26,7 @@ Revision history for Perl extension OWL2Perl.
       arrayref of statements
     * Updated the perldoc for generated classes
     
-    TODO- cardinality constraints are now broken for classes that use the same
+    TODO - cardinality constraints are now broken for classes that declare the same
           property > once. 
 0.96
     * fix uri2package: packages had # or / appended on odd uris ... broke
