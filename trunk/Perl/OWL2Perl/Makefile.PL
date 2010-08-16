@@ -33,7 +33,7 @@
     requires 'LS'                   => '1.1.7';
     requires 'HTTP::Request'        => 0;
     requires 'LWP'                  => 0;
-    requires 'PLUTO'                => 0.27;
+    requires 'PLUTO'                => 0.28;
     requires 'URI'                  => 1.40;
 
     # windows doesn't need this
