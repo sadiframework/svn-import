@@ -763,6 +763,14 @@ OWL2Perl - Perl extension for the automatic generation of perl modules from OWL 
 A module to aid in the genesis of Perl modules that represent OWL entities in
 OWL ontologies.
 
+=head2 Upgrading from a version prior to Version 0.97
+
+For those of you upgrading from a version prior to version 0.97, you B<will> need to 
+regenerate your modules for any OWL ontologies that you use. This latest version of
+OWL2Perl utilizes new methods for serializing OWL/RDF and is not compatible with previous
+versions. The generated modules themselves should still behave as expected and should not
+have changed too much (except for the additional perldoc in each generated class).
+
 =head2 Upgrading from a version prior to Version 0.96
 
 For those of you upgrading from a version prior to version 0.96, you may need to 
