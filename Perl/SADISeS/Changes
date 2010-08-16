@@ -5,6 +5,18 @@ Revision history for Perl extension SADI.
     * uses OWL2Perl version 0.96 or higher
     * generated owl classes (sadi-generate-datatypes) now include property
       constraints like hasValue and maxCardinality.
+    * updated the required version of OWL2Perl needed.
+    * merged the differences in service-async.tt with service.tt
+    * added an option to sadi-generate-services.pl that generates
+      perl modules for the input and output OWL classes.
+    * removed the requirement for PLUTO from the makefile (OWL2Perl requires
+      it and we require OWL2Perl, so whats the point of having it twice).
+    * Updated addOutputData() in SADI::RDF::Core to utilize new method of
+      getting statements from OWL2Perl classes.
+    * added a method to SADI::Utils called LSRNize that takes LSRN records
+      and adds a has attribute LSRN Identifier.
+    * added option to sadi-generate-services.pl that generates output class
+      datatypes (a generate all in one call option).
 
 1.03
     * fix uri2package: packages had # or / appended on odd uris ... broke
