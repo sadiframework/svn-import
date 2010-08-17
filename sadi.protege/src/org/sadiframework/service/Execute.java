@@ -85,14 +85,14 @@ public class Execute {
                 } catch (IOException e) {
                     throw new SADIServiceException(e.getMessage());
                 }
+            } else {
+                return String.format("%s", status.toString());
             }
         } catch (ClientProtocolException e) {
             throw new SADIServiceException(e.getMessage());
         } catch (IOException e) {
             throw new SADIServiceException(e.getMessage());
         }
-
-        return "";
     }
 
     private static String processIsDefinedBy(String endpoint, InputStream xml)
