@@ -147,6 +147,13 @@ sub _get_statements {
 	return undef;
 }
 
+#-------------------------------------------------------------------
+# returns a hash reference with possible keys: datatypes, objects
+#-------------------------------------------------------------------
+sub __properties {
+	return {};
+}
+
 =head2 clear_statements
 
 clear_statements: clears statements from class; however, this does not remove properties.
