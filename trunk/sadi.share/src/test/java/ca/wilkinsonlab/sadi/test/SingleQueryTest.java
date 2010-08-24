@@ -117,15 +117,15 @@ public class SingleQueryTest
 //					"uniprot:P15923 pred:hasName ?name " +
 //				"}";
 		
-//		query = 
-//			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-//			"PREFIX ss: <http://semanticscience.org/resource/> " +
-//			"SELECT ?s " +
-//			"FROM <http://sadiframework.org/ontologies/lipinski-modified.owl> " +
-//			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
-//			"WHERE { " +
-//			"    ?s rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#lipinskismilesmolecule> . " +
-//			"}";
+		query = 
+			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+			"PREFIX ss: <http://semanticscience.org/resource/> " +
+			"SELECT ?s " +
+			"FROM <http://sadiframework.org/ontologies/lipinski-modified.owl> " +
+			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
+			"WHERE { " +
+			"    ?s rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#lipinskismilesmolecule> . " +
+			"}";
 
 //		query = 
 //			"SELECT ?p " +
@@ -133,17 +133,25 @@ public class SingleQueryTest
 //				"<http://elmonline.ca/sw/explore.rdf#id> ?p [] " +
 //			"}";
 		
-		query = 
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-			"SELECT ?x " +
-			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
-			"WHERE { " +
-//			"	?x rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#alogpsmilesmolecule> " + 
-			" ?x <http://semanticscience.org/resource/SIO_000008> ?attr . " +
-			" ?attr rdf:type <http://semanticscience.org/resource/CHEMIN_000251> . " +
-			" ?attr <http://semanticscience.org/resource/SIO_000300> ?value . " +
-			"}";
+//		query = 
+//			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+//			"SELECT ?x " +
+//			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
+//			"WHERE { " +
+////			"	?x rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#alogpsmilesmolecule> " + 
+//			" ?x <http://semanticscience.org/resource/SIO_000008> ?attr . " +
+//			" ?attr rdf:type <http://semanticscience.org/resource/CHEMIN_000251> . " +
+//			" ?attr <http://semanticscience.org/resource/SIO_000300> ?value . " +
+//			"}";
 		
+//		query = 
+//			"SELECT ?impact ?mut_spec " +
+//			"FROM <http://www.freewebs.com/riazanov/SHARE_input1.rdf> " +
+//			"WHERE { " +
+//			"   ?impact a <http://www.unbsj.ca/sase/csas/mutationOntology.owl#MutationImpact> . " +
+//			"   ?impact <http://www.unbsj.ca/sase/csas/mutationOntology.owl#impactIsSpecifiedBy> ?mut_spec " +
+//			"}";
+//		
 		log.info( String.format("executing query\n%s", query) );
 		
 		StopWatch stopWatch = new StopWatch();
