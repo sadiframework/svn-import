@@ -360,6 +360,7 @@ sub generate_impl {
 		service_names => [],
 		force_over    => 0,
 		static_impl   => 0,
+		do_owl2perl   => 1, # try to use owl2perl datatypes by default
 
 		# other args, with no default values
 		# authority     => 'authority'
@@ -389,6 +390,41 @@ sub generate_impl {
 										'service.tt' );
 	foreach my $obj (@$services) {
 		my $name = $obj->ServiceName;
+		my $outputClass = '';
+		my (@obj_prop, @dat_prop);
+		if ($args{do_owl2perl}) {
+			use lib $SADICFG::GENERATORS_OUTDIR;
+			# convert the outputclass to a module name
+			$outputClass = $self->owlClass2module( $self->uri2package($obj->OutputClass) );
+			
+			eval "require $outputClass";
+			# error: dont put owl2perl in the service skeleton
+			if ($@) {
+			 $args{do_owl2perl} = 0;
+			 $LOG->warn($@);
+			}
+			if ($args{do_owl2perl}) {
+				my @inheritance = &__inheritance($outputClass->new);
+				# get the unique fields
+				my %seen = ();
+				my @unique = grep { ! $seen{$_} ++ } @inheritance;
+				
+				foreach (@unique) {
+				    # fetch names of datatype properties
+				    eval {
+				    	my @dp = @{$_->__properties->{datatypes}} if defined $_->__properties->{datatypes} ;
+				        push @dat_prop, @dp;
+				    };
+				    $LOG->warn ($@) if $@;
+				    # fetch object properties
+				    eval {
+				    	my @op = @{$_->__properties->{objects}} if defined $_->__properties->{objects};
+				        push @obj_prop, @op;
+				    };
+				    $LOG->warn ($@) if $@;
+				}
+			}
+		}
 		$LOG->debug("\tGenerating impl for $name\n");
 		my $module_name =
 		  $self->service2module( $obj->Authority, $obj->ServiceName );
@@ -401,12 +437,16 @@ sub generate_impl {
 			$tt->process(
 						  $input,
 						  {
-							 base        => $obj,
-							 impl        => $impl,
-							 static_impl => $args{static_impl},
-							 module_name => $module_name,
-							 is_async    => defined $args{is_async} ? $args{is_async} : 0,  
-						  },
+							 base               => $obj,
+							 impl               => $impl,
+							 static_impl        => $args{static_impl},
+							 module_name        => $module_name,
+							 is_async           => defined $args{is_async} ? $args{is_async} : 0,
+							 do_owl2perl        => $args{do_owl2perl},
+							 owl2perl_datatypes => \@dat_prop,  
+							 owl2perl_objects   => \@obj_prop,
+							 owl2perl_outclass  => $outputClass,
+ 						  },
 						  $args{outcode}
 			) || $LOG->logdie( $tt->error() );
 		} else {
@@ -424,17 +464,38 @@ sub generate_impl {
 			$tt->process(
 						  $input,
 						  {
-							 base        => $obj,
-							 impl        => $impl,
-							 static_impl => $args{static_impl},
-							 module_name => $module_name,
-							 is_async    => defined $args{is_async} ? $args{is_async} : 0,
+							 base               => $obj,
+							 impl               => $impl,
+							 static_impl        => $args{static_impl},
+							 module_name        => $module_name,
+							 is_async           => defined $args{is_async} ? $args{is_async} : 0,
+							 do_owl2perl        => $args{do_owl2perl},
+                             owl2perl_datatypes => \@dat_prop,  
+                             owl2perl_objects   => \@obj_prop,
+                             owl2perl_outclass  => $outputClass,
 						  },
 						  $outfile
 			) || $LOG->logdie( $tt->error() );
 			$LOG->debug("Created $outfile\n");
 		}
 	}
+}
+
+# extracts all of the parent names from  an OWL2Perl generated datatype
+sub __inheritance {
+    my $self = $_[0];    
+    my $class = ref($self) || $self;
+    return unless $class;
+    no strict;
+    my @parent_classes = @{$class . '::ISA'};
+
+    my %hash;
+    my @ordered_inheritance;
+    push @ordered_inheritance, $class;
+    foreach my $parent_class (@parent_classes) {
+        push @ordered_inheritance, $parent_class, ($parent_class eq 'OWL::Data::OWL::Class' ? () : __inheritance($parent_class) );
+    }
+    return @ordered_inheritance;
 }
 
 #-----------------------------------------------------------------
