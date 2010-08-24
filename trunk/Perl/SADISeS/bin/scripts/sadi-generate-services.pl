@@ -16,7 +16,7 @@ if ( $opt_h or @ARGV == 0 ) {
 	print STDOUT <<'END_OF_USAGE';
 Generate Services.
 Usage: [-vds] [-b|S|A|D] service-name [service-name...]
-       [-vds] [-b|S|A] -g service-name [service-name...]
+       [-vds] [S|A] -g service-name [service-name...]
 
     All parameters for generating services are taken from the 
    'sadi-service.cfg' configuration file.
@@ -77,6 +77,16 @@ say "Generating services for [" . join( ", ", @ARGV ) . "]";
 if ($opt_s) {
 	say "\tGenerated code on STDOUT\n";
 	my $code = '';
+	# generate datatypes before doing anything else
+	if ($opt_g) {
+        my $service_instances = $generator->read_services(@ARGV);
+        my @urls;
+        foreach (@$service_instances) {
+            push @urls, $_->OutputClass;
+        }
+        generate_datatypes(urls => [@urls], outcode => \$code);
+    }
+	
 	if ($opt_b) {
 
 		# generate just the base
@@ -93,14 +103,13 @@ if ($opt_s) {
         $generator->generate_impl(
                                    service_names => [@ARGV],
                                    outcode       => \$code,
-                                   force_over    => $opt_F,
                                    static_impl   => 1
         );
         $generator->generate_base( service_names => [@ARGV],
                                     outcode       => \$code );
         $generator->generate_cgi( service_names => [@ARGV],
                                   outcode       => \$code,
-                                  force_over    => $opt_F );
+                                  );
     } elsif ($opt_A) {
 
 		# generate async impl/cgi
@@ -109,7 +118,6 @@ if ($opt_s) {
                                    outcode       => \$code );
         $generator->generate_async_cgi(
                                   service_names => [@ARGV],
-                                  force_over    => $opt_F,
                                   outcode       => \$code
         );
 	} elsif ($opt_D) {
@@ -129,21 +137,22 @@ if ($opt_s) {
 								   outcode       => \$code );
 		$generator->generate_cgi(
 								  service_names => [@ARGV],
-								  force_over    => $opt_F,
 								  outcode       => \$code
 		);
-	}
-	if ($opt_g) {
-		my $service_instances = $generator->read_services(@ARGV);
-		my @urls;
-		foreach (@$service_instances) {
-			push @urls, $_->OutputClass;
-		}
-		generate_datatypes(urls => [@urls], outcode => \$code);
 	}
 	say $code;
 } else {
 	# generate code for a file
+	# generate datatypes before doing anything else
+	if ($opt_g) {
+        my $service_instances = $generator->read_services(@ARGV);
+        my @urls;
+        foreach (@$service_instances) {
+            push @urls, $_->OutputClass;
+        }
+        generate_datatypes(urls => [@urls]);
+    }
+	
 	if ($opt_b) {
 
 		# generate just the base
@@ -189,14 +198,6 @@ if ($opt_s) {
 		$generator->generate_cgi( service_names => [@ARGV],
 								  force_over    => $opt_F );
 	}
-	if ($opt_g) {
-        my $service_instances = $generator->read_services(@ARGV);
-        my @urls;
-        foreach (@$service_instances) {
-            push @urls, $_->OutputClass;
-        }
-        generate_datatypes(urls => [@urls]);
-    }
 }
 say 'Done.';
 
