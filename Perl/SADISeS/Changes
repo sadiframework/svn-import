@@ -17,6 +17,15 @@ Revision history for Perl extension SADI.
       and adds a has attribute LSRN Identifier.
     * added option to sadi-generate-services.pl that generates output class
       datatypes (a generate all in one call option).
+    * sadi-generate-services: removed F option for generated code to stdout
+    * sadi-generate-services: moved g option to be first item done if specified
+    * GenServices: added do_owl2perl option to generate_impl;
+	* GenServices: if datatypes are already generated, then their usuage
+	  is added to the service skeleton;
+	* GenServices: added __inheriance method that sucks out all of the parents
+	  for any given reference
+	* generated services now have owl2perl usuage shown for output classes in
+	  the impl skeleton if the modules were already generated.
 
 1.03
     * fix uri2package: packages had # or / appended on odd uris ... broke
