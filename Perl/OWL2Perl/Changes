@@ -25,6 +25,9 @@ Revision history for Perl extension OWL2Perl.
     * Utils->serialize() updated to use our RDF::Core::Enumerator rather than an
       arrayref of statements
     * Updated the perldoc for generated classes
+    * added a __properties method that keeps track of the object and datatype properties
+      that a particular class has. This information is kept in a hash with keys: 
+      datatypes and objects;
     
     TODO - cardinality constraints are now broken for classes that declare the same
           property > once. 
