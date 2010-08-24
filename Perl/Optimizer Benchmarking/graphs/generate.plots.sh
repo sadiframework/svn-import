@@ -122,7 +122,7 @@ for test_query_prefix in $test_query_prefixes; do
 
 		add_line "means <- cbind(means, safe.mean($no_opt_vector))"
 		add_line "stderrs <- cbind(stderrs, safe.standard.error(t($no_opt_vector)))"
-		add_line "bar.labels <- rbind(bar.labels, 'no optimization')"
+		add_line "bar.labels <- rbind(bar.labels, 'BASIC')"
 		add_line "bar.annotations <- rbind(bar.annotations, '$annotation')"
 
 		#-------------------------------------------------------------
@@ -158,7 +158,7 @@ for test_query_prefix in $test_query_prefixes; do
 
 			add_line "means <- cbind(means, safe.mean($opt_vector))"
 			add_line "stderrs <- cbind(stderrs, safe.standard.error(t($opt_vector)))"
-			add_line "bar.labels <- rbind(bar.labels, '${test_run_count} training runs')"
+			add_line "bar.labels <- rbind(bar.labels, 'GREEDY, ${test_run_count} training runs')"
 			add_line "bar.annotations <- rbind(bar.annotations, '$annotation')"
 
 			test_run_count=$((${test_run_count} + 1))
@@ -177,6 +177,7 @@ for test_query_prefix in $test_query_prefixes; do
 	done # for each query ordering
 
 	test_query=$(basename ${test_query_prefix})
+	query_number=$(echo ${test_query_prefix} | perl -ple 's/.*query(.*)\.sparql/\1/g')
 	graph_file="${test_query}.png";
 
 	add_line "png('${graph_file}')"
@@ -192,18 +193,30 @@ for test_query_prefix in $test_query_prefixes; do
 	add_line "# generate labels for bar groups"
 	add_line "group.labels <- c()"
 	add_line "for(i in 1:ncol(mean.matrix)) {"
-	add_line "  group.labels <- rbind(group.labels, paste('Ordering ', i - 1))"
+	add_line "  group.labels <- rbind(group.labels, paste('Test Ordering ', i - 1))"
 	add_line "}"
 	add_line
-	add_line "xvals.matrix <- barplot2(mean.matrix, main='Results for ${test_query}', legend.text=bar.labels, log='y', ylim=c(1,2000), xjust=0, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
+	add_line "# las = 3 means draw all axis labels vertically"
+	add_line "par(las=3)"
+	add_line "# mar(bottom, left, top, right) sets margins (measured in lines of text)"
+	add_line "par(mar=c(10, 5, 4, 2))"
+	add_line "# don't use scientific notation unless numbers have more than 10 digits"
+	add_line "# (did this to prevent R from using scientific notation for y axis labels)"
+	add_line "options(scipen=10)"
+	add_line
+	add_line "xvals.matrix <- barplot2(mean.matrix, main='Execution Times for Query ${query_number}', legend.text=bar.labels, log='y', ylim=c(1,2000000), ylab='Query Execution Time (seconds)', xjust=0, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
 	add_line "xvals <- xvals.matrix[ 1:length(xvals.matrix) ]"
 	add_line "yvals <- mean.matrix[ 1:length(mean.matrix) ]"
 	add_line "ydeltas <- stderr.matrix[ 1:length(stderr.matrix) ]"
 	add_line "errbar(xvals, yvals, yvals + ydeltas, yvals - ydeltas, xlab='Random Input Query Ordering', ylab='Query Time (seconds)', add=TRUE)"
-	add_line ""
+	add_line 
+	add_line "# TIMEOUT line"
+	add_line "abline(h=1800, lty=2)"
+	add_line "text(0, 4000, c('TIMEOUT = 1800 seconds'), pos=4)" 
+	add_line
 	add_line "# apply text annotations indicating query exit status (e.g. TIMEOUT)"
-	add_line "annotation.vector <- annotation.matrix[ 1:length(annotation.matrix) ]"
-	add_line "text(xvals, rep(0, length(xvals)), annotation.vector, srt=90, adj=0)"
+	add_line "#annotation.vector <- annotation.matrix[ 1:length(annotation.matrix) ]"
+	add_line "#text(xvals, rep(0, length(xvals)), annotation.vector, srt=90, adj=0)"
 	add_line ""
 	add_line "dev.off()"
 
