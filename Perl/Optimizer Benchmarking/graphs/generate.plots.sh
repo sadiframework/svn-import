@@ -182,6 +182,10 @@ for test_query_prefix in $test_query_prefixes; do
 
 	add_line "png('${graph_file}')"
 	add_line ""
+	add_line "# don't use scientific notation unless numbers have more than 10 digits"
+	add_line "# (did this to prevent R from using scientific notation for y axis labels)"
+	add_line "options(scipen=10)"
+	add_line
 	add_line "# generate color gradient for bars"
 	add_line "shades.of.gray <- c()"
 	add_line "inc <- (0.9 - 0.5) / nrow(mean.matrix)"
@@ -200,9 +204,6 @@ for test_query_prefix in $test_query_prefixes; do
 	add_line "par(las=3)"
 	add_line "# mar(bottom, left, top, right) sets margins (measured in lines of text)"
 	add_line "par(mar=c(10, 5, 4, 2))"
-	add_line "# don't use scientific notation unless numbers have more than 10 digits"
-	add_line "# (did this to prevent R from using scientific notation for y axis labels)"
-	add_line "options(scipen=10)"
 	add_line
 	add_line "xvals.matrix <- barplot2(mean.matrix, main='Execution Times for Query ${query_number}', legend.text=bar.labels, log='y', ylim=c(1,2000000), ylab='Query Execution Time (seconds)', xjust=0, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
 	add_line "xvals <- xvals.matrix[ 1:length(xvals.matrix) ]"
