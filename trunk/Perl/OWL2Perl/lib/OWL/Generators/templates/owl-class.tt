@@ -127,6 +127,42 @@ sub init {
 
 }
 
+sub __properties {
+	my $self = shift;
+	my %props_hash;
+[%- IF obj.datatype_properties -%]
+    my @dps; 
+  # add datatype properties 
+[%- FOREACH child IN obj.datatype_properties %]
+  push @dps, '[% child.name %]';
+[%- END %]
+    $props_hash{datatypes} = \@dps;
+[%- END -%]
+[% IF obj.object_properties -%]
+  # add object properties 
+  my @ops; #array of hash names, modules
+[%- FOREACH child IN obj.object_properties %]
+[%- SET childname = child.name %]
+[%- IF obj.values_from_property.$childname %]
+[%- FOREACH key IN obj.values_from_property.$childname.sort %]
+  push @ops, {
+        prop => '[% child.name %]',
+        mod => '[% key %]',
+  };
+[%- END %]
+[%- ELSE %]
+  # OWL::Data::OWL::Class used as an example
+  push @ops, {
+        prop => '[% child.name %]',
+        mod => 'OWL::Data::OWL::Class',
+  };
+[% END %]
+[%- END %]
+    $props_hash{objects} = \@ops;
+[%- END %]
+	return \%props_hash;
+}
+
 # returns an RDF::Core::Enumerator object or undef;
 sub _get_statements {
 	# use_type is undef initially and 1 for super() calls
