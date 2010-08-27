@@ -620,7 +620,7 @@ sub sendInterfaceOnGET {
 };
 
     my $method = $ENV{REQUEST_METHOD} || $self->_default_request_method();
-    if ($method eq "GET"){
+    if (($method eq "GET") || ($method eq "HEAD")){
         print "Content-Type: $contenttype; charset=ISO-8859-1;\n\n";
         print $sadi_interface_signature;
         exit;
