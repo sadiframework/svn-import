@@ -50,7 +50,7 @@ my $SUGGESTED_WAIT_TIME = 0.5*60*1000;
 use base 'Service::[% obj.ServiceName %]';
 
 # if this is a GET, send the service interface
-if ($ENV{REQUEST_METHOD} eq 'GET') {
+if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
     my $q = new CGI;
     # print the interface unless we are polling
     do {
