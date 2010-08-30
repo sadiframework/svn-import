@@ -167,26 +167,30 @@ sub process_it {
         # fill in the output nodes - this is what you need to do!
         # for example ...
 [%- IF do_owl2perl == 1 %]
-            require [%owl2perl_outclass%];
-            my $outClass = 
-                [%owl2perl_outclass%]->new(
-                    sprintf('%s', $input->getURI)
-                );
+        require [%owl2perl_outclass%];
+        my $outClass = 
+            [%owl2perl_outclass%]->new(
+                sprintf('%s', $input->getURI)
+        );
 [%- FOREACH prop IN owl2perl_datatypes %]
-            # set the '[%prop%]' property
-            $outClass->add_[%prop%]('some scalar value');
+        # set the scalar '[%prop%]' property
+        $outClass->add_[%prop%]('some scalar value');
 [%- END %]
 [%- SET ops = { }-%]
 [%- FOREACH prop IN owl2perl_objects %]
-            # set the '[% prop.item('prop') %]' property on the class [% prop.item('mod') %]
-            $outClass->add_[% prop.item('prop') %](
-                [% prop.item('mod') %]->new(sprintf('http://sadiframework.org/uri#%s_%s', '[% prop.item('prop') %]', $output))
-            );
+        # set the '[% prop.item('prop') %]' property on the class [% prop.item('mod') %]
+        $outClass->add_[% prop.item('prop') %](
+           [% prop.item('mod') %]->new(sprintf('http://sadiframework.org/uri#%s', '[% prop.item('prop') %]'))
+        );
 [%- END %]
-            # add our outclass to the service output
-            $core->addOutputData(
-                node => $outClass,
-            );
+        # add our outclass to the service output
+        $core->addOutputData(
+            node => $outClass,
+        );
+[%- IF is_async == 1 %]
+        # mimic a long running service; sleep 15 seconds per addition of output
+        sleep(15); 
+[%- END %] 
 [%- ELSE %]
         foreach my $output (0..2) {
          	$core->addOutputData(
@@ -194,12 +198,12 @@ sub process_it {
                 value => "$output",
         	    predicate => "http://sadiframework.org/ontologies/predicates.owl#somePredicate$output"
         	);
-        }
-[%- END %]
 [%- IF is_async == 1 %]
             # mimic a long running service; sleep 15 seconds per addition of output
             sleep(15); 
 [%- END %] 
+        }
+[%- END %]
     }
 }
 
