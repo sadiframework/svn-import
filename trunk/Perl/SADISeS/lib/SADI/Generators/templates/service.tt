@@ -165,17 +165,16 @@ sub process_it {
     	# do something with $input ... (sorry, can't help with that)
 	
         # fill in the output nodes - this is what you need to do!
-        foreach my $output (0..2) {
         # for example ...
 [%- IF do_owl2perl == 1 %]
             require [%owl2perl_outclass%];
             my $outClass = 
                 [%owl2perl_outclass%]->new(
-                    sprintf('%s_%d', $input->getURI, $output)
+                    sprintf('%s', $input->getURI)
                 );
 [%- FOREACH prop IN owl2perl_datatypes %]
             # set the '[%prop%]' property
-            $outClass->add_[%prop%]('some value');
+            $outClass->add_[%prop%]('some scalar value');
 [%- END %]
 [%- SET ops = { }-%]
 [%- FOREACH prop IN owl2perl_objects %]
@@ -189,17 +188,18 @@ sub process_it {
                 node => $outClass,
             );
 [%- ELSE %]
+        foreach my $output (0..2) {
          	$core->addOutputData(
         		node => $input->getURI,
                 value => "$output",
         	    predicate => "http://sadiframework.org/ontologies/predicates.owl#somePredicate$output"
         	);
+        }
 [%- END %]
 [%- IF is_async == 1 %]
             # mimic a long running service; sleep 15 seconds per addition of output
             sleep(15); 
 [%- END %] 
-        }
     }
 }
 
