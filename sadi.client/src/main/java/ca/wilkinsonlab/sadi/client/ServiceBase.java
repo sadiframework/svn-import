@@ -26,8 +26,7 @@ public abstract class ServiceBase implements Service
 	@Override
 	public Collection<Resource> discoverInputInstances(Model inputModel)
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new ArrayList<Resource>(0);
 	}
 
 	/* (non-Javadoc)
