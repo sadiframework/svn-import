@@ -6,16 +6,14 @@
   <name>SHARE classes</name>
   <version>0.0.5-SNAPSHOT</version>
   <description>The Semantic Health and Research Environment</description>
+  <parent>
+    <groupId>ca.wilkinsonlab.sadi</groupId>
+    <artifactId>sadi-parent</artifactId>
+    <version>0.0.5-SNAPSHOT</version>
+  </parent>
+  
   <build>
-  <plugins>
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-compiler-plugin</artifactId>
-      <configuration>
-        <source>1.6</source>
-        <target>1.6</target>
-      </configuration>
-    </plugin>
+   <plugins>
     <plugin>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-surefire-plugin</artifactId>
@@ -60,16 +58,9 @@
         </execution>
       </executions>
     </plugin>
-  </plugins>
+   </plugins>
   </build>
-  <distributionManagement>
-    <snapshotRepository>
-      <id>dev-snapshot-repository</id>
-      <name>dev.biordf.net Snapshot Repository</name>
-      <url>scpexe://dev.biordf.net/var/www/maven/</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
+  
   <repositories>
     <repository>
       <id>thirdparty.dev.biordf.net</id>
@@ -82,17 +73,9 @@
         <checksumPolicy>warn</checksumPolicy>
       </releases>
     </repository>
-    <repository>
-  		<id>dev.biordf.net</id>
-  		<name>dev.biordf.net</name>
-  		<url>http://dev.biordf.net/maven</url>
-  		<snapshots>
-  			<enabled>true</enabled>
-  		</snapshots>
-  	</repository>
   </repositories>
-  <dependencies>
   
+  <dependencies>
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-common</artifactId>
@@ -102,13 +85,6 @@
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-client</artifactId>
       <version>0.0.5-SNAPSHOT</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.1</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
     	<groupId>commons-math</groupId>
@@ -120,6 +96,14 @@
     	<artifactId>ehcache-core</artifactId>
     	<version>2.0.1</version>
     </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.1</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
     	<groupId>args4j</groupId>
     	<artifactId>args4j</artifactId>

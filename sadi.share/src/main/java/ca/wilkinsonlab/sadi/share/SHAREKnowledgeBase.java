@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
@@ -28,10 +27,12 @@ import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.PropertyResolvabilityCache;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
+import ca.wilkinsonlab.sadi.utils.VariableNameFactory;
 import ca.wilkinsonlab.sadi.utils.OwlUtils.PropertyRestrictionAdapter;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
@@ -52,6 +53,7 @@ import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitorBase;
 import com.hp.hpl.jena.sparql.syntax.ElementWalker;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class SHAREKnowledgeBase
 {
@@ -385,8 +387,10 @@ public class SHAREKnowledgeBase
 			boolean retrievedData;
 			
 			if (directionIsForward) {
+				log.trace(String.format("resolving pattern %s in forward direction", pattern));
 				retrievedData = gatherTriples(subjects, properties, objects);
 			} else {
+				log.trace(String.format("resolving pattern %s in reverse direction", pattern));
 				retrievedData = gatherTriples(objects, getInverseProperties(properties), subjects);
 			}
 
@@ -397,12 +401,6 @@ public class SHAREKnowledgeBase
 				recordStats(subjects, predicates, objects, directionIsForward, (int)stopWatch.getTime());
 			}
 		}
-		
-		if (this.intersectVariableBindings) {
-			populateVariableBindingWithIntersection(subjects, predicates, objects);
-		} else {
-			populateVariableBinding(subjects, predicates, objects);
-		}
 
 		/* note: this must come after normal processing of the triple pattern,
 		 * so that rdf:type patterns are also resolved against SPARQL endpoints.
@@ -412,10 +410,17 @@ public class SHAREKnowledgeBase
 		if (p.isURI() && p.getURI().equals(RDF.type.getURI())) {
 			processTypePattern(pattern);
 		}
+		
+		if (this.intersectVariableBindings) {
+			populateVariableBindingWithIntersection(subjects, predicates, objects);
+		} else {
+			populateVariableBinding(subjects, predicates, objects);
+		}
 	}
 	
 	protected Set<OntProperty> getOntProperties(Collection<Resource> predicates) 
 	{
+		log.trace(String.format("expanding properties %s", predicates));
 		Set<OntProperty> predicateSet = new HashSet<OntProperty>();
 		for (Resource predicate : predicates) {
 			if (predicate.isURIResource())
@@ -430,7 +435,9 @@ public class SHAREKnowledgeBase
 	{
 		Set<OntProperty> inverseProperties = new HashSet<OntProperty>();
 		for (OntProperty property : properties) {
-			inverseProperties.add(getInverseProperty(property));
+			OntProperty inverseProperty = getInverseProperty(property);
+			if (inverseProperty != null)
+				inverseProperties.add(inverseProperty);
 		}
 		return inverseProperties;
 	}		
@@ -442,39 +449,100 @@ public class SHAREKnowledgeBase
 	 */
 	private void processTypePattern(final Triple pattern)
 	{
-		OntClass c = getNodeAsClass(pattern.getObject());
+		final OntClass c = getNodeAsClass(pattern.getObject());
 		if (c == null) {
 			log.warn(String.format("skipping type pattern with unknown class  %s", pattern.getObject()));
 			return;
 		}
 		
 		final PotentialValues subjects = expandQueryNode(pattern.getSubject());
-		if (tracker.beenThere(subjects, c))
-			return;
-		
-		log.debug(String.format("gathering triples to find instances of %s", c));
+		log.debug(String.format("gathering triples to find instances of %s", resourceToString(c)));
 		
 		OwlUtils.decompose(c, new PropertyRestrictionAdapter() {
 			public void onProperty(OntProperty onProperty)
 			{
-				PotentialValues objects = getNewVariableBinding();
+				log.trace(String.format("%s has restriction on property %s", resourceToString(c), resourceToString(onProperty)));
+				PotentialValues objects = getNewVariableBinding(onProperty);
 				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), objects.variable);
+				log.trace(String.format("created new pattern %s", newPattern));
 				processPattern(newPattern);
 			}
 			public void hasValue(OntProperty onProperty, RDFNode hasValue)
 			{
+				log.trace(String.format("%s has resriction on property %s: hasValue %s", resourceToString(c), resourceToString(onProperty), hasValue));
 				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), hasValue.asNode());
+				log.trace(String.format("created new pattern %s", newPattern));
 				processPattern(newPattern);
 			}
 			public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
 			{
-				PotentialValues objects = getNewVariableBinding();
+				log.trace(String.format("%s has resriction on property %s: valuesFrom %s", resourceToString(c), resourceToString(onProperty), resourceToString(valuesFrom)));
+				PotentialValues objects = getNewVariableBinding(onProperty);
 				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), objects.variable);
-				processPattern(newPattern);
+				log.trace(String.format("created new pattern %s", newPattern));
 				Triple typePattern = Triple.create(objects.variable, RDF.type.asNode(), valuesFrom.asNode());
+				log.trace(String.format("created new pattern %s", typePattern));
+				processPattern(newPattern);
 				processPattern(typePattern);
 			}
+		}, new ca.wilkinsonlab.sadi.utils.OwlUtils.Tracker() {
+			@Override
+			public boolean beenThere(OntClass c)
+			{
+				return tracker.beenThere(subjects, c);
+			}
+		}, new ca.wilkinsonlab.sadi.utils.OwlUtils.DefaultClassFilter() {
+			@Override
+			public boolean ignoreClass(OntClass c)
+			{
+				if (super.ignoreClass(c)) {
+					log.trace(String.format("ignoring class %s by default", resourceToString(c)));
+					return true;
+				}
+				
+				if (subjects.isEmpty()) {
+					List<? extends OntResource> instances = c.listInstances().toList();
+					if (!instances.isEmpty()) {
+						log.trace(String.format("ignoring class %s because there are instances present that will be assigned to %s", resourceToString(c), subjects.variable));
+						subjects.values.addAll(instances);
+						return true;
+					} else{
+						log.trace(String.format("decomposing class %s because there are no instances in the KB", resourceToString(c)));
+						return false;
+					}
+				}
+					
+				for (Resource resource: RdfUtils.extractResources(subjects.values)) {
+					// can we just cast this instead?
+					Individual i = reasoningModel.getIndividual(resource.getURI());
+					if (i != null && i.hasOntClass(c)) {
+						log.trace(String.format("ignoring class %s because candidates of %s are instances", resourceToString(c), subjects.variable));
+						return true;
+					}
+				}
+				log.trace(String.format("decomposing class %s because no candidates of %s are instances", resourceToString(c), subjects.variable));
+				return false;
+			}
 		});
+	}
+	
+	private String resourceToString(OntResource resource)
+	{
+		StringBuilder buf = new StringBuilder();
+		buf.append(resource.getURI());
+		if (resource.hasProperty(RDFS.label)) {
+			buf.append(" (");
+			for (Statement stmt: resource.listProperties(RDFS.label).toList()) {
+				// this should never happen, but it does...
+				if (!stmt.getObject().isLiteral())
+					continue;
+				buf.append(" '");
+				buf.append(stmt.getString());
+				buf.append("'");
+			}
+			buf.append(" ) ");
+		}
+		return buf.toString();
 	}
 	
 	private OntClass getNodeAsClass(Node node)
@@ -524,32 +592,14 @@ public class SHAREKnowledgeBase
 		return variableBindings.get(variable.getName());
 	}
 
-	private PotentialValues getNewVariableBinding()
+	private PotentialValues getNewVariableBinding(Resource r)
 	{
-		String varName = null;
-		do {
-			varName = getNextVariableName(varName);
+		String varName = VariableNameFactory.getVariableName(r);
+		while (variableBindings.containsKey(varName)) {
+			varName = VariableNameFactory.getNextVariableName(varName);
 		} while (variableBindings.containsKey(varName));
 		
 		return getVariableBinding(Node.createVariable(varName));
-	}
-
-	/* horribly hacky and inefficient; find some library to generate a
-	 * pronounceable word...
-	 */
-	private static String alpha = "abcdefghijklmnopqrstuvwxyz";
-	private String getNextVariableName(String variable)
-	{
-		if (StringUtils.isEmpty(variable))
-			return "" + alpha.charAt(0); // not String.valueOf because I need a new string...
-		
-		String lastLetter = StringUtils.substring(variable, -1);
-		int i = alpha.indexOf(lastLetter) + 1;
-		if (i >= alpha.length() || i < 0) {
-			return variable + alpha.charAt(0);
-		} else {
-			return StringUtils.substring(variable, 0, -1) + alpha.charAt(i);
-		}
 	}
 	
 	/* look up the specified URI in the reasoning model; if it's not there,
@@ -598,7 +648,7 @@ public class SHAREKnowledgeBase
 	}
 	
 	protected OntProperty getInverseProperty(OntProperty p)
-	{
+	{	
 		OntProperty inverse = p.getInverse();
 		if (inverse == null) {
 			log.warn(String.format("creating inverse property of %s", p.getURI()));
@@ -912,13 +962,13 @@ public class SHAREKnowledgeBase
 		
 		Set<Service> services = new HashSet<Service>();
 		for (OntProperty equivalentProperty: equivalentProperties) {
-			log.trace(String.format("finding services for equivalent property %s", equivalentProperty));
+			log.trace(String.format("finding services for equivalent property %s", resourceToString(equivalentProperty)));
 //			if (equivalentProperty.equals(RDF.type) || equivalentProperty.isInverseOf(RDF.type)) {
 //				log.debug("refusing to find services for RDF.type or its inverse");
 //				continue;
 //			}
 			Collection<Service> equivalentPropertyServices = getRegistry().findServicesByPredicate(equivalentProperty.getURI());
-			log.debug(String.format("found %d service%s for property %s", equivalentPropertyServices.size(), equivalentPropertyServices.size() == 1 ? "" : "s", equivalentProperty));
+			log.debug(String.format("found %d service%s for property %s", equivalentPropertyServices.size(), equivalentPropertyServices.size() == 1 ? "" : "s", resourceToString(equivalentProperty)));
 			services.addAll(equivalentPropertyServices);
 		}
 		
@@ -970,7 +1020,7 @@ public class SHAREKnowledgeBase
 			if (inputClass != null) {
 				log.trace(String.format("using SADI to test membership in %s", inputClass));
 
-				PotentialValues s = getNewVariableBinding();
+				PotentialValues s = getNewVariableBinding(null);
 				for (Iterator<RDFNode> i = unfiltered.iterator(); i.hasNext(); ) {
 					RDFNode node = i.next();
 					if (!subjects.contains(node))
@@ -1023,8 +1073,12 @@ public class SHAREKnowledgeBase
 			 */
 			reasoningModel.addSubModel(inputClass.getOntModel());
 			OntClass inOurModel = reasoningModel.getOntClass(inputClass.getURI());
-			for (OntResource r: inOurModel.listInstances().toList()) {
-				instanceURIs.add(r.getURI());
+			if (inOurModel == null) {
+				log.warn(String.format("service %s input class %s is undefined", service, inputClass));
+			} else {
+				for (OntResource r: inOurModel.listInstances().toList()) {
+					instanceURIs.add(r.getURI());
+				}
 			}
 			reasoningModel.removeSubModel(inputClass.getOntModel());
 		}
@@ -1277,8 +1331,8 @@ public class SHAREKnowledgeBase
 
 		private String getHashKey(PotentialValues instances, OntClass asClass)
 		{
-			// one variable name or URI, one URI, so this should be safe...
-			return String.format("%s %s", instances.key, asClass.getURI());
+			// one variable name or URI, one node ID or URI, so this should be safe...
+			return String.format("%s %s", instances.key, asClass.toString());
 		}
 	}
 	
