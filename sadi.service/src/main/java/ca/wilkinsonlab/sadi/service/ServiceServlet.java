@@ -127,26 +127,38 @@ public abstract class ServiceServlet extends HttpServlet
 		ontologyModel = createOntologyModel();
 		
 		try {
-			String inputClassUri = serviceOntologyHelper.getInputClass().getURI();
-			log.trace(String.format("loading input class %s", inputClassUri));
-			OwlUtils.loadOntologyForUri(ontologyModel, inputClassUri);
-			inputClass = ontologyModel.getOntClass(inputClassUri);
-			if (errorHandler.hasLastError())
-				throw errorHandler.getLastError();
+			inputClass = loadInputClass();
 		} catch (Exception e) {
 			throw new ServletException("error loading input class: " + e.toString(), e);
 		}
 		
 		try {
-			String outputClassUri = serviceOntologyHelper.getOutputClass().getURI();
-			log.trace(String.format("loading output class %s", outputClassUri));
-			OwlUtils.loadOntologyForUri(ontologyModel, outputClassUri);
-			outputClass = ontologyModel.getOntClass(outputClassUri);
-			if (errorHandler.hasLastError())
-				throw errorHandler.getLastError();
+			outputClass = loadOutputClass();
 		} catch (Exception e) {
-			throw new ServletException("error loading output class: " + e.toString(), e);
+			throw new ServletException("error loading input class: " + e.toString(), e);
 		}
+	}
+	
+	protected OntClass loadInputClass() throws Exception
+	{
+		String inputClassUri = serviceOntologyHelper.getInputClass().getURI();
+		OwlUtils.loadOntologyForUri(ontologyModel, inputClassUri);
+		OntClass inputClass = ontologyModel.getOntClass(inputClassUri);
+		if (errorHandler.hasLastError())
+			throw errorHandler.getLastError();
+		else
+			return inputClass;
+	}
+	
+	protected OntClass loadOutputClass() throws Exception
+	{
+		String outputClassUri = serviceOntologyHelper.getOutputClass().getURI();
+		OwlUtils.loadOntologyForUri(ontologyModel, outputClassUri);
+		outputClass = ontologyModel.getOntClass(outputClassUri);
+		if (errorHandler.hasLastError())
+			throw errorHandler.getLastError();
+		else
+			return outputClass;
 	}
 
 	@Override
@@ -266,6 +278,7 @@ public abstract class ServiceServlet extends HttpServlet
 	{
 		Model model = modelMaker.createModel(serviceName);
 		model.getReader().setErrorHandler(errorHandler);
+		model.setNsPrefix("mygrid", "http://www.mygrid.org.uk/mygrid-moby-service#");
 		return model;
 	}
 	
