@@ -1,7 +1,7 @@
 PREFIX svc: <http://www.mygrid.org.uk/mygrid-moby-service#>
 
 SELECT DISTINCT ?pred
-FROM <http://mobyreg/services/>
+#FROM <http://mobyreg/services/>
 WHERE
 {
 	?service svc:hasOperation ?operation .
