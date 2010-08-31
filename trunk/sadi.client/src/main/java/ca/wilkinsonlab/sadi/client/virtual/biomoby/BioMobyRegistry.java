@@ -207,6 +207,10 @@ public class BioMobyRegistry extends RegistryBase
 	{
 		try {
 			OntProperty p = OwlUtils.getOntPropertyWithLoad(getPredicateOntology(), predicate);
+			if (p == null) {
+				log.warn(String.format("creating undefined property %s", predicate));
+				p = getPredicateOntology().createOntProperty(predicate);
+			}
 			return p.isDatatypeProperty();
 		} catch (SADIException e) {
 			log.error(e.getMessage());
