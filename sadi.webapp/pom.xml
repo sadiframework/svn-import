@@ -42,6 +42,17 @@
       </extension>
     </extensions>
   </build>
+  <repositories>
+    <repository>
+  		<id>dev.biordf.net</id>
+  		<name>dev.biordf.net</name>
+  		<url>http://dev.biordf.net/maven</url>
+  		<snapshots>
+  			<enabled>true</enabled>
+  		</snapshots>
+  	</repository>
+  </repositories>
+  <!-- 
   <distributionManagement>
     <snapshotRepository>
       <id>dev-snapshot-repository</id>
@@ -49,4 +60,5 @@
       <url>scpexe://dev.biordf.net/var/www/maven/</url>
     </snapshotRepository>
   </distributionManagement>
+   -->
 </project>
