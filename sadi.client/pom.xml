@@ -3,48 +3,16 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-client</artifactId>
-  <name>SADI client classes</name>
   <version>0.0.5-SNAPSHOT</version>
+  <parent>
+    <groupId>ca.wilkinsonlab.sadi</groupId>
+    <artifactId>sadi-parent</artifactId>
+    <version>0.0.5-SNAPSHOT</version>
+  </parent>
+  <name>SADI client classes</name>
   <description>Classes used by SADI clients</description>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-  <distributionManagement>
-    <snapshotRepository>
-      <id>dev-snapshot-repository</id>
-      <name>dev.biordf.net Snapshot Repository</name>
-      <url>scpexe://dev.biordf.net/var/www/maven/</url>
-      <uniqueVersion>false</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
+  
   <repositories>
-    <!--
-      this repository is broken, so I moved jMoby to dev...
-      specifically, having this repo in the list causes the Eclipse maven
-      plugin to hang; current working theory is that repeated, multi-threaded
-      hits looking for multiple non-existant files are causing portal.open-bio.org
-      to think we're a DOS attack.
-    <repository>
-      <id>biomoby</id>
-      <name>BioMoby releases</name>
-      <url>http://biomoby.org/m2repo</url>
-      <layout>default</layout>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>warn</checksumPolicy>
-      </releases>
-    </repository>
-     -->
   	<repository>
   		<id>dev.biordf.net</id>
   		<name>dev.biordf.net</name>
@@ -54,8 +22,8 @@
   		</snapshots>
   	</repository>
   </repositories>
-  <dependencies>
   
+  <dependencies>
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-common</artifactId>
@@ -98,6 +66,5 @@
       <version>4.1</version>
       <scope>test</scope>
     </dependency>
-    
   </dependencies>
 </project>
