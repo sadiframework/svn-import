@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
 import org.biomoby.shared.data.MobyDataObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,8 +14,10 @@ import ca.wilkinsonlab.sadi.client.Service;
 
 public class BioMobyRegistryTest extends TestCase
 {
-	private static final String PREDICATE_URI = "http://ontology.dumontierlab.com/hasParticipant";
-	private static final String SERVICE_NAME = "getKeggIdsByKeggPathway";
+	private static final Logger log = Logger.getLogger( BioMobyRegistryTest.class );
+	
+	private static final String PREDICATE_URI = "http://semanticscience.org/resource/SIO_000062";
+	private static final String SERVICE_NAME = "getKeggPathwaysByKeggID";
 //	private static final String SubjNamespaces[] = { "KEGG" };
 //	private static final String ObjNamespaces[] = { "KEGG_PATHWAY" };
 	
@@ -105,5 +108,11 @@ public class BioMobyRegistryTest extends TestCase
 		MobyDataObject data = new MobyDataObject("UniProt", "P12345");
 		String uri = registry.convertMobyDataObjectToUri(data);
 		assertEquals("incorrect uri", "http://lsrn.org/UniProt:P12345", uri);
+	}
+	
+	@Test
+	public final void testNumberOfServices() throws Exception
+	{
+		log.info(String.format("found %d services", registry.getAllServices().size()));
 	}
 }

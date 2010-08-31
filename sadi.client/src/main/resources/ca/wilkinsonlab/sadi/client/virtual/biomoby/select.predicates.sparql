@@ -4,7 +4,7 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX moby: <http://moby/>
 
 SELECT DISTINCT ?predicate ?inputname ?outputname
-FROM <http://mobyreg/services/>
+#FROM <http://mobyreg/services/>
 WHERE
 {
    %u% svc:hasOperation ?operation . 

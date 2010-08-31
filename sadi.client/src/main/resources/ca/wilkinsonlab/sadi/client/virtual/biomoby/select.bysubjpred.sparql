@@ -6,7 +6,7 @@ PREFIX mobyobj: <http://biomoby.org/RESOURCES/MOBY-S/Objects/>
 PREFIX namespace: <http://biomoby.org/RESOURCES/MOBY-S/Namespaces/>
 
 SELECT *
-FROM <http://mobyreg/services/>
+#FROM <http://mobyreg/services/>
 WHERE
 {
 
