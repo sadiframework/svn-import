@@ -264,11 +264,10 @@ public class BioMobyService extends MobyService implements Service
 				return null;
 			} 
 			
-			String inputClassUri = getURI() + "#input";
 			RDFList namespaceTypes = ontModel.createList();
 			for (MobyNamespace namespace: getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces()) 
 				namespaceTypes = namespaceTypes.with(getTypeByNamespace(namespace));
-			inputClass = ontModel.createUnionClass(inputClassUri, namespaceTypes);
+			inputClass = ontModel.createUnionClass(null, namespaceTypes);
 		}
 		
 		return inputClass;
