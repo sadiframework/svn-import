@@ -52,7 +52,6 @@
   		</snapshots>
   	</repository>
   </repositories>
-  <!-- 
   <distributionManagement>
     <snapshotRepository>
       <id>dev-snapshot-repository</id>
@@ -60,5 +59,4 @@
       <url>scpexe://dev.biordf.net/var/www/maven/</url>
     </snapshotRepository>
   </distributionManagement>
-   -->
 </project>
