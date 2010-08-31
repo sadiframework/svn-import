@@ -109,8 +109,11 @@ public class QueryPatternComparatorTest
 		mockKB.setAllowPredicateVariables(true);
 		
 		/* assign bindings to some variables, without accessing the internals of SHAREKnowledgeBase */
-		mockKB.executeQuery(SPARQLStringUtils.strFromTemplate("SELECT * WHERE { ?var1 %u% ?var2 }", PREDICATE_B));
-		
+		try {
+			mockKB.executeQuery(SPARQLStringUtils.strFromTemplate("SELECT * WHERE { ?var1 %u% ?var2 }", PREDICATE_B));
+		} catch (Exception e) {
+			log.error("error executing query", e);
+		}
 	}
 	
 	@Test
