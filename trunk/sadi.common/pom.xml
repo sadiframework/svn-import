@@ -3,58 +3,15 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-common</artifactId>
-  <name>Common SADI classes</name>
   <version>0.0.5-SNAPSHOT</version>
+  <parent>
+    <groupId>ca.wilkinsonlab.sadi</groupId>
+    <artifactId>sadi-parent</artifactId>
+    <version>0.0.5-SNAPSHOT</version>
+  </parent>
+  <name>Common SADI classes</name>
   <description>Classes used by both SADI clients and SADI services</description>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-      <plugin>
-      	<groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>ca/wilkinsonlab/sadi/utils/graph/GraphIteratorTest.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-    </plugins>
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-ssh-external</artifactId>
-        <version>1.0-alpha-5</version>
-      </extension>
-    </extensions>
-  </build>
-  <distributionManagement>
-    <repository>
-      <id>dev-repository</id>
-      <name>dev.biordf.net Repository</name>
-      <url>scpexe://dev.biordf.net/var/www/maven/</url>
-    </repository>
-    <snapshotRepository>
-      <id>dev-snapshot-repository</id>
-      <name>dev.biordf.net Snapshot Repository</name>
-      <url>scpexe://dev.biordf.net/var/www/maven/</url>
-    </snapshotRepository>
-  </distributionManagement>
-  <repositories>
-  	<repository>
-  		<id>dev.biordf.net</id>
-  		<name>dev.biordf.net</name>
-  		<url>http://dev.biordf.net/maven</url>
-  	</repository>
-  </repositories>
   <dependencies>
-  
     <dependency>
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
@@ -123,6 +80,5 @@
       <version>4.1</version>
       <scope>test</scope>
     </dependency>
-    
   </dependencies>
 </project>
