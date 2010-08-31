@@ -3,7 +3,7 @@ package ca.wilkinsonlab.sadi.utils.graph;
 import java.util.HashSet;
 import java.util.Set;
 
-public class GraphIteratorTest {
+public abstract class GraphIteratorTest {
 	
 	/** Adjacency list for a test graph.  Nodes are labeled with Integers, edges are unlabelled.
 	 * See testgraph.svg and testgraph.png in ca.wilkinsonlab.sadi.utils.graph.resource for a picture. */

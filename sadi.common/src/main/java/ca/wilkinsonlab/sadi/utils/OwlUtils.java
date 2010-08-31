@@ -421,7 +421,43 @@ public class OwlUtils
 		equivalentProperties.add(p);
 		
 		return equivalentProperties;
-	}		
+	}
+	
+	/**
+	 * @param c
+	 * @return
+	 */
+	public static OntClass getFirstNamedSuperClass(OntClass c)
+	{
+		for (BreadthFirstIterator<OntClass> i = new BreadthFirstIterator<OntClass>(new SuperClassSearchNode(c)); i.hasNext(); ) {
+			OntClass superClass = i.next();
+			if (superClass.isURIResource() && !superClass.equals(c))
+				return superClass;
+		}
+		return c.getOntModel().getOntClass(OWL.Thing.getURI());
+	}
+	
+	private static class SuperClassSearchNode extends SearchNode<OntClass>
+	{
+		public SuperClassSearchNode(OntClass c)
+		{
+			super(c);
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.utils.graph.SearchNode#getSuccessors()
+		 */
+		@Override
+		public Set<SearchNode<OntClass>> getSuccessors()
+		{
+			Set<SearchNode<OntClass>> superClasses = new HashSet<SearchNode<OntClass>>();
+			for (Iterator<OntClass> i = getNode().listSuperClasses(true); i.hasNext(); ) {
+				OntClass superClass = i.next();
+				superClasses.add(new SuperClassSearchNode(superClass));
+			}
+			return superClasses;
+		}
+	}
 	
 	/**
 	 * Return the minimal RDF required for the specified individual to satisfy
@@ -432,11 +468,11 @@ public class OwlUtils
 	 * @param asClass the class
 	 * @return a new in-memory model containing the minimal RDF
 	 */
-	public static Model getMinimalModel(Resource individual, OntClass asClass)
+	public static Model getMinimalModel(final Resource individual, final OntClass asClass)
 	{
-		Model model = ModelFactory.createDefaultModel();
+		final Model model = ModelFactory.createDefaultModel();
 		MinimalModelVisitor visitor = new MinimalModelVisitor(model, individual, asClass);
-		decompose(asClass, visitor);
+		decompose(asClass, visitor, new DefaultTracker(), visitor.getClassFilter());
 		return model;
 	}
 	
@@ -452,6 +488,14 @@ public class OwlUtils
 			throw new IllegalArgumentException("class to decompose cannot be null");
 		
 		new VisitingDecomposer(visitor).decompose(clazz);
+	}
+	
+	public static void decompose(OntClass clazz, PropertyRestrictionVisitor visitor, Tracker tracker, ClassFilter filter)
+	{
+		if ( clazz == null )
+			throw new IllegalArgumentException("class to decompose cannot be null");
+		
+		new VisitingDecomposer(visitor, tracker, filter).decompose(clazz);
 	}
 	
 	/**
@@ -491,10 +535,52 @@ public class OwlUtils
 		public abstract void valuesFrom(OntProperty onProperty, OntResource valuesFrom);
 	}
 	
+	public static interface Tracker
+	{
+		public boolean beenThere(OntClass c);
+	}
+	
+	public static class DefaultTracker implements Tracker
+	{
+		private Set<OntClass> visited;
+		
+		public DefaultTracker()
+		{
+			this.visited = new HashSet<OntClass>();
+		}
+		
+		public boolean beenThere(OntClass c)
+		{
+			if ( visited.contains(c) ) {
+				return true;
+			} else {
+				visited.add(c);
+				return false;
+			}
+		}
+	}
+	
+	public static interface ClassFilter
+	{
+		public boolean ignoreClass(OntClass c);
+	}
+	
+	public static class DefaultClassFilter implements ClassFilter
+	{
+		public boolean ignoreClass(OntClass c)
+		{
+			/* bottom out explicitly at owl:Thing, or we'll have problems when
+			 * we enumerate equivalent classes...
+			 */
+			return c.equals( OWL.Thing );
+		}
+	}
+	
 	private static class VisitingDecomposer
 	{
 		private PropertyRestrictionVisitor visitor;
-		private Set<OntClass> visited;
+		private Tracker tracker;
+		private ClassFilter filter;
 		
 		private static final int IGNORE = 0x0;
 		private static final int CREATE = 0x1;
@@ -503,8 +589,14 @@ public class OwlUtils
 		
 		public VisitingDecomposer(PropertyRestrictionVisitor visitor)
 		{
+			this(visitor, new DefaultTracker(), new DefaultClassFilter());
+		}
+		
+		public VisitingDecomposer(PropertyRestrictionVisitor visitor, Tracker tracker, ClassFilter filter)
+		{
 			this.visitor = visitor;
-			this.visited = new HashSet<OntClass>();
+			this.tracker = tracker;
+			this.filter = filter;
 			
 			String s = Config.getConfiguration().getString("sadi.decompose.undefinedPropertiesPolicy", "create");
 			undefinedPropertiesPolicy = IGNORE;
@@ -518,17 +610,12 @@ public class OwlUtils
 		
 		public void decompose(OntClass clazz)
 		{
-			if ( visited.contains(clazz) )
+			if ( tracker.beenThere(clazz) )
 				return;
-			else
-				visited.add(clazz);
 			
 			log.trace(String.format("decomposing %s", clazz));
 			
-			/* bottom out explicitly at owl:Thing, or we'll have problems when
-			 * we enumerate equivalent classes...
-			 */
-			if ( clazz.equals( OWL.Thing ) )
+			if ( filter.ignoreClass(clazz) )
 				return;
 			
 			/* base case: is this a property restriction?
@@ -676,6 +763,7 @@ public class OwlUtils
 		private Model model;
 		private Resource subject;
 		private Set<String> visited;
+		private ClassFilter filter;
 		
 		public MinimalModelVisitor(Model model, Resource subject, OntClass asClass)
 		{
@@ -689,6 +777,7 @@ public class OwlUtils
 			this.model = model;
 			this.subject = subject;
 			this.visited = visited;
+			filter = new MinimalModelClassFilter();
 			
 			/* if the individual is explicitly declared as a member of the 
 			 * target class, add that type statement to the model...
@@ -701,6 +790,10 @@ public class OwlUtils
 			 * triples has us as the object of one of theirs...
 			 */
 			visited.add(getHashKey(subject, asClass));
+		}
+		
+		public ClassFilter getClassFilter() {
+			return filter;
 		}
 
 		public void onProperty(OntProperty onProperty)
@@ -738,8 +831,10 @@ public class OwlUtils
 				if (valuesFrom.isClass() && statement.getObject().isResource()) {
 					Resource resource = statement.getResource();
 					OntClass clazz = valuesFrom.asClass();
-					if (!visited.contains(getHashKey(resource, clazz)))
-						decompose(valuesFrom.asClass(), new MinimalModelVisitor(model, resource, clazz, visited));
+					if (!visited.contains(getHashKey(resource, clazz))) {
+						MinimalModelVisitor visitor = new MinimalModelVisitor(model, resource, clazz, visited);
+						decompose(valuesFrom.asClass(), visitor, new DefaultTracker(), visitor.getClassFilter());
+					}
 				}
 			}
 		}
@@ -750,6 +845,21 @@ public class OwlUtils
 					individual.isURIResource() ? individual.getURI() : individual.getId(),
 					asClass.isURIResource() ? asClass.getURI() : asClass.getId()
 			);
+		}
+		
+		private class MinimalModelClassFilter extends DefaultClassFilter
+		{
+			@Override
+			public boolean ignoreClass(OntClass c)
+			{
+				if (super.ignoreClass(c))
+					return true;
+				
+				if (c.isURIResource() && subject.hasProperty(RDF.type, c))
+					model.add(subject, RDF.type, c);
+				
+				return false;
+			}
 		}
 	}
 	
