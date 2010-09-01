@@ -25,6 +25,7 @@ import ca.wilkinsonlab.sadi.utils.DurationUtils;
 import ca.wilkinsonlab.sadi.utils.ExceptionUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
+import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 import ca.wilkinsonlab.sadi.vocab.SADI;
@@ -326,6 +327,9 @@ public class ServiceImpl extends ServiceBase
 	 */
 	public Model invokeServiceUnparsed(Model inputModel) throws IOException
 	{
+		if (log.isTraceEnabled()) {
+			log.trace(String.format("posting RDF to %s:\n%s", getURI(), RdfUtils.logStatements("\t", inputModel)));
+		}
 		InputStream is = HttpUtils.postToURL(new URL(getURI()), inputModel);
 		Model model = ModelFactory.createDefaultModel();
 		model.read(is, "");
@@ -335,6 +339,9 @@ public class ServiceImpl extends ServiceBase
 		 */
 		resolveAsynchronousData(model);
 		
+		if (log.isTraceEnabled()) {
+			log.trace(String.format("received output:\n%s", RdfUtils.logStatements("\t", model)));
+		}
 		return model;
 	}
 	
