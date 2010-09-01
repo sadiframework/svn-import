@@ -406,6 +406,11 @@ public class OwlUtils
 	
 	public static Set<OntProperty> getEquivalentProperties(OntProperty p)
 	{
+		return getEquivalentProperties(p, false);
+	}
+	
+	public static Set<OntProperty> getEquivalentProperties(OntProperty p, boolean withSubProperties)
+	{
 		/* in some reasoners, listEquivalentProperties doesn't include the
 		 * property itself; also, some reasoners return an immutable list here,
 		 * so we need to create our own copy (incidentally solving an issue
@@ -416,9 +421,21 @@ public class OwlUtils
 		for (OntProperty q: p.listEquivalentProperties().toList()) {
 			log.trace(String.format("found equivalent property %s", q));
 			equivalentProperties.add(q);
+			if (withSubProperties) {
+				for (OntProperty subproperty: q.listSubProperties().toList()) {
+					log.trace(String.format("found sub-property %s", subproperty));
+					equivalentProperties.add(subproperty);
+				}
+			}
 		}
 		log.trace(String.format("adding original property %s", p));
 		equivalentProperties.add(p);
+		if (withSubProperties) {
+			for (OntProperty subproperty: p.listSubProperties().toList()) {
+				log.trace(String.format("found sub-property %s", subproperty));
+				equivalentProperties.add(subproperty);
+			}
+		}
 		
 		return equivalentProperties;
 	}
