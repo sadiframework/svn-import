@@ -514,7 +514,16 @@ public class SHAREKnowledgeBase
 					
 				for (Resource resource: RdfUtils.extractResources(subjects.values)) {
 					// can we just cast this instead?
-					Individual i = reasoningModel.getIndividual(resource.getURI());
+					Individual i = null;
+					try {
+						i = (Individual)resource;
+					} catch (ClassCastException e) {
+						if (resource.isURIResource())
+							i = reasoningModel.getIndividual(resource.getURI());
+						else
+							log.warn(String.format("couldn't cast anonymous resource %s as Invidual", resource));
+					}
+					
 					if (i != null && i.hasOntClass(c)) {
 						log.trace(String.format("ignoring class %s because candidates of %s are instances", resourceToString(c), subjects.variable));
 						return true;
@@ -946,6 +955,15 @@ public class SHAREKnowledgeBase
 			return Collections.emptyList();
 		}
 		
+		/* TODO filter by output class, too:
+		 * look at additional constraints on the subject variable
+		 * iterate through restrictions
+		 * 	valuesFrom restriction?
+		 * 		remove service if there's a type constraint for an incompatible type
+		 *  hasValue restriction?
+		 *  	remove service if there's a conflicting value constraint
+		 */
+		
 		return invokeService(service, subjects);
 	}
 
@@ -957,7 +975,7 @@ public class SHAREKnowledgeBase
 	{
 		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
 		for(OntProperty predicate : predicates) {
-			equivalentProperties.addAll(OwlUtils.getEquivalentProperties(predicate));
+			equivalentProperties.addAll(OwlUtils.getEquivalentProperties(predicate, true));
 		}
 		
 		Set<Service> services = new HashSet<Service>();
@@ -1046,8 +1064,8 @@ public class SHAREKnowledgeBase
 			return;
 		}
 		
+		log.trace(String.format("finding instances of %s", service.getInputClassURI()));
 		OntClass inputClass = reasoningModel.getOntClass(service.getInputClassURI());
-		log.trace(String.format("finding instances of %s", inputClass));
 		Set<String> instanceURIs = new HashSet<String>();
 		
 		/* if the service input class is in our reasoning model already,
