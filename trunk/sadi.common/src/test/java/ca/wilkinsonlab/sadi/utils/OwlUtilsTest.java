@@ -202,4 +202,36 @@ public class OwlUtilsTest
 			fail(String.format("failed to load minimal ontology for %s:\n%s", rootUri, ExceptionUtils.getStackTrace(e)));
 		}
 	}
+	
+	@Test
+	public void testGetEquivalentProperties()
+	{
+		OntProperty p = model.getOntProperty( NS + "p" );
+		OntProperty equivalentToP = model.getOntProperty( NS + "equivalentToP" );
+		OntProperty subP = model.getOntProperty( NS + "subP" );
+		OntProperty subEquivalentToP = model.getOntProperty( NS + "subEquivalentToP" );
+		Set<OntProperty> equivs;
+
+		{
+			equivs = OwlUtils.getEquivalentProperties(p);
+			assertTrue(String.format("getEquivalentProperties(p) fails to return %s", p), equivs.contains(p));
+			assertTrue(String.format("getEquivalentProperties(p) fails to return %s", equivalentToP), equivs.contains(equivalentToP));
+			assertFalse(String.format("getEquivalentProperties(p) incorrectly returns %s", subP), equivs.contains(subP));
+			assertFalse(String.format("getEquivalentProperties(p) incorrectly returns %s", subEquivalentToP), equivs.contains(subEquivalentToP));
+		}
+		{
+			equivs = OwlUtils.getEquivalentProperties(p, true);
+			assertTrue(String.format("getEquivalentProperties(p, true) fails to return %s", p), equivs.contains(p));
+			assertTrue(String.format("getEquivalentProperties(p, true) fails to return %s", equivalentToP), equivs.contains(equivalentToP));
+			assertTrue(String.format("getEquivalentProperties(p, true) fails to return %s", subP), equivs.contains(subP));
+			assertTrue(String.format("getEquivalentProperties(p, true) fails to return %s", subEquivalentToP), equivs.contains(subEquivalentToP));
+		}
+		{
+			equivs = OwlUtils.getEquivalentProperties(p, false);
+			assertTrue(String.format("getEquivalentProperties(p, false) fails to return %s", p), equivs.contains(p));
+			assertTrue(String.format("getEquivalentProperties(p, false) fails to return %s", equivalentToP), equivs.contains(equivalentToP));
+			assertFalse(String.format("getEquivalentProperties(p, false) incorrectly returns %s", subP), equivs.contains(subP));
+			assertFalse(String.format("getEquivalentProperties(p, false) incorrectly returns %s", subEquivalentToP), equivs.contains(subEquivalentToP));
+		}
+	}
 }
