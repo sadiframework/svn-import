@@ -11,6 +11,18 @@
   </parent>
   <name>Common SADI classes</name>
   <description>Classes used by both SADI clients and SADI services</description>
+  
+  <repositories>
+  	<repository>
+  	  <id>dev.biordf.net</id>
+  	  <name>dev.biordf.net</name>
+  	  <url>http://dev.biordf.net/maven</url>
+  	  <snapshots>
+  	    <enabled>true</enabled>
+  	  </snapshots>
+  	</repository>
+  </repositories>
+  
   <dependencies>
     <dependency>
       <groupId>commons-lang</groupId>

@@ -14,12 +14,12 @@
   
   <repositories>
   	<repository>
-  		<id>dev.biordf.net</id>
-  		<name>dev.biordf.net</name>
-  		<url>http://dev.biordf.net/maven</url>
-  		<snapshots>
-  			<enabled>true</enabled>
-  		</snapshots>
+  	  <id>dev.biordf.net</id>
+  	  <name>dev.biordf.net</name>
+  	  <url>http://dev.biordf.net/maven</url>
+  	  <snapshots>
+  	    <enabled>true</enabled>
+  	  </snapshots>
   	</repository>
   </repositories>
   
