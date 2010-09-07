@@ -2,6 +2,7 @@
 <%@ taglib prefix="sadi" uri="/WEB-INF/sadi.tld" %>
 <%@ page import="org.apache.log4j.Logger" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
+<%@ page import="ca.wilkinsonlab.sadi.registry.utils.Twitter" %>
 <%
 	Logger log = Logger.getLogger("ca.wilkinsonlab.sadi.registry");
 	Registry registry = Registry.getRegistry();
@@ -9,8 +10,17 @@
 	String serviceURI = request.getParameter("serviceURI");
 	if (serviceURI != null) {
 		try {
+			boolean doTweet = Registry.getConfig().getBoolean("sendTweets", false) &&
+			                  registry.getServiceBean(serviceURI) == null;
 			ServiceBean service = registry.registerService(serviceURI);
 			pageContext.setAttribute("service", service);
+			if (doTweet) {
+				try {
+					Twitter.tweetService(service);
+				} catch (final Exception e) {
+					log.error( String.format("error tweeting registration of %s: %s", serviceURI, e) );
+				}
+			}
 		} catch (final Exception e) {
 			log.error( String.format("registration failed for %s: %s", serviceURI, e) );
 			ServiceBean service = new ServiceBean();
@@ -28,8 +38,6 @@
     <title>SADI registry &mdash; register a service</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="../style/sadi.css">
-    <script type='text/javascript' src='http://www.google.com/jsapi'></script>
-    <script type='text/javascript' src='../js/services.js'></script>
   </head>
   <body>
     <div id='outer-frame'>

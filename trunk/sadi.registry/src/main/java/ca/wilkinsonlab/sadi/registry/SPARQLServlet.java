@@ -46,10 +46,10 @@ public class SPARQLServlet extends HttpServlet
 				}
 			}
 		}
-		request.setAttribute("testing", "coming from servlet");
 		getServletConfig().getServletContext().getRequestDispatcher("/sparql/index.jsp").forward(request, response);
 	}
 
+	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
 		doGet(request, response);
