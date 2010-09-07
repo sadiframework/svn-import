@@ -59,8 +59,10 @@
         </div> <!-- content -->
         <div id='footer'>
           <img class="sponsor" style="margin-top: 10px;" src="../images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
+          <img class="sponsor" style="margin-top: 10px;" src="../images/CANARIE.png" alt="CANARIE logo" height="62" width="242"/>
           <img class="sponsor" style="margin-top: 16px;" src="../images/CIHR.png" alt="CIHR logo" height="62" width="91"/>
           <p>Development of SADI is generously supported by 
+            <span class="nobreak">CANARIE</span>,
             <span class="nobreak">the Heart and Stroke Foundation of B.C. and Yukon</span>,
             <span class="nobreak">the Canadian Institutes of Health Research</span>, and 
             <span class="nobreak">Microsoft Research</span>.
