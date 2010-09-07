@@ -6,7 +6,7 @@
  "http://www.w3.org/TR/html4/strict.dtd">
 <html>
   <head>
-    <title>SADI registry &mdash; SPARQL query</title>
+    <title>SADI registry &mdash; administration</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="../style/sadi.css">
   </head>
@@ -26,28 +26,26 @@
           </ul>
         </div>
         <div id='content'>
-          <h2>SPARQL query</h2>
+          <h2>Administration</h2>
           
 	   <c:if test='${error != null}'>
           <div id='registration-error'>
             <h3>Error</h3>
-            <p>There was an error executing the query:</p>
+            <p>There was an error:</p>
             <blockquote>${error}</blockquote>
           </div>
 	   </c:if>
 
-	      <div id='sparql-form'>
-            <form method='POST' action='../sparql/'>
-              <label id='sparql-label' for='sparql-input'>Enter a SPARQL query in the box below</label>
-              <textarea id='sparql-input' type='text' name='query'>${param.query}</textarea>
-              <!-- 
-              <label id='canned-label' for='canned-select'>Or pick one from this menu</label>
-              <select id='canned-select' name='query'>
-              </select>
-               -->
-              <input id='sparql-submit' type='submit' value='Go'>
+	   <c:if test='${authorizationURL != null}'>
+	      <div id='admin-form'>
+			<p><a href='${authorizationURL}'>Click here</a> and enter the pin in the box below.</p>
+            <form method='POST' action='../admin/'>
+              <input id='pin-input' type='text' name='pin'>
+              <input id='pin-submit' type='submit' value='Go'>
             </form>
           </div> <!-- sparql-form -->
+          </div>
+	   </c:if>
           
        <c:if test='${variables != null}'>
           <div id='sparql-results'>
@@ -78,10 +76,8 @@
         </div> <!-- content -->
         <div id='footer'>
           <img class="sponsor" style="margin-top: 10px;" src="../images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
-          <img class="sponsor" style="margin-top: 10px;" src="../images/CANARIE.png" alt="CANARIE logo" height="62" width="242"/>
           <img class="sponsor" style="margin-top: 16px;" src="../images/CIHR.png" alt="CIHR logo" height="62" width="91"/>
           <p>Development of SADI is generously supported by 
-            <span class="nobreak">CANARIE</span>,
             <span class="nobreak">the Heart and Stroke Foundation of B.C. and Yukon</span>,
             <span class="nobreak">the Canadian Institutes of Health Research</span>, and 
             <span class="nobreak">Microsoft Research</span>.
