@@ -1,7 +1,8 @@
 package ca.wilkinsonlab.sadi.utils;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.HashSet;
@@ -22,9 +23,9 @@ import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 public class OwlUtilsTest
 {
@@ -233,5 +234,20 @@ public class OwlUtilsTest
 			assertFalse(String.format("getEquivalentProperties(p, false) incorrectly returns %s", subP), equivs.contains(subP));
 			assertFalse(String.format("getEquivalentProperties(p, false) incorrectly returns %s", subEquivalentToP), equivs.contains(subEquivalentToP));
 		}
+	}
+	
+	@Test
+	public void testLoadMinimalOntologyForUri() throws Exception
+	{
+		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		String pURI = "http://sadiframework.org/ontologies/test/InversePropertyTest.owl#p";
+		String qURI = "http://sadiframework.org/ontologies/test/InversePropertyTest.owl#q";
+		OwlUtils.loadMinimalOntologyForUri(model, pURI);
+		OntProperty p = model.getOntProperty(pURI);
+		assertNotNull(String.format("minimal model missing property %s", p), p);
+		OntProperty q = model.getOntProperty(qURI);
+		assertNotNull(String.format("minimal model missing property %s", q), q);
+		assertTrue(String.format("%s is not an inverse of %s", p, q), p.isInverseOf(q));
+		assertTrue(String.format("%s is not an inverse of %s", q, p), q.isInverseOf(p));
 	}
 }
