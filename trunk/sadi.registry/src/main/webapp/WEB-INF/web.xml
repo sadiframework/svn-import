@@ -6,4 +6,14 @@
      
   <display-name>SADI registry</display-name>
   
+  <servlet>
+    <servlet-name>sparql</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.registry.SPARQLServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>sparql</servlet-name>
+    <url-pattern>/sparql/</url-pattern>
+  </servlet-mapping>
+  
 </web-app>

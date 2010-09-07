@@ -6,11 +6,9 @@
  "http://www.w3.org/TR/html4/strict.dtd">
 <html>
   <head>
-    <title>SADI registry &mdash; SPARQL endpoint</title>
+    <title>SADI registry &mdash; SPARQL query</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="../style/sadi.css">
-    <script type='text/javascript' src='http://www.google.com/jsapi'></script>
-    <script type='text/javascript' src='../js/services.js'></script>
   </head>
   <body>
     <div id='outer-frame'>
@@ -21,14 +19,15 @@
         </div>
         <div id='nav'>
           <ul>
-            <li class="page_item"><a href="../validate">Validate</a></li>
+            <!-- <li class="page_item"><a href="../validate">Validate</a></li> -->
             <li class="page_item"><a href="../register">Register</a></li>
             <li class="page_item"><a href="../services">Services</a></li>
             <li class="page_item current_page_item"><a href="../sparql">SPARQL</a></li>
           </ul>
         </div>
         <div id='content'>
-          <h2>Registered services</h2>
+          <h2>SPARQL query</h2>
+          <h3>testing: ${testing}</h3>
           
 	   <c:if test='${error != null}'>
           <div id='registration-error'>
@@ -39,15 +38,43 @@
 	   </c:if>
 
 	      <div id='sparql-form'>
-            <form method='POST' action=''>
+            <form method='POST' action='../sparql/'>
               <label id='sparql-label' for='sparql-input'>Enter a SPARQL query in the box below</label>
-              <textarea id='sparql-input' type='text' name='query'><c:if test='${error != null}'>value='${param.query}'</c:if></textarea>
+              <textarea id='sparql-input' type='text' name='query'>${param.query}</textarea>
+              <!-- 
               <label id='canned-label' for='canned-select'>Or pick one from this menu</label>
               <select id='canned-select' name='query'>
               </select>
+               -->
               <input id='sparql-submit' type='submit' value='Go'>
             </form>
           </div> <!-- sparql-form -->
+          
+       <c:if test='${variables != null}'>
+          <div id='sparql-results'>
+        <c:choose>
+         <c:when test='${empty bindings}'>
+             <p>No results.</p>
+         </c:when>
+         <c:otherwise>
+            <table>
+              <tr>
+          <c:forEach var='variable' items='${variables}'>
+                <th>${variable}</th>
+          </c:forEach>
+              </tr>
+          <c:forEach var='binding' items='${bindings}'>
+              <tr>
+           <c:forEach var='variable' items='${variables}'>
+                <td>${binding[variable]}</td>
+           </c:forEach> 
+              </tr>
+          </c:forEach>
+            </table>
+         </c:otherwise>
+        </c:choose> 
+          </div>
+       </c:if>
       
         </div> <!-- content -->
         <div id='footer'>

@@ -28,8 +28,9 @@ import com.hp.hpl.jena.ontology.ConversionException;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.ontology.Restriction;
-import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -41,10 +42,10 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.ResourceUtils;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
- * The server side registry logic.  See RegistryServlet for the communication
- * interface.
+ * The server side registry logic.
  * TODO separate interface and implementation completely?
  * Not really necessary since no one else will be extending or implementing
  * another of these, but it might be a good idea if I ever find myself doing so.
@@ -54,27 +55,30 @@ public class Registry
 {
 	private static final Logger log = Logger.getLogger(Registry.class);
 	
-	private static final Registry defaultRegistry = new Registry();
-	
-	private static final String propertiesFile = "registry.properties";
-	
-	private Model model;
-	private File backupDirectory;
-	
 	/**
-	 * Constructs a Registry from information in the properties config.
-	 * This method is only used to construct the default singleton registry.
+	 * Returns the registry configuration object. 
+	 * Properties are read from a file called sadi.registry.properties; 
+	 * see {@link org.apache.commons.configuration.PropertiesConfiguration}
+	 * for details about which locations will be searched for that file.
+	 * @return
 	 */
-	private Registry()
+	public static Configuration getConfig()
 	{
-		Configuration config;
 		try {
-			config = new PropertiesConfiguration(propertiesFile);
+			return new PropertiesConfiguration("sadi.registry.properties");
 		} catch (ConfigurationException e) {
 			log.warn( String.format("error reading registry configuration: %s", e) );
-			config = new PropertiesConfiguration();
+			return new PropertiesConfiguration();
 		}
-		
+	}
+	
+	/**
+	 * Returns the default registry implementation.
+	 * @return the default registry implementation
+	 */
+	public static Registry getRegistry() throws SADIException
+	{
+		Configuration config = getConfig();
 		String driver = config.getString("driver");
 		String graph = config.getString("graph");
 		String dsn = config.getString("dsn");
@@ -85,76 +89,56 @@ public class Registry
 			/* TODO create file-backed model somewhere...
 			 */
 			log.warn("no database driver specified; creating transient registry model");
-			model = ModelFactory.createDefaultModel();
+			return new Registry(ModelFactory.createDefaultModel());
 		} else if (driver.equals("virtuoso.jdbc3.Driver")) {
-			log.info(String.format("creating Virtuoso-backed registry model from %s(%s)", dsn, graph));
-			try {
-				model = initVirtuosoRegistryModel(graph, dsn, username, password);
-			} catch (Exception e) {
-				log.error(String.format("error connecting to Virtuoso registry at %s", dsn), e);
-			}
+			return getVirtuosoRegistry(graph, dsn, username, password);
 		} else {
-			log.info(String.format("creating JDBC-backed registry model from %s", dsn));
-			try {
-				model = initJDBCRegistryModel(driver, dsn, username, password);
-			} catch (Exception e) {
-				log.error(String.format("error connecting to JDBC registry at %s", dsn), e);
-			}
-		}
-		
-		String backupPath = config.getString("backupPath");
-		if (backupPath != null) {
-			backupDirectory = new File(backupPath);
-			if ( !(backupDirectory.isDirectory() && backupDirectory.canWrite()) ) {
-				log.error(String.format("specified backup path %s is not a writeable directory", backupDirectory));
-				backupDirectory = null;
-			}
+			return getJDBCRegistry(driver, dsn, username, password);
 		}
 	}
 	
 	/**
-	 * Constructs a Registry from the specified Virtuoso connection details.
+	 * Returns a Registry backed by a Virtuoso model.
 	 * @param graph
 	 * @param dsn
 	 * @param username
 	 * @param password
 	 */
-	public Registry(String graph, String dsn, String username, String password)
+	public static Registry getVirtuosoRegistry(String graph, String dsn, String username, String password) throws SADIException
 	{
-		model = initVirtuosoRegistryModel(graph, dsn, username, password);
+		log.debug(String.format("creating Virtuoso-backed registry model from %s(%s)", dsn, graph));
+		try {
+			Model model = initVirtuosoRegistryModel(graph, dsn, username, password);
+			return new Registry(model);
+		} catch (Exception e) {
+			throw new SADIException(String.format("error connecting to Virtuoso registry at %s", dsn), e);
+		}
+	}
+	
+	private static Model initVirtuosoRegistryModel(String graph, String dsn, String username, String password)
+	{
+		return VirtModel.createDatabaseModel(graph, dsn, username, password);
 	}
 	
 	/**
-	 * Constructs a Registry from the specified MySQL connection details.
+	 * Returns a Registry backed by a JDBC model.
+	 * @param driver (e.g.: "com.mysql.jdbc.driver")
 	 * @param dsn
 	 * @param username
 	 * @param password
 	 */
-	public Registry(String dsn, String username, String password)
+	public static Registry getJDBCRegistry(String driver, String dsn, String username, String password) throws SADIException
 	{
-		model = initJDBCRegistryModel("com.mysql.jdbc.driver", dsn, username, password);
+		log.debug(String.format("creating JDBC-backed registry model from %s", dsn));
+		try {
+			Model model = initJDBCRegistryModel(driver, dsn, username, password);
+			return new Registry(model);
+		} catch (Exception e) {
+			throw new SADIException(String.format("error connecting to JDBC registry at %s", dsn), e);
+		}
 	}
 	
-	/**
-	 * Constructs a Registry from the specified Jena model.
-	 * @param model
-	 */
-	public Registry(Model model)
-	{
-		this.model = model;
-	}
-	
-	private Model initVirtuosoRegistryModel(String graph, String dsn, String username, String password)
-	{
-		return VirtModel.createDatabaseModel(
-				graph,
-				dsn,
-				username,
-				password
-		);
-	}
-	
-	private Model initJDBCRegistryModel(String driver, String dsn, String username, String password)
+	private static Model initJDBCRegistryModel(String driver, String dsn, String username, String password)
 	{
 		// load the driver class
 		try {
@@ -179,20 +163,22 @@ public class Registry
 	}
 	
 	@SuppressWarnings("unused")
-	private Model initFileRegistryModel(String path, String dsn, String username, String password)
+	private static Model initFileRegistryModel(String path)
 	{
 		ModelMaker maker = ModelFactory.createFileModelMaker(path);
 		
 		return maker.createDefaultModel();
 	}
 	
+	private Model model;
+
 	/**
-	 * Returns the default registry implementation.
-	 * @return the default registry implementation
+	 * Constructs a Registry from the specified Jena model.
+	 * @param model
 	 */
-	public synchronized static Registry getRegistry()
+	public Registry(Model model)
 	{
-		return defaultRegistry;
+		this.model = model;
 	}
 	
 	/**
@@ -204,6 +190,10 @@ public class Registry
 		return model;
 	}
 	
+	/**
+	 * Returns an iterator over the registered service nodes.
+	 * @return an iterator over the registered service nodes
+	 */
 	public ResIterator getRegisteredServiceNodes()
 	{
 		return getModel().listResourcesWithProperty(RDF.type, SADI.Service);
@@ -220,6 +210,12 @@ public class Registry
 		return services;
 	}
 	
+	/**
+	 * Returns a bean describing the specified registered service, 
+	 * or null if the service is not registered.
+	 * @param serviceURI
+	 * @return a bean describing the specified registered service, or null
+	 */
 	public ServiceBean getServiceBean(String serviceURI)
 	{
 		Resource serviceNode = getModel().getResource(serviceURI);
@@ -229,6 +225,11 @@ public class Registry
 			return null;
 	}
 	
+	/**
+	 * Returns a bean describing the specified service node.
+	 * @param serviceNode
+	 * @return a bean describing the specified service node
+	 */
 	public ServiceBean getServiceBean(Resource serviceNode)
 	{
 		ServiceBean service = new ServiceBean();
@@ -275,7 +276,7 @@ public class Registry
 	 * @param serviceUrl the SADI service URL:
 	 *   a GET on this URL should produce an RDF description of the service,
 	 *   a POST of RDF data to this URL calls the service
-	 * @throws Exception 
+	 * @throws SADIException 
 	 */
 	public ServiceBean registerService(String serviceUrl) throws SADIException
 	{
@@ -324,9 +325,9 @@ public class Registry
 			 * configured policy), so just do what we can...
 			 */
 			p = restriction.getOntModel().getOntResource(restriction.getProperty(OWL.onProperty).getResource());
-			restrictionNode.addProperty(OWL.onProperty, p);
 		}
 		restrictionNode.addProperty(OWL.onProperty, p);
+		getModel().add(p, RDFS.label, OwlUtils.getLabel(p));
 		
 		OntResource valuesFrom = OwlUtils.getValuesFrom(restriction);
 		attachRestrictionValuesFrom(restrictionNode, valuesFrom);
@@ -334,15 +335,13 @@ public class Registry
 	
 	/* The point of storing the restricted valuesFrom of attached properties
 	 * in the registry is that they can be queried without reasoning.  It is
-	 * therefore not useful to store anything anonymous.  The best we can do
-	 * is store a human-readable description of that resource that will be
-	 * displayed by the registry interface.
-	 * Also, we should split up union classes into their components so they
+	 * therefore not useful to store anything anonymous.  Instead, we store
+	 * the first named superclass, but it might be better to store all named
+	 * superclasses (see TODO below...)
+	 * Also, we split up union classes into their components so they
 	 * can be individually queried.  This feels like a slight abuse of
 	 * owl:someValuesFrom, but there's no actual cardinality restriction on
 	 * that property, so I'm okay with it.
-	 * TODO equivalent classes? subclasses? superclasses? how much reasoning
-	 * can we effectively do ahead of time?
 	 */
 	private void attachRestrictionValuesFrom(Resource restrictionNode, OntResource valuesFrom)
 	{
@@ -353,13 +352,27 @@ public class Registry
 					attachRestrictionValuesFrom(restrictionNode, i.next());
 				}
 			}
+			/* TODO should we do this? can we usefully encapsulate reasoning
+			 * in the registry?
+			 */
+//			for (Iterator<? extends OntClass> i = valuesFromClass.listSuperClasses(); i.hasNext(); ) {
+//				attachRestrictionValuesFrom(restrictionNode, i.next());
+//			}
+//			for (Iterator<? extends OntClass> i = valuesFromClass.listEquivalentClasses(); i.hasNext(); ) {
+//				attachRestrictionValuesFrom(restrictionNode, i.next());
+//			}
 		}
 		
 		if (valuesFrom.isURIResource()) {
 			restrictionNode.addProperty(OWL.someValuesFrom, valuesFrom);
+			getModel().add(valuesFrom, RDFS.label, OwlUtils.getLabel(valuesFrom));
 		} else if (valuesFrom.isDataRange()) {
 //			DataRange range = valuesFrom.asDataRange();
 			restrictionNode.addProperty(OWL.someValuesFrom, "anonymous data range");
+		} else if (valuesFrom.isClass()) {
+			OntClass firstNamedSuperClass = OwlUtils.getFirstNamedSuperClass(valuesFrom.asClass());
+			restrictionNode.addProperty(OWL.someValuesFrom, firstNamedSuperClass);
+			getModel().add(valuesFrom, RDFS.label, OwlUtils.getLabel(firstNamedSuperClass));
 		}
 	}
 	
@@ -372,7 +385,20 @@ public class Registry
 		Resource service = model.getResource(serviceUrl);
 		if (service != null) {
 			Model serviceModel = ResourceUtils.reachableClosure(service);
-			if (backupDirectory != null) {
+			maybeBackupServiceModel(serviceUrl, serviceModel);
+			model.remove(serviceModel);
+		} else {
+			log.warn("attempt to unregister non-registered service " + serviceUrl);
+		}
+	}
+	
+	private void maybeBackupServiceModel(String serviceUrl, Model serviceModel)
+	{
+		Configuration config = getConfig();
+		String backupPath = config.getString("backupPath");
+		if (backupPath != null) {
+			File backupDirectory = new File(backupPath);
+			if ( backupDirectory.isDirectory() && backupDirectory.canWrite() ) {
 				String modelName =  String.format("%s.rdf", serviceUrl);
 				try {
 					modelName = new URLCodec().encode(modelName);
@@ -384,25 +410,31 @@ public class Registry
 					modelName = modelName + "~";
 				}
 				try {
-					serviceModel.write(new FileOutputStream(file));
+					serviceModel.getWriter("RDF/XML-ABBREV")
+						.write(serviceModel, new FileOutputStream(file), "");
 				} catch (Exception e) {
 					log.error(String.format("error writing backup service model to %s", file));
 				}
+			} else {
+				log.error(String.format("specified backup path %s is not a writeable directory", backupDirectory));
+				return;
 			}
-			model.remove(serviceModel);
-		} else {
-			log.warn("attempt to unregister non-registered service " + serviceUrl);
 		}
 	}
-	
-	public ResultSet doSPARQL(String query)
+
+	/**
+	 * Execute a SPARQL query on the registry.
+	 * Note that only SELECT queries are supported.
+	 * @param sparql the SPARQL query
+	 * @return a Jena ResultSet
+	 * @throws SADIException
+	 */
+	public ResultSet doSPARQL(String query) throws SADIException
 	{
-		QueryExecution qe = QueryExecutionFactory.create(query, model);
-		ResultSet resultSet = qe.execSelect();
-//		while (resultSet.hasNext()) {
-//			QuerySolution binding = resultSet.nextSolution();
-//			
-//		}
-		return resultSet;
+		Query q = QueryFactory.create(query);
+		if (q.isSelectType())
+			return QueryExecutionFactory.create(q, getModel()).execSelect();
+		else
+			throw new SADIException("only SELECT queries are supported");
 	}
 }
