@@ -44,9 +44,8 @@ public class Twitter
 	public static void tweetService(ServiceBean service) throws IOException
 	{
 		try {
-//			Status status = getTwitter().updateStatus(getUpdateMessage(service));
-//			log.info(String.format("successfully updated status to %s", status.getText()));
-			getTwitter().sendDirectMessage("elmccarthy", "O I today / sad as Chu Yuan");
+			Status status = getTwitter().updateStatus(getUpdateMessage(service));
+			log.info(String.format("successfully updated status to %s", status.getText()));
 		} catch (Exception e) {
 			throw new IOException(e.getMessage(), e);
 		}

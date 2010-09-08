@@ -47,30 +47,8 @@
           </div>
 	   </c:if>
           
-       <c:if test='${variables != null}'>
-          <div id='sparql-results'>
-        <c:choose>
-         <c:when test='${empty bindings}'>
-             <p>No results.</p>
-         </c:when>
-         <c:otherwise>
-            <table>
-              <tr>
-          <c:forEach var='variable' items='${variables}'>
-                <th>${variable}</th>
-          </c:forEach>
-              </tr>
-          <c:forEach var='binding' items='${bindings}'>
-              <tr>
-           <c:forEach var='variable' items='${variables}'>
-                <td>${binding[variable]}</td>
-           </c:forEach> 
-              </tr>
-          </c:forEach>
-            </table>
-         </c:otherwise>
-        </c:choose> 
-          </div>
+       <c:if test='${accessToken != null}'>
+          <p>Twitter accessToken is <pre>${accessToken.token}</pre>.</p>
        </c:if>
       
         </div> <!-- content -->
