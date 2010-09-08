@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.axis.utils.StringUtils;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.registry.utils.Twitter;
@@ -32,8 +31,7 @@ public class AdminServlet extends HttpServlet
 			try {
 				accessToken = Twitter.retrieveAccessToken();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("error retrieving access token", e);
 			}
 			if (accessToken == null) {
 				HttpSession session = request.getSession(true);

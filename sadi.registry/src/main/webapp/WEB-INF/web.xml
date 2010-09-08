@@ -19,12 +19,11 @@
   </security-constraint> 
 
   <login-config>
-   <auth-method>BASIC</auth-method>
-   <realm-name>Admin realm</realm-name>
+    <auth-method>BASIC</auth-method>
   </login-config>
   
   <security-role>
-    <role-name>tomcat</role-name>
+    <role-name>admin</role-name>
   </security-role>
   
   <servlet>
