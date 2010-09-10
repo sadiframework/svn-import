@@ -9,8 +9,10 @@ package com.hp.hpl.jena.graph.test;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.impl.LiteralLabel;
+import com.hp.hpl.jena.graph.impl.LiteralLabelFactory;
 import com.hp.hpl.jena.rdf.model.AnonId;
-import com.hp.hpl.jena.shared.*;
+import com.hp.hpl.jena.shared.JenaException;
+import com.hp.hpl.jena.shared.PrefixMapping;
 
 /**
     Creating nodes from string specifications.
@@ -117,8 +119,8 @@ public class NodeCreateUtils
         String content = unEscape( spelling );
         int colon = langOrType.indexOf( ':' );
         return colon < 0 
-            ? new LiteralLabel( content, langOrType, false )
-            : LiteralLabel.createLiteralLabel( content, "", Node.getType( pm.expandPrefix( langOrType ) ) )
+            ? LiteralLabelFactory.create( content, langOrType, false )
+            : LiteralLabelFactory.create( content, "", Node.getType( pm.expandPrefix( langOrType ) ) )
             ;
         }
 
