@@ -556,6 +556,8 @@ public class SHAREKnowledgeBase
 	
 	private OntClass getNodeAsClass(Node node)
 	{
+		if (node.isVariable())
+			return null;
 		
 		/* if the node already represents an OntClass, just return it;
 		 * this happens when an already-loaded OntClass is decomposed and
