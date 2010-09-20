@@ -36,8 +36,8 @@ public class Twitter
 {
 	private static final Logger log = Logger.getLogger(Twitter.class);
 	
-	private static String consumerKey = "ETUlln0cRAlhtRuxLVeABw";
-	private static String consumerSecret = "4XDeRf2p1RysqoL8DKKi9gjqGve6lmlBTh6Zef4Pms";
+	private static String consumerKey = Registry.getConfig().getString("twitter.consumerKey");
+	private static String consumerSecret = Registry.getConfig().getString("twitter.consumerSecret");
 	private static Resource subject = ResourceFactory.createResource("info@sadiframework.org");
 	private static Property predicate = RDF.value;
 	
