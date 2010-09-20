@@ -60,7 +60,7 @@ public class Registry
 	 * Properties are read from a file called sadi.registry.properties; 
 	 * see {@link org.apache.commons.configuration.PropertiesConfiguration}
 	 * for details about which locations will be searched for that file.
-	 * @return
+	 * @return the registry configuration object
 	 */
 	public static Configuration getConfig()
 	{
@@ -74,11 +74,14 @@ public class Registry
 	
 	/**
 	 * Returns the default registry implementation.
+	 * The default  configuration is contained in a file called
+	 * sadi.registry.properties located in the classpath.
 	 * @return the default registry implementation
 	 */
 	public static Registry getRegistry() throws SADIException
 	{
 		Configuration config = getConfig();
+		String file = config.getString("file");
 		String driver = config.getString("driver");
 		String graph = config.getString("graph");
 		String dsn = config.getString("dsn");
@@ -86,10 +89,12 @@ public class Registry
 		String password = config.getString("password");
 		
 		if (driver == null) {
-			/* TODO create file-backed model somewhere...
-			 */
-			log.warn("no database driver specified; creating transient registry model");
-			return new Registry(ModelFactory.createDefaultModel());
+			if (file == null) {
+				log.warn("no database driver or file specified; creating transient registry model");
+				return new Registry(ModelFactory.createDefaultModel());
+			} else {
+				return getFileRegistry(file);
+			}
 		} else if (driver.equals("virtuoso.jdbc3.Driver")) {
 			return getVirtuosoRegistry(graph, dsn, username, password);
 		} else {
@@ -103,6 +108,7 @@ public class Registry
 	 * @param dsn
 	 * @param username
 	 * @param password
+	 * @return
 	 */
 	public static Registry getVirtuosoRegistry(String graph, String dsn, String username, String password) throws SADIException
 	{
@@ -126,6 +132,7 @@ public class Registry
 	 * @param dsn
 	 * @param username
 	 * @param password
+	 * @return
 	 */
 	public static Registry getJDBCRegistry(String driver, String dsn, String username, String password) throws SADIException
 	{
@@ -162,12 +169,33 @@ public class Registry
 		return maker.createDefaultModel();
 	}
 	
-	@SuppressWarnings("unused")
+	/**
+	 * Returns a registry backed by a file.
+	 * @param path
+	 * @return 
+	 */
+	public static Registry getFileRegistry(String path) throws SADIException
+	{
+		log.debug(String.format("creating file-backed registry model from %s", path));
+		try {
+			Model model = initFileRegistryModel(path);
+			return new Registry(model);
+		} catch (Exception e) {
+			throw new SADIException(String.format("error reading registry from %s", path), e);
+		}
+	}
+	
 	private static Model initFileRegistryModel(String path)
 	{
-		ModelMaker maker = ModelFactory.createFileModelMaker(path);
+		File registryFile = new File(path);
+		File parentDirectory = registryFile.getParentFile();
+		if (parentDirectory == null)
+			parentDirectory = new File(".");
+		if (!parentDirectory.isDirectory())
+			parentDirectory.mkdirs();
 		
-		return maker.createDefaultModel();
+		ModelMaker maker = ModelFactory.createFileModelMaker(parentDirectory.getAbsolutePath());
+		return maker.createModel(registryFile.getName());
 	}
 	
 	private Model model;
@@ -281,7 +309,7 @@ public class Registry
 	public ServiceBean registerService(String serviceUrl) throws SADIException
 	{
 		log.debug(String.format("unregistering service %s", serviceUrl));
-		if (model.containsResource(model.getResource(serviceUrl)))
+		if (getModel().containsResource(getModel().getResource(serviceUrl)))
 			unregisterService(serviceUrl);
 		
 		/* fetch the service definition and cache in our model so it can be
@@ -382,11 +410,11 @@ public class Registry
 	 */
 	public void unregisterService(String serviceUrl)
 	{
-		Resource service = model.getResource(serviceUrl);
+		Resource service = getModel().getResource(serviceUrl);
 		if (service != null) {
 			Model serviceModel = ResourceUtils.reachableClosure(service);
 			maybeBackupServiceModel(serviceUrl, serviceModel);
-			model.remove(serviceModel);
+			getModel().remove(serviceModel);
 		} else {
 			log.warn("attempt to unregister non-registered service " + serviceUrl);
 		}
@@ -395,11 +423,11 @@ public class Registry
 	private void maybeBackupServiceModel(String serviceUrl, Model serviceModel)
 	{
 		Configuration config = getConfig();
-		String backupPath = config.getString("backupPath");
+		String backupPath = config.getString("backupDirectory");
 		if (backupPath != null) {
 			File backupDirectory = new File(backupPath);
 			if ( backupDirectory.isDirectory() && backupDirectory.canWrite() ) {
-				String modelName =  String.format("%s.rdf", serviceUrl);
+				String modelName = String.format("%s.rdf", serviceUrl);
 				try {
 					modelName = new URLCodec().encode(modelName);
 				} catch (EncoderException e) {
