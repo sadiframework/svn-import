@@ -32,6 +32,7 @@ public class RegistryTest
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception
 	{
+		registry.getModel().close();
 	}
 	
 	@Before
@@ -78,6 +79,7 @@ public class RegistryTest
 	@Test
 	public void testUnregisterService() throws Exception
 	{
+		registry.registerService(SERVICE_URI);
 		registry.unregisterService(SERVICE_URI);
 		assertFalse("registry still contained service after unregistration",
 				registry.getRegisteredServiceNodes().toSet().contains(ResourceFactory.createResource(SERVICE_URI)));
