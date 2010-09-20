@@ -65,31 +65,14 @@
     </dependency>
     
     <!--
-     Jena 2.6.0 depends on slf4j-log4j12-1.5.6, but doesn't specify it...
-     slf4j-log4j12-15.6 depends on log4j >= 1.2.12, but doesn't specify it...
-    <dependency>
-      <groupId>com.hp.hpl.jena</groupId>
-      <artifactId>jena</artifactId>
-      <version>2.6.0</version>
-    </dependency>
+     Jena 2.6.0 depends on slf4j-log4j12-1.5.8, but doesn't specify it...
+     -->
   	<dependency>
   		<groupId>org.slf4j</groupId>
   		<artifactId>slf4j-log4j12</artifactId>
-  		<version>1.5.6</version>
+  		<version>1.5.8</version>
   	</dependency>
-  	<dependency>
-  		<groupId>log4j</groupId>
-  		<artifactId>log4j</artifactId>
-  		<version>1.2.14</version>
-  		<exclusions>
-	      	<exclusion>
-	      	  <artifactId>javax.jms</artifactId>
-	      	  <groupId>jms</groupId>
-	      	</exclusion>
-      	</exclusions>
-  	</dependency>
-     -->
-  	
+  	 
     <dependency>
       <groupId>stringtree</groupId>
       <artifactId>stringtree-json</artifactId>

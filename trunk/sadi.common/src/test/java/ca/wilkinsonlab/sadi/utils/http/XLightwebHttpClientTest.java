@@ -78,7 +78,7 @@ public class XLightwebHttpClientTest extends TestCase {
 			Collection<HttpResponse> responses = theClient.batchRequest(requests);
 
 			for (HttpResponse response : responses) {
-				assertFalse(response.exceptionOccurred());
+				assertFalse(String.format("exception in HTTP request: %s", response.getException()), response.exceptionOccurred());
 			}
 		} catch (IOException e) {
 			fail("HTTP request failed: " + ExceptionUtils.getStackTrace(e));
