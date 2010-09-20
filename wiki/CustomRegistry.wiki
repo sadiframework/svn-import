@@ -38,3 +38,6 @@ sadi.registry.biomoby.exclude = true
 sadi.registry.sparql.exclude = true
 sadi.registry.sadi.exclude = true
 }}}
+
+= Related pages =
+  * [http://code.google.com/p/sadi/wiki/SHAREClient Using the SHARE command-line client]
