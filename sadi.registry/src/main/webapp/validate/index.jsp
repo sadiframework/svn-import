@@ -1,23 +1,25 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sadi" uri="/WEB-INF/sadi.tld" %>
 <%@ page import="org.apache.log4j.Logger" %>
-<%@ page import="ca.wilkinsonlab.sadi.common.SADIException" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
 <%
-	Logger log = Logger.getLogger("ca.wilkinsonlab.sadi.registry");
-	Registry registry = Registry.getRegistry();
-	
 	String serviceURI = request.getParameter("serviceURI");
 	if (serviceURI != null) {
+		Logger log = Logger.getLogger("ca.wilkinsonlab.sadi.registry");
+		Registry registry = null;
 		try {
-			ServiceBean service = ServiceValidator.validateService(serviceURI);
-			pageContext.setAttribute("service", service);
-		} catch (final SADIException e) {
+			registry = Registry.getRegistry();
+			//ServiceBean service = ServiceValidator.validateService(serviceURI);
+			//pageContext.setAttribute("service", service);
+		} catch (final Exception e) {
+			log.error(String.format("validation failed for %s: %s", serviceURI, e));
 			ServiceBean service = new ServiceBean();
 			service.setServiceURI(serviceURI);
 			request.setAttribute("service", service);
 			request.setAttribute("error", e.getMessage());
-			doGet(request, response);
+		} finally {
+			if (registry != null)
+				registry.getModel().close();
 		}
 	}
 %>
