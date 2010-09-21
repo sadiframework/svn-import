@@ -4,29 +4,32 @@
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.utils.Twitter" %>
 <%
-	Logger log = Logger.getLogger("ca.wilkinsonlab.sadi.registry");
-	Registry registry = Registry.getRegistry();
-	
 	String serviceURI = request.getParameter("serviceURI");
 	if (serviceURI != null) {
+		Logger log = Logger.getLogger("ca.wilkinsonlab.sadi.registry");
+		Registry registry = null;
 		try {
+			registry = Registry.getRegistry();
 			boolean doTweet = Registry.getConfig().getBoolean("sendTweets", false) &&
-			                  registry.getServiceBean(serviceURI) == null;
+			                  registry.getServiceBean(serviceURI) == null; // only new services
 			ServiceBean service = registry.registerService(serviceURI);
 			pageContext.setAttribute("service", service);
 			if (doTweet) {
 				try {
 					Twitter.tweetService(service);
 				} catch (final Exception e) {
-					log.error( String.format("error tweeting registration of %s: %s", serviceURI, e) );
+					log.error(String.format("error tweeting registration of %s: %s", serviceURI, e));
 				}
 			}
-		} catch (final Exception e) {
-			log.error( String.format("registration failed for %s: %s", serviceURI, e) );
+		} catch (Exception e) {
+			log.error(String.format("registration failed for %s: %s", serviceURI, e));
 			ServiceBean service = new ServiceBean();
 			service.setServiceURI(serviceURI);
 			request.setAttribute("service", service);
 			request.setAttribute("error", e.getMessage());
+		} finally {
+			if (registry != null)
+				registry.getModel().close();
 		}
 	}
 %>

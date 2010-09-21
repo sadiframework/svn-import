@@ -195,7 +195,7 @@ public class Registry
 			parentDirectory.mkdirs();
 		
 		ModelMaker maker = ModelFactory.createFileModelMaker(parentDirectory.getAbsolutePath());
-		return maker.createModel(registryFile.getName());
+		return maker.openModel(registryFile.getName());
 	}
 	
 	private Model model;
@@ -207,6 +207,8 @@ public class Registry
 	public Registry(Model model)
 	{
 		this.model = model;
+		model.setNsPrefix("sadi", "http://sadiframework.org/ontologies/sadi.owl#");
+		model.setNsPrefix("mygrid", "http://www.mygrid.org.uk/mygrid-moby-service#");
 	}
 	
 	/**
@@ -308,9 +310,10 @@ public class Registry
 	 */
 	public ServiceBean registerService(String serviceUrl) throws SADIException
 	{
-		log.debug(String.format("unregistering service %s", serviceUrl));
-		if (getModel().containsResource(getModel().getResource(serviceUrl)))
+		if (getModel().containsResource(getModel().getResource(serviceUrl))) {
+			log.debug(String.format("unregistering service %s", serviceUrl));
 			unregisterService(serviceUrl);
+		}
 		
 		/* fetch the service definition and cache in our model so it can be
 		 * queried...
@@ -428,6 +431,7 @@ public class Registry
 			File backupDirectory = new File(backupPath);
 			if ( backupDirectory.isDirectory() && backupDirectory.canWrite() ) {
 				String modelName = String.format("%s.rdf", serviceUrl);
+				log.trace(String.format("backing up service defintion to %s", modelName));
 				try {
 					modelName = new URLCodec().encode(modelName);
 				} catch (EncoderException e) {
@@ -438,8 +442,7 @@ public class Registry
 					modelName = modelName + "~";
 				}
 				try {
-					serviceModel.getWriter("RDF/XML-ABBREV")
-						.write(serviceModel, new FileOutputStream(file), "");
+					serviceModel.getWriter("RDF/XML-ABBREV").write(serviceModel, new FileOutputStream(file), "");
 				} catch (Exception e) {
 					log.error(String.format("error writing backup service model to %s", file));
 				}

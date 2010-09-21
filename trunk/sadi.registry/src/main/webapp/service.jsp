@@ -1,10 +1,23 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="org.apache.log4j.Logger" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
 <%
 	if (pageContext.getAttribute("service") == null) {
 		String serviceURI = request.getParameter("serviceURI");
-		ServiceBean service = Registry.getRegistry().getServiceBean(serviceURI);
-		pageContext.setAttribute("service", service);
+		if (serviceURI != null) {
+			Logger log = Logger.getLogger("ca.wilkinsonlab.sadi.registry");
+			Registry registry = null;
+			try {
+				registry = Registry.getRegistry();
+				ServiceBean service = registry.getServiceBean(serviceURI);
+				pageContext.setAttribute("service", service);
+			} catch (Exception e) {
+				log.error(String.format("error retrieving service definition for %s: %s", serviceURI, e));
+			} finally {
+				if (registry != null)
+					registry.getModel().close();
+			}
+		}
 	}
 %>
 <table class='service-detail'>
