@@ -42,15 +42,17 @@ public abstract class RegistryBase implements Registry
 		String endpointURL = config.getString(SPARQL_ENDPOINT_KEY);
 		String graphName = config.getString(SPARQL_GRAPH_KEY);
 		String dsn = config.getString(MYSQL_DSN_KEY);
+		String file = config.getString("file");
 		if (endpointURL != null) {
 			getLog().info(String.format("creating Virtuoso-backed registry model from %s(%s)", endpointURL, graphName));
 			backend = QueryExecutorFactory.createVirtuosoSPARQLEndpointQueryExecutor(endpointURL, graphName);
 		} else if (dsn != null) {
 			getLog().info(String.format("creating JDBC-backed registry model from %s", dsn));
-			backend = QueryExecutorFactory.createMySQLJenaModelQueryExecutor(dsn, config.getString(MYSQL_USERNAME_KEY), config.getString(MYSQL_PASSWORD_KEY), graphName);
+			backend = QueryExecutorFactory.createJDBCJenaModelQueryExecutor(config.getString(DRIVER_KEY), dsn, config.getString(MYSQL_USERNAME_KEY), config.getString(MYSQL_PASSWORD_KEY), graphName);
+		} else if (file != null) {
+			getLog().info(String.format("creating file-backed registry model from %s", file));
+			backend = QueryExecutorFactory.createFileModelQueryExecutor(file);
 		} else {
-			/* TODO create file-backed model somewhere...
-			 */
 			getLog().warn("no configuration found; creating transient registry model");
 			backend = QueryExecutorFactory.createJenaModelQueryExecutor(ModelFactory.createDefaultModel());
 		}

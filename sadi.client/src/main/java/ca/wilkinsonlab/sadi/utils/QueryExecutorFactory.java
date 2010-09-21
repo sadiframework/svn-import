@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -30,15 +31,20 @@ public class QueryExecutorFactory
 	{
 		return new JenaModelQueryExecutor(model);
 	}
-	
-	public static QueryExecutor createMySQLJenaModelQueryExecutor(String dsn, String username, String password)
+
+	public static QueryExecutor createFileModelQueryExecutor(String file)
 	{
-		return createMySQLJenaModelQueryExecutor(dsn, username, password, null);
+		return new JenaModelQueryExecutor(createFileModel(file));
+	}
+
+	public static QueryExecutor createJDBCJenaModelQueryExecutor(String driver, String dsn, String username, String password)
+	{
+		return createJDBCJenaModelQueryExecutor(driver, dsn, username, password, null);
 	}
 	
-	public static QueryExecutor createMySQLJenaModelQueryExecutor(String dsn, String username, String password, String graphName)
+	public static QueryExecutor createJDBCJenaModelQueryExecutor(String driver, String dsn, String username, String password, String graphName)
 	{
-		return new JenaModelQueryExecutor(createMySQLJenaModel(dsn, username, password, graphName));
+		return new JenaModelQueryExecutor(createJDBCJenaModel(driver, dsn, username, password, graphName));
 	}
 	
 	public static QueryExecutor createVirtuosoSPARQLEndpointQueryExecutor(String endpointURL) throws IOException
@@ -51,11 +57,11 @@ public class QueryExecutorFactory
 		return new VirtuosoSPARQLEndpointQueryExecutor(new URL(endpointURL), graphName);
 	}
 	
-	private static Model createMySQLJenaModel(String dsn, String username, String password, String graphName)
+	private static Model createJDBCJenaModel(String driver, String dsn, String username, String password, String graphName)
 	{
 		// load the driver class
 		try {
-			Class.forName("com.mysql.jdbc.Driver");
+			Class.forName(driver);
 		} catch ( ClassNotFoundException e ) {
 			throw new RuntimeException(e);
 		}
@@ -65,7 +71,7 @@ public class QueryExecutorFactory
 				dsn,
 				username,
 				password,
-				"MySQL"
+				driver.matches("(?i).*mysql.*") ? "MySQL" : null
 		);
 		
 		// create a model maker with the given connection parameters
@@ -76,6 +82,19 @@ public class QueryExecutorFactory
 			return maker.createDefaultModel();
 		else 
 			return maker.createModel(graphName, false);
+	}
+	
+	private static Model createFileModel(String path)
+	{
+		File registryFile = new File(path);
+		File parentDirectory = registryFile.getParentFile();
+		if (parentDirectory == null)
+			parentDirectory = new File(".");
+		if (!parentDirectory.isDirectory())
+			parentDirectory.mkdirs();
+		
+		ModelMaker maker = ModelFactory.createFileModelMaker(parentDirectory.getAbsolutePath());
+		return maker.openModel(registryFile.getName());
 	}
 	
 	private static class JenaModelQueryExecutor implements QueryExecutor
