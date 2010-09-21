@@ -84,24 +84,36 @@ public class Twitter
 	
 	public static AccessToken retrieveAccessToken() throws Exception
 	{
-		Model model = Registry.getRegistry().getModel();
-		List<Statement> statements = model.listStatements(subject, predicate, (RDFNode)null).toList();
-		if (statements.isEmpty())
-			return null;
-		String encoded = statements.get(0).getString();
-		byte[] serialized = new BASE64Decoder().decodeBuffer(encoded);
-		return (AccessToken)SerializationUtils.deserialize(serialized);
+		Model model = null;
+		try {
+			model = Registry.getRegistry().getModel();
+			List<Statement> statements = model.listStatements(subject, predicate, (RDFNode)null).toList();
+			if (statements.isEmpty())
+				return null;
+			String encoded = statements.get(0).getString();
+			byte[] serialized = new BASE64Decoder().decodeBuffer(encoded);
+			return (AccessToken)SerializationUtils.deserialize(serialized);
+		} finally {
+			if (model != null)
+				model.close();
+		}
 	}
 	
 	public static void storeAccessToken(AccessToken accessToken) throws Exception
 	{
-		Model model = Registry.getRegistry().getModel();
-		if (model.contains(subject, predicate)) {
-			model.removeAll(subject, predicate, null);
+		Model model = null;
+		try {
+			model = Registry.getRegistry().getModel();
+			if (model.contains(subject, predicate)) {
+				model.removeAll(subject, predicate, null);
+			}
+			byte[] serialized = SerializationUtils.serialize(accessToken);
+			String encoded = new BASE64Encoder().encodeBuffer(serialized);
+			model.add(subject, predicate, encoded);
+		} finally {
+			if (model != null)
+				model.close();
 		}
-		byte[] serialized = SerializationUtils.serialize(accessToken);
-		String encoded = new BASE64Encoder().encodeBuffer(serialized);
-		model.add(subject, predicate, encoded);
 	}
 	
 	public static RequestToken getRequestToken() throws Exception
