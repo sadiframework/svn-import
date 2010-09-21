@@ -25,8 +25,10 @@ public class SPARQLServlet extends HttpServlet
 		String query = request.getParameter("query");
 		String callback = request.getParameter("callback");
 		if (query != null) {
+			Registry registry = null;
 			try {
-				ResultSet resultSet = Registry.getRegistry().doSPARQL(query); 
+				registry = Registry.getRegistry();
+				ResultSet resultSet = registry.doSPARQL(query); 
 				List<Map<String, String>> bindings = QueryUtils.convertResultSet(resultSet);
 				if (callback != null) { // they're expecting JSONP...
 					JSONWriter jsonWriter = new JSONWriter();
@@ -44,6 +46,9 @@ public class SPARQLServlet extends HttpServlet
 				} else {
 					request.setAttribute("error", e.getMessage());
 				}
+			} finally {
+				if (registry != null)
+					registry.getModel().close();
 			}
 		}
 		getServletConfig().getServletContext().getRequestDispatcher("/sparql/index.jsp").forward(request, response);
