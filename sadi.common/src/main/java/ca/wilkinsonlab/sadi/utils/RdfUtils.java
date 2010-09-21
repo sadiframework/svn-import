@@ -1,12 +1,19 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.datatypes.TypeMapper;
@@ -25,6 +32,8 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 public class RdfUtils
 {
+	private static final Logger log = Logger.getLogger(RdfUtils.class);
+	
 	/**
 	 * Convert a collection of Jena Triples to a Jena Model.
 	 * @param triples the collection of triples
@@ -258,7 +267,36 @@ public class RdfUtils
 			}
 		}
 		return literals;
-	}		
+	}
+	
+	/**
+	 * Create a new memory model and read the contents of the argument,
+	 * which can be either a local path or a remote URL.
+	 * @param pathOrURL a local path or a remote URL
+	 * @return the new model
+	 * @throws IOException if the argument is an invalid URL and can't be read locally
+	 */
+	public static Model createModelFromPathOrURL(String pathOrURL) throws IOException
+	{
+		Model model = ModelFactory.createDefaultModel();
+		try {
+			URL url = new URL(pathOrURL);
+			log.debug(String.format("identified %s as a URL", pathOrURL));
+			model.read(url.toString());
+			return model;
+		} catch (MalformedURLException e) {
+			log.debug(String.format("%s is not a URL: %s", pathOrURL, e.getMessage()));
+		}
+		log.debug(String.format("identified %s as a path", pathOrURL));
+		try {
+			File f = new File(pathOrURL);
+			model.read(new FileInputStream(f), "");
+			return model;
+		} catch (FileNotFoundException e) {
+			log.error(String.format("error reading RDF from %s: %s", pathOrURL, e.toString()));
+			throw new IOException(String.format("%s did not parse as a URL and could not be read as a file: %s", pathOrURL, e.getMessage()));
+		}
+	}
 	
 //	/**
 //	 * Write a collection of triples to a file, as RDF.  
