@@ -13,8 +13,10 @@ import uk.ac.ebi.kraken.interfaces.uniprot.citations.Author;
 import uk.ac.ebi.kraken.interfaces.uniprot.citations.AuthoringGroup;
 import uk.ac.ebi.kraken.interfaces.uniprot.citations.JournalArticle;
 import uk.ac.ebi.kraken.interfaces.uniprot.citations.PubMedId;
+import ca.wilkinsonlab.sadi.utils.SIOUtils;
+import ca.wilkinsonlab.sadi.vocab.SIO;
 
-import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -29,29 +31,39 @@ public class UniProt2PubmedServiceServlet extends UniProtServiceServlet
 	private static final String OLD_PUBMED_PREFIX = "http://biordf.net/moby/PMID/";
 	private static final String PUBMED_PREFIX = "http://lsrn.org/PMID:";
 	
-	private final Property hasReference = ResourceFactory.createProperty("http://ontology.dumontierlab.com/hasReference");
-	private final Resource PubMed_Record = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PubMed_Record");
+	private final Resource PubMed_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PMID_Record");
+	private final Resource PubMed_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PMID_Identifier");
 	
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
 	{
 		for (Citation cite: input.getCitations()) {
 			if (cite instanceof JournalArticle) {
-				attachCitation(output, (JournalArticle)cite);
+				Resource pubmedNode = createPubMedNode(output.getModel(), (JournalArticle)cite);
+				if (pubmedNode != null)
+					output.addProperty(SIO.has_reference, pubmedNode);
 			}
 		}
 	}
 	
-	private void attachCitation(Resource uniprotNode, JournalArticle article)
+	private Resource createPubMedNode(Model model, JournalArticle article)
 	{
 		PubMedId pmId = article.getPubMedId();
 		if (pmId == null || StringUtils.isEmpty(pmId.getValue()))
-			return;
+			return null;
 		
-		Resource pubmedNode = uniprotNode.getModel().createResource(getPubMedUri(pmId), PubMed_Record);
-		pubmedNode.addProperty(OWL.sameAs, uniprotNode.getModel().createResource(getOldPubMedUri(pmId)));
-		pubmedNode.addProperty(RDFS.label, getPubMedLabel(article));
-		uniprotNode.addProperty(hasReference, pubmedNode);
+		Resource pubmedNode = model.createResource(getPubMedUri(pmId), PubMed_Type);
+		
+		// add identifier structure...
+		SIOUtils.createAttribute(pubmedNode, PubMed_Identifier, pmId.getValue());
+
+		// add label...
+		pubmedNode.addProperty(RDFS.label, getLabel(article));
+		
+		// add relationship to old URI scheme...
+		pubmedNode.addProperty(OWL.sameAs, model.createResource(getOldPubMedUri(pmId)));
+		
+		return pubmedNode;
 	}
 
 	private static String getPubMedUri(PubMedId pmId)
@@ -66,7 +78,7 @@ public class UniProt2PubmedServiceServlet extends UniProtServiceServlet
 		return String.format("%s%s", OLD_PUBMED_PREFIX, pdbId);
 	}
 
-	private static String getPubMedLabel(JournalArticle article)
+	private static String getLabel(JournalArticle article)
 	{
 		return String.format("%s, %s", formatAuthorList(article), article.getTitle());
 	}

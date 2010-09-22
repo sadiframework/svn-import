@@ -1,0 +1,52 @@
+package ca.wilkinsonlab.sadi.vocab;
+
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
+
+/**
+ * SIO vocabulary.
+ * Modeled on the vocabulary classes included with the ARQ distribution.
+ * 
+ * @author Luke McCarthy
+ */
+public class SIO
+{
+	private static Model m_model = ModelFactory.createDefaultModel();
+	
+	/**
+	 * The namespace of the vocabulary as a string.
+	 */
+	public static final String NS = "http://semanticscience.org/resource/";
+	
+	/** 
+	 * Returns the namespace of the vocabulary as a string.
+	 * @return the namespace of the vocabulary as a string.
+	 */
+    public static String getURI() { return NS; }
+    
+    /**
+     * The namespace of the vocabulary as a resource.
+     */
+    public static final Resource NAMESPACE = m_model.createResource( NS );
+    
+    public static final Resource name = m_model.createResource( NS + "SIO_000116" );
+    public static final Resource preferred_name = m_model.createResource( NS + "SIO_000117" );
+    public static final Resource scientific_name = m_model.createResource( NS + "SIO_000120" );
+    public static final Resource amino_acid_sequence = m_model.createResource( NS + "SIO_010015" );
+    public static final Resource _3d_structure_model = m_model.createResource( NS + "SIO_010530" );
+    
+    public static final Property has_attribute = m_model.createProperty( NS, "SIO_000008" );
+	public static final Property has_value = m_model.createProperty( NS, "SIO_000300" );
+	public static final Property has_participant = m_model.createProperty( NS, "SIO_000132" );
+	public static final Property is_participant_in = m_model.createProperty( NS, "SIO_000062" );
+	public static final Property encodes = m_model.createProperty( NS, "SIO_010078" );
+	public static final Property is_encoded_by = m_model.createProperty( NS, "SIO_010079" );
+	public static final Property is_related_to = m_model.createProperty( NS, "SIO_000219" );
+	public static final Property is_located_in = m_model.createProperty( NS,"SIO_000061" );
+	public static final Property is_variant_of = m_model.createProperty( NS, "SIO_000272" );
+	public static final Property has_function = m_model.createProperty( NS, "SIO_000225" );
+	public static final Property has_reference = m_model.createProperty( NS, "SIO_000253" );
+	
+}

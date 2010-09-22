@@ -1,28 +1,23 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project
+ xmlns="http://maven.apache.org/POM/4.0.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-examples</artifactId>
-  <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
+  <packaging>war</packaging>
   <name>sadi-examples Maven Webapp</name>
+  <description>Sample SADI services</description>
   <url>http://sadiframework.org/examples/</url>
   <parent>
     <groupId>ca.wilkinsonlab.sadi</groupId>
     <artifactId>sadi-webapp</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
   </parent>
   <build>
     <finalName>sadi-examples</finalName>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -32,21 +27,9 @@
           </excludes>
         </configuration>
       </plugin>
-      <plugin>
-      	<groupId>org.mortbay.jetty</groupId>
-      	<artifactId>maven-jetty-plugin</artifactId>
-      </plugin>
     </plugins>
   </build>
   <repositories>
-    <repository>
-  		<id>dev.biordf.net</id>
-  		<name>dev.biordf.net</name>
-  		<url>http://dev.biordf.net/maven</url>
-  		<snapshots>
-  			<enabled>true</enabled>
-  		</snapshots>
-  	</repository>
   	<repository>
     	<id>ebi-repo</id>
     	<name>ebi-repo</name>
@@ -58,7 +41,7 @@
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-service</artifactId>
-      <version>0.0.4-SNAPSHOT</version>
+      <version>0.0.5-SNAPSHOT</version>
     </dependency>
     
     <dependency>

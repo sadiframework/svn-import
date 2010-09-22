@@ -4,31 +4,26 @@
   <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
   <!ENTITY owl "http://www.w3.org/2002/07/owl#">
   <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
-  <!ENTITY benv "http://sadiframework.org/ontologies/predicates.owl#">
+  <!ENTITY sadi "http://sadiframework.org/ontologies/properties.owl#">
+  <!ENTITY sio "http://semanticscience.org/resource/">
   <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/">
-  <!ENTITY common "http://sadiframework.org/examples/common.owl#">
-  <!ENTITY dumontier "http://ontology.dumontierlab.com/">
 ]>
 <rdf:RDF
     xmlns:rdf="&rdf;"
     xmlns:rdfs="&rdfs;"
     xmlns:owl="&owl;"
     xmlns:xsd="&xsd;"
-    xmlns:benv="&benv;"
-    xmlns:lsrn="&lsrn;"
-    xmlns:dumontier="&dumontier;"
-    xmlns:common="&common;">
+    xmlns:sadi="&sadi;"
+    xmlns:sio="&sio;"
+    xmlns:lsrn="&lsrn;">
 
-  <owl:Ontology rdf:about="">
-    <owl:imports rdf:resource="&dumontier;hasReference"/>
-    <owl:imports rdf:resource="&lsrn;"/>
-  </owl:Ontology>
+  <owl:Ontology rdf:about=""/>
   
   <owl:Class rdf:ID="AnnotatedUniProtRecord">
     <rdfs:subClassOf rdf:resource="&lsrn;UniProt_Record"/>
     <rdfs:subClassOf>
       <owl:Restriction>
-        <owl:onProperty rdf:resource="&dumontier;hasReference"/>
+        <owl:onProperty rdf:resource="&sio;SIO_000253"/>
         <owl:someValuesFrom rdf:resource="&lsrn;PMID_Record"/>
       </owl:Restriction>
     </rdfs:subClassOf>

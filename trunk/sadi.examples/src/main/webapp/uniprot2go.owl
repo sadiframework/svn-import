@@ -4,31 +4,40 @@
   <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
   <!ENTITY owl "http://www.w3.org/2002/07/owl#">
   <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
-  <!ENTITY benv "http://sadiframework.org/ontologies/predicates.owl#">
+  <!ENTITY sadi "http://sadiframework.org/ontologies/properties.owl#">
+  <!ENTITY sio "http://semanticscience.org/resource/">
   <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/">
-  <!ENTITY common "http://sadiframework.org/examples/common.owl#">
 ]>
 <rdf:RDF
+    xml:base="http://sadiframework.org/examples/uniprot2go.owl#"
+    xmlns="http://sadiframework.org/examples/uniprot2go.owl#"
     xmlns:rdf="&rdf;"
     xmlns:rdfs="&rdfs;"
     xmlns:owl="&owl;"
     xmlns:xsd="&xsd;"
-    xmlns:benv="&benv;"
-    xmlns:lsrn="&lsrn;"
-    xmlns:common="&common;"
-    xmlns="http://sadiframework.org/examples/uniprot2go.owl#"
-    xml:base="http://sadiframework.org/examples/uniprot2go.owl#">
+    xmlns:sadi="&sadi;"
+    xmlns:sio="&sio;"
+    xmlns:lsrn="&lsrn;">
 
   <owl:Ontology rdf:about=""/>
-  
-  <!-- in lieu of importing the whole ontology... -->
-  <owl:ObjectProperty rdf:about="&benv;hasGOTerm"/>
   
   <owl:Class rdf:ID="AnnotatedUniProtRecord">
     <rdfs:subClassOf rdf:resource="&lsrn;UniProt_Record"/>
     <rdfs:subClassOf>
       <owl:Restriction>
-        <owl:onProperty rdf:resource="&benv;hasGOTerm"/>
+        <owl:onProperty rdf:resource="&sio;SIO_000061"/>
+        <owl:someValuesFrom rdf:resource="&lsrn;GO_Record"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&sio;SIO_000062"/>
+        <owl:someValuesFrom rdf:resource="&lsrn;GO_Record"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&sio;SIO_000225"/>
         <owl:someValuesFrom rdf:resource="&lsrn;GO_Record"/>
       </owl:Restriction>
     </rdfs:subClassOf>
