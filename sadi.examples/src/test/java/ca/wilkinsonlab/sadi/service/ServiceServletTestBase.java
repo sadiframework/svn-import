@@ -139,9 +139,9 @@ public abstract class ServiceServletTestBase extends TestCase
 				inputModel.add(OwlUtils.getMinimalModel(inputNode, regressionService.getInputClass()));
 			}
 			try {
-				inputModel.write( new FileOutputStream( String.format( "target/%s.input.rdf", getClass().getSimpleName() ) ) );
-				expectedOutputModel.write( new FileOutputStream( String.format( "target/%s.expected.rdf", getClass().getSimpleName() ) ) );
-				actualOutputModel.write( new FileOutputStream( String.format( "target/%s.output.rdf", getClass().getSimpleName() ) ) );
+				inputModel.getWriter("RDF/XML-ABBREV").write( inputModel, new FileOutputStream( String.format( "target/%s.input.rdf", getClass().getSimpleName() ) ), "" );
+				expectedOutputModel.getWriter("RDF/XML-ABBREV").write( expectedOutputModel, new FileOutputStream( String.format( "target/%s.expected.rdf", getClass().getSimpleName() ) ), "" );
+				actualOutputModel.getWriter("RDF/XML-ABBREV").write( actualOutputModel, new FileOutputStream( String.format( "target/%s.output.rdf", getClass().getSimpleName() ) ), "" );
 			} catch (Exception e) {
 				log.error("error writing models", e);
 			}

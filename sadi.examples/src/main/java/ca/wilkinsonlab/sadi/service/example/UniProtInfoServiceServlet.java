@@ -1,20 +1,20 @@
 package ca.wilkinsonlab.sadi.service.example;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ebi.kraken.interfaces.common.Sequence;
-import uk.ac.ebi.kraken.interfaces.uniprot.Organism;
+import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxonomyId;
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.description.Field;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
+import ca.wilkinsonlab.sadi.utils.SIOUtils;
+import ca.wilkinsonlab.sadi.utils.UniProtUtils;
+import ca.wilkinsonlab.sadi.vocab.Properties;
+import ca.wilkinsonlab.sadi.vocab.SIO;
 
-import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
@@ -23,12 +23,9 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 {
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProtInfoServiceServlet.class);
-	
-	public static final String ONT_PREFIX = "http://sadiframework.org/ontologies/predicates.owl#";
-	public static final Property hasName = ResourceFactory.createProperty( ONT_PREFIX + "hasName" );
-	public static final Property hasDescription = ResourceFactory.createProperty( ONT_PREFIX + "hasDescription" );
-	public static final Property belongsToOrganism = ResourceFactory.createProperty( ONT_PREFIX + "belongsToOrganism" );
-	public static final Property hasSequence = ResourceFactory.createProperty( ONT_PREFIX + "hasSequence" );
+
+	private static final Resource Taxon_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/taxon_Record");
+	private static final Resource Taxon_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/taxon_Identifier");
 	
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
@@ -36,19 +33,16 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 		ProteinDescription description = input.getProteinDescription();
 		if (description != null) {
 			if (description.hasRecommendedName()) {
-				attachName(output, description.getRecommendedName());
+				attachNames(output, description.getRecommendedName(), true);
 			}
 			if (description.hasAlternativeNames()) {
 				for (Name name: description.getAlternativeNames()) {
-					attachName(output, name);
+					attachNames(output, name, false);
 				}
 			}
 		}
 		
-		Organism organism = input.getOrganism();
-		if (organism != null) {
-			attachOrganism(output, organism);
-		}
+		attachOrganism(output, input);
 		
 		Sequence sequence = input.getSequence();
 		if (sequence != null) {
@@ -56,104 +50,55 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 		}
 	}
 
-//	private void attachDescription(Resource uniProtNode, ProteinDescription description)
-//	{
-//		uniProtNode.addProperty(hasDescription, getDescriptionString(description));
-//	}
-//	
-//	private String getDescriptionString(ProteinDescription description)
-//	{
-//		StringBuilder buf = new StringBuilder();
-//		buf.append("Includes: ");
-//		List<Section> includes = description.getIncludes();
-//		if (!includes.isEmpty()) {
-//			for (Section section: includes) {
-//				buf.append(getSectionString(section));
-//				buf.append("; ");
-//			}
-//		}
-//		List<Section> contains = description.getContains();
-//		if (!contains.isEmpty()) {
-//			buf.append("Contains: ");
-//			for (Section section: contains) {
-//				buf.append(getSectionString(section));
-//				buf.append("; ");
-//			}
-//		}
-//		return buf.toString();
-//	}
-//	
-//	private String getSectionString(Section section)
-//	{
-//		StringBuilder buf = new StringBuilder();
-//		for (Name name: section.getNames()) {
-//			if (buf.length() > 0)
-//				buf.append(", ");
-//			buf.append(getNameString(name));
-//		}
-//		return buf.toString();
-//	}
-
-	private void attachName(Resource uniProtNode, Name name)
+	private void attachNames(Resource uniprotNode, Name name, boolean preferred)
 	{
-		uniProtNode.addProperty(hasName, getNameString(name));
-	}
-
-	private String getNameString(Name name)
-	{
-		if (name == null) {
-			return null;
-		} else {
-			StringBuilder buf = new StringBuilder();
-			String fullName = getFullName(name);
-			if (fullName != null) {
-				buf.append(fullName);
-			}
-			String shortName = getShortName(name);
-			if (shortName != null) {
-				buf.append(buf.length() > 0 ? String.format(" (%s)", shortName) : shortName);
-			}
-			return buf.length() > 0 ? buf.toString() : "unknown";
+//		Resource nameNode = SIOUtils.createAttribute(uniprotNode, preferred ? SIO.preferred_name : SIO.name, getFullName(name));
+		Resource nameNode = SIOUtils.createAttribute(uniprotNode, Properties.hasName, preferred ? SIO.preferred_name : SIO.name, getFullName(name));
+		String shortName = getShortName(name);
+		if (shortName != null) {
+//			Resource shortNameNode = SIOUtils.createAttribute(uniprotNode, SIO.name, shortName);
+			Resource shortNameNode = SIOUtils.createAttribute(uniprotNode, Properties.hasName, shortName);
+			shortNameNode.addProperty(SIO.is_variant_of, nameNode);
 		}
 	}
 	
 	private String getFullName(Name name)
 	{
-		return getFieldString(name.getFieldsByType(FieldType.FULL));
+		return UniProtUtils.getFieldString(name.getFieldsByType(FieldType.FULL));
 	}
 	
 	private String getShortName(Name name)
 	{
-		return getFieldString(name.getFieldsByType(FieldType.SHORT));
+		return UniProtUtils.getFieldString(name.getFieldsByType(FieldType.SHORT));
 	}
 	
-	private String getFieldString(List<Field> fields)
-	{
-		if (fields.isEmpty())
-			return null;
-		else if (fields.size() == 1)
-			return fields.get(0).getValue();
-		else
-			return StringUtils.join(fields, ", ");
-	}
-	
-	private void attachOrganism(Resource uniProtNode, Organism organism)
-	{
-		uniProtNode.addProperty(belongsToOrganism, nullSafeToString(organism.getScientificName()));
-	}
-	
-	private String nullSafeToString(Object o)
-	{
-		if (o == null)
-			return "null";
-		else
-			return o.toString();
-	}
-	
-	private void attachSequence(Resource uniProtNode, Sequence sequence)
+	private void attachSequence(Resource uniprotNode, Sequence sequence)
 	{
 		String value = sequence.getValue();
-		if (!StringUtils.isEmpty(value))
-			uniProtNode.addProperty(hasSequence, value);
+		if (!StringUtils.isEmpty(value)) {
+//			SIOUtils.createAttribute(uniprotNode, SIO.amino_acid_sequence, value);
+			SIOUtils.createAttribute(uniprotNode, Properties.hasSequence, SIO.amino_acid_sequence, value);
+		}
+	}
+	
+	private void attachOrganism(Resource uniprotNode, UniProtEntry input)
+	{
+		for (NcbiTaxonomyId taxonId: input.getNcbiTaxonomyIds()) {
+			Resource taxonNode = uniprotNode.getModel().createResource(Taxon_Type);
+			SIOUtils.createAttribute(taxonNode, Taxon_Identifier, taxonId.getValue());
+			SIOUtils.createAttribute(taxonNode, Properties.hasName, SIO.scientific_name, StringUtils.defaultString(getScientificName(input), "null"));
+//			uniprotNode.addProperty(SIO.is_located_in, taxonNode);
+			uniprotNode.addProperty(Properties.fromOrganism, taxonNode);
+		}
+	}
+	
+	private String getScientificName(UniProtEntry input)
+	{
+		try {
+			return input.getOrganism().getScientificName().getValue();
+		} catch (Exception e) {
+			// probably NPE...
+			return null;
+		}
 	}
 }

@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
+import ca.wilkinsonlab.sadi.utils.UniProtUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;

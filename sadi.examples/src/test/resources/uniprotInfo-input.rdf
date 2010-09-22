@@ -1,12 +1,18 @@
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:sio="http://semanticscience.org/resource/"
     xmlns:uniprotInfo="http://sadiframework.org/examples/uniprotInfo.owl#">
 
 	<lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/P12345">
 	</lsrn:UniProt_Record>
 	
-	<lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/Q7Z591">
+	<lsrn:UniProt_Record rdf:about="http://example.com/not-a-uniprot-id">
+	  <sio:SIO_000008>
+	    <lsrn:UniProt_Identifier>
+	      <sio:SIO_000300>Q7Z591</sio:SIO_000300>
+	    </lsrn:UniProt_Identifier>
+	  </sio:SIO_000008>
 	</lsrn:UniProt_Record>
 	
 	<!--

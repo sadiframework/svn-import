@@ -7,8 +7,10 @@ import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.pdb.Pdb;
+import ca.wilkinsonlab.sadi.utils.SIOUtils;
+import ca.wilkinsonlab.sadi.vocab.Properties;
 
-import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -23,23 +25,33 @@ public class UniProt2PdbServiceServlet extends UniProtServiceServlet
 	private static final String OLD_PDB_PREFIX = "http://biordf.net/moby/PDB/";
 	private static final String PDB_PREFIX = "http://lsrn.org/PDB:";
 	
-	private final Property hasPDBId = ResourceFactory.createProperty("http://sadiframework.org/ontologies/predicates.owl#has3DStructure");
-	private final Resource PDB_Record = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PDB_Record");
+	private static final Resource PDB_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PDB_Record");
+	private static final Resource PDB_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PDB_Identifier");
 	
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
 	{
 		for (DatabaseCrossReference xref: input.getDatabaseCrossReferences(DatabaseType.PDB)) {
-			attachPdbId(output, (Pdb)xref);
+			Resource pdbNode = createPdbNode(output.getModel(), (Pdb)xref);
+//			output.addProperty(SIO.has_attribute, pdbNode);
+			output.addProperty(Properties.has3DStructure, pdbNode);
 		}
 	}
-	
-	private void attachPdbId(Resource uniprotNode, Pdb pdb)
+
+	private Resource createPdbNode(Model model, Pdb pdb)
 	{
-		Resource pdbNode = uniprotNode.getModel().createResource(getPdbUri(pdb), PDB_Record);
-		pdbNode.addProperty(OWL.sameAs, uniprotNode.getModel().createResource(getOldPdbUri(pdb)));
-		pdbNode.addProperty(RDFS.label, getPdbLabel(pdb));
-		uniprotNode.addProperty(hasPDBId, pdbNode);
+		Resource pdbNode = model.createResource(getPdbUri(pdb), PDB_Type);
+		
+		// add identifier structure...
+		SIOUtils.createAttribute(pdbNode, PDB_Identifier, pdb.getPdbAccessionNumber().getValue());
+
+		// add label...
+		pdbNode.addProperty(RDFS.label, getLabel(pdb));
+		
+		// add relationship to old URI scheme...
+		pdbNode.addProperty(OWL.sameAs, model.createResource(getOldPdbUri(pdb)));
+		
+		return pdbNode;
 	}
 	
 	private static String getPdbUri(Pdb pdb)
@@ -54,7 +66,7 @@ public class UniProt2PdbServiceServlet extends UniProtServiceServlet
 		return String.format("%s%s", OLD_PDB_PREFIX, pdbId);
 	}
 
-	private static String getPdbLabel(Pdb pdb)
+	private static String getLabel(Pdb pdb)
 	{
 		return pdb.toString();
 	}

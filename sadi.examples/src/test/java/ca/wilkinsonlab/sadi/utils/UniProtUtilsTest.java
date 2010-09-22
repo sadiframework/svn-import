@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.service.example;
+package ca.wilkinsonlab.sadi.utils;
 
 import static org.junit.Assert.assertEquals;
 
