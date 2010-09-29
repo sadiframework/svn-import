@@ -13,6 +13,7 @@ public class SADIProperties {
     public static final String GENERATOR_OWL_ONT_FILENAME = "generator-service-name"; // string
     public static final String GENERATOR_OWL_BY_FILE = "generator-owl-by-file"; // boolean
     public static final String GENERATOR_OWL_TMP_FILE_LOCATION = "generator-owl-tmp-file-location"; // boolean
+    public static final String GENERATOR_DO_BOTH_GENERATION = "generator-gen-datatypes-and-service"; // boolean
     // PERL preference keys
     
     public static final String DO_PERL_SERVICE_GENERATION = "perl-service-generator-processing"; // boolean
