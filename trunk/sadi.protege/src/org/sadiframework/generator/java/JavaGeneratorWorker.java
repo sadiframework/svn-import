@@ -198,9 +198,7 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
                 serviceDir.getAbsolutePath(), 
                 definition.getName(),
                 String.format("%s%s", getServicePackage(), definition.getName()),
-                definition.getInputClass(),
-                definition.getOutputClass(),
-                definition.isAsync(),
+                definition,
                 getExtraMavenArgs().split(" "));
         } catch (SADIServiceException sse) {
             String s = String.format(sse.getMessage());
