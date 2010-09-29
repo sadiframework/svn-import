@@ -274,88 +274,7 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
 //                        dialog.setVisible(true);
 //                    }
 //                });
-
-        // place radio button in a group
-        ButtonGroup group = new ButtonGroup();
-        group.add(inputFromXML);
-        group.add(inputFromIndividual);
-
-        // add event handlers for each event
-        inputFromXML.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                manager.saveBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, false);
-                saveButton.setEnabled(false);
-                openXML.setEnabled(true);
-                updateView(getSelectedOWLIndividual());
-            }
-        });
-        inputFromIndividual.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                manager.saveBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, true);
-                serviceInputXML = "";
-                updateView(getSelectedOWLIndividual());
-                saveButton.setEnabled(true);
-                openXML.setEnabled(false);
-
-            }
-        });
-
-        // set the default for the group
-        if (manager.getBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, defaultUseOwlIndivual))
-            inputFromIndividual.setSelected(true);
-        else
-            inputFromXML.setSelected(true);
-
-        // add our components to the panel
-        UIUtils
-                .addComponent(panel, inputFromXML, 0, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0,
-                        0.0);
-        UIUtils.addComponent(panel, inputXML, 1, 0, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
-        UIUtils.addComponent(panel, openXML, 3, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, inputFromIndividual, 0, 1, 1, 1, UIUtils.NWEST, UIUtils.NONE,
-                0.0, 0.0);
-        UIUtils.addComponent(panel, owlLabel, 1, 1, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
-//        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { saveButton,
-//                createTestButton }), 0, 2, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { saveButton,}), 0, 2, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, Box.createGlue(), 0, 2, 2, 1, UIUtils.WEST, UIUtils.BOTH, 1.0,
-                1.0);
-
-        panel.setBorder(ComponentFactory.createTitledBorder(bundle
-                .getString("testing_input_data_panel_title")));
-        panel.setMaximumSize(panel.getPreferredSize());
-        return panel;
-    }
-
-    // /////////////////////////////////////////////
-    // returns the service results subpanel
-    // /////////////////////////////////////////////
-    private Component getServiceResultPanel() {
-        JPanel panel = new JPanel(new SpringLayout());
-        resultPane = UIUtils.createArea("", false);
-        panel.add(new JScrollPane(resultPane));
-        // Lay out the panel.
-        SpringUtilities.makeCompactGrid(panel, 1, 1, // rows, cols
-                6, 6, // initX, initY
-                6, 6); // xPad, yPad
-        panel.setBorder(ComponentFactory.createTitledBorder(bundle
-                .getString("testing_service_result_panel_title")));
-        return new JScrollPane(panel);
-    }
-
-    // /////////////////////////////////////////////
-    // returns the service invocation subpanel
-    // /////////////////////////////////////////////
-    private Component getServiceInvocationPanel() {
-
-        JPanel panel = new JPanel(new GridBagLayout(), true);
-
-        JLabel l = new JLabel(bundle.getString("testing_service_invocation_panel_endpoint") + ":");
-        JTextFieldWithHistory serviceEndpoint = new JTextFieldWithHistory(25,
-                TESTING_SERVICE_ENDPOINT);
-        l.setLabelFor(serviceEndpoint);
+        
         callButton = new AbstractButton(bundle.getString("testing_service_invocation_panel_call"),
                 true, new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
@@ -414,11 +333,149 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
             }
         });
 
-        JPanel bp = UIUtils.createButtonPanel(new JButton[]{callButton, cancelButton });
+        // place radio button in a group
+        ButtonGroup group = new ButtonGroup();
+        group.add(inputFromXML);
+        group.add(inputFromIndividual);
+
+        // add event handlers for each event
+        inputFromXML.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                manager.saveBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, false);
+                saveButton.setEnabled(false);
+                openXML.setEnabled(true);
+                updateView(getSelectedOWLIndividual());
+            }
+        });
+        inputFromIndividual.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                manager.saveBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, true);
+                serviceInputXML = "";
+                updateView(getSelectedOWLIndividual());
+                saveButton.setEnabled(true);
+                openXML.setEnabled(false);
+
+            }
+        });
+
+        // set the default for the group
+        if (manager.getBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, defaultUseOwlIndivual))
+            inputFromIndividual.setSelected(true);
+        else
+            inputFromXML.setSelected(true);
+
+        // add our components to the panel
+        UIUtils
+                .addComponent(panel, inputFromXML, 0, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0,
+                        0.0);
+        UIUtils.addComponent(panel, inputXML, 1, 0, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
+        UIUtils.addComponent(panel, openXML, 3, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, inputFromIndividual, 0, 1, 1, 1, UIUtils.NWEST, UIUtils.NONE,
+                0.0, 0.0);
+        UIUtils.addComponent(panel, owlLabel, 1, 1, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
+//        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { saveButton,
+//                createTestButton }), 0, 2, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { callButton, cancelButton, saveButton,}), 0, 2, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, Box.createGlue(), 0, 2, 2, 1, UIUtils.WEST, UIUtils.BOTH, 1.0,
+                1.0);
+
+        panel.setBorder(ComponentFactory.createTitledBorder(bundle
+                .getString("testing_input_data_panel_title")));
+        panel.setMaximumSize(panel.getPreferredSize());
+        return panel;
+    }
+
+    // /////////////////////////////////////////////
+    // returns the service results subpanel
+    // /////////////////////////////////////////////
+    private Component getServiceResultPanel() {
+        JPanel panel = new JPanel(new SpringLayout());
+        resultPane = UIUtils.createArea("", false);
+        panel.add(new JScrollPane(resultPane));
+        // Lay out the panel.
+        SpringUtilities.makeCompactGrid(panel, 1, 1, // rows, cols
+                6, 6, // initX, initY
+                6, 6); // xPad, yPad
+        panel.setBorder(ComponentFactory.createTitledBorder(bundle
+                .getString("testing_service_result_panel_title")));
+        return new JScrollPane(panel);
+    }
+
+    // /////////////////////////////////////////////
+    // returns the service invocation subpanel
+    // /////////////////////////////////////////////
+    private Component getServiceInvocationPanel() {
+
+        JPanel panel = new JPanel(new GridBagLayout(), true);
+
+        JLabel l = new JLabel(bundle.getString("testing_service_invocation_panel_endpoint") + ":");
+        JTextFieldWithHistory serviceEndpoint = new JTextFieldWithHistory(25,
+                TESTING_SERVICE_ENDPOINT);
+        l.setLabelFor(serviceEndpoint);
+//        callButton = new AbstractButton(bundle.getString("testing_service_invocation_panel_call"),
+//                true, new ActionListener() {
+//                    public void actionPerformed(ActionEvent e) {
+//                        if (manager.getPreference(TESTING_SERVICE_ENDPOINT, "").equals("")) {
+//                            // tell the user to enter an endpoint
+//                            String msg = bundle.getString("testing_service_invocation_panel_no_endpoint_msg");
+//                            String title = bundle.getString("error");
+//                            JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+//                                    JOptionPane.ERROR_MESSAGE);
+//                            return;
+//                        }
+//                        if (!manager.getBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, true)) {
+//                            if (manager.getPreference(TESTING_CURRENT_FILE, null) == null) {
+//                                // tell the user to select a file
+//                                String msg = bundle.getString("testing_service_invocation_panel_no_file_msg");
+//                                String title = bundle.getString("error");
+//                                JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+//                                        JOptionPane.ERROR_MESSAGE);
+//                                return;
+//                            }
+//                            File file = new File(manager.getPreference(TESTING_CURRENT_FILE, null));
+//                            try {
+//                                StringBuilder sb = new StringBuilder();
+//                                BufferedReader br = new BufferedReader(new FileReader(file));
+//                                String newline = System.getProperty("line.separator");
+//                                String line = null;
+//                                while ((line = br.readLine()) != null) {
+//                                    sb.append(line + newline);
+//                                }
+//                                serviceInputXML = sb.toString();
+//                            } catch (IOException ioe) {
+//                                ErrorLogPanel.showErrorDialog(ioe);
+//                            }
+//                        } else {
+//                            if (serviceInputXML == null || serviceInputXML.trim().equals("")) {
+//                                // tell the user to select an individual
+//                                String msg = bundle.getString("testing_service_invocation_panel_no_ind_msg");
+//                                String title = bundle.getString("error");
+//                                JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+//                                        JOptionPane.ERROR_MESSAGE);
+//                                return;
+//                            }
+//                        }
+//                        createWorker();
+//                        worker.execute();
+//                    }
+//                });
+//
+//        cancelButton = new AbstractButton(bundle.getString("cancel"), false, new ActionListener() {
+//            public void actionPerformed(ActionEvent e) {
+//                worker.cancel(true);
+//                cancelButton.setEnabled(false);
+//                callButton.setEnabled(true);
+//                resultPane.setText(bundle.getString("testing_service_invocation_panel_cancel_msg"));
+//                redraw();
+//            }
+//        });
+//
+//        JPanel bp = UIUtils.createButtonPanel(new JButton[]{callButton, cancelButton });
         UIUtils.addComponent(panel, l,               0, 0, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, serviceEndpoint, 1, 0, 2, 1, UIUtils.WEST, UIUtils.BOTH, 1.0,0.0);
-        UIUtils.addComponent(panel, bp,              0, 1, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        //UIUtils.addComponent(panel, cancelButton, 1, 1, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        //UIUtils.addComponent(panel, bp,              0, 1, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
 
         panel.setBorder(ComponentFactory.createTitledBorder(bundle
                 .getString("testing_service_invocation_panel_title")));
