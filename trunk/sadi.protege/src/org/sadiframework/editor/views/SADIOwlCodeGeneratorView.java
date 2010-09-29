@@ -108,7 +108,7 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
             // physical URI)
             OWLOntology ontology = manager.createOntology(ontologyIRI);
 
-            for (OWLOntology ont : getOWLModelManager().getActiveOntologies()) {
+            for (OWLOntology ont : getOWLModelManager().getOntologies()) {
                 if (ont != null) {
                     for (OWLAxiom axiom : owlClass.getReferencingAxioms(ont)) {
                         if (axiom != null) {
