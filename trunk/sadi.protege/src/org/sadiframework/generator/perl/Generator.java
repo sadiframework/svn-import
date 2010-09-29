@@ -84,7 +84,7 @@ public class Generator {
         }
     }
 
-    public String generateService(String servicename, boolean isAsync) throws IOException, InterruptedException {
+    public String generateService(String servicename, boolean isAsync, boolean doBoth) throws IOException, InterruptedException {
         validate();
         ArrayList<String> command = new ArrayList<String>();
         Process p;
@@ -121,6 +121,9 @@ public class Generator {
         // isAsync
         if (isAsync)
             command.add("-A");
+        // generate both
+        if (doBoth)
+            command.add("-g");
         // add the name of the service
         command.add(servicename);
         System.out.println(String.format("command: %s", command));
