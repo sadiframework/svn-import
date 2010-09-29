@@ -16,6 +16,7 @@ import org.apache.maven.properties.internal.EnvironmentUtils;
 import org.codehaus.plexus.PlexusContainerException;
 import org.codehaus.plexus.component.repository.exception.ComponentLookupException;
 import org.sadiframework.exceptions.SADIServiceException;
+import org.sadiframework.service.ServiceDefinition;
 
 /**
  * A maven utility that class that calls an embedded maven to perform predefined goals
@@ -47,6 +48,22 @@ public class MavenExecutor {
     public static boolean GenerateService(String directory, String serviceName,
             String serviceClass, String inputClass, String outputClass, boolean isAsync,
             String[] extraOptions) throws SADIServiceException {
+        ServiceDefinition def = new ServiceDefinition(serviceName);
+        def.setOutputClass(outputClass);
+        def.setInputClass(inputClass);
+        def.setAsync(isAsync);
+        return GenerateService(directory, serviceName, serviceClass, def, extraOptions);
+        
+    }
+    
+    public static boolean GenerateService(String directory, String serviceName,
+            String serviceClass, ServiceDefinition definition,
+            String[] extraOptions) throws SADIServiceException {
+        if (definition == null) {
+            throw new SADIServiceException("Service definition must not be null!");
+        }
+        String outputClass = definition.getOutputClass();
+        String inputClass = definition.getInputClass();
         if (serviceName == null || serviceClass == null || inputClass == null
                 || outputClass == null) {
             throw new SADIServiceException("One of {Service Name, inputClass, outputClass} was missing.\nPlease ensure that you have specified those fields.");
@@ -64,6 +81,30 @@ public class MavenExecutor {
         params.add(String.format("-DserviceClass=%s", serviceClass.trim()));
         params.add(String.format("-DinputClass=%s", inputClass.trim()));
         params.add(String.format("-DoutputClass=%s", outputClass.trim()));
+        
+        /*
+         * add the following properties:
+         *  serviceDescription (optional)
+         *  serviceURL (optional)
+         *  serviceProvider (optional)
+         *  contactEmail (required)
+         *  authoritative (optional) -> defaults to false
+         */
+        if (definition.getDescription() != null && !definition.getDescription().trim().equals("")) {
+            params.add(String.format("-DserviceDescription=%s", definition.getDescription().trim()));
+        }
+        if (definition.getEndpoint() != null && !definition.getEndpoint().trim().equals("")) {
+            params.add(String.format("-DserviceURL=%s", definition.getEndpoint().trim()));
+        }
+        if (definition.getAuthority() != null && !definition.getAuthority().trim().equals("")) {
+            params.add(String.format("-DserviceProvider=%s", definition.getAuthority().trim()));
+        }
+        if (definition.getProvider() != null && !definition.getProvider().trim().equals("")) {
+            params.add(String.format("-DcontactEmail=%s", definition.getProvider().trim()));
+        }
+        params.add(String.format("-Dauthoritative=%s", definition.isAuthoritative()));
+        
+
 
         CLIManager cliManager = new CLIManager();
         CommandLine cli = null;
