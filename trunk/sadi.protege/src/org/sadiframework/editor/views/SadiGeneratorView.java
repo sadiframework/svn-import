@@ -171,7 +171,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             // physical URI)
             OWLOntology ontology = manager.createOntology(ontologyIRI);
 
-            for (OWLOntology ont : getOWLModelManager().getActiveOntologies()) {
+            for (OWLOntology ont : getOWLModelManager().getOntologies()) {
                 if (ont != null) {
                     for (OWLAxiom axiom : owlClass.getReferencingAxioms(ont)) {
                         if (axiom != null) {
@@ -342,6 +342,23 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         return rbPanel;
     }
     
+    private JPanel getGenerateBothCheckbox() {
+        JCheckBox doBoth = new JCheckBox(bundle.getString("generate_both"));
+        // set the default state
+        doBoth.setSelected(manager.getBooleanPreference(SADIProperties.GENERATOR_DO_BOTH_GENERATION, false));
+        doBoth.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() instanceof JCheckBox) {
+                    manager.saveBooleanPreference(SADIProperties.GENERATOR_DO_BOTH_GENERATION, ((JCheckBox)e.getSource()).isSelected());
+                }
+            }
+        });
+        JPanel rbPanel = new JPanel(new FlowLayout(FlowLayout.LEADING), true);
+        rbPanel.add(doBoth);
+        
+        return rbPanel;
+    }
+    
     
     
     private JPanel getJavaSpecificPanel() {
@@ -412,7 +429,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         UIUtils.addComponent(panel, extralabel, 0, 2, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, extraField, 1, 2, 2, 1, UIUtils.WEST, UIUtils.HORI, 0.0, 0.0);
         UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 3, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { generateBtn, javaLocalDeployBtn, javaPackageWarBtn }), 0, 4, 2, 1, UIUtils.WEST, UIUtils.NONE, 1.0, 0.0);
+        UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 4, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { generateBtn, javaLocalDeployBtn, javaPackageWarBtn }), 0, 5, 2, 1, UIUtils.WEST, UIUtils.NONE, 1.0, 0.0);
         // remember to make the panel suck up the remainder vertical space
         return panel;
     }
@@ -476,8 +494,9 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         UIUtils.addComponent(panel, defField, 1, 0, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
         UIUtils.addComponent(panel, perlDefinitionBtn, 3, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 1, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 2, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         // create the generate/cancel button panel
-        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[]{generateBtn}), 0, 2, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
+        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[]{generateBtn}), 0, 3, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
         return panel;
     }
     
@@ -910,6 +929,14 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             JOptionPane.showMessageDialog(
                     SadiGeneratorView.this, 
                     bundle.getString("definition_validation_output_class"),
+                    bundle.getString("definition_validation_title"), 
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (def.getProvider() == null || def.getProvider().equals("")) {
+            JOptionPane.showMessageDialog(
+                    SadiGeneratorView.this, 
+                    bundle.getString("definition_validation_provider"),
                     bundle.getString("definition_validation_title"), 
                     JOptionPane.ERROR_MESSAGE);
             return false;
