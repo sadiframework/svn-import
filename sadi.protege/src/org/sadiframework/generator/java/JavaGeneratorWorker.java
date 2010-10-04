@@ -2,14 +2,25 @@ package org.sadiframework.generator.java;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.jdesktop.swingworker.SwingWorker;
 import org.sadiframework.exceptions.SADIServiceException;
 import org.sadiframework.preferences.PreferenceManager;
 import org.sadiframework.properties.SADIProperties;
+import org.sadiframework.service.Execute;
 import org.sadiframework.service.ServiceDefinition;
 import org.sadiframework.utils.ZipUtilities;
 
@@ -34,6 +45,7 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
 
     private PreferenceManager manager = PreferenceManager.newInstance();
     private final static String SADI_SKELETON_FILENAME = "sadi-service-skeleton-0.0.3.zip";
+    private final static String SADI_SKELETON_URL = "http://sadiframework.org/downloads/sadi-service-skeleton.zip";
     private final static String SADI_SKELETON_PROJECT_FOLDER = "sadi.service.skeleton";
 
     private String outputDirectory;
@@ -165,8 +177,16 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
     }
 
     private String mvnGenerateService() {
-        InputStream in = getClass().getResourceAsStream(
-                String.format("/resources/%s", SADI_SKELETON_FILENAME));
+        InputStream in = FetchSkeleton();
+        if (in == null) {
+            // TODO check our cache
+            
+            // fallback to our library contained in our plugin ...
+            // in = getClass().getResourceAsStream(
+            //        String.format("/resources/%s", SADI_SKELETON_FILENAME));
+            return "Could not create skeleton project for Java SADI service (x00).";
+        }
+                
         // unzip to tmp directory, rename directory, move to correct directory
         File temp = new File(this.outputDirectory, String.format("sadi_java_skeleton-%s-tmp-dir", Long.toString(System.nanoTime())));
         File serviceDir = new File(this.outputDirectory, this.rootFolderName);
@@ -295,4 +315,33 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
     public void setAction(String action) {
         this.action = action;
     }
+    
+    /**
+     * 
+     * @return an InputStream object if we are able to obtain a SADI service skeleton; <code>null</code> otherwise.
+     */
+    private static InputStream FetchSkeleton() {
+        HttpClient client = new DefaultHttpClient();
+        client.getParams().setParameter("http.protocol.allow-circular-redirects", true);
+        client.getParams().setParameter("http.protocol.max-redirects", 5);
+        client.getParams().setParameter("http.useragent", Execute.USER_AGENT);
+        
+        HttpGet post = new HttpGet(SADI_SKELETON_URL);
+        try {
+            HttpResponse response = client.execute(post);
+            StatusLine status = response.getStatusLine();
+            if (status.getStatusCode() == 200) {
+                try {
+                    return response.getEntity().getContent();
+                    
+                } catch (IOException e) {
+                    return null;
+                }
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            return null;
+        }
+    }    
 }
