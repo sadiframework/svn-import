@@ -49,7 +49,7 @@ public class Execute {
         }
     }
 
-    private static String USER_AGENT = "sadi-plugin/protege";
+    public static String USER_AGENT = "sadi-plugin/protege";
 
     private static String post(String serviceEndpoint, String xml) throws SADIServiceException {
         /*
