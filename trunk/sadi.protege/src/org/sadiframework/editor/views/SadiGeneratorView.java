@@ -505,16 +505,18 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
      */
     private ServiceDefinition getServiceDefinition() {
         String name = ((JTextComponent) fields.get(0)).getText();
-        String authority = ((JTextComponent) fields.get(1)).getText();
-        String serviceType = ((JTextComponent) fields.get(2)).getText();
-        String inputClass = ((JTextComponent) fields.get(3)).getText();
-        String outputClass = ((JTextComponent) fields.get(4)).getText();
-        String description = ((JTextComponent) fields.get(5)).getText();
+        String description = ((JTextComponent) fields.get(1)).getText();
+        String inputClass = ((JTextComponent) fields.get(2)).getText();
+        String outputClass = ((JTextComponent) fields.get(3)).getText();
+        String endpoint = ((JTextComponent) fields.get(4)).getText();
+        String authority = ((JTextComponent) fields.get(5)).getText();
+        
+        String provider = ((JTextComponent) fields.get(6)).getText();
+        String serviceType = ((JTextComponent) fields.get(7)).getText();
+        boolean authoritative = ((JCheckBox) fields.get(8)).isSelected();
+        
         //String uniqueID = ((JTextComponent) fields.get(6)).getText();
-        boolean authoritative = ((JCheckBox) fields.get(6)).isSelected();
-        String provider = ((JTextComponent) fields.get(7)).getText();
         //String serviceURI = ((JTextComponent) fields.get(9)).getText();
-        String endpoint = ((JTextComponent) fields.get(8)).getText();
         //String signatureURL = ((JTextComponent) fields.get(11)).getText();
 
         ServiceDefinition def = new ServiceDefinition(name.trim());
