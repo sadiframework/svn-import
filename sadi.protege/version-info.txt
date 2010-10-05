@@ -1,6 +1,6 @@
 <html>
 <body>
-<h2>SADI Plugin For Protege</h2>
+<h2>SADI Plugin For Protege (requires JAVA 1.6)</h2>
 <p>The SADI plugin for Protege is a collection of views, available in a single tab, that simplify
 the provision of SADI services.</p>
 <p>Available to SADI service authors are views that:
@@ -14,6 +14,15 @@ the provision of SADI services.</p>
 <p><a href="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/sadi_plugin.html">Documentation</a></p>
 
 <h3>Version info</h3>
+
+<h4>v1.1.2 (5th October 2010)</h4>
+<ul>
+    <li>Added status message in the SADI client for service calls that dont return results.</li>
+    <li>Updated the UI to make it flow a bit better.</li>
+    <li>Added option to the SADI service generator to generate both services and datatypes in one go (currently only done by Perl generator).</li>
+    <li>JAVA SADI service skeleton has been updated</li>
+    <li>PERL SADI service generator requires SADI 1.04 or higher</li>
+</ul>
 
 <h4>v1.1.1 (10th June 2010)</h4>
 <ul>
