@@ -177,6 +177,7 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
     }
 
     private String mvnGenerateService() {
+        
         InputStream in = FetchSkeleton();
         if (in == null) {
             // TODO check our cache
@@ -201,6 +202,12 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
                 } catch (IOException ioe) {
                     return String.format("Error inflating SADI skeleton project\n%s", ioe.getMessage());
                 }
+                
+                if (in != null)
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                    }
                 // now move the temp directory to the outDir
                 File file = new File(temp, SADI_SKELETON_PROJECT_FOLDER);
                 boolean success = file.renameTo(serviceDir); 
@@ -214,12 +221,13 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
         boolean success = false;
         
         try {
-        success = MavenExecutor.GenerateService(
-                serviceDir.getAbsolutePath(), 
-                definition.getName(),
-                String.format("%s%s", getServicePackage(), definition.getName()),
-                definition,
-                getExtraMavenArgs().split(" "));
+            //System.out.println(definition.toString());
+            success = MavenExecutor.GenerateService(
+                    serviceDir.getAbsolutePath(), 
+                    definition.getName(),
+                    String.format("%s%s", getServicePackage(), definition.getName()),
+                    definition,
+                    getExtraMavenArgs().split(" "));
         } catch (SADIServiceException sse) {
             String s = String.format(sse.getMessage());
             System.err.println(s);
