@@ -41,6 +41,9 @@ rm $R_FILE 2> /dev/null
 add_line "library(Hmisc)"
 # required for the barplot2() method
 add_line "library(gplots)"
+# for rendering to SVG
+add_line "library(RSVGTipsDevice)"
+#add_line "library(RSvgDevice)"
 
 # In some cases (timeouts or queries that die), we will only have one trial time
 # and this makes the standard error for that set of trials undefined.  For our
@@ -178,9 +181,12 @@ for test_query_prefix in $test_query_prefixes; do
 
 	test_query=$(basename ${test_query_prefix})
 	query_number=$(echo ${test_query_prefix} | perl -ple 's/.*query(.*)\.sparql/\1/g')
-	graph_file="${test_query}.png";
+#	graph_file="${test_query}.png";
+	graph_file="${test_query}.svg";
 
-	add_line "png('${graph_file}')"
+#	add_line "png('${graph_file}')"
+	add_line "devSVGTips('${graph_file}', toolTipMode=0)"
+#	add_line "devSVG(file='${graph_file}')"
 	add_line ""
 	add_line "# don't use scientific notation unless numbers have more than 10 digits"
 	add_line "# (did this to prevent R from using scientific notation for y axis labels)"
@@ -197,19 +203,20 @@ for test_query_prefix in $test_query_prefixes; do
 	add_line "# generate labels for bar groups"
 	add_line "group.labels <- c()"
 	add_line "for(i in 1:ncol(mean.matrix)) {"
-	add_line "  group.labels <- rbind(group.labels, paste('Test Ordering ', i - 1))"
+	add_line "  group.labels <- rbind(group.labels, i - 1)" # paste('Test Ordering ', i - 1))"
 	add_line "}"
 	add_line
 	add_line "# las = 3 means draw all axis labels vertically"
-	add_line "par(las=3)"
+#	add_line "par(las=3)"
 	add_line "# mar(bottom, left, top, right) sets margins (measured in lines of text)"
-	add_line "par(mar=c(10, 5, 4, 2))"
+#	add_line "par(mar=c(10, 5, 4, 2))"
+	add_line "par(mar=c(6, 5, 4, 2))"
 	add_line
-	add_line "xvals.matrix <- barplot2(mean.matrix, main='Execution Times for Query ${query_number}', legend.text=bar.labels, log='y', ylim=c(1,2000000), ylab='Query Execution Time (seconds)', xjust=0, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
+	add_line "xvals.matrix <- barplot2(mean.matrix, main='Execution Times for Query ${query_number}', legend.text=bar.labels, log='y', ylim=c(1,2000000), ylab='Query Time (seconds)', xlab='Random Query Ordering', xjust=0, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
 	add_line "xvals <- xvals.matrix[ 1:length(xvals.matrix) ]"
 	add_line "yvals <- mean.matrix[ 1:length(mean.matrix) ]"
 	add_line "ydeltas <- stderr.matrix[ 1:length(stderr.matrix) ]"
-	add_line "errbar(xvals, yvals, yvals + ydeltas, yvals - ydeltas, xlab='Random Input Query Ordering', ylab='Query Time (seconds)', add=TRUE)"
+	add_line "errbar(xvals, yvals, yvals + ydeltas, yvals - ydeltas, xlab='Random Input Query Ordering', ylab='Query Time (seconds)', cex=0.5, add=TRUE)"
 	add_line 
 	add_line "# TIMEOUT line"
 	add_line "abline(h=1800, lty=2)"
