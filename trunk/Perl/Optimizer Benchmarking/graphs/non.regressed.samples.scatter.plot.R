@@ -6,6 +6,8 @@ library(Hmisc)
 library(plotrix)
 # for pointLabel() function
 library(maptools)
+# for rendering to SVG
+library(RSVGTipsDevice)
 
 # Command line arg 1 is a file containing sample values,
 # where each line has the form:
@@ -51,12 +53,13 @@ forwardStandardErrs = standardErrs[ standardErrs$direction == "forward", ]
 reverseMeanTimes = meanTimes[ meanTimes$direction == "reverse", ]
 reverseStandardErrs = standardErrs[ standardErrs$direction == "reverse", ]
 
-# The plot() call just draws the axes and title, the errbar() calls 
-# plot the points
-
-png(args[3])
+#png(args[3])
+devSVGTips(args[3], toolTipMode=0)
 
 drawAxes = function() {
+
+	# mar(bottom, left, top, right) sets margins (measured in lines of text)
+	par(mar=c(8, 4, 6, 2))
 
 	plot(
 		c(),
@@ -68,7 +71,7 @@ drawAxes = function() {
 		ylim=yRange,
 		log="y"
 	)
-
+	
 }
 
 drawAxes()
@@ -80,6 +83,9 @@ charWidths = strwidth("a:label:that:is:pretty:long")
 labelWidth = sum(charWidths)
 xRange[2] = xRange[2] + labelWidth
 
+# redraw axes
+dev.off()
+devSVGTips(args[3], toolTipMode=0)
 drawAxes()
 
 legend("topright", legend=c("forward response time", "reverse response time"), pch=c(24,25))
@@ -105,6 +111,6 @@ errbar(
 )
 
 # label each point with the (abbreviated) predicate URI
-text(x=meanTimes[,3], y=meanTimes[,4], labels=meanTimes[,1], pos=4)
+text(x=meanTimes[,3], y=meanTimes[,4], labels=meanTimes[,1], cex=0.75, pos=4)
 
 dev.off()

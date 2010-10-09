@@ -20,18 +20,19 @@ for i in $(seq 1 $trainingRuns); do
 
 	samplesFilename="non.regressed.samples.$i.training.runs.txt"
 	# newline is intentional here
-	samplesGraphTitle="Average Response Times For Non-Regressed Samples
+	samplesGraphTitle="Average Response Times For Predicates
+Without Regression Lines
 ($i Training Runs)" 
 
 	./getNonRegressedSamples.pl $samplesGraphURI | apply.sparql.prefixes.pl sparql.prefixes > $samplesFilename
-	$R_COMMAND $samplesFilename "$samplesGraphTitle" "non.regressed.averages.$i.png" < non.regressed.samples.scatter.plot.R
+	$R_COMMAND $samplesFilename "$samplesGraphTitle" "non.regressed.averages.$i.svg" < non.regressed.samples.scatter.plot.R
 	rm $samplesFilename
 
 	echo "plotting graph for $summaryStatsGraphURI..." 1>&2
 
 	summaryStatsFilename="summary.stats.$i.training.runs.txt"
 	./summaryStats.pl $summaryStatsGraphURI | apply.sparql.prefixes.pl sparql.prefixes | sort > $summaryStatsFilename
-	$R_COMMAND $summaryStatsFilename "Base Time and Time-per-Input After $i Training Runs" "summaryStats.$i.png" < summary.stats.bar.plot.R 
+	$R_COMMAND $summaryStatsFilename "Base Time and Time-per-Input After $i Training Runs" "summaryStats.$i.svg" < summary.stats.bar.plot.R 
 	rm $summaryStatsFilename
 
 done
