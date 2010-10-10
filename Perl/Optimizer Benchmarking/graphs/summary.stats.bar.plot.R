@@ -25,7 +25,7 @@ devSVGTips(args[3], toolTipMode=0)
 # las = 3 means draw all axis labels vertically
 par(las=3)
 # mar(bottom, left, top, right) sets margins (measured in lines of text)
-par(mar=c(20, 4, 4, 2))
+par(mar=c(20, 4, 6, 2))
 
 barplot2(
 	plotData, 
