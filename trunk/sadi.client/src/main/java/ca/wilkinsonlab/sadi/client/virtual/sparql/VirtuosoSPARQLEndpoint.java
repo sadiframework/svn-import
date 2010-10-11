@@ -116,4 +116,28 @@ public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 		String query = SPARQLStringUtils.strFromTemplate("CLEAR GRAPH %u%", graphURI);
 		updateQuery(query);
 	}
+
+	@Override
+	protected Map<String, String> getParamsForConstructQuery(String query) 
+	{
+		Map<String, String> params = super.getParamsForConstructQuery(query);
+		String mimeType;
+		
+		switch(getConstructResultsFormat()) {
+			
+		case N3:
+			mimeType = "text/rdf+n3";
+			break;
+		
+		case RDFXML:
+		default:
+			mimeType = "application/rdf+xml";
+			break;
+		
+		}
+		
+		params.put("format", mimeType);
+		return params;
+	}
+	
 }
