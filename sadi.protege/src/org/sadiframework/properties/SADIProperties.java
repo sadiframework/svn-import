@@ -54,4 +54,8 @@ public class SADIProperties {
      * Boolean: are we currently packaging our service as a WAR file
      */
     public static final String DO_JAVA_GENERATOR_CREATE_PACKAGE = "java-generator-create-war-file"; // boolean
+    /**
+     * String: the name of the project (place to generate 1 or more services) for the java builder
+     */
+    public static final String JAVA_SERVICE_SKELETONS_PROJECT_NAME = "java-generator-project-name";
 }
