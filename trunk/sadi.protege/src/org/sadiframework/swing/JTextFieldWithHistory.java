@@ -15,16 +15,23 @@ public class JTextFieldWithHistory extends JTextField {
     private static final long serialVersionUID = -3263565126334497780L;
     private String preferenceKey = "";
     private PreferenceManager manager = PreferenceManager.newInstance();
+    
+    private String DEFAULT_TEXT = "";
 
     public JTextFieldWithHistory(int columns, String preferenceKey) {
+        this(columns, null, preferenceKey);
+    }
+    
+    public JTextFieldWithHistory(int columns, String defText, String preferenceKey) {
         super(columns);
+        this.DEFAULT_TEXT = (defText == null ? "" : defText);
         setPreferenceKey(preferenceKey);
         init();
     }
 
     private void init() {
         // set the current text (obtained from history if it exists)
-        setText(manager.getPreference(getPreferenceKey(), ""));
+        setText(manager.getPreference(getPreferenceKey(), DEFAULT_TEXT));
 
         // set up a document listener
         getDocument().addDocumentListener(new DocumentListener() {
@@ -50,7 +57,7 @@ public class JTextFieldWithHistory extends JTextField {
                 // ensure that we dont fire events when textfield is being typed in
                 if (!isFocusOwner())
                     if (evt.getNewValue() instanceof String) {
-                        setText(manager.getPreference(getPreferenceKey(), ""));
+                        setText(manager.getPreference(getPreferenceKey(), DEFAULT_TEXT));
                         validate();
                     }
             }
