@@ -394,6 +394,12 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         cwdField.setEditable(false);
         cwdlabel.setLabelFor(cwdField);
         
+        // user project name 
+        JLabel projectlabel = new JLabel(bundle.getString("sadi_generator_java_project_name"));
+        JTextFieldWithHistory projectField = new JTextFieldWithHistory(25, "sadi-services", SADIProperties.JAVA_SERVICE_SKELETONS_PROJECT_NAME);
+        projectField.setEditable(true);
+        projectlabel.setLabelFor(projectField);
+        
         // user extra maven arguments
         JLabel extralabel = new JLabel(bundle.getString("sadi_generator_extra_maven"));
         JTextFieldWithHistory extraField = new JTextFieldWithHistory(25,SADIProperties.JAVA_SERVICE_EXTRA_MAVEN_ARGS);
@@ -424,13 +430,15 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         UIUtils.addComponent(panel, cwdlabel, 0, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, cwdField, 1, 0, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
         UIUtils.addComponent(panel, javaCwdBtn, 3, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, packagelabel, 0, 1, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, packageField, 1, 1, 2, 1, UIUtils.WEST, UIUtils.HORI, 0.0, 0.0);
-        UIUtils.addComponent(panel, extralabel, 0, 2, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, extraField, 1, 2, 2, 1, UIUtils.WEST, UIUtils.HORI, 0.0, 0.0);
-        UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 3, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 4, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { generateBtn, javaLocalDeployBtn, javaPackageWarBtn }), 0, 5, 2, 1, UIUtils.WEST, UIUtils.NONE, 1.0, 0.0);
+        UIUtils.addComponent(panel, projectlabel, 0, 1, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, projectField, 1, 1, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
+        UIUtils.addComponent(panel, packagelabel, 0, 2, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, packageField, 1, 2, 2, 1, UIUtils.WEST, UIUtils.HORI, 0.0, 0.0);
+        UIUtils.addComponent(panel, extralabel, 0, 3, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, extraField, 1, 3, 2, 1, UIUtils.WEST, UIUtils.HORI, 0.0, 0.0);
+        UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 4, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 5, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { generateBtn, javaLocalDeployBtn, javaPackageWarBtn }), 0, 6, 2, 1, UIUtils.WEST, UIUtils.NONE, 1.0, 0.0);
         // remember to make the panel suck up the remainder vertical space
         return panel;
     }
@@ -536,8 +544,9 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
 
         // get chooser for directories
         File dir = null;
-        dir = new File(manager.getPreference(SADIProperties.PERL_SADI_DEFINITION_DIRECTORY, null));
-        if (dir == null) {
+        try {
+            dir = new File(manager.getPreference(SADIProperties.PERL_SADI_DEFINITION_DIRECTORY, null));
+        } catch (NullPointerException npe) {
             // no perl sadi home directory specified
             JOptionPane.showMessageDialog(
                     this, 
@@ -678,7 +687,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                         manager.saveBooleanPreference(key, false);
                         return; 
                     }
-                    String projectName = def.getName();
+                    // FIXME project name should not be the service name
+                    String projectName = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_PROJECT_NAME, "sadi-services");
                     javaServiceWorker = new JavaGeneratorWorker(outdir, projectName);
                     // set the definition, extra maven args and package name
                     javaServiceWorker.setDefinition(def);
@@ -706,25 +716,25 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     javaLocalDeployBtn.setEnabled(false);
                     javaPackageWarBtn.setEnabled(false);
                     
-                    ServiceDefinition def = getServiceDefinition();
-                    if (def == null) {
-                        // cancel
-                        manager.saveBooleanPreference(key, false);
-                        return;
-                    }
-                    
-                    if (def.getName() == null || def.getName().equals("")) {
-                        JOptionPane.showMessageDialog(
-                                SadiGeneratorView.this, 
-                                bundle.getString("sadi_generator_java_service_name_error"),
-                                bundle.getString("definition_validation_title"), 
-                                JOptionPane.ERROR_MESSAGE);
-                        manager.saveBooleanPreference(key, false);
-                        return;
-                    }
+//                    ServiceDefinition def = getServiceDefinition();
+//                    if (def == null) {
+//                        // cancel
+//                        manager.saveBooleanPreference(key, false);
+//                        return;
+//                    }
+//                    
+//                    if (def.getName() == null || def.getName().equals("")) {
+//                        JOptionPane.showMessageDialog(
+//                                SadiGeneratorView.this, 
+//                                bundle.getString("sadi_generator_java_service_name_error"),
+//                                bundle.getString("definition_validation_title"), 
+//                                JOptionPane.ERROR_MESSAGE);
+//                        manager.saveBooleanPreference(key, false);
+//                        return;
+//                    }
                     
                     String outdir = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_WORKING_DIR, "");
-                    String projectName = def.getName();
+                    String projectName = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_PROJECT_NAME, "sadi-services");
                     // ensure outdir exists
                     if (!(new File(outdir).exists())) {
                         JOptionPane.showMessageDialog(
@@ -750,7 +760,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     }
                     javaServiceWorker = new JavaGeneratorWorker(outdir, projectName);
                     // set the definition, extra maven args
-                    javaServiceWorker.setDefinition(def);
+                    //javaServiceWorker.setDefinition(def);
                     javaServiceWorker.setExtraMavenArgs(manager.getPreference(SADIProperties.JAVA_SERVICE_EXTRA_MAVEN_ARGS, ""));
                     javaServiceWorker.setAction(JavaGeneratorWorker.DEPLOY);
                     // execute the service
@@ -779,18 +789,18 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     ServiceDefinition def = getServiceDefinition();
                     if (def != null) {
                         // make sure that a service name was provided
-                        if (def.getName() == null || def.getName().equals("")) {
-                            JOptionPane.showMessageDialog(
-                                    SadiGeneratorView.this, 
-                                    bundle.getString("sadi_generator_java_service_name_error"),
-                                    bundle.getString("definition_validation_title"), 
-                                    JOptionPane.ERROR_MESSAGE);
-                            manager.saveBooleanPreference(key, false);
-                            return;
-                        }
+//                        if (def.getName() == null || def.getName().equals("")) {
+//                            JOptionPane.showMessageDialog(
+//                                    SadiGeneratorView.this, 
+//                                    bundle.getString("sadi_generator_java_service_name_error"),
+//                                    bundle.getString("definition_validation_title"), 
+//                                    JOptionPane.ERROR_MESSAGE);
+//                            manager.saveBooleanPreference(key, false);
+//                            return;
+//                        }
                         // mvn package
                         String outdir = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_WORKING_DIR, "");
-                        String projectName = def.getName();
+                        String projectName = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_PROJECT_NAME, "sadi-services");
                         // ensure outdir exists
                         if (!(new File(outdir).exists())) {
                             JOptionPane.showMessageDialog(

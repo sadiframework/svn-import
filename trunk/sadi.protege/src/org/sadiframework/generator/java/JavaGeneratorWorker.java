@@ -2,19 +2,15 @@ package org.sadiframework.generator.java;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.jdesktop.swingworker.SwingWorker;
 import org.sadiframework.exceptions.SADIServiceException;
@@ -44,7 +40,7 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
     public static final String GENERATE = "worker-generate-service";
 
     private PreferenceManager manager = PreferenceManager.newInstance();
-    private final static String SADI_SKELETON_FILENAME = "sadi-service-skeleton-0.0.3.zip";
+    // private final static String SADI_SKELETON_FILENAME = "sadi-service-skeleton-0.0.3.zip";
     private final static String SADI_SKELETON_URL = "http://sadiframework.org/RESOURCES/protege/1.1.2/sadi-service-skeleton.zip";
     private final static String SADI_SKELETON_PROJECT_FOLDER = "sadi.service.skeleton";
 
@@ -145,7 +141,7 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
                 getExtraMavenArgs().split(" "));
         // our message
         if (success) {
-            return String.format("Successfully deployed service, %s.", definition.getName());
+            return String.format("Successfully deployed service, %s.", this.rootFolderName);
         } else {
             return String.format("Service deployment failed. Please refer to console for any messages.");
         }
@@ -157,7 +153,7 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
                 getExtraMavenArgs().split(" "));
         // our message
         if (success) {
-            return String.format("Successfully stopped service, %s.", definition.getName());
+            return String.format("Successfully stopped service, %s.", this.rootFolderName);
         } else {
             return String.format("Service un-deployment failed. Please refer to console for any messages.");
         }
@@ -166,56 +162,58 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
     private String mvnPackageService() {
         // now call maven to package the service into a WAR file
         boolean success = MavenExecutor.PackageService(
-                String.format("%s/%s", outputDirectory, definition.getName()), 
+                String.format("%s/%s", outputDirectory, this.rootFolderName), 
                 getExtraMavenArgs().split(" "));
         // our message
         if (success) {
-            return String.format("Successfully created package for, %s, in %s.", definition.getName(), this.outputDirectory);
+            return String.format("Successfully created package for, %s, in %s.", this.rootFolderName, this.outputDirectory);
         } else {
             return String.format("Service generation failed. Please refer to console for any messages.");
         }
     }
 
     private String mvnGenerateService() {
-        
-        InputStream in = FetchSkeleton();
-        if (in == null) {
-            // TODO check our cache
-            
-            // fallback to our library contained in our plugin ...
-            // in = getClass().getResourceAsStream(
-            //        String.format("/resources/%s", SADI_SKELETON_FILENAME));
-            return "Could not create skeleton project for Java SADI service (x00).";
-        }
-                
-        // unzip to tmp directory, rename directory, move to correct directory
-        File temp = new File(this.outputDirectory, String.format("sadi_java_skeleton-%s-tmp-dir", Long.toString(System.nanoTime())));
         File serviceDir = new File(this.outputDirectory, this.rootFolderName);
-        if (!serviceDir.exists()) {
-            // create the directory and unzip skeleton project there
-            temp.mkdirs();
-            temp.deleteOnExit();
-            if (temp.exists()) {
-                // unzip into temp directory
-                try {
-                    ZipUtilities.unzip(in, temp.getAbsolutePath());
-                } catch (IOException ioe) {
-                    return String.format("Error inflating SADI skeleton project\n%s", ioe.getMessage());
-                }
+        // determine if we need to download and extract the sadi service skeleton
+        if (!isValidMavenDirectory(serviceDir.getAbsolutePath())) {
+            InputStream in = FetchSkeleton();
+            if (in == null) {
+                // TODO check our cache
                 
-                if (in != null)
-                    try {
-                        in.close();
-                    } catch (IOException e) {
-                    }
-                // now move the temp directory to the outDir
-                File file = new File(temp, SADI_SKELETON_PROJECT_FOLDER);
-                boolean success = file.renameTo(serviceDir); 
-                if (!success) { 
-                    return "Could not create skeleton project for Java SADI service (x01)";
-                }
+                // fallback to our library contained in our plugin ...
+                // in = getClass().getResourceAsStream(
+                //        String.format("/resources/%s", SADI_SKELETON_FILENAME));
+                return "Could not create skeleton project for Java SADI service (x00).";
             }
-            temp.delete();
+                    
+            // unzip to tmp directory, rename directory, move to correct directory
+            File temp = new File(this.outputDirectory, String.format("sadi_java_skeleton-%s-tmp-dir", Long.toString(System.nanoTime())));
+            if (!serviceDir.exists()) {
+                // create the directory and unzip skeleton project there
+                temp.mkdirs();
+                temp.deleteOnExit();
+                if (temp.exists()) {
+                    // unzip into temp directory
+                    try {
+                        ZipUtilities.unzip(in, temp.getAbsolutePath());
+                    } catch (IOException ioe) {
+                        return String.format("Error inflating SADI skeleton project\n%s", ioe.getMessage());
+                    }
+                    
+                    if (in != null)
+                        try {
+                            in.close();
+                        } catch (IOException e) {
+                        }
+                    // now move the temp directory to the outDir
+                    File file = new File(temp, SADI_SKELETON_PROJECT_FOLDER);
+                    boolean success = file.renameTo(serviceDir); 
+                    if (!success) { 
+                        return "Could not create skeleton project for Java SADI service (x01)";
+                    }
+                }
+                temp.delete();
+            }
         }
         // now call maven to generate the actual skeleton
         boolean success = false;
@@ -235,7 +233,7 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
         }
         // our message
         if (success) {
-            String s = String.format("Successfully created skeleton project, %s, in %s.", this.rootFolderName, this.outputDirectory);
+            String s = String.format("Successfully created skeleton project, %s, in %s.", definition.getName(), serviceDir.getAbsolutePath());
             System.out.println(s);
             return s;
         } else {
@@ -351,5 +349,44 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
         } catch (IOException e) {
             return null;
         }
-    }    
+    }
+
+    /**
+     * 
+     * @param directory
+     *            the project directory
+     * @return false if the directory does not contain files and folders
+     *         required to build the sadi maven skeleton; true otherwise
+     */
+    private boolean isValidMavenDirectory(String directory) {
+        if (StringUtils.isBlank(directory))
+            return false;
+        File mavenDir = new File(directory);
+        if (!mavenDir.exists()) {
+            return false;
+        }
+        // folders that are required for maven projects
+        String[] mFolders = new String[]{"src", "target" };
+        // files required for maven projects
+        String[] mFiles = new String[]{"pom.xml",};
+        
+        // check for our directories
+        for (String s : mFolders) {
+            File test = new File(mavenDir, s);
+            // does the folder exist and is it a directory
+            if (!test.exists()  && !test.isDirectory()) {
+                return false;
+            }
+        }
+        // check for maven specific files
+        for (String s : mFiles) {
+            File test = new File(mavenDir, s);
+            // does the file exist and is it a file (not a directory)
+            if (!test.exists()  && !test.isFile()) {
+                return false;
+            }
+        }
+        // if it gets here, we are good
+        return true;
+    }
 }
