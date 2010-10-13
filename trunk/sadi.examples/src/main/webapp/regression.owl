@@ -162,7 +162,7 @@
     <owl:equivalentClass>
       <owl:Restriction>
         <owl:onProperty rdf:resource="#hasRegressionModel"/>
-        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+        <owl:someValuesFrom rdf:resource="#LinearRegressionModel"/>
       </owl:Restriction>
     </owl:equivalentClass>
   </owl:Class>
