@@ -49,6 +49,11 @@
     <servlet-name>uniprot2prosite</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.UniProt2PrositeServiceServlet</servlet-class>
   </servlet>
+
+  <servlet>
+    <servlet-name>uniprot2kegg</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.UniProt2KeggServiceServlet</servlet-class>
+  </servlet>
   
   <servlet>
     <servlet-name>ermineJgo</servlet-name>
@@ -103,6 +108,11 @@
   <servlet-mapping>
     <servlet-name>uniprot2prosite</servlet-name>
     <url-pattern>/uniprot2prosite</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>uniprot2kegg</servlet-name>
+    <url-pattern>/uniprot2kegg</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
