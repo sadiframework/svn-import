@@ -736,6 +736,7 @@ public class SHAREKnowledgeBase
 				RdfUtils.addTripleToModel(dataModel, triple);
 				retrievedData = true;
 			}
+			reasoningModel.rebind();
 			
 			/* load minimal ontologies for any undefined properties 
 			 * that appear in the output data
