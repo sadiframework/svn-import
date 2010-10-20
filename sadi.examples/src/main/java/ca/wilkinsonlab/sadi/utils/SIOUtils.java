@@ -23,7 +23,7 @@ public class SIOUtils
 	 * @param value the value of the attribute
 	 * @return the created attribute node
 	 */
-	public static Resource createAttribute(Resource root, Resource attributeClass, String value)
+	public static Resource createAttribute(Resource root, Resource attributeClass, Object value)
 	{
 		Model model = root.getModel();
 		Resource attribute = model.createResource(attributeClass);
@@ -49,7 +49,7 @@ public class SIOUtils
 	 * @param value the value of the attribute
 	 * @return the created attribute node
 	 */
-	public static Resource createAttribute(Resource root, Property p, Resource attributeClass, String value)
+	public static Resource createAttribute(Resource root, Property p, Resource attributeClass, Object value)
 	{
 		Model model = root.getModel();
 		Resource attribute = model.createResource(attributeClass);
@@ -58,4 +58,5 @@ public class SIOUtils
 			attribute.addLiteral(SIO.has_value, value);
 		return attribute;
 	}
+
 }
