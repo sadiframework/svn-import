@@ -51,7 +51,6 @@
     </owl:Class>
 
     <owl:Class rdf:ID="OutputClass">
-        <rdfs:subClassOf rdf:resource="&sio;SIO_010015"/>
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
