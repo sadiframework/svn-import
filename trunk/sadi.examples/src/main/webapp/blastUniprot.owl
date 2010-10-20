@@ -53,10 +53,18 @@
     <owl:Class rdf:ID="OutputClass">
         <rdfs:subClassOf rdf:resource="&sio;SIO_010015"/>
         <owl:equivalentClass>
-           <owl:Restriction>
-               <owl:onProperty rdf:resource="#blast-hit"/>
-               <owl:someValuesFrom rdf:resource="#ProteinBlastHit"/>
-           </owl:Restriction>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                   <owl:Restriction>
+                       <owl:onProperty rdf:resource="#blast-hit"/>
+                       <owl:someValuesFrom rdf:resource="#ProteinBlastHit"/>
+                   </owl:Restriction>
+                   <owl:Restriction>
+                       <owl:onProperty rdf:resource="&sio;SIO_010302"/>
+                       <owl:someValuesFrom rdf:resource="&lsrn;UniProt_Record"/>
+                   </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
         </owl:equivalentClass>
     </owl:Class>
 
