@@ -10,7 +10,6 @@ import uk.ac.ebi.kraken.interfaces.blast.LocalAlignment;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.model.blast.JobStatus;
 import uk.ac.ebi.kraken.model.blast.parameters.DatabaseOptions;
-import uk.ac.ebi.kraken.model.blast.parameters.ExpectedThreshold;
 import uk.ac.ebi.kraken.model.blast.parameters.MaxNumberResultsOptions;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
@@ -82,7 +81,7 @@ public class BlastUniProtServiceServlet extends AsynchronousServiceServlet
 		return new BlastInputProcessingTask(inputModel, inputNodes);
 	}
 
-	private static void processInput(Resource input, Resource output)
+	private void processInput(Resource input, Resource output)
 	{
 		log.info(String.format("processing input %s", input.getURI()));
 		
@@ -94,7 +93,7 @@ public class BlastUniProtServiceServlet extends AsynchronousServiceServlet
 		}
 	}
 	
-	private static Collection<String> getSequences(Resource input) 
+	protected Collection<String> getSequences(Resource input) 
 	{
 		Collection<String> sequences = new HashSet<String>();
 
@@ -114,7 +113,7 @@ public class BlastUniProtServiceServlet extends AsynchronousServiceServlet
 		return sequences;
 	}
 	
-	private static BlastData<UniProtEntry> runBlast(String sequence, Resource output)
+	protected static BlastData<UniProtEntry> runBlast(String sequence, Resource output)
 	{
 		UniProtQueryService service = UniProtJAPI.factory.getUniProtQueryService();
 		BlastInput input = new BlastInput(DatabaseOptions.UNIPROTKB, sequence, MaxNumberResultsOptions.FIVE_HUNDRED);
@@ -198,7 +197,7 @@ public class BlastUniProtServiceServlet extends AsynchronousServiceServlet
 		return String.format("%s%s", Vocab.OLD_UNIPROT_PREFIX, uniprotId);
 	}
 	
-	private class BlastInputProcessingTask extends InputProcessingTask
+	protected class BlastInputProcessingTask extends InputProcessingTask
 	{	
 		public BlastInputProcessingTask(Model inputModel, Collection<Resource> inputNodes)
 		{
@@ -214,5 +213,5 @@ public class BlastUniProtServiceServlet extends AsynchronousServiceServlet
 			success();
 		}
 	}
-	
+
 }
