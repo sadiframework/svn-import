@@ -54,6 +54,11 @@
     <servlet-name>uniprot2kegg</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.UniProt2KeggServiceServlet</servlet-class>
   </servlet>
+
+  <servlet>
+    <servlet-name>blastUniprot</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.BlastUniProtServiceServlet</servlet-class>
+  </servlet>
   
   <servlet>
     <servlet-name>ermineJgo</servlet-name>
@@ -113,6 +118,11 @@
   <servlet-mapping>
     <servlet-name>uniprot2kegg</servlet-name>
     <url-pattern>/uniprot2kegg</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>blastUniprot</servlet-name>
+    <url-pattern>/blastUniprot</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>

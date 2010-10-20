@@ -48,5 +48,6 @@ public class SIO
 	public static final Property is_variant_of = m_model.createProperty( NS, "SIO_000272" );
 	public static final Property has_function = m_model.createProperty( NS, "SIO_000225" );
 	public static final Property has_reference = m_model.createProperty( NS, "SIO_000253" );
+	public static final Property is_homologous_to = m_model.createProperty( NS, "SIO_010302");
 	
 }
