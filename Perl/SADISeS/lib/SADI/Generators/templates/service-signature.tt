@@ -23,7 +23,7 @@
 <rdf:RDF
  xmlns="http://www.w3.org/2002/07/owl#"
  xmlns:a="http://www.mygrid.org.uk/mygrid-moby-service#"
- xmlns:b="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#"
+ xmlns:b="http://purl.org/dc/elements/1.1/"
  xml:base="http://bioinfo.icapture.ubc.ca/SADI"
  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
  xmlns:databases="http://sadiframework.org/ontologies/Databases.owl#"
@@ -43,7 +43,7 @@
     <a:hasServiceNameText>[% name %]</a:hasServiceNameText>
     <a:providedBy>
         <rdf:Description rdf:about="[% name %]_[% authority %]_[% GET COUNTER %]">[% SET COUNTER = COUNTER+1 %]
-            <a:authoritative>[% authoritative %]</a:authoritative>
+            <a:authoritative rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">[% authoritative %]</a:authoritative>
             <b:creator>[% email %]</b:creator>
             <b:publisher>[% authority %]</b:publisher>
             <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#organisation"/>
