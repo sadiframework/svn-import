@@ -8,7 +8,7 @@
     
 	# Define metadata
 	name 'SADI';
-	version '1.04';
+	version '1.05';
 	license 'new BSD';
 	abstract
 'This distribution aids in the creation of SADI perl based web services.';
