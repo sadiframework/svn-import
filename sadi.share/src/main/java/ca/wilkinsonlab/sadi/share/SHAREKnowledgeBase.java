@@ -270,8 +270,11 @@ public class SHAREKnowledgeBase
 		QueryPatternComparator comparator = new QueryPatternComparator();
 		
 		while (visitedPatterns.size() < queryPatterns.size()) {	
-			Triple bestPattern = null;
 
+			StopWatch stopWatch = new StopWatch();
+			stopWatch.start();
+
+			Triple bestPattern = null;
 			for (Triple pattern : queryPatterns) {
 				if (visitedPatterns.contains(pattern)) {
 					continue;
@@ -281,6 +284,9 @@ public class SHAREKnowledgeBase
 				}
 			}
 			
+			stopWatch.stop();
+			log.trace(String.format("optimizer selected next pattern for resolution in %dms", stopWatch.getTime()));		
+
 			processPattern(bestPattern);
 			visitedPatterns.add(bestPattern);
 		}
@@ -311,6 +317,9 @@ public class SHAREKnowledgeBase
 	private void processPattern(Triple pattern)
 	{	
 		log.trace(String.format("query pattern %s", pattern));
+
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 		
 		PotentialValues subjects = expandQueryNode(pattern.getSubject());
 		PotentialValues predicates = expandQueryNode(pattern.getPredicate());
@@ -381,8 +390,6 @@ public class SHAREKnowledgeBase
 		}
 		
 		if (patternIsResolvable) {
-			StopWatch stopWatch = new StopWatch();
-			stopWatch.start();
 
 			boolean retrievedData;
 			
@@ -394,9 +401,6 @@ public class SHAREKnowledgeBase
 				retrievedData = gatherTriples(objects, getInverseProperties(properties), subjects);
 			}
 
-			stopWatch.stop();
-			log.trace(String.format("resolved pattern %s in %d seconds", pattern, stopWatch.getTime() / 1000));
-			
 			if (retrievedData && recordQueryStats()) {
 				recordStats(subjects, predicates, objects, directionIsForward, (int)stopWatch.getTime());
 			}
@@ -416,6 +420,9 @@ public class SHAREKnowledgeBase
 		} else {
 			populateVariableBinding(subjects, predicates, objects);
 		}
+		
+		stopWatch.stop();
+		log.trace(String.format("resolved pattern %s in %dms", pattern, stopWatch.getTime()));
 	}
 	
 	protected Set<OntProperty> getOntProperties(Collection<Resource> predicates) 
@@ -1148,11 +1155,18 @@ public class SHAREKnowledgeBase
 	private Collection<Triple> invokeService(Service service, Set<? extends RDFNode> inputs)
 	{
 		log.info(getServiceCallString(service, inputs));
+		
 		try {
+			
+			Collection<Triple> output;
+
+			StopWatch stopWatch = new StopWatch();
+			stopWatch.start();
+
 			/* see above about special-case coding...
 			 */
 			if (service instanceof SPARQLServiceWrapper) {
-				return ((SPARQLServiceWrapper)service).invokeServiceOnRDFNodes(inputs);
+				output = ((SPARQLServiceWrapper)service).invokeServiceOnRDFNodes(inputs);
 			} else {
 				/* generate a list of the OntModel views of each resource
 				 * so that the minimal model extractor can used inferred
@@ -1179,8 +1193,14 @@ public class SHAREKnowledgeBase
 						log.error(String.format("error loading input class for service %s", service), e);
 					}
 				}
-				return service.invokeService(inputResources);
+				output = service.invokeService(inputResources);
 			}
+			
+			stopWatch.stop();
+			log.trace(String.format("invocation of service %s completed successfully in %dms", service.getURI(), stopWatch.getTime()));		
+			
+			return output;
+			
 		} catch (ServiceInvocationException e) {
 			log.error(String.format("failed to invoke service %s", service), e);
 			
