@@ -263,11 +263,16 @@ public class BioMobyService extends MobyService implements Service
 				log.warn("this interface is invalid for BioMoby services with more than one primary input");
 				return null;
 			} 
-			
-			RDFList namespaceTypes = ontModel.createList();
-			for (MobyNamespace namespace: getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces()) 
-				namespaceTypes = namespaceTypes.with(getTypeByNamespace(namespace));
-			inputClass = ontModel.createUnionClass(null, namespaceTypes);
+
+			MobyNamespace[] namespaces = getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces();
+			if (namespaces.length > 1) {
+				RDFList namespaceTypes = ontModel.createList();
+				for (MobyNamespace namespace: namespaces) 
+					namespaceTypes = namespaceTypes.with(getTypeByNamespace(namespace));
+				inputClass = ontModel.createUnionClass(getURI() + "#inputClass", namespaceTypes);
+			} else {
+				return getTypeByNamespace(namespaces[0]);
+			}
 		}
 		
 		return inputClass;
