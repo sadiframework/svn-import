@@ -49,5 +49,6 @@ public class SIO
 	public static final Property has_function = m_model.createProperty( NS, "SIO_000225" );
 	public static final Property has_reference = m_model.createProperty( NS, "SIO_000253" );
 	public static final Property is_homologous_to = m_model.createProperty( NS, "SIO_010302");
+	public static final Property is_causally_related_with = m_model.createProperty( NS, "SIO_000243");
 	
 }
