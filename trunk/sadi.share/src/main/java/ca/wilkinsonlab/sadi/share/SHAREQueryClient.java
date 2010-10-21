@@ -3,6 +3,7 @@ package ca.wilkinsonlab.sadi.share;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.client.QueryClient;
@@ -65,13 +66,25 @@ public class SHAREQueryClient extends QueryClient
 		
 		public void run()
 		{
+			StopWatch stopWatch = new StopWatch();
+			
 			/* execute the query in the dynamic knowledge base, collecting
 			 * the data that will be used by the actual reasoner...
 			 */
+
 			log.debug("populating SHARE knowledge base");
+
+			stopWatch.start();
 			kb.executeQuery(query);
+			stopWatch.stop();
+			
+			log.debug(String.format("populated SHARE knowledge base in %dms", stopWatch.getTime()));
 			
 			log.debug("using populated SHARE knowledge base to solve query");
+
+			stopWatch.reset();
+			stopWatch.start();			
+			
 			QueryExecution qe = getQueryExecution(query, kb.getReasoningModel());
 			ResultSet resultSet = qe.execSelect();
 			while (resultSet.hasNext()) {
@@ -84,6 +97,9 @@ public class SHAREQueryClient extends QueryClient
 				results.add(bindingAsMap);
 			}
 			qe.close();
+			
+			stopWatch.stop();
+			log.debug(String.format("solved query against populated SHARE knowledge base in %dms", stopWatch.getTime()));			
 		}
 	}
 }
