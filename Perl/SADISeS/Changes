@@ -1,5 +1,16 @@
 Revision history for Perl extension SADI.
 
+1.05
+    * Updated the signature for services to make it legitimate RDF (added xsd:boolean 
+      to authoritative, ensure that the correct dc predicates were used).
+    * Added an unLSRNize() subroutine to the SADI::Utils that returns the literal
+      record value for services that have LSRN entities as there input.
+    * Added new() to SADI::Utils so that the subroutines in that module are exposed
+      through an object reference (and to make it more consistent with the project).
+    * Added some unit tests for SADI::Utils
+    * Added a comment to the generated service logic that illustrates how to use
+      unLSRNize()
+
 1.04
     * updated the suggested wait time for async sadi services to 30 seconds.
     * uses OWL2Perl version 0.96 or higher
