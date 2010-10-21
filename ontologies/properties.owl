@@ -29,6 +29,8 @@
         <owl:imports rdf:resource="&sio;SIO_000252"/>
         <owl:imports rdf:resource="&sio;SIO_000253"/>
         <owl:imports rdf:resource="&sio;SIO_000484"/>
+        <owl:imports rdf:resource="&sio;SIO_000243"/>
+        <owl:imports rdf:resource="&sio;SIO_000225"/>
     </owl:Ontology>
     
     <owl:ObjectProperty rdf:about="#hasParticipant">
@@ -129,7 +131,7 @@
     
 
 
-    <!-- http://sadiframework.org/ontologies/properties.owl#hasName -->
+    <!-- http://sadiframework.org/ontologies/properties.owl#hasScientificName -->
 
     <owl:ObjectProperty rdf:about="#hasScientificName">
         <rdfs:subPropertyOf rdf:resource="#hasName"/>
@@ -142,6 +144,23 @@
     <owl:ObjectProperty rdf:about="#hasSequence">
         <rdfs:subPropertyOf rdf:resource="&sio;SIO_000008"/>
     </owl:ObjectProperty>
+
+
+
+    <!-- http://sadiframework.org/ontologies/properties.owl#hasFunction -->
+
+    <owl:ObjectProperty rdf:about="#hasFunction">
+        <rdfs:equivalentProperty rdf:resource="&sio;SIO_000225"/>
+    </owl:ObjectProperty>
+
+
+
+    <!-- http://sadiframework.org/ontologies/properties.owl#isCausallyRelatedWith -->
+
+    <owl:ObjectProperty rdf:about="#isCausallyRelatedWith">
+        <rdfs:equivalentProperty rdf:resource="&sio;SIO_000243"/>
+    </owl:ObjectProperty>
+
 </rdf:RDF>
 
 
