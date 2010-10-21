@@ -1,0 +1,12 @@
+EFIX sadi: <http://sadiframework.org/ontologies/properties.owl#>
+PREFIX ss: <http://semanticscience.org/resource/>
+PREFIX GO: <http://lsrn.org/GO:>
+PREFIX UniProt: <http://lsrn.org/UniProt:>
+
+SELECT DISTINCT ?motif
+{
+    ?protein sadi:isHomologousTo UniProt:Q93038 . # lymphocyte-associated receptor of death
+    ?protein sadi:isParticipantIn GO:0006915 . # apoptosis
+    ?protein sadi:hasMotif ?motif .
+}
+
