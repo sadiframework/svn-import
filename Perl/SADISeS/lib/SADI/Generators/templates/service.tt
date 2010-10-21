@@ -71,6 +71,7 @@ use SADI::RDF::Predicates::OMG_LSID;
 use SADI::RDF::Predicates::OWL;
 use SADI::RDF::Predicates::RDF;
 use SADI::RDF::Predicates::RDFS;
+use SADI::Utils;
 
 #-----------------------------------------------------------------
 # process_it
@@ -162,8 +163,14 @@ sub process_it {
     		. $input->getLocalValue ? ":\n" . $input->getLocalValue : ""
     		."")
       		if defined $input;
+
+      	# if the input RDF Resource is a LSRN record, extract the ID value
+      	# uncomment to use the literal value
+      	# my $literalValue = SADI::Utils::unLSRNize($input, $core);
+      	# check for undef!
+
     	# do something with $input ... (sorry, can't help with that)
-	
+
         # fill in the output nodes - this is what you need to do!
         # for example ...
 [%- IF do_owl2perl == 1 %]
