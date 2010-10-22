@@ -88,33 +88,33 @@ There are two or more arguments: C<$default_start> and C<@names>.
 my %full_path_of = ();
 
 sub find_file {
-	my $self = shift;
+    my $self = shift;
 
-	my ( $default_start, @names );
-	if ( ref($self) =~ /^SADI::Utils/ ) {
+    my ( $default_start, @names );
+    if ( ref($self) =~ /^SADI::Utils/ or $self =~ /^SADI::Utils/) {
         ( $default_start, @names ) = @_;
     } else {
         $default_start = $self;
         (@names) = @_;
     }
 
-	my $fixed_part = File::Spec->catfile(@names);
-	return $full_path_of{$fixed_part} if exists $full_path_of{$fixed_part};
-	my $result = File::Spec->catfile( $default_start, $fixed_part );
-	if ( -e $result ) {
-		$full_path_of{$fixed_part} = $result;
-		return $result;
-	}
-	foreach my $idx ( 0 .. $#INC ) {
-		$result = File::Spec->catfile( $INC[$idx], $fixed_part );
-		if ( -e $result ) {
-			$full_path_of{$fixed_part} = $result;
-			return $result;
-		}
-	}
-	$result = File::Spec->catfile( $default_start, $fixed_part );
-	$full_path_of{$fixed_part} = $result;
-	return $result;
+    my $fixed_part = File::Spec->catfile(@names);
+    return $full_path_of{$fixed_part} if exists $full_path_of{$fixed_part};
+    my $result = File::Spec->catfile( $default_start, $fixed_part );
+    if ( -e $result ) {
+        $full_path_of{$fixed_part} = $result;
+        return $result;
+    }
+    foreach my $idx ( 0 .. $#INC ) {
+        $result = File::Spec->catfile( $INC[$idx], $fixed_part );
+        if ( -e $result ) {
+            $full_path_of{$fixed_part} = $result;
+            return $result;
+        }
+    }
+    $result = File::Spec->catfile( $default_start, $fixed_part );
+    $full_path_of{$fixed_part} = $result;
+    return $result;
 }
 
 =head2 getHttpRequestByURL
@@ -124,31 +124,31 @@ returns a scalar of text obtained from the url or dies if there was no success
 =cut
 
 sub getHttpRequestByURL {
-	my ( $self, $url ) = @_;
-	$url = $self
-	  unless ref($self) =~ m/^SADI::Utils/;
-	my $ua = LWP::UserAgent->new;
-	$ua->agent("SADI/SeS/perl/$VERSION");
-	my $req = HTTP::Request->new( GET => $url );
+    my ( $self, $url ) = @_;
+    $url = $self
+      unless ref($self) =~ m/^SADI::Utils/ or $self =~ /^SADI::Utils/;
+    my $ua = LWP::UserAgent->new;
+    $ua->agent("SADI/SeS/perl/$VERSION");
+    my $req = HTTP::Request->new( GET => $url );
 
-	# accept gzip encoding
-	$req->header( 'Accept-Encoding' => 'gzip' );
+    # accept gzip encoding
+    $req->header( 'Accept-Encoding' => 'gzip' );
 
-	# send request
-	my $res = $ua->request($req);
+    # send request
+    my $res = $ua->request($req);
 
-	# check the outcome
-	if ( $res->is_success ) {
-		if (     $res->header('content-encoding')
-			 and $res->header('content-encoding') eq 'gzip' )
-		{
-			return $res->decoded_content;
-		} else {
-			return $res->content;
-		}
-	} else {
-		die "Error getting data from URL:\n\t" . $res->status_line;
-	}
+    # check the outcome
+    if ( $res->is_success ) {
+        if (     $res->header('content-encoding')
+             and $res->header('content-encoding') eq 'gzip' )
+        {
+            return $res->decoded_content;
+        } else {
+            return $res->content;
+        }
+    } else {
+        die "Error getting data from URL:\n\t" . $res->status_line;
+    }
 }
 
 =head2 empty_rdf
@@ -158,7 +158,7 @@ returns a string of RDF that represents a syntactically correct RDF file
 =cut
 
 sub empty_rdf {
-	return <<'END_OF_RDF';
+    return <<'END_OF_RDF';
 <?xml version="1.0"?>
 <rdf:RDF 
   xmlns:b="http://www.w3.org/2000/01/rdf-schema#"
@@ -175,15 +175,15 @@ trims whitespace from the begining and end of a string
 =cut
 
 sub trim {
-	my ( $self, $text ) = @_;
-	$text = $self
-	  unless ref($self) =~ m/^SADI::Utils/;
+    my ( $self, $text ) = @_;
+    $text = $self
+      unless ref($self) =~ m/^SADI::Utils/ or $self =~ /^SADI::Utils/;
 
-	# return empty string if $text is not defined
-	return "" unless $text;
-	$text =~ s/^\s+//;
-	$text =~ s/\s+$//;
-	return $text;
+    # return empty string if $text is not defined
+    return "" unless $text;
+    $text =~ s/^\s+//;
+    $text =~ s/\s+$//;
+    return $text;
 }
 
 =head2 LSRNize
@@ -207,21 +207,21 @@ module (i.e. you have generated OWL2Perl classes for the LSRN record)
 =cut
 
 sub LSRNize {
-	my ($self) = shift;
-	my ( $class, $id );
-	if ( ref($self) =~ /^SADI::Utils/ ) {
-		( $class, $id ) = @_;
-	} else {
-		$class = $self;
-		($id) = @_;
-	}
-	my $identifier = ref($class);
-	$identifier =~ s/_Record$/_Identifier/;
-	return $class unless defined $id and defined $identifier;
-	eval "require $identifier";
-	return $class if $@;
-	eval { $class->add_SIO_000008( $identifier->new( SIO_000300 => $id ) ); };
-	return $class;
+    my ($self) = shift;
+    my ( $class, $id );
+    if ( ref($self) =~ /^SADI::Utils/ or $self =~ /^SADI::Utils/) {
+        ( $class, $id ) = @_;
+    } else {
+        $class = $self;
+        ($id) = @_;
+    }
+    my $identifier = ref($class);
+    $identifier =~ s/_Record$/_Identifier/;
+    return $class unless defined $id and defined $identifier;
+    eval "require $identifier";
+    return $class if $@;
+    eval { $class->add_SIO_000008( $identifier->new( SIO_000300 => $id ) ); };
+    return $class;
 }
 
 =head2 unLSRNize
@@ -239,37 +239,37 @@ Output:
 
 sub unLSRNize {
 
-	# TODO ensure that at each level each method call fails cleanly
-	my ($self) = shift;
+    # TODO ensure that at each level each method call fails cleanly
+    my ($self) = shift;
     my ( $input, $core );
-    if ( ref($self) =~ /^SADI::Utils/ ) {
+    if ( ref($self) =~ /^SADI::Utils/ or $self =~ /^SADI::Utils/) {
         ( $input, $core ) = @_;
     } else {
         $input = $self;
         ($core) = @_;
     }
 
-	my $model = $core->_model;
-	my $pred  =
-	  RDF::Core::Resource->new('http://semanticscience.org/resource/SIO_000008');
-	if ( $model->existsStmt( $input, $pred, undef ) ) {
-		my $objects = $model->getObjects( $input, $pred );
-		foreach my $o (@$objects) {
-			my $pred =
-			  RDF::Core::Resource->new(
-									  'http://semanticscience.org/resource/SIO_000300'
-									  );
-			if ( $model->existsStmt( $o, $pred, undef ) ) {
-				my $literals = $model->getObjects( $o, $pred );
-				foreach my $literal (@$literals) {
-					# return the first one ...
-					return &trim($literal->getValue()) if $literal->isLiteral();
-				}
-			}
-		}
-	}
-	# werent able to extract the literal
-	return undef;
+    my $model = $core->_model;
+    my $pred  =
+      RDF::Core::Resource->new('http://semanticscience.org/resource/SIO_000008');
+    if ( $model->existsStmt( $input, $pred, undef ) ) {
+        my $objects = $model->getObjects( $input, $pred );
+        foreach my $o (@$objects) {
+            my $pred =
+              RDF::Core::Resource->new(
+                                      'http://semanticscience.org/resource/SIO_000300'
+                                      );
+            if ( $model->existsStmt( $o, $pred, undef ) ) {
+                my $literals = $model->getObjects( $o, $pred );
+                foreach my $literal (@$literals) {
+                    # return the first one ...
+                    return &trim($literal->getValue()) if $literal->isLiteral();
+                }
+            }
+        }
+    }
+    # werent able to extract the literal
+    return undef;
 }
 1;
 __END__
