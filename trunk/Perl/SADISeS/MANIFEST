@@ -1,3 +1,4 @@
+.project
 bin/scripts/sadi-config-status.pl
 bin/scripts/sadi-generate-datatypes.pl
 bin/scripts/sadi-generate-services.pl
@@ -87,4 +88,5 @@ t/SADI-FileStore.t
 t/SADI-OWL-SADIServiceParser.t
 t/SADI-Service-Instance.t
 t/sadi-services.cfg
+t/SADI-Utils.t
 t/SADI.t
