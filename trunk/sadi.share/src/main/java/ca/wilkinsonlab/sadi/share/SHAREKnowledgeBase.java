@@ -1090,7 +1090,9 @@ public class SHAREKnowledgeBase
 			try {
 				inputClass = service.getInputClass();
 			} catch (SADIException e) {
-				log.error(String.format("error loading input class for service %s", service), e);
+				log.error(String.format("unable to load input class for service %s, invocation of service will be skipped", service), e);
+				subjects.clear();
+				return;
 			}
 			
 			/* TODO this will cause a problem if different ontologies accessed in
