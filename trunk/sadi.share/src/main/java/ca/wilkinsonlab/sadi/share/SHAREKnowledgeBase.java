@@ -1199,7 +1199,7 @@ public class SHAREKnowledgeBase
 			}
 			
 			stopWatch.stop();
-			log.trace(String.format("invocation of service %s completed successfully in %dms", service.getURI(), stopWatch.getTime()));		
+			log.trace(String.format("invocation of service %s completed in %dms", service.getURI(), stopWatch.getTime()));		
 			
 			return output;
 			
