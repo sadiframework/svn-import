@@ -22,6 +22,7 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
 import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 
@@ -66,6 +67,9 @@ public class SHAREClient
 
 		@Option(name="-n", aliases={"--no-reordering"}, usage="do not reorder the input query, even to make the query resolvable")
 		boolean bypassQueryReordering = false;
+
+		@Option(name="-N", aliases={"--no-reasoning"}, usage="disable OWL reasoning when answering the input query")
+		boolean bypassReasoning = false;
 		
 		@Option(name="-O", aliases={"--optimize"}, usage="enable adaptive query optimization (order of triple patterns is decided as query runs)")
 		boolean optimize = false;
@@ -316,22 +320,23 @@ public class SHAREClient
 			/* Run the input query */
 			
 			SHAREKnowledgeBase kb;
-
+			OntModel reasoningModel;
+			
+			if(options.bypassReasoning) {
+				reasoningModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
+			} else {
+				reasoningModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF);
+			}
+			
 			if(options.bypassQueryReordering) {
-
-				kb = new SHAREKnowledgeBase(true) {
-
+				kb = new SHAREKnowledgeBase(reasoningModel, true) {
 					@Override
 					public void executeQuery(String query) {
 						executeQuery(query, new DoNothingQueryOrderingStrategy());
 					}
-
 				};
-
 			} else {
-
-				kb = new SHAREKnowledgeBase(true);
-			
+				kb = new SHAREKnowledgeBase(reasoningModel, true);
 			}
 
 			/* Turn on optimization if requested */
