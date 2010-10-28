@@ -15,6 +15,12 @@ the provision of SADI services.</p>
 
 <h3>Version info</h3>
 
+<h4>v1.1.3 (28th October 2010)</h4>
+<ul>
+    <li>JAVA service generator now generates all new service skeletons in a user defined project directory</li>
+    <li>When testing JAVA services locally with Deploy, services are now properly undeployed and the embedded jetty server is stopped.</li>
+</ul>
+
 <h4>v1.1.2 (5th October 2010)</h4>
 <ul>
     <li>Added status message in the SADI client for service calls that dont return results.</li>
