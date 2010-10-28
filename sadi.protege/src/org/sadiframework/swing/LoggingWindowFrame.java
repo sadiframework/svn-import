@@ -76,7 +76,7 @@ public class LoggingWindowFrame extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
                 dispose();
-                if (onClosePreferenceKey != null) {
+                if (onClosePreferenceKey != null && !onClosePreferenceKey.trim().equals("")) {
                     manager.saveBooleanPreference(onClosePreferenceKey, true);
                 }
             }
