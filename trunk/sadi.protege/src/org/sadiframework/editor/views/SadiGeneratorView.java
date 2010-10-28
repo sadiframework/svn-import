@@ -716,23 +716,6 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     javaLocalDeployBtn.setEnabled(false);
                     javaPackageWarBtn.setEnabled(false);
                     
-//                    ServiceDefinition def = getServiceDefinition();
-//                    if (def == null) {
-//                        // cancel
-//                        manager.saveBooleanPreference(key, false);
-//                        return;
-//                    }
-//                    
-//                    if (def.getName() == null || def.getName().equals("")) {
-//                        JOptionPane.showMessageDialog(
-//                                SadiGeneratorView.this, 
-//                                bundle.getString("sadi_generator_java_service_name_error"),
-//                                bundle.getString("definition_validation_title"), 
-//                                JOptionPane.ERROR_MESSAGE);
-//                        manager.saveBooleanPreference(key, false);
-//                        return;
-//                    }
-                    
                     String outdir = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_WORKING_DIR, "");
                     String projectName = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_PROJECT_NAME, "sadi-services");
                     // ensure outdir exists
@@ -766,18 +749,41 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     // execute the service
                     javaServiceWorker.execute();
                     // set up the console
+                    // setupConsole(SADIProperties.DO_JAVA_GENERATOR_DEPLOY, SADIProperties.DO_JAVA_GENERATOR_UNDEPLOY);
                     setupConsole(SADIProperties.DO_JAVA_GENERATOR_DEPLOY);
                     
                 } else {
-                    if (javaServiceWorker != null) {
-                        javaServiceWorker.cancel(true);
-                    }
+//                    if (javaServiceWorker != null) {
+//                        javaServiceWorker.cancel(true);
+//                        javaServiceWorker = null;
+//                    }
                     manager.saveBooleanPreference(SADIProperties.DO_JAVA_GENERATOR_UNDEPLOY, true);
                 }
             } else if (key.equals(SADIProperties.DO_JAVA_GENERATOR_UNDEPLOY)) {
+                if (javaServiceWorker == null){
+                    return;
+                }
                 if ((Boolean)evt.getNewValue()) {
                     javaLocalDeployBtn.setEnabled(true);
                     javaPackageWarBtn.setEnabled(true);
+                    
+                    String outdir = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_WORKING_DIR, "");
+                    String projectName = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_PROJECT_NAME, "sadi-services");
+                    javaServiceWorker = new JavaGeneratorWorker(outdir, projectName);
+                    javaServiceWorker.setExtraMavenArgs(manager.getPreference(SADIProperties.JAVA_SERVICE_EXTRA_MAVEN_ARGS, ""));
+                    javaServiceWorker.setAction(JavaGeneratorWorker.UNDEPLOY);
+                    // execute the service
+                    javaServiceWorker.execute();
+                    setupConsole(SADIProperties.DO_JAVA_GENERATOR_UNDEPLOY);
+                    if (javaServiceWorker!= null)
+                        while (!javaServiceWorker.isDone()) {
+                            try {
+                                // maybe the task takes some time?
+                                wait(3000);
+                            } catch (InterruptedException e) {
+                            }
+                        }
+                    javaServiceWorker = null;
                 } else {
                     // do nothing
                     javaServiceWorker = null;
@@ -788,16 +794,6 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     javaPackageWarBtn.setEnabled(false);
                     ServiceDefinition def = getServiceDefinition();
                     if (def != null) {
-                        // make sure that a service name was provided
-//                        if (def.getName() == null || def.getName().equals("")) {
-//                            JOptionPane.showMessageDialog(
-//                                    SadiGeneratorView.this, 
-//                                    bundle.getString("sadi_generator_java_service_name_error"),
-//                                    bundle.getString("definition_validation_title"), 
-//                                    JOptionPane.ERROR_MESSAGE);
-//                            manager.saveBooleanPreference(key, false);
-//                            return;
-//                        }
                         // mvn package
                         String outdir = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_WORKING_DIR, "");
                         String projectName = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_PROJECT_NAME, "sadi-services");
@@ -845,7 +841,16 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
     }
     
     private void setupConsole(String key) {
-        console = new LoggingWindowFrame(bundle.getString("result"), key);
+        setupConsole(key, null);
+    }
+    /*
+     * sets up a modal console that pipes system.err/out streams to it.
+     * the window will listen for property change events on key and if 
+     * onCloseKey is not null, when the console is closed, then onCloseKey
+     * preference is saved with a true value.
+     */
+    private void setupConsole(String key, String onCloseKey) {
+        console = new LoggingWindowFrame(bundle.getString("result"), key, onCloseKey);
         console.setLocationRelativeTo(SadiGeneratorView.this.getParent());
         console.setVisible(true);
     }
