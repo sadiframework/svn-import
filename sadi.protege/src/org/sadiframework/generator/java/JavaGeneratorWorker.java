@@ -94,7 +94,7 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
                     // cancel our task
                     if (!manager.getBooleanPreference(SADIProperties.DO_JAVA_GENERATOR_DEPLOY, false)) {
                         if (!isCancelled() || !isDone()) {
-                            System.out.println("\r\n");
+                            //System.out.println("\r\n");
                             cancel(true);
                         }
                     }
