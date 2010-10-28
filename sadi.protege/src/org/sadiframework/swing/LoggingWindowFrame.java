@@ -45,6 +45,7 @@ public class LoggingWindowFrame extends JDialog {
     private  LogStream stream;
     
     private String preferenceKey = "";
+    private String onClosePreferenceKey = "";
     
     /**
      * 
@@ -52,9 +53,13 @@ public class LoggingWindowFrame extends JDialog {
      * @param prefKey the preference key that this window will listen for changes in.
      */
     public LoggingWindowFrame(String title, String prefKey) {
+        this(title, prefKey, null);
+    }
+    
+    public LoggingWindowFrame(String title, String prefKey, String onClosePrefKey) {
         super();
         setTitle(title);
-        
+        this.onClosePreferenceKey = onClosePrefKey;
         this.preferenceKey = prefKey;
         pListener = new GeneratorPropertyListener();
         manager.addPropertyChangeListener(prefKey, pListener);
@@ -71,6 +76,9 @@ public class LoggingWindowFrame extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 setVisible(false);
                 dispose();
+                if (onClosePreferenceKey != null) {
+                    manager.saveBooleanPreference(onClosePreferenceKey, true);
+                }
             }
         });
         cancel = new AbstractButton(bundle.getString("cancel"), true, new ActionListener() {
