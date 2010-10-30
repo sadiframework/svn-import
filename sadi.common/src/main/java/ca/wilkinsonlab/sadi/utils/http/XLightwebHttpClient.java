@@ -105,6 +105,7 @@ public class XLightwebHttpClient implements HttpClient {
 					HttpRequest request = requestQueue.remove();
 					try {
 						IHttpRequest xLightwebRequest = getXLightwebHttpRequest(request);
+						log.trace(String.format("issuing asynchronous request: %s", request));
 						// fire off request asynchronously
 						xLightWebClient.send(xLightwebRequest, new XLightwebCallback(request, responses));
 					} catch(IOException e) {
