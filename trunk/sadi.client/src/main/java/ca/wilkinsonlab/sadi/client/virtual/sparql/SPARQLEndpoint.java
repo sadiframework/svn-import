@@ -22,10 +22,10 @@ import ca.wilkinsonlab.sadi.utils.JsonUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLResultsXMLUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
+import ca.wilkinsonlab.sadi.utils.http.GetRequest;
 import ca.wilkinsonlab.sadi.utils.http.HttpRequest;
 import ca.wilkinsonlab.sadi.utils.http.HttpResponse;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
-import ca.wilkinsonlab.sadi.utils.http.PostRequest;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 import com.hp.hpl.jena.graph.Node;
@@ -211,7 +211,8 @@ public class SPARQLEndpoint
 
 			try {
 				
-				is = HttpUtils.POST(new URL(getURI()), getParamsForSelectQuery(query));				
+				// We must use GET here so that the HTTP client knows that it is okay to retry on failure
+				is = HttpUtils.GET(new URL(getURI()), getParamsForSelectQuery(query));				
 				List<Map<String,String>> results = convertSelectResponseToBindings(is);
 				
 				aggregateResults.addAll(results);
@@ -293,7 +294,8 @@ public class SPARQLEndpoint
 
 			try {
 				
-				is = HttpUtils.POST(new URL(getURI()), getParamsForConstructQuery(query));				
+				// We must use GET here so that the HTTP client knows that it is okay to retry on failure
+				is = HttpUtils.GET(new URL(getURI()), getParamsForConstructQuery(query));				
 				Collection<Triple> results = convertConstructResponseToTriples(is);
 				
 				aggregateResults.addAll(results);
@@ -363,7 +365,8 @@ public class SPARQLEndpoint
 			
 			try {
 				
-				HttpRequest request = new PostRequest(new URL(getURI()), getParamsForConstructQuery(query));
+				// We must use GET here so that the HTTP client knows that it is okay to retry on failure
+				HttpRequest request = new GetRequest(new URL(getURI()), getParamsForConstructQuery(query));
 
 				/* 
 				 * Parse the query with Jena first, so that nothing is added to
