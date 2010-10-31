@@ -40,6 +40,13 @@ public class XLightwebHttpClient implements HttpClient {
 	protected static final String CONFIG_ROOT = "sadi.http";
 	protected static final String RESPONSE_TIMEOUT_CONFIG_KEY = "responseTimeout";
 	protected static final String MAX_CONNECTIONS_PER_HOST_CONFIG_KEY = "maxConnectionsPerHost";
+	/**
+	 * Maximum number of retries for failed HTTP requests. 
+	 * Note that only synchronous requests will be 
+	 * automatically retried, not requests issued with 
+	 * batchRequest().
+	 */
+	protected static final String MAX_RETRIES_CONFIG_KEY = "maxRetries";
 	
 	protected static Logger log = Logger.getLogger(XLightwebHttpClient.class);
 	protected org.xlightweb.client.HttpClient xLightWebClient;
@@ -59,7 +66,21 @@ public class XLightwebHttpClient implements HttpClient {
 		xLightWebClient.setMaxActivePerServer(config.getInt(MAX_CONNECTIONS_PER_HOST_CONFIG_KEY, 30));
 		xLightWebClient.setConnectTimeoutMillis(20 * 1000); 
 		xLightWebClient.setResponseTimeoutMillis(config.getInt(RESPONSE_TIMEOUT_CONFIG_KEY, 30 * 1000));
-		xLightWebClient.setMaxRetries(0);
+		
+		// NOTE:
+		//
+		// setCallReturnOnMessage(true) forces xLightweb to retrieve the entire content of the response body before
+		// returning from a synchronous HTTP request (i.e. xLightWebClient.call()). Ordinarily,
+		// xLightweb returns a stream for reading the response as soon as it gets the response headers.
+		// However, this prevents xLightweb from automatically retrying if there is a failure
+		// when reading the response body.  For more info, see tutorial at:
+		//
+		// http://xlightweb.sourceforge.net/core/tutorial/V2/TutorialCore.htm 
+		
+		xLightWebClient.setCallReturnOnMessage(true);
+		xLightWebClient.setBodyDataReceiveTimeoutMillis(15 * 1000);
+		xLightWebClient.setMaxRetries(config.getInt(MAX_RETRIES_CONFIG_KEY, 0));
+
 		xLightWebClient.setCacheMaxSizeKB(0);
 		xLightWebClient.setFollowsRedirect(false);
 	}
