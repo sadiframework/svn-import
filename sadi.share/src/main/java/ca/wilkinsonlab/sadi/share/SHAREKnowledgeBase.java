@@ -87,6 +87,13 @@ public class SHAREKnowledgeBase
 	 * this option is on, and so it turned is off by default.
 	 */
 	private boolean intersectVariableBindings;
+	/**
+	 * Attempt to resolve patterns where both the subject and object are unbound,
+	 * by: 1) finding a set of relevant services by predicate, and 2) discovering
+	 * instances of the service input classes in reasoningModel.  This option
+	 * is on by default.
+	 */
+	private boolean resolveUnboundPatterns;
 	
 	// TODO rename to something less unwieldy?
 	private boolean dynamicInputInstanceClassification;
@@ -143,6 +150,7 @@ public class SHAREKnowledgeBase
 		 */
 		this.intersectVariableBindings = config.getBoolean("share.intersectVariableBindings", false);
 //		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
+		this.resolveUnboundPatterns = config.getBoolean("share.resolveUnboundPatterns", true);
 		
 	}
 	
@@ -356,37 +364,46 @@ public class SHAREKnowledgeBase
 		} else if (!objects.isEmpty()) { // unbound subject, bound object...
 			directionIsForward = false;
 		} else { // unbound subject, unbound object...
-			log.warn(String.format("encountered a pattern whose subject and object are both unbound variables %s", pattern));
+
 			patternIsResolvable = false;
 			
-			/* try to find subjects by looking for instances of input
-			 * classes for services that generate the required property...
-			 * TODO clean this up...
-			 */
-			{
-				Collection<Service> services = getServicesByPredicate(properties);
-				for (Service service: services) {
-					Collection<Resource> inputInstances = service.discoverInputInstances(dataModel);
-					subjects.values.addAll(inputInstances);
-					log.debug(String.format("found service %s with %d inputs", service, inputInstances.size()));
+			if(this.resolveUnboundPatterns) {
+				
+				log.warn(String.format("resolving pattern whose subject and object are both unbound variables %s", pattern));
+
+				/* try to find subjects by looking for instances of input
+				 * classes for services that generate the required property...
+				 * TODO clean this up...
+				 */
+				{
+					Collection<Service> services = getServicesByPredicate(properties);
+					for (Service service: services) {
+						Collection<Resource> inputInstances = service.discoverInputInstances(dataModel);
+						subjects.values.addAll(inputInstances);
+						log.debug(String.format("found service %s with %d inputs", service, inputInstances.size()));
+					}
+					if (!subjects.values.isEmpty()) {
+						patternIsResolvable = true;
+						directionIsForward = true;
+					}
 				}
-				if (!subjects.values.isEmpty()) {
-					patternIsResolvable = true;
-					directionIsForward = true;
+				if (subjects.values.isEmpty()) {
+					Collection<Service> services = getServicesByPredicate(getInverseProperties(properties));
+					for (Service service: services) {
+						Collection<Resource> inputInstances = service.discoverInputInstances(dataModel);
+						objects.values.addAll(inputInstances);
+						log.debug(String.format("found service %s with %d inputs", service, inputInstances.size()));
+					}
+					if (!objects.values.isEmpty()) {
+						patternIsResolvable = true;
+						directionIsForward = false;
+					}
 				}
+
+			} else {
+				log.warn(String.format("skipping pattern whose subject and object are both unbound variables %s", pattern));
 			}
-			if (subjects.values.isEmpty()) {
-				Collection<Service> services = getServicesByPredicate(getInverseProperties(properties));
-				for (Service service: services) {
-					Collection<Resource> inputInstances = service.discoverInputInstances(dataModel);
-					objects.values.addAll(inputInstances);
-					log.debug(String.format("found service %s with %d inputs", service, inputInstances.size()));
-				}
-				if (!objects.values.isEmpty()) {
-					patternIsResolvable = true;
-					directionIsForward = false;
-				}
-			}
+			
 		}
 		
 		if (patternIsResolvable) {
