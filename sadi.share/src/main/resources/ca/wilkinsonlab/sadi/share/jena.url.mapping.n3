@@ -1,13 +1,30 @@
 @prefix lm: <http://jena.hpl.hp.com/2004/08/location-mapping#> .
 
-# A LODD predicate URI resolves to a very large RDF document consisting of all triples that contain the predicate.
-# These URL mappings have been added as a workaround.
-
+# NOTE:
+#
+# A LODD predicate URI resolves to a very large RDF document consisting of all triples in 
+# the endpoint that contain the predicate. These URL mappings have been added as a workaround.
+#
+# The server that publishes the Bio2RDF ontology is often unresponsive/unreliable and so
+# we mirror a copy on our own server.
+# 
+# WARNING: The values of lm:prefix should never end with a "#". For example, if you want to map
+#
+#     http://www.somewhere.com/ontology#fragment => http://www.elsewhere.com/ontology#fragment
+# 
+# then use the values
+#
+#     [ lm:prefix "http://www.somewhere.com/ontology" ; lm:altPrefix "http://www.elsewhere.com/ontology" ]
+#
+# The trailing hash and fragment are stripped before the mapping is performed, and so any
+# mapping for a prefix ending in "#" will simply be ignored.
+  
 [] lm:mapping
    [ lm:prefix "http://www4.wiwiss.fu-berlin.de/drugbank/resource/drugbank/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/drugbank.owl#" ],
    [ lm:prefix "http://www4.wiwiss.fu-berlin.de/dailymed/resource/dailymed/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/dailymed.owl#" ],
    [ lm:prefix "http://www4.wiwiss.fu-berlin.de/diseasome/resource/diseasome/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/diseasome.owl#" ],
    [ lm:prefix "http://www4.wiwiss.fu-berlin.de/medicare/resource/medicare/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/medicare.owl#" ],
    [ lm:prefix "http://www4.wiwiss.fu-berlin.de/sider/resource/sider/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/sider.owl#" ],
-   [ lm:prefix "http://www4.wiwiss.fu-berlin.de/stitch/resource/stitch/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/stitch.owl#" ]
+   [ lm:prefix "http://www4.wiwiss.fu-berlin.de/stitch/resource/stitch/" ; lm:altPrefix "http://sadiframework.org/ontologies/LODD/stitch.owl#" ],
+   [ lm:prefix "http://bio2rdf.org/ns/bio2rdf" ; lm:altPrefix "http://sadiframework.org/ontologies/Bio2RDF/bio2rdf.owl" ]
    .
