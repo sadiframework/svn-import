@@ -30,7 +30,7 @@ par(mar=c(20, 4, 6, 2))
 barplot2(
 	plotData, 
 	col=rgb(0.0, 0.0, 0.0), 
-	ylim=c(0, 4000),
+#	ylim=c(0, 4000),
 	ylab='Time (Milliseconds)',
 	angle=shadingAngles, 
 	density=shadingDensities, 
