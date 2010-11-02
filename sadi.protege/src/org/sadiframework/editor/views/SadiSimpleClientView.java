@@ -62,7 +62,7 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
     private final ResourceBundle bundle = ResourceBundle
             .getBundle("org.sadiframework.utils.i18n.EditorResourceBundle");
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     SwingWorker worker;
     //
     // Some preference keys for this view
@@ -483,7 +483,7 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
         return panel;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
     private void createWorker() {
         worker = new SwingWorker() {
             public void setup() {
