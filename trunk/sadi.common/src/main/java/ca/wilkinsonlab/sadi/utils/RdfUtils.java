@@ -80,7 +80,7 @@ public class RdfUtils
 		model.add(s, p, o);
 	}
 	
-	private static RDFNode getRDFNode(Model model, Node node)
+	public static RDFNode getRDFNode(Model model, Node node)
 	{
 		if (node.isLiteral())
 			return getLiteral(model, node);
@@ -88,7 +88,7 @@ public class RdfUtils
 			return getResource(model, node);
 	}
 	
-	private static Resource getResource(Model model, Node node)
+	public static Resource getResource(Model model, Node node)
 	{
 		if (node.isBlank())
 			return model.createResource(node.getBlankNodeId());
@@ -98,7 +98,7 @@ public class RdfUtils
 			throw new IllegalArgumentException(String.format("node %s is not a resource", node));
 	}
 	
-	private static Literal getLiteral(Model model, Node node)
+	public static Literal getLiteral(Model model, Node node)
 	{
 		if (!node.isLiteral())
 			throw new IllegalArgumentException(String.format("node %s is not a literal", node));
@@ -106,7 +106,7 @@ public class RdfUtils
 		return ResourceFactory.createTypedLiteral(node.getLiteralLexicalForm(), node.getLiteralDatatype());
 	}
 	
-	private static Property getProperty(Model model, Node node)
+	public static Property getProperty(Model model, Node node)
 	{
 		if (node.isURI())
 			return model.createProperty(node.getURI());
