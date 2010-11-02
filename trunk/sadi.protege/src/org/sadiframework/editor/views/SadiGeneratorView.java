@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
@@ -74,7 +75,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
     
     private final ResourceBundle bundle = ResourceBundle.getBundle("org.sadiframework.utils.i18n.EditorResourceBundle");
     
-    private JButton generateBtn;
+    private JButton generateBtn, generatePerlBtn;
     
     private LoggingWindowFrame console;
     
@@ -99,9 +100,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             manager.addPropertyChangeListener(pListener);
         }
         
-        // add flavour specific code here
-        boolean isPerl = manager.getBooleanPreference(SADIProperties.SERVICE_GEN_USE_PERL, true);
-        
+        // add flavour specific code here        
         if (mainPane == null) {
             mainPane = new JPanel();
             mainPane.setLayout(new GridBagLayout());
@@ -119,15 +118,11 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             mainPane.validate();
         }
         
-        // add our flavour specific panel
-        if (isPerl) {
-            // set up the perl panel
-            UIUtils.addComponent(mainPane, getPerlSpecificPanel(), 0, 1, 1, 1, UIUtils.NWEST, UIUtils.HORI, 0.0, 100.0);
-        } else {
-            // set up the java panel
-            UIUtils.addComponent(mainPane, getJavaSpecificPanel(), 0, 1, 1, 1, UIUtils.NWEST, UIUtils.HORI, 0.0, 100.0);
-        }
-        
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("Perl", getPerlSpecificPanel());
+        tabbedPane.addTab("Java", getJavaSpecificPanel());
+        UIUtils.addComponent(mainPane, tabbedPane, 0, 1, 1, 1, UIUtils.NWEST, UIUtils.HORI, 0.0, 100.0);
+               
         // remove all from our parent
         removeAll();
         validate();
@@ -156,10 +151,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
     private void render(OWLClass owlClass) {
         // if nothing selected OR we are generating OWL from File, ignore this
         if (owlClass == null
-                || (manager.getBooleanPreference(SADIProperties.GENERATOR_OWL_BY_FILE, true) && manager
-                        .getBooleanPreference(SADIProperties.SERVICE_GEN_USE_PERL, true))
-                || (manager.getBooleanPreference(SADIProperties.GENERATOR_OWL_BY_FILE, true) && !manager
-                        .getBooleanPreference(SADIProperties.SERVICE_GEN_USE_PERL, true))) {
+                || (manager.getBooleanPreference(SADIProperties.GENERATOR_OWL_BY_FILE, true))) {
             return;
         }
         try {
@@ -257,13 +249,6 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             }
 
         }
-        // create radio buttons
-        UIUtils.addComponent(p, generateDefinitionRadioButtons(), 0, ++numPairs , 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
-        
-        // add glue to make our panel look proper
-        //UIUtils.addComponent(p, Box.createGlue(), 0, ++numPairs, 2, 1, UIUtils.NWEST, UIUtils.REMAINDER, 0.0, 1.0);
-
-        //p.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(ComponentFactory.createTitledBorder(bundle
@@ -277,41 +262,17 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         generateBtn = new AbstractButton(bundle.getString("generate"), true,
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
-                        manager.saveBooleanPreference(SADIProperties.GENERATOR_GENERATE_SERVICE, true);
+                        manager.saveBooleanPreference(SADIProperties.DO_JAVA_SERVICE_GENERATION, true);
+                    }
+                });
+        generatePerlBtn = new AbstractButton(bundle.getString("generate"), true,
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        manager.saveBooleanPreference(SADIProperties.DO_PERL_SERVICE_GENERATION, true);
                     }
                 });
     }
 
-    private JPanel generateDefinitionRadioButtons() {
-        JRadioButton javaRB = new JRadioButton("Java");
-        JRadioButton perlRB = new JRadioButton("Perl");
-        javaRB.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                manager.saveBooleanPreference(SADIProperties.SERVICE_GEN_USE_PERL, false);
-            }
-        });
-        perlRB.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                manager.saveBooleanPreference(SADIProperties.SERVICE_GEN_USE_PERL, true);
-            }
-        });
-
-        // create a button group for java or perl
-        ButtonGroup group = new ButtonGroup();
-        group.add(javaRB);
-        group.add(perlRB);
-        if (manager.getBooleanPreference(SADIProperties.SERVICE_GEN_USE_PERL, true)) {
-            perlRB.setSelected(true);
-        } else {
-            javaRB.setSelected(true);
-        }
-        
-        JPanel rbPanel = new JPanel(new FlowLayout(FlowLayout.LEADING), true);
-        rbPanel.add(javaRB);
-        rbPanel.add(perlRB);
-        return rbPanel;
-    }
-    
     private JPanel getSyncOrAsyncRadioButtons() {        
         JRadioButton sync = new JRadioButton(bundle.getString("sync"));
         JRadioButton async = new JRadioButton(bundle.getString("async"));
@@ -493,7 +454,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         });
         
         // the generate btn
-        if (generateBtn == null)
+        if (generatePerlBtn == null)
             getGenerateGeneratorButtons();
         
         perlDefinitionBtn.setIcon(Icons.getIcon("project.open.gif"));
@@ -504,7 +465,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 1, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 2, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         // create the generate/cancel button panel
-        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[]{generateBtn}), 0, 3, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
+        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[]{generatePerlBtn}), 0, 3, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
         return panel;
     }
     
@@ -600,28 +561,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
 
         public void propertyChange(PropertyChangeEvent evt) {
             String key = evt.getPropertyName();
-            if (key.equals(SADIProperties.SERVICE_GEN_USE_PERL)) {
-                // call init to redo the window setup
-                init();
-            } else if (key.equals(SADIProperties.GENERATOR_GENERATE_SERVICE)) {
-                // fire appropriate generator property
-                // actual logic is done in the Perl/Java property branch
-                if (((Boolean) evt.getNewValue())) {
-                    // generate service skeletons
-                    if (manager.getBooleanPreference(SADIProperties.SERVICE_GEN_USE_PERL, true)) {
-                        manager.saveBooleanPreference(SADIProperties.DO_PERL_SERVICE_GENERATION, true);
-                    } else {
-                        manager.saveBooleanPreference(SADIProperties.DO_JAVA_SERVICE_GENERATION, true);
-                    }
-                } else {
-                    // cancel generation of service skeletons
-                    if (manager.getBooleanPreference(SADIProperties.SERVICE_GEN_USE_PERL, true)) {
-                        manager.saveBooleanPreference(SADIProperties.DO_PERL_SERVICE_GENERATION, false);
-                    } else {
-                        manager.saveBooleanPreference(SADIProperties.DO_JAVA_SERVICE_GENERATION, false);
-                    }
-                }
-            } else if (key.equals(SADIProperties.DO_PERL_SERVICE_GENERATION)) {
+            if (key.equals(SADIProperties.DO_PERL_SERVICE_GENERATION)) {
                 if ((Boolean)evt.getNewValue()) {
                     // start perl sadi service generator
                     generateBtn.setEnabled(false);
@@ -662,8 +602,6 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                 }
             } else if (key.equals(SADIProperties.DO_JAVA_SERVICE_GENERATION)) {
                 if ((Boolean)evt.getNewValue()) {
-                    // disable the gen button
-                    generateBtn.setEnabled(false);
                     ServiceDefinition def = getServiceDefinition();
                     if (def == null) {
                         // cancel
@@ -687,6 +625,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                         manager.saveBooleanPreference(key, false);
                         return; 
                     }
+                    // disable the gen button
+                    generateBtn.setEnabled(false);
                     // FIXME project name should not be the service name
                     String projectName = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_PROJECT_NAME, "sadi-services");
                     javaServiceWorker = new JavaGeneratorWorker(outdir, projectName);
@@ -711,11 +651,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     generateBtn.setEnabled(true);
                 }
             }  else if (key.equals(SADIProperties.DO_JAVA_GENERATOR_DEPLOY)) {
-                if ((Boolean)evt.getNewValue()) {
-                    // disable the deploy button
-                    javaLocalDeployBtn.setEnabled(false);
-                    javaPackageWarBtn.setEnabled(false);
-                    
+                if ((Boolean)evt.getNewValue()) {                    
                     String outdir = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_WORKING_DIR, "");
                     String projectName = manager.getPreference(SADIProperties.JAVA_SERVICE_SKELETONS_PROJECT_NAME, "sadi-services");
                     // ensure outdir exists
@@ -741,6 +677,9 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                         manager.saveBooleanPreference(key, false);
                         return; 
                     }
+                    // disable the deploy button
+                    javaLocalDeployBtn.setEnabled(false);
+                    javaPackageWarBtn.setEnabled(false);
                     javaServiceWorker = new JavaGeneratorWorker(outdir, projectName);
                     // set the definition, extra maven args
                     //javaServiceWorker.setDefinition(def);
@@ -790,8 +729,6 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                 }
             } else if (key.equals(SADIProperties.DO_JAVA_GENERATOR_CREATE_PACKAGE)) {
                 if ((Boolean)evt.getNewValue()) {
-                    // disable the package button
-                    javaPackageWarBtn.setEnabled(false);
                     ServiceDefinition def = getServiceDefinition();
                     if (def != null) {
                         // mvn package
@@ -820,6 +757,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                             manager.saveBooleanPreference(key, false);
                             return; 
                         }
+                        // disable the package button
+                        javaPackageWarBtn.setEnabled(false);
                         javaServiceWorker = new JavaGeneratorWorker(outdir, projectName);
                         // set the definition, extra maven args
                         javaServiceWorker.setDefinition(def);
