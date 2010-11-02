@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -37,6 +38,15 @@ public class OwlUtils
 {
 	private static final Logger log = Logger.getLogger( OwlUtils.class );
 	private static final OntModel owlModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
+	private static List<Pattern> deadOntologyPatterns;
+	
+	static {
+		deadOntologyPatterns = new ArrayList<Pattern>();
+		String patterns[] = Config.getConfiguration().getStringArray("sadi.deadOntologyPattern");
+		for(String pattern : patterns) {
+			deadOntologyPatterns.add(Pattern.compile(pattern));
+		}
+	}
 	
 	/**
 	 * Return an OntModel view of the base OWL ontology.  This is useful
@@ -165,6 +175,24 @@ public class OwlUtils
 	}
 	
 	/**
+	 * Return true if the SADI configuration (sadi.common.properties / sadi.properties) 
+	 * indicates that we should bypass the loading of this ontology.
+	 * 
+	 * @param uri The URI of the ontology
+	 * @return true if the configuration indicates the ontology is dead,
+	 * false otherwise
+	 */
+	private static boolean deadOntology(String uri) 
+	{
+		for(Pattern pattern : deadOntologyPatterns) {
+			if(pattern.matcher(uri).find()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Resolve the specified URI and load the resulting statements into the
 	 * specified OntModel. Resolve imports and relevant isDefinedBy URIs as
 	 * well.
@@ -179,6 +207,11 @@ public class OwlUtils
 		log.debug(String.format("loading ontology for %s", uri));
 		
 		String ontologyUri = StringUtils.substringBefore( uri, "#" );
+		
+		if (deadOntology(ontologyUri)) {
+			log.trace(String.format("skipping dead ontology %s", ontologyUri));
+			return;
+		}
 		if (model.hasLoadedImport(ontologyUri)) {
 			log.trace(String.format("skipping previously loaded ontology %s", ontologyUri));
 			return;
@@ -220,6 +253,11 @@ public class OwlUtils
 	protected static void loadMinimalOntologyForUri(Model model, String ontologyUri, String uri, Set<OntologyUriPair> visitedUris) throws SADIException
 	{
 		OntologyUriPair ontologyUriPair = new OntologyUriPair(ontologyUri, uri);
+
+		if (deadOntology(ontologyUri)) {
+			log.debug(String.format("skipping dead ontology %s", ontologyUri));
+			return;
+		}
 		if(visitedUris.contains(ontologyUriPair)) {
 			log.debug(String.format("skipping previously loaded uri %s from %s", uri, ontologyUri));
 			return;
