@@ -3,7 +3,7 @@ package org.sadiframework.properties;
 public class SADIProperties {
 
     // generator preference keys
-    public static final String SERVICE_GEN_USE_PERL = "service-generator-use-perl"; // boolean
+    //public static final String SERVICE_GEN_USE_PERL = "service-generator-use-perl"; // boolean
     public static final String DATATYPE_GEN_USE_PERL = "datatype-generator-use-perl"; // boolean
     public static final String GEN_SELECTED_OWL_CLASS = "generator-selected-owl-class"; // String
     public static final String GENERATOR_SERVICE_ASYNC = "generator-service-is-async"; // boolean
