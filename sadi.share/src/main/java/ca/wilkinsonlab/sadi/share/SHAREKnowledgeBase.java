@@ -765,15 +765,6 @@ public class SHAREKnowledgeBase
 			Set<RDFNode> inputs = new HashSet<RDFNode>(subjects.values);
 			Collection<Triple> output = maybeCallService(service, inputs);
 
-			/* load minimal ontologies for any undefined properties 
-			 * that appear in the output data
-			 */
-			for (Triple triple: output) {
-				if (triple.getPredicate().isURI()) {
-					getOntProperty(triple.getPredicate().getURI());
-				}
-			}
-			
 			/* add the service output to the data model */
 			for (Triple triple: output) {
 				if(this.storeInferredTriples) {
@@ -785,6 +776,15 @@ public class SHAREKnowledgeBase
 				retrievedData = true;
 			}
 			reasoningModel.rebind();
+
+			/* load minimal ontologies for any undefined properties 
+			 * that appear in the output data
+			 */
+			for (Triple triple: output) {
+				if (triple.getPredicate().isURI()) {
+					getOntProperty(triple.getPredicate().getURI());
+				}
+			}
 			
 		}
 		
