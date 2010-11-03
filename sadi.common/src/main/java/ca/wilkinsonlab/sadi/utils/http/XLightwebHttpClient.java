@@ -47,6 +47,11 @@ public class XLightwebHttpClient implements HttpClient {
 	 * batchRequest().
 	 */
 	protected static final String MAX_RETRIES_CONFIG_KEY = "maxRetries";
+	/**
+	 * Timeout when waiting for the next chunk of an HTTP response body.
+	 */
+	protected static final String DATA_WAIT_TIMEOUT_CONFIG_KEY = "dataWaitTimeout";
+	
 	
 	protected static Logger log = Logger.getLogger(XLightwebHttpClient.class);
 	protected org.xlightweb.client.HttpClient xLightWebClient;
@@ -81,7 +86,7 @@ public class XLightwebHttpClient implements HttpClient {
 		// the response body (even when setCallReturnOnMessage is true), although it is supposed to.
 		
 		xLightWebClient.setCallReturnOnMessage(true);
-		xLightWebClient.setBodyDataReceiveTimeoutMillis(120 * 1000);
+		xLightWebClient.setBodyDataReceiveTimeoutMillis(config.getInt(DATA_WAIT_TIMEOUT_CONFIG_KEY, 120 * 1000));
 
 		xLightWebClient.setMaxRetries(config.getInt(MAX_RETRIES_CONFIG_KEY, 0));
 
