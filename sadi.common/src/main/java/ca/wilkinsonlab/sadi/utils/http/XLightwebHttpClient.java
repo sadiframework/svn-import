@@ -76,9 +76,13 @@ public class XLightwebHttpClient implements HttpClient {
 		// when reading the response body.  For more info, see tutorial at:
 		//
 		// http://xlightweb.sourceforge.net/core/tutorial/V2/TutorialCore.htm 
+		//
+		// UPDATE: xLightweb v2.10 does *not* automatically retry when there is a timeout reading
+		// the response body (even when setCallReturnOnMessage is true), although it is supposed to.
 		
 		xLightWebClient.setCallReturnOnMessage(true);
-		xLightWebClient.setBodyDataReceiveTimeoutMillis(15 * 1000);
+		xLightWebClient.setBodyDataReceiveTimeoutMillis(120 * 1000);
+
 		xLightWebClient.setMaxRetries(config.getInt(MAX_RETRIES_CONFIG_KEY, 0));
 
 		xLightWebClient.setCacheMaxSizeKB(0);
