@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.utils.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import org.xlightweb.IHttpRequest;
 import org.xlightweb.IHttpRequestHeader;
 import org.xlightweb.IHttpResponse;
 import org.xlightweb.IHttpResponseHandler;
+import org.xlightweb.ReceiveTimeoutException;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.Credentials;
@@ -38,20 +40,39 @@ import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 public class XLightwebHttpClient implements HttpClient {
 
 	protected static final String CONFIG_ROOT = "sadi.http";
+	/**
+	 * Timeout when waiting for the headers of an HTTP response.
+	 */
 	protected static final String RESPONSE_TIMEOUT_CONFIG_KEY = "responseTimeout";
+	/**
+	 * Timeout when waiting for the next chunk of an HTTP response body.
+	 */
+	protected static final String DATA_WAIT_TIMEOUT_CONFIG_KEY = "dataWaitTimeout";
 	protected static final String MAX_CONNECTIONS_PER_HOST_CONFIG_KEY = "maxConnectionsPerHost";
 	/**
-	 * Maximum number of retries for failed HTTP requests. 
+	 * If true, the HTTP client will automatically retry when the responseTimeout
+	 * expires.
+	 */
+	protected static final String RETRY_ON_RESPONSE_TIMEOUT_CONFIG_KEY = "retryOnResponseTimeout";
+	protected boolean retryOnResponseTimeout;
+	
+	/**
+	 * If true, the HTTP client will automatically retry when dataWaitTimeout
+	 * expires.
+	 */
+	protected static final String RETRY_ON_DATA_WAIT_TIMEOUT_CONFIG_KEY = "retryOnDataWaitTimeout";
+	protected boolean retryOnDataWaitTimeout;
+	
+	/**
+	 * Maximum number of retries for HTTP requests. 
+	 * This number includes both retries due to response
+	 * timeouts  and retries due to data wait tiemouts.
 	 * Note that only synchronous requests will be 
 	 * automatically retried, not requests issued with 
 	 * batchRequest().
 	 */
 	protected static final String MAX_RETRIES_CONFIG_KEY = "maxRetries";
-	/**
-	 * Timeout when waiting for the next chunk of an HTTP response body.
-	 */
-	protected static final String DATA_WAIT_TIMEOUT_CONFIG_KEY = "dataWaitTimeout";
-	
+	protected int maxRetries;
 	
 	protected static Logger log = Logger.getLogger(XLightwebHttpClient.class);
 	protected org.xlightweb.client.HttpClient xLightWebClient;
@@ -86,20 +107,26 @@ public class XLightwebHttpClient implements HttpClient {
 		// the response body (even when setCallReturnOnMessage is true), although it is supposed to.
 		
 		xLightWebClient.setCallReturnOnMessage(true);
-		xLightWebClient.setBodyDataReceiveTimeoutMillis(config.getInt(DATA_WAIT_TIMEOUT_CONFIG_KEY, 120 * 1000));
-
-		xLightWebClient.setMaxRetries(config.getInt(MAX_RETRIES_CONFIG_KEY, 0));
-
+		xLightWebClient.setBodyDataReceiveTimeoutMillis(config.getInt(DATA_WAIT_TIMEOUT_CONFIG_KEY, 30 * 1000));
+		
+		// The xLightWebClient retry mechanism does not work correctly for data wait timeouts (see above),
+		// so we implement our own retry mechanism.
+		
+		xLightWebClient.setMaxRetries(0);
+		retryOnResponseTimeout = config.getBoolean(RETRY_ON_RESPONSE_TIMEOUT_CONFIG_KEY, false);
+		retryOnDataWaitTimeout = config.getBoolean(RETRY_ON_DATA_WAIT_TIMEOUT_CONFIG_KEY, false);
+		maxRetries = config.getInt(MAX_RETRIES_CONFIG_KEY, 0);
+		
 		xLightWebClient.setCacheMaxSizeKB(0);
 		xLightWebClient.setFollowsRedirect(false);
 	}
 	
 	public InputStream GET(URL url) throws IOException {
-		return request(new GetRequest(url));
+		return requestWithRetry(new GetRequest(url));
 	}
 	
 	public InputStream GET(URL url, Map<String,String> params) throws IOException {
-		return request(new GetRequest(url, params));
+		return requestWithRetry(new GetRequest(url, params));
 	}
 	
 	public InputStream POST(URL url, InputStream postData, String contentType) throws IOException {
@@ -157,10 +184,36 @@ public class XLightwebHttpClient implements HttpClient {
 	static final String WWW_AUTHENTICATE_HEADER = "WWW-Authenticate";
 	static final String WWW_AUTHORIZATION_HEADER = "Authorization";
 	
+	public InputStream requestWithRetry(HttpRequest request) throws IOException 
+	{
+		int retries = 0;
+		while(true) {
+			try {
+				return request(request);
+			} catch (SocketTimeoutException e) {
+				// response timeout
+				if(retryOnResponseTimeout && retries < maxRetries) {
+					retries++;
+					log.warn(String.format("response timeout occurred, attempting retry %d of %d", retries, maxRetries), e);
+				} else {
+					throw e;
+				}
+			} catch (ReceiveTimeoutException e) {
+				// data wait timeout
+				if(retryOnDataWaitTimeout && retries < maxRetries) {
+					retries++;
+					log.warn(String.format("data wait timeout occurred, attempting retry %d of %d", retries, maxRetries), e);
+				} else {
+					throw e;
+				}
+			}
+		}
+	}
+	
 	public InputStream request(HttpRequest request) throws IOException {
 		
 		IHttpRequest xLightwebRequest = getXLightwebHttpRequest(request);
-
+		
 		// Technically, this is not a correct implementation of cached authorization under the HTTP Digest authentication 
 		// (qop="auth" or "auth-int") scheme.  The auth header contains a nonce counter value that is *supposed to be* incremented with 
 		// each request to the same realm.  However, the commons HTTP client code (DigestScheme) always uses a value of 
