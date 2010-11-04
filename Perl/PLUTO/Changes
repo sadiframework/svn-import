@@ -1,5 +1,8 @@
 $Id: Changes,v 1.14 2010-05-20 17:29:09 ubuntu Exp $
 
+0.29
+	- some biopax entities where not being processes properly
+	  because their base uri had >1 # appended to them.
 0.28
     - Added owl:unionOf to what is parsed out of OWL and
       inserted in our class map.

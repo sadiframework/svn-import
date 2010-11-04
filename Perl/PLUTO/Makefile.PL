@@ -7,7 +7,7 @@
 	name 'PLUTO';
 	author 'IBM';
 	license 'eclipse';
-    version '0.28';
+    version '0.29';
 	
 	all_from 'lib/ODO.pm';
 

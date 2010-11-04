@@ -25,7 +25,7 @@ use ODO::Parser::XML::RDFAttributes;
 use XML::SAX qw/Namespaces Validation/;
 
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.49 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.50 $ =~ /: (\d+)\.(\d+)/;
 
 use base qw/ODO::Parser::XML/;
 
@@ -207,8 +207,12 @@ sub new {
 
 	$self->seen_id( {} );
 	$self->blank_nodes( {} );
-	
-	
+	if ($self->base_uri()) {
+		my $uri = $self->base_uri();
+		$uri =~ s/#+$//;
+		$self->base_uri($uri);
+	}
+
 	return $self;
 }
 
@@ -236,7 +240,6 @@ sub add_statement {
 	my $statement = ODO::Statement->new(s=> $s, p=> $p, o=> $o);
 	throw XML::SAX::Exception::Parse(Message=> 'Cannot add an undefined statement.')
 		unless(UNIVERSAL::isa($statement, 'ODO::Statement'));
-	
 	push @{ $self->statements() }, $statement;
 }
 
@@ -579,7 +582,7 @@ sub nodeElement {
 		} else {
 			$aboutUri =~ s/^#*//;
 			if ($baseURI) {
-				$baseURI =~ s/^#*//;
+				$baseURI =~ s/#*$//g;
 				$baseURI .= '#' unless $baseURI =~ m/\/$/;
 			}
 			$s = ODO::Node::Resource->new( ($baseURI || '') . $aboutUri);
@@ -603,7 +606,7 @@ sub nodeElement {
 	if ( $e->uri() ne rdf->uri('Description') ) {
 		$p = ODO::Node::Resource->new(rdf->uri('type'));
 		$o = ODO::Node::Resource->new($e->uri());
-		
+
 		$self->add_statement($e->subject(), $p, $o);
 	}
 
@@ -612,7 +615,6 @@ sub nodeElement {
 	if ( $e->attributes()->{ rdf->uri('type') } ) {
 		$p = ODO::Node::Resource->new( rdf->uri('type') );
 		$o = ODO::Node::Resource->new( $e->attributes()->{ rdf->uri('type') } );
-
 		$self->add_statement($e->subject(), $p, $o);
 	}
 	
@@ -628,7 +630,6 @@ sub nodeElement {
 			$o = ODO::Node::Literal->new();
 			$o->value( $e->attributes->{ $k } );
 			$o->language( $e->language() );
-
 			$self->add_statement($e->subject(), $p ,$o);
 		}
 	}
@@ -730,7 +731,7 @@ sub resourcePropertyElt {
 	# Then the following statement is added to the graph:
 	$self->add_statement( $e->parent()->subject(), $p, $n->subject() )
 		if ( $e->parent() );
-	
+
 	# If the rdf:ID attribute a is given, the above statement is reified with:
 	if ( $e->attributes->{ rdf->uri('ID') } ) {
 		my $baseURI = ($e->base_uri() || $self->base_uri() || '');
@@ -771,6 +772,7 @@ sub literalPropertyElt {
 	if(!$e->parent()){
 		throw XML::SAX::Exception::Parse(Message=> 'Missing parent element');	
 	}
+	
 	$self->add_statement( $e->parent()->subject(), $p, $o);
 
 	# If the rdf:ID attribute a is given, the above statement is reified with:
@@ -975,7 +977,6 @@ sub emptyPropertyElt {
 	my ($self, $e) = @_;
 
 	my $baseURI = ($e->base_uri() || $self->base_uri());
-
 	my $resource;
 	
 	# This is used in all code paths and potentially 2 simultaneously
