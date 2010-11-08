@@ -1,5 +1,8 @@
 Revision history for Perl extension OWL2Perl.
 
+0.98
+	* updated the version of PLUTO that we require.
+	
 0.97
 
     THIS RELEASE requires that you re-generate all of your OWL2Perl modules!
