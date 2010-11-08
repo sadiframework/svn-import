@@ -8,7 +8,7 @@
     
 	# Define metadata
 	name 'OWL2Perl';
-	version '0.97';
+	version '0.98';
 	license 'new BSD';
 	abstract
 'This distribution aids in the automatic generation of perl modules from owl ontologies.';
@@ -33,7 +33,7 @@
     requires 'LS'                   => '1.1.7';
     requires 'HTTP::Request'        => 0;
     requires 'LWP'                  => 0;
-    requires 'PLUTO'                => 0.28;
+    requires 'PLUTO'                => 0.29;
     requires 'URI'                  => 1.40;
 
     # windows doesn't need this
