@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DefinitionFields>
+<!-- DefinitionField:
+    * label    - a key in the resource bundle that has an appropriate value for the label field
+    * type     - one of text | droptext | bool
+    * id       - unique id for the definition field
+    * index    - the index of the where this field belongs
+    * required - true if a mandatory field, false otherwise
+    * helpText - a key in the resource bundle that has an appropriate value for the help text
+    * key      - unique key field
+    * icon     - optional icon to use
+ -->
+    <DefinitionField
+        label="definition_name"
+        type="text"
+        id="ServiceName"
+        index="1"
+        required="true"
+        helpText="definition_name_help"
+        key="ServiceName"
+        icon="" />
+    <DefinitionField
+        label="definition_description"
+        type="text"
+        id="Description"
+        index="2"
+        required="true"
+        helpText="definition_description_help"
+        key="Description"
+        icon="" />
+    <DefinitionField
+        label="definition_input_class"
+        type="droptext"
+        id="InputClass"
+        index="3"
+        required="true"
+        helpText="definition_input_class_help"
+        key="InputClass"
+        icon="" />
+    <DefinitionField
+        label="definition_output_class"
+        type="droptext"
+        id="OutputClass"
+        index="4"
+        required="true"
+        helpText="definition_output_class_help"
+        key="OutputClass"
+        icon="" />
+    <DefinitionField
+        label="definition_endpoint"
+        type="text"
+        id="URL"
+        index="5"
+        required="true"
+        helpText="definition_endpoint_help"
+        key="URL"
+        icon="" />
+    <DefinitionField
+        label="definition_authority"
+        type="text"
+        id="Authority"
+        index="6"
+        required="true"
+        helpText="definition_authority_help"
+        key="Authority"
+        icon="" />
+    <DefinitionField
+        label="definition_provider"
+        type="text"
+        id="Provider"
+        index="7"
+        required="true"
+        helpText="definition_provider_help"
+        key="Provider"
+        icon="" />
+    <DefinitionField
+        label="definition_service_type"
+        type="droptext"
+        id="ServiceType"
+        index="8"
+        required="false"
+        helpText="definition_service_type_help"
+        key="ServiceType"
+        icon="" />
+    <DefinitionField
+        label="definition_authoritative"
+        type="bool"
+        id="Authoritative"
+        index="9"
+        required="false"
+        helpText="definition_authoritative_help"
+        key="Authoritative"
+        icon="" />
+</DefinitionFields>

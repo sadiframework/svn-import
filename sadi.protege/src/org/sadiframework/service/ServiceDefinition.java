@@ -160,7 +160,7 @@ public class ServiceDefinition {
 		sb.append("#modify this value only if you have NOT generated" + newline + "#your service implementation!" + newline + newline);
 		sb.append( String.format("Authority = %s", getAuthority()) + newline);
 		sb.append("#modify these values as you see fit!" + newline);
-		sb.append( String.format("ServiceType = %s", getServiceType()) + newline);
+		sb.append( String.format("ServiceType = \"%s\"", getServiceType()) + newline);
 		sb.append( String.format("InputClass = \"%s\"", getInputClass()) + newline);
 		sb.append( String.format("OutputClass = \"%s\"", getOutputClass()) + newline);
 		sb.append( String.format("Description = \"%s\"", getDescription()) + newline);
