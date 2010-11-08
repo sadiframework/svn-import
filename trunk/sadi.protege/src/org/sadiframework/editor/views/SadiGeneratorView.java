@@ -14,7 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.ResourceBundle;
 
@@ -69,7 +69,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
     private JPanel mainPane;
     private PropertyChangeListener pListener;
     // keeps a reference to our textfields so that we can save them if necessary
-    private ArrayList<JComponent> fields = new ArrayList<JComponent>();
+    private HashMap<String, JComponent> fields = new HashMap<String,JComponent>();
 
     private DefinitionField[] definitionFields;
     
@@ -215,12 +215,16 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
     private JPanel getSadiServiceSignaturePanel() {
         definitionFields = new DefinitionFieldGeneratorImpl().getDefinitionFields();
         int numPairs = definitionFields.length;
-        fields = new ArrayList<JComponent>();
+        fields = new HashMap<String,JComponent>();
 
         // Create and populate the panel.
         JPanel p = new JPanel(new GridBagLayout());
         for (int i = 0; i < numPairs; i++) {
-            JLabel l = new JLabel(definitionFields[i].getLabel() + ":", JLabel.TRAILING);
+            JLabel l = new JLabel(
+                    definitionFields[i].isRequired() ? 
+                            String.format("<html><b>%s:</b></html>", definitionFields[i].getLabel()) : 
+                            String.format("<html><i>%s:</i></html>", definitionFields[i].getLabel()), 
+                    JLabel.TRAILING);
             UIUtils.addComponent(p, l, 0, i, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
             if (definitionFields[i].getType().equals(AbstractDefinitionFieldGenerator.TEXT_FIELD)) {
                 JTextField textField = new JTextField(25);
@@ -228,7 +232,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                 UIUtils
                         .addComponent(p, textField, 1, i, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0,
                                 0.0);
-                fields.add(textField);
+                fields.put(definitionFields[i].getId() ,textField);
             } else if (definitionFields[i].getType().equals(
                     AbstractDefinitionFieldGenerator.DROP_TEXT_FIELD)) {
                 DropJTextField textField = new DropJTextField(25, getOWLModelManager());
@@ -236,7 +240,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                 UIUtils
                         .addComponent(p, textField, 1, i, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0,
                                 0.0);
-                fields.add(textField);
+                fields.put(definitionFields[i].getId() ,textField);
             } else if (definitionFields[i].getType().equals(
                     AbstractDefinitionFieldGenerator.BOOLEAN_FIELD)) {
                 JCheckBox textField = new JCheckBox();
@@ -245,7 +249,18 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                 UIUtils
                         .addComponent(p, textField, 1, i, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0,
                                 0.0);
-                fields.add(textField);
+                fields.put(definitionFields[i].getId() ,textField);
+            }
+            if (!definitionFields[i].getHelpText().equals("")) {
+                // TODO add help dialog
+                final int index = i;
+                JButton help = new AbstractButton("<html><b>?</b></html>", true, new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        JOptionPane.showMessageDialog(SadiGeneratorView.this,String.format("%s",definitionFields[index].getHelpText()),definitionFields[index].getLabel(),JOptionPane.QUESTION_MESSAGE);
+                    }
+                });  
+                UIUtils
+                    .addComponent(p, help, 3, i, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);                
             }
 
         }
@@ -473,21 +488,16 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
      * returns the fields as an object
      */
     private ServiceDefinition getServiceDefinition() {
-        String name = ((JTextComponent) fields.get(0)).getText();
-        String description = ((JTextComponent) fields.get(1)).getText();
-        String inputClass = ((JTextComponent) fields.get(2)).getText();
-        String outputClass = ((JTextComponent) fields.get(3)).getText();
-        String endpoint = ((JTextComponent) fields.get(4)).getText();
-        String authority = ((JTextComponent) fields.get(5)).getText();
+        String name = ((JTextComponent) fields.get("ServiceName")).getText();
+        String description = ((JTextComponent) fields.get("Description")).getText();
+        String inputClass = ((JTextComponent) fields.get("InputClass")).getText();
+        String outputClass = ((JTextComponent) fields.get("OutputClass")).getText();
+        String endpoint = ((JTextComponent) fields.get("URL")).getText();
+        String authority = ((JTextComponent) fields.get("Authority")).getText();
+        String provider = ((JTextComponent) fields.get("Provider")).getText();
+        String serviceType = ((JTextComponent) fields.get("ServiceType")).getText();
+        boolean authoritative = ((JCheckBox) fields.get("Authoritative")).isSelected();
         
-        String provider = ((JTextComponent) fields.get(6)).getText();
-        String serviceType = ((JTextComponent) fields.get(7)).getText();
-        boolean authoritative = ((JCheckBox) fields.get(8)).isSelected();
-        
-        //String uniqueID = ((JTextComponent) fields.get(6)).getText();
-        //String serviceURI = ((JTextComponent) fields.get(9)).getText();
-        //String signatureURL = ((JTextComponent) fields.get(11)).getText();
-
         ServiceDefinition def = new ServiceDefinition(name.trim());
         def.setAuthoritative(authoritative);
         def.setAuthority(authority.trim());
@@ -563,8 +573,6 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             String key = evt.getPropertyName();
             if (key.equals(SADIProperties.DO_PERL_SERVICE_GENERATION)) {
                 if ((Boolean)evt.getNewValue()) {
-                    // start perl sadi service generator
-                    generateBtn.setEnabled(false);
                     // save the definition file
                     ServiceDefinition def = getServiceDefinition();
                     if (def == null) {
@@ -573,7 +581,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                         return;
                     }
                     // verify the definition fields
-                    if (!validatePerlGeneratorDefinition(def)) {
+                    if (!validateGeneratorDefinition(def)) {
                         manager.saveBooleanPreference(key, false);
                         return;
                     }
@@ -583,7 +591,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                         manager.saveBooleanPreference(key, false);
                         return;
                     }
-                    
+                    // start perl sadi service generator
+                    generateBtn.setEnabled(false);
                     // put the name of the service into the preference manager
                     manager.savePreference(SADIProperties.GENERATOR_SERVICE_NAME, def.getName());
                     // start perl generator
@@ -608,7 +617,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                         manager.saveBooleanPreference(key, false);
                         return;
                     }
-                    if (!validateJavaGeneratorDefinition(def)) {
+                    if (!validateGeneratorDefinition(def)) {
                         // cancel
                         manager.saveBooleanPreference(key, false);
                         return;
@@ -794,7 +803,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         console.setVisible(true);
     }
 
-    public boolean validatePerlGeneratorDefinition(ServiceDefinition def) {
+    public boolean validateGeneratorDefinition(ServiceDefinition def) {
         if (def.getName() == null || def.getName().equals("")) {
             JOptionPane.showMessageDialog(
                     SadiGeneratorView.this, 
@@ -861,43 +870,5 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             return false;
         }
         return true;
-    }
-    
-    public boolean validateJavaGeneratorDefinition(ServiceDefinition def) {
-        if (def.getName() == null || def.getName().equals("")) {
-            JOptionPane.showMessageDialog(
-                    SadiGeneratorView.this, 
-                    bundle.getString("definition_validation_name"),
-                    bundle.getString("definition_validation_title"), 
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-       
-        if (def.getInputClass() == null || def.getInputClass().equals("")) {
-            JOptionPane.showMessageDialog(
-                    SadiGeneratorView.this, 
-                    bundle.getString("definition_validation_input_class"),
-                    bundle.getString("definition_validation_title"), 
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        if (def.getOutputClass() == null || def.getOutputClass().equals("")) {
-            JOptionPane.showMessageDialog(
-                    SadiGeneratorView.this, 
-                    bundle.getString("definition_validation_output_class"),
-                    bundle.getString("definition_validation_title"), 
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        if (def.getProvider() == null || def.getProvider().equals("")) {
-            JOptionPane.showMessageDialog(
-                    SadiGeneratorView.this, 
-                    bundle.getString("definition_validation_provider"),
-                    bundle.getString("definition_validation_title"), 
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        return true;
-    }
-    
+    }    
 }
