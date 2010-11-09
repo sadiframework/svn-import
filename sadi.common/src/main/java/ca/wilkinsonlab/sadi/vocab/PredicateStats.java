@@ -14,7 +14,7 @@ public class PredicateStats
 	public static final String NUM_INPUTS = NS + "numInputs";
 	public static final String RESPONSE_TIME = NS + "responseTime";
 	
-	/* Predicates that describe statistics computed from samples */
+	/* Predicates that describe regression lines computed from samples */
 
 	public static final String ESTIMATED_BASE_TIME_FORWARD = NS + "baseTimeForward";
 	public static final String ESTIMATED_TIME_PER_INPUT_FORWARD = NS + "timePerInputForward";
@@ -26,5 +26,11 @@ public class PredicateStats
 	
 	public static final String AVERAGE_BASE_TIME = NS + "averageBaseTime";
 	public static final String AVERAGE_TIME_PER_INPUT = NS + "averageTimePerInput";
+
+	/* Predicates that describe averages computed from samples */ 
+
+	public static final String AVERAGE_RESPONSE_TIME_RECORD = NS + "averageResponseTimeRecord";
+	public static final String AVERAGE_RESPONSE_TIME_FORWARD = NS + "averageResponseTimeForward";
+	public static final String AVERAGE_RESPONSE_TIME_REVERSE = NS + "averageResponseTimeReverse";
 	
 }
