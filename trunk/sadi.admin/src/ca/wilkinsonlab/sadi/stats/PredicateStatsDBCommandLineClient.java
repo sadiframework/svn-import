@@ -20,17 +20,36 @@ import org.kohsuke.args4j.Option;
  */
 public class PredicateStatsDBCommandLineClient 
 {
-
-	public static class CommandLineOptions {
-		
+	public static class CommandLineOptions 
+	{
 		public enum OperationType {
 			RECOMPUTE_STATS,
 			CLEAR_ALL,
+			PURGE_SAMPLES,
+			PRINT_NUM_SAMPLES,
 		};
 
-		public List<OperationType> operations = new ArrayList<OperationType>();
+		public List<Operation> operations = new ArrayList<Operation>();
 		
-		@Argument(index=0, required=true, usage="stats DB endpoint URL")
+		public static class Operation
+		{
+			public OperationType opType;
+			public Object opArg;
+			
+			Operation(OperationType opType) 
+			{
+				this.opType = opType;
+				this.opArg = null;
+			}
+			
+			Operation(OperationType opType, Object opArg) 
+			{
+				this.opType = opType;
+				this.opArg = opArg;
+			}
+		}
+		
+		@Argument(index=0, metaVar="<ENDPOINT URL>", required=true, usage="stats DB endpoint URL")
 		String endpointURL = null;
 		
 		@Option(name="-u", aliases={"--username"}, usage="username")
@@ -39,11 +58,23 @@ public class PredicateStatsDBCommandLineClient
 		@Option(name="-p", aliases={"--password"}, usage="password")
 		String password = null;
 
-		@Option(name="-r", aliases={"--recompute-stats"}, usage="recompute summary statistics from samples")
-		protected void recomputeStats(boolean unused) { operations.add(OperationType.RECOMPUTE_STATS); }
+		@Option(name="-s", metaVar="<URI>", aliases={"--samples-graph"}, usage="the named graph in the statsdb that contains the samples (i.e. predicate resolution times)")
+		String statsSamplesGraph = PredicateStatsDB.DEFAULT_SAMPLES_GRAPH;
 		
-		@Option(name="-c", aliases={"--clear-all"}, usage="delete all data in the database (both the samples and summary statistics)")
-		protected void clearAll(boolean unused) { operations.add(OperationType.CLEAR_ALL); }
+		@Option(name="-S", metaVar="<URI>", aliases={"--summary-stats-graph"}, usage="the named graph in the statsdb that contains the summary stats for predicates (i.e. regression lines)")
+		String statsSummaryGraph = PredicateStatsDB.DEFAULT_STATS_GRAPH;
+		
+		@Option(name="-r", aliases={"--recompute-stats"}, usage="recompute summary statistics from samples")
+		protected void recomputeStats(boolean unused) { operations.add(new Operation(OperationType.RECOMPUTE_STATS)); }
+
+		@Option(name="-n", aliases={"--print-num-samples"}, usage="print the current number of samples in the stats database on STDOUT")
+		protected void printNumSamples(boolean unused) { operations.add(new Operation(OperationType.PRINT_NUM_SAMPLES)); }
+		
+		@Option(name="-P", metaVar="<NUM_SAMPLES>", aliases={"--purge-oldest-samples"}, usage="purge the oldest NUM_SAMPLES samples from the stats database")
+		protected void purgeOldestSamples(int numSamples) { operations.add(new Operation(OperationType.PURGE_SAMPLES, new Integer(numSamples))); }
+				
+		@Option(name="-c", aliases={"--clear-all"}, usage="delete all data in the stats database (both the samples and summary statistics)")
+		protected void clearAll(boolean unused) { operations.add(new Operation(OperationType.CLEAR_ALL)); }
 		
 	}
 	
@@ -57,18 +88,32 @@ public class PredicateStatsDBCommandLineClient
 
 			cmdLineParser.parseArgument(args);
 			
-			PredicateStatsDB statsDB = new PredicateStatsDB(options.endpointURL, options.username, options.password);
+			PredicateStatsDB statsDB = new PredicateStatsDB(
+					options.endpointURL,
+					options.username,
+					options.password,
+					options.statsSamplesGraph,
+					options.statsSummaryGraph);
 			
 			if(options.operations.size() == 0) {
 				throw new CmdLineException("no actions specified");
 			}
 				
-			for(CommandLineOptions.OperationType operationType : options.operations) {
+			for(CommandLineOptions.Operation op : options.operations) {
 				
-				switch(operationType) {
+				switch(op.opType) {
 				
 				case RECOMPUTE_STATS:
 					statsDB.recomputeStats();
+					break;
+					
+				case PURGE_SAMPLES:
+					int numSamples = (Integer)op.opArg;
+					statsDB.purgeSamples(numSamples);
+					break;
+					
+				case PRINT_NUM_SAMPLES:
+					System.out.print(statsDB.getNumSamples());
 					break;
 					
 				case CLEAR_ALL:
@@ -76,7 +121,7 @@ public class PredicateStatsDBCommandLineClient
 					break;
 				
 				default:
-					System.err.println(String.format("operation %s not yet implemented", operationType.toString()));
+					System.err.println(String.format("operation %s not yet implemented", op.opType.toString()));
 					break;
 				
 				}
