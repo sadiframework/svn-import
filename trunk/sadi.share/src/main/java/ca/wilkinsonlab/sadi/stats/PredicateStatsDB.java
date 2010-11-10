@@ -167,8 +167,9 @@ public class PredicateStatsDB
 	
 	public synchronized void recomputeStats()
 	{
-		
 		log.debug("recomputing summary stats");
+		
+		clearStatsGraph();
 		
 		for(Property p : getAllPredicatesWithSamples()) {
 			recomputeStats(p, true);
@@ -176,11 +177,6 @@ public class PredicateStatsDB
 		}
 		
 		recomputeAverageStats();
-		
-	}
-	
-	public synchronized void recomputeStats(Property p) 
-	{
 	}
 	
 	public synchronized boolean recomputeStats(Property p, boolean directionIsForward)
@@ -543,6 +539,7 @@ public class PredicateStatsDB
 	public void clearStatsGraph()
 	{
 		try {
+			log.debug("clearing summary stats graph");
 			endpoint.updateQuery(SPARQLStringUtils.strFromTemplate("CLEAR GRAPH %u%", this.statsGraph));
 		} catch (IOException e) {
 			log.error("error updating predicate stats db: ", e);
