@@ -104,16 +104,6 @@ public class SHAREClient
 		@Option(name="-S", metaVar="<URI>", aliases={"--summary-stats-graph"}, usage="the name graph in the statsdb that contains computed summary stats for predicates")
 		String statsSummaryGraph = PredicateStatsDB.DEFAULT_STATS_GRAPH;
 		
-		@Option(name="-x", aliases={"--clear-stats"}, usage="clear all samples and computed statistics from the statsdb. " +
-				"This requires write access to the statsdb, so you will probably also have to specify values for the -e, -u, and -p switches" +
-				"(endpoint URL, username, password)")
-		boolean clearStatsDB = false;
-		
-		@Option(name="-c", aliases={"--recompute-stats"}, usage="recompute summary statistics from the samples in statsdb." +
-				"This requires write access to the statsdb, so you will probably also have to specify values for the -e, -u, and -p switches" +
-				"(endpoint URL, username, password)")
-		boolean recomputeStats = false;
-		
 		/* options for enumerating query plans */
 		
 		@Option(name="-r", aliases={"--random-ordering"}, usage="randomly reorder the triple patterns in the input query")
@@ -203,24 +193,6 @@ public class SHAREClient
 			statsConfig.setProperty(PredicateStatsDB.PASSWORD_CONFIG_KEY, options.statsPassword);
 			statsConfig.setProperty(PredicateStatsDB.SAMPLES_GRAPH_CONFIG_KEY, options.statsSamplesGraph);
 			statsConfig.setProperty(PredicateStatsDB.STATS_GRAPH_CONFIG_KEY, options.statsSummaryGraph);
-			
-			/*
-			 * Performs statsdb related actions, if requested.  These
-			 * options take precedence over the normal query-running
-			 * behaviour.
-			 */
-			
-			if(options.clearStatsDB) {
-				PredicateStatsDB.theInstance().clear();
-			}
-			
-			if(options.recomputeStats) {
-				PredicateStatsDB.theInstance().recomputeStats();
-			}
-
-			if(options.clearStatsDB || options.recomputeStats) {
-				System.exit(EXIT_CODE_SUCCESS);
-			}
 			
 			/*
 			 * Open the output file (for the query results), or use STDOUT 

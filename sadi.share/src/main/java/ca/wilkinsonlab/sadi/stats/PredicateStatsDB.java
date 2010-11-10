@@ -41,12 +41,9 @@ public class PredicateStatsDB
 	public final static String SAMPLES_GRAPH_CONFIG_KEY = "samplesGraph";
 	public final static String STATS_GRAPH_CONFIG_KEY = "statsGraph";
 	public final static String SAMPLE_CACHE_SIZE_CONFIG_KEY = "sampleCacheSize";
-	public final static String NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL_CONFIG_KEY = "numSamplesToPurgeOnCacheFull";
 	
 	public final static String DEFAULT_SAMPLES_GRAPH = "http://sadiframework.org/predicateStats/samples";
 	public final static String DEFAULT_STATS_GRAPH = "http://sadiframework.org/predicateStats/summaryStats";
-	protected final static int DEFAULT_SAMPLE_CACHE_SIZE = 10000;
-	protected final static int DEFAULT_NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL = 200; 
 
 	protected final static int INTERNAL_STATS_CACHE_SIZE = 5000;
 	protected final static int UNINITIALIZED = -1; 
@@ -60,55 +57,31 @@ public class PredicateStatsDB
 	protected SPARQLEndpoint endpoint;
 	protected String samplesGraph;
 	protected String statsGraph;
-	protected int sampleCacheSize;
-	protected int numSamplesToPurgeOnCacheFull;
 	
-	/** an internal counter that tracks the current number of samples in the DB */
-	protected int numSamples = UNINITIALIZED;
-	
-	public synchronized static PredicateStatsDB theInstance() 
-	{
-		if(theInstance == null) {
-			try {
-				theInstance = new PredicateStatsDB(Config.getConfiguration().subset(PredicateStatsDB.ROOT_CONFIG_KEY));
-			} catch(IOException e) {
-				log.error("error creating stats db singleton: ", e);
-			}
-		}
-		
-		return theInstance;
-	}
-	
-	protected PredicateStatsDB(Configuration config) throws IOException
+	public PredicateStatsDB(Configuration config) throws IOException
 	{
 		this(config.getString(ENDPOINT_URL_CONFIG_KEY), 
 			config.getString(USERNAME_CONFIG_KEY),
 			config.getString(PASSWORD_CONFIG_KEY),
 			config.getString(SAMPLES_GRAPH_CONFIG_KEY, DEFAULT_SAMPLES_GRAPH),
-			config.getString(STATS_GRAPH_CONFIG_KEY, DEFAULT_STATS_GRAPH),
-			config.getInt(SAMPLE_CACHE_SIZE_CONFIG_KEY, DEFAULT_SAMPLE_CACHE_SIZE),
-			config.getInt(NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL_CONFIG_KEY, DEFAULT_NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL));
+			config.getString(STATS_GRAPH_CONFIG_KEY, DEFAULT_STATS_GRAPH));
 	}
 	
-	protected PredicateStatsDB(String endpointURL, String username, String password) throws IOException 
+	public PredicateStatsDB(String endpointURL, String username, String password) throws IOException 
 	{
 		this(endpointURL,
 			username,
 			password,
 			DEFAULT_SAMPLES_GRAPH,
-			DEFAULT_STATS_GRAPH,
-			DEFAULT_SAMPLE_CACHE_SIZE,
-			DEFAULT_NUM_SAMPLES_TO_PURGE_ON_CACHE_FULL);
+			DEFAULT_STATS_GRAPH);
 	}
 	
-	protected PredicateStatsDB(
+	public PredicateStatsDB(
 			String endpointURL,
 			String username,
 			String password,
 			String samplesGraph,
-			String statsGraph,
-			int sampleCacheSize,
-			int numSamplesToPurgeOnCacheFull) 
+			String statsGraph) 
 	
 	throws IOException
 	{
@@ -121,20 +94,9 @@ public class PredicateStatsDB
 		
 		this.samplesGraph = samplesGraph;
 		this.statsGraph = statsGraph;
-		this.sampleCacheSize = sampleCacheSize;
-		this.numSamplesToPurgeOnCacheFull = numSamplesToPurgeOnCacheFull; 
 
-		if(this.numSamplesToPurgeOnCacheFull > this.sampleCacheSize) {
-			
-			log.warn("numSamplesToPurgeOnCacheFull should never be greater than the sample cache size");
-			this.numSamplesToPurgeOnCacheFull = Math.max(this.sampleCacheSize / 10, 1);
-			log.warn(String.format("set numSamplesToPurgeOnCacheFull to %d (10% of sample cache size)", this.numSamplesToPurgeOnCacheFull));
-		}
-
-		initNumSamples();
-		
 		stopWatch.stop();
-		log.info(String.format("initialized statsDB singleton in %d milliseconds", stopWatch.getTime()));
+		log.info(String.format("initialized predicate stats db in %dms", stopWatch.getTime()));
 	}
 	
 	protected void initCache() 
@@ -151,7 +113,7 @@ public class PredicateStatsDB
 		Config.getCacheManager().addCache(statsCache);
 	}
 	
-	protected void initNumSamples() throws IOException 
+	public int getNumSamples() throws IOException 
 	{
 		String queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("count.samples.sparql.template"));
 		String countQuery = SPARQLStringUtils.strFromTemplate(queryTemplate, this.samplesGraph);
@@ -168,17 +130,11 @@ public class PredicateStatsDB
 		Map<String, String> firstRow = results.iterator().next();
 		String firstColumn = firstRow.keySet().iterator().next();
 
-		this.numSamples = Integer.valueOf(firstRow.get(firstColumn));	
-
-		log.debug(String.format("predicate stats db currently has %d samples", this.numSamples));
+		return Integer.valueOf(firstRow.get(firstColumn));	
 	}
 	
 	public synchronized void recordSample(Property predicate, boolean directionIsForward, int numInputs, int responseTime)
 	{
-		if(this.numSamples >= this.sampleCacheSize) {
-			log.debug(String.format("samples db has reached maximum size of %d samples, purging %d oldest samples", this.sampleCacheSize, this.numSamplesToPurgeOnCacheFull));
-			purgeSamples();
-		}	
 		
 		try {
 
@@ -203,8 +159,6 @@ public class PredicateStatsDB
 			
 			endpoint.updateQuery(query);
 
-			this.numSamples++;
-		
 		} catch(IOException e) {
 			
 			log.error("error updating predicate stats db: ", e);
@@ -598,10 +552,7 @@ public class PredicateStatsDB
 	public synchronized void clearSamplesGraph()
 	{
 		try {
-		
 			endpoint.updateQuery(SPARQLStringUtils.strFromTemplate("CLEAR GRAPH %u%", this.samplesGraph));
-			this.numSamples = 0;
-		
 		} catch (IOException e) {
 			log.error("error updating predicate stats db: ", e);
 		}
@@ -661,18 +612,10 @@ public class PredicateStatsDB
 		
 	}
 	
-	public synchronized void purgeSamples()
+	public synchronized void purgeSamples(int numSamplesToPurge)
 	{
 		try {
-		
-			purgeSamplesByTimestamp(getTimestampCutoffForPurge());
-			this.numSamples -= numSamplesToPurgeOnCacheFull;
-			
-			/* sanity check */
-			if(this.numSamples < 0) {
-				throw new RuntimeException("numSamples should never be less than zero!");
-			}
-			
+			purgeSamplesByTimestamp(getTimestampCutoffForPurge(numSamplesToPurge));
 		} catch(IOException e) {
 			log.error("error updating predicate stats db: ", e);
 		}
@@ -685,10 +628,10 @@ public class PredicateStatsDB
 		endpoint.updateQuery(query);
 	}
 	
-	protected long getTimestampCutoffForPurge() throws IOException
+	protected long getTimestampCutoffForPurge(int numSamplesToPurge) throws IOException
 	{
 		String queryTemplate = SPARQLStringUtils.readFully(PredicateStatsDB.class.getResource("get.timestamp.cutoff.sparql.template"));
-		String query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.samplesGraph, String.valueOf(this.numSamplesToPurgeOnCacheFull - 1));
+		String query = SPARQLStringUtils.strFromTemplate(queryTemplate, this.samplesGraph, String.valueOf(numSamplesToPurge - 1));
 		List<Map<String,String>> results = endpoint.selectQuery(query);
 
 		// this will only happen when the graph is empty, and we should 
