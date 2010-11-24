@@ -262,6 +262,7 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 			);
 
 			my $copyCommand = join(" ", @copyCommand);
+			print "copy command: $copyCommand\n";
 			my $httpStatus = qx($copyCommand);
 
 			die "error copying samples from $sourceGraph to $targetGraph: HTTP $httpStatus" unless ($httpStatus == 200);
