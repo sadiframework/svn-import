@@ -23,7 +23,7 @@ my %STATUS_STRING = (
 	);
 
 # in seconds
-my $QUERY_TIMEOUT = 30 * 60;
+my $QUERY_TIMEOUT = 60 * 60;
 
 my $USAGE = "USAGE: ./benchmark.queries.pl [--training-query training.query1.file --training-query training.query2.file ...] [--test-query test.query1.file --test-query test.query2.file ...] [--training-runs <INT> ] [--test-runs <INT>] [--trials-per-test-run <INT>] <share-standalone-jar> <stats endpoint URL> <stats endpoint username> <stats endpoint password> <samples graph URI prefix> <summary stats graph URI prefix>";
 
@@ -95,6 +95,10 @@ if(length($generatedFilePrefix) > 0) {
 	$generatedFilePrefix .= ".";
 }
 
+my @commonShareOptions = (
+	"--no-reasoning"
+);
+
 my @commonStatsOptions = (
 	"--stats-endpoint", $statsEndpointURL,
 	"--stats-username", $statsUsername,
@@ -113,8 +117,14 @@ my @statsOptions = (
 # --resume.
 
 if(!$resume) {
-	removeFilesGeneratedFromPreviousRuns;
-	writeStringToFile(join(" ", @origARGV), $RESUME_ARGS_FILE) unless $resume;
+	unlink <*.complete>;
+	unlink <*.last>;
+	unlink <*.time>;
+	unlink <*ordering*log>;
+	unlink <*variant*log>;
+	unlink <*.exit.status>;
+	unlink <*.results>;
+	writeStringToFile(join(" ", @origARGV), $RESUME_ARGS_FILE);
 }
 
 #--------------------------------------------------
@@ -160,14 +170,14 @@ if ($resume && (-e $orderingsCompleteFile)) {
 
 } else {
 
-	msg("generating random input query orderings for training runs");
-
-	foreach my $queryFile (@trainingQueries) {
-
-		my ($basename) = fileparse($queryFile);
-		my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTrainingRuns, "${generatedFilePrefix}${basename}", @statsOptions);
-
-	}
+#	msg("generating random input query orderings for training runs");
+#
+#	foreach my $queryFile (@trainingQueries) {
+#
+#		my ($basename) = fileparse($queryFile);
+#		my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTrainingRuns, "${generatedFilePrefix}${basename}", @statsOptions);
+#
+#	}
 
 	msg("generating random input query orderings for test runs");
 
@@ -252,7 +262,6 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 			);
 
 			my $copyCommand = join(" ", @copyCommand);
-			print "copy command: $copyCommand\n";
 			my $httpStatus = qx($copyCommand);
 
 			die "error copying samples from $sourceGraph to $targetGraph: HTTP $httpStatus" unless ($httpStatus == 200);
@@ -263,14 +272,14 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 
 			foreach my $queryFile (@trainingQueries) {
 
-				my $queryOrderingFile = "$queryFile.ordering." . ($i - 1);
+				my $queryOrderingFile = "$queryFile.variant$i";
 				my ($basename) = fileparse($queryOrderingFile);
 				my $filePrefix = "${generatedFilePrefix}${basename}";
 
 				die "UNABLE TO FIND TRAINING QUERY FILE $queryOrderingFile" unless (-e $queryOrderingFile);
 				
 				msg("running training query $basename (training run $i)");
-				query($queryOrderingFile, $filePrefix, "--optimize", "--record-stats", @statsOptions);
+				query($queryOrderingFile, $filePrefix, "--record-stats", "--optimize", @commonShareOptions, @statsOptions);
 
 			}
 
@@ -317,6 +326,7 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 				   	"${filePrefix}.no.opt",
 				   	$resume,
 				   	"--no-reordering",
+					@commonShareOptions,
 				   	@statsOptions);
 
 			}
@@ -331,6 +341,7 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 			   	"${filePrefix}.test.run.${i}.opt",
 			   	$resume,
 				"--optimize",
+				@commonShareOptions,
 			   	@statsOptions);
 
 		} # for each test run
@@ -409,7 +420,7 @@ sub share
 {
 	my ($timeout, @shareOptions) = @_;
 
-	my @command = ("java", "-Xmx2000M", "-jar", $shareJar, @shareOptions);	
+	my @command = ("java", "-Xmx3000M", "-jar", $shareJar, @shareOptions);	
 	my $commandString = join(" ", @command);
 
 	my $exitCode;
@@ -545,11 +556,6 @@ sub query
 	writeStringToFile($elapsedTime, "$generatedFilePrefix.time");
 
 	return ($exitCode, $elapsedTime);
-}
-
-sub removeFilesGeneratedFromPreviousRuns
-{
-	unlink glob "*ordering*"
 }
 
 sub msg
