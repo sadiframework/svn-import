@@ -74,6 +74,16 @@ public class SHAREKnowledgeBase
 	private Tracker tracker;
 	private Set<String> deadServices;
 	
+	public static final String ROOT_CONFIG_KEY = "share";
+	public static final String ALLOW_ARQ_SYNTAX_CONFIG_KEY = "allowARQSyntax";
+	public static final String ALLOW_PREDICATE_VARIABLES_CONFIG_KEY = "allowPredicateVariables";
+	public static final String USE_ADAPTIVE_QUERY_PLANNING_CONFIG_KEY = "useAdaptiveQueryPlanning";
+	public static final String RECORD_QUERY_STATS_CONFIG_KEY = "recordQueryStats";
+	public static final String INTERSECT_VARIABLE_BINDINGS_CONFIG_KEY = "intersectVariableBindings";
+	public static final String RESOLVE_UNBOUND_PATTERNS_CONFIG_KEY = "resolveUnboundPatterns";
+	public static final String STORE_INFERRED_TRIPLES_CONFIG_KEY = "storeInferredTriples";
+	public static final String DYNAMIC_INPUT_CLASSIFICATION_CONFIG_KEY = "dynamicInputInstanceClassification";
+	
 	/** allow ARQ-specific extensions to SPARQL query syntax (e.g. GROUP BY, HAVING, arithmetic expressions) */ 
 	private boolean allowARQSyntax;
 	/** allow variables in the predicate positions of triple patterns */
@@ -159,18 +169,19 @@ public class SHAREKnowledgeBase
 			log.error("unable to initialize predicate stats db", e);
 		}
 
-		dynamicInputInstanceClassification = config.getBoolean("share.dynamicInputInstanceClassification", false);
-		setUseAdaptiveQueryPlanning(config.getBoolean("share.useAdaptiveQueryPlanning", false));
-		setAllowPredicateVariables(config.getBoolean("share.allowPredicateVariables", false));
-		setRecordQueryStats(config.getBoolean("share.recordQueryStats", false));
+		Configuration kbConfig = config.subset(ROOT_CONFIG_KEY);
+		dynamicInputInstanceClassification = kbConfig.getBoolean(DYNAMIC_INPUT_CLASSIFICATION_CONFIG_KEY, false);
+		setUseAdaptiveQueryPlanning(kbConfig.getBoolean(USE_ADAPTIVE_QUERY_PLANNING_CONFIG_KEY, false));
+		setAllowPredicateVariables(kbConfig.getBoolean(ALLOW_PREDICATE_VARIABLES_CONFIG_KEY, false));
+		setRecordQueryStats(kbConfig.getBoolean(RECORD_QUERY_STATS_CONFIG_KEY, false));
 		/*
 		 * NOTE: default value should be false here, OPTIONAL queries 
 		 * will not work when this option is on (see note above) 
 		 */
-		this.intersectVariableBindings = config.getBoolean("share.intersectVariableBindings", false);
-//		skipPropertiesPresentInKB = config.getBoolean("share.skipPropertiesPresentInKB", false);
-		this.resolveUnboundPatterns = config.getBoolean("share.resolveUnboundPatterns", true);
-		this.storeInferredTriples = config.getBoolean("share.storeInferredTriples", false);
+		this.intersectVariableBindings = kbConfig.getBoolean(INTERSECT_VARIABLE_BINDINGS_CONFIG_KEY, false);
+//		skipPropertiesPresentInKB = kbConfig.getBoolean("skipPropertiesPresentInKB", false);
+		this.resolveUnboundPatterns = kbConfig.getBoolean(RESOLVE_UNBOUND_PATTERNS_CONFIG_KEY, true);
+		this.storeInferredTriples = kbConfig.getBoolean(STORE_INFERRED_TRIPLES_CONFIG_KEY, false);
 	}
 	
 	protected void setAllowARQSyntax(boolean allowARQSyntax) {

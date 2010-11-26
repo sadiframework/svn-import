@@ -69,7 +69,7 @@ public class SHAREClient
 		boolean bypassQueryReordering = false;
 
 		@Option(name="-N", aliases={"--no-reasoning"}, usage="disable OWL reasoning when answering the input query")
-		boolean bypassReasoning = false;
+		boolean noReasoning = false;
 		
 		@Option(name="-O", aliases={"--optimize"}, usage="enable adaptive query optimization (order of triple patterns is decided as query runs)")
 		boolean optimize = false;
@@ -294,8 +294,11 @@ public class SHAREClient
 			SHAREKnowledgeBase kb;
 			OntModel reasoningModel;
 			
-			if(options.bypassReasoning) {
+			if(options.noReasoning) {
 				reasoningModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM);
+				// emulate reasoning by explicitly storing triples implied by inverse and 
+				// equivalent property relationships
+				Config.getConfiguration().subset(SHAREKnowledgeBase.ROOT_CONFIG_KEY).setProperty(SHAREKnowledgeBase.STORE_INFERRED_TRIPLES_CONFIG_KEY, true);
 			} else {
 				reasoningModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF);
 			}
