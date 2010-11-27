@@ -25,7 +25,7 @@ my %STATUS_STRING = (
 # in seconds
 my $QUERY_TIMEOUT = 60 * 60;
 
-my $USAGE = "USAGE: ./benchmark.queries.pl [--training-query training.query1.file --training-query training.query2.file ...] [--test-query test.query1.file --test-query test.query2.file ...] [--training-runs <INT> ] [--test-runs <INT>] [--trials-per-test-run <INT>] <share-standalone-jar> <stats endpoint URL> <stats endpoint username> <stats endpoint password> <samples graph URI prefix> <summary stats graph URI prefix>";
+my $USAGE = "USAGE: ./benchmark.queries.pl [--training-query training.query1.file --training-query training.query2.file ...] [--test-query test.query1.file --test-query test.query2.file ...] [--training-runs <INT> ] [--test-runs <INT>] [--trials-per-test-run <INT>] <share-standalone-jar> <statsdb-jar> <stats endpoint URL> <stats endpoint username> <stats endpoint password> <samples graph URI prefix> <summary stats graph URI prefix>";
 
 my $RESUME_ARGS_FILE = "resume.args";
 
@@ -37,6 +37,7 @@ my $generatedFilePrefix = "";
 my $clearStats = 1;
 my $numTrialsPerTestRun = 3;
 my $shareJar;
+my $statsdbJar;
 my $samplesGraphPrefix;
 my $summaryStatsGraphPrefix;
 my $statsEndpointURL;
@@ -78,16 +79,16 @@ if($resume) {
 
 }
 
-if(@ARGV != 6) {
-	die "Incorrect number of arguments. Did you provide a path to the SHARE jar and a stats endpoint/username/password/graph prefixes?:\n$USAGE\n";	
+if(@ARGV != 7) {
+	die "Incorrect number of arguments. Did you provide a path to the SHARE jar, Stats DB jar, and a stats endpoint/username/password/graph prefixes?:\n$USAGE\n";	
 }
 
-($shareJar, $statsEndpointURL, $statsUsername, $statsPassword, $samplesGraphPrefix, $summaryStatsGraphPrefix) = @ARGV;
+($shareJar, $statsdbJar, $statsEndpointURL, $statsUsername, $statsPassword, $samplesGraphPrefix, $summaryStatsGraphPrefix) = @ARGV;
 
 # it is legal to run the script without training queries,
 # or without test queries, but not both.
 
-if(@trainingQueries == 0 || @testQueries == 0) {
+if(@trainingQueries == 0 && @testQueries == 0) {
 	die "at least one training query file or test query file must be specified:\n$USAGE\n";
 }
 
@@ -95,21 +96,21 @@ if(length($generatedFilePrefix) > 0) {
 	$generatedFilePrefix .= ".";
 }
 
-my @commonShareOptions = (
-	"--no-reasoning"
-);
+# Options we want to use every time we use the SHARE jar.
 
-my @commonStatsOptions = (
+my @commonShareOptions = (
+	"--no-reasoning",
 	"--stats-endpoint", $statsEndpointURL,
 	"--stats-username", $statsUsername,
-	"--stats-password", $statsPassword
+	"--stats-password", $statsPassword,
 );
 
-my @statsOptions = (
-	@commonStatsOptions,
-	"--samples-graph", samplesGraphURI($samplesGraphPrefix, 0),
-	"--summary-stats-graph", summaryStatsGraphURI($summaryStatsGraphPrefix, 0),
-);		
+# Options we want to use every time we use the Stats DB jar.
+
+my @commonStatsOptions = (
+	"--username", $statsUsername,
+	"--password", $statsPassword,
+);
 
 # At this point, we know the use hasn't made any errors 
 # with command line switches/arguments.  Remember 
@@ -117,6 +118,7 @@ my @statsOptions = (
 # --resume.
 
 if(!$resume) {
+	msg("removing files generated from previous benchmarking run");
 	unlink <*.complete>;
 	unlink <*.last>;
 	unlink <*.time>;
@@ -135,17 +137,14 @@ if($clearStats && !$resume) {
 
 	msg("clearing stats");
 
-	for(my $i = 0; $i <= $numTrainingRuns; $i++) {
+	for(my $i = 1; $i <= $numTrainingRuns; $i++) {
 		
-		my $samplesGraph = samplesGraphURI($samplesGraphPrefix, $i);
-		my $summaryStatsGraph = summaryStatsGraphURI($summaryStatsGraphPrefix, $i);
-
-		msg("clearing <$samplesGraph> and <$summaryStatsGraph>");
+		msg("clearing <" . samplesGraphURI($i) . "> and <" . summaryStatsGraphURI($i) . ">");
 
 		clearStats(
-			@commonStatsOptions, 
-			"--samples-graph", $samplesGraph,
-			"--summary-stats-graph", $summaryStatsGraph,
+			@commonStatsOptions,
+			"--samples-graph", samplesGraphURI($i),
+			"--summary-stats-graph", summaryStatsGraphURI($i),
 			);
 	}
 }
@@ -175,7 +174,7 @@ if ($resume && (-e $orderingsCompleteFile)) {
 #	foreach my $queryFile (@trainingQueries) {
 #
 #		my ($basename) = fileparse($queryFile);
-#		my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTrainingRuns, "${generatedFilePrefix}${basename}", @statsOptions);
+#		my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTrainingRuns, "${generatedFilePrefix}${basename}");
 #
 #	}
 
@@ -184,7 +183,7 @@ if ($resume && (-e $orderingsCompleteFile)) {
 	foreach my $queryFile (@testQueries) {
 
 		my ($basename) = fileparse($queryFile);
-		my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTestRuns, "${generatedFilePrefix}${basename}", @statsOptions);
+		my @generatedFiles = writeRandomQueryOrderingsToFile($queryFile, $numTestRuns, "${generatedFilePrefix}${basename}");
 
 	}
 	
@@ -192,110 +191,109 @@ if ($resume && (-e $orderingsCompleteFile)) {
 
 touch($orderingsCompleteFile);
 
-for(my $i = 0; $i <= $numTrainingRuns; $i++) {
+# NOTE: We run all of the training runs first, before running any of the
+# test queries. We do this because it isn't possible to re-run a test query unless 
+# all of the training queries that it depends on have completed successfully.
+# (Failed queries are common due to services going down, etc.)
 
-	my $samplesGraph = samplesGraphURI($samplesGraphPrefix, $i);
-	my $summaryStatsGraph = summaryStatsGraphURI($summaryStatsGraphPrefix, $i);
+for(my $i = 1; $i <= $numTrainingRuns; $i++) {
 
 	my @statsOptions = (
-		@commonStatsOptions,
-		"--samples-graph", $samplesGraph,
-		"--summary-stats-graph", $summaryStatsGraph,
+		"--samples-graph", samplesGraphURI($i),
+		"--summary-stats-graph", summaryStatsGraphURI($i),
 	);		
 
-	if($i > 0) {
+	msg("------------------------------------");
+	msg("TRAINING RUN $i");
+	msg("------------------------------------");
 
-		msg("------------------------------------");
-		msg("TRAINING RUN $i");
-		msg("------------------------------------");
-		
-		my $trainingRunCompleteFile = "training.run.$i.complete";	
+	my $trainingRunCompleteFile = "training.run.$i.complete";	
 
-		# NOTE: If we are resuming and we didn't get all the way
-		# through a training run, there's no way to pickup
-		# at the exact query where we left off.  The problem
-		# is that even a partially run query will record 
-		# statistics, and so we must redo the whole training
-		# run from scratch.  
+	# NOTE: If we are resuming and we didn't get all the way
+	# through a training run, there's no way to pickup
+	# at the exact query where we left off.  The problem
+	# is that even a partially run query will record 
+	# statistics, and so we must redo the whole training
+	# run from scratch.  
 
-		if($resume && (-e $trainingRunCompleteFile)) {
+	if($resume && (-e $trainingRunCompleteFile)) {
 
-			msg("resume: skipping training run $i (completed on previous run)");
+		msg("resume: skipping training run $i (completed on previous run)");
 
-		} else {
+	} else {
 
-			# see NOTE above
-			if($resume) {
+		# see NOTE above
+		if($resume) {
+			msg("restarting training run $i from the beginning");
+			msg("clearing <" . samplesGraphURI($i) . "> and <" . summaryStatsGraphURI($i) . ">");
+			clearStats(@commonStatsOptions, @statsOptions);
+		}
 
-				msg("restarting training run $i from the beginning");
-				msg("clearing <$samplesGraph> and <$summaryStatsGraph>");
-				clearStats(@statsOptions);
+		#-------------------------------------------------
+		# Copy samples from previous training run
+		#------------------------------------------------
 
-			}
+		# Samples from each training run are stored in separate graphs,
+		# so that it is easy to re-run a benchmark query that occurred
+		# at any point during the training.
+		#
+		# Samples should be cumulative across training runs though,
+		# so we need to copy over the samples from the previous training
+		# run.
 
-			#-------------------------------------------------
-			# Copy samples from previous training run
-			#------------------------------------------------
+		if($i > 1) {
+			copy_graph(samplesGraphURI($i - 1), samplesGraphURI($i), $statsEndpointURL, $statsUsername, $statsPassword);
+		}
 
-			# Samples from each training run are stored in separate graphs,
-			# so that it is easy to re-run a benchmark query that occurred
-			# at any point during the training.
-			#
-			# Samples should be cumulative across training runs though,
-			# so we need to copy over the samples from the previous training
-			# run.
+		#--------------------------------------------------
+		# Run training queries
+		#--------------------------------------------------
 
-			my $sourceGraph = samplesGraphURI($samplesGraphPrefix, $i - 1);
-			my $targetGraph = $samplesGraph;
+		foreach my $queryFile (@trainingQueries) {
 
-			msg("copying samples from <$sourceGraph> to <$targetGraph>");
+			my $queryOrderingFile = "$queryFile.variant$i";
+			my ($basename) = fileparse($queryOrderingFile);
+			my $filePrefix = "${generatedFilePrefix}${basename}";
 
-			my @copyCommand = (
-				"curl",
-				"-o", "/dev/null", # Unix specific
-				"--silent",
-				"--write-out", "'%{http_code}'",
-				"-u", "'$statsUsername:$statsPassword'",
-				"--anyauth",
-				"--data-urlencode", "query='insert into graph <$targetGraph> { ?s ?p ?o } from <$sourceGraph> where { ?s ?p ?o }'",
-				$statsEndpointURL,
-			);
+			die "UNABLE TO FIND TRAINING QUERY FILE $queryOrderingFile" unless (-e $queryOrderingFile);
 
-			my $copyCommand = join(" ", @copyCommand);
-			print "copy command: $copyCommand\n";
-			my $httpStatus = qx($copyCommand);
+			msg("running training query $basename (training run $i)");
 
-			die "error copying samples from $sourceGraph to $targetGraph: HTTP $httpStatus" unless ($httpStatus == 200);
+			# NOTE: We use the summary stats graph from the previous training run here, in 
+			# order to provide the optimizer with stats that have been gathered in
+			# previous training runs. 
 
-			#--------------------------------------------------
-			# Run training queries
-			#--------------------------------------------------
+			my $summaryStatsGraphURI = ($i > 1) ? summaryStatsGraphURI($i - 1) : summaryStatsGraphURI($i);
 
-			foreach my $queryFile (@trainingQueries) {
+			query($queryOrderingFile, 
+				$filePrefix, 
+				"--record-stats", 
+				"--optimize", 
+				@commonShareOptions, 
+				"--samples-graph", samplesGraphURI($i),
+				"--summary-stats-graph", $summaryStatsGraphURI);
 
-				my $queryOrderingFile = "$queryFile.variant$i";
-				my ($basename) = fileparse($queryOrderingFile);
-				my $filePrefix = "${generatedFilePrefix}${basename}";
+		}
 
-				die "UNABLE TO FIND TRAINING QUERY FILE $queryOrderingFile" unless (-e $queryOrderingFile);
-				
-				msg("running training query $basename (training run $i)");
-				query($queryOrderingFile, $filePrefix, "--record-stats", "--optimize", @commonShareOptions, @statsOptions);
+		#--------------------------------------------------
+		# Recompute statistics from samples
+		#--------------------------------------------------
 
-			}
+		msg("recomputing predicate stats");
+		recomputeStats(@commonStatsOptions, @statsOptions);
 
-			#--------------------------------------------------
-			# Recompute statistics from samples
-			#--------------------------------------------------
+		touch($trainingRunCompleteFile);
 
-			msg("recomputing predicate stats");
-			recomputeStats(@statsOptions);
+	} # if we aren't resuming, or can't resume after this training run
 
-			touch($trainingRunCompleteFile);
+}
 
-		} # if we aren't resuming, or can't resume after this training run
+for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 
-	}
+	my @statsOptions = (
+		"--samples-graph", samplesGraphURI($i),
+		"--summary-stats-graph", summaryStatsGraphURI($i),
+	);		
 
 	#--------------------------------------------------
 	# Run test queries
@@ -351,10 +349,32 @@ for(my $i = 0; $i <= $numTrainingRuns; $i++) {
 
 } # for each training run
 
-
 #--------------------------------------------------
 # Subroutines
 #--------------------------------------------------
+
+sub copy_graph
+{
+	my ($sourceGraph, $targetGraph, $endpointURL, $username, $password) = @_;
+
+	msg("copying contents of <$sourceGraph> to <$targetGraph>, in $endpointURL");
+
+	my @copyCommand = (
+		"curl",
+		"-o", "/dev/null", # Unix specific
+		"--silent",
+		"--write-out", "'%{http_code}'",
+		"-u", "'$username:$password'",
+		"--anyauth",
+		"--data-urlencode", "query='insert into graph <$targetGraph> { ?s ?p ?o } from <$sourceGraph> where { ?s ?p ?o }'",
+		$endpointURL,
+	);
+
+	my $copyCommand = join(" ", @copyCommand);
+	my $httpStatus = qx($copyCommand);
+
+	die "error copying samples from $sourceGraph to $targetGraph: HTTP $httpStatus" unless ($httpStatus == 200);
+}
 
 sub run_test_query_trials
 {
@@ -372,7 +392,6 @@ sub run_test_query_trials
 
 		if($resume && (-e $completionFile)) {
 		
-
 			if(-e $lastFile) {
 				msg("resume: trial $i of $basename failed or timed out on previous run, skipping all remaining trials");
 				last;
@@ -398,7 +417,6 @@ sub run_test_query_trials
 
 }
 
-
 sub touch
 {
 	my $filename = shift @_;
@@ -407,14 +425,20 @@ sub touch
 
 sub samplesGraphURI
 {
-	my ($samplesGraphPrefix, $trainingRuns) = @_;
+	my $trainingRuns = shift @_;
 	return "$samplesGraphPrefix/$trainingRuns.training.runs";
 }
 
 sub summaryStatsGraphURI
 {
-	my ($summaryStatsGraphPrefix, $trainingRuns) = @_;
+	my $trainingRuns = shift @_;
 	return "$summaryStatsGraphPrefix/$trainingRuns.training.runs";
+}
+
+sub stats
+{
+	my ($endpointURL, @statsOptions) = @_;
+	system("java", "-Xmx2000M", "-jar", $statsdbJar, @statsOptions, $endpointURL);
 }
 
 sub share
@@ -423,6 +447,8 @@ sub share
 
 	my @command = ("java", "-Xmx3000M", "-jar", $shareJar, @shareOptions);	
 	my $commandString = join(" ", @command);
+
+	msg("running SHARE: $commandString");
 
 	my $exitCode;
 	my $elapsedTime;
@@ -445,29 +471,31 @@ sub share
 
 sub clearStats
 {
-	my @shareOptions = @_;
+	my @statsOptions = @_;
 
-	my ($exitCode) = share(
-		0,
-		"--clear-stats",
-		"--log-file", "${generatedFilePrefix}clear.stats.log",
-		@shareOptions
-	);
+#	my ($exitCode) = share(
+#		0,
+#		"--clear-stats",
+#		"--log-file", "${generatedFilePrefix}clear.stats.log",
+#		@shareOptions
+#	);
 
+	my $exitCode = stats($statsEndpointURL, @statsOptions, "--clear-all");	
 	die "ERROR OCCURRED DURING CLEARING OF STATS\n" unless ($exitCode == $EXIT_CODE_SUCCESS);
 }
 
 sub recomputeStats
 {
-	my @shareOptions =  @_;
+	my @statsOptions =  @_;
 
-	my ($exitCode) = share(
-		0,
-		"--recompute-stats",
-		"--log-file", "${generatedFilePrefix}recomputestats.log",
-		@shareOptions
-	);
+#	my ($exitCode) = share(
+#		0,
+#		"--recompute-stats",
+#		"--log-file", "${generatedFilePrefix}recomputestats.log",
+#		@shareOptions
+#	);
 
+	my $exitCode = stats($statsEndpointURL, @statsOptions, "--recompute-stats");
 	die "ERROR OCCURRED DURING COMPUTATION OF STATS\n" unless ($exitCode == $EXIT_CODE_SUCCESS);
 }
 
