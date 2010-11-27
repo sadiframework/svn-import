@@ -1,6 +1,8 @@
 package ca.wilkinsonlab.sadi.registry;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +26,7 @@ public class SPARQLServlet extends HttpServlet
 	{
 		String query = request.getParameter("query");
 		String callback = request.getParameter("callback");
+		String format = request.getParameter("format");
 		if (query != null) {
 			Registry registry = null;
 			try {
@@ -34,6 +37,25 @@ public class SPARQLServlet extends HttpServlet
 					JSONWriter jsonWriter = new JSONWriter();
 					response.setContentType("text/javascript");
 					response.getWriter().format("%s(%s)", callback, jsonWriter.write(bindings));
+					return;
+				} else if (format.equals("JSON")) { // compatibility with Virtuoso SPARQL
+					JSONWriter jsonWriter = new JSONWriter();
+					response.setContentType("text/javascript");
+					List<Map<String, Map<String, String>>> newBindings = new ArrayList<Map<String, Map<String, String>>>();
+					for (Map<String, String> binding: bindings) {
+						Map<String, Map<String, String>> newBinding = new HashMap<String, Map<String, String>>();
+						for (String variable: binding.keySet()) {
+							Map<String, String> valueMap = new HashMap<String, String>();
+							valueMap.put("value", binding.get(variable));
+							newBinding.put(variable, valueMap);
+						}
+						newBindings.add(newBinding);
+					}
+					Map<Object, Object> top = new HashMap<Object, Object>();
+					Map<Object, Object> results = new HashMap<Object, Object>();
+					top.put("results", results);
+					results.put("bindings", newBindings);
+					response.getWriter().print(jsonWriter.write(top));
 					return;
 				} else {
 					request.setAttribute("variables", resultSet.getResultVars());
