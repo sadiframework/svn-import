@@ -4,7 +4,7 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-registry</artifactId>
   <packaging>war</packaging>
-  <version>0.0.5-SNAPSHOT</version>
+  <version>0.0.6-SNAPSHOT</version>
   <name>sadi-registry Maven Webapp</name>
   <url>http://sadiframework.org/registry/</url>
   <parent>
