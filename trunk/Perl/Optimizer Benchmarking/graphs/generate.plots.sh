@@ -27,7 +27,7 @@ RESULT_FILES_PATH=$1;
 
 function add_line
 {
-	echo $* >> $R_FILE;
+	echo "$*" >> $R_FILE;
 }
 
 #-----------------------------------------------
@@ -113,7 +113,7 @@ for test_query_prefix in $test_query_prefixes; do
 
 		for no_opt_trial in $no_opt_trials; do
 
-			add_line "$no_opt_vector <- rbind($no_opt_vector, read.table('$no_opt_trial', header=FALSE))"
+			add_line "$no_opt_vector <- rbind($no_opt_vector, read.table('$no_opt_trial', header=FALSE) / 60)"
 
 			status_file=$(echo ${no_opt_trial} | perl -ple 's/\.time$/.exit.status/')
 			exit_status=$(cat ${status_file})
@@ -149,7 +149,7 @@ for test_query_prefix in $test_query_prefixes; do
 
 			for trial in $trials; do
 
-				add_line "$opt_vector <- rbind($opt_vector, read.table('$trial', header=FALSE))"
+				add_line "$opt_vector <- rbind($opt_vector, read.table('$trial', header=FALSE) / 60)"
 				
 				status_file=$(echo $trial | perl -ple 's/\.time$/.exit.status/')
 				exit_status=$(cat ${status_file})
@@ -211,16 +211,23 @@ for test_query_prefix in $test_query_prefixes; do
 	add_line "# mar(bottom, left, top, right) sets margins (measured in lines of text)"
 #	add_line "par(mar=c(10, 5, 4, 2))"
 	add_line "par(mar=c(6, 5, 4, 2))"
+	add_line "par(lab=c(10,10,7))"
 	add_line
-	add_line "xvals.matrix <- barplot2(mean.matrix, main='Execution Times for Query ${query_number}', legend.text=bar.labels, log='y', ylim=c(1,2000000), ylab='Query Time (seconds)', xlab='Random Query Ordering', xjust=0, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
+	add_line "xvals.matrix <- barplot2(mean.matrix, main='Execution Times for Query ${query_number}', legend.text=bar.labels, log='y', ylim=c(0.1,10000), ylab='Query Time (minutes)', xlab='Random Query Ordering', xjust=0, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
+#   add_line "xvals.matrix <- barplot2(mean.matrix, main='Execution Times for Query ${query_number}', legend.text=bar.labels, ylab='Query Time (seconds)', xlab='Random Query Ordering', xjust=0, names.arg=group.labels, col=shades.of.gray, beside=TRUE)"	
 	add_line "xvals <- xvals.matrix[ 1:length(xvals.matrix) ]"
 	add_line "yvals <- mean.matrix[ 1:length(mean.matrix) ]"
 	add_line "ydeltas <- stderr.matrix[ 1:length(stderr.matrix) ]"
-	add_line "errbar(xvals, yvals, yvals + ydeltas, yvals - ydeltas, xlab='Random Input Query Ordering', ylab='Query Time (seconds)', cex=0.5, add=TRUE)"
+#	add_line "errbar(xvals, yvals, yvals + ydeltas, yvals - ydeltas, xlab='Random Input Query Ordering', ylab='Query Time (minutes)', cex=0.5, add=TRUE)"
+	add_line "errbar(xvals, yvals, yvals + ydeltas, yvals - ydeltas, cex=0.5, add=TRUE)"
 	add_line 
 	add_line "# TIMEOUT line"
-	add_line "abline(h=1800, lty=2)"
-	add_line "text(0, 4000, c('TIMEOUT = 1800 seconds'), pos=4)" 
+	add_line "timeout = 60"
+	add_line "abline(h=timeout, lty=2)"
+	add_line "# par('cra') gets the character width/height in pixels"
+	# 25 is an abitrary offset to get the label above the line. 
+	# I got frustrated trying to figure out how to offset the label properly.
+	add_line "text(0, timeout + 25, paste('TIMEOUT = ', timeout, ' minutes'), pos=4)" 
 	add_line
 	add_line "# apply text annotations indicating query exit status (e.g. TIMEOUT)"
 	add_line "#annotation.vector <- annotation.matrix[ 1:length(annotation.matrix) ]"

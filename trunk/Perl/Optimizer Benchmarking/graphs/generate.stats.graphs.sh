@@ -8,7 +8,7 @@ FIGURE="Figure $FIGURE_NUMBER"
 
 PNG_WIDTH_IN_PIXELS=1000
 
-if (( $# < 2 )); then
+if (( $# < 3 )); then
 	echo "USAGE: ./generate.stats.graphs.sh <numTrainingRuns> <samples graph prefix> <summary stats graph prefix> <target dir>" 1>&2
 	exit 1;
 fi
