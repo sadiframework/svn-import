@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.hp.hpl.jena.graph.Triple;
@@ -75,7 +76,8 @@ public class QueryPatternComparatorTest
 	
 	protected static MockKnowledgeBase mockKB;
 	
-	public QueryPatternComparatorTest() throws IOException
+	@BeforeClass
+	public static void setupBeforeClass() throws IOException
 	{
 		OntModel reasoningModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF);
 		
@@ -290,7 +292,7 @@ public class QueryPatternComparatorTest
 					NodeCreateUtils.create(o));
 	}
 
-	protected class MockKnowledgeBase extends SHAREKnowledgeBase
+	protected static class MockKnowledgeBase extends SHAREKnowledgeBase
 	{
 		private MultiRegistry mockRegistry;
 		private PredicateStatsDB mockStatsDB;
@@ -332,7 +334,7 @@ public class QueryPatternComparatorTest
 	 * RegistryBase, but I think it's better if this object doesn't have any
 	 * "real" code in it. 
 	 */
-	protected class MockMultiRegistry extends MultiRegistry
+	protected static class MockMultiRegistry extends MultiRegistry
 	{
 		Map<String, Boolean> isResolvable; 
 		
@@ -402,7 +404,7 @@ public class QueryPatternComparatorTest
 
 	}
 	
-	protected class MockPredicateStatsDB extends PredicateStatsDB
+	protected static class MockPredicateStatsDB extends PredicateStatsDB
 	{
 		protected Map<String, Integer> baseTimeForward;
 		protected Map<String, Integer> timePerInputForward;
