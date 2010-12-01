@@ -18,9 +18,9 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.beans.ServiceBean;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
-import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.DurationUtils;
 import ca.wilkinsonlab.sadi.utils.ExceptionUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
@@ -70,7 +70,7 @@ public class ServiceImpl extends ServiceBase
 	Collection<Restriction> restrictions;
 	
 	/**
-	 * Construct a new RdfService from the service description located at
+	 * Construct a new SADI service from the service description located at
 	 * the specified URL.
 	 * @param serviceURL the service URL
 	 * @throws SADIException
@@ -109,11 +109,13 @@ public class ServiceImpl extends ServiceBase
 		inputClassURI = serviceInfo.get("inputClassURI");
 		outputClassURI = serviceInfo.get("outputClassURI");
 		
-		ServiceOntologyHelper helper = new MyGridServiceOntologyHelper(model, serviceURI);
-		helper.setName(name);
-		helper.setDescription(description);
-		helper.setInputClass(inputClassURI);
-		helper.setOutputClass(outputClassURI);
+		ServiceBean serviceBean = new ServiceBean();
+		serviceBean.setURI(serviceURI);
+		serviceBean.setName(name);
+		serviceBean.setDescription(description);
+		serviceBean.setInputClassURI(inputClassURI);
+		serviceBean.setOutputClassURI(outputClassURI);
+		new MyGridServiceOntologyHelper().createServiceNode(serviceBean, model);
 	}
 	
 	/* Perform initialization common to all constructors. Jena models are
@@ -139,11 +141,16 @@ public class ServiceImpl extends ServiceBase
 			throw errorHandler.getLastError();
 		
 		Resource serviceRoot = model.getResource(getURI());
-		ServiceOntologyHelper helper = new MyGridServiceOntologyHelper(serviceRoot);
-		name = helper.getName();
-		description = helper.getDescription();
-		inputClassURI = helper.getInputClass().getURI();
-		outputClassURI = helper.getOutputClass().getURI();
+		if (serviceRoot == null) {
+			throw new SADIException(String.format("service model contains no such resource %s", getURI()));
+		} else {
+			ServiceBean serviceBean = new ServiceBean();
+			new MyGridServiceOntologyHelper().copyServiceDescription(serviceRoot, serviceBean);
+			name = serviceBean.getName();
+			description = serviceBean.getDescription();
+			inputClassURI = serviceBean.getInputClassURI();
+			outputClassURI = serviceBean.getOutputClassURI();
+		}
 	}
 	
 	/* (non-Javadoc)

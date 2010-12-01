@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
  * 
  * @author Luke McCarthy
  */
-public class Config extends ca.wilkinsonlab.sadi.common.Config
+public class Config extends ca.wilkinsonlab.sadi.Config
 {
 	private static final Logger log = Logger.getLogger(Config.class);
 	

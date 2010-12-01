@@ -23,9 +23,9 @@ import org.biomoby.shared.data.MobyDataInstance;
 import org.biomoby.shared.data.MobyDataJob;
 import org.biomoby.shared.data.MobyDataObject;
 
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
-import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 

@@ -3,7 +3,7 @@ package ca.wilkinsonlab.sadi.utils;
 import java.util.List;
 import java.util.Map;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 
 /**
  * A generic interface for classes that execute SPARQL queries and return a

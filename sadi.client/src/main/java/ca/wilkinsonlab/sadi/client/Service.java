@@ -2,7 +2,7 @@ package ca.wilkinsonlab.sadi.client;
 
 import java.util.Collection;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.OntClass;

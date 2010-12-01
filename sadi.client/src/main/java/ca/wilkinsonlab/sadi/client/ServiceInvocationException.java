@@ -2,7 +2,7 @@ package ca.wilkinsonlab.sadi.client;
 
 import org.biomoby.shared.SOAPException;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 
 /**

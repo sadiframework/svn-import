@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.utils.QueryExecutor;
 import ca.wilkinsonlab.sadi.utils.QueryExecutorFactory;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
@@ -54,6 +54,9 @@ public abstract class RegistryBase implements Registry
 			backend = QueryExecutorFactory.createFileModelQueryExecutor(file);
 		} else {
 			getLog().warn("no configuration found; creating transient registry model");
+			/* TODO this file isn't automatically reread when updated;
+			 * maybe reopen models for each query?
+			 */
 			backend = QueryExecutorFactory.createJenaModelQueryExecutor(ModelFactory.createDefaultModel());
 		}
 		

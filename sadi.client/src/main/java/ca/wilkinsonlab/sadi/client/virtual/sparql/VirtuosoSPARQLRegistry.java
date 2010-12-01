@@ -17,13 +17,12 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
-import ca.wilkinsonlab.sadi.vocab.W3C;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -34,6 +33,7 @@ import com.hp.hpl.jena.rdf.model.NodeIterator;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * VirtuosoSPARQLRegistry.
@@ -255,7 +255,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		if(!hasEndpoint(endpointURI)) 
 			return null;
 		String typeQuery = "SELECT ?type FROM %u% WHERE { %u% %u% ?type }";
-		typeQuery = SPARQLStringUtils.strFromTemplate(typeQuery, getIndexGraphURI(), endpointURI, W3C.PREDICATE_RDF_TYPE);
+		typeQuery = SPARQLStringUtils.strFromTemplate(typeQuery, getIndexGraphURI(), endpointURI, RDF.type.getURI());
 		List<Map<String,String>> results = selectQuery(typeQuery);
 		if(results.size() == 0) 
 			throw new RuntimeException("No type found in registry for endpoint " + endpointURI);
@@ -301,7 +301,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	{
 		List<SPARQLEndpoint> endpoints = new ArrayList<SPARQLEndpoint>();
 		String endpointQuery = "SELECT DISTINCT ?endpoint ?type FROM %u% WHERE { ?endpoint %u% ?type }";
-		endpointQuery = SPARQLStringUtils.strFromTemplate(endpointQuery, getIndexGraphURI(), W3C.PREDICATE_RDF_TYPE);
+		endpointQuery = SPARQLStringUtils.strFromTemplate(endpointQuery, getIndexGraphURI(), RDF.type.getURI());
 		List<Map<String,String>> results = selectQuery(endpointQuery);
 		for(Map<String,String> binding : results) {
 			EndpointType type = EndpointType.valueOf(binding.get("type"));
@@ -332,7 +332,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 	{
 		List<String> endpoints = new ArrayList<String>();
 		String endpointQuery = "SELECT DISTINCT ?endpoint ?type FROM %u% WHERE { ?endpoint %u% ?type }";
-		endpointQuery = SPARQLStringUtils.strFromTemplate(endpointQuery, getIndexGraphURI(), W3C.PREDICATE_RDF_TYPE);
+		endpointQuery = SPARQLStringUtils.strFromTemplate(endpointQuery, getIndexGraphURI(), RDF.type.getURI());
 		List<Map<String,String>> results = selectQuery(endpointQuery);
 		for(Map<String,String> binding : results)
 			endpoints.add(binding.get("endpoint"));
