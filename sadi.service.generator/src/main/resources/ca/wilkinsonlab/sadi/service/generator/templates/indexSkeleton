@@ -24,8 +24,8 @@
         <div id='content'>
           <h2>SADI Services</h2>
 	      <ul>
-#foreach($service in $services)
-            <li><a href=".$service.url">$service.key</a></li>
+#foreach ($entry in $servlets.entrySet())
+            <li><a href=".$entry.value">$entry.key</a></li>
 #end
 	      </ul>
         </div> <!-- content -->

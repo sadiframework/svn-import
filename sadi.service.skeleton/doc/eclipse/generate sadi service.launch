@@ -10,6 +10,7 @@
 <listEntry value="serviceClass=com.example.UniProt2PubMed"/>
 <listEntry value="inputClass=http://purl.oclc.org/SADI/LSRN/UniProt_Record"/>
 <listEntry value="outputClass=http://sadiframework.org/examples/uniprot2pubmed.owl#AnnotatedUniProtRecord"/>
+<listEntry value="contactEmail=your-email-address"/>
 </listAttribute>
 <stringAttribute key="M2_RUNTIME" value="EMBEDDED"/>
 <booleanAttribute key="M2_SKIP_TESTS" value="false"/>
