@@ -4,17 +4,17 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
 
-#foreach($service in $services)
+#foreach($name in $name2class.keySet())
   <servlet>
-    <servlet-name>$service.key</servlet-name>
-    <servlet-class>$service.clazz</servlet-class>
+    <servlet-name>$name</servlet-name>
+    <servlet-class>$name2class.get($name)</servlet-class>
   </servlet>
 #end
 
-#foreach($service in $services)
+#foreach($name in $name2url.keySet())
   <servlet-mapping>
-    <servlet-name>$service.key</servlet-name>
-    <url-pattern>$service.url</url-pattern>
+    <servlet-name>$name</servlet-name>
+    <url-pattern>$name2url.get($name)</url-pattern>
   </servlet-mapping>
 #end
   
