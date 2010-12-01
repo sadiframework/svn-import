@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import javax.servlet.ServletException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -23,12 +21,11 @@ public abstract class UniProtServiceServlet extends AsynchronousServiceServlet
 {
 	private static final Log log = LogFactory.getLog(UniProtServiceServlet.class);
 	
-	public void init() throws ServletException
+	@Override
+	public int getInputBatchSize()
 	{
-		super.init();
-		
 		// override input batch size to 1024, the maximum for the UniProt API...
-		inputBatchSize = 1024;
+		return 1024;
 	}
 	
 	@Override

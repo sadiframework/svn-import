@@ -26,4 +26,15 @@
     </owl:equivalentClass>
   </owl:Class>
   
+  <owl:DatatypeProperty rdf:about="#lang"/>
+  
+  <owl:Class rdf:ID="SecondaryParameters">
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#lang"/>
+        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+  
 </rdf:RDF>

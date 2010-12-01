@@ -29,6 +29,7 @@
 	      <ul>
 	      	<li><a href="echo">Simply echo input</a></li>
 	      	<li><a href="hello">Hello, world!</a></li>
+	      	<li><a href="hello-param">Parameterized "Hello, world!"</a></li>
 	      	<li><a href="linear">Compute linear regression model (synchronous)</a></li>
 	      	<li><a href="linear-async">Compute linear regression model (asynchronous)</a></li>
 	      	<li><a href="uniprotInfo">List name, description, organism and sequence for a given UniProt ID</a></li>

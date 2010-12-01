@@ -10,9 +10,15 @@
     <servlet-name>echo</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.EchoServiceServlet</servlet-class>
   </servlet>
+  
   <servlet>
     <servlet-name>hello</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.HelloWorldServiceServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
+    <servlet-name>hello-param</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.ParameterizedHelloWorldServiceServlet</servlet-class>
   </servlet>
   
   <servlet>
@@ -88,6 +94,11 @@
   <servlet-mapping>
     <servlet-name>hello</servlet-name>
     <url-pattern>/hello</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>hello-param</servlet-name>
+    <url-pattern>/hello-param</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
