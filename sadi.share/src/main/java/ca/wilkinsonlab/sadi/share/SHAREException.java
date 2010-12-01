@@ -1,6 +1,6 @@
 package ca.wilkinsonlab.sadi.share;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 
 /**
  * A common superclass for all SHARE exceptions.

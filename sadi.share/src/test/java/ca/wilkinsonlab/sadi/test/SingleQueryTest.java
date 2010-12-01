@@ -31,7 +31,7 @@ public class SingleQueryTest
 		
 		String query;
 		
-		query = ExampleQueries.getQueryByHtmlListIndex(9);
+		query = ExampleQueries.getQueryByHtmlListIndex(5);
 		
 //		query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
 //				"PREFIX simple: <http://biordf.net/cardioSHARE/simple.owl#> " +
@@ -117,15 +117,15 @@ public class SingleQueryTest
 //					"uniprot:P15923 pred:hasName ?name " +
 //				"}";
 		
-		query = 
-			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
-			"PREFIX ss: <http://semanticscience.org/resource/> " +
-			"SELECT ?s " +
-			"FROM <http://sadiframework.org/ontologies/lipinski-modified.owl> " +
-			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
-			"WHERE { " +
-			"    ?s rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#lipinskismilesmolecule> . " +
-			"}";
+//		query = 
+//			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+//			"PREFIX ss: <http://semanticscience.org/resource/> " +
+//			"SELECT ?s " +
+//			"FROM <http://sadiframework.org/ontologies/lipinski-modified.owl> " +
+//			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
+//			"WHERE { " +
+//			"    ?s rdf:type <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#lipinskismilesmolecule> . " +
+//			"}";
 
 //		query = 
 //			"SELECT ?p " +
@@ -151,7 +151,41 @@ public class SingleQueryTest
 //			"   ?impact a <http://www.unbsj.ca/sase/csas/mutationOntology.owl#MutationImpact> . " +
 //			"   ?impact <http://www.unbsj.ca/sase/csas/mutationOntology.owl#impactIsSpecifiedBy> ?mut_spec " +
 //			"}";
-//		
+		
+//		query = 
+//			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+//			"PREFIX ss: <http://semanticscience.org/resource/> " +
+//			"SELECT ?s ?value " +
+//			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
+//			"WHERE { " +
+//			"  ?s ss:SIO_000008 ?attr . " +
+//			"  ?attr rdf:type ss:CHEMINF_000245 . " +
+//			"  ?attr ss:SIO_000300 ?value . " +
+//			"}";
+
+//		query =
+//			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+//			"PREFIX lm: <http://bio2rdf.org/lipidmaps:> " +
+//			"SELECT ?lipidType " +
+//			"FROM <http://unbsj.biordf.net/lipids/service-data/sample_input_cl1.rdf> " +
+//			"WHERE { " +
+//			"  lm:LMPR02030001 rdf:type ?lipidType " +
+//			"}";
+		
+//		query = 
+//			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+//			"PREFIX ss: <http://semanticscience.org/resource/> " +
+//			"PREFIX lso: <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#> " +
+//			"SELECT ?s ?value " +
+//			"FROM <http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl> " +
+//			"FROM <http://semanticscience.org/sadi/ontology/lipinski_test.rdf> " +
+//			"WHERE { " +
+//			" ?s rdf:type lso:smilesmolecule . " +
+//			" ?s lso:hasChemicalDescriptor ?attr . " +
+//			" ?attr rdf:type ss:CHEMINF_000244 . " +
+//			" ?attr ss:SIO_000300 ?value . " +
+//			"}";
+		
 		log.info( String.format("executing query\n%s", query) );
 		
 		StopWatch stopWatch = new StopWatch();

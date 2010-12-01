@@ -80,6 +80,7 @@ public class SHAREQueryClient extends QueryClient
 			
 			log.debug(String.format("populated SHARE knowledge base in %dms", stopWatch.getTime()));
 			
+			kb.getReasoningModel().rebind();
 			log.debug("using populated SHARE knowledge base to solve query");
 
 			stopWatch.reset();
