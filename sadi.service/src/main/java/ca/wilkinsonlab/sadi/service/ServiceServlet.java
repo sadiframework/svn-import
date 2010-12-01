@@ -1,8 +1,16 @@
 package ca.wilkinsonlab.sadi.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,25 +18,38 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.ServiceDescription;
+import ca.wilkinsonlab.sadi.beans.ServiceBean;
+import ca.wilkinsonlab.sadi.rdfpath.RDFPath;
+import ca.wilkinsonlab.sadi.service.annotations.Authoritative;
+import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
+import ca.wilkinsonlab.sadi.service.annotations.Description;
+import ca.wilkinsonlab.sadi.service.annotations.InputClass;
+import ca.wilkinsonlab.sadi.service.annotations.Name;
+import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
+import ca.wilkinsonlab.sadi.service.annotations.ParameterClass;
+import ca.wilkinsonlab.sadi.service.annotations.ParameterDefaults;
+import ca.wilkinsonlab.sadi.service.annotations.ServiceDefinition;
+import ca.wilkinsonlab.sadi.service.annotations.ServiceProvider;
+import ca.wilkinsonlab.sadi.service.annotations.URI;
+import ca.wilkinsonlab.sadi.service.ontology.AbstractServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
-import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyException;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
-import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
-import com.hp.hpl.jena.ontology.OntClass;
-import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.shared.JenaException;
+import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
@@ -38,127 +59,172 @@ import com.hp.hpl.jena.vocabulary.RDF;
  * TODO this isn't really true; if you need to batch your input, you need to extend this...
  * @author Luke McCarthy
  */
-@SuppressWarnings("serial")
 public abstract class ServiceServlet extends HttpServlet
 {
+	public static final String NAME_KEY = "name";
+	public static final String DESCRIPTION_KEY = "description";
+	public static final String SERVICE_PROVIDER_KEY = "serviceProvider";
+	public static final String CONTACT_EMAIL_KEY = "contactEmail";
+	public static final String AUTHORITATIVE_KEY = "authoritative";
+	public static final String INPUT_CLASS_KEY = "inputClass";
+	public static final String OUTPUT_CLASS_KEY = "outputClass";
+	public static final String PARAMETER_CLASS_KEY = "parameterClass";
+	public static final String PARAMETER_DEFAULTS_KEY = "parameterDefaults";
+	public static final String SERVICE_DEFINITION_KEY = "rdf";
+	public static final String SERVICE_URL_KEY = "url";
+	
 	private static final Logger log = Logger.getLogger(ServiceServlet.class);
+	private static final long serialVersionUID = 1L;
 
+	protected Configuration config;
 	protected QueryableErrorHandler errorHandler;
 	protected ModelMaker modelMaker;
-	protected Model serviceModel;
-	
-	protected Configuration config;
-	protected String serviceName;
-	protected String serviceUrl;
-	protected OntModel ontologyModel;
-	protected OntClass inputClass;
-	protected OntClass outputClass;
 	protected ServiceOntologyHelper serviceOntologyHelper;
+	protected Model serviceModel;
+	protected ServiceDescription serviceDescription;
+	protected Resource inputClass;
+	protected Resource outputClass;
+	protected Resource parameterClass;
+	protected Resource defaultParameters;
+	
+//	/* In most cases, the service URI in the description will be null, in which case the
+//	 * service model is constructed with a root node whose URI is "" (and 
+//	 * the service URI URL the service model is retrieved from will be the service URI).
+//	 * In some cases, probably involving baroque network configurations,
+//	 * it might be necessary to supply an explicit service URI.
+//	 */
+//	serviceUrl = (System.getProperty("sadi.service.ignoreForcedURL") != null) ?
+//			null : config.getString("url");		String serviceModelUrl = config.getString("rdf");
+//	
+//	if (serviceModelUrl != null) {
+//		try {
+//			/* if serviceModelUrl is a valid URL, read from that URL;
+//			 * if not, assume it is a location relative to the classpath...
+//			 */
+//			try {
+//				serviceModel.read(new URL(serviceModelUrl).toString());
+//				log.debug(String.format("read service model from URL %s", serviceModelUrl));
+//			} catch (MalformedURLException e) {
+//				log.debug(String.format("reading service model from classpath location %s", serviceModelUrl));
+//				serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), StringUtils.defaultString(serviceUrl));
+//			}
+//			if (errorHandler.hasLastError())
+//				throw errorHandler.getLastError();
+//			
+//			serviceDescription = getServiceOntologyHelper().getServiceDescription(serviceModel.getResource(serviceUrl));
+//		} catch (Exception e) {
+//			throw new ServletException(String.format("error reading service definition from %s: %s", serviceModelUrl, e.toString()));
+//		}
+//	} else {
+//		try {
+//			/* create the service model from the information in the config...
+//			 */
+//			log.trace("creating service description model");
+//			ServiceBean serviceDescription = new ServiceBean();
+//			serviceDescription.setURI(serviceUrl == null ? "" : serviceUrl);
+//			serviceDescription.setName(config.getString("name", "noname"));
+//			serviceDescription.setDescription(config.getString("description", "no description"));
+//			serviceDescription.setInputClassURI(config.getString("inputClass"));
+//			serviceDescription.setOutputClassURI(config.getString("outputClass"));
+//			getServiceOntologyHelper().createServiceNode(serviceDescription, serviceModel);
+//			this.serviceDescription = serviceDescription;
+//		} catch (ServiceOntologyException e) {
+//			throw new ServletException("error creating service definition from configuration: " + e.toString(), e);
+//		}
+//	}
+//	
+//	log.trace("creating service ontology model");
+//	ontologyModel = createOntologyModel();
+//	
+//	try {
+//		inputClass = loadInputClass();
+//	} catch (Exception e) {
+//		throw new ServletException("error loading input class: " + e.toString(), e);
+//	}
+//	
+//	try {
+//		outputClass = loadOutputClass();
+//	} catch (Exception e) {
+//		throw new ServletException("error loading input class: " + e.toString(), e);
+//	}
+//	
+//	protected OntModel createOntologyModel()
+//	{
+//		/* according to the SADI spec, input nodes are explicitly typed, so
+//		 * we don't need any reasoning here...
+//		 */
+//		OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
+//		model.getReader().setErrorHandler(errorHandler);
+//		return model;
+//	}
+//	
+//	protected OntClass loadInputClass() throws Exception
+//	{
+//		String inputClassUri = serviceDescription.getInputClassURI();
+//		OwlUtils.loadOntologyForUri(ontologyModel, inputClassUri);
+//		OntClass inputClass = ontologyModel.getOntClass(inputClassUri);
+//		if (errorHandler.hasLastError())
+//			throw errorHandler.getLastError();
+//		else
+//			return inputClass;
+//	}
+//	
+//	protected OntClass loadOutputClass() throws Exception
+//	{
+//		String outputClassUri = serviceDescription.getOutputClassURI();
+//		OwlUtils.loadOntologyForUri(ontologyModel, outputClassUri);
+//		outputClass = ontologyModel.getOntClass(outputClassUri);
+//		if (errorHandler.hasLastError())
+//			throw errorHandler.getLastError();
+//		else
+//			return outputClass;
+//	}
 	
 	@Override
-	public synchronized void init() throws ServletException
+	public void init() throws ServletException
 	{
 		log.trace("entering ServiceServlet.init()");
 		
-		if (serviceModel != null) {
-			log.fatal("multiple calls to ServiceServlet.init()");
-			throw new ServletException("multiple calls to ServiceServlet.init()");
-		}
+		config = Config.getConfiguration().getServiceConfiguration(this);
+		if (config == null)
+			log.debug(String.format("service servlet %s is not mapped to a configuration", this));
 
 		errorHandler = new QueryableErrorHandler();
 		modelMaker = createModelMaker();  // TODO support persistent models in properties file?
+		serviceOntologyHelper = new MyGridServiceOntologyHelper();
 		serviceModel = createServiceModel();
-		
+
 		try {
-			log.trace("reading service configuration");
-			config = Config.getConfiguration().getServiceConfiguration(this);
-		} catch (ConfigurationException e) {
-			log.fatal("error configuring service servlet", e);
-			throw new ServletException("error configuring service servlet: " + e.toString(), e);
+			String serviceRDF = getServiceRDF();
+			if (serviceRDF != null) {
+				Resource serviceNode = loadServiceModelFromLocation(serviceRDF);
+				serviceDescription = getServiceOntologyHelper().getServiceDescription(serviceNode);
+			} else {
+				serviceDescription = createServiceDescription();
+				getServiceOntologyHelper().createServiceNode(serviceDescription, serviceModel);
+			}
+		} catch (SADIException e) {
+			String message = e.getMessage();
+			log.error(message, e);
+			throw new ServletException(message);
 		}
 		
-		serviceName = config.getString("");
+		inputClass = serviceModel.getResource(serviceDescription.getInputClassURI());
+		outputClass = serviceModel.getResource(serviceDescription.getOutputClassURI());
 		
-		/* In most cases, serviceUrl will be null, in which case the service
-		 * model is constructed with a root node whose URI is "" (and the URL
-		 * the service model is retrieved from will be the service URI...)
-		 * In some cases, probably involving baroque network configurations,
-		 * it might be necessary to supply an explicit service URI.
-		 */
-		serviceUrl = (System.getProperty("sadi.service.ignoreForcedURL") != null) ?
-				null : config.getString("url");
-		
-		String serviceModelUrl = config.getString("rdf");
-		if (serviceModelUrl != null) {
+		String parameterClassURI = serviceDescription.getParameterClassURI();
+		if (parameterClassURI != null) {
+			parameterClass = serviceModel.getResource(parameterClassURI);
 			try {
-				/* if serviceModelUrl is a valid URL, read from that URL;
-				 * if not, assume it is a location relative to the classpath...
-				 */
-				try {
-					serviceModel.read(new URL(serviceModelUrl).toString());
-					log.debug(String.format("read service model from URL %s", serviceModelUrl));
-				} catch (MalformedURLException e) {
-					log.debug(String.format("reading service model from classpath location %s", serviceModelUrl));
-					serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), StringUtils.defaultString(serviceUrl));
-				}
-				if (errorHandler.hasLastError())
-					throw errorHandler.getLastError();
-
-				serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel, StringUtils.defaultString(serviceUrl), false);
-			} catch (Exception e) {
-				throw new ServletException(String.format("error reading service definition from %s: %s", serviceModelUrl, e.toString()));
-			}
-		} else {
-			try {
-				/* create the service model from the information in the config...
-				 */
-				log.trace("creating service description model");
-				serviceOntologyHelper = new MyGridServiceOntologyHelper(serviceModel, serviceUrl, true);
-				serviceOntologyHelper.setName(config.getString("name", "noname"));
-				serviceOntologyHelper.setDescription(config.getString("description", "no description"));
-				serviceOntologyHelper.setInputClass(config.getString("inputClass"));
-				serviceOntologyHelper.setOutputClass(config.getString("outputClass"));
-			} catch (ServiceOntologyException e) {
-				throw new ServletException("error creating service definition from configuration: " + e.toString(), e);
+				defaultParameters = extractDefaultParameterInstanceFromModel();
+				if (defaultParameters == null)
+					defaultParameters = createDefaultParameterInstance();
+			} catch (SADIException e) {
+				String message = e.getMessage();
+				log.error(message, e);
+				throw new ServletException(message);
 			}
 		}
-
-		log.trace("creating service ontology model");
-		ontologyModel = createOntologyModel();
-		
-		try {
-			inputClass = loadInputClass();
-		} catch (Exception e) {
-			throw new ServletException("error loading input class: " + e.toString(), e);
-		}
-		
-		try {
-			outputClass = loadOutputClass();
-		} catch (Exception e) {
-			throw new ServletException("error loading input class: " + e.toString(), e);
-		}
-	}
-	
-	protected OntClass loadInputClass() throws Exception
-	{
-		String inputClassUri = serviceOntologyHelper.getInputClass().getURI();
-		OwlUtils.loadOntologyForUri(ontologyModel, inputClassUri);
-		OntClass inputClass = ontologyModel.getOntClass(inputClassUri);
-		if (errorHandler.hasLastError())
-			throw errorHandler.getLastError();
-		else
-			return inputClass;
-	}
-	
-	protected OntClass loadOutputClass() throws Exception
-	{
-		String outputClassUri = serviceOntologyHelper.getOutputClass().getURI();
-		OwlUtils.loadOntologyForUri(ontologyModel, outputClassUri);
-		outputClass = ontologyModel.getOntClass(outputClassUri);
-		if (errorHandler.hasLastError())
-			throw errorHandler.getLastError();
-		else
-			return outputClass;
 	}
 
 	@Override
@@ -175,15 +241,18 @@ public abstract class ServiceServlet extends HttpServlet
 		 */
 		ServiceCall call = new ServiceCall();
 		call.setRequest(request);
+		call.setResponse(response);
 		
 		Model inputModel = null;
 		Model outputModel = null;
 		try {
 			inputModel = readInput(request);
 			call.setInputModel(inputModel);
+			call.setInputNodes(inputModel.listResourcesWithProperty(RDF.type, getInputClass()).toList());
 			outputModel = prepareOutputModel(inputModel);
 			call.setOutputModel(outputModel);
-			
+			Resource parameters = createParameters(inputModel);
+			call.setParameters(parameters);
 			processInput(call);
 			outputSuccessResponse(response, call.getOutputModel());
 		} catch (Exception e) {
@@ -193,6 +262,19 @@ public abstract class ServiceServlet extends HttpServlet
 			if (outputModel != null)
 				closeOutputModel(outputModel);
 		}
+	}
+
+	/**
+	 * Process a service call.
+	 * This method is overridden by SynchronousServiceServlet and
+	 * AsynchronousServiceServlet as appropriate.
+	 * @param call
+	 * @throws Exception
+	 */
+	protected void processInput(ServiceCall call) throws Exception
+	{
+		
+		// populate parameter instance, list of input instances, etc.
 	}
 	
 	protected Model readInput(HttpServletRequest request) throws IOException
@@ -225,8 +307,6 @@ public abstract class ServiceServlet extends HttpServlet
 		return outputModel;
 	}
 	
-	protected abstract void processInput(ServiceCall call);
-	
 	protected void outputServiceModel(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		/* output the service model using the request URL as the base for an
@@ -244,7 +324,15 @@ public abstract class ServiceServlet extends HttpServlet
 		 */
 		response.setContentType("application/rdf+xml");
 		RDFWriter writer = outputModel.getWriter("RDF/XML-ABBREV");
+		QueryableErrorHandler errorHandler = new QueryableErrorHandler();
+		writer.setErrorHandler(errorHandler);
 		writer.write(outputModel, response.getWriter(), "");
+		if (errorHandler.hasLastError()) {
+			Exception e = errorHandler.getLastError();
+			String message = String.format("error writing output RDF: %s", e.getMessage());
+			log.error(message, e);
+			throw new IOException(message);
+		}
 	}
 	
 	protected void outputErrorResponse(HttpServletResponse response, Throwable error) throws IOException
@@ -259,16 +347,6 @@ public abstract class ServiceServlet extends HttpServlet
 		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, error.toString());
 	}
 	
-	protected OntModel createOntologyModel()
-	{
-		/* according to the SADI spec, input nodes are explicitly typed, so
-		 * we don't need any reasoning here...
-		 */
-		OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
-		model.getReader().setErrorHandler(errorHandler);
-		return model;
-	}
-	
 	protected ModelMaker createModelMaker()
 	{
 		return ModelFactory.createMemModelMaker();
@@ -276,7 +354,11 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	protected Model createServiceModel()
 	{
-		Model model = modelMaker.createModel(serviceName);
+		/* we don't actually need any reasoning in this model, but
+		 * createOntologyModel returns a model that actually pays attention
+		 * to the LocationMapper, which is _really_ useful for unit testing...
+		 */
+		Model model = ModelFactory.createOntologyModel();
 		model.getReader().setErrorHandler(errorHandler);
 		model.setNsPrefix("mygrid", "http://www.mygrid.org.uk/mygrid-moby-service#");
 		return model;
@@ -306,5 +388,352 @@ public abstract class ServiceServlet extends HttpServlet
 	{
 		model.close();
 		log.trace(String.format("closed output model %s", model.hashCode()));
+	}
+	
+	protected ServiceOntologyHelper getServiceOntologyHelper()
+	{
+		return serviceOntologyHelper;
+	}
+	
+	protected Resource getInputClass()
+	{
+		return inputClass;
+	}
+	
+	protected Resource getOutputClass()
+	{
+		return outputClass;
+	}
+	
+	protected Resource getParameterClass()
+	{
+		return parameterClass != null ? parameterClass : OWL.Nothing;
+	}
+	
+	protected Resource getDefaultParameters()
+	{
+		return defaultParameters;
+	}
+	
+	/**
+	 * Creates the service description from the information available.
+	 * The sources of information, in increasing order of priority, are:
+	 *   the service configuration from the userspace properties file;
+	 *   annotations on the servlet class itself;
+	 * Information from a higher priority source will override lower
+	 * priority sources; for example, an input class specified in an
+	 * annotation will override an input class specified in the properties
+	 * file.
+	 */
+	protected ServiceDescription createServiceDescription() throws SADIException
+	{
+		ServiceBean serviceBean = new ServiceBean();
+		serviceBean.setURI(StringUtils.defaultString(getServiceURL(), ""));
+		serviceBean.setName(getName());
+		serviceBean.setDescription(getDescription());
+		serviceBean.setServiceProvider(getServiceProvider());
+		serviceBean.setContactEmail(getContactEmail());
+		serviceBean.setAuthoritative(isAuthoritative());
+		serviceBean.setInputClassURI(getInputClassURI());
+		serviceBean.setOutputClassURI(getOutputClassURI());
+		serviceBean.setParameterClassURI(getParameterClassURI());
+		return serviceBean;
+	}
+	
+	private Resource extractDefaultParameterInstanceFromModel() throws SADIException
+	{
+		RDFPath parameterInstancePath = ((AbstractServiceOntologyHelper)serviceOntologyHelper).getParameterInstancePath();
+		Collection<Resource> instances = RdfUtils.extractResources(parameterInstancePath.getValuesRootedAt(serviceModel.getResource(getServiceURL())));
+		if (instances.size() > 1) {
+			throw new ServiceDefinitionException(String.format("found %d default parameter instances, refusing to pick one arbitrarily", instances.size()));
+		} else if (instances.isEmpty()) {
+			return null;
+		} else {
+			Resource parameters = instances.iterator().next();
+			if (parameters.isURIResource() && !parameters.listProperties().hasNext()) {
+				try {
+					serviceModel.read(parameters.getURI());
+					if (errorHandler.hasLastError())
+						throw errorHandler.getLastError();
+				} catch (Exception e) {
+					String message = String.format("error reading default parameters from %s: %s", parameters.getURI(), e.getMessage());
+					log.error(message, e);
+					throw new SADIException(message);
+				}
+			}
+			return parameters;
+		}
+	}
+	
+	private Resource createDefaultParameterInstance() throws SADIException
+	{
+		RDFPath parameterInstancePath = ((AbstractServiceOntologyHelper)serviceOntologyHelper).getParameterInstancePath();
+		Resource parameters;
+		List<String> spec = Arrays.asList(getDefaultParameterSpec());
+		if (spec.size() == 1) {
+			// assume this is the URL of a populated instance...
+			parameters = serviceModel.createResource(spec.get(0), getParameterClass());
+			try {
+				serviceModel.read(parameters.getURI());
+				if (errorHandler.hasLastError())
+					throw errorHandler.getLastError();
+			} catch (Exception e) {
+				String message = String.format("error reading default parameters from %s: %s", parameters.getURI(), e.getMessage());
+				log.error(message, e);
+				throw new SADIException(message);
+			}
+		} else {
+			parameters = serviceModel.createResource("#parameters", getParameterClass());
+			Iterator<String> i = spec.iterator();
+			while (i.hasNext()) {
+				String pathSpec = i.next();
+				String value;
+				if (i.hasNext())
+					value = i.next();
+				else
+					throw new SADIException("invalid default parameter spec; expected [path, value, path, value, ...]");
+
+				RDFPath path;
+				try {
+					path = new RDFPath(StringUtils.split(pathSpec, ", <>"));
+				} catch (Exception e) {
+					throw new SADIException(String.format("invalid path specification \"%s\": %s", pathSpec, e.getMessage()));
+				}
+
+				if (RdfUtils.isURI(value) || value.startsWith("#")) { // this may not be sufficient...
+					path.createResourceRootedAt(parameters, value);
+				} else {
+					path.createLiteralRootedAt(parameters, value);
+				}
+			}
+		}
+		parameterInstancePath.addValueRootedAt(serviceModel.getResource(getServiceURL()), parameters);
+		return parameters;
+	}
+	
+	private Resource createParameters(Model inputModel)
+	{
+		Resource parameters;
+		ResIterator i = inputModel.listResourcesWithProperty(RDF.type, getParameterClass());
+		if (i.hasNext())
+			parameters = i.next();
+		else
+			parameters = inputModel.createResource(null, getParameterClass());
+		if (i.hasNext()) {
+			// TODO throw an exception instead?
+			log.warn(String.format("input contained more than one instance of parameter class %s", getParameterClass()));
+		}
+		i.close();
+		
+		if (getDefaultParameters() != null)
+			RdfUtils.copyValues(getDefaultParameters(), parameters, false);
+		
+		return parameters;
+	}
+	
+	private Resource loadServiceModelFromLocation(String serviceRDF) throws SADIException
+	{
+		String serviceURL = getServiceURL();
+		try {
+			readIntoModel(serviceModel, StringUtils.defaultString(serviceURL), serviceRDF);
+			if (errorHandler.hasLastError())
+				throw errorHandler.getLastError();
+		} catch (Exception e) {
+			String message = String.format("error reading service description from %s: %s", serviceRDF, e.getMessage());
+			log.error(message, e);
+			throw new SADIException(message);
+		}
+		if (serviceURL == null) {
+			/* if there's exactly one instance of the service class in the
+			 * model, we can assume that's us; if not, we have a problem...
+			 */
+			ResIterator services = serviceModel.listResourcesWithProperty(RDF.type, getServiceOntologyHelper().getServiceClass());
+			try {
+				if (services.hasNext()) {
+					serviceURL = services.next().getURI();
+					if (services.hasNext())
+						throw new ServiceDefinitionException(String.format("no service URI specified and the model at %s contains multiple instances of service class %s", serviceRDF, serviceOntologyHelper.getServiceClass()));
+				} else {
+					throw new ServiceDefinitionException(String.format("no service URI specified and the model at %s contains no instances of service class %s", serviceRDF, serviceOntologyHelper.getServiceClass()));
+				}
+			} finally {
+				services.close();
+			}
+		}
+		return serviceModel.getResource(serviceURL);
+	}
+	
+	/**
+	 * Reads RDF from the specified location into the service model.
+	 * The location can be an absolute URL, a path relative to the
+	 * classpath or a path relative to the working directory.
+	 * @param pathOrURL
+	 */
+	private void readIntoModel(Model model, String base, String pathOrURL)
+	{
+		try {
+			URL url = new URL(pathOrURL);
+			log.debug(String.format("identified %s as a URL", pathOrURL));
+			model.read(url.toString());
+		} catch (MalformedURLException e) {
+			log.debug(String.format("%s is not a URL: %s", pathOrURL, e.getMessage()));
+		}
+		log.debug(String.format("identified %s as a path", pathOrURL));
+		
+		InputStream is = getClass().getResourceAsStream(pathOrURL);
+		if (is != null) {
+			log.debug(String.format("found %s in the classpath", pathOrURL));
+			try {
+				model.read(is, base);
+			} catch (JenaException e) {
+				log.error(String.format("error reading service description from %s: %s", pathOrURL, e.getMessage()));
+			}
+		} else {
+			log.debug(String.format("looking for %s in the filesystem", pathOrURL));
+			try {
+				File f = new File(pathOrURL);
+				model.read(new FileInputStream(f), base);
+			} catch (FileNotFoundException e) {
+				log.error(String.format("error reading service description from %s: %s", pathOrURL, e.toString()));
+			}
+		}
+	}
+	
+	/* annoyingly, these methods can't be generalized because annotation
+	 * interfaces can't have superclasses or superinterfaces, so there's no
+	 * way to access the value() method generically...
+	 * actually, I suppose one could use reflection, but that seems kind of
+	 * gross when I can just macro these methods into being...
+	 */
+	private String getServiceRDF()
+	{
+		ServiceDefinition annotation = getClass().getAnnotation(ServiceDefinition.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getString(SERVICE_DEFINITION_KEY);
+		} else {
+			return null;
+		}
+	}
+	
+	private String getServiceURL()
+	{
+		URI annotation = getClass().getAnnotation(URI.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getString(SERVICE_URL_KEY);
+		} else {
+			return null;
+		}
+	}
+	
+	private String getName()
+	{
+		Name annotation = getClass().getAnnotation(Name.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getString(NAME_KEY);
+		} else {
+			return null;
+		}
+	}
+
+	private String getDescription()
+	{
+		Description annotation = getClass().getAnnotation(Description.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getString(DESCRIPTION_KEY);
+		} else {
+			return null;
+		}
+	}
+
+	private String getServiceProvider()
+	{
+		ServiceProvider annotation = getClass().getAnnotation(ServiceProvider.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getString(SERVICE_PROVIDER_KEY);
+		} else {
+			return null;
+		}
+	}
+
+	private String getContactEmail()
+	{
+		ContactEmail annotation = getClass().getAnnotation(ContactEmail.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getString(CONTACT_EMAIL_KEY);
+		} else {
+			return null;
+		}
+	}
+
+	private boolean isAuthoritative()
+	{
+		Authoritative annotation = getClass().getAnnotation(Authoritative.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getBoolean(AUTHORITATIVE_KEY, false);
+		} else {
+			return false;
+		}
+	}
+
+	private String getInputClassURI() throws SADIException
+	{
+		InputClass annotation = getClass().getAnnotation(InputClass.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getString(INPUT_CLASS_KEY);
+		} else {
+			throw new SADIException("no input class specified");
+		}
+	}
+
+	private String getOutputClassURI() throws SADIException
+	{
+		OutputClass annotation = getClass().getAnnotation(OutputClass.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getString(OUTPUT_CLASS_KEY);
+		} else {
+			throw new SADIException("no output class specified");
+		}
+	}
+
+	private String getParameterClassURI()
+	{
+		ParameterClass annotation = getClass().getAnnotation(ParameterClass.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getString(PARAMETER_CLASS_KEY);
+		} else {
+			return null;
+		}
+	}
+	
+	private String[] getDefaultParameterSpec()
+	{
+		ParameterDefaults annotation = getClass().getAnnotation(ParameterDefaults.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else if (config != null) {
+			return config.getStringArray(PARAMETER_DEFAULTS_KEY);
+		} else {
+			return null;
+		}
 	}
 }

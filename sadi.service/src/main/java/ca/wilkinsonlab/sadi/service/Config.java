@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 
 /**
@@ -13,7 +12,7 @@ import org.apache.log4j.Logger;
  * service-specific configuration.
  * @author Luke McCarthy
  */
-public class Config extends ca.wilkinsonlab.sadi.common.Config
+public class Config extends ca.wilkinsonlab.sadi.Config
 {
 	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(Config.class);
@@ -26,8 +25,8 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	private static final Config theInstance = new Config(DEFAULT_PROPERTIES_FILENAME, LOCAL_PROPERTIES_FILENAME);
 	
 	/**
-	 * 
-	 * @return
+	 * Returns the default SADI configuration.
+	 * @return the default SADI configuration
 	 */
 	public static Config getConfiguration()
 	{
@@ -35,41 +34,28 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	}
 	
 	/**
-	 * 
-	 * @param localPropertiesFile
-	 * @return
-	 */
-	public static Config getConfiguration(String localPropertiesFile)
-	{
-		return new Config(DEFAULT_PROPERTIES_FILENAME, localPropertiesFile);
-	}
-	
-	/**
-	 * 
-	 * @param servlet
-	 * @return
-	 * @throws ConfigurationException
+	 * Returns the configuration mapped to the specified ServiceServlet.
+	 * @param servlet the ServiceServlet
+	 * @return the configuration mapped to the specified ServiceServlet
 	 */
 	public Configuration getServiceConfiguration(ServiceServlet servlet)
-	throws ConfigurationException
 	{
 		return getServiceConfiguration(servlet.getClass().getName());
 	}
 	
 	/**
-	 * 
-	 * @param servletClassName
-	 * @return
-	 * @throws ConfigurationException
+	 * Returns the configuration mapped to the specified service servlet
+	 * class name.
+	 * @param servletClassName the service servlet class name
+	 * @return the configuration mapped to the specified service servlet class name
 	 */
 	public Configuration getServiceConfiguration(String servletClassName)
-	throws ConfigurationException
 	{
 		for (Configuration config: getServiceConfigurations().values())
 			if (servletClassName.equals(config.getString("")))
 				return config;
 		
-		throw new ConfigurationException("Unmapped servlet class " + servletClassName);
+		return null;
 	}
 	
 	/**
@@ -94,5 +80,16 @@ public class Config extends ca.wilkinsonlab.sadi.common.Config
 	private Config(String defaultPropertiesFile, String localPropertiesFile)
 	{
 		super(defaultPropertiesFile, localPropertiesFile);
+	}
+	
+	/**
+	 * Constructs a new configuration from the specified local properties file.
+	 * TODO this is only used by the service generator; can we strip it out
+	 *      and put it in that codebase?
+	 * @param localPropertiesFile
+	 */
+	public Config(String localPropertiesFile)
+	{
+		this(DEFAULT_PROPERTIES_FILENAME, localPropertiesFile);
 	}
 }
