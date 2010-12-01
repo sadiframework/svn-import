@@ -1,10 +1,12 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +28,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class OwlUtilsTest
 {
@@ -69,6 +72,45 @@ public class OwlUtilsTest
 //	{
 //		fail("Not yet implemented");
 //	}
+	
+	@Test
+	public void testGetOWLModel()
+	{
+		OntModel owlModel = OwlUtils.getOWLModel();
+		assertNotNull("getOntClass(OWL.Thing) returned null", owlModel.getOntClass(OWL.Thing.getURI()));
+	}
+	
+	@Test
+	public void testGetLabels()
+	{
+		OntClass c = model.getOntClass(NS + "RangeClass");
+		OntProperty p = model.getOntProperty(NS + "rangedObjectProperty");
+		assertEquals(String.format("[%s, %s]", OwlUtils.getLabel(c), OwlUtils.getLabel(p)),
+				OwlUtils.getLabels(Arrays.asList(new OntResource[]{c, p}).iterator()));
+	}
+	
+	@Test
+	public void testGetRestrictionString()
+	{
+		OntClass c = model.getOntClass(NS + "restrictionOnUndefinedProperty");
+		assertEquals(String.format("{undefinedProperty minCardinality 1}"),
+				OwlUtils.getRestrictionString(c.asRestriction()));
+	}
+	
+	@Test
+	public void testGetDefaultRange()
+	{
+		OntModel localModel = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		OntProperty p = localModel.createOntProperty(NS + "p");
+		assertEquals(String.format("default range of property isn't RDFS.Resource"),
+				localModel.createClass(RDFS.Resource.getURI()), OwlUtils.getDefaultRange(p));
+		OntProperty dataP = localModel.createDatatypeProperty(NS + "dataP");
+		assertEquals(String.format("default range of datatype property isn't RDFS.Literal"),
+				localModel.createClass(RDFS.Literal.getURI()), OwlUtils.getDefaultRange(dataP));
+		OntProperty objectP = localModel.createObjectProperty(NS + "objectP");
+		assertEquals(String.format("default range of object property isn't OWL.Thing"),
+				localModel.createClass(OWL.Thing.getURI()), OwlUtils.getDefaultRange(objectP));
+	}
 
 	@Test
 	public void testListRestrictedPropertiesString() throws Exception
@@ -77,14 +119,6 @@ public class OwlUtilsTest
 		Set<OntProperty> properties = OwlUtils.listRestrictedProperties(NS + "ClassWithRestriction");
 		assertTrue("class did not provide expected predicate",
 				propertyCollectionContains(properties, NS + "restrictedProperty"));
-	}
-	
-	private boolean propertyCollectionContains(Set<OntProperty> properties, String uri)
-	{
-		for (Property p: properties)
-			if (p.getURI().equals(uri))
-				return true;
-		return false;
 	}
 
 	@Test
@@ -168,6 +202,21 @@ public class OwlUtilsTest
 	}
 	
 	@Test
+	public void testLoadMinimalOntologyForUri() throws Exception
+	{
+		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		String pURI = "http://sadiframework.org/ontologies/test/InversePropertyTest.owl#p";
+		String qURI = "http://sadiframework.org/ontologies/test/InversePropertyTest.owl#q";
+		OwlUtils.loadMinimalOntologyForUri(model, pURI);
+		OntProperty p = model.getOntProperty(pURI);
+		assertNotNull(String.format("minimal model missing property %s", p), p);
+		OntProperty q = model.getOntProperty(qURI);
+		assertNotNull(String.format("minimal model missing property %s", q), q);
+		assertTrue(String.format("%s is not an inverse of %s", p, q), p.isInverseOf(q));
+		assertTrue(String.format("%s is not an inverse of %s", q, p), q.isInverseOf(p));
+	}
+	
+	@Test
 	public void testLoadMinimalOntologyFromUri()
 	{
 		String rootUri = MINIMAL_ONTOLOGY_NS + "ClassD";
@@ -236,18 +285,28 @@ public class OwlUtilsTest
 		}
 	}
 	
-	@Test
-	public void testLoadMinimalOntologyForUri() throws Exception
+	public void testGetMinimalModel()
 	{
-		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
-		String pURI = "http://sadiframework.org/ontologies/test/InversePropertyTest.owl#p";
-		String qURI = "http://sadiframework.org/ontologies/test/InversePropertyTest.owl#q";
-		OwlUtils.loadMinimalOntologyForUri(model, pURI);
-		OntProperty p = model.getOntProperty(pURI);
-		assertNotNull(String.format("minimal model missing property %s", p), p);
-		OntProperty q = model.getOntProperty(qURI);
-		assertNotNull(String.format("minimal model missing property %s", q), q);
-		assertTrue(String.format("%s is not an inverse of %s", p, q), p.isInverseOf(q));
-		assertTrue(String.format("%s is not an inverse of %s", q, p), q.isInverseOf(p));
+		
+	}
+	
+// This isn't working right now; figure out why...
+//	@Test
+//	public void testCreateDummyInstance() throws Exception
+//	{
+//		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+//		OntClass clazz = OwlUtils.getOntClassWithLoad(model, "http://semanticscience.org/sadi/ontology/lipinskiserviceontology.owl#hbdasmilesmolecule");
+//		Resource instance = OwlUtils.createDummyInstance(clazz);
+//		System.out.println(RdfUtils.logStatements(instance.getModel()));
+//		model.addSubModel(instance.getModel());
+//		assertTrue(String.format("dummy is not an instance of %s", clazz), clazz.listInstances().toSet().contains(instance));
+//	}
+	
+	private boolean propertyCollectionContains(Set<OntProperty> properties, String uri)
+	{
+		for (Property p: properties)
+			if (p.getURI().equals(uri))
+				return true;
+		return false;
 	}
 }

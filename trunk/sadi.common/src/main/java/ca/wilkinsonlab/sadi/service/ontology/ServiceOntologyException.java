@@ -1,10 +1,11 @@
 package ca.wilkinsonlab.sadi.service.ontology;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.service.ServiceDefinitionException;
 
-@SuppressWarnings("serial")
-public class ServiceOntologyException extends SADIException
+public class ServiceOntologyException extends ServiceDefinitionException
 {
+	private static final long serialVersionUID = 1L;
+
 	public ServiceOntologyException(String message)
 	{
 		super(message);

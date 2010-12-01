@@ -54,4 +54,9 @@
     <rdfs:subPropertyOf rdf:resource="#equivalentToP"/>
   </owl:ObjectProperty>
   
+  <owl:Restriction rdf:about="#restrictionOnUndefinedProperty">
+    <owl:onProperty rdf:resource="#undefinedProperty"/>
+    <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+  </owl:Restriction>
+  
 </rdf:RDF>

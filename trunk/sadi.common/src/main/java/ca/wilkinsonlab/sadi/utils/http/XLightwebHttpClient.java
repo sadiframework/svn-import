@@ -34,21 +34,25 @@ import org.apache.commons.httpclient.auth.AuthChallengeParser;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 
-import ca.wilkinsonlab.sadi.common.Config;
+import ca.wilkinsonlab.sadi.Config;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 public class XLightwebHttpClient implements HttpClient {
 
 	protected static final String CONFIG_ROOT = "sadi.http";
+	
 	/**
 	 * Timeout when waiting for the headers of an HTTP response.
 	 */
 	protected static final String RESPONSE_TIMEOUT_CONFIG_KEY = "responseTimeout";
+	
 	/**
 	 * Timeout when waiting for the next chunk of an HTTP response body.
 	 */
 	protected static final String DATA_WAIT_TIMEOUT_CONFIG_KEY = "dataWaitTimeout";
+	
 	protected static final String MAX_CONNECTIONS_PER_HOST_CONFIG_KEY = "maxConnectionsPerHost";
+	
 	/**
 	 * If true, the HTTP client will automatically retry when the responseTimeout
 	 * expires.

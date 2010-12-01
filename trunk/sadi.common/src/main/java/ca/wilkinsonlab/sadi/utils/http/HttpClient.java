@@ -18,7 +18,8 @@ public interface HttpClient
 	 * @return an InputStream containing the contents of the HTTP response body. 
 	 * @throws IOException if there is a network error or the response has a non-success HTTP status code. 
 	 */
-	abstract public InputStream GET(URL url) throws IOException;
+	InputStream GET(URL url) throws IOException;
+	
 	/**
 	 * Retrieve an URL by HTTP GET.
 	 * 
@@ -27,7 +28,7 @@ public interface HttpClient
 	 * @return an InputStream containing the contents of the HTTP response body. 
 	 * @throws IOException if there is a network error or the response has a non-success HTTP status code. 
 	 */
-	abstract public InputStream GET(URL url, Map<String,String> params) throws IOException;
+	InputStream GET(URL url, Map<String,String> params) throws IOException;
 	
 	/**
 	 * Send data to an URL by HTTP POST.
@@ -38,7 +39,8 @@ public interface HttpClient
 	 * @return an InputStream containing the contents of the HTTP response body. 
 	 * @throws IOException if there is a network error or the response has a non-success HTTP status code. 
 	 */
-	abstract public InputStream POST(URL url, InputStream postData, String contentType) throws IOException;
+	InputStream POST(URL url, InputStream postData, String contentType) throws IOException;
+	
 	/**
 	 * Send form data to an URL by HTTP POST. Content type is "application/x-www-form-urlencoded".
 	 * 
@@ -47,7 +49,7 @@ public interface HttpClient
 	 * @return an InputStream containing the contents of the HTTP response body. 
 	 * @throws IOException if there is a network error or the response has a non-success HTTP status code. 
 	 */
-	abstract public InputStream POST(URL url, Map<String,String> params) throws IOException;
+	InputStream POST(URL url, Map<String,String> params) throws IOException;
 	
 	/**
 	 * Send an HTTP request.
@@ -56,7 +58,8 @@ public interface HttpClient
 	 * @return an InputStream containing the contents of the HTTP response body.
 	 * @throws IOException if there is a network error or the response has a non-success HTTP status code.
 	 */
-	abstract public InputStream request(HttpRequest request) throws IOException;
+	InputStream request(HttpRequest request) throws IOException;
+	
 	/**
 	 * <p>Issue a batch of HTTP requests in parallel.</p>
 	 * 
@@ -71,7 +74,7 @@ public interface HttpClient
 	 * @param requests a collection of HTTP requests (each request consists of the HTTP method, the URL, the parameters, etc.)
 	 * @return a collection of responses for the input requests.
 	 */
-	abstract public Collection<HttpResponse> batchRequest(Collection<HttpRequest> requests);
+	Collection<HttpResponse> batchRequest(Collection<HttpRequest> requests);
 	
 	/**
 	 * Set HTTP authentication credentials for a given (host,port,realm) combination.  Both
@@ -83,5 +86,5 @@ public interface HttpClient
 	 * @param username
 	 * @param password
 	 */
-	abstract public void setHttpAuthCredentials(String host, int port, String realm, String username, String password);
+	void setHttpAuthCredentials(String host, int port, String realm, String username, String password);
 }
