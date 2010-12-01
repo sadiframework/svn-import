@@ -1,24 +1,30 @@
 package ca.wilkinsonlab.sadi.service.simple;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDF;
 
+import ca.wilkinsonlab.sadi.service.ServiceCall;
 import ca.wilkinsonlab.sadi.service.SynchronousServiceServlet;
 
-@SuppressWarnings("serial")
+/**
+ * @author Luke McCarthy
+ */
 public abstract class SimpleSynchronousServiceServlet extends SynchronousServiceServlet
 {
-	@Override
-	protected void processInput(Model inputModel, Model outputModel)
+	private static final long serialVersionUID = 1L;
+	
+	private Resource parameters;
+	public Resource getParameters()
 	{
-		for (ResIterator i = inputModel.listSubjectsWithProperty(RDF.type, inputClass); i.hasNext(); ) {
-			Resource inputNode = i.next();
-			Resource outputNode = outputModel.getResource(inputNode.getURI());
-			processInput(inputNode, outputNode);
+		return parameters;
+	}
+	
+	@Override
+	public void processInput(ServiceCall call) throws Exception
+	{
+		synchronized (this) {
+			parameters = call.getParameters();
+			super.processInput(call);
+			parameters = null;
 		}
 	}
-
-	protected abstract void processInput(Resource input, Resource output);
 }

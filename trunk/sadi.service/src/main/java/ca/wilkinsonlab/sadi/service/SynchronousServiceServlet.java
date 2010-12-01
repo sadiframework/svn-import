@@ -5,14 +5,16 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * This is the base class extended by synchronous SADI services.
  * @author Luke McCarthy
  */
-@SuppressWarnings("serial")
 public abstract class SynchronousServiceServlet extends ServiceServlet
 {
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
 	{
@@ -21,11 +23,16 @@ public abstract class SynchronousServiceServlet extends ServiceServlet
 	}
 	
 	@Override
-	public void processInput(ServiceCall call)
+	public void processInput(ServiceCall call) throws Exception
 	{
-		processInput(call.getInputModel(), call.getOutputModel());
+		for (Resource inputNode: call.getInputNodes()) {
+			Resource outputNode = call.getOutputModel().getResource(inputNode.getURI());
+			processInput(inputNode, outputNode);
+		}
 		closeInputModel(call.getInputModel());
 	}
 	
-	protected abstract void processInput(Model inputModel, Model outputModel);
+	public void processInput(Resource input, Resource output)
+	{
+	}
 }

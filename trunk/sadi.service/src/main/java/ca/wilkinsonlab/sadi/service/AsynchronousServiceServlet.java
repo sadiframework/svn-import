@@ -20,23 +20,12 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.ResourceUtils;
-import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-@SuppressWarnings("serial")
 public abstract class AsynchronousServiceServlet extends ServiceServlet
 {
-	private static final String POLL_PARAMETER = "poll";
-	private static final String INPUT_BATCH_SIZE_KEY = "inputBatchSize";
-	
-	protected int inputBatchSize;
-	
-	public void init() throws ServletException
-	{
-		super.init();
-		
-		inputBatchSize = config.getInteger(INPUT_BATCH_SIZE_KEY, -1);	
-	}
+	public static final String POLL_PARAMETER = "poll";
+	private static final long serialVersionUID = 1L;
 	
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -97,7 +86,7 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		Model inputModel = call.getInputModel();
 		Model outputModel = call.getOutputModel();
 		
-		for (Iterator<Collection<Resource>> batches = getInputBatches(inputModel); batches.hasNext(); ) {
+		for (Iterator<Collection<Resource>> batches = getInputBatches(call); batches.hasNext(); ) {
 			Collection<Resource> batch = batches.next();
 			
 			/* create a new model for each input batch so that the task
@@ -133,7 +122,10 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	
 	protected String getPollUrl(HttpServletRequest request, String taskId)
 	{
-		return String.format("%s?%s=%s", serviceUrl == null ? request.getRequestURL().toString() : serviceUrl, POLL_PARAMETER, taskId);
+		/* TODO allow override of request URL?
+		 * not really useful if proxies are set up properly...
+		 */
+		return String.format("%s?%s=%s", request.getRequestURL().toString(), POLL_PARAMETER, taskId);
 	}
 	
 	protected long getSuggestedWaitTime(Task task)
@@ -141,12 +133,22 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		return 5000;
 	}
 	
-	protected Iterator<Collection<Resource>> getInputBatches(Model inputModel)
+	/**
+	 * Returns the number of input instances in each batch.
+	 * If -1 is returned, the input will be processed in a single batch.
+	 * @return
+	 */
+	public int getInputBatchSize()
 	{
-		if (inputBatchSize > 0) {
-			return BatchIterator.batches(inputModel.listSubjectsWithProperty(RDF.type, inputClass), inputBatchSize);
+		return -1;
+	}
+	
+	protected Iterator<Collection<Resource>> getInputBatches(ServiceCall call)
+	{
+		if (getInputBatchSize() > 0) {
+			return BatchIterator.batches(call.getInputNodes(), getInputBatchSize());
 		} else {
-			return Collections.singleton((Collection<Resource>)inputModel.listSubjectsWithProperty(RDF.type, inputClass).toList()).iterator();
+			return Collections.singleton(call.getInputNodes()).iterator();
 		}
 	}
 	
