@@ -894,10 +894,10 @@ public class SHAREKnowledgeBase
 				for (Restriction r: restrictions) {
 					OntClass attachedValuesFrom = OwlUtils.getValuesFromAsClass(r);
 					if (attachedValuesFrom != null) {
-						if (constrainedType.equals(attachedValuesFrom) || constrainedType.hasSubClass(attachedValuesFrom) || constrainedType.hasSuperClass(attachedValuesFrom)) { // hasSuperClass because we might be building up; this is non-ideal...
-							log.debug(String.format("service %s attaches values of type %s to property %s which is compatible with type %s", service, attachedValuesFrom, p, constrainedType));
+						if (classesOverlap(constrainedType, attachedValuesFrom)) { // hasSuperClass because we might be building up; this is non-ideal...
+							log.debug(String.format("service %s attaches values of type %s to property %s which is compatible with type %s", service, OwlUtils.getLabel(attachedValuesFrom),  OwlUtils.getLabel(p),  OwlUtils.getLabel(constrainedType)));
 						} else {
-							log.debug(String.format("service %s attaches values of type %s to property %s and we're looking for values of type %s", service, attachedValuesFrom, p, constrainedType));
+							log.debug(String.format("service %s attaches values of type %s to property %s and we're looking for values of type %s", service, OwlUtils.getLabel(attachedValuesFrom),  OwlUtils.getLabel(p),  OwlUtils.getLabel(constrainedType)));
 							return true;
 						}
 					}
@@ -960,6 +960,37 @@ public class SHAREKnowledgeBase
 //			}
 //		}
 		return false;
+	}
+
+	private static boolean classesOverlap(OntClass constrainedType, OntClass attachedValuesFrom)
+	{
+		if (constrainedType.isIntersectionClass()) {
+			for (Iterator<? extends OntClass> i = constrainedType.asIntersectionClass().listOperands(); i.hasNext(); ) {
+				if (classesOverlap(i.next(), attachedValuesFrom))
+					return true;
+			}
+			return false;
+		} else if (attachedValuesFrom.isIntersectionClass()) {
+			for (Iterator<? extends OntClass> i = attachedValuesFrom.asIntersectionClass().listOperands(); i.hasNext(); ) {
+				if (classesOverlap(constrainedType, i.next()))
+					return true;
+			}
+			return false;
+		} else if (constrainedType.isUnionClass()) {
+			for (Iterator<? extends OntClass> i = constrainedType.asUnionClass().listOperands(); i.hasNext(); ) {
+				if (classesOverlap(i.next(), attachedValuesFrom))
+					return true;
+			}
+			return false;
+		} else if (attachedValuesFrom.isUnionClass()) {
+			for (Iterator<? extends OntClass> i = attachedValuesFrom.asUnionClass().listOperands(); i.hasNext(); ) {
+				if (classesOverlap(constrainedType, i.next()))
+					return true;
+			}
+			return false;
+		} else {
+			return constrainedType.equals(attachedValuesFrom) || constrainedType.hasSubClass(attachedValuesFrom) || constrainedType.hasSuperClass(attachedValuesFrom);
+		}
 	}
 	
 	/**

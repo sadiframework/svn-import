@@ -113,6 +113,15 @@ public class OwlUtils
 					} catch (Exception e) {
 						log.warn(e.getMessage());
 					}
+				} else if (clazz.isIntersectionClass()) {
+					StringBuffer buf = new StringBuffer("{ ");
+					for (Iterator<? extends OntClass> i = clazz.asIntersectionClass().listOperands(); i.hasNext(); ) {
+						buf.append(getLabel(i.next()));
+						if (i.hasNext())
+							buf.append(", ");
+					}
+					buf.append(" }");
+					return buf.toString();
 				}
 			}
 		}
