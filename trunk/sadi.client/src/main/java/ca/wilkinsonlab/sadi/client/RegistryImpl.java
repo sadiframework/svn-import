@@ -10,8 +10,8 @@ import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.utils.QueryExecutor;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
