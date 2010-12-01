@@ -1,0 +1,73 @@
+<plugin>
+  <description></description>
+  <groupId>ca.wilkinsonlab.sadi</groupId>
+  <artifactId>sadi-tester</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <goalPrefix>sadi-tester</goalPrefix>
+  <isolatedRealm>false</isolatedRealm>
+  <inheritedByDefault>true</inheritedByDefault>
+  <mojos>
+    <mojo>
+      <goal>help</goal>
+      <description>A goal that describes the goals and parameters of the plugin.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>ca.wilkinsonlab.sadi.service.tester.Help</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters/>
+    </mojo>
+    <mojo>
+      <goal>test-service</goal>
+      <description>A Maven plugin to test a SADI service.</description>
+      <requiresDirectInvocation>false</requiresDirectInvocation>
+      <requiresProject>true</requiresProject>
+      <requiresReports>false</requiresReports>
+      <aggregator>false</aggregator>
+      <requiresOnline>false</requiresOnline>
+      <inheritedByDefault>true</inheritedByDefault>
+      <implementation>ca.wilkinsonlab.sadi.service.tester.TestService</implementation>
+      <language>java</language>
+      <instantiationStrategy>per-lookup</instantiationStrategy>
+      <executionStrategy>once-per-session</executionStrategy>
+      <parameters>
+        <parameter>
+          <name>expectedPath</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The URL or local path of the expected output RDF document corresponding
+to the input document specified above.
+This parameter is required.</description>
+        </parameter>
+        <parameter>
+          <name>inputPath</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The URL or local path of an input RDF document.
+This parameter is required.</description>
+        </parameter>
+        <parameter>
+          <name>serviceURL</name>
+          <type>java.lang.String</type>
+          <required>false</required>
+          <editable>true</editable>
+          <description>The URL of the service to be tested.
+This parameter is required.</description>
+        </parameter>
+      </parameters>
+      <configuration>
+        <inputPath implementation="java.lang.String">${input}</inputPath>
+        <serviceURL implementation="java.lang.String">${serviceURL}</serviceURL>
+        <expectedPath implementation="java.lang.String">${expected}</expectedPath>
+      </configuration>
+    </mojo>
+  </mojos>
+  <dependencies/>
+</plugin>
