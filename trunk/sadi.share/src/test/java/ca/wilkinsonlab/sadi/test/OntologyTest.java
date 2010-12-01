@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 
 import com.hp.hpl.jena.ontology.OntModel;

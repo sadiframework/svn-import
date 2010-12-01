@@ -17,19 +17,20 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.MultiRegistry;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLServiceWrapper;
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.decompose.RestrictionAdapter;
+import ca.wilkinsonlab.sadi.decompose.VisitingDecomposer;
 import ca.wilkinsonlab.sadi.stats.PredicateStatsDB;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.PropertyResolvabilityCache;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ResourceTyper;
 import ca.wilkinsonlab.sadi.utils.VariableNameFactory;
-import ca.wilkinsonlab.sadi.utils.OwlUtils.PropertyRestrictionAdapter;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -39,6 +40,7 @@ import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
+import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.Syntax;
@@ -53,6 +55,7 @@ import com.hp.hpl.jena.sparql.syntax.ElementPathBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.ElementVisitorBase;
 import com.hp.hpl.jena.sparql.syntax.ElementWalker;
+import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
@@ -70,6 +73,7 @@ public class SHAREKnowledgeBase
 	private Model dataModel;
 	
 	private Map<String, PotentialValues> variableBindings;
+	private Map<Node, Collection<Triple>> constraints;
 	
 	private Tracker tracker;
 	private Set<String> deadServices;
@@ -100,6 +104,7 @@ public class SHAREKnowledgeBase
 	 * this option is on, and so it turned is off by default.
 	 */
 	private boolean intersectVariableBindings;
+	
 	/**
 	 * Attempt to resolve patterns where both the subject and object are unbound,
 	 * by: 1) finding a set of relevant services by predicate, and 2) discovering
@@ -107,6 +112,7 @@ public class SHAREKnowledgeBase
 	 * is on by default.
 	 */
 	private boolean resolveUnboundPatterns;
+	
 	/**
 	 * When adding service output to the local Model, explicitly record 
 	 * inferred triples due to equivalent properties and inverse properties.
@@ -154,6 +160,7 @@ public class SHAREKnowledgeBase
 		}
 		
 		variableBindings = new HashMap<String, PotentialValues>();
+		constraints = new HashMap<Node, Collection<Triple>>();
 		
 		tracker = new Tracker();
 		
@@ -180,6 +187,7 @@ public class SHAREKnowledgeBase
 		 */
 		this.intersectVariableBindings = kbConfig.getBoolean(INTERSECT_VARIABLE_BINDINGS_CONFIG_KEY, false);
 //		skipPropertiesPresentInKB = kbConfig.getBoolean("skipPropertiesPresentInKB", false);
+
 		this.resolveUnboundPatterns = kbConfig.getBoolean(RESOLVE_UNBOUND_PATTERNS_CONFIG_KEY, true);
 		this.storeInferredTriples = kbConfig.getBoolean(STORE_INFERRED_TRIPLES_CONFIG_KEY, false);
 	}
@@ -292,6 +300,8 @@ public class SHAREKnowledgeBase
 			log.error(String.format("failed to order query %s with strategy %s", query, strategy), e);
 		}
 		
+		computeConstraints(queryPatterns);
+		
 		for (Triple pattern: queryPatterns) {
 			processPattern(pattern);
 		}
@@ -306,6 +316,8 @@ public class SHAREKnowledgeBase
 		List<Triple> queryPatterns = new QueryPatternEnumerator(query).getQueryPatterns();
 		Set<Triple> visitedPatterns = new HashSet<Triple>();
 		QueryPatternComparator comparator = new QueryPatternComparator();
+		
+		computeConstraints(queryPatterns);
 		
 		while (visitedPatterns.size() < queryPatterns.size()) {	
 
@@ -352,6 +364,29 @@ public class SHAREKnowledgeBase
 		}
 	}
 	
+	protected Collection<Triple> getConstraints(Node variable)
+	{
+		if (!constraints.containsKey(variable)) {
+			Collection<Triple> variableConstraints = new ArrayList<Triple>();
+			constraints.put(variable, variableConstraints);
+		}
+		return constraints.get(variable);
+	}
+	
+	protected void computeConstraints(List<Triple> queryPatterns)
+	{
+		for (Triple pattern: queryPatterns) {
+			Node subject = pattern.getSubject();
+			if (!subject.isVariable())
+				continue;
+			if (!pattern.getObject().isConcrete())
+				continue;
+			
+			Collection<Triple> variableConstraints = getConstraints(subject);
+			variableConstraints.add(pattern);
+		}
+	}
+	
 	private void processPattern(Triple pattern)
 	{	
 		log.trace(String.format("query pattern %s", pattern));
@@ -394,10 +429,9 @@ public class SHAREKnowledgeBase
 		} else if (!objects.isEmpty()) { // unbound subject, bound object...
 			directionIsForward = false;
 		} else { // unbound subject, unbound object...
-
 			patternIsResolvable = false;
 			
-			if(this.resolveUnboundPatterns) {
+			if (this.resolveUnboundPatterns) {
 				
 				log.warn(String.format("resolving pattern whose subject and object are both unbound variables %s", pattern));
 
@@ -406,7 +440,7 @@ public class SHAREKnowledgeBase
 				 * TODO clean this up...
 				 */
 				{
-					Collection<Service> services = getServicesByPredicate(properties);
+					Collection<Service> services = getServicesByPredicate(properties, getConstraints(objects.variable));
 					for (Service service: services) {
 						Collection<Resource> inputInstances = service.discoverInputInstances(dataModel);
 						subjects.values.addAll(inputInstances);
@@ -418,7 +452,7 @@ public class SHAREKnowledgeBase
 					}
 				}
 				if (subjects.values.isEmpty()) {
-					Collection<Service> services = getServicesByPredicate(getInverseProperties(properties));
+					Collection<Service> services = getServicesByPredicate(getInverseProperties(properties), getConstraints(subjects.variable));
 					for (Service service: services) {
 						Collection<Resource> inputInstances = service.discoverInputInstances(dataModel);
 						objects.values.addAll(inputInstances);
@@ -429,7 +463,6 @@ public class SHAREKnowledgeBase
 						directionIsForward = false;
 					}
 				}
-
 			} else {
 				log.warn(String.format("skipping pattern whose subject and object are both unbound variables %s", pattern));
 			}
@@ -437,9 +470,7 @@ public class SHAREKnowledgeBase
 		}
 		
 		if (patternIsResolvable) {
-
 			boolean retrievedData;
-			
 			if (directionIsForward) {
 				log.trace(String.format("resolving pattern %s in forward direction", pattern));
 				retrievedData = gatherTriples(subjects, properties, objects);
@@ -512,44 +543,17 @@ public class SHAREKnowledgeBase
 		final PotentialValues subjects = expandQueryNode(pattern.getSubject());
 		log.debug(String.format("gathering triples to find instances of %s", resourceToString(c)));
 		
-		OwlUtils.decompose(c, new PropertyRestrictionAdapter() {
-			public void onProperty(OntProperty onProperty)
-			{
-				log.trace(String.format("%s has restriction on property %s", resourceToString(c), resourceToString(onProperty)));
-				PotentialValues objects = getNewVariableBinding(onProperty);
-				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), objects.variable);
-				log.trace(String.format("created new pattern %s", newPattern));
-				processPattern(newPattern);
-			}
-			public void hasValue(OntProperty onProperty, RDFNode hasValue)
-			{
-				log.trace(String.format("%s has resriction on property %s: hasValue %s", resourceToString(c), resourceToString(onProperty), hasValue));
-				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), hasValue.asNode());
-				log.trace(String.format("created new pattern %s", newPattern));
-				processPattern(newPattern);
-			}
-			public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
-			{
-				log.trace(String.format("%s has resriction on property %s: valuesFrom %s", resourceToString(c), resourceToString(onProperty), resourceToString(valuesFrom)));
-				PotentialValues objects = getNewVariableBinding(onProperty);
-				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), objects.variable);
-				log.trace(String.format("created new pattern %s", newPattern));
-				Triple typePattern = Triple.create(objects.variable, RDF.type.asNode(), valuesFrom.asNode());
-				log.trace(String.format("created new pattern %s", typePattern));
-				processPattern(newPattern);
-				processPattern(typePattern);
-			}
-		}, new ca.wilkinsonlab.sadi.utils.OwlUtils.Tracker() {
+		new VisitingDecomposer(new ca.wilkinsonlab.sadi.decompose.DefaultClassTracker() {
 			@Override
-			public boolean beenThere(OntClass c)
+			public boolean seen(OntClass c)
 			{
 				return tracker.beenThere(subjects, c);
 			}
-		}, new ca.wilkinsonlab.sadi.utils.OwlUtils.DefaultClassFilter() {
+		}, new ca.wilkinsonlab.sadi.decompose.DefaultClassVisitor() {
 			@Override
-			public boolean ignoreClass(OntClass c)
+			public boolean ignore(OntClass c)
 			{
-				if (super.ignoreClass(c)) {
+				if (super.ignore(c)) {
 					log.trace(String.format("ignoring class %s by default", resourceToString(c)));
 					return true;
 				}
@@ -586,13 +590,46 @@ public class SHAREKnowledgeBase
 				log.trace(String.format("decomposing class %s because no candidates of %s are instances", resourceToString(c), subjects.variable));
 				return false;
 			}
-		});
+		}, new RestrictionAdapter() {
+			public void onProperty(OntProperty onProperty)
+			{
+				log.trace(String.format("%s has restriction on property %s", resourceToString(c), resourceToString(onProperty)));
+				PotentialValues objects = getNewVariableBinding(onProperty);
+				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), objects.variable);
+				log.trace(String.format("created new pattern %s", newPattern));
+				processPattern(newPattern);
+			}
+			public void hasValue(OntProperty onProperty, RDFNode hasValue)
+			{
+				log.trace(String.format("%s has resriction on property %s: hasValue %s", resourceToString(c), resourceToString(onProperty), hasValue));
+				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), hasValue.asNode());
+				getConstraints(pattern.getSubject()).add(newPattern);
+				log.trace(String.format("created new pattern %s", newPattern));
+				processPattern(newPattern);
+			}
+			public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
+			{
+				log.trace(String.format("%s has resriction on property %s: valuesFrom %s", resourceToString(c), resourceToString(onProperty), resourceToString(valuesFrom)));
+				PotentialValues objects = getNewVariableBinding(onProperty);
+				Triple newPattern = Triple.create(pattern.getSubject(), onProperty.asNode(), objects.variable);
+				getConstraints(pattern.getSubject()).add(newPattern);
+				log.trace(String.format("created new pattern %s", newPattern));
+				Triple typePattern = Triple.create(objects.variable, RDF.type.asNode(), valuesFrom.asNode());
+				getConstraints(objects.variable).add(typePattern);
+				log.trace(String.format("created new pattern %s", typePattern));
+				processPattern(newPattern);
+				processPattern(typePattern);
+			}
+		}).decompose(c);
 	}
 	
 	private String resourceToString(OntResource resource)
 	{
 		StringBuilder buf = new StringBuilder();
-		buf.append(resource.getURI());
+		if (resource.isURIResource())
+			buf.append(resource.getURI());
+		else
+			buf.append(resource.getId().toString());
 		if (resource.hasProperty(RDFS.label)) {
 			buf.append(" (");
 			for (Statement stmt: resource.listProperties(RDFS.label).toList()) {
@@ -771,7 +808,7 @@ public class SHAREKnowledgeBase
 			services = getRegistry().getAllServices();
 		} else {
 			log.trace(String.format("finding services by predicate(s) %s", predicates));
-			services = getServicesByPredicate(predicates);
+			services = getServicesByPredicate(predicates, getConstraints(objects.variable));
 		}
 
 		log.debug(String.format("found %d service%s total", services.size(), services.size() == 1 ? "" : "s"));
@@ -779,16 +816,17 @@ public class SHAREKnowledgeBase
 		boolean retrievedData = false; 
 		
 		for (Service service : services) {
-			
 			/* copy the collection of potential inputs as they'll be filtered
 			 * for each service...
 			 */
 			Set<RDFNode> inputs = new HashSet<RDFNode>(subjects.values);
 			Collection<Triple> output = maybeCallService(service, inputs);
-
+			if (!output.isEmpty())
+				skipInputClasses.clear();
+			
 			/* add the service output to the data model */
 			for (Triple triple: output) {
-				if(this.storeInferredTriples) {
+				if (this.storeInferredTriples) {
 					addTripleWithInferences(triple);
 				} else {
 					log.trace(String.format("adding triple to data model %s", triple));
@@ -806,10 +844,122 @@ public class SHAREKnowledgeBase
 					getOntProperty(triple.getPredicate().getURI());
 				}
 			}
-			
 		}
 		
 		return retrievedData;
+	}
+	
+	protected boolean violatesConstraints(Service service, OntProperty p, Collection<Triple> variableConstraints)
+	{
+		/* TODO replace this whole bit with Service.listRestrictions() or Service.listRestrictionsOnProperty()
+		 * once those are in the general service contract...
+		 */
+		OntClass inputClass = null;
+		OntClass outputClass = null;
+		try {
+//			String inputClassURI = service.getInputClassURI();
+//			if (inputClassURI != null)
+//				inputClass = getOntClass(inputClassURI);
+//			String outputClassURI = service.getOutputClassURI();
+//			if (outputClassURI != null)
+//				outputClass = getOntClass(outputClassURI);
+			inputClass = service.getInputClass();
+			outputClass = service.getOutputClass();
+		} catch (SADIException e) {
+			log.error("error getting input/output class", e);
+		}
+		if (inputClass == null || inputClass.equals(OWL.Nothing)) {
+			log.trace("no output class; no constraints to violate");
+			return false;
+		}
+		if (outputClass == null || outputClass.equals(OWL.Nothing)) {
+			log.trace("no output class; no constraints to violate");
+			return false;
+		}
+		Collection<Restriction> restrictions = new ArrayList<Restriction>();
+		for (Restriction r: OwlUtils.listRestrictions(outputClass, inputClass)) {
+			OntProperty attachedProperty = r.getOnProperty();
+			if (p.equals(attachedProperty) || p.hasSubProperty(attachedProperty, false)) {
+				restrictions.add(r);
+			}
+		}
+		
+		for (Triple constraint: variableConstraints) {
+			if (constraint.getPredicate().equals(RDF.type.asNode())) {
+				OntClass constrainedType = getNodeAsClass(constraint.getObject());
+				if (constrainedType == null) {
+					log.trace(String.format("skipping type constraint with unknown class %s", constraint.getObject()));
+					continue;
+				}
+				for (Restriction r: restrictions) {
+					OntClass attachedValuesFrom = OwlUtils.getValuesFromAsClass(r);
+					if (attachedValuesFrom != null) {
+						if (constrainedType.equals(attachedValuesFrom) || constrainedType.hasSubClass(attachedValuesFrom) || constrainedType.hasSuperClass(attachedValuesFrom)) { // hasSuperClass because we might be building up; this is non-ideal...
+							log.debug(String.format("service %s attaches values of type %s to property %s which is compatible with type %s", service, attachedValuesFrom, p, constrainedType));
+						} else {
+							log.debug(String.format("service %s attaches values of type %s to property %s and we're looking for values of type %s", service, attachedValuesFrom, p, constrainedType));
+							return true;
+						}
+					}
+				}
+			}
+		}
+		
+//		Resource dummy = OwlUtils.createDummyInstance(outputClass);
+//		for (Triple constraint: variableConstraints) {
+//			if (!constraint.getPredicate().isURI())
+//				continue;
+//			Property p = RdfUtils.getProperty(dataModel, constraint.getPredicate());
+//			if (p.equals(RDF.type)) {
+//				OntClass constrainedType = getNodeAsClass(constraint.getObject());
+//				if (constrainedType == null) {
+//					log.trace(String.format("skipping type constraint with unknown class %s", constraint.getObject()));
+//					continue;
+//				}
+//				try {
+//					constrainedType.getOntModel().addSubModel(dummy.getModel());
+//					if (!constrainedType.listInstances().toSet().contains(dummy)) {
+//						log.trace(String.format("service will not provide an instance of %s", constrainedType));
+//						return true;
+//					}
+//				} finally {
+//					constrainedType.getOntModel().removeSubModel(dummy.getModel());
+//				}
+//			} else {
+//				RDFNode o = RdfUtils.getRDFNode(dataModel, constraint.getObject());
+//				if (!dummy.hasProperty(p, o)) {
+//					log.trace(String.format("service will not provide constrained value %s of property %s", o, p));
+//					return true;
+//				}
+//			}
+//			if (constraint.getPredicate().equals(RDF.type.asNode())) {
+//				OntClass constrainedType = getNodeAsClass(constraint.getObject());
+//				if (constrainedType == null) {
+//					log.trace(String.format("skipping type constraint with unknown class %s", constraint.getObject()));
+//					continue;
+//				}
+//				for (Restriction r: restrictions) {
+//					if (!(r.isAllValuesFromRestriction() || r.isSomeValuesFromRestriction()))
+//						continue;
+//					OntClass valuesFrom = OwlUtils.getValuesFromAsClass(r);
+//					if (valuesFrom != null && !constrainedType.hasSubClass(valuesFrom)) {
+//						log.trace(String.format("constrained type %s is not a subClass of valuesFrom class %s", constrainedType, valuesFrom));
+//						return true;
+//					}
+//				}
+//			} else {
+//				for (Restriction r: restrictions) {
+//					if (r.isHasValueRestriction()) {
+//						RDFNode hasValue = r.asHasValueRestriction().getHasValue();
+//						if (!hasValue.equals(constraint.getObject())) {
+//							log.trace(String.format("concrete variable constraint %s violates hasValue restriction %s", constraint.getObject(), hasValue));
+//							return true;
+//						}
+//					}
+//				}
+//			}
+//		}
+		return false;
 	}
 	
 	/**
@@ -1033,9 +1183,11 @@ public class SHAREKnowledgeBase
 		return statements;
 	}
 
+	Set<String> skipInputClasses = new HashSet<String>();
 	private Collection<Triple> maybeCallService(Service service, Set<RDFNode> subjects)
 	{
 		log.trace(String.format("found service %s", service));
+		
 		if (deadServices.contains(service.getURI())) {
 			log.debug(String.format("skipping dead service %s", service));
 			return Collections.emptyList();
@@ -1054,9 +1206,15 @@ public class SHAREKnowledgeBase
 			return Collections.emptyList();
 		}
 		
+		String inputClassURI = service.getInputClassURI();
+		if (inputClassURI != null && !inputClassURI.equals(OWL.Nothing.getURI()) && skipInputClasses.contains(inputClassURI)) {
+			log.trace(String.format("skipping input class %s because we know we have no instances", inputClassURI));
+			return Collections.emptyList();
+		}
 		filterByInputClass(subjects, service);
 		if (subjects.isEmpty()) {
 			log.trace("nothing left to do");
+			skipInputClasses.add(inputClassURI);
 			return Collections.emptyList();
 		}
 		
@@ -1076,7 +1234,7 @@ public class SHAREKnowledgeBase
 	 * the OntProperty instead of just the URI, then it can return services
 	 * that match the synonyms as well...
 	 */
-	private Set<Service> getServicesByPredicate(Collection<OntProperty> predicates)
+	private Set<Service> getServicesByPredicate(Collection<OntProperty> predicates, Collection<Triple> variableConstraints)
 	{
 		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
 		for(OntProperty predicate : predicates) {
@@ -1091,8 +1249,16 @@ public class SHAREKnowledgeBase
 //				continue;
 //			}
 			Collection<Service> equivalentPropertyServices = getRegistry().findServicesByPredicate(equivalentProperty.getURI());
-			log.debug(String.format("found %d service%s for property %s", equivalentPropertyServices.size(), equivalentPropertyServices.size() == 1 ? "" : "s", resourceToString(equivalentProperty)));
-			services.addAll(equivalentPropertyServices);
+			for (Service service: equivalentPropertyServices) {
+				if (violatesConstraints(service, equivalentProperty, variableConstraints)) {
+					log.debug(String.format("excluding service %s because it violates constraints on variable", service));
+				} else {
+					log.trace(String.format("found service %s for equivalent property %s", service, equivalentProperty));
+					services.add(service);
+				}
+			}
+//			log.debug(String.format("found %d service%s for property %s", equivalentPropertyServices.size(), equivalentPropertyServices.size() == 1 ? "" : "s", resourceToString(equivalentProperty)));
+//			services.addAll(equivalentPropertyServices);
 		}
 		
 		return services;
@@ -1185,7 +1351,7 @@ public class SHAREKnowledgeBase
 			try {
 				inputClass = service.getInputClass();
 			} catch (SADIException e) {
-				log.error(String.format("unable to load input class for service %s, invocation of service will be skipped", service), e);
+				log.error(String.format("error loading input class for service %s; skipping service", service), e);
 				subjects.clear();
 				return;
 			}
@@ -1252,9 +1418,7 @@ public class SHAREKnowledgeBase
 	private Collection<Triple> invokeService(Service service, Set<? extends RDFNode> inputs)
 	{
 		log.info(getServiceCallString(service, inputs));
-		
 		try {
-			
 			Collection<Triple> output;
 
 			StopWatch stopWatch = new StopWatch();
@@ -1297,7 +1461,6 @@ public class SHAREKnowledgeBase
 			log.trace(String.format("invocation of service %s completed in %dms", service.getURI(), stopWatch.getTime()));		
 			
 			return output;
-			
 		} catch (ServiceInvocationException e) {
 			log.error(String.format("failed to invoke service %s", service), e);
 			

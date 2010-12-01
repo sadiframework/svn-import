@@ -15,11 +15,11 @@ import com.hp.hpl.jena.util.LocationMapper;
 /**
  * SHARE configuration class.  The defaults can be overridden in
  * sadi.properties. 
- * (see {@link ca.wilkinsonlab.sadi.common.Config} for details)
+ * (see {@link ca.wilkinsonlab.sadi.Config} for details)
  * 
  * @author Luke McCarthy
  */
-public class Config extends ca.wilkinsonlab.sadi.common.Config
+public class Config extends ca.wilkinsonlab.sadi.Config
 {
 	private static final Logger log = Logger.getLogger(Config.class);
 	

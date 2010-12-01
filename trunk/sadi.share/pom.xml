@@ -4,12 +4,12 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-share</artifactId>
   <name>SHARE classes</name>
-  <version>0.0.5-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <description>The Semantic Health and Research Environment</description>
   <parent>
     <groupId>ca.wilkinsonlab.sadi</groupId>
     <artifactId>sadi-parent</artifactId>
-    <version>0.0.5-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
   </parent>
   
   <build>
@@ -84,12 +84,12 @@
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-common</artifactId>
-      <version>0.0.5-SNAPSHOT</version>
+      <version>0.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-client</artifactId>
-      <version>0.0.5-SNAPSHOT</version>
+      <version>0.1.0pre-SNAPSHOT</version>
     </dependency>
     <dependency>
     	<groupId>commons-math</groupId>
@@ -101,18 +101,18 @@
     	<artifactId>ehcache-core</artifactId>
     	<version>2.0.1</version>
     </dependency>
+
+    <dependency>
+    	<groupId>args4j</groupId>
+    	<artifactId>args4j</artifactId>
+    	<version>2.0.12</version>
+    </dependency>
     
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.1</version>
       <scope>test</scope>
-    </dependency>
-
-    <dependency>
-    	<groupId>args4j</groupId>
-    	<artifactId>args4j</artifactId>
-    	<version>2.0.12</version>
     </dependency>
   </dependencies>
 </project>
