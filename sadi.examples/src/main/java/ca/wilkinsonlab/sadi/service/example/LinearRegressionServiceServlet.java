@@ -13,11 +13,6 @@ public class LinearRegressionServiceServlet extends SimpleSynchronousServiceServ
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(LinearRegressionServiceServlet.class);
 	
-	public LinearRegressionServiceServlet()
-	{
-		super();
-	}
-	
 	public void processInput(Resource input, Resource output)
 	{
 		RegressionUtils.processInput(input, output);

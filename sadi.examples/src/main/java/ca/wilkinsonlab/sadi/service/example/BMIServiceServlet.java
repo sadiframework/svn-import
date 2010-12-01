@@ -15,11 +15,6 @@ public class BMIServiceServlet extends SimpleSynchronousServiceServlet
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(BMIServiceServlet.class);
 	
-	public BMIServiceServlet()
-	{
-		super();
-	}
-	
 	public void processInput(Resource input, Resource output)
 	{
 		output.addLiteral(Vocab.BMI, getWeightInKg(input)/Math.pow(getHeightInM(input), 2));

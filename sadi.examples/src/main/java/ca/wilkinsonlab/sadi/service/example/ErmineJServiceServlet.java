@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.ServletException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -15,6 +13,8 @@ import ubic.erminej.ClassScoreSimple;
 import ubic.erminej.Settings;
 import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -24,42 +24,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @SuppressWarnings("serial")
 public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 {
-	public static final String ELEMENT_URI = "http://sadiframework.org/examples/common.owl#element";
-	public static final String EXPRESSION_LEVEL_URI = "http://sadiframework.org/examples/ermineJ.owl#expressionLevel";
-	public static final String MAPPED_TO_URI = "http://sadiframework.org/examples/ermineJ.owl#mappedTo";
-	public static final String HAS_INPUT_TERM_URI = "http://sadiframework.org/ontologies/predicates.owl#hasGOTerm";
-	public static final String HAS_OUTPUT_TERM_URI = "http://sadiframework.org/examples/ermineJ.owl#term";
-	public static final String HAS_SIGNIFICANCE_URI = "http://sadiframework.org/examples/ermineJ.owl#p";
-	public static final String HAS_OVERREPRESENTED_TERM = "http://sadiframework.org/examples/ermineJ.owl#hasOverrepresentedTerm";
-	public static final String OVERREPRESENTED_TERM_URI = "http://sadiframework.org/examples/ermineJ.owl#OverrepresentedTerm";
-
 	private static final Log log = LogFactory.getLog(ErmineJServiceServlet.class);
-	
-	private Property element;
-	private Property expressionLevel;
-	private Property mappedTo;
-	private Property hasInputTerm;
-	private Property hasOutputTerm;
-	private Property hasSignificance;
-	private Property hasOverrepresentedTerm;
-	private Resource OverrepresentedTerm;
-	
-	public void init() throws ServletException
-	{
-		super.init();
-
-		/* TODO the exact input term property here will change depending on
-		 * whether the GO term service, MESH term service, etc. has been called...
-		 */ 
-		element = ontologyModel.getProperty(ELEMENT_URI);
-		expressionLevel = ontologyModel.getProperty(EXPRESSION_LEVEL_URI);
-		mappedTo = ontologyModel.getProperty(MAPPED_TO_URI);
-		hasInputTerm = ontologyModel.getProperty(HAS_INPUT_TERM_URI);
-		hasOutputTerm = ontologyModel.getProperty(HAS_OUTPUT_TERM_URI);
-		hasSignificance = ontologyModel.getProperty(HAS_SIGNIFICANCE_URI);
-		hasOverrepresentedTerm = ontologyModel.getProperty(HAS_OVERREPRESENTED_TERM);
-		OverrepresentedTerm = ontologyModel.getResource(OVERREPRESENTED_TERM_URI);
-	}
 
 	public void processInput(Resource input, Resource output)
 	{
@@ -68,18 +33,18 @@ public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 		List<String> geneIds = new ArrayList<String>();
 		List<Collection<String>> termCollections = new ArrayList<Collection<String>>();
 		Set<String> allTerms = new HashSet<String>();
-		for (StmtIterator i = input.listProperties(element); i.hasNext(); ) {
+		for (StmtIterator i = input.listProperties(Vocab.element); i.hasNext(); ) {
 			Statement s = i.nextStatement();
 			try {
 				Resource probe = s.getResource();
 				String probeId = getProbeId(probe);
 				Double expressionLevel = getExpressionLevel(probe);
 				// there should only be one mapped_to gene...
-				Resource gene = probe.getProperty(mappedTo).getResource();
+				Resource gene = probe.getProperty(Vocab.mappedTo).getResource();
 				String geneId = getGeneId(gene);
 				// each gene can be mapped to many terms...
 				Collection<String> terms = new ArrayList<String>();
-				for (StmtIterator j = gene.listProperties(hasInputTerm); j.hasNext(); ) {
+				for (StmtIterator j = gene.listProperties(Vocab.hasInputTerm); j.hasNext(); ) {
 					Statement t = j.nextStatement();
 					Resource goTerm = t.getResource();
 					String term = getTerm(goTerm);
@@ -101,10 +66,10 @@ public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 			double p = scores.getGeneSetPvalue(term);
 			if (p < 0)
 				continue;
-			Resource orTerm = output.getModel().createResource(OverrepresentedTerm);
-			orTerm.addProperty(hasOutputTerm, output.getModel().createResource(term));
-			orTerm.addLiteral(hasSignificance, p);
-			output.addProperty(hasOverrepresentedTerm, orTerm);
+			Resource orTerm = output.getModel().createResource(Vocab.OverrepresentedTerm);
+			orTerm.addProperty(Vocab.hasOutputTerm, output.getModel().createResource(term));
+			orTerm.addLiteral(Vocab.hasSignificance, p);
+			output.addProperty(Vocab.hasOverrepresentedTerm, orTerm);
 		}
 	}
 
@@ -118,7 +83,7 @@ public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 
 	private Double getExpressionLevel(Resource probe)
 	{
-		return probe.getProperty(expressionLevel).getDouble();
+		return probe.getProperty(Vocab.expressionLevel).getDouble();
 	}
 
 	private String getGeneId(Resource gene)
@@ -173,5 +138,19 @@ public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 		scores.run( expressionLevels ); // might want to run in a separate thread.
 		
 	    return scores;
+	}
+	
+	private static class Vocab
+	{
+		private static Model m_model = ModelFactory.createDefaultModel();
+		
+		public static final Property element = m_model.getProperty("http://sadiframework.org/examples/common.owl#element");
+		public static final Property expressionLevel = m_model.getProperty("http://sadiframework.org/examples/ermineJ.owl#expressionLevel");
+		public static final Property mappedTo = m_model.getProperty("http://sadiframework.org/examples/ermineJ.owl#mappedTo");
+		public static final Property hasInputTerm = m_model.getProperty("http://sadiframework.org/ontologies/predicates.owl#hasGOTerm");
+		public static final Property hasOutputTerm = m_model.getProperty("http://sadiframework.org/examples/ermineJ.owl#term");
+		public static final Property hasSignificance = m_model.getProperty("http://sadiframework.org/examples/ermineJ.owl#p");
+		public static final Property hasOverrepresentedTerm = m_model.getProperty("http://sadiframework.org/examples/ermineJ.owl#hasOverrepresentedTerm");
+		public static final Resource OverrepresentedTerm = m_model.getResource("http://sadiframework.org/examples/ermineJ.owl#OverrepresentedTerm");
 	}
 }

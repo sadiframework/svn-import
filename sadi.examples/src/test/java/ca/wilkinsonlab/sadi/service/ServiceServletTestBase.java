@@ -13,13 +13,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.ServiceImpl;
-import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.utils.ModelDiff;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
-import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -100,7 +99,7 @@ public abstract class ServiceServletTestBase extends TestCase
 		/* inputs to services must be explicitly typed, so there's not much
 		 * to do here now...
 		 */
-		OntClass inputClass = getServiceServletInstance().inputClass;
+		Resource inputClass = getServiceServletInstance().inputClass;
 		for (Resource inputNode: getInputNodes()) {
 			assertTrue(String.format("individual %s is not an instance of class %s", inputNode, inputClass),
 					inputNode.hasProperty(RDF.type, inputClass));
