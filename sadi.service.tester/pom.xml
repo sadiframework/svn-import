@@ -5,46 +5,22 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-tester</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
-  <version>0.0.3</version>
+  <parent>
+    <groupId>ca.wilkinsonlab.sadi</groupId>
+    <artifactId>sadi-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
   <name>SADI service tester</name>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-    </plugins>
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-ssh-external</artifactId>
-        <version>1.0-alpha-5</version>
-      </extension>
-    </extensions>
-  </build>
-  <distributionManagement>
-    <repository>
-      <id>dev-repository</id>
-      <name>dev.biordf.net Repository</name>
-      <url>scpexe://dev.biordf.net/var/www/maven/</url>
-    </repository>
-    <snapshotRepository>
-      <id>dev-snapshot-repository</id>
-      <name>dev.biordf.net Snapshot Repository</name>
-      <url>scpexe://dev.biordf.net/var/www/maven/</url>
-    </snapshotRepository>
-  </distributionManagement>
+
   <dependencies>
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-client</artifactId>
-      <version>0.0.3</version>
+      <version>0.1.0pre-SNAPSHOT</version>
     </dependency>
+    
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-plugin-api</artifactId>
