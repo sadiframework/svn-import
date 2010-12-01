@@ -1,11 +1,12 @@
-package ca.wilkinsonlab.sadi.common;
+package ca.wilkinsonlab.sadi;
 
 /**
  * A common superclass for all SADI exceptions.
  */
-@SuppressWarnings("serial")
 public class SADIException extends Exception
 {
+	private static final long serialVersionUID = 1L;
+
 	public SADIException(String message)
 	{
 		super(message);

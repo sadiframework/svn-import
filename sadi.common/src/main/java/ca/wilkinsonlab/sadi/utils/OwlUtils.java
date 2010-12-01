@@ -10,8 +10,13 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.common.Config;
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.Config;
+import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.decompose.ClassTracker;
+import ca.wilkinsonlab.sadi.decompose.ClassVisitor;
+import ca.wilkinsonlab.sadi.decompose.RestrictionAdapter;
+import ca.wilkinsonlab.sadi.decompose.RestrictionVisitor;
+import ca.wilkinsonlab.sadi.decompose.VisitingDecomposer;
 import ca.wilkinsonlab.sadi.utils.graph.BreadthFirstIterator;
 import ca.wilkinsonlab.sadi.utils.graph.OpenGraphIterator;
 import ca.wilkinsonlab.sadi.utils.graph.SearchNode;
@@ -64,18 +69,24 @@ public class OwlUtils
 	 * present:
 	 * 	getLabel() [usually the value of the rdfs:label property]
 	 * 	getLocalName() [usually the last path element of the URI]
+	 *  a human-readable description of an anonymous restriction
 	 * 	toString()
 	 * @param resource
 	 * @return a human-readable label for the specified resource
 	 */
-	public static String getLabel(OntResource resource)
+	public static String getLabel(Resource resource)
 	{
 		if (resource == null)
 			return "null";
 		
-		String label = resource.getLabel(null);
-		if (label != null)
-			return label;
+		if (resource instanceof OntResource) {
+			String label = ((OntResource)resource).getLabel(null);
+			if (label != null)
+				return label;
+		} else {
+			if (resource.hasProperty(RDFS.label))
+				return resource.getProperty(RDFS.label).toString();
+		}
 		
 		if (resource.isURIResource()) {
 			/* there seems some kind of bug in getLocalName() in that it loses
@@ -91,19 +102,83 @@ public class OwlUtils
 			}
 		}
 		
-		if (resource.isClass()) {
-			OntClass clazz = resource.asClass();
-			if (clazz.isRestriction()) {
-				Restriction restriction = clazz.asRestriction();
-				try {
-					return String.format("restriction on %s", restriction.getOnProperty());
-				} catch (Exception e) {
-					log.warn(e.getMessage());
+		if (resource instanceof OntResource) {
+			OntResource ontResource = (OntResource)resource;
+			if (ontResource.isClass()) {
+				OntClass clazz = ontResource.asClass();
+				if (clazz.isRestriction()) {
+					Restriction restriction = clazz.asRestriction();
+					try {
+						return getRestrictionString(restriction);
+					} catch (Exception e) {
+						log.warn(e.getMessage());
+					}
 				}
 			}
 		}
 		
 		return resource.toString();
+	}
+	
+	/**
+	 * Returns the concatentation of the human-readable labels for the 
+	 * specified resources. 
+	 * The component labels will be those returned by
+	 * <code>OwlUtils.getLabel(com.hp.hpl.jena.rdf.model.Resource)</code>.
+	 * @param resources
+	 * @return the concatentation of the human-readable labels for the specified resources
+	 */
+	public static String getLabels(Iterator<? extends Resource> resources)
+	{
+		StringBuilder buf = new StringBuilder("[");
+		while (resources.hasNext()) {
+			buf.append(getLabel(resources.next()));
+			if (resources.hasNext())
+				buf.append(", ");
+		}
+		buf.append("]");
+		return buf.toString();
+	}
+	
+	/**
+	 * Returns a description of the specified OWL restriction
+	 * @param r the OWL restriction
+	 * @return a description of the OWL restriction
+	 */
+	public static String getRestrictionString(Restriction r)
+	{
+		StringBuilder buf = new StringBuilder("{");
+		
+		try {
+			buf.append(getLabel(r.getOnProperty()));
+		} catch (ConversionException e) {
+			// this happens if the property is undefined in the ontology model...
+			buf.append(getLabel(r.getProperty(OWL.onProperty).getResource()));
+		}
+		if (r.isAllValuesFromRestriction()) {
+			buf.append(" allValuesFrom ");
+			buf.append(getLabel(r.asAllValuesFromRestriction().getAllValuesFrom()));
+		} else if (r.isSomeValuesFromRestriction()) {
+			buf.append(" someValuesFrom ");
+			buf.append(getLabel(r.asSomeValuesFromRestriction().getSomeValuesFrom()));
+		} else if (r.isHasValueRestriction()) {
+			buf.append(" hasValue ");
+			buf.append(r.asHasValueRestriction().getHasValue());
+		} else if (r.isMinCardinalityRestriction()) {
+			buf.append(" minCardinality ");
+			buf.append(r.asMinCardinalityRestriction().getMinCardinality());
+		} else if (r.isMaxCardinalityRestriction()) {
+			buf.append(" maxCardinality ");
+			buf.append(r.asMaxCardinalityRestriction().getMaxCardinality());
+		} else if (r.isCardinalityRestriction()) {
+			buf.append(" cardinality ");
+			buf.append(r.asCardinalityRestriction().getCardinality());
+		} else {
+			buf.append(" unknown restriction");
+		}
+		
+		buf.append("}");
+		return buf.toString();
 	}
 	
 	/**
@@ -164,14 +239,20 @@ public class OwlUtils
 		}
 	}
 
-	private static OntClass getDefaultRange(OntProperty p)
+	/**
+	 * Returns the default range of the specified property as if it had
+	 * no explicit range.
+	 * @param p
+	 * @return the default range of the specified property
+	 */
+	public static OntClass getDefaultRange(OntProperty p)
 	{
 		if (p.isDatatypeProperty())
-			return p.getOntModel().getOntClass(RDFS.Literal.getURI());
+			return p.getOntModel().createClass(RDFS.Literal.getURI());
 		else if (p.isObjectProperty())
-			return p.getOntModel().getOntClass(OWL.Thing.getURI());
+			return p.getOntModel().createClass(OWL.Thing.getURI());
 		else
-			return p.getOntModel().getOntClass(RDFS.Resource.getURI());
+			return p.getOntModel().createClass(RDFS.Resource.getURI());
 	}
 	
 	/**
@@ -250,7 +331,7 @@ public class OwlUtils
 		loadMinimalOntologyForUri(model, ontologyUri, uri, new HashSet<OntologyUriPair>());
 	}
 
-	protected static void loadMinimalOntologyForUri(Model model, String ontologyUri, String uri, Set<OntologyUriPair> visitedUris) throws SADIException
+	private static void loadMinimalOntologyForUri(Model model, String ontologyUri, String uri, Set<OntologyUriPair> visitedUris) throws SADIException
 	{
 		OntologyUriPair ontologyUriPair = new OntologyUriPair(ontologyUri, uri);
 
@@ -293,8 +374,33 @@ public class OwlUtils
 				throw new SADIException(e.toString(), e);			
 		}
 	}
+	private static class OntologyUriPair 
+	{
+		public String ontologyUri;
+		public String uri;
+		
+		public OntologyUriPair(String ontologyUri, String uri)
+		{
+			this.ontologyUri = ontologyUri;
+			this.uri = uri;
+		}
+		
+		public boolean equals(Object o) 
+		{
+			if (o instanceof OntologyUriPair) {
+				OntologyUriPair that = (OntologyUriPair)o;
+				return (this.ontologyUri.equals(that.ontologyUri) && this.uri.equals(that.uri));
+			}
+			return false;
+		}
+		
+		public int hashCode() 
+		{
+			return (ontologyUri + uri).hashCode();
+		}
+	}	
 	
-	protected static Model getMinimalOntologyFromModel(Model sourceModel, String uriInSourceModel) 
+	private static Model getMinimalOntologyFromModel(Model sourceModel, String uriInSourceModel) 
 	{
 		Model minimalOntology = ModelFactory.createMemModelMaker().createFreshModel();
 		Resource root = sourceModel.getResource(uriInSourceModel);
@@ -305,620 +411,7 @@ public class OwlUtils
 		i.iterate();
 		return minimalOntology;
 	}
-	
-	/**
-	 * Return the OntProperty with the specified URI, resolving it and
-	 * loading the resulting ontology into the model if necessary.
-	 * @param model the OntModel
-	 * @param uri the URI
-	 * @return the OntProperty
-	 */
-	public static OntProperty getOntPropertyWithLoad(OntModel model, String uri) throws SADIException
-	{
-		OntProperty p = model.getOntProperty(uri);
-		if (p != null)
-			return p;
-		
-		loadMinimalOntologyForUri(model, uri);
-		return model.getOntProperty(uri);
-	}
-	
-	/**
-	 * Return the OntClass with the specified URI, resolving it and loading
-	 * the resolved ontology into the model if it is not already there.
-	 * @param model the OntModel
-	 * @param uri the URI
-	 * @return the OntClass
-	 */
-	public static OntClass getOntClassWithLoad(OntModel model, String uri) throws SADIException
-	{
-		OntClass c = model.getOntClass(uri);
-		if (c != null)
-			return c;
-		
-		loadMinimalOntologyForUri(model, uri);
-		return model.getOntClass(uri);
-	}
-	
-	/**
-	 * Return the OntResource with the specified URI, resolving it and
-	 * loading the resulting ontology into the model if necessary.
-	 * @param model the OntModel
-	 * @param uri the URI
-	 * @return the OntResource
-	 */
-	public static OntResource getOntResourceWithLoad(OntModel model, String uri) throws SADIException
-	{
-		OntResource r = model.getOntResource(uri);
-		if (r != null)
-			return r;
-		
-		loadOntologyForUri(model, uri);
-		return model.getOntResource(uri);
-	}
-	
-	/**
-	 * Returns a description of the specified OWL restriction
-	 * @param r the OWL restriction
-	 * @return a description of the OWL restriction
-	 */
-	public static String toString(Restriction r)
-	{
-		String type;
-		if (r.isAllValuesFromRestriction())
-			type = "allValuesFrom " + r.asAllValuesFromRestriction().getAllValuesFrom();
-		else if (r.isSomeValuesFromRestriction())
-			type = "someValuesFrom " + r.asSomeValuesFromRestriction().getSomeValuesFrom();
-		else if (r.isCardinalityRestriction())
-			type = (r.asCardinalityRestriction().isMinCardinalityRestriction() ?
-					"minCardinality" : "maxCardinality") + r.asCardinalityRestriction().getCardinality();
-		else if (r.isHasValueRestriction())
-			type = "hasValue " + r.asHasValueRestriction().getHasValue();
-		else
-			type = r.getClass().getSimpleName();
-		
-		return String.format("%s on %s", type, r.getOnProperty());
-	}
-	
-	/**
-	 * Return the set of properties the OWL class identified by a URI has restrictions on.
-	 * The ontology containing the OWL class (and any referenced imports) will be fetched
-	 * and processed.
-	 * @param classUri the URI of the OWL class
-	 * @return the set of properties the OWL class has restrictions on
-	 */
-	public static Set<OntProperty> listRestrictedProperties(String classUri) throws SADIException
-	{
-		// TODO do we need more reasoning here?
-		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
-		OntClass clazz = getOntClassWithLoad( model, classUri );
-		return listRestrictedProperties( clazz );
-	}
-	
-	/**
-	 * Return the set of properties an OWL class has restrictions on.
-	 * @param clazz the OWL class
-	 * @return the set of properties the OWL class has restrictions on
-	 */
-	public static Set<OntProperty> listRestrictedProperties(OntClass clazz)
-	{
-		PropertyEnumerationVisitor visitor = new PropertyEnumerationVisitor();
-		decompose(clazz, visitor);
-		return visitor.properties;
-	}
-	
-	public static Set<Restriction> listRestrictions(OntClass clazz)
-	{
-		RestrictionEnumerationVisitor visitor = new RestrictionEnumerationVisitor();
-		decompose(clazz, visitor);
-		return visitor.restrictions;
-	}
-	
-	public static Set<Restriction> listRestrictions(OntClass clazz, OntClass relativeTo)
-	{
-		Set<Restriction> base = listRestrictions(relativeTo);
-		Set<Restriction> relative = listRestrictions(clazz);
-		relative.removeAll(base);
-		return relative;
-	}
-	
-	public static OntClass getValuesFromAsClass(Restriction restriction)
-	{
-		OntResource valuesFrom = getValuesFrom(restriction);
-		if (valuesFrom.isClass())
-			return valuesFrom.asClass();
-		else
-			return null;
-	}
-	
-	public static OntResource getValuesFrom(Restriction restriction)
-	{
-		if (restriction.isAllValuesFromRestriction()) {
-			return restriction.getOntModel().getOntResource(restriction.asAllValuesFromRestriction().getAllValuesFrom());
-		} else if (restriction.isSomeValuesFromRestriction()) {
-			return restriction.getOntModel().getOntResource(restriction.asSomeValuesFromRestriction().getSomeValuesFrom());
-		} else {
-			return OwlUtils.getUsefulRange(restriction.getOnProperty());
-		}
-	}
-	
-	public static Set<OntProperty> getEquivalentProperties(OntProperty p)
-	{
-		return getEquivalentProperties(p, false);
-	}
-	
-	public static Set<OntProperty> getEquivalentProperties(OntProperty p, boolean withSubProperties)
-	{
-		/* in some reasoners, listEquivalentProperties doesn't include the
-		 * property itself; also, some reasoners return an immutable list here,
-		 * so we need to create our own copy (incidentally solving an issue
-		 * with generics...)
-		 */
-		log.trace(String.format("finding all properties equivalent to %s", p));
-		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
-		for (OntProperty q: p.listEquivalentProperties().toList()) {
-			log.trace(String.format("found equivalent property %s", q));
-			equivalentProperties.add(q);
-			if (withSubProperties) {
-				for (OntProperty subproperty: q.listSubProperties().toList()) {
-					log.trace(String.format("found sub-property %s", subproperty));
-					equivalentProperties.add(subproperty);
-				}
-			}
-		}
-		log.trace(String.format("adding original property %s", p));
-		equivalentProperties.add(p);
-		if (withSubProperties) {
-			for (OntProperty subproperty: p.listSubProperties().toList()) {
-				log.trace(String.format("found sub-property %s", subproperty));
-				equivalentProperties.add(subproperty);
-			}
-		}
-		
-		return equivalentProperties;
-	}
-	
-	/**
-	 * @param c
-	 * @return
-	 */
-	public static OntClass getFirstNamedSuperClass(OntClass c)
-	{
-		for (BreadthFirstIterator<OntClass> i = new BreadthFirstIterator<OntClass>(new SuperClassSearchNode(c)); i.hasNext(); ) {
-			OntClass superClass = i.next();
-			if (superClass.isURIResource() && !superClass.equals(c))
-				return superClass;
-		}
-		return c.getOntModel().getOntClass(OWL.Thing.getURI());
-	}
-	
-	private static class SuperClassSearchNode extends SearchNode<OntClass>
-	{
-		public SuperClassSearchNode(OntClass c)
-		{
-			super(c);
-		}
-
-		/* (non-Javadoc)
-		 * @see ca.wilkinsonlab.sadi.utils.graph.SearchNode#getSuccessors()
-		 */
-		@Override
-		public Set<SearchNode<OntClass>> getSuccessors()
-		{
-			Set<SearchNode<OntClass>> superClasses = new HashSet<SearchNode<OntClass>>();
-			for (Iterator<OntClass> i = getNode().listSuperClasses(true); i.hasNext(); ) {
-				OntClass superClass = i.next();
-				superClasses.add(new SuperClassSearchNode(superClass));
-			}
-			return superClasses;
-		}
-	}
-	
-	/**
-	 * Return the minimal RDF required for the specified individual to satisfy
-	 * the specified class description. Note that the RDF will not be complete
-	 * if the individual is not in the same OntModel as the OntClass or does
-	 * not satisfy the class requirements. 
-	 * @param individual the individual
-	 * @param asClass the class
-	 * @return a new in-memory model containing the minimal RDF
-	 */
-	public static Model getMinimalModel(final Resource individual, final OntClass asClass)
-	{
-		final Model model = ModelFactory.createDefaultModel();
-		MinimalModelVisitor visitor = new MinimalModelVisitor(model, individual, asClass);
-		decompose(asClass, visitor, new DefaultTracker(), visitor.getClassFilter());
-		return model;
-	}
-	
-	/**
-	 * Visit each property restriction of the specified OWL class with the
-	 * specified PropertyRestrictionVisitor.
-	 * @param clazz the class
-	 * @param visitor the visitor
-	 */
-	public static void decompose(OntClass clazz, PropertyRestrictionVisitor visitor)
-	{
-		if ( clazz == null )
-			throw new IllegalArgumentException("class to decompose cannot be null");
-		
-		new VisitingDecomposer(visitor).decompose(clazz);
-	}
-	
-	public static void decompose(OntClass clazz, PropertyRestrictionVisitor visitor, Tracker tracker, ClassFilter filter)
-	{
-		if ( clazz == null )
-			throw new IllegalArgumentException("class to decompose cannot be null");
-		
-		new VisitingDecomposer(visitor, tracker, filter).decompose(clazz);
-	}
-	
-	/**
-	 * PropertyRestrictionVisitor is used by OwlUtils.decompose.
-	 * @author Luke McCarthy
-	 */
-	public static interface PropertyRestrictionVisitor
-	{
-		void hasRestriction(Restriction restriction);
-	}
-	
-	public static abstract class PropertyRestrictionAdapter implements PropertyRestrictionVisitor
-	{
-		public void hasRestriction(Restriction restriction)
-		{
-			OntProperty onProperty = restriction.getOnProperty();
-			if (onProperty != null) {
-				if ( restriction.isAllValuesFromRestriction() ) {
-					Resource valuesFrom = restriction.asAllValuesFromRestriction().getAllValuesFrom();
-					OntResource ontValuesFrom = onProperty.getOntModel().getOntResource(valuesFrom);
-					valuesFrom(onProperty, ontValuesFrom);
-				} else if ( restriction.isSomeValuesFromRestriction() ) {
-					Resource valuesFrom = restriction.asSomeValuesFromRestriction().getSomeValuesFrom();
-					OntResource ontValuesFrom = onProperty.getOntModel().getOntResource(valuesFrom);
-					valuesFrom(onProperty, ontValuesFrom);			
-				} else if ( restriction.isHasValueRestriction() ) {
-					RDFNode hasValue = restriction.asHasValueRestriction().getHasValue();
-					hasValue(onProperty, hasValue);
-				} else {
-					onProperty(onProperty);
-				}
-			}
-		}
-		
-		public abstract void onProperty(OntProperty onProperty);
-		public abstract void hasValue(OntProperty onProperty, RDFNode hasValue);
-		public abstract void valuesFrom(OntProperty onProperty, OntResource valuesFrom);
-	}
-	
-	public static interface Tracker
-	{
-		public boolean beenThere(OntClass c);
-	}
-	
-	public static class DefaultTracker implements Tracker
-	{
-		private Set<OntClass> visited;
-		
-		public DefaultTracker()
-		{
-			this.visited = new HashSet<OntClass>();
-		}
-		
-		public boolean beenThere(OntClass c)
-		{
-			if ( visited.contains(c) ) {
-				return true;
-			} else {
-				visited.add(c);
-				return false;
-			}
-		}
-	}
-	
-	public static interface ClassFilter
-	{
-		public boolean ignoreClass(OntClass c);
-	}
-	
-	public static class DefaultClassFilter implements ClassFilter
-	{
-		public boolean ignoreClass(OntClass c)
-		{
-			/* bottom out explicitly at owl:Thing, or we'll have problems when
-			 * we enumerate equivalent classes...
-			 */
-			return c.equals( OWL.Thing );
-		}
-	}
-	
-	private static class VisitingDecomposer
-	{
-		private PropertyRestrictionVisitor visitor;
-		private Tracker tracker;
-		private ClassFilter filter;
-		
-		private static final int IGNORE = 0x0;
-		private static final int CREATE = 0x1;
-		private static final int RESOLVE = 0x2;
-		private int undefinedPropertiesPolicy;
-		
-		public VisitingDecomposer(PropertyRestrictionVisitor visitor)
-		{
-			this(visitor, new DefaultTracker(), new DefaultClassFilter());
-		}
-		
-		public VisitingDecomposer(PropertyRestrictionVisitor visitor, Tracker tracker, ClassFilter filter)
-		{
-			this.visitor = visitor;
-			this.tracker = tracker;
-			this.filter = filter;
-			
-			String s = Config.getConfiguration().getString("sadi.decompose.undefinedPropertiesPolicy", "create");
-			undefinedPropertiesPolicy = IGNORE;
-			if (s.equalsIgnoreCase("create"))
-				undefinedPropertiesPolicy = CREATE;
-			else if (s.equalsIgnoreCase("resolve"))
-				undefinedPropertiesPolicy = RESOLVE;
-			else if (s.equalsIgnoreCase("resolveThenCreate"))
-				undefinedPropertiesPolicy = RESOLVE | CREATE;
-		}
-		
-		public void decompose(OntClass clazz)
-		{
-			if ( tracker.beenThere(clazz) )
-				return;
-			
-			log.trace(String.format("decomposing %s", clazz));
-			
-			if ( filter.ignoreClass(clazz) )
-				return;
-			
-			/* base case: is this a property restriction?
-			 */
-			if ( clazz.isRestriction() ) {
-				Restriction restriction = clazz.asRestriction();
-				
-				/* Restriction.onProperty throws an exception if the property
-				 * isn't defined in the ontology; this is technically correct,
-				 * but it's often better for us to just add the property...
-				 */
-				@SuppressWarnings("unused")
-				OntProperty onProperty = null;
-				try {
-					onProperty = restriction.getOnProperty();
-				} catch (ConversionException e) {
-					RDFNode p = restriction.getPropertyValue(OWL.onProperty);
-					log.debug(String.format("unknown property %s in class %s", p, clazz));
-					if (p.isURIResource()) {
-						String uri = ((Resource)p.as(Resource.class)).getURI();
-						onProperty = resolveUndefinedPropery(clazz.getOntModel(), uri, undefinedPropertiesPolicy);
-					} else {
-						// TODO call a new method on PropertyRestrictionVisitor?
-						log.warn(String.format("found non-URI property %s in class %s", p, clazz));
-					}
-				}
-				
-				visitor.hasRestriction(restriction);
-			}
-
-			/* extended case: is this a composition of several classes? if
-			 * so, visit all of them...
-			 */
-			if ( clazz.isUnionClass() ) {
-				log.trace("decomposing union classes");
-				for (Iterator<?> i = clazz.asUnionClass().listOperands(); i.hasNext(); )
-					decompose((OntClass)i.next());
-			} else if ( clazz.isIntersectionClass() ) {
-				log.trace("decomposing intersection classes");
-				for (Iterator<?> i = clazz.asIntersectionClass().listOperands(); i.hasNext(); )
-					decompose((OntClass)i.next());
-			} else if ( clazz.isComplementClass() ) {
-				log.trace("decomposing complement classes");
-				for (Iterator<?> i = clazz.asComplementClass().listOperands(); i.hasNext(); )
-					decompose((OntClass)i.next());
-			}
-			
-			/* recursive case: visit equivalent and super classes...
-			 * note that we can't use an iterator because we might add
-			 * properties to the ontology if they're undefined, which can
-			 * trigger a ConcurrentModificationException.
-			 */
-			log.trace("decomposing equivalent classes");
-			for (Object equivalentClass: clazz.listEquivalentClasses().toSet())
-				decompose((OntClass)equivalentClass);
-			log.trace("decomposing super classes");
-			for (Object superClass: clazz.listSuperClasses().toSet())
-				decompose((OntClass)superClass);
-		}
-
-		private static OntProperty resolveUndefinedPropery(OntModel model, String uri, int undefinedPropertiesPolicy)
-		{
-			// first, try to resolve the property (if we're allowed to...)
-			if ((undefinedPropertiesPolicy & RESOLVE) != 0) {
-				log.debug(String.format("resolving property %s during decomposition", uri));
-				try {
-					OntProperty p = OwlUtils.getOntPropertyWithLoad(model, uri);
-					if (p != null)
-						return p;
-					// fall-through to create...
-				} catch (SADIException e) {
-					log.error(String.format("error loading property %s: %s", uri, e.getMessage()));
-					// fall-through to create...
-				}
-			}
-			
-			// if we're here, we failed to resolve or weren't allowed to...
-			if ((undefinedPropertiesPolicy & CREATE) != 0) {
-				log.debug(String.format("creating property %s during decomposition", uri));
-				return model.createOntProperty(uri);
-			}
-			
-			// if we're here, we can't do anything...
-			return null;
-		}
-	}
-	
-	private static class RestrictionEnumerationVisitor implements PropertyRestrictionVisitor
-	{
-		Set<Restriction> restrictions;
-		
-		/* if an OntClass comes from a model with reasoning, we can find
-		 * several "copies" of the same restriction from artifact equivalent
-		 * classes; we don't want to store these, so maintain our own table
-		 * of restrictions we've seen...
-		 */
-		Set<String> seen;
-		
-		public RestrictionEnumerationVisitor()
-		{
-			restrictions = new HashSet<Restriction>();
-			seen = new HashSet<String>();
-		}
-		
-		public void hasRestriction(Restriction restriction)
-		{
-			log.trace(String.format("found restriction %s", OwlUtils.toString(restriction)));
-			String key = getHashKey(restriction);
-			if (!seen.contains(key)) {
-				restrictions.add(restriction);
-				seen.add(key);
-			}
-		}
-		
-		private String getHashKey(Restriction restriction)
-		{
-			return OwlUtils.toString(restriction);
-		}
-	}
-	
-	private static class PropertyEnumerationVisitor implements PropertyRestrictionVisitor
-	{
-		Set<OntProperty> properties;
-		
-		public PropertyEnumerationVisitor()
-		{
-			properties = new HashSet<OntProperty>();
-		}
-		
-		public void hasRestriction(Restriction restriction)
-		{
-			try {
-				OntProperty p = restriction.getOnProperty();
-				if (p != null)
-					properties.add(p);
-			} catch (ConversionException e) {
-				// we should already have warned about this above, but just in case...
-				log.warn(String.format("undefined restricted property %s"), e);
-			}
-		}
-	}
-	
-	private static class MinimalModelVisitor extends PropertyRestrictionAdapter
-	{
-		private Model model;
-		private Resource subject;
-		private Set<String> visited;
-		private ClassFilter filter;
-		
-		public MinimalModelVisitor(Model model, Resource subject, OntClass asClass)
-		{
-			this(model, subject, asClass, new HashSet<String>());
-		}
-		
-		public MinimalModelVisitor(Model model, Resource subject, OntClass asClass, Set<String> visited)
-		{
-			log.trace(String.format("visiting %s as %s", subject, asClass));
-			
-			this.model = model;
-			this.subject = subject;
-			this.visited = visited;
-			filter = new MinimalModelClassFilter();
-			
-			/* if the individual is explicitly declared as a member of the 
-			 * target class, add that type statement to the model...
-			 */
-			if (subject.hasProperty(RDF.type, asClass))
-				model.add(subject, RDF.type, asClass);
-			
-			/* remember that we've visited this individual as this class
-			 * in order to prevent cycles where the object of one of our
-			 * triples has us as the object of one of theirs...
-			 */
-			visited.add(getHashKey(subject, asClass));
-		}
-		
-		public ClassFilter getClassFilter() {
-			return filter;
-		}
-
-		public void onProperty(OntProperty onProperty)
-		{
-			/* TODO there may be some cases where we don't have to add all
-			 * values of the restricted property, but this shouldn't be too
-			 * bad...
-			 */
-			model.add(subject.listProperties(onProperty));
-		}
-
-		public void hasValue(OntProperty onProperty, RDFNode hasValue)
-		{
-			if (subject.hasProperty(onProperty, hasValue)) {
-				model.add(subject, onProperty, hasValue);
-			}
-		}
-
-		public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
-		{
-			/* for (all/some)ValuesFrom restrictions, we need to add enough
-			 * information to determine the class membership of the objects of
-			 * the statments as well...
-			 * (extract to list to avoid ConcurrentModificationException)
-			 */
-			for (Statement statement: subject.listProperties(onProperty).toList()) {
-				/* always add the statement itself; this covers the case where
-				 * valuesFrom is a datatype or data range...
-				 */
-				model.add(statement);
-				
-				/* if valuesFrom is a class and the object of the statement
-				 * isn't a literal, recurse...
-				 */
-				if (valuesFrom.isClass() && statement.getObject().isResource()) {
-					Resource resource = statement.getResource();
-					OntClass clazz = valuesFrom.asClass();
-					if (!visited.contains(getHashKey(resource, clazz))) {
-						MinimalModelVisitor visitor = new MinimalModelVisitor(model, resource, clazz, visited);
-						decompose(valuesFrom.asClass(), visitor, new DefaultTracker(), visitor.getClassFilter());
-					}
-				}
-			}
-		}
-		
-		private static String getHashKey(Resource individual, Resource asClass)
-		{
-			return String.format("%s %s", 
-					individual.isURIResource() ? individual.getURI() : individual.getId(),
-					asClass.isURIResource() ? asClass.getURI() : asClass.getId()
-			);
-		}
-		
-		private class MinimalModelClassFilter extends DefaultClassFilter
-		{
-			@Override
-			public boolean ignoreClass(OntClass c)
-			{
-				if (super.ignoreClass(c))
-					return true;
-				
-				if (c.isURIResource() && subject.hasProperty(RDF.type, c))
-					model.add(subject, RDF.type, c);
-				
-				return false;
-			}
-		}
-	}
-	
-	protected static class MinimalOntologySearchNode extends SearchNode<Resource>
+	private static class MinimalOntologySearchNode extends SearchNode<Resource>
 	{
 		Model sourceModel;
 		Model targetModel;
@@ -974,29 +467,650 @@ public class OwlUtils
 		
 	}
 	
-	protected static class OntologyUriPair 
+	/**
+	 * Return the OntProperty with the specified URI, resolving it and
+	 * loading the resulting ontology into the model if necessary.
+	 * @param model the OntModel
+	 * @param uri the URI
+	 * @return the OntProperty
+	 */
+	public static OntProperty getOntPropertyWithLoad(OntModel model, String uri) throws SADIException
 	{
-		public String ontologyUri;
-		public String uri;
+		OntProperty p = model.getOntProperty(uri);
+		if (p != null)
+			return p;
 		
-		public OntologyUriPair(String ontologyUri, String uri)
-		{
-			this.ontologyUri = ontologyUri;
-			this.uri = uri;
+		loadMinimalOntologyForUri(model, uri);
+		return model.getOntProperty(uri);
+	}
+	
+	/**
+	 * Return the OntClass with the specified URI, resolving it and loading
+	 * the resolved ontology into the model if it is not already there.
+	 * @param model the OntModel
+	 * @param uri the URI
+	 * @return the OntClass
+	 */
+	public static OntClass getOntClassWithLoad(OntModel model, String uri) throws SADIException
+	{
+		OntClass c = model.getOntClass(uri);
+		if (c != null)
+			return c;
+		
+		loadMinimalOntologyForUri(model, uri);
+		return model.getOntClass(uri);
+	}
+	
+	/**
+	 * Return the OntResource with the specified URI, resolving it and
+	 * loading the resulting ontology into the model if necessary.
+	 * @param model the OntModel
+	 * @param uri the URI
+	 * @return the OntResource
+	 */
+	public static OntResource getOntResourceWithLoad(OntModel model, String uri) throws SADIException
+	{
+		OntResource r = model.getOntResource(uri);
+		if (r != null)
+			return r;
+		
+		loadMinimalOntologyForUri(model, uri);
+		return model.getOntResource(uri);
+	}
+	
+	public static OntClass getValuesFromAsClass(Restriction restriction)
+	{
+		return getValuesFromAsClass(restriction, false);
+	}
+	
+	public static OntClass getValuesFromAsClass(Restriction restriction, boolean fallbackToRange)
+	{
+		OntResource valuesFrom = getValuesFrom(restriction, fallbackToRange);
+		if (valuesFrom != null && valuesFrom.isClass())
+			return valuesFrom.asClass();
+		else
+			return null;
+	}
+	
+	public static OntResource getValuesFrom(Restriction restriction)
+	{
+		return getValuesFrom(restriction, false);
+	}
+	
+	public static OntResource getValuesFrom(Restriction restriction, boolean fallbackToRange)
+	{
+		if (restriction.isAllValuesFromRestriction()) {
+			return restriction.getOntModel().getOntResource(restriction.asAllValuesFromRestriction().getAllValuesFrom());
+		} else if (restriction.isSomeValuesFromRestriction()) {
+			return restriction.getOntModel().getOntResource(restriction.asSomeValuesFromRestriction().getSomeValuesFrom());
+		} else if (fallbackToRange) {
+			return OwlUtils.getUsefulRange(restriction.getOnProperty());
+		} else {
+			return null;
 		}
-		
-		public boolean equals(Object o) 
-		{
-			if(o instanceof OntologyUriPair) {
-				OntologyUriPair other = (OntologyUriPair)o;
-				return (ontologyUri.equals(other.ontologyUri) && uri.equals(other.uri));
+	}
+	
+	/**
+	 * Return all properties equivalent to the specified property, including
+	 * the property itself.
+	 * This method is necessary to standardize behaviour between different
+	 * reasoners.
+	 * @param p the OWL property
+	 * @return all properties equivalent to the specified property
+	 */
+	public static Set<OntProperty> getEquivalentProperties(OntProperty p)
+	{
+		return getEquivalentProperties(p, false);
+	}
+	
+	/**
+	 * Return all properties equivalent to the specified property, including
+	 * the property itself and optionally all sub-properties.
+	 * @param p the OWL property
+	 * @param withSubProperties include sub-properties
+	 * @return
+	 */
+	public static Set<OntProperty> getEquivalentProperties(OntProperty p, boolean withSubProperties)
+	{
+		/* in some reasoners, listEquivalentProperties doesn't include the
+		 * property itself; also, some reasoners return an immutable list here,
+		 * so we need to create our own copy (incidentally solving an issue
+		 * with generics...)
+		 */
+		log.trace(String.format("finding all properties equivalent to %s", p));
+		Set<OntProperty> equivalentProperties = new HashSet<OntProperty>();
+		for (OntProperty q: p.listEquivalentProperties().toList()) {
+			log.trace(String.format("found equivalent property %s", q));
+			equivalentProperties.add(q);
+			if (withSubProperties) {
+				for (OntProperty subproperty: q.listSubProperties().toList()) {
+					log.trace(String.format("found sub-property %s", subproperty));
+					equivalentProperties.add(subproperty);
+				}
 			}
-			return false;
+		}
+		log.trace(String.format("adding original property %s", p));
+		equivalentProperties.add(p);
+		if (withSubProperties) {
+			for (OntProperty subproperty: p.listSubProperties().toList()) {
+				log.trace(String.format("found sub-property %s", subproperty));
+				equivalentProperties.add(subproperty);
+			}
 		}
 		
-		public int hashCode() 
-		{
-			return (ontologyUri + uri).hashCode();
+		return equivalentProperties;
+	}
+	
+	/**
+	 * Returns the nearest named super-class of the specified OWL class.
+	 * @param c the OWL class
+	 * @return the nearest named super-class of the specified OWL class
+	 */
+	public static OntClass getFirstNamedSuperClass(OntClass c)
+	{
+		for (BreadthFirstIterator<OntClass> i = new BreadthFirstIterator<OntClass>(new SuperClassSearchNode(c)); i.hasNext(); ) {
+			OntClass superClass = i.next();
+			if (superClass.isURIResource() && !superClass.equals(c))
+				return superClass;
 		}
-	}	
+		return c.getOntModel().getOntClass(OWL.Thing.getURI());
+	}
+	private static class SuperClassSearchNode extends SearchNode<OntClass>
+	{
+		public SuperClassSearchNode(OntClass c)
+		{
+			super(c);
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.utils.graph.SearchNode#getSuccessors()
+		 */
+		@Override
+		public Set<SearchNode<OntClass>> getSuccessors()
+		{
+			Set<SearchNode<OntClass>> superClasses = new HashSet<SearchNode<OntClass>>();
+			for (Iterator<OntClass> i = getNode().listSuperClasses(true); i.hasNext(); ) {
+				OntClass superClass = i.next();
+				superClasses.add(new SuperClassSearchNode(superClass));
+			}
+			return superClasses;
+		}
+	}
+	
+	/**
+	 * Return the set of properties the OWL class identified by a URI has restrictions on.
+	 * The ontology containing the OWL class (and any referenced imports) will be fetched
+	 * and processed.
+	 * @param classUri the URI of the OWL class
+	 * @return the set of properties the OWL class has restrictions on
+	 */
+	public static Set<OntProperty> listRestrictedProperties(String classUri) throws SADIException
+	{
+		// TODO do we need more reasoning here?
+		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		OntClass clazz = getOntClassWithLoad( model, classUri );
+		return listRestrictedProperties( clazz );
+	}
+	
+	/**
+	 * Return the set of properties an OWL class has restrictions on.
+	 * @param clazz the OWL class
+	 * @return the set of properties the OWL class has restrictions on
+	 */
+	public static Set<OntProperty> listRestrictedProperties(OntClass clazz)
+	{
+		RestrictedPropertyCollector collector = new RestrictedPropertyCollector();
+		new VisitingDecomposer(collector).decompose(clazz);
+		return collector.getProperties();
+	}
+	private static class RestrictedPropertyCollector implements RestrictionVisitor
+	{
+		private Set<OntProperty> properties;
+		
+		public RestrictedPropertyCollector()
+		{
+			properties = new HashSet<OntProperty>();
+		}
+		
+		public Set<OntProperty> getProperties()
+		{
+			return properties;
+		}
+		
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.RestrictionVisitor#visit(com.hp.hpl.jena.ontology.Restriction)
+		 */
+		public void visit(Restriction restriction)
+		{
+			try {
+				OntProperty p = restriction.getOnProperty();
+				if (p != null)
+					properties.add(p);
+			} catch (ConversionException e) {
+				// we should already have warned about this above, but just in case...
+				log.warn(String.format("undefined restricted property %s"), e);
+			}
+		}
+	}
+	
+	/**
+	 * Return the set of property restrictions an OWL class decomposes into.
+	 * @param clazz the OWL class
+	 * @return the set of property restrictions the OWL class decomposes into
+	 */
+	public static Set<Restriction> listRestrictions(OntClass clazz)
+	{
+		RestrictionCollector collector = new RestrictionCollector();
+		new VisitingDecomposer(collector).decompose(clazz);
+		return collector.getRestrictions();
+	}
+	private static class RestrictionCollector implements RestrictionVisitor
+	{
+		private Set<Restriction> restrictions;
+		
+		/* if an OntClass comes from a model with reasoning, we can find
+		 * several "copies" of the same restriction from artifact equivalent
+		 * classes; we don't want to store these, so maintain our own table
+		 * of restrictions we've seen...
+		 */
+		private Set<String> seen;
+		
+		public RestrictionCollector()
+		{
+			restrictions = new HashSet<Restriction>();
+			seen = new HashSet<String>();
+		}
+		
+		public Set<Restriction> getRestrictions()
+		{
+			return restrictions;
+		}
+		
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.RestrictionVisitor#visit(com.hp.hpl.jena.ontology.Restriction)
+		 */
+		public void visit(Restriction restriction)
+		{
+			log.trace(String.format("found restriction %s", OwlUtils.getRestrictionString(restriction)));
+			String key = getHashKey(restriction);
+			if (!seen.contains(key)) {
+				restrictions.add(restriction);
+				seen.add(key);
+			}
+		}
+		
+		private String getHashKey(Restriction restriction)
+		{
+			return OwlUtils.getRestrictionString(restriction);
+		}
+	}
+
+	/**
+	 * Return the set of property restrictions an OWL class adds relative to
+	 * another OWL class. Usually the second class will be a superclass of
+	 * the first.
+	 * @param clazz the OWL class to decompose
+	 * @param relativeTo the OWL class to decompose relative to
+	 * @return the set of property restrictions the OWL class adds
+	 */
+	public static Set<Restriction> listRestrictions(OntClass clazz, OntClass relativeTo)
+	{
+		Set<Restriction> base = listRestrictions(relativeTo);
+		Set<Restriction> restrictions = listRestrictions(clazz);
+		restrictions.removeAll(base);
+		return restrictions;
+	}
+	
+	/**
+	 * Returns an individual that conforms to the restrictions of the specified
+	 * class.
+	 * This instance will be created in a new memory model.
+	 * NB: this is dangerous; it's quite easy to create an infinitely-looping
+	 * construct.
+	 * @param clazz the OntClass
+	 * @return an individual that conforms to the restrictions of the specified class
+	 */
+	public static Resource createDummyInstance(OntClass clazz)
+	{
+		return createDummyInstance(ModelFactory.createDefaultModel(), clazz);
+	}
+	
+	/**
+	 * Returns an individual in the specified model that conforms to the
+	 * restrictions of the specified class.
+	 * NB: this is dangerous; it's quite easy to create an infinitely-looping
+	 * construct.
+	 * @param model the model in which to create the new individual
+	 * @param clazz the OntClass
+	 * @return an individual that conforms to the restrictions of the specified class
+	 */
+	public static Resource createDummyInstance(Model model, OntClass clazz)
+	{
+		DummyInstanceCreator creator = new DummyInstanceCreator(model);
+		new VisitingDecomposer(creator, creator).decompose(clazz);
+		return creator.getInstance();
+	}
+	private static class DummyInstanceCreator extends RestrictionAdapter implements ClassVisitor
+	{
+		private Model model;
+		private Resource individual;
+		
+		public DummyInstanceCreator(Model model)
+		{
+			this(model, model.createResource());
+		}
+		
+		public DummyInstanceCreator(Model model, Resource individual)
+		{
+			this.model = model;
+			this.individual = individual;
+		}
+		
+		public Resource getInstance()
+		{
+			return individual;
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#ignore(com.hp.hpl.jena.ontology.OntClass)
+		 */
+		@Override
+		public boolean ignore(OntClass c)
+		{
+			/* bottom out explicitly at owl:Thing, or we'll have problems when
+			 * we enumerate equivalent classes...
+			 */
+			return c.equals( OWL.Thing );
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visit(com.hp.hpl.jena.ontology.OntClass)
+		 */
+		@Override
+		public void visit(OntClass c)
+		{
+			if (c.isURIResource())
+				model.add(individual, RDF.type, c);
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.RestrictionAdapter#onProperty(com.hp.hpl.jena.ontology.OntProperty)
+		 */
+		@Override
+		public void onProperty(OntProperty onProperty)
+		{
+			if (individual.hasProperty(onProperty))
+				return;
+			else if (onProperty.isDatatypeProperty())
+				model.add(individual, onProperty, "");
+			else
+				model.add(individual, onProperty, model.createResource());
+		}
+		
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.RestrictionAdapter#minCardinality(com.hp.hpl.jena.ontology.OntProperty, int)
+		 */
+		@Override
+		public void minCardinality(OntProperty onProperty, int minCardinality)
+		{
+			cardinality(onProperty, minCardinality);
+		}
+		
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.RestrictionAdapter#cardinality(com.hp.hpl.jena.ontology.OntProperty, int)
+		 */
+		@Override
+		public void cardinality(OntProperty onProperty, int cardinality)
+		{
+			for (int currentCardinality = individual.listProperties(onProperty).toList().size(); currentCardinality<cardinality; ++currentCardinality)
+				onProperty(onProperty);
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.RestrictionAdapter#hasValue(com.hp.hpl.jena.ontology.OntProperty, com.hp.hpl.jena.rdf.model.RDFNode)
+		 */
+		@Override
+		public void hasValue(OntProperty onProperty, RDFNode hasValue)
+		{
+			if (individual.hasProperty(onProperty, hasValue))
+				return;
+			else
+				model.add(individual, onProperty, hasValue);
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.RestrictionAdapter#valuesFrom(com.hp.hpl.jena.ontology.OntProperty, com.hp.hpl.jena.ontology.OntResource)
+		 */
+		public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
+		{
+			if (valuesFrom.isClass()) {
+				/* check if there are any values of onProperty that are already
+				 * instances of valuesFrom; this prevents us from recursing
+				 * infinitely in most cases...
+				 */
+				for (Iterator<Statement> i = individual.listProperties(onProperty); i.hasNext(); ) {
+					Statement statement = i.next();
+					RDFNode oNode = statement.getObject();
+					if (oNode.isURIResource()) {
+						Resource o = oNode.asResource();
+						if (o.hasProperty(RDF.type, valuesFrom))
+							return;
+					}
+				}
+				Resource object = model.createResource();
+				model.add(individual, onProperty, object);
+				OntClass clazz = valuesFrom.asClass();
+				DummyInstanceCreator creator = new DummyInstanceCreator(model, object);
+				new VisitingDecomposer(creator).decompose(clazz);
+			}
+		}
+	}
+	
+	/**
+	 * Return the minimal RDF required for the specified individual to satisfy
+	 * the specified class description. Note that the RDF will not be complete
+	 * if the individual is not in the same OntModel as the OntClass or does
+	 * not satisfy the class requirements. 
+	 * @param individual the individual
+	 * @param asClass the class
+	 * @return a new in-memory model containing the minimal RDF
+	 */
+	public static Model getMinimalModel(final Resource individual, final OntClass asClass)
+	{
+		final Model model = ModelFactory.createDefaultModel();
+		MinimalModelVisitor visitor = new MinimalModelVisitor(model, individual);
+		new VisitingDecomposer(visitor, visitor, visitor).decompose(asClass);
+		return model;
+	}
+	private static class MinimalModelVisitor extends RestrictionAdapter implements ClassTracker, ClassVisitor
+	{
+		private Model model;
+		private Resource subject;
+		private Set<String> visited;
+		
+		public MinimalModelVisitor(Model model, Resource subject)
+		{
+			this(model, subject, new HashSet<String>());
+		}
+		
+		private MinimalModelVisitor(Model model, Resource subject, Set<String> visited)
+		{
+			this.model = model;
+			this.subject = subject;
+			this.visited = visited;
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.ClassTracker#seen(com.hp.hpl.jena.ontology.OntClass)
+		 */
+		@Override
+		public boolean seen(OntClass c)
+		{
+			/* remember that we've visited this individual as this class
+			 * in order to prevent cycles where the object of one of our
+			 * triples has us as the object of one of theirs...
+			 */
+			String hashKey = getHashKey(subject, c);
+			if (visited.contains(hashKey)) {
+				return true;
+			} else {
+				visited.add(hashKey);
+				return false;
+			}
+		}
+		private static String getHashKey(Resource individual, Resource asClass)
+		{
+			return String.format("%s %s", 
+					individual.isURIResource() ? individual.getURI() : individual.getId(),
+					asClass.isURIResource() ? asClass.getURI() : asClass.getId()
+			);
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#ignore(com.hp.hpl.jena.ontology.OntClass)
+		 */
+		@Override
+		public boolean ignore(OntClass c)
+		{
+			/* bottom out explicitly at owl:Thing, or we'll have problems when
+			 * we enumerate equivalent classes...
+			 */
+			return c.equals( OWL.Thing );
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visit(com.hp.hpl.jena.ontology.OntClass)
+		 */
+		@Override
+		public void visit(OntClass c)
+		{
+			log.trace(String.format("visiting %s as %s", subject, c));
+			
+			/* if the individual is explicitly declared as a member of the 
+			 * target class, add that type statement to the model...
+			 */
+			if (c.isURIResource() && subject.hasProperty(RDF.type, c))
+				model.add(subject, RDF.type, c);
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.RestrictionAdapter#onProperty(com.hp.hpl.jena.ontology.OntProperty)
+		 */
+		public void onProperty(OntProperty onProperty)
+		{
+			/* TODO there may be some cases where we don't have to add all
+			 * values of the restricted property, but this shouldn't be too
+			 * bad...
+			 */
+			model.add(subject.listProperties(onProperty));
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.RestrictionAdapter#hasValue(com.hp.hpl.jena.ontology.OntProperty, com.hp.hpl.jena.rdf.model.RDFNode)
+		 */
+		public void hasValue(OntProperty onProperty, RDFNode hasValue)
+		{
+			if (subject.hasProperty(onProperty, hasValue)) {
+				model.add(subject, onProperty, hasValue);
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.RestrictionAdapter#valuesFrom(com.hp.hpl.jena.ontology.OntProperty, com.hp.hpl.jena.ontology.OntResource)
+		 */
+		public void valuesFrom(OntProperty onProperty, OntResource valuesFrom)
+		{
+			/* for (all/some)ValuesFrom restrictions, we need to add enough
+			 * information to determine the class membership of the objects of
+			 * the statements as well...
+			 * (extract to list to avoid ConcurrentModificationException)
+			 */
+			for (Statement statement: subject.listProperties(onProperty).toList()) {
+				/* always add the statement itself; this covers the case where
+				 * valuesFrom is a datatype or data range...
+				 */
+				model.add(statement);
+				
+				/* if valuesFrom is a class and the object of the statement
+				 * isn't a literal, recurse...
+				 */
+				if (valuesFrom.isClass() && statement.getObject().isResource()) {
+					Resource object = statement.getResource();
+					OntClass clazz = valuesFrom.asClass();
+					if (!visited.contains(getHashKey(object, clazz))) {
+						MinimalModelVisitor visitor = new MinimalModelVisitor(model, object, visited);
+						new VisitingDecomposer(visitor, visitor).decompose(clazz);
+					}
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Visit each property restriction of the specified OWL class with the
+	 * specified RestrictionVisitor.
+	 * @param clazz the class
+	 * @param visitor the visitor
+	 */
+
+	/*
+	public static void decompose(OntClass clazz, RestrictionVisitor visitor)
+	{
+		if ( clazz == null )
+			throw new IllegalArgumentException("class to decompose cannot be null");
+		
+		new VisitingDecomposer(visitor).decompose(clazz);
+	}
+	
+	public static void decompose(OntClass clazz, PropertyRestrictionVisitor visitor, Tracker tracker, ClassFilter filter)
+	{
+		if ( clazz == null )
+			throw new IllegalArgumentException("class to decompose cannot be null");
+		
+		new VisitingDecomposer(visitor, tracker, filter).decompose(clazz);
+	}
+	
+	public static interface PropertyRestrictionVisitor
+	{
+		void hasRestriction(Restriction restriction);
+	}
+	
+	public static interface Tracker
+	{
+		public boolean beenThere(OntClass c);
+	}
+	
+	public static class DefaultTracker implements Tracker
+	{
+		private Set<OntClass> visited;
+		
+		public DefaultTracker()
+		{
+			this.visited = new HashSet<OntClass>();
+		}
+		
+		public boolean beenThere(OntClass c)
+		{
+			if ( visited.contains(c) ) {
+				return true;
+			} else {
+				visited.add(c);
+				return false;
+			}
+		}
+	}
+	
+	public static interface ClassFilter
+	{
+		public boolean ignoreClass(OntClass c);
+	}
+	
+	public static class DefaultClassFilter implements ClassFilter
+	{
+		public boolean ignoreClass(OntClass c)
+		{
+			return c.equals( OWL.Thing );
+		}
+	}
+	*/
 }

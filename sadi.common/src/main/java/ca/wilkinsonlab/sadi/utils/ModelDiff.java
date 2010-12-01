@@ -28,6 +28,15 @@ public class ModelDiff
 		inYnotX = ModelFactory.createDefaultModel();
 	}
 	
+	public String getDiffString()
+	{
+		StringBuilder buf = new StringBuilder();
+		buf.append(RdfUtils.logStatements("", inXnotY));
+		buf.append(RdfUtils.logStatements("\t", inBoth));
+		buf.append(RdfUtils.logStatements("\t\t", inYnotX));
+		return buf.toString();
+	}
+	
 	/* TODO BNODEs are a problem now. I'm not sure how to map BNODEs onto
 	 * each other except to look for isomorphic anonymous structures in the
 	 * other graph, which is more than I need to do right now...
@@ -103,6 +112,7 @@ public class ModelDiff
 		}
 		ModelDiff diff = ModelDiff.diff(model1, model2);
 		
+		System.out.println(String.format("models %s isomorphic", model1.isIsomorphicWith(model2) ? "are" : "are not"));
 		System.out.println(RdfUtils.logStatements("", diff.inXnotY));
 		System.out.println(RdfUtils.logStatements("\t", diff.inBoth));
 		System.out.println(RdfUtils.logStatements("\t\t", diff.inYnotX));

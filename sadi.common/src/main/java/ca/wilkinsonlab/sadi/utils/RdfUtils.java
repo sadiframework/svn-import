@@ -9,11 +9,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+
+import ca.wilkinsonlab.sadi.Config;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.datatypes.TypeMapper;
@@ -235,6 +239,11 @@ public class RdfUtils
 		return str;
 	}
 	
+	public static String getPlainString(RDFNode node)
+	{
+		return getPlainString(node.asNode());
+	}
+	
 	public static Literal createTypedLiteral(String jenaToString)
 	{
 		int splitPoint = jenaToString.lastIndexOf("^^");
@@ -295,6 +304,54 @@ public class RdfUtils
 		} catch (FileNotFoundException e) {
 			log.error(String.format("error reading RDF from %s: %s", pathOrURL, e.toString()));
 			throw new IOException(String.format("%s did not parse as a URL and could not be read as a file: %s", pathOrURL, e.getMessage()));
+		}
+	}
+	
+	/**
+	 * Adds common namespace prefixes to the specified model.
+	 * @param model the model
+	 */
+	public static void addNamespacePrefixes(Model model)
+	{
+		Configuration nsConfig = Config.getConfiguration().subset("sadi.ns");
+		for (Iterator<?> keys = nsConfig.getKeys(); keys.hasNext();) {
+			String key = (String)keys.next();
+			model.setNsPrefix(key, nsConfig.getString(key));
+		}
+	}
+	
+	/**
+	 * This method needs work.
+	 * Specifically, it assumes a single value for each property.
+	 * @param from
+	 * @param to
+	 * @param overwrite
+	 */
+	public static void copyValues(Resource from, Resource to, boolean overwrite)
+	{
+		log.trace(String.format("copying from %s to %s", from, to));
+		for (StmtIterator statements = from.listProperties(); statements.hasNext(); ) {
+			Statement statement = statements.next();
+			Property p = statement.getPredicate();
+			if (to.hasProperty(p) && !overwrite)
+				continue;
+			RDFNode o = statement.getObject();
+			if (o.isResource()) {
+				if (o.isURIResource() && to.hasProperty(p)) {
+					to.removeAll(p);
+				}
+				Resource oTo = to.getPropertyResourceValue(p);
+				if (oTo == null) {
+					oTo = to.getModel().createResource(o.asResource().getURI());
+					to.addProperty(p, oTo);
+				}
+				copyValues(o.asResource(), oTo, overwrite);
+			} else {
+				if (to.hasProperty(p)) {
+					to.removeAll(p);
+				}
+				to.addProperty(p, o);
+			}
 		}
 	}
 	

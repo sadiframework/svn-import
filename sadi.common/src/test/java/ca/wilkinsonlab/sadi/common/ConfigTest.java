@@ -7,6 +7,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import ca.wilkinsonlab.sadi.Config;
+
 public class ConfigTest
 {
 	@Before

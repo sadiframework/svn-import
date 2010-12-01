@@ -18,7 +18,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 
 public class HttpUtils
 {
-	protected static final Logger log = Logger.getLogger(HttpUtils.class);
+	private static final Logger log = Logger.getLogger(HttpUtils.class);
 	protected static HttpClient theClient;
 	
 	protected HttpUtils() {}

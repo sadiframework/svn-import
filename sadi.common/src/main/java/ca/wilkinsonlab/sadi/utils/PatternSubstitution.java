@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Stole this from elmutils until I figure out how best to link the library.
+ * Implements Perl s/// in Java.
  * @author Luke McCarthy
  */
 public class PatternSubstitution
