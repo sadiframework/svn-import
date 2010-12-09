@@ -38,7 +38,7 @@ public class SPARQLServlet extends HttpServlet
 					response.setContentType("text/javascript");
 					response.getWriter().format("%s(%s)", callback, jsonWriter.write(bindings));
 					return;
-				} else if (format.equals("JSON")) { // compatibility with Virtuoso SPARQL
+				} else if (format != null && format.equals("JSON")) { // compatibility with Virtuoso SPARQL
 					JSONWriter jsonWriter = new JSONWriter();
 					response.setContentType("text/javascript");
 					List<Map<String, Map<String, String>>> newBindings = new ArrayList<Map<String, Map<String, String>>>();
