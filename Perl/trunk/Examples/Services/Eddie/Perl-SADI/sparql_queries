@@ -1,0 +1,48 @@
+# call entrezGene2pubmed service
+
+PREFIX pred: <http://sadiframework.org/ontologies/predicates.owl#> 
+PREFIX ont: <http://ontology.dumontierlab.com/>
+PREFIX entrezgene: <http://lsrn.org/GeneID:>
+SELECT ?paper
+WHERE { entrezgene:642 ont:hasReference ?paper . }
+
+# call getGeneInformation service
+PREFIX pred: <http://sadiframework.org/ontologies/predicates.owl#> 
+PREFIX ont: <http://ontology.dumontierlab.com/>
+PREFIX entrezgene: <http://lsrn.org/GeneID:>
+SELECT ?name ?desc ?synonym
+WHERE { entrezgene:642 pred:hasDescription ?desc . entrezgene:642 pred:hasProteinName ?name . entrezgene:642 ont:hasSymbol ?synonym . }
+
+# call getGeneInformation and entrezGene2pubmed service
+PREFIX pred: <http://sadiframework.org/ontologies/predicates.owl#> 
+PREFIX ont: <http://ontology.dumontierlab.com/>
+PREFIX entrezgene: <http://lsrn.org/GeneID:>
+SELECT ?name ?desc ?paper
+WHERE { entrezgene:642 pred:hasDescription ?desc . entrezgene:642 pred:hasProteinName ?name . entrezgene:642 ont:hasReference ?paper . }
+
+
+PREFIX pred: <http://ontology.dumontierlab.com/> 
+PREFIX keyword: <http://biordf.net/moby/Global_Keyword/> 
+SELECT ?protein
+WHERE { keyword:brca1 pred:isTagOf ?protein . }
+
+PREFIX ont: <http://ontology.dumontierlab.com/>
+PREFIX kegg: <http://lsrn.org/KEGG_PATHWAY:>
+SELECT ?paper
+WHERE { kegg:eco00260 ont:hasReference ?paper . }
+
+PREFIX pred: <http://sadiframework.org/ontologies/predicates.owl#> 
+PREFIX kegg: <http://lsrn.org/KEGG:hsa:> 
+SELECT ?protein 
+WHERE { kegg:50616 pred:encodes ?protein . }
+ 
+PREFIX pred: <http://sadiframework.org/ontologies/service_objects.owl#> 
+PREFIX dragon: <http://lsrn.org/GeneDB:> 
+SELECT ?protein 
+WHERE { dragon:431260 pred:sharesProteinSequenceSimilarityWith ?protein . }
+
+PREFIX pred: <http://sadiframework.org/ontologies/predicates.owl#> 
+PREFIX ont: <http://ontology.dumontierlab.com/>
+PREFIX kegg: <http://lsrn.org/KEGG:hsa:> 
+SELECT ?keggID ?snp ?go ?def
+WHERE { kegg:7097 pred:encodes ?protein . ?protein ont:isVariantOf ?snp . ?snp pred:hasGOTerm ?go . ?go pred:hasTermDefinition ?def . }

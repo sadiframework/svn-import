@@ -1,0 +1,16 @@
+ServiceName = getGeneInformation
+
+# modify the values below as you see fit.
+ServiceType = http://someontology.org/services/sometype
+InputClass = http://purl.oclc.org/SADI/LSRN/GeneID_Record
+OutputClass = http://dev.biordf.net/~kawas/owl/getGeneInformation.owl\#getGeneInformation_OutputClass
+Description = This service takes in a EntrezGene IDs and retrieves their aliases\, gene description and summarys
+UniqueIdentifier = urn:lsid:dev.biordf.net:getGeneInformation
+Authority = dev.biordf.net
+Authoritative = 1
+Provider = edward.kawas@gmail.com
+ServiceURI = http://dev.biordf.net/~kawas/cgi-bin/getGeneInformation
+URL = http://dev.biordf.net/~kawas/cgi-bin/getGeneInformation
+SignatureURL = http://dev.biordf.net/~kawas/cgi-bin/getGeneInformation
+ 
+ 

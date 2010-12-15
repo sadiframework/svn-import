@@ -1,0 +1,141 @@
+<rdf:RDF
+xmlns:a="http://www.w3.org/2000/01/rdf-schema#"
+xmlns:b="http://semanticscience.org/resource/"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+<rdf:Description rdf:about="http://lsrn.org/ENZYME:1.1.1.1">
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec00010">
+<b:SIO_000008>
+<rdf:Description>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+<b:SIO_000300>ec00010</b:SIO_000300>
+</rdf:Description>
+</b:SIO_000008>
+<a:label>Glycolysis / Gluconeogenesis</a:label>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+</rdf:Description>
+</b:SIO_000062>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec00982">
+<b:SIO_000008>
+<rdf:Description>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+<b:SIO_000300>ec00982</b:SIO_000300>
+</rdf:Description>
+</b:SIO_000008>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+<a:label>Drug metabolism - cytochrome P450</a:label>
+</rdf:Description>
+</b:SIO_000062>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec01100">
+<a:label>Metabolic pathways</a:label>
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>ec01100</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+</rdf:Description>
+</b:SIO_000062>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec00624">
+<a:label>1- and 2-Methylnaphthalene degradation</a:label>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+<b:SIO_000008>
+<rdf:Description>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+<b:SIO_000300>ec00624</b:SIO_000300>
+</rdf:Description>
+</b:SIO_000008>
+</rdf:Description>
+</b:SIO_000062>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec00260">
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>ec00260</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+<a:label>Glycine, serine and threonine metabolism</a:label>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+</rdf:Description>
+</b:SIO_000062>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec01110">
+<a:label>Biosynthesis of secondary metabolites</a:label>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>ec01110</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+</rdf:Description>
+</b:SIO_000062>
+<rdf:type rdf:resource="http://dev.biordf.net/~kawas/owl/togows-updated.owl#getKeggPathwaysByEnzyme_Output"/>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec00350">
+<a:label>Tyrosine metabolism</a:label>
+<b:SIO_000008>
+<rdf:Description>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+<b:SIO_000300>ec00350</b:SIO_000300>
+</rdf:Description>
+</b:SIO_000008>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+</rdf:Description>
+</b:SIO_000062>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec00980">
+<b:SIO_000008>
+<rdf:Description>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+<b:SIO_000300>ec00980</b:SIO_000300>
+</rdf:Description>
+</b:SIO_000008>
+<a:label>Metabolism of xenobiotics by cytochrome P450</a:label>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+</rdf:Description>
+</b:SIO_000062>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec00071">
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>ec00071</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+<a:label>Fatty acid metabolism</a:label>
+</rdf:Description>
+</b:SIO_000062>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec00641">
+<a:label>3-Chloroacrylic acid degradation</a:label>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+<b:SIO_000008>
+<rdf:Description>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+<b:SIO_000300>ec00641</b:SIO_000300>
+</rdf:Description>
+</b:SIO_000008>
+</rdf:Description>
+</b:SIO_000062>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:ec00830">
+<a:label>Retinol metabolism</a:label>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>ec00830</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+</rdf:Description>
+</b:SIO_000062>
+</rdf:Description>
+</rdf:RDF>

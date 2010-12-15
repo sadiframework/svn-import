@@ -1,0 +1,39 @@
+<rdf:RDF
+xmlns:c="http://www.w3.org/2000/01/rdf-schema#"
+xmlns:b="http://sadiframework.org/ontologies/properties.owl#"
+xmlns:a="http://semanticscience.org/resource/"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+<rdf:Description rdf:about="http://lsrn.org/GO:0005739">
+<rdf:type rdf:resource="http://dev.biordf.net/~kawas/owl/getGOTermDefinitions.owl#getGOTermDefinitions_Output"/>
+<b:hasDescription>
+<rdf:Description>
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000136"/>
+<a:SIO_000300>A semiautonomous, self replicating organelle that occurs in varying numbers, shapes, and sizes in the cytoplasm of virtually all eukaryotic cells. It is notably the site of tissue respiration.</a:SIO_000300>
+</rdf:Description>
+</b:hasDescription>
+<c:label>mitochondrion</c:label>
+<b:hasName>
+<rdf:Description>
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000118"/>
+<a:SIO_000300>mitochondrion</a:SIO_000300>
+</rdf:Description>
+</b:hasName>
+</rdf:Description>
+<rdf:Description rdf:about="http://lsrn.org/GO:0030424">
+<rdf:type rdf:resource="http://dev.biordf.net/~kawas/owl/getGOTermDefinitions.owl#getGOTermDefinitions_Output"/>
+<b:hasDescription>
+<rdf:Description>
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000136"/>
+<a:SIO_000300>The long process of a neuron that conducts nerve impulses, usually away from the cell body to the terminals and varicosities, which are sites of storage and release of neurotransmitter.</a:SIO_000300>
+</rdf:Description>
+</b:hasDescription>
+<c:label>axon</c:label>
+<b:hasName>
+<rdf:Description>
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000118"/>
+<a:SIO_000300>axon</a:SIO_000300>
+</rdf:Description>
+</b:hasName>
+</rdf:Description>
+</rdf:RDF>

@@ -1,0 +1,1080 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY LSRN "http://purl.oclc.org/SADI/LSRN/" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY resource "http://semanticscience.org/resource/" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#"
+     xml:base="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:LSRN="http://purl.oclc.org/SADI/LSRN/"
+     xmlns:resource="http://semanticscience.org/resource/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://semanticscience.org/resource/SIO_000132 -->
+
+    <owl:ObjectProperty rdf:about="&resource;SIO_000132"/>
+    
+
+
+    <!-- http://semanticscience.org/resource/SIO_000145 -->
+
+    <owl:ObjectProperty rdf:about="&resource;SIO_000145"/>
+    
+
+
+    <!-- http://semanticscience.org/resource/SIO_000219 -->
+
+    <owl:ObjectProperty rdf:about="&resource;SIO_000219"/>
+    
+
+
+    <!-- http://semanticscience.org/resource/SIO_000226 -->
+
+    <owl:ObjectProperty rdf:about="&resource;SIO_000226"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsAGI_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsAGI_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;AGI_LocusCode_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;AGI_LocusCode_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;AGI_LocusCode_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;AGI_LocusCode_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsBRENDA_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsBRENDA_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;BRENDA_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;BRENDA_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;BRENDA_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;BRENDA_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsChEBI_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsChEBI_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;ChEBI_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;ChEBI_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;ChEBI_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;ChEBI_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsEC_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsEC_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EC_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EC_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EC_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EC_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsEMBL_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsEMBL_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EMBL_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsENSEMBL_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsENSEMBL_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;ENSEMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;ENSEMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;ENSEMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;ENSEMBL_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsFlybase_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsFlybase_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;FLYBASE_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;FLYBASE_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;FLYBASE_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;FLYBASE_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsGenBank_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsGenBank_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;GenBank_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;GenBank_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;GenBank_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;GenBank_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsInterPro_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsInterPro_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;InterPro_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;InterPro_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;InterPro_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;InterPro_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsKeggCompound_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsKeggCompound_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;KEGG_COMPOUND_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;KEGG_COMPOUND_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;KEGG_COMPOUND_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;KEGG_COMPOUND_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsKeggPathway_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsKeggPathway_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;KEGG_PATHWAY_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;KEGG_PATHWAY_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;KEGG_PATHWAY_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;KEGG_PATHWAY_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsLocusID_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsLocusID_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;LocusID_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;LocusID_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;LocusID_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;LocusID_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsOMIM_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsOMIM_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;OMIM_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;OMIM_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;OMIM_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;OMIM_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPDB_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPDB_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PDB_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PDB_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PDB_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PDB_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPFAM_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPFAM_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Pfam_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Pfam_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Pfam_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Pfam_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsEmbl_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsEmbl_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;EMBL_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+	
+	 <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPMID_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPMID_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PMID_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PMID_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PMID_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PMID_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPRINTS_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPRINTS_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PRINTS_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PRINTS_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PRINTS_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PRINTS_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPROSITE_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPROSITE_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Prosite_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Prosite_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Prosite_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Prosite_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPubChem_Compound_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPubChem_Compound_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PubChem_Compound_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PubChem_Compound_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PubChem_Compound_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PubChem_Compound_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPubChem_Substance_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsPubChem_Substance_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PubChem_Substance_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PubChem_Substance_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PubChem_Substance_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;PubChem_Substance_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsREACTOME_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsREACTOME_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Reactome_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Reactome_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Reactome_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;Reactome_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsTIGR_ATH1_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsTIGR_ATH1_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_Ath1_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_Ath1_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_Ath1_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_Ath1_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsTIGR_CMR_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsTIGR_CMR_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_CMR_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_CMR_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_CMR_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_CMR_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsTIGR_EGAD_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsTIGR_EGAD_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_EGAD_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_EGAD_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_EGAD_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_EGAD_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsTIGR_GENPROP_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsTIGR_GENPROP_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_GenProp_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_GenProp_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_GenProp_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TIGR_GenProp_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsTREMBL_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsTREMBL_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TrEMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TrEMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TrEMBL_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;TrEMBL_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociations_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociations_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;GO_Record"/>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000132"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;UniProt_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000145"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;UniProt_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000219"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;UniProt_Record"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000226"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;UniProt_Record"/>
+                    </owl:Restriction>
+                </owl:unionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/AGI_LocusCode_Record -->
+
+    <owl:Class rdf:about="&LSRN;AGI_LocusCode_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/BRENDA_Record -->
+
+    <owl:Class rdf:about="&LSRN;BRENDA_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/ChEBI_Record -->
+
+    <owl:Class rdf:about="&LSRN;ChEBI_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/EC_Record -->
+
+    <owl:Class rdf:about="&LSRN;EC_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/EMBL_Record -->
+
+    <owl:Class rdf:about="&LSRN;EMBL_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/ENSEMBL_Record -->
+
+    <owl:Class rdf:about="&LSRN;ENSEMBL_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/FLYBASE_Record -->
+
+    <owl:Class rdf:about="&LSRN;FLYBASE_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/GO_Record -->
+
+    <owl:Class rdf:about="&LSRN;GO_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/GenBank_Record -->
+
+    <owl:Class rdf:about="&LSRN;GenBank_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/InterPro_Record -->
+
+    <owl:Class rdf:about="&LSRN;InterPro_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/KEGG_COMPOUND_Record -->
+
+    <owl:Class rdf:about="&LSRN;KEGG_COMPOUND_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record -->
+
+    <owl:Class rdf:about="&LSRN;KEGG_PATHWAY_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/LocusID_Record -->
+
+    <owl:Class rdf:about="&LSRN;LocusID_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/OMIM_Record -->
+
+    <owl:Class rdf:about="&LSRN;OMIM_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/PDB_Record -->
+
+    <owl:Class rdf:about="&LSRN;PDB_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/PMID_Record -->
+
+    <owl:Class rdf:about="&LSRN;PMID_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/PRINTS_Record -->
+
+    <owl:Class rdf:about="&LSRN;PRINTS_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/Pfam_Record -->
+
+    <owl:Class rdf:about="&LSRN;Pfam_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/Prosite_Record -->
+
+    <owl:Class rdf:about="&LSRN;Prosite_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/PubChem_Compound_Record -->
+
+    <owl:Class rdf:about="&LSRN;PubChem_Compound_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/PubChem_Substance_Record -->
+
+    <owl:Class rdf:about="&LSRN;PubChem_Substance_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/Reactome_Record -->
+
+    <owl:Class rdf:about="&LSRN;Reactome_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/TIGR_Ath1_Record -->
+
+    <owl:Class rdf:about="&LSRN;TIGR_Ath1_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/TIGR_CMR_Record -->
+
+    <owl:Class rdf:about="&LSRN;TIGR_CMR_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/TIGR_EGAD_Record -->
+
+    <owl:Class rdf:about="&LSRN;TIGR_EGAD_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/TIGR_GenProp_Record -->
+
+    <owl:Class rdf:about="&LSRN;TIGR_GenProp_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/TrEMBL_Record -->
+
+    <owl:Class rdf:about="&LSRN;TrEMBL_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/UniProt_Record -->
+
+    <owl:Class rdf:about="&LSRN;UniProt_Record"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.0.0.1451) http://owlapi.sourceforge.net -->
+

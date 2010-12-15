@@ -1,0 +1,16 @@
+# This is a SADI service configuration file
+
+ServiceName = getKeggPathwaysByKeggDrug
+
+Authority = dev.biordf.net
+
+# modify the values below as you see fit.
+ServiceType = "http://www.mygrid.org.uk/ontology#retrieving"
+InputClass = "http://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Record"
+OutputClass = "http://dev.biordf.net/~kawas/owl/togows-updated.owl#getKeggPathwaysByKeggDrug_Output"
+Description = "takes a KEGG DRUG record and retrieves the pathways that are associated with this drug"
+Authoritative = 0
+Provider = edward.kawas@gmail.com
+URL = http://dev.biordf.net/~kawas/cgi-bin/getKeggPathwaysByKeggDrug
+ 
+ 
