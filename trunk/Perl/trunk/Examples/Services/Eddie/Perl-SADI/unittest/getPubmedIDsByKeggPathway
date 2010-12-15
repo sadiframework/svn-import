@@ -1,0 +1,13 @@
+# This is a SADI service unit test file
+# uncomment the applicable lines to specify
+# your unit test
+
+# unit test for 'getPubmedIDsByKeggPathway'
+[unittest]
+input = /home/kawas/Perl-SADI/unittest/../xml/getPubmedIDsByKeggPathway.xml
+#output = /home/kawas/Perl-SADI/unittest/../xml/getPubmedIDsByKeggPathway-output.xml
+#regex = 
+#xpath = 
+
+#[unittest2]
+# repeat the block above to add more tests

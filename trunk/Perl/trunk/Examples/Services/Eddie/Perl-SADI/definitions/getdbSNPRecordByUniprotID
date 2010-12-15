@@ -1,0 +1,28 @@
+# This is a SADI service configuration file
+
+# If you want to use the characters '#', ',', or '='
+# you can either escape them with \ OR
+# enclose the whole string in double quotes.
+# New line characters are not supported
+
+# dont change the service name! if you find that you need to modify
+# the service name, regenerate a new file and remove this one!
+ServiceName = getdbSNPRecordByUniprotID
+
+# modify this value only if you haven't generated
+# your service implementation!
+Authority = dev.biordf.net
+
+# modify the values below as you see fit.
+ServiceType = http://www.mygrid.org.uk/ontology#retrieving
+InputClass = "http://purl.oclc.org/SADI/LSRN/UniProt_Record"
+OutputClass = "http://dev.biordf.net/~kawas/owl/getdbSNPRecordByUniprotID.owl#getdbSNPRecordByUniprotID_Output"
+Description = "This service retrieves dbSNP record IDs by Uniprot IDs"
+UniqueIdentifier = urn:lsid:myservices:getdbSNPRecordByUniprotID
+Authoritative = 0
+Provider = edward.kawas+sadi@gmail.com
+ServiceURI = http://dev.biordf.net/~kawas/cgi-bin/getdbSNPRecordByUniprotID
+URL = http://dev.biordf.net/~kawas/cgi-bin/getdbSNPRecordByUniprotID
+SignatureURL = http://dev.biordf.net/~kawas/cgi-bin/getdbSNPRecordByUniprotID
+
+ 

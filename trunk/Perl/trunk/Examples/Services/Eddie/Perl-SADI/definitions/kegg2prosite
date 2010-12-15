@@ -1,0 +1,16 @@
+ServiceName = kegg2prosite
+
+# modify the values below as you see fit.
+ServiceType = http://someontology.org/services/sometype
+InputClass = http://purl.oclc.org/SADI/LSRN/KEGG_Record
+OutputClass = "http://dev.biordf.net/~kawas/owl/kegg2prosite.owl#kegg2prosite_OutputClass"
+Description = "this service consumes kegg gene ids and returns prosite motifs from KEGG"
+UniqueIdentifier = urn:lsid:dev.biordf.net:kegg2prosite
+Authority = dev.biordf.net
+Authoritative = 1
+Provider = edward.kawas@gmail.com
+ServiceURI = http://dev.biordf.net/~kawas/cgi-bin/kegg2prosite
+URL = http://dev.biordf.net/~kawas/cgi-bin/kegg2prosite
+SignatureURL = http://dev.biordf.net/~kawas/cgi-bin/kegg2prosite
+ 
+ 

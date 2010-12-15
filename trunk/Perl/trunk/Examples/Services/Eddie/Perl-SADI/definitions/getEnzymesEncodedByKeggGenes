@@ -1,0 +1,18 @@
+# This is a SADI service configuration file
+ServiceName = getEnzymesEncodedByKeggGenes
+
+Authority = dev.biordf.net
+
+# modify the values below as you see fit.
+ServiceType = http://someontology.org/services/sometype
+InputClass = "http://purl.oclc.org/SADI/LSRN/KEGG_Record"
+OutputClass = "http://dev.biordf.net/~kawas/owl/togows-updated.owl#getEnzymesEncodedByKeggGenes_Output"
+Description = "Fetches the enzymes that the input KEGG genes encode (if they exist)."
+#UniqueIdentifier = urn:lsid:myservices:getEnzymesEncodedByKeggGenes
+Authoritative = 0
+Provider = edward.kawas+sadiservices@gmail.com
+ServiceURI = http://dev.biordf.net/~kawas/cgi-bin/getEnzymesEncodedByKeggGenes
+URL = http://dev.biordf.net/~kawas/cgi-bin/getEnzymesEncodedByKeggGenes
+SignatureURL = http://dev.biordf.net/~kawas/cgi-bin/getEnzymesEncodedByKeggGenes
+ 
+ 

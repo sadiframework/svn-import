@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY LSRN "http://purl.oclc.org/SADI/LSRN/" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY owl2xml "http://www.w3.org/2006/12/owl2-xml#" >
+    <!ENTITY resource "http://semanticscience.org/resource/" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY properties "http://sadiframework.org/ontologies/properties.owl#" >
+]>
+
+
+<rdf:RDF xmlns="http://dev.biordf.net/~kawas/owl/DragonServices.owl#"
+     xml:base="http://dev.biordf.net/~kawas/owl/DragonServices.owl"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl2xml="http://www.w3.org/2006/12/owl2-xml#"
+     xmlns:LSRN="http://purl.oclc.org/SADI/LSRN/"
+     xmlns:resource="http://semanticscience.org/resource/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:properties="http://sadiframework.org/ontologies/properties.owl#">
+    <owl:Ontology rdf:about="http://dev.biordf.net/~kawas/owl/DragonServices.owl"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://sadiframework.org/ontologies/properties.owl#hasDescription -->
+
+    <owl:ObjectProperty rdf:about="&properties;hasDescription"/>
+    
+
+
+    <!-- http://semanticscience.org/resource/SIO_000272 -->
+
+    <owl:ObjectProperty rdf:about="&resource;SIO_000272"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://semanticscience.org/resource/SIO_000300 -->
+
+    <owl:DatatypeProperty rdf:about="&resource;SIO_000300"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/DragonServices.owl#getDragonAlleleDescription_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/DragonServices.owl#getDragonAlleleDescription_Output">
+        <rdfs:subClassOf rdf:resource="&LSRN;DragonDB_Allele_Record"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&properties;hasDescription"/>
+                <owl:someValuesFrom rdf:resource="&resource;SIO_000135"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/DragonServices.owl#getDragonAlleleLocus_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/DragonServices.owl#getDragonAlleleLocus_Output">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&LSRN;DragonDB_Allele_Record"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000272"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;DragonDB_Locus_Record"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://dev.biordf.net/~kawas/owl/DragonServices.owl#getDragonLocusAlleles_Output -->
+
+    <owl:Class rdf:about="http://dev.biordf.net/~kawas/owl/DragonServices.owl#getDragonLocusAlleles_Output">
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&LSRN;DragonDB_Locus_Record"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000272"/>
+                        <owl:someValuesFrom rdf:resource="&LSRN;DragonDB_Allele_Record"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/DragonDB_Allele_Record -->
+
+    <owl:Class rdf:about="&LSRN;DragonDB_Allele_Record"/>
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/DragonDB_Locus_Record -->
+
+    <owl:Class rdf:about="&LSRN;DragonDB_Locus_Record"/>
+    
+
+
+    <!-- http://semanticscience.org/resource/SIO_000135 -->
+
+    <owl:Class rdf:about="&resource;SIO_000135"/>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#Thing -->
+
+    <owl:Class rdf:about="&owl;Thing"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.0.0.1451) http://owlapi.sourceforge.net -->
+

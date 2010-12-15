@@ -1,0 +1,46 @@
+<rdf:RDF
+xmlns:a="http://www.w3.org/2000/01/rdf-schema#"
+xmlns:b="http://semanticscience.org/resource/"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_DRUG:D00109">
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:map07048">
+<b:SIO_000008>
+<rdf:Description>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+<b:SIO_000300>map07048</b:SIO_000300>
+</rdf:Description>
+</b:SIO_000008>
+<a:label>Antimigraines</a:label>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+</rdf:Description>
+</b:SIO_000062>
+<rdf:type rdf:resource="http://dev.biordf.net/~kawas/owl/togows-updated.owl#getKeggPathwaysByKeggDrug_Output"/>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:map07110">
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+<a:label>Benzoic acid family</a:label>
+<b:SIO_000008>
+<rdf:Description>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+<b:SIO_000300>map07110</b:SIO_000300>
+</rdf:Description>
+</b:SIO_000008>
+</rdf:Description>
+</b:SIO_000062>
+<b:SIO_000062>
+<rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:map07219">
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>map07219</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+<a:label>Cyclooxygenase inhibitors</a:label>
+</rdf:Description>
+</b:SIO_000062>
+</rdf:Description>
+</rdf:RDF>
+

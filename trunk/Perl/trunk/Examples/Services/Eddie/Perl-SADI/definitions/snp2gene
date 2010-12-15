@@ -1,0 +1,16 @@
+ServiceName = snp2gene
+
+# modify the values below as you see fit.
+ServiceType = http://someontology.org/services/sometype
+InputClass = http://purl.oclc.org/SADI/LSRN/dbSNP_Record
+OutputClass = http://dev.biordf.net/~kawas/owl/snp2gene.owl\#dbSNP2Gene_OutputClass
+Description = This service returns entrez gene ids corresponding to the input SNP ids
+UniqueIdentifier = urn:lsid:dev.biordf.net:snp2gene
+Authority = dev.biordf.net
+Authoritative = 1
+Provider = edward.kawas@gmail.com
+ServiceURI = http://dev.biordf.net/~kawas/cgi-bin/snp2gene
+URL = http://dev.biordf.net/~kawas/cgi-bin/snp2gene
+SignatureURL = http://dev.biordf.net/~kawas/cgi-bin/snp2gene
+ 
+ 

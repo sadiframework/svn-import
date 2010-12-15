@@ -1,0 +1,4 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/">
+	<lsrn:KEGG_ec_Record rdf:about="http://lsrn.org/EC:1.1.1.1" />
+</rdf:RDF>

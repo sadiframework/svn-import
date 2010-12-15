@@ -1,0 +1,63 @@
+#!/usr/bin/perl -w
+# This is a CGI-BIN script, invoked by a web server when an HTTP
+# POST comes in, dispatching requests to the appropriate module
+# (SADI web service).
+#
+# It includes some hard-coded paths - they were added during the
+# generate service call.
+#
+# $Id: service-cgi.tt,v 1.10 2009-12-01 19:44:31 ubuntu Exp $
+# Contact: Edward Kawas <edward.kawas@gmail.com>
+# ---------------------------------------------------------------
+
+#-----------------------------------------------------------------
+# Authority:    dev.biordf.net
+# Service name: uniprotToProsite
+# Generated:    14-Jan-2010 09:37:33 PST
+# Contact: Edward Kawas <edward.kawas@gmail.com>
+#-----------------------------------------------------------------
+
+use strict;
+
+
+# --- during service generation --- 
+# leave at the top!
+use lib '/home/kawas/Perl-SADI/generated';
+use lib '/home/kawas/Perl-SADI/services';
+use lib '/home/kawas/Perl-SADI';
+
+use CGI;
+use CGI::Carp qw(fatalsToBrowser);
+
+use SADI::Service::Instance;
+use SADI::RDF::Core;
+use SADI::Generators::GenServices;
+
+# limit the max size of a post - change it as you see fit
+$CGI::POST_MAX=1024 * 1024 * 10;  # max 10MB posts
+
+# here we require the service module and add it to ISA hierarchy
+use base 'Service::uniprotToProsite';
+
+# if this is a GET, send the service interface
+if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
+    # send the signature for this service
+	# instantiate a new SADI::RDF::Core object
+ 	my $core = SADI::RDF::Core->new;
+ 	# set the Instance for $core
+ 	$core->Signature(__PACKAGE__->get_service_signature('uniprotToProsite'));
+	print $q->header(-type=>'application/rdf+xml');
+    print $core->getServiceInterface();
+} else {
+    # call the service
+    # get the data from the 'data' parameter or from POSTDATA
+    my $data = join "",<>;
+    # call the service
+    my $x =  __PACKAGE__->uniprotToProsite($data);
+    # print the results
+    my $q = new CGI;
+    print $q->header(-type=>'application/rdf+xml');
+    print $x;
+}
+
+__END__

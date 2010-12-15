@@ -1,0 +1,43 @@
+<rdf:RDF
+xmlns:a="http://sadiframework.org/ontologies/properties.owl#"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+<rdf:Description rdf:about="http://lsrn.org/KEGG:hsa:1950">
+<a:hasMotif>
+<rdf:Description rdf:about="http://lsrn.org/Prosite:CYS_RICH">
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000131"/>
+</rdf:Description>
+</a:hasMotif>
+<a:hasMotif>
+<rdf:Description rdf:about="http://lsrn.org/Prosite:EGF_1">
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000131"/>
+</rdf:Description>
+</a:hasMotif>
+<a:hasMotif>
+<rdf:Description rdf:about="http://lsrn.org/Prosite:EGF_2">
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000131"/>
+</rdf:Description>
+</a:hasMotif>
+<a:hasMotif>
+<rdf:Description rdf:about="http://lsrn.org/Prosite:ASX_HYDROXYL">
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000131"/>
+</rdf:Description>
+</a:hasMotif>
+<a:hasMotif>
+<rdf:Description rdf:about="http://lsrn.org/Prosite:LDLRB">
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000131"/>
+</rdf:Description>
+</a:hasMotif>
+<rdf:type rdf:resource="http://dev.biordf.net/~kawas/owl/kegg2prosite.owl#kegg2prosite_OutputClass"/>
+<a:hasMotif>
+<rdf:Description rdf:about="http://lsrn.org/Prosite:EGF_3">
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000131"/>
+</rdf:Description>
+</a:hasMotif>
+<a:hasMotif>
+<rdf:Description rdf:about="http://lsrn.org/Prosite:EGF_CA">
+<rdf:type rdf:resource="http://semanticscience.org/resource/SIO_000131"/>
+</rdf:Description>
+</a:hasMotif>
+</rdf:Description>
+</rdf:RDF>

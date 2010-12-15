@@ -1,0 +1,91 @@
+<rdf:RDF
+xmlns:a="http://sadiframework.org/ontologies/properties.owl#"
+xmlns:b="http://semanticscience.org/resource/"
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+<rdf:Description rdf:about="http://lsrn.org/ENZYME:1.1.1.1">
+<b:SIO_000369>
+<rdf:Description rdf:about="http://lsrn.org/KEGG:hsa:127">
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>hsa:127</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+</rdf:Description>
+</b:SIO_000369>
+<b:SIO_000369>
+<rdf:Description rdf:about="http://lsrn.org/KEGG:hsa:128">
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>hsa:128</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+</rdf:Description>
+</b:SIO_000369>
+<rdf:type rdf:resource="http://dev.biordf.net/~kawas/owl/togows-updated.owl#getEnzymeGeneComponentPartsHuman_Output"/>
+<b:SIO_000369>
+<rdf:Description rdf:about="http://lsrn.org/KEGG:hsa:126">
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+<b:SIO_000008>
+<rdf:Description>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Identifier"/>
+<b:SIO_000300>hsa:126</b:SIO_000300>
+</rdf:Description>
+</b:SIO_000008>
+</rdf:Description>
+</b:SIO_000369>
+<b:SIO_000369>
+<rdf:Description rdf:about="http://lsrn.org/KEGG:hsa:130">
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>hsa:130</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+</rdf:Description>
+</b:SIO_000369>
+<b:SIO_000369>
+<rdf:Description rdf:about="http://lsrn.org/KEGG:hsa:125">
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>hsa:125</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+</rdf:Description>
+</b:SIO_000369>
+<b:SIO_000369>
+<rdf:Description rdf:about="http://lsrn.org/KEGG:hsa:124">
+<b:SIO_000008>
+<rdf:Description>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Identifier"/>
+<b:SIO_000300>hsa:124</b:SIO_000300>
+</rdf:Description>
+</b:SIO_000008>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+</rdf:Description>
+</b:SIO_000369>
+<b:SIO_000369>
+<rdf:Description rdf:about="http://lsrn.org/KEGG:hsa:131">
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Record"/>
+<b:SIO_000008>
+<rdf:Description>
+<b:SIO_000300>hsa:131</b:SIO_000300>
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Identifier"/>
+</rdf:Description>
+</b:SIO_000008>
+</rdf:Description>
+</b:SIO_000369>
+<a:fromOrganism>
+<rdf:Description rdf:about="http://lsrn.org/taxon:9606">
+<rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/taxon_Record"/>
+</rdf:Description>
+</a:fromOrganism>
+</rdf:Description>
+</rdf:RDF>

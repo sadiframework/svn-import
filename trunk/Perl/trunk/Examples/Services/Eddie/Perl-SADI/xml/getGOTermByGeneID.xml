@@ -1,0 +1,5 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/">
+	<lsrn:GeneID_Record rdf:about="http://lsrn.org/GeneID:367" />
+	<lsrn:GeneID_Record rdf:about="http://lsrn.org/GeneID:642" />
+</rdf:RDF>

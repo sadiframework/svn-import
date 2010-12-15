@@ -1,0 +1,16 @@
+# This is a SADI service configuration file
+ServiceName = getGOTermAssociationsKeggCompound
+Authority = illuminae.com
+
+# modify the values below as you see fit.
+ServiceType = http://www.mygrid.org.uk/ontology/retrieving
+InputClass = "http://purl.oclc.org/SADI/LSRN/GO_Record"
+OutputClass = "http://dev.biordf.net/~kawas/owl/getGOTermAssociations.owl#getGOTermAssociationsKeggCompound_Output"
+Description = "fetches the kegg compounds annotated with a given GO term"
+Authoritative = true
+Provider = myaddress@organization.org
+ServiceURI = http://dev.biordf.net/~kawas/cgi-bin/getGOTermAssociationsKeggCompound
+URL = http://dev.biordf.net/~kawas/cgi-bin/getGOTermAssociationsKeggCompound
+SignatureURL = http://dev.biordf.net/~kawas/cgi-bin/getGOTermAssociationsKeggCompound
+ 
+ 

@@ -1,0 +1,23 @@
+# This is a SADI service configuration file
+
+# dont change the service name! if you find that you need to modify
+# the service name, regenerate a new file and remove this one!
+ServiceName = getEnzymeGeneComponentParts
+
+# modify this value only if you haven't generated
+# your service implementation!
+Authority = dev.biordf.net
+
+# modify the values below as you see fit.
+ServiceType = http://someontology.org/services/sometype
+InputClass = "http://purl.oclc.org/SADI/LSRN/ENZYME_Record"
+OutputClass = "http://dev.biordf.net/~kawas/owl/togows-updated.owl#getEnzymeGeneComponentParts_Output"
+Description = "Using TOGO WS, fetch the enzymes component KEGG genes"
+#UniqueIdentifier = urn:lsid:myservices:getEnzymeGeneComponentParts
+Authoritative = 0
+Provider = edward.kawas+sadiservice@gmail.com
+ServiceURI = http://dev.biordf.net/~kawas/cgi-bin/getEnzymeGeneComponentParts
+URL = http://dev.biordf.net/~kawas/cgi-bin/getEnzymeGeneComponentParts
+SignatureURL = http://dev.biordf.net/~kawas/cgi-bin/getEnzymeGeneComponentParts
+ 
+ 
