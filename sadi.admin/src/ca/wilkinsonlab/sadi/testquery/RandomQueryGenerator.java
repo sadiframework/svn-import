@@ -24,14 +24,14 @@ import com.hp.hpl.jena.shared.JenaException;
 
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-import ca.wilkinsonlab.sadi.optimizer.statistics.ExceededMaxAttemptsException;
-import ca.wilkinsonlab.sadi.optimizer.statistics.NoSampleAvailableException;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLRegistry;
 import ca.wilkinsonlab.sadi.common.SADIException;
 
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import ca.wilkinsonlab.sadi.utils.sparql.ExceededMaxAttemptsException;
+import ca.wilkinsonlab.sadi.utils.sparql.NoSampleAvailableException;
 
 public class RandomQueryGenerator {
 

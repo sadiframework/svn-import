@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.optimizer.statistics;
+package ca.wilkinsonlab.sadi.utils.sparql;
 
 import java.io.IOException;
 import java.util.ArrayList;
