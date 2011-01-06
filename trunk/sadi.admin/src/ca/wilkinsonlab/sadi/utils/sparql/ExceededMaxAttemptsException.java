@@ -1,7 +1,7 @@
 /**
  * 
  */
-package ca.wilkinsonlab.sadi.optimizer.statistics;
+package ca.wilkinsonlab.sadi.utils.sparql;
 
 public class ExceededMaxAttemptsException extends Exception
 {

@@ -28,9 +28,9 @@ import ca.wilkinsonlab.sadi.client.virtual.sparql.VirtuosoSPARQLRegistry;
 import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.graph.MultiSPARQLEndpointIterator;
-import ca.wilkinsonlab.sadi.optimizer.statistics.ExceededMaxAttemptsException;
-import ca.wilkinsonlab.sadi.optimizer.statistics.NoSampleAvailableException;
-import ca.wilkinsonlab.sadi.optimizer.statistics.TripleSampler;
+import ca.wilkinsonlab.sadi.utils.sparql.ExceededMaxAttemptsException;
+import ca.wilkinsonlab.sadi.utils.sparql.NoSampleAvailableException;
+import ca.wilkinsonlab.sadi.utils.sparql.TripleSampler;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Node_URI;
