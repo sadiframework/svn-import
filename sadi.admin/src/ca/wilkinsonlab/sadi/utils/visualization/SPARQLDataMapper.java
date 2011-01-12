@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -25,7 +26,7 @@ import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLRegistry;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.VirtuosoSPARQLRegistry;
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.graph.MultiSPARQLEndpointIterator;
 import ca.wilkinsonlab.sadi.utils.sparql.ExceededMaxAttemptsException;
@@ -82,7 +83,7 @@ public class SPARQLDataMapper {
 		this.registry = sparqlRegistry;
 	}
 
-	public void buildSchema(int maxTraversalDepth, int maxSamplesPerType, String outputFilename, String outputFormat) throws SADIException, IOException 
+	public void buildSchema(Collection<SPARQLEndpoint> endpoints, int maxTraversalDepth, int maxSamplesPerType, String outputFilename, String outputFormat) throws SADIException, IOException 
 	{
 		Model schema = ModelFactory.createMemModelMaker().createFreshModel();
 		TypeCache typeCache = new TypeCache(getRegistry(), TYPE_CACHE_SIZE);
@@ -91,7 +92,7 @@ public class SPARQLDataMapper {
 		// used for tracking when to write out intermediate results.
 		int statementCounter = 0;
 			
-		for(SPARQLEndpoint endpoint : getRegistry().getAllEndpoints()) {
+		for(SPARQLEndpoint endpoint : endpoints) {
 
 			//endpoint = SPARQLEndpointFactory.createEndpoint("http://reactome.bio2rdf.org/sparql", EndpointType.VIRTUOSO);
 			
@@ -168,10 +169,10 @@ public class SPARQLDataMapper {
 						}
 					}
 				} else if(o.isLiteral()) {
-					Literal oType = schema.createTypedLiteral(o.getLiteralValue());
+					Literal oValue = schema.createTypedLiteral(o.getLiteralValue());
 					for(Node_URI subjectType : subjectTypes) {
 						Resource sType = schema.createResource(subjectType.getURI());
-						addStatement(schema, sType, predicate, oType);
+						addStatement(schema, sType, predicate, oValue);
 						statementCounter++;
 					}
 				}
@@ -185,6 +186,7 @@ public class SPARQLDataMapper {
 			//break;
 		}
 		
+		log.trace(String.format("schema generation complete, writing schema to %s", outputFilename));
 		writeSchemaToFile(schema, outputFilename, outputFormat);
 	}
 	
@@ -203,7 +205,8 @@ public class SPARQLDataMapper {
 			if(model.contains(s, p, (RDFNode)null)) {
 				return;
 			}
-			o = model.createResource(((Literal)o).getDatatypeURI() + "_" + String.valueOf(literalCounter++));
+			//o = model.createResource(((Literal)o).getDatatypeURI() + "_" + String.valueOf(literalCounter++));
+			o = model.createTypedLiteral("example: " + o.asLiteral().getLexicalForm());
 		}
 		Statement statement = model.createStatement(s, p, o);
 		if(!model.contains(statement)) {
@@ -236,6 +239,32 @@ public class SPARQLDataMapper {
 		}
 		return types;
 	}
+	
+	/*
+	protected Set<String> getEndpointsContainingType(Resource type) 
+	{
+		Set<String> endpointURIs = new HashSet<String>();
+		String query = SPARQLStringUtils.strFromTemplate("SELECT * WHERE { ?s %u% %u% } LIMIT 1", RDF.type.getURI(), type.getURI());
+		
+		Triple queryPattern = new Triple(NodeCreateUtils.create("?s"), RDF.type.asNode(), type.asNode());
+		for(SPARQLEndpoint endpoint : getRegistry().findEndpointsByTriplePattern(queryPattern)) {
+			if(getRegistry().getServiceStatus(endpoint.getURI()) == ServiceStatus.DEAD) {
+				continue;
+			}
+			try {
+				if(endpoint.constructQuery(query).size() > 0) {
+					endpointURIs.add(endpoint.getURI());
+				}
+			} 
+			catch(IOException e) {
+				log.trace(String.format("failed to query endpoint %s", endpoint), e);
+			}
+		}
+		if(endpointURIs.size() == 0) {
+			log.warn(String.format("no endpoints contain rdf:type %s", type.getURI()));
+		}
+	}
+	*/
 	
 	protected static class TypeCache extends LinkedHashMap<Node_URI,Set<Node_URI>>
 	{
@@ -302,9 +331,11 @@ public class SPARQLDataMapper {
 					} 
 					catch(IOException e) {
 						log.trace(String.format("failed to query endpoint %s", endpoint), e);
+						/*
 						if(getRegistry().isWritable()) {
 							getRegistry().setServiceStatus(endpoint.getURI(), ServiceStatus.DEAD);
 						}
+						*/
 					}
 				}
 				if(types.size() == 0) {
@@ -329,12 +360,14 @@ public class SPARQLDataMapper {
 		@Option(name = "-r", usage = "SPARQL endpoint registry URL")
 		public String registryURL = config.getString(REGISTRY_ENDPOINT_CONFIG_KEY, "http://localhost:8890/sparql");
 
+		/*
 		@Option(name = "-u", usage = "SPARQL endpoint registry username (optional, needed for updating status of dead endpoints)")
 		public String registryUsername = config.getString(REGISTRY_USERNAME_CONFIG_KEY);
 		
 		@Option(name = "-p", usage = "SPARQL endpoint registry password (optional, needed for updating status of dead endpoints)")
 		public String registryPassword = config.getString(REGISTRY_PASSWORD_CONFIG_KEY);
-
+		*/
+		
 		@Option(name = "-g", usage = "SPARQL endpoint registry graph")
 		public String registryGraphURI = config.getString(REGISTRY_GRAPH_CONFIG_KEY);
 		
@@ -342,10 +375,16 @@ public class SPARQLDataMapper {
 		public String outputFormat = "RDFXML";
 
 		@Option(name = "-d", usage = "maximum depth of traversal")
-		public int maxTraversalDepth = 7;
+		public int maxTraversalDepth = 1;
 
 		@Option(name = "-t", usage = "maximum number of times to visit each rdf:type")
 		public int maxVisitsPerType = 3; 
+
+		@Option(name = "-e", metaVar = "<URI>", usage = "Specifies which SPARQL endpoint to build the map for. This switch may be used multiple times " +
+			"to build a map for multiple endpoints. If no endpoints are specified with the -e switch, a map for all known endpoints in the SPARQL endpoint registry " +
+			"will be built.")
+		public List<String> endpointURIs;
+		
 	}
 	
 
@@ -356,8 +395,22 @@ public class SPARQLDataMapper {
 
 		try {
 			cmdLineParser.parseArgument(args);
-			SPARQLRegistry registry = new VirtuosoSPARQLRegistry(options.registryURL, options.registryGraphURI, options.registryUsername, options.registryPassword);
-			new SPARQLDataMapper(registry).buildSchema(options.maxTraversalDepth, options.maxVisitsPerType, options.outputFilename, options.outputFormat);
+			SPARQLRegistry registry = new VirtuosoSPARQLRegistry(options.registryURL, options.registryGraphURI);
+			
+			// instantiate the SPARQL endpoints that we are building a map for
+			Collection<SPARQLEndpoint> endpoints;
+			
+			if(options.endpointURIs.size() == 0) {
+				// if no endpoints were specified, built a map for all endpoints in the registry
+				endpoints = registry.getAllEndpoints();
+			} else {
+				endpoints = new ArrayList<SPARQLEndpoint>();
+				for(String uri : options.endpointURIs) {
+					endpoints.add(registry.getEndpoint(uri));
+				}
+			}
+			
+			new SPARQLDataMapper(registry).buildSchema(endpoints, options.maxTraversalDepth, options.maxVisitsPerType, options.outputFilename, options.outputFormat);
 		}
 		catch (CmdLineException e) {
 			log.error(e.getMessage());

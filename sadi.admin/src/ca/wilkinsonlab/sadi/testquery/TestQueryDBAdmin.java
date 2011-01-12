@@ -15,7 +15,7 @@ import com.hp.hpl.jena.graph.Triple;
 import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLRegistry;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.VirtuosoSPARQLEndpoint;
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.vocab.TestQueryDB;
 import ca.wilkinsonlab.sadi.utils.BasicGraphPatternUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;

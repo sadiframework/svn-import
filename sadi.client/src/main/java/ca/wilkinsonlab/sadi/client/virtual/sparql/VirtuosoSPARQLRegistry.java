@@ -67,6 +67,11 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 			config.getString(PASSWORD_CONFIG_KEY));
 	}
 	
+	public VirtuosoSPARQLRegistry(String URI, String indexGraphURI) throws IOException
+	{
+		this(URI, indexGraphURI, null, null);
+	}
+	
 	public VirtuosoSPARQLRegistry(String URI, String indexGraphURI, String username, String password) throws IOException
 	{
 		super(URI, username, password);

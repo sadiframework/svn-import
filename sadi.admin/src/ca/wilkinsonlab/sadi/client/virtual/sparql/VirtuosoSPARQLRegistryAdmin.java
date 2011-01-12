@@ -800,97 +800,6 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 
 	}
 
-	/**
-	 * <p>Determine the results limit for the given SPARQL endpoint.  
-	 * There is no clean way to determine this, so we do it by 
-	 * iterative querying.</p>
-	 *
-	 * <p>We might simply issue the query "SELECT * WHERE { ?s ?p ?o }"
-	 * and see how many results we get to determine the limit. However, 
-	 * in the case that the endpoint administrator has not set a limit, 
-	 * we will end up issuing a very expensive query, which is not
-	 * very nice for the endpoint administrator.  For this reason,
-	 * we specify a hard upper bound (<code>maxResultsLimit</code>) on 
-	 * the limit value. If the true limit is something greater than
-	 * <code>maxResultsLimit</code>, then the method will return
-	 * <code>maxResultsLimit</code>.</p>
-	 * 
-	 * @param maxResultsLimit 
-	 * @param endpoint the SPARQL endpoint
-	 */
-	
-//	public void updateResultsLimitOld(SPARQLEndpoint endpoint, long maxResultsLimit) 
-//	{
-//
-//		log.debug(String.format("determining results limit for %s", endpoint.getURI()));
-//		
-//		if(!endpoint.ping()) {
-//			log.error(String.format("%s not responding, unable to update results limit", endpoint.getURI()));
-//			return;
-//		}
-//	
-//		/* 
-//		 * We may execute the entire loop below without hitting the limit,
-//		 * in which case, the limit should be maxResultLimit.
-//		 */
-//		long resultsLimit = maxResultsLimit;
-//		
-//		for(int i = 1, lasti = 1; i < maxResultsLimit; lasti = i, i *= 2) {
-//			
-//			String query = String.format("SELECT * WHERE { ?s ?p ?o } LIMIT %d", i);
-//			
-//			try {
-//		
-//				log.debug(String.format("issuing probe query %s", query));
-//				List<Map<String, String>> results = endpoint.selectQuery(query);
-//
-//				if(results.size() < i) {
-//					log.debug(String.format("determined results limit to be %d", results.size()));
-//					resultsLimit = results.size();
-//					break;
-//				}
-//			
-//			} catch(HttpStatusException e) {
-//				
-//				/*
-//				 * There are two reasons a gateway timeout could occur:
-//				 * 
-//				 * 1) the SPARQL endpoint went offline
-//				 * 2) the SPARQL endpoint did not finish processing the
-//				 * query before the gateway timed out
-//				 * 
-//				 * 1) is a pretty rare case (endpoints will usually 
-//				 * return HTTP 503 if they are down temporarily), but 
-//				 * we do our best to check for it by pinging the endpoint.
-//				 */
-//				
-//				if(e.getStatusCode() == HttpResponse.HTTP_STATUS_GATEWAY_TIMEOUT) {
-//					
-//					if(!endpoint.ping()) {
-//						log.error(String.format("%s has stopped responding, unable to determine results limit", endpoint.getURI()));
-//						return;
-//					}
-//					
-//					/* 
-//					 * We can't determine the results limit exactly, so  
-//					 * set it to a safe value (i.e one that is less than the
-//					 * real limit.)  
-//					 */
-//					
-//					resultsLimit = lasti;
-//					break;
-//					
-//				}
-//
-//			} catch(IOException e) {
-//				
-//				log.error(String.format("failed to determine results limit for %s"), e);
-//				return;
-//			}
-//			
-//		}
-//	}
-	
 	public static class CommandLineOptions {
 
 		public enum OperationType {
@@ -956,7 +865,7 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 		public void setEndpointType(String type) { operations.add(new Operation(type, OperationType.SET_ENDPOINT_TYPE)); }
 
 		@Option(name = "-S", usage = "manually set endpoint status (choices: '<endpoint>,DEAD', '<endpoint>,SLOW', '<endpoint>,OK')")
-		public void updateEndpointStatus(String endpointAndStatus) { operations.add(new Operation(endpointAndStatus, OperationType.SET_ENDPOINT_STATUS)); }
+		public void setEndpointStatus(String endpointAndStatus) { operations.add(new Operation(endpointAndStatus, OperationType.SET_ENDPOINT_STATUS)); }
 
 		@Option(name = "-U", usage = "update status of all endpoints") 
 		public void updateStatusOfAllEndpoints(boolean unused) { operations.add(new Operation(null, OperationType.UPDATE_STATUS_OF_ALL_ENDPOINTS)); }
