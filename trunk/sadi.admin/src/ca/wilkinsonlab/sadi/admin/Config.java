@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @author Luke McCarthy
  */
-public class Config extends ca.wilkinsonlab.sadi.common.Config
+public class Config extends ca.wilkinsonlab.sadi.Config
 {
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(Config.class);

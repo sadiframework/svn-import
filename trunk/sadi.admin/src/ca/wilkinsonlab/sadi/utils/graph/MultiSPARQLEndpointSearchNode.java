@@ -63,9 +63,6 @@ public class MultiSPARQLEndpointSearchNode extends SearchNode<Triple> {
 						triples.addAll(endpoint.constructQuery(query));
 					} catch(IOException e) {
 						log.trace("failed to query endpoint " + endpoint, e);
-						if(getRegistry().isWritable()) {
-							getRegistry().setServiceStatus(endpoint.getURI(), ServiceStatus.DEAD);
-						}
 					}
 				}
 			}

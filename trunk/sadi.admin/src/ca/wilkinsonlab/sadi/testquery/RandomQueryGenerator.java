@@ -26,7 +26,7 @@ import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLRegistry;
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
