@@ -8,11 +8,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
+//import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
@@ -45,6 +51,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.vocabulary.DC;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
@@ -65,14 +72,41 @@ public class SPARQLDataMapper {
 	protected final static int TYPE_CACHE_SIZE = 1000;
 	protected List<Pattern> ignoreTypePatterns;
 	
-	public SPARQLDataMapper(SPARQLRegistry registry) {
+	protected Cache uriToTypeCache;
+	protected static final int URI_TO_TYPE_CACHE_SIZE = 10000;
+	protected Cache typeToEndpointCache;
+	protected static final int TYPE_TO_ENDPOINT_CACHE_SIZE = 10000;
+	
+	public SPARQLDataMapper(SPARQLRegistry registry) 
+	{
 		setRegistry(registry);
+
+		Configuration adminConfig = ca.wilkinsonlab.sadi.admin.Config.getConfiguration();
 		
 		ignoreTypePatterns = new ArrayList<Pattern>();
-		Configuration adminConfig = ca.wilkinsonlab.sadi.admin.Config.getConfiguration();
 		for(Object regex : adminConfig.getList("share.sparql.dataMapper.ignoreTypePattern")) {
 			ignoreTypePatterns.add(Pattern.compile((String)regex));
 		}
+	
+		// init caches (used to speed up SPARQL queries to endpoints)
+		
+		String uriToTypeCacheName = String.format("%s:%d", "uriToTypeCache", System.currentTimeMillis());
+		uriToTypeCache = new Cache(new CacheConfiguration(uriToTypeCacheName, URI_TO_TYPE_CACHE_SIZE)
+						.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
+						.overflowToDisk(false)
+						.eternal(true));
+
+		String typeToEndpointCacheName = String.format("%s:%d", "typeToEndpointCache", System.currentTimeMillis());
+		typeToEndpointCache = new Cache(new CacheConfiguration(typeToEndpointCacheName, TYPE_TO_ENDPOINT_CACHE_SIZE)
+						.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
+						.overflowToDisk(false)
+						.eternal(true));
+		
+		CacheManager cacheManager = ca.wilkinsonlab.sadi.admin.Config.getCacheManager();
+		
+		cacheManager.addCache(uriToTypeCache);
+		cacheManager.addCache(typeToEndpointCache);
+		
 	}
 	
 	protected SPARQLRegistry getRegistry() {
@@ -86,7 +120,7 @@ public class SPARQLDataMapper {
 	public void buildSchema(Collection<SPARQLEndpoint> endpoints, int maxTraversalDepth, int maxSamplesPerType, String outputFilename, String outputFormat) throws SADIException, IOException 
 	{
 		Model schema = ModelFactory.createMemModelMaker().createFreshModel();
-		TypeCache typeCache = new TypeCache(getRegistry(), TYPE_CACHE_SIZE);
+		//TypeCache typeCache = new TypeCache(getRegistry(), TYPE_CACHE_SIZE);
 		MultiSPARQLEndpointIterator iterator = new MultiSPARQLEndpointIterator(getRegistry(), new HashSet<Node_URI>(), maxTraversalDepth, maxSamplesPerType);
 		
 		// used for tracking when to write out intermediate results.
@@ -153,26 +187,26 @@ public class SPARQLDataMapper {
 				}
 				
 				
-				Set<Node_URI> subjectTypes = typeCache.getTypes((Node_URI)s);
+				Set<Resource> subjectTypes = getRDFTypes(s.getURI()); //typeCache.getTypes((Node_URI)s);
 				Property predicate = schema.createProperty(p.getURI());
 				Resource subject = schema.createResource(s.getURI());
 
 				if(o.isURI()) {
-					Set<Node_URI> objectTypes = typeCache.getTypes((Node_URI)o);
-					for(Node_URI subjectType : subjectTypes) {
-						Resource sType = schema.createResource(subjectType.getURI());
-						addStatement(schema, sType, EXAMPLE_URI, subject);
-						for(Node_URI objectType : objectTypes) {
-							Resource oType = schema.createResource(objectType.getURI());
-							addStatement(schema, sType, predicate, oType);
+					Set<Resource> objectTypes = getRDFTypes(o.getURI()); //typeCache.getTypes((Node_URI)o);
+					for(Resource subjectType : subjectTypes) {
+//						Resource sType = schema.createResource(subjectType.getURI());
+						addStatement(schema, subjectType, EXAMPLE_URI, subject);
+						for(Resource objectType : objectTypes) {
+//							Resource oType = schema.createResource(objectType.getURI());
+							addStatement(schema, subjectType, predicate, objectType);
 							statementCounter++;
 						}
 					}
 				} else if(o.isLiteral()) {
 					Literal oValue = schema.createTypedLiteral(o.getLiteralValue());
-					for(Node_URI subjectType : subjectTypes) {
-						Resource sType = schema.createResource(subjectType.getURI());
-						addStatement(schema, sType, predicate, oValue);
+					for(Resource subjectType : subjectTypes) {
+//						Resource sType = schema.createResource(subjectType.getURI());
+						addStatement(schema, subjectType, predicate, oValue);
 						statementCounter++;
 					}
 				}
@@ -196,7 +230,7 @@ public class SPARQLDataMapper {
 		schema.write(outputWriter, outputFormat);
 	}
 	
-	protected void addStatement(Model model, Resource s, Property p, RDFNode o) 
+	protected void addStatement(Model model, Resource s, Property p, RDFNode o) throws SADIException, IOException
 	{
 		if(o.isLiteral()) {
 			// We represent literal nodes by their corresponding datatype URI (e.g. xsd:string).
@@ -208,6 +242,19 @@ public class SPARQLDataMapper {
 			//o = model.createResource(((Literal)o).getDatatypeURI() + "_" + String.valueOf(literalCounter++));
 			o = model.createTypedLiteral("example: " + o.asLiteral().getLexicalForm());
 		}
+		
+		// record the endpoint(s) that the subject/object rdf:types are found in
+		
+		for(Resource endpointURI : getEndpointsContainingType(s.getURI())) {
+			model.add(s, DC.source, endpointURI);
+		}
+		
+		if(o.isURIResource()) {
+			for(Resource endpointURI : getEndpointsContainingType(o.asResource().getURI())) {
+				model.add(s, DC.source, endpointURI);
+			}
+		}
+		
 		Statement statement = model.createStatement(s, p, o);
 		if(!model.contains(statement)) {
 			log.trace(String.format("adding new triple %s", statement));
@@ -240,110 +287,82 @@ public class SPARQLDataMapper {
 		return types;
 	}
 	
-	/*
-	protected Set<String> getEndpointsContainingType(Resource type) 
+	@SuppressWarnings("unchecked")
+	protected Set<Resource> getEndpointsContainingType(String typeURI) throws IOException, SADIException
 	{
-		Set<String> endpointURIs = new HashSet<String>();
-		String query = SPARQLStringUtils.strFromTemplate("SELECT * WHERE { ?s %u% %u% } LIMIT 1", RDF.type.getURI(), type.getURI());
+
+		Element cacheEntry = typeToEndpointCache.get(typeURI);
 		
-		Triple queryPattern = new Triple(NodeCreateUtils.create("?s"), RDF.type.asNode(), type.asNode());
+		if(cacheEntry != null) {
+			log.trace(String.format("using cached endpoints for rdf:type %s", typeURI));
+			return (Set<Resource>)cacheEntry.getObjectValue();
+		} 
+		
+		Set<Resource> endpointURIs = new HashSet<Resource>();
+		Triple queryPattern = new Triple(NodeCreateUtils.create("?s"), RDF.type.asNode(), NodeCreateUtils.create(typeURI));
+		String query = SPARQLStringUtils.strFromTemplate("SELECT * WHERE { ?s %u% %u% } LIMIT 1", RDF.type.getURI(), typeURI);
+
 		for(SPARQLEndpoint endpoint : getRegistry().findEndpointsByTriplePattern(queryPattern)) {
 			if(getRegistry().getServiceStatus(endpoint.getURI()) == ServiceStatus.DEAD) {
 				continue;
 			}
 			try {
-				if(endpoint.constructQuery(query).size() > 0) {
-					endpointURIs.add(endpoint.getURI());
+				if(endpoint.selectQuery(query).size() > 0) {
+					endpointURIs.add(ResourceFactory.createResource(endpoint.getURI()));
+				}
+			} 
+			catch(IOException e) {
+				log.trace(String.format("no endpoints contain instances of rdf:type %s", typeURI), e);
+			}
+		}
+		if(endpointURIs.size() == 0) {
+			log.warn(String.format("no rdf:types found for %s", typeURI));
+		}
+		
+		typeToEndpointCache.put(new Element(typeURI, endpointURIs));
+		return endpointURIs;
+
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected Set<Resource> getRDFTypes(String uri) throws IOException, SADIException
+	{
+
+		Element cacheEntry = uriToTypeCache.get(uri);
+		
+		if(cacheEntry != null) {
+			log.trace(String.format("using cached rdf:types for %s", uri));
+			return (Set<Resource>)cacheEntry.getObjectValue();
+		} 
+		
+		Set<Resource> types = new HashSet<Resource>();
+		Triple queryPattern = new Triple(NodeCreateUtils.create(uri), RDF.type.asNode(), NodeCreateUtils.create("?type"));
+		String query = SPARQLStringUtils.getConstructQueryString(Collections.singletonList(queryPattern), Collections.singletonList(queryPattern));
+
+		for(SPARQLEndpoint endpoint : getRegistry().findEndpointsByTriplePattern(queryPattern)) {
+			if(getRegistry().getServiceStatus(endpoint.getURI()) == ServiceStatus.DEAD) {
+				continue;
+			}
+			try {
+				for(Triple triple : endpoint.constructQuery(query)) {
+					if(triple.getPredicate().equals(RDF.type.asNode())) {
+						if(triple.getObject().isURI()) {
+							types.add(ResourceFactory.createResource(triple.getObject().getURI()));
+						}
+					}
 				}
 			} 
 			catch(IOException e) {
 				log.trace(String.format("failed to query endpoint %s", endpoint), e);
 			}
 		}
-		if(endpointURIs.size() == 0) {
-			log.warn(String.format("no endpoints contain rdf:type %s", type.getURI()));
-		}
-	}
-	*/
-	
-	protected static class TypeCache extends LinkedHashMap<Node_URI,Set<Node_URI>>
-	{
-		private static final long serialVersionUID = 1L;
-
-		SPARQLRegistry registry;
-		int maxEntries;
-		
-		public TypeCache(SPARQLRegistry registry, int maxEntries) {
-			setRegistry(registry);
-			setMaxEntries(maxEntries);
+		if(types.size() == 0) {
+			log.warn(String.format("no rdf:types found for %s", uri));
 		}
 		
-		public int getMaxEntries() {
-			return maxEntries;
-		}
+		uriToTypeCache.put(new Element(uri, types));
+		return types;
 
-		public void setMaxEntries(int maxEntries) {
-			this.maxEntries = maxEntries;
-		}
-
-		protected SPARQLRegistry getRegistry() {
-			return registry;
-		}
-
-		protected void setRegistry(SPARQLRegistry registry) {
-			this.registry = registry;
-		}
-
-		// This override causes LinkedHashMap to behave as an LRU cache.
-		// removeEldestEntry() is called when new entries are added to the map.
-		@SuppressWarnings("unchecked")
-		@Override
-		protected boolean removeEldestEntry(Map.Entry eldest) {
-			return size() > getMaxEntries();
-		}
-		
-		public Set<Node_URI> getTypes(Node_URI subject) throws SADIException, IOException 
-		{
-			if(!subject.isURI()) {
-				throw new IllegalArgumentException("cannot obtain rdf:type for a Node that is not a URI");
-			}
-			
-			if(this.containsKey(subject)) {
-				return this.get(subject);
-			} else {
-				
-				Set<Node_URI> types = new HashSet<Node_URI>();
-				Triple queryPattern = new Triple(subject, RDF.type.asNode(), NodeCreateUtils.create("?type"));
-				String query = SPARQLStringUtils.getConstructQueryString(Collections.singletonList(queryPattern), Collections.singletonList(queryPattern));
-				
-				for(SPARQLEndpoint endpoint : getRegistry().findEndpointsByTriplePattern(queryPattern)) {
-					if(getRegistry().getServiceStatus(endpoint.getURI()) == ServiceStatus.DEAD) {
-						continue;
-					}
-					try {
-						for(Triple triple : endpoint.constructQuery(query)) {
-							if(triple.getPredicate().equals(RDF.type.asNode())) {
-								if(triple.getObject().isURI()) {
-									types.add((Node_URI)triple.getObject());
-								}
-							}
-						}
-					} 
-					catch(IOException e) {
-						log.trace(String.format("failed to query endpoint %s", endpoint), e);
-						/*
-						if(getRegistry().isWritable()) {
-							getRegistry().setServiceStatus(endpoint.getURI(), ServiceStatus.DEAD);
-						}
-						*/
-					}
-				}
-				if(types.size() == 0) {
-					log.warn(String.format("no rdf:types found for %s", subject.getURI()));
-				}
-				return types;
-			}
-		}
 	}
 
 	protected static class CommandLineOptions
