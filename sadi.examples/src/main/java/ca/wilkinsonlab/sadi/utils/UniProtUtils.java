@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sf.ehcache.Cache;
@@ -24,13 +23,9 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryBuilder;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 import ca.elmonline.util.BatchIterator;
-import ca.wilkinsonlab.sadi.vocab.SIO;
 
-import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 public class UniProtUtils
 {
@@ -76,44 +71,14 @@ public class UniProtUtils
 	 */
 	public static String getUniProtId(Resource uniprotNode)
 	{
-		if (uniprotNode.getModel() != null) {
-			for (Statement s: uniprotNode.listProperties(SIO.has_attribute).toList()) {
-				RDFNode object = s.getObject();
-				if (object.isResource()) {
-					Resource attribute = object.as(Resource.class);
-					if (attribute.hasProperty(RDF.type, UniProt_Identifier)) {
-						if (attribute.hasProperty(SIO.has_value)) {
-							return attribute.getProperty(SIO.has_value).getString();
-						} else {
-							log.warn("found 'has attribute' some 'UniProt_Identifier' missing 'has value'");
-						}
-					}
-				}
-			}
-		}
+		String id = ServiceUtils.getDatabaseId(uniprotNode, UniProt_Identifier, URI_PATTERNS);
 		
-		log.info("found input node with no explicit ID; attempting to parse URI");
-		if (!uniprotNode.isURIResource())
-			throw new IllegalArgumentException("resource has no explicit ID and no URI");
-		
-		String uri = uniprotNode.getURI();
-		for (Pattern pattern: URI_PATTERNS) {
-			Matcher matcher = pattern.matcher(uri);
-			if (matcher.groupCount() < 1) {
-				log.warn("URI pattern '%s' does not contain any capturing groups");
-				continue;
-			}
-			if (matcher.find()) {
-				String match = matcher.group(1);
-				if (!StringUtils.isEmpty(match))
-					return match;
-			}
-		}
-		/* we shouldn't ever get here because the default best-guess pattern
-		 * should always match...
-		 */
-		log.warn("failsafe URI pattern failed to match");
-		return "";
+		if(id == null) {
+			log.warn("failsafe URI pattern failed to match");
+			id = "";
+		} 
+			
+		return id;
 	}
 
 	/**

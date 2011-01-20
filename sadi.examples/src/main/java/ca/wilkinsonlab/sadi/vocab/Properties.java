@@ -31,4 +31,5 @@ private static Model m_model = ModelFactory.createDefaultModel();
     public static Property fromOrganism = m_model.createProperty(NS, "fromOrganism");
     public static Property has3DStructure = m_model.createProperty(NS, "has3DStructure");
     public static Property hasMotif = m_model.createProperty(NS, "hasMotif");
+    public static Property isSubstance = m_model.createProperty(NS, "isSubstance");
 }

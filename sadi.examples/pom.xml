@@ -86,11 +86,6 @@
     	<version>1.1</version>
     </dependency>
     
-    <dependency>
-    	<groupId>uk.ac.ebi</groupId>
-    	<artifactId>ncbiblast-stubs</artifactId>
-    	<version>1</version>
-    </dependency>
   	
     <dependency>
       <groupId>junit</groupId>
@@ -106,5 +101,10 @@
       <scope>test</scope>
     </dependency>
     
+    <dependency>
+    	<groupId>jp.genome</groupId>
+    	<artifactId>keggapi</artifactId>
+    	<version>2011-01-14</version>
+    </dependency>
   </dependencies>
 </project>

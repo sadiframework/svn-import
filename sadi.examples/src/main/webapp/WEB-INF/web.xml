@@ -86,6 +86,26 @@
     <servlet-class>ca.wilkinsonlab.sadi.service.example.BMIServiceServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>keggPathway2Gene</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.KeggPathway2GeneServiceServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>keggPathway2Compound</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.KeggPathway2CompoundServiceServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>keggGene2Pathway</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.KeggGene2PathwayServiceServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>keggCompound2PubChem</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.KeggCompound2PubChemServiceServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>echo</servlet-name>
     <url-pattern>/echo</url-pattern>
@@ -165,4 +185,25 @@
     <servlet-name>calculateBMI</servlet-name>
     <url-pattern>/calculateBMI</url-pattern>
   </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>keggPathway2Gene</servlet-name>
+    <url-pattern>/keggPathway2Gene</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>keggPathway2Compound</servlet-name>
+    <url-pattern>/keggPathway2Compound</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>keggGene2Pathway</servlet-name>
+    <url-pattern>/keggGene2Pathway</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>keggCompound2PubChem</servlet-name>
+    <url-pattern>/keggCompound2PubChem</url-pattern>
+  </servlet-mapping>
+
 </web-app>
