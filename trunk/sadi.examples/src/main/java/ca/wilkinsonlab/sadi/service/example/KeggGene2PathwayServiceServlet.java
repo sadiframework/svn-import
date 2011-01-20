@@ -15,7 +15,7 @@ import com.hp.hpl.jena.vocabulary.OWL;
 import ca.wilkinsonlab.sadi.utils.KeggUtils;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
-import ca.wilkinsonlab.sadi.vocab.KEGG;
+import ca.wilkinsonlab.sadi.vocab.LSRN;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
 @SuppressWarnings("serial")
@@ -27,7 +27,7 @@ public class KeggGene2PathwayServiceServlet extends KeggServiceServlet
 	@Override
 	protected void processInput(Resource input, Resource output)
 	{
-		String keggGeneId = ServiceUtils.getDatabaseId(input, KEGG.GENE_IDENTIFIER, KeggUtils.GENE_URI_PATTERNS);
+		String keggGeneId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.GENE_IDENTIFIER, KeggUtils.GENE_URI_PATTERNS);
 		
 		if(keggGeneId == null) {
 			log.error(String.format("unable to determine KEGG gene ID for %s", input));
@@ -53,12 +53,12 @@ public class KeggGene2PathwayServiceServlet extends KeggServiceServlet
 	
 	protected Resource createKeggPathwayNode(Model model, String keggPathwayId) 
 	{
-		String oldURI = String.format("%s%s", KEGG.OLD_PATHWAY_PREFIX, keggPathwayId);
-		String URI = String.format("%s%s", KEGG.PATHWAY_PREFIX, keggPathwayId);
+		String oldURI = String.format("%s%s", LSRN.KEGG.OLD_PATHWAY_PREFIX, keggPathwayId);
+		String URI = String.format("%s%s", LSRN.KEGG.PATHWAY_PREFIX, keggPathwayId);
 		
-		Resource keggPathwayNode = model.createResource(URI, KEGG.PATHWAY_TYPE);
+		Resource keggPathwayNode = model.createResource(URI, LSRN.KEGG.PATHWAY_TYPE);
 		// add SIO identifier structure 
-		SIOUtils.createAttribute(keggPathwayNode, KEGG.PATHWAY_IDENTIFIER, keggPathwayId);
+		SIOUtils.createAttribute(keggPathwayNode, LSRN.KEGG.PATHWAY_IDENTIFIER, keggPathwayId);
 		// add link to old URI scheme
 		keggPathwayNode.addProperty(OWL.sameAs, model.createResource(oldURI));
 		
