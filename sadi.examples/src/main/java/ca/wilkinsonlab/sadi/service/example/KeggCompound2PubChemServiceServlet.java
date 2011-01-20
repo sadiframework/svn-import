@@ -20,9 +20,8 @@ import com.hp.hpl.jena.vocabulary.OWL;
 import ca.wilkinsonlab.sadi.utils.KeggUtils;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
-import ca.wilkinsonlab.sadi.vocab.KEGG;
+import ca.wilkinsonlab.sadi.vocab.LSRN;
 import ca.wilkinsonlab.sadi.vocab.Properties;
-import ca.wilkinsonlab.sadi.vocab.PubChem;
 
 @SuppressWarnings("serial")
 public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
@@ -34,7 +33,7 @@ public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
 	@Override
 	protected void processInput(Resource input, Resource output)
 	{
-		String keggCompoundId = ServiceUtils.getDatabaseId(input, KEGG.COMPOUND_IDENTIFIER, KeggUtils.COMPOUND_URI_PATTERNS);
+		String keggCompoundId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.COMPOUND_IDENTIFIER, KeggUtils.COMPOUND_URI_PATTERNS);
 		
 		if(keggCompoundId == null) {
 			log.error(String.format("unable to determine KEGG compound ID for %s", input));
@@ -68,12 +67,12 @@ public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
 	
 	protected Resource createPubChemNode(Model model, String pubchemId) 
 	{
-		String oldURI = String.format("%s%s", PubChem.OLD_SUBSTANCE_PREFIX, pubchemId);
-		String URI = String.format("%s%s", PubChem.OLD_SUBSTANCE_PREFIX, pubchemId);
+		String oldURI = String.format("%s%s", LSRN.PubChem.OLD_SUBSTANCE_PREFIX, pubchemId);
+		String URI = String.format("%s%s", LSRN.PubChem.OLD_SUBSTANCE_PREFIX, pubchemId);
 		
-		Resource pubChemNode = model.createResource(URI, PubChem.SUBSTANCE_TYPE);
+		Resource pubChemNode = model.createResource(URI, LSRN.PubChem.SUBSTANCE_TYPE);
 		// add SIO identifier structure 
-		SIOUtils.createAttribute(pubChemNode, PubChem.SUBSTANCE_IDENTIFIER, pubchemId);
+		SIOUtils.createAttribute(pubChemNode, LSRN.PubChem.SUBSTANCE_IDENTIFIER, pubchemId);
 		// add link to old URI scheme
 		pubChemNode.addProperty(OWL.sameAs, model.createResource(oldURI));
 		
