@@ -4,8 +4,6 @@ import java.rmi.RemoteException;
 
 import javax.xml.rpc.ServiceException;
 
-import keggapi.KEGGLocator;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -13,7 +11,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 
-import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
 import ca.wilkinsonlab.sadi.utils.KeggUtils;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
@@ -21,7 +18,7 @@ import ca.wilkinsonlab.sadi.vocab.KEGG;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
 @SuppressWarnings("serial")
-public class KeggPathway2CompoundServiceServlet extends SimpleAsynchronousServiceServlet
+public class KeggPathway2CompoundServiceServlet extends KeggServiceServlet
 {
 	private static final Log log = LogFactory.getLog(KeggPathway2CompoundServiceServlet.class);
 	
@@ -37,9 +34,7 @@ public class KeggPathway2CompoundServiceServlet extends SimpleAsynchronousServic
 		
 		String[] keggCompoundIds;
 		try {
-			// "new KEGGLocator().getKEGGPort()" doesn't do any network stuff,
-			// so it is okay to repeat it for each input.
-			keggCompoundIds = new KEGGLocator().getKEGGPort().get_compounds_by_pathway(String.format("path:%s", keggPathwayId));
+			keggCompoundIds = getKeggService().get_compounds_by_pathway(String.format("path:%s", keggPathwayId));
 		} catch(ServiceException e) {
 			throw new RuntimeException("error initializing KEGG API service:", e);
 		} catch(RemoteException e) {

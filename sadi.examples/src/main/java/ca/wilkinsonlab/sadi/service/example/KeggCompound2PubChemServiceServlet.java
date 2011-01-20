@@ -8,8 +8,6 @@ import java.util.regex.Pattern;
 
 import javax.xml.rpc.ServiceException;
 
-import keggapi.KEGGLocator;
-import keggapi.KEGGPortType;
 import keggapi.LinkDBRelation;
 
 import org.apache.commons.logging.Log;
@@ -19,7 +17,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 
-import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
 import ca.wilkinsonlab.sadi.utils.KeggUtils;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
@@ -28,7 +25,7 @@ import ca.wilkinsonlab.sadi.vocab.Properties;
 import ca.wilkinsonlab.sadi.vocab.PubChem;
 
 @SuppressWarnings("serial")
-public class KeggCompound2PubChemServiceServlet extends SimpleAsynchronousServiceServlet
+public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
 {
 	private static final Log log = LogFactory.getLog(KeggCompound2PubChemServiceServlet.class);
 	private static final Pattern PUBCHEM_ID_PREFIX = Pattern.compile("^pubchem:", Pattern.CASE_INSENSITIVE);
@@ -47,14 +44,10 @@ public class KeggCompound2PubChemServiceServlet extends SimpleAsynchronousServic
 		List<LinkDBRelation> results = new ArrayList<LinkDBRelation>();
 		try {
 			
-			// "new KEGGLocator().getKEGGPort()" doesn't do any network stuff,
-			// so it is okay to repeat it for each input.
-			KEGGPortType keggService = new KEGGLocator().getKEGGPort();
-			
 			LinkDBRelation[] resultsChunk;
 			int startEntry = 1;
 			do {
-				resultsChunk = keggService.get_linkdb_by_entry(keggCompoundId, "pubchem", startEntry, RESULTS_LIMIT_PER_QUERY);
+				resultsChunk = getKeggService().get_linkdb_by_entry(keggCompoundId, "pubchem", startEntry, RESULTS_LIMIT_PER_QUERY);
 				results.addAll(Arrays.asList(resultsChunk));
 				startEntry += resultsChunk.length;
 			} 
