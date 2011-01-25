@@ -45,9 +45,11 @@ import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -86,7 +88,8 @@ public abstract class ServiceServlet extends HttpServlet
 	protected Resource outputClass;
 	protected Resource parameterClass;
 	protected Resource defaultParameters;
-	
+	private String serviceDescriptionURI;
+		
 //	/* In most cases, the service URI in the description will be null, in which case the
 //	 * service model is constructed with a root node whose URI is "" (and 
 //	 * the service URI URL the service model is retrieved from will be the service URI).
@@ -193,7 +196,14 @@ public abstract class ServiceServlet extends HttpServlet
 		modelMaker = createModelMaker();  // TODO support persistent models in properties file?
 		serviceOntologyHelper = new MyGridServiceOntologyHelper();
 		serviceModel = createServiceModel();
-
+		
+		/* 
+		 * The root URI of the service description graph.  We set this to "" 
+		 * (i.e. the document retrieval URL) so that the URI for the service
+		 * description will always match the URL of the service.
+		 */
+		serviceDescriptionURI = "";
+		
 		try {
 			String serviceRDF = getServiceRDF();
 			if (serviceRDF != null) {
@@ -428,7 +438,7 @@ public abstract class ServiceServlet extends HttpServlet
 	protected ServiceDescription createServiceDescription() throws SADIException
 	{
 		ServiceBean serviceBean = new ServiceBean();
-		serviceBean.setURI(StringUtils.defaultString(getServiceURL(), ""));
+		serviceBean.setURI(this.serviceDescriptionURI); 
 		serviceBean.setName(getName());
 		serviceBean.setDescription(getDescription());
 		serviceBean.setServiceProvider(getServiceProvider());
@@ -443,7 +453,7 @@ public abstract class ServiceServlet extends HttpServlet
 	private Resource extractDefaultParameterInstanceFromModel() throws SADIException
 	{
 		RDFPath parameterInstancePath = ((AbstractServiceOntologyHelper)serviceOntologyHelper).getParameterInstancePath();
-		Collection<Resource> instances = RdfUtils.extractResources(parameterInstancePath.getValuesRootedAt(serviceModel.getResource(getServiceURL())));
+		Collection<Resource> instances = RdfUtils.extractResources(parameterInstancePath.getValuesRootedAt(serviceModel.getResource(this.serviceDescriptionURI)));
 		if (instances.size() > 1) {
 			throw new ServiceDefinitionException(String.format("found %d default parameter instances, refusing to pick one arbitrarily", instances.size()));
 		} else if (instances.isEmpty()) {
@@ -507,7 +517,7 @@ public abstract class ServiceServlet extends HttpServlet
 				}
 			}
 		}
-		parameterInstancePath.addValueRootedAt(serviceModel.getResource(getServiceURL()), parameters);
+		parameterInstancePath.addValueRootedAt(serviceModel.getResource(this.serviceDescriptionURI), parameters);
 		return parameters;
 	}
 	
@@ -533,9 +543,8 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	private Resource loadServiceModelFromLocation(String serviceRDF) throws SADIException
 	{
-		String serviceURL = getServiceURL();
 		try {
-			readIntoModel(serviceModel, StringUtils.defaultString(serviceURL), serviceRDF);
+			readIntoModel(serviceModel, "", serviceRDF);
 			if (errorHandler.hasLastError())
 				throw errorHandler.getLastError();
 		} catch (Exception e) {
@@ -543,24 +552,75 @@ public abstract class ServiceServlet extends HttpServlet
 			log.error(message, e);
 			throw new SADIException(message);
 		}
-		if (serviceURL == null) {
+
+		/*
+		 * We find the service description within the given RDF file by looking
+		 * for the following URIs (in order of preference):
+		 * 
+		 * 1) The URL of the service, as returned by getServiceURL()
+		 * 2) The empty URI (""), i.e. the document retrieval URL
+		 * 3) The URI of the only service description in the document
+		 */
+		
+		String serviceURL = getServiceURL();
+		Resource serviceClass = getServiceOntologyHelper().getServiceClass();
+		String serviceDescriptionURI;
+		
+		if (serviceURL != null && serviceModel.getResource(serviceURL).hasProperty(RDF.type, serviceClass)) {
+			serviceDescriptionURI = serviceURL;
+		} else if (serviceModel.getResource("").hasProperty(RDF.type, serviceClass)) {
+			serviceDescriptionURI = "";
+		} else {
 			/* if there's exactly one instance of the service class in the
 			 * model, we can assume that's us; if not, we have a problem...
 			 */
-			ResIterator services = serviceModel.listResourcesWithProperty(RDF.type, getServiceOntologyHelper().getServiceClass());
+			ResIterator services = serviceModel.listResourcesWithProperty(RDF.type, serviceClass);
 			try {
 				if (services.hasNext()) {
-					serviceURL = services.next().getURI();
+					serviceDescriptionURI = services.next().getURI();
 					if (services.hasNext())
 						throw new ServiceDefinitionException(String.format("no service URI specified and the model at %s contains multiple instances of service class %s", serviceRDF, serviceOntologyHelper.getServiceClass()));
 				} else {
-					throw new ServiceDefinitionException(String.format("no service URI specified and the model at %s contains no instances of service class %s", serviceRDF, serviceOntologyHelper.getServiceClass()));
+					throw new ServiceDefinitionException(String.format("the model at %s contains no instances of service class %s", serviceRDF, serviceOntologyHelper.getServiceClass()));
 				}
 			} finally {
 				services.close();
 			}
 		}
-		return serviceModel.getResource(serviceURL);
+		
+		/*
+		 * Whatever the URI of the service description was in the given RDF
+		 * document, make it "" in the service description returned
+		 * by the service.  This will ensure that the URL of the service
+		 * description always matches the URL of the service.
+		 */
+		
+		if(!serviceDescriptionURI.equals(this.serviceDescriptionURI)) {
+			replaceURI(serviceModel, serviceDescriptionURI, this.serviceDescriptionURI);
+		}
+		
+		return serviceModel.getResource(this.serviceDescriptionURI);
+	}
+	
+	private static void replaceURI(Model model, String oldURI, String newURI)
+	{
+		Resource oldResource = model.getResource(oldURI);
+		Resource newResource = model.getResource(newURI);
+		
+		List<Statement> subjectStatements = model.listStatements(oldResource, null, (RDFNode)null).toList();
+		List<Statement> objectStatements = model.listStatements(null, null, oldResource).toList();
+		
+		for(Statement statement : subjectStatements) {
+			// note: remove should come first, in case oldURI and newURI are the same
+			model.remove(statement);
+			model.add(newResource, statement.getPredicate(), statement.getObject());
+		}
+
+		for(Statement statement : objectStatements) {
+			// note: remove should come first, in case oldURI and newURI are the same
+			model.remove(statement);
+			model.add(statement.getSubject(), statement.getPredicate(), newResource);
+		}
 	}
 	
 	/**
@@ -617,7 +677,7 @@ public abstract class ServiceServlet extends HttpServlet
 		}
 	}
 	
-	private String getServiceURL()
+	protected String getServiceURL()
 	{
 		URI annotation = getClass().getAnnotation(URI.class);
 		if (annotation != null) {
