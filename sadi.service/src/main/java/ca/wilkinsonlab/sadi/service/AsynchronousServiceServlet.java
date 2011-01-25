@@ -10,6 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 import ca.elmonline.util.BatchIterator;
 import ca.wilkinsonlab.sadi.tasks.Task;
 import ca.wilkinsonlab.sadi.tasks.TaskManager;
@@ -24,8 +26,19 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 public abstract class AsynchronousServiceServlet extends ServiceServlet
 {
+	private static final Logger log = Logger.getLogger(AsynchronousServiceServlet.class);
 	public static final String POLL_PARAMETER = "poll";
 	private static final long serialVersionUID = 1L;
+	
+	@Override
+	public void init() throws ServletException
+	{
+		super.init();
+		
+		if(getServiceURL() == null) {
+			log.warn("asynchronous services may not work correctly if the URL of the service is not specified in sadi.properties or by a class annotation");
+		}
+	}
 	
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -125,7 +138,7 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		/* TODO allow override of request URL?
 		 * not really useful if proxies are set up properly...
 		 */
-		return String.format("%s?%s=%s", request.getRequestURL().toString(), POLL_PARAMETER, taskId);
+		return String.format("%s?%s=%s", getServiceURL() == null ? request.getRequestURL().toString() : getServiceURL(), POLL_PARAMETER, taskId);
 	}
 	
 	protected long getSuggestedWaitTime(Task task)
