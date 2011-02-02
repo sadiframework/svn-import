@@ -10,7 +10,7 @@ package SADI::Base;
 use strict;
 use HTTP::Date;
 use URI;
-use LS::ID;
+use OWL::LSID;
 
 use vars qw( $VERSION $Revision $AUTOLOAD @EXPORT @ISA );
 use vars qw( $LOG $LOGGER_NAME $CONFIG_NAMESPACE );
@@ -193,7 +193,7 @@ sub uri2package {
 
     # is $uri an LSID?
     if ( lc($uri) =~ m/^urn\:lsid/gi ) {
-        my $lsid = LS::ID->new( $uri );
+        my $lsid = OWL::LSID->new( $uri );
 
         # cheat a little ;-)
         $uri =
