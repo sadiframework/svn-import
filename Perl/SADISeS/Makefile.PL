@@ -30,10 +30,9 @@
     requires 'Unicode::String'  	=> 2.09;
     requires 'IO::String'       	=> 1.08;
     requires 'RDF::Core'            => 0.51;
-    #requires 'LS'                  => '1.1.7';
     requires 'HTTP::Request'        => 0;
     requires 'LWP'                  => 0;
-    requires 'OWL2Perl'             => 0.98.1;
+    requires 'OWL2Perl'             => '0.98.1';
     requires 'URI'                  => 1.40;  
 
     # windows doesn't need this
