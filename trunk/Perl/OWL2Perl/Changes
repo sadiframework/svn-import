@@ -1,5 +1,9 @@
 Revision history for Perl extension OWL2Perl.
 
+0.98.1
+    * Removed the dependency on LS::ID because it was causing installation problems on
+      windows 64 bit machines.
+	
 0.98
 	* updated the version of PLUTO that we require.
 	
