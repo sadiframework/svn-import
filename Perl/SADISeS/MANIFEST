@@ -1,4 +1,3 @@
-.project
 bin/scripts/sadi-config-status.pl
 bin/scripts/sadi-generate-datatypes.pl
 bin/scripts/sadi-generate-services.pl

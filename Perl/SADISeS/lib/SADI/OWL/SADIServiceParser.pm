@@ -24,7 +24,7 @@ use SADI::RDF::Predicates::RDF;
 use SADI::RDF::Predicates::FETA;
 use SADI::RDF::Predicates::RDFS;
 
-use LS::ID;
+use OWL::LSID;
 
 use vars qw /$VERSION/;
 $VERSION = sprintf "%d.%02d", q$Revision: 1.4 $ =~ /: (\d+)\.(\d+)/;
