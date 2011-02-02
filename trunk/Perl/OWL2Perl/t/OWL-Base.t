@@ -126,3 +126,5 @@ $pac = $data->uri2package($_) and ok( $pac
 	"check uri2package($_) = $pac"
 ) foreach (@packages);
 
+ok ($data->uri2package("urn:lsid:dev.biordf.net:getUniprotByKeggGene.owl:UniprotByKeggGeneOutputClass") eq 
+'dev::biordf::net::getUniprotByKeggGene::UniprotByKeggGeneOutputClass',"Check uri2package(LSID)");
