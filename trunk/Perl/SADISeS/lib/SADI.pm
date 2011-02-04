@@ -86,6 +86,9 @@ C<for /R %i in ("C:\Users\ubuntu\Perl-SADI\cgi\*") do perl -pi -e 's|text/xml|ap
        # to get started, run the install script
        sadi-install.pl
 
+       # for those of you using MS Windows (commands are issued without the ".pl")
+       sadi-install
+
        # generate a service definition file, for example HelloSadiWorld
        sadi-generate-services.pl -D HelloSadiWorld
 
@@ -412,7 +415,7 @@ The other modules needed are (all available from the CPAN):
 
 The installation script is (as well as the other Perl SADI scripts) installed at module install time and is available from any command prompt. You should run it the first time, and you can run it anytime later again. The files that are already created are not overwritten - unless you want it to be (using the B<-F> option).
 
-C<sadi-install.pl>
+C<sadi-install.pl> or C<sadi-install> on the MS Windows platform
 
 This is an example of a typical conversation and output of the first installation:
 
