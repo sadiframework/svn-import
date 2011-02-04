@@ -39,6 +39,7 @@ lib/OWL/RDF/Predicates/OWL.pm
 lib/OWL/RDF/Predicates/RDF.pm
 lib/OWL/RDF/Predicates/RDFS.pm
 lib/OWL/Utils.pm
+lib/OWL/LSID.pm
 lib/OWL2Perl.pm
 LICENSE
 Makefile.PL
