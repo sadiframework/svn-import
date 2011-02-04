@@ -1,5 +1,9 @@
 Revision history for Perl extension SADI.
 
+1.06
+	* removed dependency on LS
+	* added a couple statements to SADI that mention that on windows, you need to omit
+	  the .pl suffix when running SADI scripts.
 1.05
     * Updated the signature for services to make it legitimate RDF (added xsd:boolean 
       to authoritative, ensure that the correct dc predicates were used).
