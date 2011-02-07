@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <link href="http://sadiframework.org/style/sadi.css" type="text/css" rel="stylesheet"/>
+        <style type="text/css">
+            h2 {
+                margin-top: 2em;
+                margin-left: 2em
+            }
+            
+            h3 {
+                margin-top: 2em;
+                margin-left: 4em
+            }
+            
+            h4 {
+                margin-top: 2em;
+                margin-left: 6em
+            }
+            
+            p {
+                margin-left: 6em
+            }
+            
+            pre {
+                margin-left: 8em;
+                margin-right: 8em;
+                padding: 4px;
+                font-family: monospace;
+                font-size: 125%;
+                background: #eee;
+            }
+        .style1 {
+	color: #FF0000;
+	font-weight: bold;
+	font-style: italic;
+}
+        </style>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Installing SADISeS on Windows 64</title>
+    </head>
+    <body>
+        <h1>Installing SADISeS on Windows 64</h1>
+        <p>Installing the Perl libraries required by SADI can be a bit challenging on 64-bit Windows, since several of the underlying libraries do not yet have distributions with Active State Perl.  </p>
+        <p>This document summarises steps that we found were needed in order to implement SADI services on the Win64 platform using SADISeS (<strong>SADI</strong> <strong>S</strong>ervice <strong>S</strong>upoort). </p>
+    <h2>Table of Contents</h2>
+        <p>
+            <a href="#step_1">Step 1: What is needed</a>
+            <br/>
+            <a href="#step_2">Step 2: Installing some required modules</a><br>
+            <a href="#step_3">Step 3: Installing Perl SADI</a>          <br/>
+            <a href="#step_4">Step 4: Run sadi-install</a>
+            <br/>
+        </p>
+        <h3><a name="step_1"/>Step 1: What is needed</h3>
+        <p>
+            To implement SADI services using SADISeS, you need to have the following installed on your machine:
+        </p>
+        <ol>
+            <ol>
+                <ol>
+                    <li>
+                        <strong>Perl</strong>
+                        - perl has to be installed on your machine (and since you are using 64-bit MS Windows, we assume that you are using ActiveState Perl64)                    </li>
+                    <li>
+                        <strong>7-Zip</strong>
+                        - you will need to unzip TAR and GZ files, and this <a href="http://www.7-zip.org/" target="_blank">free tool</a> will 
+                        allow you to do so</li>
+                    <li><strong>NMAKE</strong> - Need nmake for Win64; Comes as part of <a href="http://www.microsoft.com/express/Downloads/#2010-Visual-CPP" target="_blank">Visual C++ Express</a></li>
+                </ol>
+            </ol>
+        </ol>
+<p>After installation of Visual C++ (which requires a free registration) you need to set your <em>PATH</em>. </p>
+<blockquote>
+  <p>In a new explorer window, right-click on &quot;<em><strong>Computer</strong></em>&quot;, then <em><strong>Properties/Advanced System Settings</strong></em>        [<em><strong>Environment Variables</strong></em>]        in the <em>System Variables</em> section scroll down to <em>Path</em> and select [<em>EDIT</em>].          At the end of the existing Path information, add a ';' (semicolon) if there isn't one already, then add the complete path to VC++ nmake (do NOT put a space between the semicolon and the &quot;C:\...&quot;):        C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin</p>
+</blockquote>
+<h3><a name="step_2"/>Step 2: Installing some required modules</h3>
+        <p>The next thing that you need to do is manually install some required modules. This is more tedious, than it is hard.</p>
+        <p>Open a command prompt (Windows <em>START</em> button, then search for &quot;<em>cmd</em>&quot;, the first application discovered will be your command window) and enter the following command:</p>
+        <pre>ppm</pre>
+        <p>This will bring up the <em>Perl Package Manager</em> interface. Ensure that you can &quot;View all packages&quot;. If you cannot, then under the <em>View</em> menu, click on &quot;<em>All Packages</em>&quot;.</p>
+        <p>In the search box, enter <em>Template-Toolkit</em>. From the list of results, select <em>Template-Toolkit</em> and mark it for install (shortcut key '<em>+</em>'). Then run marked actions (shortcut key <em>'Ctrl+enter</em>').</p>
+        <p>Once the installation of that module has completed, clear the search box and enter <em>Unicode-String</em>. From the list of results, select<em> Unicode-String</em> and mark it for install. Then run marked actions.</p>
+        <p>Once the installation of that module has completed, clear the search box and enter <em>DBD-mysql</em>. From the list of results, select <em>DBD-mysql</em> and mark it for install. Then run marked actions.</p>
+        <p>Once the installation of that module has completed, clear the search box and enter <em>RDF-Core</em>. From the list of results, select <em>RDF-Core</em> and mark it for install. Then run marked actions.</p>
+        <p>Once the installation of that module has completed, clear the search box and enter<em> XML-LibXML</em>. From the list of results, select<em> XML-LibXML</em> and mark it for install. Then run marked actions.</p>
+        <p>You should now exit from the Perl Package Manager by clicking <em>Quit</em> from the <em>File</em> menu (shortcut '<em>Ctrl+Q</em>').</p>
+        <p><span class="style1">Note</span> that on some machines, the ppm installation of <em>XML-LibXML</em> does not set-up the environment properly. First read the full instructions at <a href="http://perl-xml.sourceforge.net/faq/#parserdetails.ini" target="_blank">http://perl-xml.sourceforge.net/faq/#parserdetails.ini</a>, but if you want to simply push ahead, from the command prompt type the following:</p>
+        <pre> C:\&gt;  perl -MXML::SAX -e &quot;XML::SAX-&gt;add_parser(q(XML::SAX::PurePerl))-&gt;save_parsers()&quot;</pre>
+        <h3><a name="step_3"/>Step 3: Installing Perl SADI</h3>
+        <p>You are now ready to install the SADISeS Perl Libraries.  </p>
+        <p>To do so you will need to download <a href="http://search.cpan.org/dist/SADI/" target="_blank">Perl SADI from CPAN</a>. From the CPAN page, click on Download and save the compressed archive onto your desktop. Using 7-Zip, uncompress the file (right-click on the file, mouse over <em>7-Zip</em> and choose to <em>extract here</em>). </p>
+        <p>From the command prompt, change into the newly extracted directory. The easiest way to do this is to type the following at the command prompt and add an extra space:</p>
+        <pre>cd </pre>
+        <p>Then drag the folder containing our extracted directory onto the command prompt. Windows should place the complete path onto the prompt for you, like shown below:</p>
+        <pre>C:\Users\Eddie&gt;cd C:\Users\Eddie\Desktop\SADI-1.06</pre>
+        <p>Hit the <em>Enter</em> key to issue the command.</p>
+        <p>Now you will need to issue the following commands from your command prompt:</p>
+        <pre>Perl Makefile.PL
+</pre>
+        <p>When prompted to do so, make sure that you tell Perl that you would like to install missing modules.</p>
+        <p>Next enter the following command to actually install the missing modules (can take several minutes)and to set up the installation environment:</p>
+        <pre>nmake</pre>
+        <p>Once nmake has finished running, issue the following command at the command prompt to test the distribution:</p>
+        <pre>nmake test
+</pre>
+        <p>Assuming that nmake test ran successfully, it is time to run the install command:</p>
+        <pre>nmake install</pre>
+        <h3><a name="step_4"/>Step 4: Run sadi-install</h3>
+        <p>The last thing to do, is run the user SADI install script that comes with the Perl SADI distribution. For details on what exactly this script does, please refer to the <a href="http://search.cpan.org/dist/SADI/lib/SADI.pm#Installation" target="_blank">Perl SADI documentation</a>.</p>
+        <p>To run the user installation script, enter the following command at the command prompt:</p>
+        <pre>sadi-install</pre>
+        <p>Now you are ready to develop SADI services on your MS Windows 64-bit system!</p>
+</body>
+</html>
