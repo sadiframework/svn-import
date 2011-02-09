@@ -32,7 +32,7 @@ use overload q("")    => "as_string";
 BEGIN {
 	@ISA      = qw( Exporter );
 	@EXPORT   = qw( $LOG );
-	$VERSION  = sprintf "%d.%02d", q$Revision: 1.28 $ =~ /: (\d+)\.(\d+)/;
+	$VERSION  = sprintf "%d.%02d", q$Revision: 1.29 $ =~ /: (\d+)\.(\d+)/;
 	$Revision = '$Id: Base.pm,v 1.28 2010-02-11 00:02:51 ubuntu Exp $';
 
 	# initiate error handling
@@ -283,6 +283,8 @@ sub service2module {
 
 	# default values that will be, at the end, however, rarely used
 	$authority = 'ca.wilkinsonlab.sadi.service' unless $authority;
+	my $uri = new URI($authority);
+	$authority = $uri->authority if defined $uri->authority;
 	$service_name = 'TheService' unless $service_name;
 	return
 	  join( '::', reverse split( /\./, $self->module_name_escape($authority) ) )
