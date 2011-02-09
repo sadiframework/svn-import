@@ -14,7 +14,7 @@ use strict;
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.6 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.7 $ =~ /: (\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -192,13 +192,20 @@ A url to the SADI service signature.
 			type => SADI::Base->STRING,
 			post => sub {
 				my $i      = shift;
-				my $domain = $i->Authority;
-				$i->throw(
-"Invalid authority specified! '$domain' contains invalid characters ."
-				) if $domain =~ /[\@\&\%\#\(\)\=]/gi;
-				$i->throw(
-					   "Invalid authority specified! '$domain' must take the form NNN.NNN.NNN." )
-				  unless $domain =~ /.+\.+.+/gi;
+				my $domain = $i->Authority; 
+				if ($domain =~ /[\@\&\%\#\(\)\=]/gi) {
+					$i->{Authority} = ""; 
+                    $i->throw(
+    "Invalid authority specified! '$domain' contains invalid characters ."
+                    );
+				}
+				  unless ($domain =~ /.+\.+.+/gi) {
+				  	$i->{Authority} = "";
+                    $i->throw(
+                       "Invalid authority specified! '$domain' must take the form NNN.NNN.NNN." );
+				  }
+				my $uri = new URI($domain);
+                $i->{Authority} = $uri->authority if defined $uri->authority;
 			  }
 		},
 		Provider => {
