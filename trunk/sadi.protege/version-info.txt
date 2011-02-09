@@ -15,6 +15,13 @@ the provision of SADI services.</p>
 
 <h3>Version info</h3>
 
+<h4>v1.1.5 (9th February 2011)</h4>
+<ul>
+    <li>Validate the service provider URI.</li>
+    <li>The optional service type field is now actually optional (wont nag).</li>
+    <li>Generation of a synchronous service resulted in an asynchronous one in some instances.</li>
+</ul>
+
 <h4>v1.1.4 (8th February 2011)</h4>
 <ul>
     <li>Some UI updates and source code cleanup</li>
