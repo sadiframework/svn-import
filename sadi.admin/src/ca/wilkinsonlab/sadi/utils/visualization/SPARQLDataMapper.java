@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-//import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -186,26 +185,22 @@ public class SPARQLDataMapper {
 					log.trace(String.format("skipping triple with blank node(s), %s", triple));
 				}
 				
-				
-				Set<Resource> subjectTypes = getRDFTypes(s.getURI()); //typeCache.getTypes((Node_URI)s);
+				Set<Resource> subjectTypes = getRDFTypes(s.getURI());
 				Property predicate = schema.createProperty(p.getURI());
 				Resource subject = schema.createResource(s.getURI());
 
 				if(o.isURI()) {
-					Set<Resource> objectTypes = getRDFTypes(o.getURI()); //typeCache.getTypes((Node_URI)o);
+					Set<Resource> objectTypes = getRDFTypes(o.getURI()); 
 					for(Resource subjectType : subjectTypes) {
-//						Resource sType = schema.createResource(subjectType.getURI());
 						addStatement(schema, subjectType, EXAMPLE_URI, subject);
 						for(Resource objectType : objectTypes) {
-//							Resource oType = schema.createResource(objectType.getURI());
 							addStatement(schema, subjectType, predicate, objectType);
 							statementCounter++;
 						}
 					}
 				} else if(o.isLiteral()) {
-					Literal oValue = schema.createTypedLiteral(o.getLiteralValue());
+					Literal oValue = schema.createTypedLiteral(o.getLiteralLexicalForm());
 					for(Resource subjectType : subjectTypes) {
-//						Resource sType = schema.createResource(subjectType.getURI());
 						addStatement(schema, subjectType, predicate, oValue);
 						statementCounter++;
 					}
@@ -221,7 +216,9 @@ public class SPARQLDataMapper {
 		}
 		
 		log.trace(String.format("schema generation complete, writing schema to %s", outputFilename));
-		writeSchemaToFile(schema, outputFilename, outputFormat);
+		if(schema.size() > 0) {
+			writeSchemaToFile(schema, outputFilename, outputFormat);
+		}
 	}
 	
 	protected void writeSchemaToFile(Model schema, String outputFilename, String outputFormat) throws IOException
@@ -390,11 +387,11 @@ public class SPARQLDataMapper {
 		@Option(name = "-g", usage = "SPARQL endpoint registry graph")
 		public String registryGraphURI = config.getString(REGISTRY_GRAPH_CONFIG_KEY);
 		
-		@Option(name = "-f", usage = "output RDF format (allowed values: \"RDFXML\" or \"N3\")")
-		public String outputFormat = "RDFXML";
+		@Option(name = "-f", usage = "output RDF format (allowed values: \"RDF/XML\" or \"N3\")")
+		public String outputFormat = "RDF/XML";
 
 		@Option(name = "-d", usage = "maximum depth of traversal")
-		public int maxTraversalDepth = 1;
+		public int maxTraversalDepth = 0;
 
 		@Option(name = "-t", usage = "maximum number of times to visit each rdf:type")
 		public int maxVisitsPerType = 3; 
@@ -419,7 +416,7 @@ public class SPARQLDataMapper {
 			// instantiate the SPARQL endpoints that we are building a map for
 			Collection<SPARQLEndpoint> endpoints;
 			
-			if(options.endpointURIs.size() == 0) {
+			if(options.endpointURIs == null) {
 				// if no endpoints were specified, built a map for all endpoints in the registry
 				endpoints = registry.getAllEndpoints();
 			} else {
