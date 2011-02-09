@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -309,6 +310,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         if (manager.getBooleanPreference(SADIProperties.GENERATOR_SERVICE_ASYNC, false)) {
             async.setSelected(true);
         } else {
+            manager.saveBooleanPreference(SADIProperties.GENERATOR_SERVICE_ASYNC, false);
             sync.setSelected(true);
         }
         
@@ -485,7 +487,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
     }
     
     /*
-     * returns the fields as an object
+     * returns the fields as a ServiceDefinition object
      */
     private ServiceDefinition getServiceDefinition() {
         String name = ((JTextComponent) fields.get("ServiceName")).getText();
@@ -820,6 +822,21 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
+        
+        
+        try {
+            // should throw exception because we only have a domain name ...
+            new URL(def.getAuthority());
+            JOptionPane.showMessageDialog(
+                    SadiGeneratorView.this, 
+                    bundle.getString("definition_validation_authority"),
+                    bundle.getString("definition_validation_title"), 
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        } catch (Exception e) {
+            
+        }
+        
         if (def.getDescription() == null || def.getDescription().equals("")) {
             JOptionPane.showMessageDialog(
                     SadiGeneratorView.this, 
@@ -829,12 +846,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             return false;
         }
         if (def.getServiceType() == null || def.getServiceType().equals("")) {
-            JOptionPane.showMessageDialog(
-                    SadiGeneratorView.this, 
-                    bundle.getString("definition_validation_service_type"),
-                    bundle.getString("definition_validation_title"), 
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
+            def.setServiceType("http://someontology.org/services/sometype");
         }
         
         if (def.getInputClass() == null || def.getInputClass().equals("")) {
