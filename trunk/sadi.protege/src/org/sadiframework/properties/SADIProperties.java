@@ -20,6 +20,7 @@ public class SADIProperties {
     public static final String DO_PERL_DATATYPE_GENERATION = "perl-datatype-generator-processing"; // boolean
     public static final String PERL_SADI_HOME_DIRECTORY = "perl-sadi-home-directory"; // string
     public static final String PERL_SADI_DEFINITION_DIRECTORY = "perl-sadi-definition-directory"; // string
+    public static final String PERL_SADI_USE_FORCE = "perl-sadi-use-force"; // boolean
 
     // JAVA preference keys
     /**
