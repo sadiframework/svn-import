@@ -67,13 +67,13 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
-      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:11023613">
-        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/11023613"/>
-        <rdfs:label>Anderson C.W. &amp; Allalunis-Turner M.J., Human TP53 from the malignant glioma-derived cell lines M059J and M059K has a cancer-associated mutation in exon 8.</rdfs:label>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:16131611">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/16131611"/>
+        <rdfs:label>Bourdon J.C. et al, p53 isoforms can regulate p53 transcriptional activity.</rdfs:label>
         <j.1:SIO_000008>
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >11023613</j.1:SIO_000300>
+            >16131611</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
@@ -86,6 +86,18 @@
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >1737852</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:11023613">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/11023613"/>
+        <rdfs:label>Anderson C.W. &amp; Allalunis-Turner M.J., Human TP53 from the malignant glioma-derived cell lines M059J and M059K has a cancer-associated mutation in exon 8.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >11023613</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
@@ -494,6 +506,18 @@
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >11007800</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:16625196">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/16625196"/>
+        <rdfs:label>Zody M.C. et al, DNA sequence of human chromosome 17 and analysis of rearrangement in the human lineage.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >16625196</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
