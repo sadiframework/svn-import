@@ -19,6 +19,7 @@ import java.util.ResourceBundle;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -62,7 +63,7 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
     private PropertyChangeListener pListener;
     private LoggingWindowFrame console;
     
-    
+    private JCheckBox checkbox = null;
     @Override
     public void initialiseClassView() throws Exception {
         if (pListener == null) {
@@ -307,12 +308,29 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
         UIUtils.addComponent(datatypePanel, owlLabel, 1, 1, 2, 1, UIUtils.WEST, UIUtils.BOTH, 1.0,
                 0.0);
         UIUtils.addComponent(datatypePanel, rbPanel, 0, 2, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
+        UIUtils.addComponent(datatypePanel, getPerlSadiUseForceCheckbox(), 0, 3, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
         UIUtils.addComponent(datatypePanel, UIUtils.createButtonPanel(new JButton[] {
-                generateOWLBtn, }), 0, 3, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0,
+                generateOWLBtn, }), 0, 4, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0,
                 0.0);
         // add glue to make our panel look proper
         //UIUtils.addComponent(datatypePanel, Box.createGlue(), 0, 3, 2, 1, UIUtils.NWEST, UIUtils.REMAINDER, 0.0, 1.0);
         return datatypePanel;
+    }
+    
+    private JPanel getPerlSadiUseForceCheckbox() {
+        checkbox = new JCheckBox(bundle.getString("sadi_generator_perl_use_force_title"));
+        // set the default state
+        checkbox.setSelected(manager.getBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, false));
+        checkbox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() instanceof JCheckBox) {
+                    manager.saveBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, ((JCheckBox)e.getSource()).isSelected());
+                }
+            }
+        });
+        JPanel rbPanel = new JPanel(new FlowLayout(FlowLayout.LEADING), true);
+        rbPanel.add(checkbox);
+        return rbPanel;
     }
     
     // inner class for listening to changes in our properties
@@ -322,6 +340,10 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
             String key = evt.getPropertyName();
             if (key.equals(SADIProperties.DATATYPE_GEN_USE_PERL)) {
                 // dont do anything
+            } else if (key.equals(SADIProperties.PERL_SADI_USE_FORCE)) {
+                if (checkbox != null) {
+                    checkbox.setSelected(manager.getBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, false));
+                }
             } else if (key.equals(SADIProperties.GEN_SELECTED_OWL_CLASS)) {
                 // here we listen for changes to the selected owl individual
                 if (!manager.getBooleanPreference(SADIProperties.GENERATOR_OWL_BY_FILE, true)) {

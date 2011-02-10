@@ -87,6 +87,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
     // perl specific vars
     private ServiceGeneratorPerlWorker perlServiceWorker;
     private JButton perlDefinitionBtn;
+    private JCheckBox checkbox = null;
     
     @Override
     public void initialiseClassView() throws Exception {
@@ -338,7 +339,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
     }
     
     private JPanel getPerlSadiUseForceCheckbox() {
-        JCheckBox checkbox = new JCheckBox(bundle.getString("sadi_generator_perl_use_force_title"));
+        checkbox = new JCheckBox(bundle.getString("sadi_generator_perl_use_force_title"));
         // set the default state
         checkbox.setSelected(manager.getBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, false));
         checkbox.addActionListener(new ActionListener() {
@@ -628,6 +629,10 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     }
                     perlServiceWorker = null;
                     generateBtn.setEnabled(true);
+                }
+            } else if (key.equals(SADIProperties.PERL_SADI_USE_FORCE)) {
+                if (checkbox != null) {
+                    checkbox.setSelected(manager.getBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, false));
                 }
             } else if (key.equals(SADIProperties.DO_JAVA_SERVICE_GENERATION)) {
                 if ((Boolean)evt.getNewValue()) {
