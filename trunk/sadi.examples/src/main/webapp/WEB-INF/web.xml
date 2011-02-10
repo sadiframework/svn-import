@@ -67,6 +67,11 @@
   </servlet>
 
   <servlet>
+    <servlet-name>uniprot2EntrezGene</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.UniProt2EntrezGeneServiceServlet</servlet-class>
+  </servlet>
+
+  <servlet>
     <servlet-name>blastUniprot</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.BlastUniProtServiceServlet</servlet-class>
   </servlet>
@@ -109,6 +114,11 @@
   <servlet>
     <servlet-name>pdb2uniprot</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.Pdb2UniProtServiceServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>entrezGene2Uniprot</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.EntrezGene2UniProtServiceServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -172,6 +182,11 @@
   </servlet-mapping>
 
   <servlet-mapping>
+    <servlet-name>uniprot2EntrezGene</servlet-name>
+    <url-pattern>/uniprot2EntrezGene</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
     <servlet-name>blastUniprot</servlet-name>
     <url-pattern>/blastUniprot</url-pattern>
   </servlet-mapping>
@@ -214,6 +229,11 @@
   <servlet-mapping>
     <servlet-name>pdb2uniprot</servlet-name>
     <url-pattern>/pdb2uniprot</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>entrezGene2Uniprot</servlet-name>
+    <url-pattern>/entrezGene2Uniprot</url-pattern>
   </servlet-mapping>
 
 </web-app>

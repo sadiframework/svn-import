@@ -48,11 +48,18 @@ public class LSRN
 	
 	static public class PDB 
 	{
-		private static Model m_model = ModelFactory.createDefaultModel();
-		
 		public static final String OLD_PDB_PREFIX = String.format("%sPDB/", OLD_ENTITY_PREFIX);
 		public static final String PDB_PREFIX = String.format("%sPDB:", ENTITY_PREFIX);
 		public static final Resource PDB_TYPE = m_model.createResource(ONTOLOGY_PREFIX + "PDB_Record");
 		public static final Resource PDB_IDENTIFIER = m_model.createResource(ONTOLOGY_PREFIX + "PDB_Identifier");
 	}
+	
+	static public class EntrezGene
+	{
+		public static final String OLD_ENTREZ_GENE_PREFIX = String.format("%sGeneId/", OLD_ENTITY_PREFIX);
+		public static final String ENTREZ_GENE_PREFIX = String.format("%sGeneID:", ENTITY_PREFIX);
+		public static final Resource ENTREZ_GENE_TYPE = m_model.createResource(ONTOLOGY_PREFIX + "GeneID_Record");
+		public static final Resource ENTREZ_GENE_IDENTIFIER = m_model.createResource(ONTOLOGY_PREFIX + "GeneID_Identifier");
+	}
+	
 }
