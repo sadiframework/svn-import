@@ -6,18 +6,6 @@
     xmlns:j.2="http://purl.oclc.org/SADI/LSRN/"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
   <j.1:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P12345">
-    <j.0:SIO_000061>
-      <j.2:GO_Record rdf:about="http://lsrn.org/GO:0005759">
-        <owl:sameAs rdf:resource="http://biordf.net/moby/GO/0005759"/>
-        <rdfs:label>mitochondrial matrix</rdfs:label>
-        <j.0:SIO_000008>
-          <j.2:GO_Identifier>
-            <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >GO:0005759</j.0:SIO_000300>
-          </j.2:GO_Identifier>
-        </j.0:SIO_000008>
-      </j.2:GO_Record>
-    </j.0:SIO_000061>
     <j.0:SIO_000062>
       <j.2:GO_Record rdf:about="http://lsrn.org/GO:0006457">
         <owl:sameAs rdf:resource="http://biordf.net/moby/GO/0006457"/>
@@ -45,7 +33,7 @@
     <j.0:SIO_000225>
       <j.2:GO_Record rdf:about="http://lsrn.org/GO:0004069">
         <owl:sameAs rdf:resource="http://biordf.net/moby/GO/0004069"/>
-        <rdfs:label>L-aspartate:2-oxoglutarate aminotransferase...</rdfs:label>
+        <rdfs:label>L-aspartate:2-oxoglutarate aminotransferase activity</rdfs:label>
         <j.0:SIO_000008>
           <j.2:GO_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -66,12 +54,36 @@
         </j.0:SIO_000008>
       </j.2:GO_Record>
     </j.0:SIO_000061>
+    <j.0:SIO_000061>
+      <j.2:GO_Record rdf:about="http://lsrn.org/GO:0005759">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/GO/0005759"/>
+        <rdfs:label>mitochondrial matrix</rdfs:label>
+        <j.0:SIO_000008>
+          <j.2:GO_Identifier>
+            <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >GO:0005759</j.0:SIO_000300>
+          </j.2:GO_Identifier>
+        </j.0:SIO_000008>
+      </j.2:GO_Record>
+    </j.0:SIO_000061>
   </j.1:AnnotatedUniProtRecord>
   <j.1:AnnotatedUniProtRecord rdf:about="http://lsrn.org/UniProt:Q99497">
+    <j.0:SIO_000061>
+      <j.2:GO_Record rdf:about="http://lsrn.org/GO:0005634">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/GO/0005634"/>
+        <rdfs:label>nucleus</rdfs:label>
+        <j.0:SIO_000008>
+          <j.2:GO_Identifier>
+            <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >GO:0005634</j.0:SIO_000300>
+          </j.2:GO_Identifier>
+        </j.0:SIO_000008>
+      </j.2:GO_Record>
+    </j.0:SIO_000061>
     <j.0:SIO_000062>
       <j.2:GO_Record rdf:about="http://lsrn.org/GO:0060765">
         <owl:sameAs rdf:resource="http://biordf.net/moby/GO/0060765"/>
-        <rdfs:label>regulation of androgen receptor signaling p...</rdfs:label>
+        <rdfs:label>regulation of androgen receptor signaling pathway</rdfs:label>
         <j.0:SIO_000008>
           <j.2:GO_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -116,17 +128,5 @@
         </j.0:SIO_000008>
       </j.2:GO_Record>
     </j.0:SIO_000225>
-    <j.0:SIO_000061>
-      <j.2:GO_Record rdf:about="http://lsrn.org/GO:0005634">
-        <owl:sameAs rdf:resource="http://biordf.net/moby/GO/0005634"/>
-        <rdfs:label>nucleus</rdfs:label>
-        <j.0:SIO_000008>
-          <j.2:GO_Identifier>
-            <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >GO:0005634</j.0:SIO_000300>
-          </j.2:GO_Identifier>
-        </j.0:SIO_000008>
-      </j.2:GO_Record>
-    </j.0:SIO_000061>
   </j.1:AnnotatedUniProtRecord>
 </rdf:RDF>
