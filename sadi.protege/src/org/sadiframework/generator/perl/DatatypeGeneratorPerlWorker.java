@@ -50,11 +50,11 @@ public class DatatypeGeneratorPerlWorker extends SwingWorker<String, Object> {
         String perl = manager.getPreference(SADIPreferencePanel.PERL_PATH, "");
         String libs = manager.getPreference(SADIPreferencePanel.PERL_5LIB_DIR, "");
         String scriptDir = manager.getPreference(SADIPreferencePanel.PERL_SADI_SCRIPTS_DIR, "");
-        
+        boolean useForce = manager.getBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, false);
         Generator gen = new Generator(perl, libs, scriptDir);
         String str = "";
         try {
-            str = gen.generateDatatypes(filename);
+            str = gen.generateDatatypes(filename, useForce);
         } catch (IOException ioe) {
             manager.saveBooleanPreference(SADIProperties.DO_PERL_DATATYPE_GENERATION, false);
         } catch (InterruptedException ie) {

@@ -50,11 +50,13 @@ public class ServiceGeneratorPerlWorker extends SwingWorker<String, Object> {
         boolean isAsync = manager
                 .getBooleanPreference(SADIProperties.GENERATOR_SERVICE_ASYNC, true);
         boolean doBoth = manager.getBooleanPreference(SADIProperties.GENERATOR_DO_BOTH_GENERATION, true);
+        boolean useForce = manager.getBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, false);
+        
         String name = manager.getPreference(SADIProperties.GENERATOR_SERVICE_NAME, "");
         Generator gen = new Generator(perl, libs, scriptDir);
         String str = "";
         try {
-            str = gen.generateService(name, isAsync, doBoth);
+            str = gen.generateService(name, isAsync, doBoth, useForce);
         } catch (IOException ioe) {
             manager.saveBooleanPreference(SADIProperties.DO_PERL_SERVICE_GENERATION, false);
         } catch (InterruptedException ie) {
