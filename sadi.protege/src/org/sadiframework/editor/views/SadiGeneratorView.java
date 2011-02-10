@@ -337,6 +337,23 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         return rbPanel;
     }
     
+    private JPanel getPerlSadiUseForceCheckbox() {
+        JCheckBox checkbox = new JCheckBox(bundle.getString("sadi_generator_perl_use_force_title"));
+        // set the default state
+        checkbox.setSelected(manager.getBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, false));
+        checkbox.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (e.getSource() instanceof JCheckBox) {
+                    manager.saveBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, ((JCheckBox)e.getSource()).isSelected());
+                }
+            }
+        });
+        JPanel rbPanel = new JPanel(new FlowLayout(FlowLayout.LEADING), true);
+        rbPanel.add(checkbox);
+        
+        return rbPanel;
+    }
+    
     
     
     private JPanel getJavaSpecificPanel() {
@@ -481,8 +498,9 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         UIUtils.addComponent(panel, perlDefinitionBtn, 3, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 1, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 2, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, getPerlSadiUseForceCheckbox(), 0, 3, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         // create the generate/cancel button panel
-        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[]{generatePerlBtn}), 0, 3, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
+        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[]{generatePerlBtn}), 0, 4, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
         return panel;
     }
     
