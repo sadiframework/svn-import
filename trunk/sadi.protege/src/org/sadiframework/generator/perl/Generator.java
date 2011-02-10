@@ -84,7 +84,7 @@ public class Generator {
         }
     }
 
-    public String generateService(String servicename, boolean isAsync, boolean doBoth) throws IOException, InterruptedException {
+    public String generateService(String servicename, boolean isAsync, boolean doBoth, boolean useForce) throws IOException, InterruptedException {
         validate();
         ArrayList<String> command = new ArrayList<String>();
         Process p;
@@ -117,6 +117,10 @@ public class Generator {
                     command.add(GEN_SERVICE_SCRIPT_NAME);
                 }
             }
+        }
+        // use force flag?
+        if (useForce) {
+            command.add("-F");
         }
         // isAsync
         if (isAsync)
@@ -144,7 +148,7 @@ public class Generator {
         return String.format("%s", stdout.getStreamAsString());
     }
 
-    public String generateDatatypes(String ontURL) throws IOException, InterruptedException {
+    public String generateDatatypes(String ontURL, boolean useForce) throws IOException, InterruptedException {
         validate();
         ArrayList<String> command = new ArrayList<String>();
         Process p;
@@ -178,6 +182,11 @@ public class Generator {
                 }
             }
         }
+        // useForce flag?
+        if (useForce) {
+            command.add("-F");
+        }
+            
         // add switch to follow imports
         command.add("-i");
         // add switch to use url
