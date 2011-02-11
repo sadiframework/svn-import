@@ -15,7 +15,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -47,7 +50,11 @@ import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
 import org.semanticweb.owlapi.model.AddAxiom;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAxiom;
+//import org.semanticweb.owlapi.model.OWLClassExpression;
+import org.semanticweb.owlapi.model.OWLDataFactory;
+import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLNamedIndividual;
+import org.semanticweb.owlapi.model.OWLObjectPropertyAssertionAxiom;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -124,13 +131,13 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
         if (individual != null) {
             manager.savePreference(TESTING_OWL_INDIVIDUAL, individual.getIRI().toString());
             manager.savePreference(TESTING_OWL_INDIVIDUAL_URI, individual.getIRI().toString());
-            render(individual);
+            //render(individual);
         }
         return null;
     }
 
     // render the class and recursively all of its subclasses
-    private void render(OWLNamedIndividual individual) {
+    private void render(OWLNamedIndividual individual, String inputClass, boolean log) {
         if (individual == null || !manager.getBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, true))
             return;
         try {
@@ -143,16 +150,35 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
             OWLOntology ontology = manager.createOntology(ontologyIRI);
 
             for (OWLOntology ont : getOWLModelManager().getActiveOntologies()) {
-                if (ont != null)
+                if (ont != null) {
                     for (OWLAxiom axiom : individual.getReferencingAxioms(ont)) {
                         if (axiom != null) {
                             AddAxiom addAxiom = new AddAxiom(ontology, axiom);
                             manager.applyChange(addAxiom);
                         }
-
-                    }
+                    } 
+                }
             }
-
+            // add type information to the individual ...
+            OWLDataFactory factory = manager.getOWLDataFactory();
+            //Set<OWLClassExpression> types = individual.getTypes(ontology);
+            if (inputClass != null) {
+                //if (types.isEmpty()) {
+                if (log) {
+                    resultPane.setText(String.format("%s\n%s", resultPane.getText(), "adding rdf:type statement to individual"));
+                }
+                manager.applyChange(
+                        new AddAxiom(
+                                ontology,
+                                factory.getOWLClassAssertionAxiom(factory.getOWLClass(IRI.create(inputClass)), individual)
+                        )
+                );
+            }
+//                } else {
+//                    if (log)
+//                        resultPane.setText(String.format("%s\n%s", resultPane.getText(), "rdf:type for individual exists; not adding " + inputClass));
+//                }
+           
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             manager.saveOntology(ontology, new RDFXMLOntologyFormat(), stream);
             serviceInputXML = (stream.toString());
@@ -227,6 +253,13 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
         saveButton = new AbstractButton(bundle.getString("testing_input_data_panel_save"), manager
                 .getBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, true), new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                // render the current individual
+                String endpoint = manager.getPreference(TESTING_SERVICE_ENDPOINT, "");
+                if (!endpoint.equals("")) {
+                    render(getSelectedOWLIndividual(), getInputClassFromSignature(endpoint), false);
+                } else {
+                    render(getSelectedOWLIndividual(), null, false);
+                }
                 if (serviceInputXML != null && !serviceInputXML.trim().equals("")) {
                     String title = bundle.getString("testing_input_data_panel_save");
                     String directory = manager.getPreference(TESTING_CURRENT_SAVE_DIR, System
@@ -308,16 +341,17 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
                             } catch (IOException ioe) {
                                 ErrorLogPanel.showErrorDialog(ioe);
                             }
-                        } else {
-                            if (serviceInputXML == null || serviceInputXML.trim().equals("")) {
-                                // tell the user to select an individual
-                                String msg = bundle.getString("testing_service_invocation_panel_no_ind_msg");
-                                String title = bundle.getString("error");
-                                JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
-                                        JOptionPane.ERROR_MESSAGE);
-                                return;
-                            }
-                        }
+                        } 
+//                        else {
+//                            if (serviceInputXML == null || serviceInputXML.trim().equals("")) {
+//                                // tell the user to select an individual
+//                                String msg = bundle.getString("testing_service_invocation_panel_no_ind_msg");
+//                                String title = bundle.getString("error");
+//                                JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+//                                        JOptionPane.ERROR_MESSAGE);
+//                                return;
+//                            }
+//                        }
                         createWorker();
                         worker.execute();
                     }
@@ -497,7 +531,7 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
             @Override
             protected void done() {
                 try {
-                    resultPane.setText(get().toString());
+                    resultPane.setText(get().toString().trim());
                     resultPane.setCaretPosition(0);
                 } catch (Exception ignore) {
                 }
@@ -512,6 +546,15 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
                 String text = "";
                 try {
                     String endpoint = manager.getPreference(TESTING_SERVICE_ENDPOINT, "");
+                    if (manager.getBooleanPreference(IS_INPUT_FROM_INDIVIDUAL, defaultUseOwlIndivual)) {
+                        resultPane.setText(String.format("%s\n%s", resultPane.getText(), "Resolving input class from service signature"));
+                        String inputClass = getInputClassFromSignature(endpoint);
+                        if (inputClass != null) {
+                            resultPane.setText(String.format("%s\n%s", resultPane.getText(), "found potential rdf:type for individual of " + inputClass));
+                        }
+                        render(getSelectedOWLIndividual(), inputClass, true);
+                    }
+                    
                     String xml = serviceInputXML;
                     text = Execute.executeCgiService(endpoint, xml);
                     if (worker.isCancelled()) {
@@ -524,6 +567,36 @@ public class SadiSimpleClientView extends AbstractOWLIndividualViewComponent {
                 return text;
             }
         };
+    }
+    
+    private String getInputClassFromSignature(String endpoint) {
+        OWLOntologyManager ontManager = OWLManager.createOWLOntologyManager();
+        OWLOntology ontology = null;
+        try {
+            ontology = ontManager.loadOntologyFromOntologyDocument(new URL(endpoint).openStream());
+        } catch (OWLOntologyCreationException e) {
+            
+        } catch (MalformedURLException e) {
+            
+        } catch (IOException e) {
+            
+        }
+        if (ontology != null)
+            for (OWLIndividual individual : ontology.getIndividualsInSignature()) {
+                Set<OWLObjectPropertyAssertionAxiom> inputParameters = ontology.getObjectPropertyAssertionAxioms(individual);
+                for (OWLObjectPropertyAssertionAxiom in : inputParameters) {
+                    if (in.getProperty().toString().equals("<http://www.mygrid.org.uk/mygrid-moby-service#inputParameter>")) {
+                        if (in.getObject() != null) {
+                            OWLIndividual i = in.getObject();
+                            for (OWLObjectPropertyAssertionAxiom prop : ontology.getObjectPropertyAssertionAxioms(i)) {
+                                return prop.getObject().toStringID();
+                            }
+                        }
+                    }
+                }
+            }
+        resultPane.setText(String.format("%s\n%s", resultPane.getText(), "failed to retrieve a type for the individual ..."));
+        return null;
     }
 
     private void redraw() {
