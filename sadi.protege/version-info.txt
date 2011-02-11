@@ -15,6 +15,11 @@ the provision of SADI services.</p>
 
 <h3>Version info</h3>
 
+<h4>v1.1.7 (11th February 2011)</h4>
+<ul>
+    <li>SADI Simple Client now augments any Individuals that you choose to send the service with the appropriate rdf:type as defined by the service signature.</li>
+</ul
+
 <h4>v1.1.6 (10th February 2011)</h4>
 <ul>
     <li>Flag added to Perl generator to use &apos;force&apos;. This option allows you to overwrite existing files. Use it with caution.</li>
