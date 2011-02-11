@@ -23,6 +23,19 @@ import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
+/**
+ * Maps Entrez Gene IDs to UniProt IDs.
+ * 
+ * I am using the UniProt API for this because the NCBI web services 
+ * are limited to one query per 30 seconds.  Unfortunately batch
+ * processing of inputs is not possible for this service.  
+ * 
+ * Note: I tried to accomplish batching by using 
+ * "Set operations on entry iterators" as described at
+ * {@link http://www.ebi.ac.uk/uniprot/remotingAPI/doc.html#set}. 
+ * Unfortunately, this did not work. (The effect is the same as
+ * issuing the queries separately.)
+ */
 @SuppressWarnings("serial")
 public class EntrezGene2UniProtServiceServlet extends SimpleAsynchronousServiceServlet 
 {
