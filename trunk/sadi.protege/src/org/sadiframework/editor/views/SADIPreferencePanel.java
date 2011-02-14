@@ -102,6 +102,7 @@ public class SADIPreferencePanel extends org.protege.editor.core.ui.preferences.
                             0.0);
             UIUtils.addComponent(preferencesPanel, hBtn, 4, i, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         }
+        // SADI homepage link
         LinkLabel l = new LinkLabel("SADI Homepage", new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 NativeBrowserLauncher.openURL("http://sadiframework.org");
@@ -109,6 +110,14 @@ public class SADIPreferencePanel extends org.protege.editor.core.ui.preferences.
         });
         l.setHorizontalAlignment(JLabel.LEADING);
 
+        // plugin documentation link
+        LinkLabel docLink = new LinkLabel("SADI Plugin Documentation", new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                NativeBrowserLauncher.openURL("http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/sadi_plugin.html");
+            }
+        });
+        docLink.setHorizontalAlignment(JLabel.LEADING);
+        
         // create the java panel
         JPanel javaPanel = new JPanel(new GridBagLayout());
         javaPanel.setBorder(BorderFactory.createTitledBorder("jSADI"));
@@ -138,6 +147,7 @@ public class SADIPreferencePanel extends org.protege.editor.core.ui.preferences.
         UIUtils.addComponent(panel, preferencesPanel, 0, 0, 1, 1, UIUtils.NWEST, UIUtils.HORI, 0.0, 0.0);
         //UIUtils.addComponent(panel, javaPanel, 0, 1, 1, 1, UIUtils.NWEST, UIUtils.HORI, 0.0, 0.0);
         UIUtils.addComponent(panel, l, 0, 2, 1, 1, UIUtils.SWEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, docLink, 0, 3, 1, 1, UIUtils.SWEST, UIUtils.NONE, 0.0, 0.0);
 
         return panel;
     }
