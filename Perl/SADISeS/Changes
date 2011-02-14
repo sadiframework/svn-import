@@ -1,5 +1,11 @@
 Revision history for Perl extension SADI.
 
+1.07
+    * SADI::Service::Instance now checks that the Authority is a syntactically correct 
+      domain URI
+    * SADI::Base service2module() does a sanity check on the authority that is passed 
+      to it.
+
 1.06
 	* removed dependency on LS
 	* added a couple statements to SADI that mention that on windows, you need to omit
