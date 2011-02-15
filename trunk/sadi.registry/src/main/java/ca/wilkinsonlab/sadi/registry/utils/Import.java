@@ -7,12 +7,10 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.registry.Registry;
 import ca.wilkinsonlab.sadi.utils.QueryExecutor;
 import ca.wilkinsonlab.sadi.utils.QueryExecutorFactory;
-
-import com.hp.hpl.jena.util.LocationMapper;
 
 /**
  * Register all of the services listed in the old registry.
@@ -24,19 +22,16 @@ public class Import
 	
 	public static void main(String[] args) throws Exception
 	{
-		String uriPrefix = "http://sadiframework.org/examples/";
-		String altPrefix = "http://localhost:8080/sadi-examples/";
-		log.info( String.format("mapping URI prefix %s to %s", uriPrefix, altPrefix) );
-		LocationMapper.get().addAltPrefix(uriPrefix, altPrefix);
-		
 		OldRegistry oldRegistry = new OldRegistry();
-		Registry newRegistry = Registry.getRegistry();
 		for (String serviceURI: oldRegistry.getServiceURIs()) {
+			Registry newRegistry = Registry.getRegistry();
 			log.info( String.format("found service %s", serviceURI) );
 			try {
 				newRegistry.registerService(serviceURI);
 			} catch (SADIException e) {
 				log.error(String.format("error registering service %s", serviceURI), e);
+			} finally {
+				newRegistry.getModel().close(); // so the file writes...
 			}
 		}
 	}
@@ -47,7 +42,7 @@ public class Import
 		
 		public OldRegistry() throws IOException
 		{
-			backend = QueryExecutorFactory.createVirtuosoSPARQLEndpointQueryExecutor("http://biordf.net/sparql", "http://sadiframework.org/registry");
+			backend = QueryExecutorFactory.createVirtuosoSPARQLEndpointQueryExecutor("http://biordf.net/sparql", "http://sadiframework.org/registry/");
 		}
 		
 		public Collection<String> getServiceURIs() throws SADIException

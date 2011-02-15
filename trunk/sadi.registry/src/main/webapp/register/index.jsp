@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sadi" uri="/WEB-INF/sadi.tld" %>
 <%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="ca.wilkinsonlab.sadi.beans.ServiceBean" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.utils.Twitter" %>
 <%
@@ -22,11 +23,11 @@
 				}
 			}
 		} catch (Exception e) {
-			log.error(String.format("registration failed for %s: %s", serviceURI, e));
+			log.error(String.format("registration failed for %s: %s", serviceURI, e.getMessage()), e);
 			ServiceBean service = new ServiceBean();
-			service.setServiceURI(serviceURI);
+			service.setURI(serviceURI);
 			request.setAttribute("service", service);
-			request.setAttribute("error", e.getMessage());
+			request.setAttribute("error", e.getMessage() != null ? e.getMessage() : e.toString());
 		} finally {
 			if (registry != null)
 				registry.getModel().close();
@@ -54,7 +55,7 @@
             <!-- <li class="page_item"><a href="../validate">Validate</a></li> -->
             <li class="page_item current_page_item"><a href="../register">Register</a></li>
             <li class="page_item"><a href="../services">Services</a></li>
-            <!-- <li class="page_item"><a href="../sparql">SPARQL</a></li> -->
+            <li class="page_item"><a href="../sparql">SPARQL</a></li>
           </ul>
         </div>
         <div id='content'>
@@ -65,14 +66,14 @@
 	     <c:when test='${error != null}'>
 	      <div id='registration-error'>
 	        <h3>Error</h3>
-	        <p>There was an error registering the service at <a href='${service.serviceURI}'>${service.serviceURI}</a>:</p>
+	        <p>There was an error registering the service at <a href='${service.URI}'>${service.URI}</a>:</p>
 	        <blockquote>${error}</blockquote>
 	      </div>
 	     </c:when>
 	     <c:otherwise>
 	       <div id='registration-success'>
 	         <h3>Success</h3>
-	         <p>Successfully registered the service at <a href='${service.serviceURI}'>${service.serviceURI}</a>.</p>
+	         <p>Successfully registered the service at <a href='${service.URI}'>${service.URI}</a>.</p>
 	         <jsp:include page="../service.jsp"/>
 	       </div>
 	     </c:otherwise>
@@ -82,7 +83,7 @@
 	       <div id='registration-form'>
 	         <form method='POST' action='.'>
 	           <label id='url-label' for='url-input'>Enter the URL of the service you want to register...</label>
-	           <input id='url-input' type='text' name='serviceURI' value='<c:if test='${error != null}'>${service.serviceURI}</c:if>'>
+	           <input id='url-input' type='text' name='serviceURI' value='<c:if test='${error != null}'>${service.URI}</c:if>'>
 	           <input id='register-submit' type='submit' value='...and click here to register it'>
 	         </form>
 	       </div> <!-- registration-form -->
@@ -97,6 +98,17 @@
             <span class="nobreak">the Heart and Stroke Foundation of B.C. and Yukon</span>,
             <span class="nobreak">the Canadian Institutes of Health Research</span>, and 
             <span class="nobreak">Microsoft Research</span>.
+          </p>
+          <p>Major funding for the 
+            <span class="nobreak"><a href="http://gcbioinformatics.ca">Bioinformatics Innovation Center</a></span>
+            is provided by the
+            <span class="nobreak">Government of Canada</span> through
+            <span class="nobreak">Genome Canada</span> and
+            <span class="nobreak">Genome Alberta</span>.
+          </p>
+          <p style="margin-top: 20px;">
+            <img class="sponsor" src="../images/GenomeCanada.png" alt="Genome Canada logo" height="116" width="191"/>
+            <img class="sponsor" src="../images/GenomeAlberta.png" alt="Genome Alberta logo" height="116" width="185"/>
           </p>
         </div> <!-- footer -->
       </div> <!-- inner-frame -->

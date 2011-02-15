@@ -9,6 +9,8 @@
     <title>SADI registry &mdash; SPARQL query</title>
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="../style/sadi.css">
+    <script type='text/javascript' src='http://www.google.com/jsapi'></script>
+    <script type='text/javascript' src='sparql.js'></script>
   </head>
   <body>
     <div id='outer-frame'>
@@ -56,18 +58,22 @@
              <p>No results.</p>
          </c:when>
          <c:otherwise>
-            <table>
+            <table id='sparql-results-table'>
+             <thead>
               <tr>
           <c:forEach var='variable' items='${variables}'>
                 <th>${variable}</th>
           </c:forEach>
               </tr>
-          <c:forEach var='binding' items='${bindings}'>
-              <tr>
+             </thead>
+             <tbody>
+          <c:forEach var='binding' items='${bindings}' varStatus='status'>
+              <tr class='${status.index % 2 == 0 ? "even" : "odd"}'>
            <c:forEach var='variable' items='${variables}'>
                 <td>${binding[variable]}</td>
            </c:forEach> 
               </tr>
+             </tbody>
           </c:forEach>
             </table>
          </c:otherwise>
@@ -85,6 +91,17 @@
             <span class="nobreak">the Heart and Stroke Foundation of B.C. and Yukon</span>,
             <span class="nobreak">the Canadian Institutes of Health Research</span>, and 
             <span class="nobreak">Microsoft Research</span>.
+          </p>
+          <p>Major funding for the 
+            <span class="nobreak"><a href="http://gcbioinformatics.ca">Bioinformatics Innovation Center</a></span>
+            is provided by the
+            <span class="nobreak">Government of Canada</span> through
+            <span class="nobreak">Genome Canada</span> and
+            <span class="nobreak">Genome Alberta</span>.
+          </p>
+          <p style="margin-top: 20px;">
+            <img class="sponsor" src="../images/GenomeCanada.png" alt="Genome Canada logo" height="116" width="191"/>
+            <img class="sponsor" src="../images/GenomeAlberta.png" alt="Genome Alberta logo" height="116" width="185"/>
           </p>
         </div> <!-- footer -->
       </div> <!-- inner-frame -->

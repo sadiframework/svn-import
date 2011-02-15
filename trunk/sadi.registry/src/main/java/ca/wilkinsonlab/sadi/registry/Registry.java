@@ -14,11 +14,12 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import virtuoso.jena.driver.VirtModel;
+import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.beans.RestrictionBean;
+import ca.wilkinsonlab.sadi.beans.ServiceBean;
 import ca.wilkinsonlab.sadi.client.ServiceImpl;
-import ca.wilkinsonlab.sadi.common.SADIException;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyException;
-import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.vocab.SADI;
 
@@ -263,13 +264,8 @@ public class Registry
 	public ServiceBean getServiceBean(Resource serviceNode)
 	{
 		ServiceBean service = new ServiceBean();
-		service.setServiceURI(serviceNode.getURI());
 		try{
-			ServiceOntologyHelper helper = new MyGridServiceOntologyHelper(serviceNode);
-			service.setInputClassURI(helper.getInputClass().getURI());
-			service.setOutputClassURI(helper.getOutputClass().getURI());
-			service.setName(helper.getName());
-			service.setDescription(helper.getDescription());
+			new MyGridServiceOntologyHelper().copyServiceDescription(serviceNode, service);
 		} catch (ServiceOntologyException e) {
 			log.error(String.format("error in registered definition for %s", serviceNode), e);
 		}
@@ -277,19 +273,44 @@ public class Registry
 			Statement statement = i.nextStatement();
 			try {
 				Resource restrictionNode = statement.getResource();
-				RestrictionBean restriction = new RestrictionBean();
-				restriction.setOnProperty(restrictionNode.getRequiredProperty(OWL.onProperty).getObject().toString());
-				if (restrictionNode.hasProperty(OWL.someValuesFrom)) {
-					StringBuffer buf = new StringBuffer();
-					for (Iterator<Statement> j = restrictionNode.listProperties(OWL.someValuesFrom); j.hasNext(); ) {
-						Statement t = j.next();
-						if (buf.length() > 0)
-							buf.append(", ");
-						buf.append(t.getObject());
-					}
-					restriction.setValuesFrom(buf.toString());
+				Resource onProperty = restrictionNode.getRequiredProperty(OWL.onProperty).getResource();
+				String onPropertyURI = onProperty.getURI();
+				String onPropertyLabel = null;
+				StringBuffer buf = new StringBuffer();
+				for (Iterator<Statement> j = onProperty.listProperties(RDFS.label); j.hasNext(); ) {
+					buf.append(j.next().getLiteral().getLexicalForm());
+					if (j.hasNext())
+						buf.append(" / ");
 				}
-				service.getRestrictions().add(restriction);
+				if (buf.length() > 0)
+					onPropertyLabel = buf.toString();
+				if (restrictionNode.hasProperty(OWL.someValuesFrom)) {
+					for (Iterator<Statement> j = restrictionNode.listProperties(OWL.someValuesFrom); j.hasNext(); ) {
+						Resource valuesFromNode = j.next().getResource();
+						RestrictionBean restriction = new RestrictionBean();
+						restriction.setOnPropertyURI(onPropertyURI);
+						restriction.setOnPropertyLabel(onPropertyLabel);
+						restriction.setValuesFromURI(valuesFromNode.getURI());
+						buf.setLength(0);
+						for (Iterator<Statement> k = valuesFromNode.listProperties(RDFS.label); k.hasNext(); ) {
+							buf.append(k.next().getLiteral().getLexicalForm());
+							if (k.hasNext())
+								buf.append(" / ");
+						}
+						if (buf.length() > 0)
+							restriction.setValuesFromLabel(buf.toString());
+						else
+							restriction.setValuesFromLabel(null);
+						service.getRestrictions().add(restriction);
+					}
+				} else {
+					RestrictionBean restriction = new RestrictionBean();
+					restriction.setOnPropertyURI(onPropertyURI);
+					restriction.setOnPropertyLabel(onPropertyLabel);
+					restriction.setValuesFromURI(null);
+					restriction.setValuesFromLabel(null);
+					service.getRestrictions().add(restriction);
+				}
 			} catch (Exception e) {
 				log.error(String.format("bad restriction attached to %s", serviceNode), e);
 			}
@@ -361,7 +382,8 @@ public class Registry
 		getModel().add(p, RDFS.label, OwlUtils.getLabel(p));
 		
 		OntResource valuesFrom = OwlUtils.getValuesFrom(restriction);
-		attachRestrictionValuesFrom(restrictionNode, valuesFrom);
+		if (valuesFrom != null)
+			attachRestrictionValuesFrom(restrictionNode, valuesFrom);
 	}
 	
 	/* The point of storing the restricted valuesFrom of attached properties

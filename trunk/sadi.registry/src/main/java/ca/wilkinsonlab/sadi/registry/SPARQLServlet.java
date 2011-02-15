@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.stringtree.json.JSONWriter;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.utils.QueryUtils;
 
 import com.hp.hpl.jena.query.ResultSet;
@@ -38,7 +38,7 @@ public class SPARQLServlet extends HttpServlet
 					response.setContentType("text/javascript");
 					response.getWriter().format("%s(%s)", callback, jsonWriter.write(bindings));
 					return;
-				} else if (format != null && format.equals("JSON")) { // compatibility with Virtuoso SPARQL
+				} else if (format != null && format.equals("JSON")) { // compatibility with Virtuoso SPARQL endpoint...
 					JSONWriter jsonWriter = new JSONWriter();
 					response.setContentType("text/javascript");
 					List<Map<String, Map<String, String>>> newBindings = new ArrayList<Map<String, Map<String, String>>>();
@@ -57,7 +57,7 @@ public class SPARQLServlet extends HttpServlet
 					results.put("bindings", newBindings);
 					response.getWriter().print(jsonWriter.write(top));
 					return;
-				} else {
+				} else { // return HTML...
 					request.setAttribute("variables", resultSet.getResultVars());
 					request.setAttribute("bindings", bindings);
 				}

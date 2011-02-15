@@ -1,6 +1,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sadi" uri="/WEB-INF/sadi.tld" %>
 <%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="ca.wilkinsonlab.sadi.beans.*" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
 <%
 	String serviceURI = request.getParameter("serviceURI");
@@ -12,11 +13,11 @@
 			//ServiceBean service = ServiceValidator.validateService(serviceURI);
 			//pageContext.setAttribute("service", service);
 		} catch (final Exception e) {
-			log.error(String.format("validation failed for %s: %s", serviceURI, e));
+			log.error(String.format("validation failed for %s: %s", serviceURI, e.getMessage()), e);
 			ServiceBean service = new ServiceBean();
-			service.setServiceURI(serviceURI);
+			service.setURI(serviceURI);
 			request.setAttribute("service", service);
-			request.setAttribute("error", e.getMessage());
+			request.setAttribute("error", e.getMessage() != null ? e.getMessage() : e.toString());
 		} finally {
 			if (registry != null)
 				registry.getModel().close();
@@ -55,14 +56,14 @@
 	     <c:when test='${error != null}'>
 	      <div id='registration-error'>
 	        <h3>Error</h3>
-	        <p>There was an error validating the service at <a href='${service.serviceURI}'>${service.serviceURI}</a>:</p>
+	        <p>There was an error validating the service at <a href='${service.URI}'>${service.URI}</a>:</p>
 	        <blockquote>${error}</blockquote>
 	      </div>
 	     </c:when>
 	     <c:otherwise>
 	       <div id='registration-success'>
 	         <h3>Success</h3>
-	         <p>Successfully validated the service at <a href='${service.serviceURI}'>${service.serviceURI}</a>.</p>
+	         <p>Successfully validated the service at <a href='${service.URI}'>${service.URI}</a>.</p>
 	         <!-- include service.jsp -->
 	       </div>
 	     </c:otherwise>
@@ -72,7 +73,7 @@
       <div id='registration-form'>
         <form method='POST' action='.'>
           <label id='url-label' for='url-input'>Enter the URL of the service you want to validate...</label>
-          <input id='url-input' type='text' name='url' value='<c:if test='${error != null}'>${registered.serviceURI}</c:if>'>
+          <input id='url-input' type='text' name='url' value='<c:if test='${error != null}'>${registered.}</c:if>'>
           <input id='register-submit' type='submit' value='...and click here to validate it'>
         </form>
       </div> <!-- registration-form -->

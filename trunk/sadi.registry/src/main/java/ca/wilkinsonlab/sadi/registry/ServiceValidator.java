@@ -1,8 +1,8 @@
 package ca.wilkinsonlab.sadi.registry;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.beans.ServiceBean;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
-import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -27,12 +27,7 @@ public class ServiceValidator
 					serviceURI, serviceNode));
 		
 		ServiceBean service = new ServiceBean();
-		service.setServiceURI(serviceNode.getURI());
-		ServiceOntologyHelper helper = new MyGridServiceOntologyHelper(serviceNode);
-		service.setInputClassURI(helper.getInputClass().getURI());
-		service.setOutputClassURI(helper.getOutputClass().getURI());
-		service.setName(helper.getName());
-		service.setDescription(helper.getDescription());
+		new MyGridServiceOntologyHelper().copyServiceDescription(serviceNode, service);
 		return service;
 	}
 }

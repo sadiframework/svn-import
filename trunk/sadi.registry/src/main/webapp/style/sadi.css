@@ -28,7 +28,7 @@ pre {
 
 dt {
     margin-top: 2em;
-    margin-bottom; 0.5em;
+    margin-bottom: 0.5em;
 }
 dd {
     margin-top: 0.5em;
@@ -306,7 +306,7 @@ h2 {
 }
 
 #services-table-div {
-	overflow: auto;
+	overflow: visible;
 }
 #services-table {
     border: 1px solid #e6efef;
@@ -331,6 +331,21 @@ h2 {
 }
 #services-table th {
   text-align: left;
+}
+#services-table .header {
+	background-image: url('images/bg.gif');
+	background-position: right center;
+	background-repeat: no-repeat;
+}
+#services-table .headerSortUp {
+	background-image: url('images/asc.gif');
+	background-position: right center;
+	background-repeat: no-repeat;
+}
+#services-table .headerSortDown {
+	background-image: url('images/desc.gif');
+	background-position: right center;
+	background-repeat: no-repeat;
 }
 #services-table td, #services-table th {
     padding: .25em;
@@ -413,4 +428,56 @@ table.service-detail dd {
   display: block;
   margin-left: auto;
   margin-right: 6.25%;
+}
+
+#sparql-results {
+	overflow: visible;
+}
+#sparql-results-table {
+    border: 1px solid #e6efef;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: auto;
+}
+#sparql-results-table caption{
+	font-size: 125%;
+	font-weight: bold;
+	text-align: left;
+	margin-left: -2em;
+	margin-bottom: 1em;
+}
+#sparql-results-table thead {
+    background: #eaf0f8;
+    /*
+    color: #386eba;
+    color: #286b73;
+    */
+    color: #4370b7
+}
+#sparql-results-table th {
+  text-align: left;
+}
+#sparql-results-table .header {
+	background-image: url('images/bg.gif');
+	background-position: right center;
+	background-repeat: no-repeat;
+}
+#sparql-results-table .headerSortUp {
+	background-image: url('images/asc.gif');
+	background-position: right center;
+	background-repeat: no-repeat;
+}
+#sparql-results-table .headerSortDown {
+	background-image: url('images/desc.gif');
+	background-position: right center;
+	background-repeat: no-repeat;
+}
+#sparql-results-table td, #services-table th {
+    padding: .25em;
+}
+#sparql-results-table tr.odd {
+    background: #e6efef;
+}
+#sparql-results-table tr.even {
+    background: #f4f8fc;
 }

@@ -1,5 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="ca.wilkinsonlab.sadi.beans.ServiceBean" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
 <%
 	if (pageContext.getAttribute("service") == null) {
@@ -34,8 +35,15 @@
     <td>
       <dl>
        <c:forEach var="restriction" items="${service.restrictions}">
-        <dt><a href='${restriction.onProperty}'>${restriction.onProperty}</a></dt>
-        <dd>(with values from <c:out value="${restriction.valuesFrom}" default="an unknown class"/>)</dd>
+        <dt><a href='${restriction.onPropertyURI}'><c:out value="${restriction.onPropertyLabel}" default="${restriction.onPropertyURI}"/></a></dt>
+         <c:choose>
+	      <c:when test='${!empty restriction.valuesFromURI}'>
+	      <dd>(with values from <a href='${restriction.valuesFromURI}'><c:out value="${restriction.valuesFromLabel}" default="${restriction.valuesFromURI}"/></a>)</dd>
+	      </c:when>
+	      <c:otherwise>
+	      <dd>(with values from an unknown class)</dd>
+	      </c:otherwise>
+	     </c:choose>
        </c:forEach>
       </dl>
     </td>
