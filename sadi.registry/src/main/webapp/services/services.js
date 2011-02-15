@@ -1,5 +1,8 @@
 google.load("jquery", "1.3.2");
 google.setOnLoadCallback(function() {
+	jQuery.getScript("../js/jquery.tablesorter.min.js", function() {
+		$("#services-table").tablesorter({ sortList: [[0,0]] });
+	});
 	jQuery.getScript("../js/expandTable.js", function() {
 		$("#services-table").expandTable(function(rowBody) {
 			rowBody.addClass("service-loading");

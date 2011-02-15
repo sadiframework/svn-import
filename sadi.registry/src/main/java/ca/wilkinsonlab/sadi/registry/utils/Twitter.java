@@ -17,8 +17,8 @@ import twitter4j.http.AccessToken;
 import twitter4j.http.Authorization;
 import twitter4j.http.OAuthAuthorization;
 import twitter4j.http.RequestToken;
+import ca.wilkinsonlab.sadi.beans.ServiceBean;
 import ca.wilkinsonlab.sadi.registry.Registry;
-import ca.wilkinsonlab.sadi.registry.ServiceBean;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -55,7 +55,7 @@ public class Twitter
 	{
 		String shortURL = null;
 		try {
-			shortURL = BitLy.getShortURL(String.format("http://sadiframework.org/registry/service.jsp?serviceURI=%s", service.getServiceURI()));
+			shortURL = BitLy.getShortURL(String.format("http://sadiframework.org/registry/service.jsp?serviceURI=%s", service.getURI()));
 		} catch (IOException e) {
 			log.error("error shortening URL", e);
 		}
@@ -114,6 +114,9 @@ public class Twitter
 			if (model != null)
 				model.close();
 		}
+		byte[] serialized = SerializationUtils.serialize(accessToken);
+		String encoded = new BASE64Encoder().encodeBuffer(serialized);
+		model.add(subject, predicate, encoded);
 	}
 	
 	public static RequestToken getRequestToken() throws Exception

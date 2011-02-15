@@ -39,7 +39,7 @@
             <!-- <li class="page_item"><a href="../validate">Validate</a></li> -->
             <li class="page_item"><a href="../register">Register</a></li>
             <li class="page_item current_page_item"><a href="../services">Services</a></li>
-            <!-- <li class="page_item"><a href="../sparql">SPARQL</a></li> -->
+            <li class="page_item"><a href="../sparql">SPARQL</a></li>
           </ul>
         </div>
         <div id='content'>
@@ -55,10 +55,10 @@
               </thead>
               <tbody>
                <c:forEach var="service" items="${services}" varStatus="status">
-                <tr id='${service.serviceURI}' class='${status.index % 2 == 0 ? "even" : "odd"}'>
-                  <td><a href='${service.serviceURI}' title='${service.serviceURI}'>${service.serviceURI}</a></td>
-                  <td><a href='${service.inputClassURI}' title='${service.inputClassURI}'><sadi:localName uri="${service.inputClassURI}" withNamespace="false"/></a></td>
-                  <td><a href='${service.outputClassURI}' title='${service.outputClassURI}'><sadi:localName uri="${service.outputClassURI}" withNamespace="false"/></a></td>
+                <tr id='${service.URI}' class='${status.index % 2 == 0 ? "even" : "odd"}'>
+                  <td><a href='${service.URI}' title='${service.URI}'>${service.URI}</a></td>
+                  <td><a href='${service.inputClassURI}' title='${service.inputClassURI}'><sadi:localName uri="${service.inputClassURI}" withNamespace="true"/></a></td>
+                  <td><a href='${service.outputClassURI}' title='${service.outputClassURI}'><sadi:localName uri="${service.outputClassURI}" withNamespace="true"/></a></td>
                 </tr>
                </c:forEach>
               </tbody>
@@ -74,6 +74,17 @@
             <span class="nobreak">the Heart and Stroke Foundation of B.C. and Yukon</span>,
             <span class="nobreak">the Canadian Institutes of Health Research</span>, and 
             <span class="nobreak">Microsoft Research</span>.
+          </p>
+          <p>Major funding for the 
+            <span class="nobreak"><a href="http://gcbioinformatics.ca">Bioinformatics Innovation Center</a></span>
+            is provided by the
+            <span class="nobreak">Government of Canada</span> through
+            <span class="nobreak">Genome Canada</span> and
+            <span class="nobreak">Genome Alberta</span>.
+          </p>
+          <p style="margin-top: 20px;">
+            <img class="sponsor" src="../images/GenomeCanada.png" alt="Genome Canada logo" height="116" width="191"/>
+            <img class="sponsor" src="../images/GenomeAlberta.png" alt="Genome Alberta logo" height="116" width="185"/>
           </p>
         </div> <!-- footer -->
       </div> <!-- inner-frame -->

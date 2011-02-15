@@ -10,7 +10,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import ca.wilkinsonlab.sadi.common.SADIException;
+import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.beans.ServiceBean;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -106,7 +107,7 @@ public class RegistryTest
 	{
 		registry.registerService(SERVICE_URI);
 		for (ServiceBean service: registry.getRegisteredServices()) {
-			if (service.getServiceURI().equals(SERVICE_URI))
+			if (service.getURI().equals(SERVICE_URI))
 				return;
 		}
 		fail("registered services did not contain service");
