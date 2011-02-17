@@ -32,7 +32,7 @@ public class LocalNameTag extends TagSupport
 	 * @param uri the URI
 	 * @return an appropriate local name
 	 */
-	private String getLocalName(String uri)
+	private String getLocalName()
 	{
 		URI u = URI.create(uri);
 		String fragment = StringUtils.substringBefore( u.getFragment(), "?" );
@@ -51,7 +51,7 @@ public class LocalNameTag extends TagSupport
 	public int doStartTag() throws JspException
 	{
 		try {
-			pageContext.getOut().print( getLocalName(uri) );
+			pageContext.getOut().print( getLocalName() );
 		} catch (IOException e) {
 			throw new JspException( String.format("error %s while writing to client", e) );
 		}
