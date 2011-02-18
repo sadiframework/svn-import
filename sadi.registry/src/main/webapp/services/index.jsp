@@ -8,7 +8,7 @@
 	try {
 		registry = Registry.getRegistry();
 		pageContext.setAttribute("services", registry.getRegisteredServices());
-	} catch (final Exception e) {
+	} catch (Exception e) {
 		log.error(String.format("error retrieving registered services: %s", e));
 		request.setAttribute("error", e.getMessage());
 	} finally {
@@ -36,7 +36,7 @@
         </div>
         <div id='nav'>
           <ul>
-            <!-- <li class="page_item"><a href="../validate">Validate</a></li> -->
+            <li class="page_item"><a href="../validate">Validate</a></li>
             <li class="page_item"><a href="../register">Register</a></li>
             <li class="page_item current_page_item"><a href="../services">Services</a></li>
             <li class="page_item"><a href="../sparql">SPARQL</a></li>

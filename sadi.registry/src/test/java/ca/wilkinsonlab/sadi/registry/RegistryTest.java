@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.beans.ServiceBean;
+import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -84,7 +85,7 @@ public class RegistryTest
 		registry.unregisterService(SERVICE_URI);
 		assertFalse("registry still contained service after unregistration",
 				registry.getRegisteredServiceNodes().toSet().contains(ResourceFactory.createResource(SERVICE_URI)));
-		assertTrue("registry is not empty after unregistration",
+		assertTrue(RdfUtils.logStatements("registry is not empty after unregistration:", registry.getModel()),
 				registry.getModel().isEmpty());
 	}
 

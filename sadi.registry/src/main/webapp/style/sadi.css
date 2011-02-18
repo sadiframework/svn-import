@@ -398,6 +398,37 @@ table.service-detail dd {
 	font-style: normal;
 }
 
+#validation-warnings {
+	margin-left: 12.5%;
+	margin-right: 12.5%;
+    border: 1px solid #884422;
+    padding: 1em;
+    background: #ddbb99;
+}
+#validation-warnings h3 {
+	color: #884422;
+	margin-top: 0;
+}
+#validation-warnings blockquote {
+    border: 1px solid #bb5511;
+    padding: .25em;
+	background: white;
+	font-style: normal;
+}
+#validation-warnings dl {
+	margin: .25em;
+}
+#validation-warnings dt {
+	margin-top: .25em;
+}
+#validation-warnings dd {
+	margin-bottom: .25em;
+}
+#validation-form {
+	margin: 1em;
+	text-align: center;
+}
+
 #registration-success {
 	margin-left: 12.5%;
 	margin-right: 12.5%;

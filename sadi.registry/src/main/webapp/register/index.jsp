@@ -4,6 +4,7 @@
 <%@ page import="ca.wilkinsonlab.sadi.beans.ServiceBean" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.utils.Twitter" %>
+<%@ page import="ca.wilkinsonlab.sadi.service.validation.*" %>
 <%
 	String serviceURI = request.getParameter("serviceURI");
 	if (serviceURI != null) {
@@ -11,15 +12,29 @@
 		Registry registry = null;
 		try {
 			registry = Registry.getRegistry();
+			boolean doValidate = request.getParameter("ignoreWarnings") == null;
+			boolean doRegister = true;
 			boolean doTweet = Registry.getConfig().getBoolean("sendTweets", false) &&
 			                  registry.getServiceBean(serviceURI) == null; // only new services
-			ServiceBean service = registry.registerService(serviceURI);
-			pageContext.setAttribute("service", service);
-			if (doTweet) {
-				try {
-					Twitter.tweetService(service);
-				} catch (final Exception e) {
-					log.error(String.format("error tweeting registration of %s: %s", serviceURI, e));
+			
+			if (doValidate) {
+				ValidationResult result = ServiceValidator.validateService(serviceURI);
+				request.setAttribute("service", result.getService());
+				request.setAttribute("warnings", result.getWarnings());
+				if (!result.getWarnings().isEmpty()) {
+					doRegister = false;
+				}
+			}
+			
+			if (doRegister) {
+				ServiceBean service = registry.registerService(serviceURI);
+				pageContext.setAttribute("service", service);
+				if (doTweet) {
+					try {
+						Twitter.tweetService(service);
+					} catch (final Exception e) {
+						log.error(String.format("error tweeting registration of %s: %s", serviceURI, e));
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -52,7 +67,7 @@
         </div>
         <div id='nav'>
           <ul>
-            <!-- <li class="page_item"><a href="../validate">Validate</a></li> -->
+            <li class="page_item"><a href="../validate">Validate</a></li>
             <li class="page_item current_page_item"><a href="../register">Register</a></li>
             <li class="page_item"><a href="../services">Services</a></li>
             <li class="page_item"><a href="../sparql">SPARQL</a></li>
@@ -60,34 +75,45 @@
         </div>
         <div id='content'>
           <h2>Register a service</h2>
-          
-	   <c:if test='${service != null}'>
-	    <c:choose>
-	     <c:when test='${error != null}'>
+<c:if test='${service != null}'>
+  <c:choose>
+    <c:when test='${error != null}'>
 	      <div id='registration-error'>
 	        <h3>Error</h3>
 	        <p>There was an error registering the service at <a href='${service.URI}'>${service.URI}</a>:</p>
 	        <blockquote>${error}</blockquote>
 	      </div>
-	     </c:when>
-	     <c:otherwise>
-	       <div id='registration-success'>
-	         <h3>Success</h3>
-	         <p>Successfully registered the service at <a href='${service.URI}'>${service.URI}</a>.</p>
-	         <jsp:include page="../service.jsp"/>
-	       </div>
-	     </c:otherwise>
-	    </c:choose>
-	   </c:if>
-
-	       <div id='registration-form'>
-	         <form method='POST' action='.'>
-	           <label id='url-label' for='url-input'>Enter the URL of the service you want to register...</label>
-	           <input id='url-input' type='text' name='serviceURI' value='<c:if test='${error != null}'>${service.URI}</c:if>'>
-	           <input id='register-submit' type='submit' value='...and click here to register it'>
-	         </form>
-	       </div> <!-- registration-form -->
-      
+    </c:when>
+	<c:otherwise>
+	  <c:choose>     
+	    <c:when test='${warnings != null and not empty warnings}'>
+	      <jsp:include page="../validate/warnings.jsp"/>
+	      <div id='validation-form'>
+	        <form method='POST' action='.'>
+	          <input type='hidden' name='serviceURI' value='${service.URI}'>
+	          <input type='hidden' name='ignoreWarnings' value='true'>
+	          <input type='submit' value="click here to ignore the warnings and register anyway">
+	        </form>
+	      </div> 
+	    </c:when>
+	    <c:otherwise>
+	      <div id='registration-success'>
+	        <h3>Success</h3>
+	        <p>Successfully registered the service at <a href='${service.URI}'>${service.URI}</a>.</p>
+	        <jsp:include page="../service.jsp"/>
+	      </div>
+	    </c:otherwise>
+	  </c:choose>
+	</c:otherwise>
+  </c:choose>
+</c:if>
+	      <div id='registration-form'>
+	        <form method='POST' action='.'>
+	          <label id='url-label' for='url-input'>Enter the URL of the service you want to register...</label>
+	          <input id='url-input' type='text' name='serviceURI' value='<c:if test='${error != null or not empty warnings}'>${service.URI}</c:if>'>
+	          <input id='register-submit' type='submit' value='...and click here to register it'>
+	        </form>
+	      </div> <!-- registration-form -->      
         </div> <!-- content -->
         <div id='footer'>
           <img class="sponsor" style="margin-top: 10px;" src="../images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
