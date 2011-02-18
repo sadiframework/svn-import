@@ -16,6 +16,12 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 @SuppressWarnings("serial")
 public class HelloWorldServiceServlet extends SimpleSynchronousServiceServlet
 {
+	protected Model prepareOutputModel(Model inputModel)
+	{
+		Model model = super.prepareOutputModel(inputModel);
+		model.setNsPrefix("hello", Vocab.NS);
+		return model;
+	}
 	public void processInput(Resource input, Resource output)
 	{
 		String name = input.getProperty(FOAF.name).getString();
