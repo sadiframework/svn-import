@@ -68,4 +68,23 @@ public class RdfUtilsTest
 		assertTrue("destination resource did not receive foaf:name property",
 		           toJJ.hasProperty(FOAF.name, "Joey Joe Joe Jr. Shabadoo"));
 	}
+	
+	public void testGetBoolean()
+	{
+		Model model = ModelFactory.createDefaultModel();
+		assertTrue(RdfUtils.getBoolean(model.createTypedLiteral(true)));
+		assertFalse(RdfUtils.getBoolean(model.createTypedLiteral(false)));
+		assertTrue(RdfUtils.getBoolean(model.createTypedLiteral(1)));
+		assertFalse(RdfUtils.getBoolean(model.createTypedLiteral(0)));
+		assertTrue(RdfUtils.getBoolean(model.createTypedLiteral("1")));
+		assertFalse(RdfUtils.getBoolean(model.createTypedLiteral("0")));
+		assertTrue(RdfUtils.getBoolean(model.createLiteral("true")));
+		assertFalse(RdfUtils.getBoolean(model.createLiteral("false")));
+		assertTrue(RdfUtils.getBoolean(model.createLiteral("T")));
+		assertFalse(RdfUtils.getBoolean(model.createLiteral("F")));
+		assertTrue(RdfUtils.getBoolean(model.createLiteral("yes")));
+		assertFalse(RdfUtils.getBoolean(model.createLiteral("no")));
+		assertTrue(RdfUtils.getBoolean(model.createLiteral("y")));
+		assertFalse(RdfUtils.getBoolean(model.createLiteral("n")));
+	}
 }

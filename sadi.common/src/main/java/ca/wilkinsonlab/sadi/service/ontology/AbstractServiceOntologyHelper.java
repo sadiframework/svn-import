@@ -79,9 +79,10 @@ public abstract class AbstractServiceOntologyHelper implements ServiceOntologyHe
 		RDFNode authoritative = getSinglePropertyValue(serviceRoot, getAuthoritativePath(), false);
 		if (authoritative != null) {
 			try {
-				serviceBean.setAuthoritative(authoritative.asLiteral().getBoolean());
+				serviceBean.setAuthoritative(RdfUtils.getBoolean(authoritative.asLiteral()).booleanValue());
+					// .booleanValue() triggers NPE if the literal was unparseable...
 			} catch (Exception e) {
-				throw new ServiceOntologyException(String.format("authoritative value '%s' can't be interpreted as a boolean", authoritative));
+				throw new ServiceOntologyException(String.format("authoritative value '%s' can't be parsed as boolean", authoritative));
 			}
 		}
 		

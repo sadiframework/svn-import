@@ -85,7 +85,7 @@ public class OwlUtils
 				return label;
 		} else {
 			if (resource.hasProperty(RDFS.label))
-				return resource.getProperty(RDFS.label).toString();
+				return resource.getProperty(RDFS.label).getString();
 		}
 		
 		if (resource.isURIResource()) {
