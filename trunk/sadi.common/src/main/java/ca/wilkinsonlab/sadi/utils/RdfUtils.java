@@ -244,6 +244,42 @@ public class RdfUtils
 		return getPlainString(node.asNode());
 	}
 	
+	/**
+	 * Attempt to parse the specified literal as a boolean.
+	 * In addition to the actual typed literal true, the strings
+	 * "true", "t", "on", "1", etc., will be parsed as true.
+	 * @param literal
+	 * @return
+	 */
+	public static Boolean getBoolean(Literal literal)
+	{
+		try {
+			return literal.getBoolean();
+		} catch (Exception e) { } 
+		try {
+			int i = literal.getInt();
+			if (i == 1)
+				return true;
+			else if (i == 0)
+				return false;
+		} catch (Exception e) { }
+		String s = literal.getLexicalForm();
+		if (s.equalsIgnoreCase("true") ||
+				s.equalsIgnoreCase("t") ||
+				s.equalsIgnoreCase("yes") ||
+				s.equalsIgnoreCase("y") ||
+				s.equalsIgnoreCase("1")) {
+			return true;
+		} else if (s.equalsIgnoreCase("false") ||
+				s.equalsIgnoreCase("f") ||
+				s.equalsIgnoreCase("no") ||
+				s.equalsIgnoreCase("n") ||
+				s.equals("0")) {
+			return false;
+		}
+		return null;
+	}
+	
 	public static Literal createTypedLiteral(String jenaToString)
 	{
 		int splitPoint = jenaToString.lastIndexOf("^^");
@@ -288,6 +324,18 @@ public class RdfUtils
 	public static Model createModelFromPathOrURL(String pathOrURL) throws IOException
 	{
 		Model model = ModelFactory.createDefaultModel();
+		return loadModelFromPathOrURL(model, pathOrURL);
+	}
+	
+	/**
+	 * Read the contents of a local path or a remote URL into the specified model.
+	 * @param model the model 
+	 * @param pathOrURL a local path or a remote URL
+	 * @return the model
+	 * @throws IOException if the argument is an invalid URL and can't be read locally
+	 */
+	public static Model loadModelFromPathOrURL(Model model, String pathOrURL) throws IOException
+	{
 		try {
 			URL url = new URL(pathOrURL);
 			log.debug(String.format("identified %s as a URL", pathOrURL));
