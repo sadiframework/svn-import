@@ -3,6 +3,7 @@
 <%@ page import="org.apache.log4j.Logger" %>
 <%@ page import="ca.wilkinsonlab.sadi.beans.*" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
+<%@ page import="ca.wilkinsonlab.sadi.service.validation.*" %>
 <%
 	String serviceURI = request.getParameter("serviceURI");
 	if (serviceURI != null) {
@@ -10,9 +11,10 @@
 		Registry registry = null;
 		try {
 			registry = Registry.getRegistry();
-			//ServiceBean service = ServiceValidator.validateService(serviceURI);
-			//pageContext.setAttribute("service", service);
-		} catch (final Exception e) {
+			ValidationResult result = ServiceValidator.validateService(serviceURI);
+			request.setAttribute("service", result.getService());
+			request.setAttribute("warnings", result.getWarnings());
+		} catch (Exception e) {
 			log.error(String.format("validation failed for %s: %s", serviceURI, e.getMessage()), e);
 			ServiceBean service = new ServiceBean();
 			service.setURI(serviceURI);
@@ -49,35 +51,46 @@
           </ul>
         </div>
         <div id='content'>
-          <h2>Validate a service</h2>
-          
-       <c:if test='${service != null}'>
-	    <c:choose>
-	     <c:when test='${error != null}'>
+          <h2>Validate a service</h2>         
+<c:if test='${service != null}'>
+  <c:choose>
+    <c:when test='${error != null}'>
 	      <div id='registration-error'>
 	        <h3>Error</h3>
 	        <p>There was an error validating the service at <a href='${service.URI}'>${service.URI}</a>:</p>
 	        <blockquote>${error}</blockquote>
 	      </div>
-	     </c:when>
-	     <c:otherwise>
-	       <div id='registration-success'>
-	         <h3>Success</h3>
-	         <p>Successfully validated the service at <a href='${service.URI}'>${service.URI}</a>.</p>
-	         <!-- include service.jsp -->
-	       </div>
-	     </c:otherwise>
-	    </c:choose>
-	   </c:if>
-
-      <div id='registration-form'>
-        <form method='POST' action='.'>
-          <label id='url-label' for='url-input'>Enter the URL of the service you want to validate...</label>
-          <input id='url-input' type='text' name='url' value='<c:if test='${error != null}'>${registered.}</c:if>'>
-          <input id='register-submit' type='submit' value='...and click here to validate it'>
-        </form>
-      </div> <!-- registration-form -->
-      
+    </c:when>
+    <c:otherwise>
+      <c:choose>
+	    <c:when test='${not empty warnings}'>
+	      <jsp:include page="warnings.jsp"/>
+	    </c:when>
+        <c:otherwise>
+	      <div id='registration-success'>
+	        <h3>Success</h3>
+	        <p>Successfully validated the service at <a href='${service.URI}'>${service.URI}</a>.</p>
+	        <jsp:include page="../service.jsp"/>
+	      </div>
+          <div id='validation-form'>
+            <form method='POST' action='../register/'>
+              <input type='hidden' name='serviceURI' value='${service.URI}'>
+              <input type='hidden' name='ignoreWarnings' value='true'>
+              <input type='submit' value="click here to register this service!">
+            </form>
+          </div>
+	    </c:otherwise>
+	  </c:choose>
+    </c:otherwise>
+  </c:choose>
+</c:if>
+          <div id='registration-form'>
+            <form method='POST' action='.'>
+              <label id='url-label' for='url-input'>Enter the URL of the service you want to validate...</label>
+              <input id='url-input' type='text' name='serviceURI' value='<c:if test='${error != null or not empty warnings}'>${service.URI}</c:if>'>
+              <input id='register-submit' type='submit' value='...and click here to validate it'>
+            </form>
+          </div> <!-- registration-form -->
         </div> <!-- content -->
         <div id='footer'>
           <img class="sponsor" style="margin-top: 10px;" src="../images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
@@ -86,6 +99,17 @@
             <span class="nobreak">the Heart and Stroke Foundation of B.C. and Yukon</span>,
             <span class="nobreak">the Canadian Institutes of Health Research</span>, and 
             <span class="nobreak">Microsoft Research</span>.
+          </p>
+          <p>Major funding for the 
+            <span class="nobreak"><a href="http://gcbioinformatics.ca">Bioinformatics Innovation Center</a></span>
+            is provided by the
+            <span class="nobreak">Government of Canada</span> through
+            <span class="nobreak">Genome Canada</span> and
+            <span class="nobreak">Genome Alberta</span>.
+          </p>
+          <p style="margin-top: 20px;">
+            <img class="sponsor" src="../images/GenomeCanada.png" alt="Genome Canada logo" height="116" width="191"/>
+            <img class="sponsor" src="../images/GenomeAlberta.png" alt="Genome Alberta logo" height="116" width="185"/>
           </p>
         </div> <!-- footer -->
       </div> <!-- inner-frame -->
