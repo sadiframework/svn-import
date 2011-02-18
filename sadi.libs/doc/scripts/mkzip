@@ -1,0 +1,34 @@
+#!/bin/bash
+
+OUTPUT_FILE=shared-libs.zip
+
+mvn dependency:build-classpath | \
+awk '/^\// { print }' | \
+while read -d: JAR ; do echo $JAR ; done | \
+xargs zip -dc -j $OUTPUT_FILE && \
+for JAR in `unzip -l $OUTPUT_FILE | awk '/\.jar$/ { print $4 }' | sort`
+do
+	echo -n WEB-INF/lib/$JAR,
+done
+echo
+
+#if [ ! -r ../cardioSHARE/target/cardioSHARE.war ]
+#then
+#	echo error: no ../cardioSHARE/target/cardioSHARE.war
+#	exit
+#fi
+#if [ ! -r ../sadi.examples/target/sadi-examples.war ]
+#then
+#	echo error: no ../sadi.examples/target/sadi-examples.war
+#	exit
+#fi
+#CARDIOSHARE_LIBS=`mktemp -t sadi.webapp`
+#SERVICES_LIBS=`mktemp -t sadi.webapp`
+#unzip -l ../cardioSHARE/target/cardioSHARE.war | awk '/\.jar$/ { print $4 }' | sort >$CARDIOSHARE_LIBS
+#unzip -l ../sadi.examples/target/sadi-examples.war | awk '/\.jar$/ { print $4 }' | sort > $SERVICES_LIBS
+#COMMON_LIBS=`comm -12 $CARDIOSHARE_LIBS $SERVICES_LIBS`
+#for LIB in $COMMON_LIBS
+#do
+#	echo -n $LIB,
+#done
+#echo
