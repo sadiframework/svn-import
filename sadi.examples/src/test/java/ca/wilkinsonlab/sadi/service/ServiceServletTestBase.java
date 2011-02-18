@@ -1,16 +1,12 @@
 package ca.wilkinsonlab.sadi.service;
 
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
@@ -22,16 +18,12 @@ import ca.wilkinsonlab.sadi.client.ServiceImpl;
 import ca.wilkinsonlab.sadi.utils.ModelDiff;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
-import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.util.LocationMapper;
 import com.hp.hpl.jena.vocabulary.RDF;
-import com.hp.hpl.jena.vocabulary.RDFS;
 
 public abstract class ServiceServletTestBase extends TestCase
 {
@@ -67,7 +59,7 @@ public abstract class ServiceServletTestBase extends TestCase
 	
 	protected ServiceImpl getLocalServiceInstance() throws SADIException
 	{
-		return new LocalServiceImpl(getLocalServiceURL());
+		return new ServiceImpl(getLocalServiceURL());
 	}
 	
 	protected Collection<Resource> getInputNodes()
@@ -161,64 +153,6 @@ public abstract class ServiceServletTestBase extends TestCase
 			buf.append(RdfUtils.logStatements("    ", diff.inBoth));
 			buf.append(RdfUtils.logStatements("        ", diff.inYnotX));
 			fail(buf.toString());
-		}
-	}
-	
-	
-	private static final Log serviceLog = LogFactory.getLog(LocalServiceImpl.class);
-	
-	/**
-	 * Class for invoking a locally-deployed SADI service. 
-	 * The polling URLs returned by the asynchronous services 
-	 * are hard-coded (in sadi.properties or by class annotations) to the
-	 * final deployed location of the servlet.  In order to test
-	 * the services when they are locally deployed, we must do string 
-	 * replacement on the polling URLs that are returned by 
-	 * the services. 
-	 */
-	protected class LocalServiceImpl extends ServiceImpl
-	{
-		public LocalServiceImpl(String serviceURL) throws SADIException
-		{
-			super(serviceURL);
-		}
-		
-		@Override
-		public Model invokeServiceUnparsed(Model inputModel) throws IOException
-		{
-			if (serviceLog.isTraceEnabled()) {
-				serviceLog.trace(String.format("posting RDF to %s:\n%s", getURI(), RdfUtils.logStatements("\t", inputModel)));
-			}
-			InputStream is = HttpUtils.postToURL(new URL(getURI()), inputModel);
-			Model model = ModelFactory.createDefaultModel();
-			model.read(is, "");
-			is.close();
-			
-			/* resolve any rdfs:isDefinedBy URIs to fetch asynchronous data...
-			 */
-			translatePollingUrls(model);
-			resolveAsynchronousData(model);
-			
-			if (serviceLog.isTraceEnabled()) {
-				serviceLog.trace(String.format("received output:\n%s", RdfUtils.logStatements("\t", model)));
-			}
-			return model;
-		}		
-		
-		private void translatePollingUrls(Model model) 
-		{
-			List<Statement> statements = model.listStatements((Resource)null, RDFS.isDefinedBy, (RDFNode)null).toList();
-
-			for (Statement statement : statements) {
-				if (!statement.getObject().isURIResource())
-					continue;
-
-				String url = statement.getResource().getURI();
-				String localUrl = StringUtils.replaceOnce(url, uriPrefix, altPrefix);
-
-				model.remove(statement);
-				model.add(statement.getSubject(), RDFS.isDefinedBy, model.createResource(localUrl));
-			}
 		}
 	}
 }
