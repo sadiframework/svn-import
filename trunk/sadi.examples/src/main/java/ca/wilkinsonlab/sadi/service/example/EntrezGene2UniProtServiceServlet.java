@@ -26,9 +26,14 @@ import ca.wilkinsonlab.sadi.vocab.SIO;
 /**
  * Maps Entrez Gene IDs to UniProt IDs.
  * 
- * I am using the UniProt API for this because the NCBI web services 
- * are limited to one query per 30 seconds.  Unfortunately batch
- * processing of inputs is not possible for this service.  
+ * I am using the UniProt API for this service because there 
+ * were a number of obstacles to using the NCBI web services for
+ * retrieving Entrez Gene cross-references. The primary problem is 
+ * that the XML encodings of Entrez Gene records are huge (between 
+ * 500k and 10MB). 
+ * 
+ * Unfortunately, batch processing of inputs is not possible for this 
+ * service when using the UniProt API.  
  * 
  * Note: I tried to accomplish batching by using 
  * "Set operations on entry iterators" as described at
