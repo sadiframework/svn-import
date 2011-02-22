@@ -12,7 +12,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 
-import ca.wilkinsonlab.sadi.utils.KeggUtils;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
@@ -27,7 +26,7 @@ public class KeggGene2PathwayServiceServlet extends KeggServiceServlet
 	@Override
 	protected void processInput(Resource input, Resource output)
 	{
-		String keggGeneId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.GENE_IDENTIFIER, KeggUtils.GENE_URI_PATTERNS);
+		String keggGeneId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.GENE_IDENTIFIER, LSRN.KEGG.GENE_URI_PATTERNS);
 		
 		if(keggGeneId == null) {
 			log.error(String.format("unable to determine KEGG gene ID for %s", input));
