@@ -8,7 +8,7 @@
   <j.1:OutputClass rdf:about="http://lsrn.org/PDB:3IWT">
     <j.3:is3DStructureOf>
       <j.2:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q96Y52">
-        <owl:sameAs rdf:resource="http://biordf.net/UniProt/Q96Y52"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/UniProt/Q96Y52"/>
         <j.0:SIO_000008>
           <j.2:UniProt_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"

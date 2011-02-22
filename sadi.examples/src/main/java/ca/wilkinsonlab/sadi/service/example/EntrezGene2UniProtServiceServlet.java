@@ -46,16 +46,11 @@ public class EntrezGene2UniProtServiceServlet extends SimpleAsynchronousServiceS
 {
 	private static final Log log = LogFactory.getLog(EntrezGene2UniProtServiceServlet.class);
 	
-	static public final Pattern[] INPUT_URI_PATTERNS = {
-		Pattern.compile("http://biordf\\.net/moby/GeneId/(\\S+)"),
-		Pattern.compile("http://lsrn\\.org/GeneID:(\\S+)"),
-		Pattern.compile(".*[/:#]([^\\s\\.]+)") // failsafe best-guess pattern
-	};
 
 	@Override
 	protected void processInput(Resource input, Resource output) 
 	{
-		String entrezGeneId = ServiceUtils.getDatabaseId(input, LSRN.EntrezGene.ENTREZ_GENE_IDENTIFIER, INPUT_URI_PATTERNS);
+		String entrezGeneId = ServiceUtils.getDatabaseId(input, LSRN.EntrezGene.ENTREZ_GENE_IDENTIFIER, LSRN.EntrezGene.GENE_URI_PATTERNS);
 
 		if(entrezGeneId == null) {
 			log.error(String.format("skipping input, unable to determine EntrezGene ID for %s", input));

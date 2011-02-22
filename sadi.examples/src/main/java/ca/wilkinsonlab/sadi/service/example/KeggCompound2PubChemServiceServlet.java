@@ -17,7 +17,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 
-import ca.wilkinsonlab.sadi.utils.KeggUtils;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
@@ -33,7 +32,7 @@ public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
 	@Override
 	protected void processInput(Resource input, Resource output)
 	{
-		String keggCompoundId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.COMPOUND_IDENTIFIER, KeggUtils.COMPOUND_URI_PATTERNS);
+		String keggCompoundId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.COMPOUND_IDENTIFIER, LSRN.KEGG.COMPOUND_URI_PATTERNS);
 		
 		if(keggCompoundId == null) {
 			log.error(String.format("unable to determine KEGG compound ID for %s", input));

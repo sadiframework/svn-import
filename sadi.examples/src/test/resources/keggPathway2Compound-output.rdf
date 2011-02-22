@@ -7,7 +7,7 @@
   <j.2:OutputClass rdf:about="http://lsrn.org/KEGG_PATHWAY:hsa00232">
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16355">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16355"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16355"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -18,7 +18,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C07481">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C07481"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C07481"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -29,7 +29,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C07480">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C07480"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C07480"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -40,7 +40,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16363">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16363"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16363"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -51,7 +51,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16357">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16357"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16357"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -62,7 +62,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16356">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16356"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16356"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -73,7 +73,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C00048">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C00048"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C00048"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -84,7 +84,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16365">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16365"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16365"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -95,7 +95,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16359">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16359"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16359"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -106,7 +106,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16361">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16361"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16361"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -117,7 +117,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C13747">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C13747"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C13747"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -128,7 +128,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16358">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16358"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16358"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -139,7 +139,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C00385">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C00385"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C00385"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -150,7 +150,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C01762">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C01762"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C01762"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -161,7 +161,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16364">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16364"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16364"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -172,7 +172,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C07130">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C07130"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C07130"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -183,7 +183,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16360">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16360"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16360"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -194,7 +194,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16353">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16353"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16353"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -205,7 +205,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16366">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16366"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16366"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -216,7 +216,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16362">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16362"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16362"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
@@ -227,7 +227,7 @@
     </j.0:SIO_000132>
     <j.0:SIO_000132>
       <j.1:KEGG_COMPOUND_Record rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C16352">
-        <owl:sameAs rdf:resource="http://biordf.net/KEGG_COMPOUND/cpd:C16352"/>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/KEGG_COMPOUND/cpd:C16352"/>
         <j.0:SIO_000008>
           <j.1:KEGG_COMPOUND_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
