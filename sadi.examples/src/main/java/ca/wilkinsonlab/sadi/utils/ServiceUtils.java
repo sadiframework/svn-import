@@ -37,10 +37,9 @@ public class ServiceUtils
 	 * database identifier from the given node's URI 
 	 * @return the database identifier of the given node 
 	 */
-	@SuppressWarnings("unchecked")
 	public static String getDatabaseId(Resource root, Resource identifierClass, Pattern[] uriPatterns) 
 	{
-		Collection<String> identifiers = (Collection<String>)SIOUtils.getAttributeValues(root, identifierClass);
+		Collection<String> identifiers = SIOUtils.getAttributeValues(root, identifierClass);
 		
 		if (identifiers.size() > 0) {
 			if(identifiers.size() > 1) {
