@@ -13,14 +13,11 @@ import keggapi.LinkDBRelation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.OWL;
-
-import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
 import ca.wilkinsonlab.sadi.vocab.Properties;
+
+import com.hp.hpl.jena.rdf.model.Resource;
 
 @SuppressWarnings("serial")
 public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
@@ -32,7 +29,7 @@ public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
 	@Override
 	protected void processInput(Resource input, Resource output)
 	{
-		String keggCompoundId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.COMPOUND_IDENTIFIER, LSRN.KEGG.COMPOUND_URI_PATTERNS);
+		String keggCompoundId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.Compound);
 		
 		if(keggCompoundId == null) {
 			log.error(String.format("unable to determine KEGG compound ID for %s", input));
@@ -59,22 +56,9 @@ public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
 		
 		for(LinkDBRelation crossref : results) {
 			String pubChemId = PUBCHEM_ID_PREFIX.matcher(crossref.getEntry_id2()).replaceFirst("");
-			Resource keggPubChemNode = createPubChemNode(output.getModel(), pubChemId);
+			Resource keggPubChemNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.PubChem.Substance, pubChemId);
 			output.addProperty(Properties.isSubstance, keggPubChemNode);
 		}
 	}
 	
-	protected Resource createPubChemNode(Model model, String pubchemId) 
-	{
-		String oldURI = String.format("%s%s", LSRN.PubChem.OLD_SUBSTANCE_PREFIX, pubchemId);
-		String URI = String.format("%s%s", LSRN.PubChem.OLD_SUBSTANCE_PREFIX, pubchemId);
-		
-		Resource pubChemNode = model.createResource(URI, LSRN.PubChem.SUBSTANCE_TYPE);
-		// add SIO identifier structure 
-		SIOUtils.createAttribute(pubChemNode, LSRN.PubChem.SUBSTANCE_IDENTIFIER, pubchemId);
-		// add link to old URI scheme
-		pubChemNode.addProperty(OWL.sameAs, model.createResource(oldURI));
-		
-		return pubChemNode;
-	}
 }

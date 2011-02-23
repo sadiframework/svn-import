@@ -7,14 +7,12 @@ import javax.xml.rpc.ServiceException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.OWL;
-
-import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
 import ca.wilkinsonlab.sadi.vocab.SIO;
+import ca.wilkinsonlab.sadi.vocab.LSRN.KEGG;
+
+import com.hp.hpl.jena.rdf.model.Resource;
 
 @SuppressWarnings("serial")
 public class KeggPathway2GeneServiceServlet extends KeggServiceServlet
@@ -24,7 +22,7 @@ public class KeggPathway2GeneServiceServlet extends KeggServiceServlet
 	@Override
 	protected void processInput(Resource input, Resource output)
 	{
-		String keggPathwayId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.PATHWAY_IDENTIFIER, LSRN.KEGG.PATHWAY_URI_PATTERNS);
+		String keggPathwayId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.Pathway);
 		
 		if(keggPathwayId == null) {
 			log.error(String.format("unable to determine KEGG pathway ID for %s", input));
@@ -41,22 +39,8 @@ public class KeggPathway2GeneServiceServlet extends KeggServiceServlet
 		}
 		
 		for(String keggGeneId : keggGeneIds) {
-			Resource keggGeneNode = createKeggGeneNode(output.getModel(), keggGeneId);
+			Resource keggGeneNode = ServiceUtils.createLSRNRecordNode(output.getModel(), KEGG.Gene, keggGeneId);
 			output.addProperty(SIO.has_participant, keggGeneNode);
 		}
-	}
-	
-	protected Resource createKeggGeneNode(Model model, String keggGeneId) 
-	{
-		String oldURI = String.format("%s%s", LSRN.KEGG.OLD_GENE_PREFIX, keggGeneId);
-		String URI = String.format("%s%s", LSRN.KEGG.GENE_PREFIX, keggGeneId);
-		
-		Resource keggGeneNode = model.createResource(URI, LSRN.KEGG.GENE_TYPE);
-		// add SIO identifier structure 
-		SIOUtils.createAttribute(keggGeneNode, LSRN.KEGG.GENE_IDENTIFIER, keggGeneId);
-		// add link to old URI scheme
-		keggGeneNode.addProperty(OWL.sameAs, model.createResource(oldURI));
-		
-		return keggGeneNode;
 	}
 }

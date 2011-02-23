@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
-import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;

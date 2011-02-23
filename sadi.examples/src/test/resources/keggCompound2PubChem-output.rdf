@@ -7,7 +7,7 @@
     xmlns:j.3="http://sadiframework.org/examples/keggCompound2PubChem.owl#">
   <j.3:OutputClass rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C00791">
     <j.2:isSubstance>
-      <j.1:PubChem_Substance_Record rdf:about="http://biordf.net/moby/PubChem_Substance/4049">
+      <j.1:PubChem_Substance_Record rdf:about="http://lsrn.org/PubChem_Substance:4049">
         <owl:sameAs rdf:resource="http://biordf.net/moby/PubChem_Substance/4049"/>
         <j.0:SIO_000008>
           <j.1:PubChem_Substance_Identifier>
