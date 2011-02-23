@@ -57,6 +57,10 @@ public class SPARQLServlet extends HttpServlet
 					results.put("bindings", newBindings);
 					response.getWriter().print(jsonWriter.write(top));
 					return;
+				} else if (format != null && format.equals("json-simple")) {
+					JSONWriter jsonWriter = new JSONWriter();
+					response.setContentType("text/javascript");
+					jsonWriter.write(bindings);
 				} else { // return HTML...
 					request.setAttribute("variables", resultSet.getResultVars());
 					request.setAttribute("bindings", bindings);
