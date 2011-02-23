@@ -2,25 +2,18 @@ package ca.wilkinsonlab.sadi.utils;
 
 import static org.junit.Assert.assertTrue;
 
-import java.util.regex.Pattern;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import ca.wilkinsonlab.sadi.vocab.LSRN;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.ResourceFactory;
-
 
 public class ServiceUtilsTest 
 {
-	private Pattern[] URI_PATTERNS = {
-			Pattern.compile("http://lsrn.org/UniProt:(\\S+)")
-	};
-	
 	private static String UNIPROT_PREFIX = "http://lsrn.org/UniProt:";
-	private static Resource UNIPROT_IDENTIFIER = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/UniProt_Identifier");
 	private static Model testModel;
 	
 	@BeforeClass
@@ -34,7 +27,7 @@ public class ServiceUtilsTest
 	public void testGetDatabaseID_ExplicitID()
 	{
 		Resource nodeWithExplicitID = testModel.getResource("http://example.com/not-a-uniprot-id-1");
-		String uniprotID = ServiceUtils.getDatabaseId(nodeWithExplicitID, UNIPROT_IDENTIFIER, URI_PATTERNS);
+		String uniprotID = ServiceUtils.getDatabaseId(nodeWithExplicitID, LSRN.UniProt);
 		assertTrue(uniprotID.equals("Q7Z591"));
 	}
 	
@@ -42,15 +35,16 @@ public class ServiceUtilsTest
 	public void testGetDatabaseID_URI()
 	{
 		Resource nodeWithExplicitID = testModel.getResource(UNIPROT_PREFIX + "P12345");
-		String uniprotID = ServiceUtils.getDatabaseId(nodeWithExplicitID, UNIPROT_IDENTIFIER, URI_PATTERNS);
+		String uniprotID = ServiceUtils.getDatabaseId(nodeWithExplicitID, LSRN.UniProt);
 		assertTrue(uniprotID.equals("P12345"));
 	}
 
 	@Test
 	public void testGetDatabaseID_NoID()
 	{
-		Resource nodeWithExplicitID = testModel.getResource("http://example.com/not-a-uniprot-id-2");
-		String uniprotID = ServiceUtils.getDatabaseId(nodeWithExplicitID, UNIPROT_IDENTIFIER, URI_PATTERNS);
-		assertTrue(uniprotID == null);
+		Resource nodeWithoutExplicitID = testModel.getResource("http://example.com/not-a-uniprot-id-2");
+		String uniprotID = ServiceUtils.getDatabaseId(nodeWithoutExplicitID, LSRN.UniProt);
+		// fallback is to take part after the last '/','#', or ':'.
+		assertTrue(uniprotID.equals("not-a-uniprot-id-2"));
 	}
 }

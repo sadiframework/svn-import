@@ -8,14 +8,11 @@ import javax.xml.rpc.ServiceException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.OWL;
-
-import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
 import ca.wilkinsonlab.sadi.vocab.SIO;
+
+import com.hp.hpl.jena.rdf.model.Resource;
 
 @SuppressWarnings("serial")
 public class KeggGene2PathwayServiceServlet extends KeggServiceServlet
@@ -26,7 +23,7 @@ public class KeggGene2PathwayServiceServlet extends KeggServiceServlet
 	@Override
 	protected void processInput(Resource input, Resource output)
 	{
-		String keggGeneId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.GENE_IDENTIFIER, LSRN.KEGG.GENE_URI_PATTERNS);
+		String keggGeneId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.Gene);
 		
 		if(keggGeneId == null) {
 			log.error(String.format("unable to determine KEGG gene ID for %s", input));
@@ -45,23 +42,9 @@ public class KeggGene2PathwayServiceServlet extends KeggServiceServlet
 		
 		for(String keggPathwayId : keggPathwayIds) {
 			keggPathwayId = PATHWAY_ID_PREFIX.matcher(keggPathwayId).replaceFirst("");
-			Resource keggPathwayNode = createKeggPathwayNode(output.getModel(), keggPathwayId);
+			Resource keggPathwayNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.KEGG.Pathway, keggPathwayId);
 			output.addProperty(SIO.is_participant_in, keggPathwayNode);
 		}
 	}
 	
-	protected Resource createKeggPathwayNode(Model model, String keggPathwayId) 
-	{
-		String oldURI = String.format("%s%s", LSRN.KEGG.OLD_PATHWAY_PREFIX, keggPathwayId);
-		String URI = String.format("%s%s", LSRN.KEGG.PATHWAY_PREFIX, keggPathwayId);
-		
-		Resource keggPathwayNode = model.createResource(URI, LSRN.KEGG.PATHWAY_TYPE);
-		// add SIO identifier structure 
-		SIOUtils.createAttribute(keggPathwayNode, LSRN.KEGG.PATHWAY_IDENTIFIER, keggPathwayId);
-		// add link to old URI scheme
-		keggPathwayNode.addProperty(OWL.sameAs, model.createResource(oldURI));
-		
-		return keggPathwayNode;
-	}
-
 }

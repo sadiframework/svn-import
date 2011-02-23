@@ -1,7 +1,5 @@
 package ca.wilkinsonlab.sadi.service.example;
 
-import java.util.regex.Pattern;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -12,31 +10,22 @@ import uk.ac.ebi.kraken.uuw.services.remoting.Query;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryBuilder;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.OWL;
-
 import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
-import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
 import ca.wilkinsonlab.sadi.vocab.Properties;
+
+import com.hp.hpl.jena.rdf.model.Resource;
 
 @SuppressWarnings("serial")
 public class Pdb2UniProtServiceServlet extends SimpleAsynchronousServiceServlet 
 {
 	private static final Log log = LogFactory.getLog(Pdb2UniProtServiceServlet.class);
 	
-	static public final Pattern[] INPUT_URI_PATTERNS = {
-		Pattern.compile("http://lsrn.org/PDB:(\\S+)"),
-		Pattern.compile(".*[/:#]([^\\s\\.]+)") // failsafe best-guess pattern
-	};
-
 	@Override
 	protected void processInput(Resource input, Resource output) 
 	{
-		String pdbId = ServiceUtils.getDatabaseId(input, LSRN.PDB.PDB_IDENTIFIER, INPUT_URI_PATTERNS);
+		String pdbId = ServiceUtils.getDatabaseId(input, LSRN.PDB);
 
 		if(pdbId == null) {
 			log.error(String.format("unable to determine PDB ID for %s", input));
@@ -49,25 +38,9 @@ public class Pdb2UniProtServiceServlet extends SimpleAsynchronousServiceServlet
 	    EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
 
 	    for (UniProtEntry uniprotEntry : entryIterator) {
-	    	Resource uniprotNode = createUniProtNode(output.getModel(), uniprotEntry);
+    		String uniprotId = uniprotEntry.getPrimaryUniProtAccession().getValue();
+	    	Resource uniprotNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.UniProt, uniprotId);
 	    	output.addProperty(Properties.is3DStructureOf, uniprotNode);
 	    }
 	}
-	
-	protected Resource createUniProtNode(Model model, UniProtEntry uniprotEntry)
-	{
-		String uniprotId = uniprotEntry.getPrimaryUniProtAccession().getValue();
-		
-		String oldURI = String.format("%s%s", LSRN.UniProt.OLD_UNIPROT_PREFIX, uniprotId);
-		String URI = String.format("%s%s", LSRN.UniProt.UNIPROT_PREFIX, uniprotId);
-			
-		Resource uniprotNode = model.createResource(URI, LSRN.UniProt.UNIPROT_TYPE);
-		// add SIO identifier structure 
-		SIOUtils.createAttribute(uniprotNode, LSRN.UniProt.UNIPROT_IDENTIFIER, uniprotId);
-		// add link to old URI scheme
-		uniprotNode.addProperty(OWL.sameAs, model.createResource(oldURI));
-			
-		return uniprotNode;
-	}
-
 }

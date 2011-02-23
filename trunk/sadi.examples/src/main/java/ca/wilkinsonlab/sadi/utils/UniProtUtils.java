@@ -23,6 +23,7 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryBuilder;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 import ca.elmonline.util.BatchIterator;
+import ca.wilkinsonlab.sadi.vocab.LSRN;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
@@ -71,7 +72,7 @@ public class UniProtUtils
 	 */
 	public static String getUniProtId(Resource uniprotNode)
 	{
-		String id = ServiceUtils.getDatabaseId(uniprotNode, UniProt_Identifier, URI_PATTERNS);
+		String id = ServiceUtils.getDatabaseId(uniprotNode, LSRN.UniProt);
 		
 		if(id == null) {
 			log.warn("failsafe URI pattern failed to match");

@@ -19,6 +19,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @SuppressWarnings("serial")
 public class UniProt2OmimServiceServlet extends UniProtServiceServlet
 {
+	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2OmimServiceServlet.class);
 	
 	private static final String OLD_OMIM_PREFIX = "http://biordf.net/moby/OMIM/";
@@ -30,7 +31,6 @@ public class UniProt2OmimServiceServlet extends UniProtServiceServlet
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
 	{
-		log.debug("1");
 		for (DatabaseCrossReference xref: input.getDatabaseCrossReferences(DatabaseType.MIM)) {
 			Resource omimNode = createOmimNode(output.getModel(), (Mim)xref);
 			output.addProperty(SIO.is_causally_related_with, omimNode);
@@ -39,8 +39,6 @@ public class UniProt2OmimServiceServlet extends UniProtServiceServlet
 
 	private Resource createOmimNode(Model model, Mim omim)
 	{
-		log.debug("2");
-		
 		Resource omimNode = model.createResource(getOmimUri(omim), OMIM_Type);
 		
 		// add identifier structure...
@@ -57,21 +55,18 @@ public class UniProt2OmimServiceServlet extends UniProtServiceServlet
 	
 	private static String getOmimUri(Mim omim)
 	{
-		log.debug("3");
 		String omimId = omim.getMimAccessionNumber().getValue();
 		return String.format("%s%s", OMIM_PREFIX, omimId);
 	}
 	
 	private static String getOldOmimUri(Mim omim)
 	{
-		log.debug("4");
 		String omimId = omim.getMimAccessionNumber().getValue();
 		return String.format("%s%s", OLD_OMIM_PREFIX, omimId);
 	}
 
 	private static String getLabel(Mim omim)
 	{
-		log.debug("5");
 		return omim.toString();
 	}
 }

@@ -11,7 +11,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-public class KeggUtilsTest 
+public class LSRNTest 
 {
 	@Test
 	public void testFailsafeKeggGeneRegex()
@@ -24,9 +24,9 @@ public class KeggUtilsTest
 		Resource resource2 = model.createResource("http://unrecognized.uri.pattern:hsa:1234");
 		Resource resource3 = model.createResource("http://unrecognized.uri.pattern#hsa:1234");
 		
-		String id1 = ServiceUtils.getDatabaseId(resource1, LSRN.KEGG.GENE_IDENTIFIER, LSRN.KEGG.GENE_URI_PATTERNS);
-		String id2 = ServiceUtils.getDatabaseId(resource2, LSRN.KEGG.GENE_IDENTIFIER, LSRN.KEGG.GENE_URI_PATTERNS);
-		String id3 = ServiceUtils.getDatabaseId(resource3, LSRN.KEGG.GENE_IDENTIFIER, LSRN.KEGG.GENE_URI_PATTERNS);
+		String id1 = ServiceUtils.getDatabaseId(resource1, LSRN.KEGG.Gene);
+		String id2 = ServiceUtils.getDatabaseId(resource2, LSRN.KEGG.Gene);
+		String id3 = ServiceUtils.getDatabaseId(resource3, LSRN.KEGG.Gene);
 		
 		assertTrue(id1.equals("hsa:1234"));
 		assertTrue(id2.equals("hsa:1234"));
@@ -44,9 +44,9 @@ public class KeggUtilsTest
 		Resource resource2 = model.createResource("http://unrecognized.uri.pattern:cpd:1234");
 		Resource resource3 = model.createResource("http://unrecognized.uri.pattern#cpd:1234");
 		
-		String id1 = ServiceUtils.getDatabaseId(resource1, LSRN.KEGG.GENE_IDENTIFIER, LSRN.KEGG.COMPOUND_URI_PATTERNS);
-		String id2 = ServiceUtils.getDatabaseId(resource2, LSRN.KEGG.GENE_IDENTIFIER, LSRN.KEGG.COMPOUND_URI_PATTERNS);
-		String id3 = ServiceUtils.getDatabaseId(resource3, LSRN.KEGG.GENE_IDENTIFIER, LSRN.KEGG.COMPOUND_URI_PATTERNS);
+		String id1 = ServiceUtils.getDatabaseId(resource1, LSRN.KEGG.Gene);
+		String id2 = ServiceUtils.getDatabaseId(resource2, LSRN.KEGG.Gene);
+		String id3 = ServiceUtils.getDatabaseId(resource3, LSRN.KEGG.Gene);
 		
 		assertTrue(id1.equals("cpd:1234"));
 		assertTrue(id2.equals("cpd:1234"));

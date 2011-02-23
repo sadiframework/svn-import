@@ -1,5 +1,7 @@
 package ca.wilkinsonlab.sadi.vocab;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -8,87 +10,193 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 public class LSRN 
 {
-	private static Model m_model = ModelFactory.createDefaultModel();
-
 	public static final String ONTOLOGY_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
-	public static final String ENTITY_PREFIX = "http://lsrn.org/";
-	public static final String OLD_ENTITY_PREFIX = "http://biordf.net/moby/";
-
-	public static final String ENTITY_PREFIX_REGEX = "http://lsrn\\.org/";
-	public static final String OLD_ENTITY_PREFIX_REGEX = "http://biordf\\.net/moby/";
-
-	static public class UniProt
+	
+	public static final LSRNRecordType UniProt = new LSRNRecordType("UniProt", "UniProt");
+	public static final LSRNRecordType PDB = new LSRNRecordType("PDB", "PDB");
+	
+	static public class Entrez
 	{
-		public static final String OLD_UNIPROT_PREFIX = String.format("%sUniProt/", OLD_ENTITY_PREFIX);
-		public static final String UNIPROT_PREFIX = String.format("%sUniProt:", ENTITY_PREFIX);
-		public static final Resource UNIPROT_TYPE = m_model.createResource(ONTOLOGY_PREFIX + "UniProt_Record");
-		public static final Resource UNIPROT_IDENTIFIER = m_model.createResource(ONTOLOGY_PREFIX + "UniProt_Identifier");
+		public static final LSRNRecordType Gene = new LSRNRecordType("GeneID", "EntrezGene_ID");
 	}
-
+	
 	static public class PubChem 
 	{
-		public static final String OLD_SUBSTANCE_PREFIX = String.format("%sPubChem_Substance/", OLD_ENTITY_PREFIX);
-		public static final String SUBSTANCE_PREFIX = String.format("%sPubChem_Substance:", ENTITY_PREFIX);
-		public static final Resource SUBSTANCE_TYPE = m_model.createResource(ONTOLOGY_PREFIX + "PubChem_Substance_Record");
-		public static final Resource SUBSTANCE_IDENTIFIER = m_model.createResource(ONTOLOGY_PREFIX + "PubChem_Substance_Identifier");
+		public static final LSRNRecordType Substance = new LSRNRecordType("PubChem_Substance", "PubChem_Substance");
 	}
 	
 	static public class KEGG 
 	{
-		static public final Pattern[] GENE_URI_PATTERNS = {
-			Pattern.compile(String.format("%sKEGG/(\\S+)", OLD_ENTITY_PREFIX_REGEX)), 
-			Pattern.compile(String.format("%sKEGG:(\\S+)", ENTITY_PREFIX_REGEX)),
-			Pattern.compile(".*[/:#](\\S{3}:\\S+)") // failsafe best-guess pattern
-		};
-
-		public static final String OLD_GENE_PREFIX = String.format("%sKEGG/", OLD_ENTITY_PREFIX);
-		public static final String GENE_PREFIX = String.format("%sKEGG:", ENTITY_PREFIX);
-		public static final Resource GENE_TYPE = m_model.createResource(ONTOLOGY_PREFIX + "KEGG_Record");
-		public static final Resource GENE_IDENTIFIER = m_model.createResource(ONTOLOGY_PREFIX + "KEGG_Identifier");
-
-		static public final Pattern[] PATHWAY_URI_PATTERNS = {
-			Pattern.compile(String.format("%sKEGG_PATHWAY/(\\S+)", OLD_ENTITY_PREFIX_REGEX)),
-			Pattern.compile(String.format("%sKEGG_PATHWAY:(\\S+)", ENTITY_PREFIX_REGEX)),
-			Pattern.compile(".*[/:#]([^\\s\\.]+)") // failsafe best-guess pattern
-		};
-
-		public static final String OLD_PATHWAY_PREFIX = String.format("%sKEGG_PATHWAY/", OLD_ENTITY_PREFIX);
-		public static final String PATHWAY_PREFIX = String.format("%sKEGG_PATHWAY:", ENTITY_PREFIX);
-		public static final Resource PATHWAY_TYPE = m_model.createResource(ONTOLOGY_PREFIX + "KEGG_PATHWAY_Record");
-		public static final Resource PATHWAY_IDENTIFIER = m_model.createResource(ONTOLOGY_PREFIX + "KEGG_PATHWAY_Identifier");
-
-		static public final Pattern[] COMPOUND_URI_PATTERNS = {
-			Pattern.compile(String.format("%sKEGG_COMPOUND/(\\S+)", OLD_ENTITY_PREFIX_REGEX)),
-			Pattern.compile(String.format("%sKEGG_COMPOUND:(\\S+)", ENTITY_PREFIX_REGEX)),
-			Pattern.compile(".*[/:#](cpd:\\S+)", Pattern.CASE_INSENSITIVE) // failsafe best-guess pattern
-		};
-		
-		public static final String OLD_COMPOUND_PREFIX = String.format("%sKEGG_COMPOUND/", OLD_ENTITY_PREFIX);
-		public static final String COMPOUND_PREFIX = String.format("%sKEGG_COMPOUND:", ENTITY_PREFIX);
-		public static final Resource COMPOUND_TYPE = m_model.createResource(ONTOLOGY_PREFIX + "KEGG_COMPOUND_Record");
-		public static final Resource COMPOUND_IDENTIFIER = m_model.createResource(ONTOLOGY_PREFIX + "KEGG_COMPOUND_Identifier");
+		static public final LSRNRecordType Gene = new LSRNRecordType("KEGG", "KEGG", Pattern.compile(".*[/:#](\\S{3}:\\S+)"));
+		static public final LSRNRecordType Pathway = new LSRNRecordType("KEGG_PATHWAY", "KEGG_PATHWAY");
+		static public final LSRNRecordType Compound = new LSRNRecordType("KEGG_COMPOUND", "KEGG_COMPOUND", Pattern.compile(".*[/:#](cpd:\\S+)", Pattern.CASE_INSENSITIVE));
 	}
 	
-	static public class PDB 
+	static public final class LSRNRecordType
 	{
-		public static final String OLD_PDB_PREFIX = String.format("%sPDB/", OLD_ENTITY_PREFIX);
-		public static final String PDB_PREFIX = String.format("%sPDB:", ENTITY_PREFIX);
-		public static final Resource PDB_TYPE = m_model.createResource(ONTOLOGY_PREFIX + "PDB_Record");
-		public static final Resource PDB_IDENTIFIER = m_model.createResource(ONTOLOGY_PREFIX + "PDB_Identifier");
-	}
-	
-	static public class EntrezGene
-	{
-		static public final Pattern[] GENE_URI_PATTERNS = {
-			Pattern.compile(String.format("%sEntrezGene_ID/(\\S+)", OLD_ENTITY_PREFIX_REGEX)),
-			Pattern.compile(String.format("%sGeneID:(\\S+)", ENTITY_PREFIX_REGEX)),
-			Pattern.compile(".*[/:#]([^\\s\\.]+)") // failsafe best-guess pattern
-		};
+		private final static Model m_model = ModelFactory.createDefaultModel();
 		
-		public static final String OLD_ENTREZ_GENE_PREFIX = String.format("%sEntrezGene_ID/", OLD_ENTITY_PREFIX);
-		public static final String ENTREZ_GENE_PREFIX = String.format("%sGeneID:", ENTITY_PREFIX);
-		public static final Resource ENTREZ_GENE_TYPE = m_model.createResource(ONTOLOGY_PREFIX + "GeneID_Record");
-		public static final Resource ENTREZ_GENE_IDENTIFIER = m_model.createResource(ONTOLOGY_PREFIX + "GeneID_Identifier");
+		private final static String URI_PREFIX = "http://lsrn.org/";
+		private final static String OLD_URI_PREFIX = "http://biordf.net/moby/";
+
+		public final static String URI_PREFIX_REGEX = "http://lsrn\\.org/";
+		public final static String OLD_URI_PREFIX_REGEX = "http://biordf\\.net/moby/";
+		
+		public final static Pattern DEFAULT_FAILSAFE_URI_PATTERN = Pattern.compile(".*[/:#]([^\\s\\.]+)");
+		
+		private final String namespace;
+		private final String mobyNamespace;
+
+		private final String uriPrefix;
+		private final String oldUriPrefix;
+		
+		private final Resource recordType;
+		private final Resource identifierType;
+		
+		private final List<Pattern> uriPatterns;
+		
+		/**
+		 * @param namespace The LSRN namespace for the record type (e.g. "UniProt").  
+		 */
+		public LSRNRecordType(String namespace) {
+			this(namespace, null, null, null);
+		}
+
+		/**
+		 * @param namespace The LSRN namespace for the record type (e.g. "UniProt").  
+		 * @param mobyNamespace The Moby namespace that is equivalent to the LSRN namespace.  This is useful
+		 * for compatibility with older SADI services that use a legacy URI scheme 
+		 * (http://biordf.net/moby/$MOBY_NAMESPACE/$ID). This argument may be null.
+		 */
+		public LSRNRecordType(String namespace, String mobyNamespace) {
+			this(namespace, mobyNamespace, null, null);
+		}
+		
+		/**
+		 * @param namespace The LSRN namespace for the record type (e.g. "UniProt").  
+		 * @param failsafeUriPattern This regex is used as a last ditch attempt to extract an ID from a given URI,
+		 * if the URI doesn't match any of the other regexes (including those provided by additionalUriPatterns).
+		 * The default value for failsafeUriPattern is ".*[/:#]([^\\s\\.]+)". This argument may be null.
+		 */
+		public LSRNRecordType(String namespace, Pattern failsafeUriPattern) {
+			this(namespace, null, null, failsafeUriPattern);
+		}
+
+		/**
+		 * @param namespace The LSRN namespace for the record type (e.g. "UniProt").  
+		 * @param mobyNamespace The Moby namespace that is equivalent to the LSRN namespace.  This is useful
+		 * for compatibility with older SADI services that use a legacy URI scheme 
+		 * (http://biordf.net/moby/$MOBY_NAMESPACE/$ID). This argument may be null.
+		 * @param failsafeUriPattern This regex is used as a last ditch attempt to extract an ID from a given URI,
+		 * if the URI doesn't match any of the other regexes (including those provided by additionalUriPatterns).
+		 * The default value for failsafeUriPattern is ".*[/:#]([^\\s\\.]+)". This argument may be null.
+		 */
+		public LSRNRecordType(String namespace, String mobyNamespace, Pattern failsafeUriPattern) {
+			this(namespace, mobyNamespace, null, failsafeUriPattern);
+		}
+
+		/**
+		 * @param namespace The LSRN namespace for the record type (e.g. "UniProt").  
+		 * @param additionalUriPatterns Additional URI regexes that correspond to this LSRN record type.
+		 * The default URI regexes are "http://lsrn\.org/$NAMESPACE/(\\S+)" and 
+		 * "http://biordf\.net/moby/$MOBY_NAMESPACE/(\\S+)", where the bracketed group represents the 
+		 * ID portion of the URI. The provided URI patterns should likewise contain a single capturing 
+		 * group for the ID portion of the URI. This argument may be null.
+		 */
+		public LSRNRecordType(String namespace, Pattern[] additionalUriPatterns) {
+			this(namespace, null, additionalUriPatterns, null);
+		}
+		
+		/**
+		 * @param namespace The LSRN namespace for the record type (e.g. "UniProt").  
+		 * @param additionalUriPatterns Additional URI regexes that correspond to this LSRN record type.
+		 * The default URI regexes are "http://lsrn\.org/$NAMESPACE/(\\S+)" and 
+		 * "http://biordf\.net/moby/$MOBY_NAMESPACE/(\\S+)", where the bracketed group represents the 
+		 * ID portion of the URI. The provided URI patterns should likewise contain a single capturing 
+		 * group for the ID portion of the URI. This argument may be null.
+		 * @param failsafeUriPattern This regex is used as a last ditch attempt to extract an ID from a given URI,
+		 * if the URI doesn't match any of the other regexes (including those provided by additionalUriPatterns).
+		 * The default value for failsafeUriPattern is ".*[/:#]([^\\s\\.]+)". This argument may be null.
+		 */
+		public LSRNRecordType(String namespace, Pattern[] additionalUriPatterns, Pattern failsafeUriPattern) {
+			this(namespace, null, additionalUriPatterns, failsafeUriPattern);
+		}
+		
+		/**
+		 * @param namespace The LSRN namespace for the record type (e.g. "UniProt").  
+		 * @param mobyNamespace The Moby namespace that is equivalent to the LSRN namespace.  This is useful
+		 * for compatibility with older SADI services that use a legacy URI scheme 
+		 * (http://biordf.net/moby/$MOBY_NAMESPACE/$ID). This argument may be null.
+		 * @param additionalUriPatterns Additional URI regexes that correspond to this LSRN record type.
+		 * The default URI regexes are "http://lsrn\.org/$NAMESPACE/(\\S+)" and 
+		 * "http://biordf\.net/moby/$MOBY_NAMESPACE/(\\S+)", where the bracketed group represents the 
+		 * ID portion of the URI. The provided URI patterns should likewise contain a single capturing 
+		 * group for the ID portion of the URI. This argument may be null.
+		 * @param failsafeUriPattern This regex is used as a last ditch attempt to extract an ID from a given URI,
+		 * if the URI doesn't match any of the other regexes (including those provided by additionalUriPatterns).
+		 * The default value for failsafeUriPattern is ".*[/:#]([^\\s\\.]+)". This argument may be null.
+		 */
+		public LSRNRecordType(String namespace, String mobyNamespace, Pattern[] additionalUriPatterns, Pattern failsafeUriPattern) 
+		{
+			
+			this.namespace = namespace;
+			this.mobyNamespace = mobyNamespace;
+			
+			this.uriPrefix = String.format("%s%s:", URI_PREFIX, this.namespace);
+			this.oldUriPrefix = (mobyNamespace != null) ? String.format("%s%s/", OLD_URI_PREFIX, this.mobyNamespace) : null;
+		
+			this.recordType = m_model.createResource(String.format("%s%s_Record", ONTOLOGY_PREFIX, this.namespace));
+			this.identifierType = m_model.createResource(String.format("%s%s_Identifier", ONTOLOGY_PREFIX, this.namespace));
+			
+			this.uriPatterns = new ArrayList<Pattern>();
+			
+			this.uriPatterns.add(Pattern.compile(String.format("%s%s:(\\S+)", URI_PREFIX_REGEX, this.namespace)));
+			
+			if(mobyNamespace != null) {
+				this.uriPatterns.add(Pattern.compile(String.format("%s%s/(\\S+)", OLD_URI_PREFIX_REGEX, this.mobyNamespace)));
+			}
+
+			if(additionalUriPatterns != null) {
+				for(Pattern pattern : additionalUriPatterns) {
+					this.uriPatterns.add(pattern);
+				}
+			}
+			
+			if(failsafeUriPattern != null) {
+				this.uriPatterns.add(failsafeUriPattern);
+			} else {
+				this.uriPatterns.add(DEFAULT_FAILSAFE_URI_PATTERN);
+			}
+			
+		}
+		
+		public String getNamespace() {
+			return namespace;
+		}
+
+		public String getMobyNamespace() {
+			return mobyNamespace;
+		}
+
+		public String getUriPrefix() {
+			return uriPrefix;
+		}
+
+		public String getOldUriPrefix() {
+			return oldUriPrefix;
+		}
+
+		public Resource getRecordTypeURI() {
+			return recordType;
+		}
+
+		public Resource getIdentifierTypeURI() {
+			return identifierType;
+		}
+
+		public Pattern[] getURIPatterns() {
+			return uriPatterns.toArray(new Pattern[0]);
+		}
 	}
 	
 }
