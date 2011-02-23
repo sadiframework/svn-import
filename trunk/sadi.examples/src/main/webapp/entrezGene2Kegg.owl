@@ -25,7 +25,7 @@
     <rdfs:subClassOf rdf:resource="&lsrn;GeneID_Record"/>
     <rdfs:subClassOf>
       <owl:Restriction>
-        <owl:onProperty rdf:resource="&sio;SIO_010078"/>
+        <owl:onProperty rdf:resource="&owl;sameAs"/>
         <owl:someValuesFrom rdf:resource="&lsrn;KEGG_Record"/>
       </owl:Restriction>
     </rdfs:subClassOf>
