@@ -73,6 +73,16 @@ public abstract class ServiceServlet extends HttpServlet
 	public static final String SERVICE_DEFINITION_KEY = "rdf";
 	public static final String SERVICE_URL_KEY = "url";
 	
+	/**
+	 * If this system property is set, any service URL specified in the service
+	 * configuration will be ignored. This causes the service description to
+	 * published with a root URI of "", which is useful for local service
+	 * testing. For asynchronous services, it also causes the polling URLs to be
+	 * automatically generated from the original request URL, which is also
+	 * useful for local service testing.
+	 */
+	public static final String IGNORE_FORCED_URL_SYSTEM_PROPERTY = "sadi.service.ignoreForcedURL";
+	
 	private static final Logger log = Logger.getLogger(ServiceServlet.class);
 	private static final long serialVersionUID = 1L;
 
@@ -619,19 +629,7 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	protected String getServiceURL()
 	{
-		/* 
-		 * If ignoreForcedURL is set, any service URL specified in the 
-		 * service configuration will be ignored.  This causes the service 
-		 * description to published with a root URI of "", which is useful for 
-		 * local service testing.  For asynchronous services, it also causes 
-		 * the polling URLs to be automatically generated from the 
-		 * original request URL, which is also useful for local service testing.
-		 * 
-		 * --BV
-		 */
-		String ignoreForcedURL = System.getProperty("sadi.service.ignoreForcedURL");
-		if(ignoreForcedURL != null) {
-			log.warn("ignoring specified service URL");
+		if(System.getProperty(IGNORE_FORCED_URL_SYSTEM_PROPERTY) != null) {
 			return null;
 		}
 		
