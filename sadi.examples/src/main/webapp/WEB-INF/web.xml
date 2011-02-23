@@ -121,6 +121,11 @@
     <servlet-class>ca.wilkinsonlab.sadi.service.example.EntrezGene2UniProtServiceServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>entrezGene2Kegg</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.EntrezGene2KeggServiceServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>echo</servlet-name>
     <url-pattern>/echo</url-pattern>
@@ -234,6 +239,11 @@
   <servlet-mapping>
     <servlet-name>entrezGene2Uniprot</servlet-name>
     <url-pattern>/entrezGene2Uniprot</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>entrezGene2Kegg</servlet-name>
+    <url-pattern>/entrezGene2Kegg</url-pattern>
   </servlet-mapping>
 
 </web-app>
