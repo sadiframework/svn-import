@@ -23,7 +23,7 @@ import com.hp.hpl.jena.util.LocationMapper;
 public class ServiceServletTest
 {
 	private static final Logger log = Logger.getLogger(ServiceServletTest.class);
-	private static final String URI_PREFIX = "http://wilkinsonlab.ca/sadi/service/";
+	private static final String URI_PREFIX = "http://sadiframework.org/examples/";
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
@@ -69,7 +69,8 @@ public class ServiceServletTest
 	@InputClass(URI_PREFIX + "hello.owl#NamedIndividual")
 	@OutputClass(URI_PREFIX + "hello.owl#GreetedIndividual")
 	@ParameterClass(URI_PREFIX + "hello.owl#SecondaryParameters")
-	@ParameterDefaults({URI_PREFIX + "hello.owl#defaultParameters"})
+//	@ParameterDefaults({URI_PREFIX + "hello.owl#defaultParameters"})
+	@ParameterDefaults({"http://sadiframework.org/examples/hello.owl#lang, http://www.w3.org/2001/XMLSchema#string", "en"})
 	private static class ParameterizedServiceServlet extends ServiceServlet
 	{
 		private static final long serialVersionUID = 1L;
