@@ -74,12 +74,15 @@ public abstract class ServiceServlet extends HttpServlet
 	public static final String SERVICE_URL_KEY = "url";
 	
 	/**
-	 * If this system property is set, any service URL specified in the service
-	 * configuration will be ignored. This causes the service description to
-	 * published with a root URI of "", which is useful for local service
-	 * testing. For asynchronous services, it also causes the polling URLs to be
-	 * automatically generated from the original request URL, which is also
-	 * useful for local service testing.
+	 * If this system property is set, any configured service URL will be 
+	 * ignored. A service URL only needs to be set explicitly in baroque 
+	 * network configurations where the request URL that the service servlet 
+	 * receives is not the external service URL (and even then, only with 
+	 * asynchronous services because they generate polling URLs from the 
+	 * request URL...) In these cases, the configured service URL will often 
+	 * not apply during service testing (which will usually take place on 
+	 * localhost), so this property can simply be set on the local JVM and the
+	 * service WAR can be run locally and on the server without modification.
 	 */
 	public static final String IGNORE_FORCED_URL_SYSTEM_PROPERTY = "sadi.service.ignoreForcedURL";
 	
@@ -96,6 +99,8 @@ public abstract class ServiceServlet extends HttpServlet
 	protected Resource outputClass;
 	protected Resource parameterClass;
 	protected Resource defaultParameters;
+	
+	private boolean ignoreForcedURL;
 	
 //	/* In most cases, the service URI in the description will be null, in which case the
 //	 * service model is constructed with a root node whose URI is "" (and 
@@ -194,6 +199,23 @@ public abstract class ServiceServlet extends HttpServlet
 	public void init() throws ServletException
 	{
 		log.trace("entering ServiceServlet.init()");
+		
+		/* getServiceURL() will usually return null; a service URL only needs
+		 * to be set explicitly in baroque network configurations where the
+		 * request URL that the service servlet receives is not the external
+		 * service URL (and even then, only with asynchronous services that
+		 * generate polling URLs from the request URL...)
+		 * In these cases, the configured service URL will often not apply 
+		 * during service testing (which will usually take place on localhost).
+		 * To facilitate testing, the configured service URL will be ignored
+		 * if the property "sadi.service.ignoreForcedURL" is set on the JVM.
+		 */
+		if (System.getProperty(IGNORE_FORCED_URL_SYSTEM_PROPERTY) != null) {
+			log.info("ignoring specified service URL");
+			ignoreForcedURL = true;
+		} else {
+			ignoreForcedURL = false;
+		}
 		
 		config = Config.getConfiguration().getServiceConfiguration(this);
 		if (config == null)
@@ -364,11 +386,7 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	protected Model createServiceModel()
 	{
-		/* we don't actually need any reasoning in this model, but
-		 * createOntologyModel returns a model that actually pays attention
-		 * to the LocationMapper, which is _really_ useful for unit testing...
-		 */
-		Model model = ModelFactory.createOntologyModel();
+		Model model = modelMaker.createFreshModel();
 		model.getReader().setErrorHandler(errorHandler);
 		model.setNsPrefix("mygrid", "http://www.mygrid.org.uk/mygrid-moby-service#");
 		return model;
@@ -629,9 +647,8 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	protected String getServiceURL()
 	{
-		if(System.getProperty(IGNORE_FORCED_URL_SYSTEM_PROPERTY) != null) {
+		if (ignoreForcedURL)
 			return null;
-		}
 		
 		URI annotation = getClass().getAnnotation(URI.class);
 		if (annotation != null) {

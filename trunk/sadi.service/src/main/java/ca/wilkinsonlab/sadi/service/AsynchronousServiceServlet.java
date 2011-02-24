@@ -35,8 +35,8 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	{
 		super.init();
 		
-		if(System.getProperty(ServiceServlet.IGNORE_FORCED_URL_SYSTEM_PROPERTY) == null && getServiceURL() == null) {
-			log.warn("asynchronous services may not work correctly if the URL of the service is not specified in sadi.properties or by a class annotation");
+		if (getServiceURL() == null) {
+			log.warn("this asynchronous service has no explicit service URL; this will cause problems if the service is behind a proxy");
 		}
 	}
 	
