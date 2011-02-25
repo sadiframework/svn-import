@@ -15,6 +15,7 @@ import keggapi.KEGGLocator;
 import keggapi.KEGGPortType;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -166,6 +167,43 @@ public class KeggUtils
 		}
 		
 		return organismMatcher.group();
+	}
+	
+	private static final String DBLINKS_RECORD_SECTION = "DBLINKS";
+	
+	public static Map<String,List<String>> getCrossReferences(String keggRecord) 
+	{
+		Map<String,List<String>> crossRefMap = new HashMap<String,List<String>>();
+		Map<String,String> recordSections = KeggUtils.getSectionsFromKeggRecord(keggRecord);
+		StrTokenizer tokenizer = new StrTokenizer();
+		
+		if(recordSections.containsKey(DBLINKS_RECORD_SECTION)) {
+			
+			for(String line : recordSections.get(DBLINKS_RECORD_SECTION).split("\\r?\\n")) {
+
+				tokenizer.reset(line);
+				
+				if(!tokenizer.hasNext()) {
+					continue;
+				}
+
+				String lineLabel = StringUtils.removeEnd(tokenizer.nextToken(), ":");
+
+				if(!tokenizer.hasNext()) {
+					continue;
+				}
+				
+				List<String> crossRefs = new ArrayList<String>();
+				while(tokenizer.hasNext()) {
+					crossRefs.add(tokenizer.nextToken());
+				}
+				
+				crossRefMap.put(lineLabel, crossRefs);
+			}
+
+		}
+		
+		return crossRefMap;
 	}
 	
 	private static Cache getCache()
