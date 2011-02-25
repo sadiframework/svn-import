@@ -27,9 +27,9 @@ public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
 	}
 	
 	@Override
-	protected void processInput(String keggGeneId, String keggGeneRecord, Resource output)
+	protected void processInput(String keggCompoundId, String keggCompoundRecord, Resource output)
 	{
-		Map<String,String> recordSections = KeggUtils.getSectionsFromKeggRecord(keggGeneRecord);
+		Map<String,String> recordSections = KeggUtils.getSectionsFromKeggRecord(keggCompoundRecord);
 		StrTokenizer tokenizer = new StrTokenizer();
 		
 		if(recordSections.containsKey(DBLINKS_RECORD_SECTION)) {
