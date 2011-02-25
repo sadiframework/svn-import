@@ -12,7 +12,12 @@ public class LSRN
 {
 	public static final String ONTOLOGY_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
 	
-	public static final LSRNRecordType UniProt = new LSRNRecordType("UniProt", "UniProt");
+	public static Pattern[] ADDITIONAL_UNIPROT_URI_PATTERNS = new Pattern[] {
+		Pattern.compile("http://purl.uniprot.org/uniprot/([^\\s\\.\\?]*)"),
+		Pattern.compile("http://www.uniprot.org/uniprot/([^\\s\\.\\?]*)"),
+	};
+	
+	public static final LSRNRecordType UniProt = new LSRNRecordType("UniProt", "UniProt", ADDITIONAL_UNIPROT_URI_PATTERNS);
 	public static final LSRNRecordType PDB = new LSRNRecordType("PDB", "PDB");
 	
 	static public class Entrez
@@ -120,6 +125,21 @@ public class LSRN
 		 */
 		public LSRNRecordType(String namespace, Pattern[] additionalUriPatterns, Pattern failsafeUriPattern) {
 			this(namespace, null, additionalUriPatterns, failsafeUriPattern);
+		}
+
+		/**
+		 * @param namespace The LSRN namespace for the record type (e.g. "UniProt").  
+		 * @param mobyNamespace The Moby namespace that is equivalent to the LSRN namespace.  This is useful
+		 * for compatibility with older SADI services that use a legacy URI scheme 
+		 * (http://biordf.net/moby/$MOBY_NAMESPACE/$ID). This argument may be null.
+		 * @param additionalUriPatterns Additional URI regexes that correspond to this LSRN record type.
+		 * The default URI regexes are "http://lsrn\.org/$NAMESPACE/(\\S+)" and 
+		 * "http://biordf\.net/moby/$MOBY_NAMESPACE/(\\S+)", where the bracketed group represents the 
+		 * ID portion of the URI. The provided URI patterns should likewise contain a single capturing 
+		 * group for the ID portion of the URI. This argument may be null.
+		 */
+		public LSRNRecordType(String namespace, String mobyNamespace, Pattern[] additionalUriPatterns) {
+			this(namespace, mobyNamespace, additionalUriPatterns, null);
 		}
 		
 		/**
