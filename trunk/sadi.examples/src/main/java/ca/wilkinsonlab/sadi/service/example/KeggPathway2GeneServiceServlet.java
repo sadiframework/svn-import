@@ -1,16 +1,16 @@
 package ca.wilkinsonlab.sadi.service.example;
 
-import java.rmi.RemoteException;
+import java.util.Map;
 
-import javax.xml.rpc.ServiceException;
-
+import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ca.wilkinsonlab.sadi.utils.KeggUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
 import ca.wilkinsonlab.sadi.vocab.SIO;
-import ca.wilkinsonlab.sadi.vocab.LSRN.KEGG;
+import ca.wilkinsonlab.sadi.vocab.LSRN.LSRNRecordType;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -18,29 +18,43 @@ import com.hp.hpl.jena.rdf.model.Resource;
 public class KeggPathway2GeneServiceServlet extends KeggServiceServlet
 {
 	private static final Log log = LogFactory.getLog(KeggPathway2GeneServiceServlet.class);
+	private static final String GENE_RECORD_SECTION = "GENE";
 	
 	@Override
-	protected void processInput(Resource input, Resource output)
+	protected LSRNRecordType getInputRecordType() {
+		return LSRN.KEGG.Pathway;
+	}
+	
+	@Override 
+	protected String getInputIdPrefix() {
+		return KeggUtils.PATHWAY_ID_PREFIX;
+	}
+	
+	@Override
+	protected void processInput(String keggPathwayId, String keggPathwayRecord, Resource output)
 	{
-		String keggPathwayId = ServiceUtils.getDatabaseId(input, LSRN.KEGG.Pathway);
+		// organism-independent meta-pathways have identifiers starting with "ko"
 		
-		if(keggPathwayId == null) {
-			log.error(String.format("unable to determine KEGG pathway ID for %s", input));
+		if(keggPathwayId.startsWith("ko")) {
+			log.warn(String.format("skipping input pathway id %s, this service only works for organism specific pathways (e.g. hsa00010)", keggPathwayId));
+		}
+		
+		String organismCode = KeggUtils.getOrganismCodeFromPathwayId(keggPathwayId); 
+		if(organismCode == null) {
+			log.warn(String.format("skipping input pathway id %s, unable to determine organism code for pathway", keggPathwayId));
 			return;
 		}
+
+		Map<String,String> recordSections = KeggUtils.getSectionsFromKeggRecord(keggPathwayRecord);
+		StrTokenizer tokenizer = new StrTokenizer();
 		
-		String[] keggGeneIds;
-		try {
-			keggGeneIds = getKeggService().get_genes_by_pathway(String.format("path:%s", keggPathwayId));
-		} catch(ServiceException e) {
-			throw new RuntimeException("error initializing KEGG API service:", e);
-		} catch(RemoteException e) {
-			throw new RuntimeException("error invoking KEGG API service:", e);
-		}
-		
-		for(String keggGeneId : keggGeneIds) {
-			Resource keggGeneNode = ServiceUtils.createLSRNRecordNode(output.getModel(), KEGG.Gene, keggGeneId);
-			output.addProperty(SIO.has_participant, keggGeneNode);
+		if(recordSections.containsKey(GENE_RECORD_SECTION)) {
+			for(String line : recordSections.get(GENE_RECORD_SECTION).split("\\r?\\n")) {
+				String keggGeneId = String.format("%s:%s", organismCode, tokenizer.reset(line).nextToken());
+				Resource keggGeneNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.KEGG.Gene, keggGeneId);
+				output.addProperty(SIO.has_participant, keggGeneNode);
+			}
 		}
 	}
+
 }
