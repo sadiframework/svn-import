@@ -600,15 +600,15 @@ public class GenerateService extends AbstractMojo
 		@Override
 		public void endElement (String uri, String localName, String qName) throws SAXException
 		{
-			if (localName.equals("servlet-name")) {
+			if (localName.equals("servlet-name") || qName.equals("servlet-name")) {
 				servletName = accumulator.toString().trim();
-			} else if (localName.equals("servlet-class")) {
+			} else if (localName.equals("servlet-class") || qName.equals("servlet-class")) {
 				servletClass = accumulator.toString().trim();
-			} else if (localName.equals("url-pattern")) {
+			} else if (localName.equals("url-pattern") || qName.equals("url-pattern")) {
 				servletUrl = accumulator.toString().trim();
-			} else if (localName.equals("servlet")) {
+			} else if (localName.equals("servlet") || qName.equals("servlet")) {
 				name2class.put(servletName, servletClass);
-			} else if (localName.equals("servlet-mapping")) {
+			} else if (localName.equals("servlet-mapping") || qName.equals("servlet-mapping")) {
 				name2url.put(servletName, servletUrl);
 			}
 			accumulator.setLength(0);
