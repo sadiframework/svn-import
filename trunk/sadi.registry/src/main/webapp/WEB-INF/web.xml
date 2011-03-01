@@ -15,11 +15,13 @@
 
    <auth-constraint>
      <role-name>admin</role-name>
+     <role-name>unregister</role-name>
    </auth-constraint>
   </security-constraint> 
 
   <login-config>
     <auth-method>BASIC</auth-method>
+	<realm-name>SADI registry admin</realm-name>
   </login-config>
   
   <security-role>
