@@ -1,6 +1,3 @@
-/**
- * 
- */
 package ca.wilkinsonlab.sadi.registry;
 
 import java.io.IOException;
@@ -13,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 
+import ca.wilkinsonlab.sadi.beans.ServiceBean;
 import ca.wilkinsonlab.sadi.registry.utils.Twitter;
 
 import twitter4j.http.AccessToken;
@@ -60,6 +58,26 @@ public class AdminServlet extends HttpServlet
 			}
 			request.setAttribute("accessToken", accessToken); // might be null...
 			getServletConfig().getServletContext().getRequestDispatcher("/admin/index.jsp").forward(request, response);
+		} else if (request.isUserInRole("unregister")) {
+			String serviceURI = request.getParameter("serviceURI");
+			if (serviceURI != null) {
+				ServiceBean service = new ServiceBean();
+				service.setURI(serviceURI);
+				request.setAttribute("service", service);
+				
+				Registry registry = null;
+				try {
+					registry = Registry.getRegistry();
+					registry.unregisterService(serviceURI);
+				} catch (Exception e) {
+					log.error(String.format("unregistration failed for %s: %s", serviceURI, e.getMessage()), e);
+					request.setAttribute("error", e.getMessage() != null ? e.getMessage() : e.toString());
+				} finally {
+					if (registry != null)
+						registry.getModel().close();
+				}
+			}
+			getServletConfig().getServletContext().getRequestDispatcher("/admin/unregister.jsp").forward(request, response);
 		} else {
 			log.error("attempted unauthorized access to admin servlet");
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
