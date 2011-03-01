@@ -1,0 +1,19 @@
+<lowering>
+  <sparqlQuery>
+    PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#> 
+    SELECT ?literalID ?inputNodeURI
+    WHERE {
+      {
+        ?inputNodeURI rdf:type &lt;http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record> ;
+        ?x ?y .
+        ?y &lt;http://semanticscience.org/resource/SIO_000300> ?literalID .
+      }
+      UNION 
+        { 
+          ?inputNodeURI rdf:type &lt;http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record> .
+          ?inputNodeURI &lt;http://semanticscience.org/resource/SIO_000300> ?literalID .
+        }
+    }
+  </sparqlQuery>
+  <template>&lt;sadiSoapMapping>#foreach($l_template_value_xyz in $literalID)&lt;pathway_id>path:$l_template_value_xyz&lt;/pathway_id>#end&lt;/sadiSoapMapping></template>
+</lowering>

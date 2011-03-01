@@ -1,0 +1,20 @@
+<$inputNodeURI> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$sadi_output_owl_class> .
+#foreach( $item in $owl_property_mappings)
+#if ($item.getExtraCount()==0)
+  #if ($item.isArray())
+      \#foreach($l_template_value_xyz in $${item.getSoapId()})
+<$inputNodeURI> <$item.getOwlProperty()> "$l_template_value_xyz" . 
+      \#end
+  #else
+<$inputNodeURI> <$item.getOwlProperty()> "$${item.getSoapId()}" .
+  #end
+#else
+  #foreach( $extra in $item.getExtras() )
+    #if( $foreach.count ==  $item.getExtraCount())      
+         
+    #else
+          
+    #end
+  #end
+#end
+#end

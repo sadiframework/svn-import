@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+ xmlns="http://www.w3.org/2002/07/owl#"
+ xmlns:a="http://www.mygrid.org.uk/mygrid-moby-service#"
+ xmlns:b="http://purl.org/dc/elements/1.1/"
+ xml:base="http://bioinfo.icapture.ubc.ca/SADI"
+ xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+ xmlns:databases="http://sadiframework.org/ontologies/Databases.owl#"
+ xmlns:misc="http://sadiframework.org/ontologies/miscellaneousObjects.owl#"
+ xmlns:owl="http://www.w3.org/2002/07/owl#"
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">    
+  <rdf:Description rdf:about="http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway">
+    <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#serviceDescription"/>
+    <b:format>sadi</b:format>
+    <b:identifier>foobar</b:identifier>
+    <a:locationURI>http://localhost:8080/foo/getKeggDrugsByPathway</a:locationURI>
+    <a:hasServiceDescriptionText>impl of getKeggDrugsByPathway</a:hasServiceDescriptionText>
+    <a:hasServiceDescriptionLocation/>
+    <a:hasServiceNameText>getKeggDrugsByPathway</a:hasServiceNameText>
+    <a:providedBy>
+        <rdf:Description rdf:about="getKeggDrugsByPathway_sadiframework.org_1">
+            <a:authoritative rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</a:authoritative>
+            <b:creator>kawas@foo.com</b:creator>
+            <b:publisher>sadiframework.org</b:publisher>
+            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#organisation"/>
+        </rdf:Description>
+    </a:providedBy>
+    <a:hasOperation>
+        <rdf:Description rdf:about="getKeggDrugsByPathway_sadiframework.org_2">
+            <a:hasOperationNameText>$name</a:hasOperationNameText>
+            <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#operation"/>
+            <a:performsTask>
+                <rdf:Description rdf:about="getKeggDrugsByPathway_sadiframework.org_3">
+                    <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#operationTask"/>
+                    <rdf:type rdf:resource="$type"/>
+                </rdf:Description>
+            </a:performsTask>
+            <a:inputParameter>
+                <rdf:Description rdf:about="getKeggDrugsByPathway_sadiframework.org_4">
+                    <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameter"/>
+                    <a:objectType>
+                        <rdf:Description rdf:about="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+                    </a:objectType>
+                </rdf:Description>
+            </a:inputParameter>
+            <a:outputParameter>
+                <rdf:Description rdf:about="getKeggDrugsByPathway_sadiframework.org_5">
+                    <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameter"/>
+                    <a:objectType>
+                        <rdf:Description rdf:about="http://dev.biordf.net/~kawas/sawsdl/owl/get_drugs_by_pathway.owl#getDrugRecordsByPathway"/>
+                    </a:objectType>
+                </rdf:Description>
+            </a:outputParameter>
+        </rdf:Description>
+    </a:hasOperation>
+  </rdf:Description>
+</rdf:RDF>

@@ -1,0 +1,52 @@
+<?xml version='1.0' ?>
+<lifting>
+	<mapping>
+	  <!-- string implies that we get the value from our input map -->
+		<map
+			id="pathway_id"
+			type="string"/>
+		<map
+      id="inputNodeURI"
+      type="string"/>
+		<!-- xpath implies that we apply the xpath expression (in the text content) to our soap output -->
+		<map
+			id="drugResults"
+			type="xpath">
+//item/text()
+    </map>
+    <!-- regex implies that we apply the regex expression (in the text content) to our soap output -->
+	</mapping>
+	<template>
+		<rdf:RDF
+			xmlns:sio="http://semanticscience.org/resource/"
+			xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+			xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+			#**
+			<!-- This file uses velocity to populate the template with the appropriate 
+				values Inputs for this template are: * $pathway - the pathway record id that 
+				generated this output * $drugResults - the drug result list -->
+			*#
+			<rdf:Description
+				rdf:about="$inputNodeURI">
+				#foreach( $drug in $drugResults )
+				<sio:SIO_000132>
+					<rdf:Description
+						rdf:about="http://lsrn.org/KEGG_DRUG:$drug">
+						<rdf:type
+							rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Record" />
+						<sio:SIO_000008>
+							<rdf:Description>
+								<rdf:type
+									rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Identifier" />
+								<sio:SIO_000300>$drug</sio:SIO_000300>
+							</rdf:Description>
+						</sio:SIO_000008>
+					</rdf:Description>
+				</sio:SIO_000132>
+				#end
+				<rdf:type
+					rdf:resource="http://sadiframework.org/daggoo4s/get_drugs_by_pathway.owl#getDrugRecordsByPathway" />
+			</rdf:Description>
+		</rdf:RDF>
+	</template>
+</lifting>
