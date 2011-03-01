@@ -1,0 +1,50 @@
+#parse("HEADER.vm")
+<h1>Daggoo4SADI</h1>
+<p>some blurb here ...</p>
+<p>Creating a SADI service for the wsdl operation <strong>$operationname</strong>!</p>
+#if ($error) 
+    <strong>
+        <pre>$error</pre>
+    </strong>
+#end
+<h2>Service Details</h2> 
+<p>Enter your SADI service details:</p> 
+<form id="sadiform" name="sadiform" method="post" action="$servlet_action"> 
+<table width="100%" border="1"> 
+    <tr> 
+      <td width="12%"><div align="right">Service Name:</div></td> 
+      <td width="88%"><div align="left"> 
+        <input name="servicename" type="text" id="servicename" size="82" #if($servicename)value="$servicename"#end/> 
+      </div></td> 
+    </tr> 
+    <tr> 
+      <td><div align="right">Service Description:</div></td> 
+      <td><div align="left"> 
+        <input name="servicedescription" type="text" id="servicedescription" size="82" #if($servicedescription)value="$servicedescription"#end/> 
+      </div></td> 
+    </tr> 
+    <tr> 
+      <td><div align="right">Authority:</div></td> 
+      <td><div align="left"> 
+        <input name="serviceauthority" type="text" id="serviceauthority" size="82" #if($serviceauthority)value="$serviceauthority"#end/> 
+      </div></td> 
+    </tr> 
+    <tr> 
+      <td><div align="right">Contact Email Address:</div></td> 
+      <td><div align="left"> 
+        <input name="serviceemail" type="text" id="serviceemail" size="82" #if($serviceemail)value="$serviceemail"#end /> 
+      </div></td> 
+    </tr> 
+    <tr> 
+      <td><div align="right">Service Type:</div></td> 
+      <td><div align="left"> 
+        <input name="servicetype" type="text" id="servicetype" size="82" #if($servicetype)value="$servicetype"#end/> 
+      </div></td> 
+    </tr> 
+  </table> 
+  <p>
+    <input type="submit" name="submit" id="submit" value="Submit" /> 
+  </p>
+  <input name="next" type="hidden" id="next" value="true" />
+</form>
+#include("FOOTER.vm")

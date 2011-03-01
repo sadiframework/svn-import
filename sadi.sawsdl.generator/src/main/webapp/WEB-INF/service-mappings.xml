@@ -1,0 +1,15 @@
+<service-mappings>
+  <service 
+    name="calculateRegressionSAWSDL" 
+    sawsdl="calculateRegressionSAWSDL/regression.xml"
+    owl="calculateRegressionSAWSDL/regression.owl"
+    lifting="calculateRegressionSAWSDL/lifting_calculateRegression.xml"
+    lowering="calculateRegressionSAWSDL/lowering_calculateRegression.xml"
+     />
+  <service 
+    name="getKeggDrugsByPathway" 
+    sawsdl="getKeggDrugsByPathway/KEGG.sawsdl" 
+    owl="getKeggDrugsByPathway/get_drugs_by_pathway.owl"
+    lifting="getKeggDrugsByPathway/lifting.xml"
+    lowering="getKeggDrugsByPathway/lowering.xml"/>
+</service-mappings>

@@ -1,0 +1,14 @@
+#parse("HEADER.vm")
+<h1>Daggoo4SADI</h1>
+<p>You have successfully generated a SADI service from one described by WSDL.</p>
+<h2>Now what?</h2>
+<p>lol, what to put here? maybe links to sadiframework.org or SHARE client?</p>
+<p>TODO:
+  <ol>
+    <li>automatically register the service with sadiframework.org</li>
+    <li>provide a link to the service</li>
+    <li></li>
+    <li></li>
+  </ol>
+</p>
+#include("FOOTER.vm")

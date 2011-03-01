@@ -1,0 +1,19 @@
+#if($owl_property_mappings.size() > 1)
+  #foreach ($item in $owl_property_mappings)
+    #if($item.isArray())
+      \#foreach($l_template_value_xyz in $${item.getSoapId()})<$item.getSoapId()><item>$item.getPrefix()$l_template_value_xyz</item></$item.getSoapId()>\#end
+    #else
+      \#foreach($l_template_value_xyz in $${item.getSoapId()})<$item.getSoapId()>$item.getPrefix()$l_template_value_xyz</$item.getSoapId()>\#end
+    #end
+  #end
+#else
+  #foreach ($item in $owl_property_mappings)
+    #if($item.isArray())
+      \#foreach($l_template_value_xyz in $${item.getSoapId()})$item.getPrefix()${l_template_value_xyz}__sadi__delimiter__\#end
+    #else
+      #foreach ($item in $owl_property_mappings)
+        \#foreach($l_template_value_xyz in $${item.getSoapId()})$item.getPrefix()$l_template_value_xyz\#end
+      #end
+    #end
+  #end
+#end

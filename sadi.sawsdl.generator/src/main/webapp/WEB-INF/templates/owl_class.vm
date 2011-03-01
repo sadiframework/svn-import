@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+<rdf:RDF xmlns="$base"
+     xml:base="$base"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     >
+
+    <owl:Ontology rdf:about="">
+#foreach ($item in $owl_inputs)
+        <owl:imports rdf:resource="$item.getValuesFrom()"/>
+        <owl:imports rdf:resource="$item.getOwlProperty()"/>
+#end #foreach ($item in $owl_outputs)
+        <owl:imports rdf:resource="$item.getValuesFrom()"/>
+        <owl:imports rdf:resource="$item.getOwlProperty()"/>
+#end
+    </owl:Ontology>
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+<!-- INPUT CLASS -->
+    <owl:Class rdf:about="$base#inputClass">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+#foreach ($item in $owl_inputs)
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="$item.getOwlProperty()"/>
+                        <owl:someValuesFrom rdf:resource="$item.getValuesFrom()"/>
+                    </owl:Restriction>
+#foreach( $extra in $item.getExtras() )
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="$extra.get(0)"/>
+                        <owl:someValuesFrom rdf:resource="$extra.get(1)"/>
+                    </owl:Restriction>
+#end#end
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+
+<!-- OUTPUT CLASS -->
+    <owl:Class rdf:about="$base#outputClass">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="$base#inputClass"/>
+#foreach ($item in $owl_outputs)
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="$item.getOwlProperty()"/>
+                        <owl:someValuesFrom rdf:resource="$item.getValuesFrom()"/>
+                    </owl:Restriction>
+#end
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+
+</rdf:RDF>

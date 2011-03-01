@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+	targetNamespace="calculateRegression.wsdl"
+	xmlns:apachesoap="http://xml.apache.org/xml-soap"
+	xmlns:impl="calculateRegression.wsdl"
+	xmlns:intf="calculateRegression.wsdl"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:sawsdl="http://www.w3.org/ns/sawsdl"
+	xmlns:sadi="http://sadiframework.org/sadi"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<wsdl:types>
+		<schema
+			targetNamespace="calculateRegression.wsdl"
+			xmlns="http://www.w3.org/2001/XMLSchema"
+			xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+			<complexType
+				name="pair">
+				<sequence>
+					<element
+						name="x"
+						type="xsd:double" />
+					<element
+						name="y"
+						type="xsd:double" />
+				</sequence>
+			</complexType>
+			<complexType
+				name="pairs">
+				<sequence>
+					<element
+						maxOccurs="unbounded"
+						minOccurs="0"
+						name="item"
+						type="impl:pair" />
+				</sequence>
+			</complexType>
+			<element
+				name="slope"
+				type="xsd:double" />				 
+			<element
+				name="intercept"
+				type="xsd:double" />
+			<element
+				name="calculateRegressionResponse">
+				<complexType>
+					<sequence>
+						<element
+							name="slope"
+							type="impl:slope" />
+						<element
+							name="intercept"
+							type="impl:slope" />
+					</sequence>
+				</complexType>
+			</element>
+			<element
+        name="calculateRegressionRequest">
+        <complexType>
+          <sequence>
+            <element
+              name="pairs"
+              type="impl:pairs" />
+          </sequence>
+        </complexType>
+      </element>
+
+		</schema>
+	</wsdl:types>
+	<wsdl:message
+		name="calculateRegressionResponse">
+		<wsdl:part
+			type="impl:calculateRegressionResponse"
+			name="calculateRegressionResponse"
+			sawsdl:modelReference="http://sadiframework.org/examples/regression.owl#OutputClass"
+			sawsdl:liftingSchemaMapping="http://localhost:8080/services/calculateRegression/lifting_calculateRegression.xml" />
+	</wsdl:message>
+	<wsdl:message
+		name="calculateRegressionRequest">
+		<wsdl:part
+			type="impl:calculateRegressionRequest"
+			name="calculateRegressionRequest"
+			sawsdl:modelReference="http://sadiframework.org/examples/regression.owl#PairedValueCollection"
+			sawsdl:loweringSchemaMapping="http://localhost:8080/services/calculateRegression/lowering_calculateRegression.xml" />
+	</wsdl:message>
+	<wsdl:portType
+		name="calculateLinearRegression">
+		<wsdl:operation
+			name="calculateRegression"
+			parameterOrder="pairs calculateRegressionResponse">
+			<sawsdl:attrExtensions
+				sawsdl:modelReference="http://www.mygrid.org.uk/ontology/retrieving"
+				sadi:serviceName="calculateRegressionSAWSDL"
+				sadi:serviceAuthority="dev.biordf.net"
+				sadi:serviceContact="edward.kawas@gmail.com"
+				sadi:serviceDesc="Calculates slope and intercept for the given pairs of (x,y) coordinates"
+				sadi:registryEndpoint="http://sadiframework.org/registry/register/" />
+			<wsdl:input
+				message="impl:calculateRegressionRequest"
+				name="calculateRegressionRequest" />
+			<wsdl:output
+				message="impl:calculateRegressionResponse"
+				name="calculateRegressionResponse" />
+		</wsdl:operation>
+	</wsdl:portType>
+	<wsdl:binding
+		name="calculateRegressionPortSoapBinding"
+		type="impl:calculateLinearRegression">
+		<wsdlsoap:binding
+			style="document"
+			transport="http://schemas.xmlsoap.org/soap/http" />
+		<wsdl:operation
+			name="calculateRegression">
+			<wsdlsoap:operation
+				soapAction="calculateRegression.wsdl#calculateRegression" />
+			<wsdl:input
+				name="calculateRegressionRequest">
+				<wsdlsoap:body
+					use="literal" />
+			</wsdl:input>
+			<wsdl:output
+				name="calculateRegressionResponse">
+				<wsdlsoap:body
+					use="literal" />
+			</wsdl:output>
+		</wsdl:operation>
+	</wsdl:binding>
+	<wsdl:service
+		name="calculateRegressionProvider">
+		<wsdl:port
+			binding="impl:calculateRegressionPortSoapBinding"
+			name="calculateRegressionPort">
+			<wsdlsoap:address
+				location="http://ubuntu.localhost:8080/eddie_sawsdl/services/calculateRegressionPort" />
+		</wsdl:port>
+	</wsdl:service>
+</wsdl:definitions>

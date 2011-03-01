@@ -1,0 +1,37 @@
+<?xml version='1.0' ?>
+<lifting>
+	<mapping>
+	  <!-- string implies that we get the value from our input map -->
+		<map
+      id="inputNodeURI"
+      type="string"/>
+		<!-- xpath implies that we apply the xpath expression (in the text content) to our soap output -->
+		<map
+			id="slope"
+			type="xpath">
+//slope/text()
+    </map>
+    <map
+      id="intercept"
+      type="xpath">
+//intercept/text()
+    </map>
+    <!-- regex implies that we apply the regex expression (in the text content) to our soap output -->
+	</mapping>
+	<template>
+	  <rdf:RDF
+    xmlns:a="http://sadiframework.org/examples/regression.owl#"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description rdf:about="$inputNodeURI">
+      <rdf:type rdf:resource="http://sadiframework.org/examples/regression.owl#OutputClass"/>
+      <a:hasRegressionModel>
+      <rdf:Description>
+      <rdf:type rdf:resource="http://sadiframework.org/examples/regression.owl#LinearRegressionModel"/>
+#foreach( $s in $slope)<a:slope rdf:datatype="http://www.w3.org/2001/XMLSchema#double">$s</a:slope>#end
+#foreach( $i in $intercept)<a:intercept rdf:datatype="http://www.w3.org/2001/XMLSchema#double">$i</a:intercept>#end
+      </rdf:Description>
+      </a:hasRegressionModel>
+      </rdf:Description>
+    </rdf:RDF>
+	</template>
+</lifting>
