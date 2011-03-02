@@ -317,10 +317,18 @@ public class SAWSDL2SADIServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	String requestURI = request.getRequestURI();
-	// service name that we are interested in is requestURI -
-	// servletPath
-	String servletPath = request.getServletPath();
-	String service = requestURI.length() >= servletPath.length() ? requestURI.substring(servletPath.length()) : "";
+	String service = "";
+	Pattern regexp = Pattern.compile(String.format("%s/(\\w+)*$", getClass().getSimpleName()));
+	Matcher matcher = regexp.matcher(requestURI);
+
+	if (matcher.find()) {
+	    service = matcher.group(1);
+	}
+
+	if (service.startsWith("/")) {
+	    // relic, shouldnt get here ...
+	    service = service.substring(1);
+	}
 	if (service.startsWith("/")) {
 	    service = service.substring(1);
 	}
