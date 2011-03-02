@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,14 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.vfs.FileChangeEvent;
-import org.apache.commons.vfs.FileListener;
-import org.apache.commons.vfs.FileObject;
-import org.apache.commons.vfs.FileSystemManager;
-import org.apache.commons.vfs.VFS;
-import org.apache.commons.vfs.impl.DefaultFileMonitor;
 import org.apache.velocity.app.Velocity;
-import org.xml.sax.SAXException;
 
 import ca.wilkinsonlab.daggoo.SAWSDLService;
 import ca.wilkinsonlab.daggoo.engine.DaggooTask;
@@ -55,15 +48,9 @@ public class SAWSDL2SADIServlet extends HttpServlet {
     
     public static final String SERVLET_NAME = SAWSDL2SADIServlet.class.getSimpleName();
 
-    private ConcurrentHashMap<String, SAWSDLService> services = new ConcurrentHashMap<String, SAWSDLService>();
-    
-    private ConcurrentHashMap<String, String> mappingPrefixes = new ConcurrentHashMap<String, String>();
-
     private static final long serialVersionUID = 1L;
 
     private static final Log log = LogFactory.getLog(SAWSDL2SADIServlet.class);
-    
-    private DefaultFileMonitor fm;
 
     /**
      * @see HttpServlet#HttpServlet()
@@ -78,84 +65,9 @@ public class SAWSDL2SADIServlet extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
 	super.init(config);
-	
 	Velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogChute");
-	
-	final String serviceMappings = (String) config.getServletContext().getAttribute(ServletContextListener.MAPPING_FILE_LOCATION);
-	final String serviceDir = (String) config.getServletContext().getAttribute(ServletContextListener.SERVICE_DIR_LOCATION);
-
-	if (serviceMappings != null) {
-	    init_services(serviceMappings, serviceDir);
-	    // TODO move this out of here and into the context listener ... on fileChanged, we can set a flag that something has changed ...
-	    // FIXME this will cause a memory leak
-	    try {
-		FileSystemManager fsManager = VFS.getManager();
-		// listen for changes to serviceMappings
-		FileObject fileObject = fsManager.resolveFile(serviceMappings);
-		fm = new DefaultFileMonitor(new FileListener() {
-
-		    public void fileDeleted(FileChangeEvent arg0) throws Exception {
-			// shouldn't happen
-		    }
-
-		    public void fileCreated(FileChangeEvent arg0) throws Exception {
-			// not necessary
-		    }
-
-		    public void fileChanged(FileChangeEvent arg0) throws Exception {
-			// reload our mappings ...
-			init_services(serviceMappings, serviceDir);
-		    }
-		}); 
-		fm.addFile(fileObject);
-		fm.start();
-	    } catch (Exception e) {
-		// TODO
-	    }
-	    
-	} else {
-	    throw new ServletException("Unable to find init parameters. Please check your configuration!");
-	}
-    }
-
-    
-    
-    @Override
-    public void destroy() {
-        super.destroy();
-        // FIXME is this enough to stop polling?
-        if (fm != null)
-            fm.stop();
-        fm = null;
     }
     
-    /*
-     * @param serviceMappings
-     * @param serviceDir
-     */
-    private void init_services(String serviceMappings, String serviceDir) {
-	try {
-	services = new ConcurrentHashMap<String, SAWSDLService>();
-	for (SAWSDLService s : IOUtils.getSAWSDLServices(new File(serviceMappings))) {
-	    if (serviceDir != null) {
-		File realPath = new File(serviceDir,
-			s.getWsdlLocation());
-		s.setWsdlLocation(realPath.getAbsolutePath());
-		// a lowering/lifing mapping prefix for later use
-		mappingPrefixes.put(s.getName(), new File(serviceDir).toURI().toURL().toString());
-	    }
-	    services.put(s.getName(), s);
-	}
-	} catch (SAXException e) {
-	// TODO throw exception?
-	e.printStackTrace();
-	} catch (IOException e) {
-	// TODO throw exception?
-	e.printStackTrace();
-	}
-	log.info(services);
-    }
-
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
      *      response)
@@ -226,6 +138,10 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 		log.info("empty request, redirecting to WSDL2SAWSDL ...");
 		return;
 	    } else {
+		Map<String, SAWSDLService> services = (Map<String, SAWSDLService>) getServletContext().getAttribute(ServletContextListener.SAWSDL_SERVICE_MAP);
+		if (services == null) {
+		    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Null service map encountered. Please report this error!");
+		}
 		log.info(service + " " + extended);
 		boolean sendServiceDescription = true;
 
@@ -338,6 +254,10 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 	    response.sendRedirect("WSDL2SAWSDL");
 	    return;
 	} else {
+	    Map<String, SAWSDLService> services = (Map<String, SAWSDLService>) getServletContext().getAttribute(ServletContextListener.SAWSDL_SERVICE_MAP);
+	    if (services == null) {
+		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Null service map encountered. Please report this error!");
+	    }
 	    // create a new task
 	    SAWSDLService s = services.get(service);
 	    if (s != null) {
