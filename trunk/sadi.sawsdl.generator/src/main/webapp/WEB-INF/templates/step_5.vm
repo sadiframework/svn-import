@@ -112,7 +112,7 @@ var handler = function () {
      $(function() {
       $('input[doautocomplete]').removeData('autocompleter');
       $('input[doautocomplete]').autocomplete({
-          url: "resources/props.json",
+          url: "resources/LSRN.json",
           displayValue: function(value, data) { return data.uri; },
           showResult : function(value, data) {
               var item = "<p";
