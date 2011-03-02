@@ -206,6 +206,7 @@ public class Daggoo4SadiEngine {
 		Map<String, SparqlResult> m = serviceInputs.get(key);
 		// map the sparql results to inputs for our SOAP service
 		VelocityEngine ve = new VelocityEngine();
+		ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogChute");
 		VelocityContext context = new VelocityContext();
 		StringWriter writer = new StringWriter();
 		// remove the entry from m and replace it with the parameter
@@ -262,6 +263,7 @@ public class Daggoo4SadiEngine {
 	    for (LiftingSchemaMapping lsm : liftingMappings) {
 		// use velocity to fill in our RDF template
 		VelocityEngine ve = new VelocityEngine();
+		ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogChute");
 		VelocityContext context = new VelocityContext();
 		StringWriter writer = new StringWriter();
 		// remove the entry from m and replace it with the parameter
