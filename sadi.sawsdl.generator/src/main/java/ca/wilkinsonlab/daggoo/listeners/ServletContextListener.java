@@ -8,10 +8,26 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.vfs.FileChangeEvent;
+import org.apache.commons.vfs.FileListener;
+import org.apache.commons.vfs.FileObject;
+import org.apache.commons.vfs.FileSystemManager;
+import org.apache.commons.vfs.VFS;
+import org.apache.commons.vfs.impl.DefaultFileMonitor;
+import org.apache.log4j.PropertyConfigurator;
+import org.xml.sax.SAXException;
+
+import ca.wilkinsonlab.daggoo.SAWSDLService;
+import ca.wilkinsonlab.daggoo.utils.IOUtils;
 
 /**
  * @author Eddie
@@ -48,6 +64,24 @@ public class ServletContextListener implements
      */
     public final static String SERVER_BASE_ADDRESS = "server-base-address";
     
+    /**
+     * KEY: The map of service names to SAWSDLServices
+     */
+    public final static String SAWSDL_SERVICE_MAP = "sawsdl-service-map";
+    
+    /**
+     * KEY: The map of service names to file location
+     */
+    public final static String SAWSDL_SERVICE_PREFIX_MAP = "sawsdl-service-prefix-map";
+    
+    // map of service names to sawsdlservice
+    private ConcurrentHashMap<String, SAWSDLService> services = new ConcurrentHashMap<String, SAWSDLService>();
+    // map of service name to location
+    //private ConcurrentHashMap<String, String> mappingPrefixes = new ConcurrentHashMap<String, String>();
+    
+    private static final Log log = LogFactory.getLog(ServletContextListener.class);
+    private DefaultFileMonitor fm;
+    
     /* (non-Javadoc)
      * @see javax.servlet.ServletContextListener#contextDestroyed(javax.servlet.ServletContextEvent)
      */
@@ -68,13 +102,32 @@ public class ServletContextListener implements
 	if (c.getAttribute(SERVER_BASE_ADDRESS) != null) {
 	    c.removeAttribute(SERVER_BASE_ADDRESS);
 	}
+	if (c.getAttribute(SAWSDL_SERVICE_MAP) != null) {
+	    c.removeAttribute(SAWSDL_SERVICE_MAP);
+	}
+	services.clear();
+	services = null;
+	// stop polling
+        if (fm != null)
+            fm.stop();
+        fm = null;
     }
 
     /* (non-Javadoc)
      * @see javax.servlet.ServletContextListener#contextInitialized(javax.servlet.ServletContextEvent)
      */
     public void contextInitialized(ServletContextEvent sce) {
-	ServletContext c = sce.getServletContext();
+	final ServletContext c = sce.getServletContext();
+	
+	URL props = null;
+	try {
+	    props =  getClass().getResource("/log4j.properties");
+	if(props != null) {
+	    PropertyConfigurator.configure(props);
+	}
+	} catch (Exception e) {e.printStackTrace();}
+
+	
 	if (c != null) {
 	    if (c.getInitParameter(INIT_PARAM_NAME) != null) {
 		String loc = c.getInitParameter(INIT_PARAM_NAME);
@@ -92,7 +145,37 @@ public class ServletContextListener implements
 		    process_properties_file(c, f);
 		}
 	    }
-	}	
+	}
+	
+	final String serviceMappings = (String) c.getAttribute(ServletContextListener.MAPPING_FILE_LOCATION);
+	final String serviceDir = (String) c.getAttribute(ServletContextListener.SERVICE_DIR_LOCATION);
+	init_services(serviceMappings, serviceDir);
+	try {
+	    FileSystemManager fsManager = VFS.getManager();
+	    // listen for changes to serviceMappings
+	    FileObject fileObject = fsManager.resolveFile(serviceMappings);
+	    fm = new DefaultFileMonitor(new FileListener() {
+
+		public void fileDeleted(FileChangeEvent arg0) throws Exception {
+		    // shouldn't happen
+		}
+
+		public void fileCreated(FileChangeEvent arg0) throws Exception {
+		    // not necessary
+		}
+
+		public void fileChanged(FileChangeEvent arg0) throws Exception {
+		    // reload our mappings ...
+		    init_services(serviceMappings, serviceDir);
+		    c.setAttribute(SAWSDL_SERVICE_MAP, services);
+		}
+	    }); 
+	    fm.addFile(fileObject);
+	    fm.start();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	c.setAttribute(SAWSDL_SERVICE_MAP, services);
     }
 
     /**
@@ -156,6 +239,33 @@ public class ServletContextListener implements
 		context.getAttribute(TEMPLATE_LOCATION),
 		context.getAttribute(SERVICE_DIR_LOCATION),
 		context.getAttribute(SERVER_BASE_ADDRESS)));
+    }
+    
+    /*
+     * @param serviceMappings
+     * @param serviceDir
+     */
+    private void init_services(String serviceMappings, String serviceDir) {
+	try {
+	    services = new ConcurrentHashMap<String, SAWSDLService>();
+	    for (SAWSDLService s : IOUtils.getSAWSDLServices(new File(serviceMappings))) {
+		if (serviceDir != null) {
+		    File realPath = new File(serviceDir,
+			    s.getWsdlLocation());
+		    s.setWsdlLocation(realPath.getAbsolutePath());
+		    // a lowering/lifing mapping prefix for later use
+		    //mappingPrefixes.put(s.getName(), new File(serviceDir).toURI().toURL().toString());
+		}
+		services.put(s.getName(), s);
+	    }
+	} catch (SAXException e) {
+	    // TODO throw exception?
+	    e.printStackTrace();
+	} catch (IOException e) {
+	    // TODO throw exception?
+	    e.printStackTrace();
+	}
+	log.info(services);
     }
 
 }
