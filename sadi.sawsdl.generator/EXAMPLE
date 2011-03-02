@@ -1,4 +1,3 @@
-
 0. Deploy this servlet locally (mvn jetty:run)
 1. Go to http://localhost:8080/WSDL2SAWSDL
 2. Enter http://soap.genome.jp/KEGG.wsdl for the wsdl
