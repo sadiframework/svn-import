@@ -40,7 +40,7 @@ public class WSDL2SAWSDL extends HttpServlet {
 
     private static String TEMPLATE_DIR = "";
     
-    
+    private static String BASE_URL = null;
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -65,9 +65,7 @@ public class WSDL2SAWSDL extends HttpServlet {
 		Velocity.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH,TEMPLATE_DIR);
 	    }
         }
-            
         System.out.println("init: " + TEMPLATE_DIR);
-	
     }
     
     /**
@@ -83,6 +81,21 @@ public class WSDL2SAWSDL extends HttpServlet {
      */
     protected void doGet(HttpServletRequest request,
 	    HttpServletResponse response) throws ServletException, IOException {
+	if (BASE_URL == null) {
+	    // had problems setting the BASE_URL in the listener, so I am going to do it here ...
+	    String contextPath = request.getContextPath() == null || request.getContextPath().trim().equals("") ? 
+		    "" : 
+			request.getContextPath()+ "/";
+	    String s = (String)getServletContext().getAttribute(ServletContextListener.SERVER_BASE_ADDRESS);
+	    if (contextPath.startsWith("/")) {
+		contextPath = contextPath.length() > 1 ? contextPath.substring(1) : "";
+	    }
+	    s = String.format("%s%s",
+		    s,
+		    contextPath
+	    );
+	    BASE_URL = s;
+	}
 	// got hold of the user session
 	HttpSession session = request.getSession(true); // true creates a new session if one doesnt exist
 	if (session.isNew()) {
@@ -306,7 +319,11 @@ public class WSDL2SAWSDL extends HttpServlet {
 	    WSDLParser wSDLParser = (WSDLParser)session.getAttribute("WSDLParser");
 	    
 	    // update the sawsdl document
-	    String baseURL = String.format("%s%s/%s/", getServletContext().getAttribute(ServletContextListener.SERVER_BASE_ADDRESS), SAWSDL2SADIServlet.SERVLET_NAME, session.getAttribute("sadi_name"));
+	    String baseURL = String.format(
+		    "%s%s/%s/", 
+		    BASE_URL, 
+		    SAWSDL2SADIServlet.SERVLET_NAME, 
+		    session.getAttribute("servicename"));
 	    wSDLParser.addServiceAttributesToSAWSDL(baseURL, serviceName, serviceAuthority, serviceType, contactEmail, description);
 	    
 	    context.put("soap_inputs", wSDLParser.getInputSoapDatatypeParameterNames());
@@ -449,9 +466,9 @@ public class WSDL2SAWSDL extends HttpServlet {
 	    context.put("owl_outputs", owlDatatypeMappings);
 	    context.put("base", 
 		    String.format("%s%s/%s/owl", 
-			    getServletContext().getAttribute(ServletContextListener.SERVER_BASE_ADDRESS), 
+			    BASE_URL, 
 			    SAWSDL2SADIServlet.SERVLET_NAME, 
-			    session.getAttribute("sadi_name")
+			    session.getAttribute("servicename")
 		    )
 	    );
 	    StringWriter writer = new StringWriter();
@@ -512,7 +529,7 @@ public class WSDL2SAWSDL extends HttpServlet {
 	// update the mappings file
 	final String serviceMappings = (String) getServletContext().getAttribute(ServletContextListener.MAPPING_FILE_LOCATION);
 	
-	String name = (String)session.getAttribute("sadi_name");
+	String name = (String)session.getAttribute("servicename");
 	// create our service directory
 	File main = new File(serviceDir, name);
 	if (main.mkdirs()) {
@@ -560,9 +577,9 @@ public class WSDL2SAWSDL extends HttpServlet {
 		context.put("owl_property_mappings", session.getAttribute("input_owl_x"));
 		context.put("base", 
 			String.format("%s%s/%s/owl", 
-				getServletContext().getAttribute(ServletContextListener.SERVER_BASE_ADDRESS), 
+				BASE_URL, 
 				SAWSDL2SADIServlet.SERVLET_NAME, 
-				session.getAttribute("sadi_name")
+				session.getAttribute("servicename")
 			)
 		);
 		context.put("select_variables", wsdlParser.getInputSoapDatatypeParameterNames());
@@ -593,9 +610,9 @@ public class WSDL2SAWSDL extends HttpServlet {
 		context.put("owl_property_mappings", session.getAttribute("output_owl_x"));
 		context.put("sadi_output_owl_class", 
 			String.format("%s%s/%s/owl#outputClass", 
-				getServletContext().getAttribute(ServletContextListener.SERVER_BASE_ADDRESS), 
+				BASE_URL, 
 				SAWSDL2SADIServlet.SERVLET_NAME, 
-				session.getAttribute("sadi_name")
+				session.getAttribute("servicename")
 			)
 		);
 		
@@ -628,11 +645,11 @@ public class WSDL2SAWSDL extends HttpServlet {
     }
     
     private String get_service_description(final HttpSession session) throws IOException {
-	String base = (String)getServletContext().getAttribute(ServletContextListener.SERVER_BASE_ADDRESS);
-	String url = String.format("%s%s/%s", base, SAWSDL2SADIServlet.SERVLET_NAME, (String)session.getAttribute("sadi_name"));
+	String base = BASE_URL;
+	String url = String.format("%s%s/%s", base, SAWSDL2SADIServlet.SERVLET_NAME, (String)session.getAttribute("servicename"));
 	
-	String inputClass = url + "owl#inputClass";
-	String outputClass = url + "owl#outputClass";
+	String inputClass = url + "/owl#inputClass";
+	String outputClass = url + "/owl#outputClass";
 	
 	Velocity.setProperty(Velocity.FILE_RESOURCE_LOADER_PATH,TEMPLATE_DIR);
 	Template template = Velocity.getTemplate("signature.vm");
