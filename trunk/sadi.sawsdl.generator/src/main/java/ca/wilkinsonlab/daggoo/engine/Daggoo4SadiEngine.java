@@ -21,6 +21,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 
 import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
@@ -82,6 +83,7 @@ public class Daggoo4SadiEngine {
     
 
     private void init() throws Exception {
+	Velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogChute");
 	// Explicitly set these so Java Web services will work in Java 1.5
 	if (System.getProperty("javax.xml.stream.XMLInputFactory") == null) {
 	    System.setProperty("javax.xml.stream.XMLInputFactory",
