@@ -24,6 +24,18 @@
           </excludes>
         </configuration>
       </plugin>
+      <plugin>
+		<groupId>org.mortbay.jetty</groupId>
+		<artifactId>maven-jetty-plugin</artifactId>
+		<configuration>
+		  <userRealms>
+		    <userRealm implementation="org.mortbay.jetty.security.HashUserRealm">
+			  <name>SADI registry admin</name>
+			  <config>src/test/resources/jetty-users.properties</config>
+		    </userRealm>
+		  </userRealms>
+		</configuration>
+	  </plugin>
     </plugins>
   </build>
   <repositories>
