@@ -494,10 +494,16 @@ public class WSDL2SAWSDL extends HttpServlet {
 	    // fill in the context with our values
 	    context = new VelocityContext();
 	    context.put("title", String.format("%s - All done!", this.getClass().getSimpleName()));
-	    if (session.getAttribute("error") != null) {
-		context.put("error", session.getAttribute("error"));
-		session.removeAttribute("error");
-	    }
+	    
+	    String url = String.format("%s%s/%s", BASE_URL, SAWSDL2SADIServlet.SERVLET_NAME, (String)session.getAttribute("servicename"));
+	    context.put("url_description", url);
+	    context.put("url_lowering", url + "/lowering");
+	    context.put("url_lifting", url + "/lifting");
+	    context.put("url_owl", url + "/owl");
+	    context.put("url_sawsdl", url + "/sawsdl");
+	    context.put("servicename", session.getAttribute("servicename"));
+	    context.put("operationname", session.getAttribute("operationname"));
+	    context.put("url", String.format("%s%s", BASE_URL, getClass().getSimpleName()));
 	    writer = new StringWriter();
 	    template.merge(context, writer);
 	    response.getOutputStream().println(writer.toString());
