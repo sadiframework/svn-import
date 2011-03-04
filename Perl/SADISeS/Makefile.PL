@@ -32,7 +32,7 @@
     requires 'RDF::Core'            => 0.51;
     requires 'HTTP::Request'        => 0;
     requires 'LWP'                  => 0;
-    requires 'OWL2Perl'             => '0.98.1';
+    requires 'OWL2Perl'             => '0.99';
     requires 'URI'                  => 1.40;  
 
     # windows doesn't need this
