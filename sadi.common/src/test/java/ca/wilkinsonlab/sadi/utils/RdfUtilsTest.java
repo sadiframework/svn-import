@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -69,6 +70,7 @@ public class RdfUtilsTest
 		           toJJ.hasProperty(FOAF.name, "Joey Joe Joe Jr. Shabadoo"));
 	}
 	
+	@Test
 	public void testGetBoolean()
 	{
 		Model model = ModelFactory.createDefaultModel();
@@ -86,5 +88,15 @@ public class RdfUtilsTest
 		assertFalse(RdfUtils.getBoolean(model.createLiteral("no")));
 		assertTrue(RdfUtils.getBoolean(model.createLiteral("y")));
 		assertFalse(RdfUtils.getBoolean(model.createLiteral("n")));
+	}
+	
+	@Test
+	public void testAddNamespacePrefixes()
+	{
+		Model model = ModelFactory.createDefaultModel();
+		RdfUtils.addNamespacePrefixes(model);
+		assertEquals("http://sadiframework.org/ontologies/properties.owl#", model.getNsPrefixURI("sadi"));
+		assertEquals("http://sadiframework.org/ontologies/predicates.owl#", model.getNsPrefixURI("sadi.old"));
+		assertEquals("http://semanticscience.org/resource/", model.getNsPrefixURI("sio"));
 	}
 }
