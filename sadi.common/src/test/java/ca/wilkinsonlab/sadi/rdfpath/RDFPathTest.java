@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.rdfpath;
 
 import static org.junit.Assert.fail;
 
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,6 +16,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.rdfpath.RDFPath.PropertyValueIterator;
+import ca.wilkinsonlab.sadi.utils.LSRNUtils;
+import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -113,6 +116,27 @@ public class RDFPathTest
 		path.add(null);
 		path.accumulateValuesRootedAt(Collections.singleton(root).iterator(), values, true);
 		assertCollectionContains(values, literal);
+	}
+	
+	@Test
+	public void testAddValuesRootedAt() throws Exception
+	{
+		RDFPath path = new RDFPath(new String[]{
+				"http://sadiframework.org/ontologies/properties.owl#hasParticipant",
+					"http://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Record",
+				"http://semanticscience.org/resource/SIO_000008",
+					"http://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Identifier",
+				"http://semanticscience.org/resource/SIO_000300",
+					"*"
+		});
+		path.reuseExistingNodes = false;
+		Model model = ModelFactory.createDefaultModel();
+		Resource KEGG_Pathway_Record = model.createResource("http://purl.oclc.org/SADI/LSRN/KEGG_Pathway_Record");
+		Resource hsa00232 = LSRNUtils.createInstance(model, KEGG_Pathway_Record, "hsa00232");
+		path.addValueRootedAt(hsa00232, model.createTypedLiteral("D02261"));
+		path.addValueRootedAt(hsa00232, model.createTypedLiteral("D02262"));
+		RdfUtils.addNamespacePrefixes(model);
+		model.getWriter("N3").write(model, new FileOutputStream("/tmp/out.n3"), "");
 	}
 	
 	private static void assertCollectionContains(Collection<?> collection, Object item)

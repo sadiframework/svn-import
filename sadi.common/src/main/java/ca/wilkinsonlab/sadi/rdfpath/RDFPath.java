@@ -23,12 +23,15 @@ public class RDFPath extends ArrayList<Resource>
 {
 	private static final long serialVersionUID = 1L;
 
+	public boolean reuseExistingNodes;
+	
 	/**
 	 * Constructs a new empty RDFPath.
 	 */
 	public RDFPath()
 	{
 		super();
+		reuseExistingNodes = true;
 	}
 	
 	/**
@@ -38,6 +41,7 @@ public class RDFPath extends ArrayList<Resource>
 	public RDFPath(List<Resource> path)
 	{
 		super(path);
+		reuseExistingNodes = true;
 	}
 	
 	/**
@@ -47,6 +51,7 @@ public class RDFPath extends ArrayList<Resource>
 	public RDFPath(String[] path)
 	{
 		super(path.length);
+		reuseExistingNodes = true;
 		
 		if (path.length % 2 > 0)
 			throw new IllegalArgumentException("path must contain an even number of elements in property/class pairs");
@@ -87,6 +92,7 @@ public class RDFPath extends ArrayList<Resource>
 		super(parent);
 		add(p);
 		add(c);
+		reuseExistingNodes = parent.reuseExistingNodes;
 	}
 	
 	/* (non-Javadoc)
@@ -121,9 +127,13 @@ public class RDFPath extends ArrayList<Resource>
 	public RDFPath getChildPath()
 	{
 		if (size() <= 2) {
-			return new RDFPath();
+			RDFPath childPath = new RDFPath();
+			childPath.reuseExistingNodes = reuseExistingNodes;
+			return childPath;
 		} else {
-			return new RDFPath(subList(2, size()));
+			RDFPath childPath = new RDFPath(subList(2, size()));
+			childPath.reuseExistingNodes = reuseExistingNodes;
+			return childPath;
 		}
 	}
 	
@@ -286,7 +296,8 @@ public class RDFPath extends ArrayList<Resource>
 			}
 		} else {
 			Collection<RDFNode> matchingChildren = new ArrayList<RDFNode>();
-			collectNodesOfType(new PropertyValueIterator(root.listProperties(p)), type, matchingChildren);
+			if (reuseExistingNodes)
+				collectNodesOfType(new PropertyValueIterator(root.listProperties(p)), type, matchingChildren);
 			Resource next = null;
 			if (matchingChildren.isEmpty()) {
 				if (type == null)
