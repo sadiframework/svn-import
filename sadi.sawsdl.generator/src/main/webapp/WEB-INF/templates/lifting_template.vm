@@ -1,20 +1,50 @@
 <$inputNodeURI> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$sadi_output_owl_class> .
+#set( $LAST_USED_CLASS = $sadi_output_owl_class )
+#set( $ANON_VAR = "_:lift_template_anon_var" )
+#set( $ANON_X = 0 )
 #foreach( $item in $owl_property_mappings)
-#if ($item.getExtraCount()==0)
-  #if ($item.isArray())
-      \#foreach($l_template_value_xyz in $${item.getSoapId()})
-<$inputNodeURI> <$item.getOwlProperty()> "$l_template_value_xyz" . 
-      \#end
-  #else
+    #if ($item.getExtraCount()==0)
+        #if ($item.isArray())
+\#foreach($l_template_value_xyz in $${item.getSoapId()})
+<$inputNodeURI> <$item.getOwlProperty()> "$l_template_value_xyz" .
+\#end
+        #else
 <$inputNodeURI> <$item.getOwlProperty()> "$${item.getSoapId()}" .
-  #end
-#else
-  #foreach( $extra in $item.getExtras() )
-    #if( $foreach.count ==  $item.getExtraCount())      
-         
+        #end
     #else
-          
+<$inputNodeURI> <$item.getOwlProperty()> ${ANON_VAR}_${ANON_X} .
+#set( $LAST_USED_CLASS = "${ANON_VAR}_${ANON_X}" )
+        #foreach( $extra in $item.getExtras() )
+            #if( $foreach.count ==  $item.getExtraCount())
+                #if ($item.isArray())
+\#foreach($l_template_value_xyz in $${item.getSoapId()})
+                    #if ($LAST_USED_CLASS.startsWith("_:"))
+$LAST_USED_CLASS <$extra.get(0)> "$l_template_value_xyz" .
+                    #else
+<$LAST_USED_CLASS> <$extra.get(0)> "$l_template_value_xyz" .
+                    #end
+\#end
+                #else
+                    #if ($LAST_USED_CLASS.startsWith("_:"))
+$LAST_USED_CLASS <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$extra.get(1)> .
+$LAST_USED_CLASS <$extra.get(0)> "$${item.getSoapId()}" .
+                    #else
+<$LAST_USED_CLASS> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$extra.get(1)> .
+<$LAST_USED_CLASS> <$extra.get(0)> "$${item.getSoapId()}" .
+                    #end
+                #end
+            #else
+                #if ($LAST_USED_CLASS.startsWith("_:"))
+$LAST_USED_CLASS <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$extra.get(1)> .
+                    #set( $ANON_X = $ANON_X + 1 )
+$LAST_USED_CLASS <$extra.get(0)>  ${ANON_VAR}_${ANON_X} .
+                #else
+<$LAST_USED_CLASS> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <$extra.get(1)> .
+                    #set( $ANON_X = $ANON_X + 1 )
+<$LAST_USED_CLASS> <$extra.get(0)>  ${ANON_VAR}_${ANON_X} .
+                #end
+#set( $LAST_USED_CLASS = "${ANON_VAR}_${ANON_X}" )
+            #end
+        #end
     #end
-  #end
-#end
 #end
