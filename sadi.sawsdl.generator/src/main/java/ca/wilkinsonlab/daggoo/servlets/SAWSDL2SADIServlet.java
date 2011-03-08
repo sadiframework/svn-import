@@ -250,8 +250,14 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 	}
 	if (service.isEmpty()) {
 	    // show form
-	    log.info("no service request posted; TODO create SAWSDL");
-	    response.sendRedirect("WSDL2SAWSDL");
+	    log.info("no service request posted; re-direct to sawsdl generator");
+	    response.
+		sendRedirect(String.format(
+			"%s%s",
+			request.getContextPath() == null || request.getContextPath().trim().equals("") ? 
+				""
+				: request.getContextPath(), "/"
+				+ WSDL2SAWSDL.class.getSimpleName()));
 	    return;
 	} else {
 	    Map<String, SAWSDLService> services = (Map<String, SAWSDLService>) getServletContext().getAttribute(ServletContextListener.SAWSDL_SERVICE_MAP);
