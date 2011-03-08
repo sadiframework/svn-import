@@ -64,7 +64,12 @@
                         <owl:onProperty rdf:resource="$item.getOwlProperty()"/>
                         <owl:someValuesFrom rdf:resource="$item.getValuesFrom()"/>
                     </owl:Restriction>
-#end
+#foreach( $extra in $item.getExtras() )
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="$extra.get(0)"/>
+                        <owl:someValuesFrom rdf:resource="$extra.get(1)"/>
+                    </owl:Restriction>
+#end#end
                 </owl:intersectionOf>
             </owl:Class>
         </owl:equivalentClass>
