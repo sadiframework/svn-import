@@ -152,12 +152,16 @@ public abstract class AbstractServiceOntologyHelper implements ServiceOntologyHe
 			serviceNode.addProperty(RDF.type, serviceClass);
 		
 		String name = service.getName();
-		if (name != null)
+		if (name != null) {
 			getNamePath().addValueRootedAt(serviceNode, model.createTypedLiteral(name));
+			serviceNode.addLiteral(RDFS.label, name);
+		}
 		
 		String description = service.getDescription();
-		if (description != null)
+		if (description != null) {
 			getDescriptionPath().addValueRootedAt(serviceNode, model.createTypedLiteral(description));
+			serviceNode.addLiteral(RDFS.comment, description);
+		}
 		
 		String provider = service.getServiceProvider();
 		if (provider != null)
