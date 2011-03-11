@@ -2,6 +2,8 @@ package ca.wilkinsonlab.daggoo;
 
 import java.util.ArrayList;
 
+import ca.wilkinsonlab.daggoo.utils.Base64;
+
 public class OwlDatatypeMapping {
 
     private String soapId, prefix, valuesFrom, owlProperty;
@@ -10,10 +12,12 @@ public class OwlDatatypeMapping {
     private ArrayList<String> extraClasses;
     
     private boolean array = false;
+    private boolean isInput = false;
 
-    public OwlDatatypeMapping() {
+    public OwlDatatypeMapping(boolean isInput) {
 	extraClasses = new ArrayList<String>();
 	extraProperties = new ArrayList<String>();
+	this.isInput = isInput;
     }
 
     public String getSoapId() {
@@ -44,7 +48,11 @@ public class OwlDatatypeMapping {
     }
 
     public void setValuesFrom(String valuesFrom) {
-	this.valuesFrom = valuesFrom;
+	if (isInput) {
+	    this.valuesFrom = valuesFrom == null ? "" : valuesFrom;
+	} else {
+	    this.valuesFrom = valuesFrom == null ? "" : Base64.byteArrayToBase64(valuesFrom.getBytes());
+	}
     }
 
     public String getOwlProperty() {
@@ -52,7 +60,11 @@ public class OwlDatatypeMapping {
     }
 
     public void setOwlProperty(String owlProperty) {
-	this.owlProperty = owlProperty;
+	if (isInput) {
+	    this.owlProperty = owlProperty == null ? "" : (owlProperty);
+	} else {
+	    this.owlProperty = owlProperty == null ? "" : Base64.byteArrayToBase64(owlProperty.getBytes());
+	}
     }
     
     @Override
@@ -75,8 +87,13 @@ public class OwlDatatypeMapping {
     
     public void addExtra(String owlProperty, String owlClass) {
 	if (owlProperty != null && owlClass != null) {
-	    extraClasses.add(owlClass);
-	    extraProperties.add(owlProperty);
+	    if (isInput) {
+		extraClasses.add((owlClass));
+		extraProperties.add((owlProperty));
+	    } else {
+		extraClasses.add(Base64.byteArrayToBase64(owlClass.getBytes()));
+		extraProperties.add(Base64.byteArrayToBase64(owlProperty.getBytes()));
+	    }
 	}
     }
     
