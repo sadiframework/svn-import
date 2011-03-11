@@ -17,6 +17,7 @@ import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * @author Luke McCarthy
@@ -47,6 +48,9 @@ public class MyGridServiceOntologyHelperTest
 		serviceDescription.setInputClassURI("http://sadiframework.org/examples/regression.owl#InputClass");
 		serviceDescription.setOutputClassURI("http://sadiframework.org/examples/regression.owl#OutputClass");
 		serviceDescription.setParameterClassURI("http://sadiframework.org/examples/regression.owl#ParameterClass");
+		
+		serviceNode.addLiteral(RDFS.label, serviceDescription.getName());
+		serviceNode.addLiteral(RDFS.comment, serviceDescription.getDescription());
 	}
 
 	/**
