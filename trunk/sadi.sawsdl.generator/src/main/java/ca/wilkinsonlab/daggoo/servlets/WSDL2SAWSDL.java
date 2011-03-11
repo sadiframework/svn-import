@@ -24,11 +24,14 @@ import javax.servlet.http.HttpSession;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.ToolManager;
 
 import ca.wilkinsonlab.daggoo.OwlDatatypeMapping;
 import ca.wilkinsonlab.daggoo.SAWSDLService;
 import ca.wilkinsonlab.daggoo.WSDLParser;
 import ca.wilkinsonlab.daggoo.listeners.ServletContextListener;
+import ca.wilkinsonlab.daggoo.utils.Base64;
 import ca.wilkinsonlab.daggoo.utils.IOUtils;
 
 /**
@@ -375,7 +378,7 @@ public class WSDL2SAWSDL extends HttpServlet {
 		    continue;
 		if (owlProperty == null || owlProperty.trim().equals(""))
 		    continue;
-		OwlDatatypeMapping owlDatatypeMapping = new OwlDatatypeMapping();
+		OwlDatatypeMapping owlDatatypeMapping = new OwlDatatypeMapping(true);
 		owlDatatypeMapping.setSoapId(soapId);
 		owlDatatypeMapping.setPrefix(prefix);
 		owlDatatypeMapping.setOwlProperty(owlProperty);
@@ -447,7 +450,7 @@ public class WSDL2SAWSDL extends HttpServlet {
 		    continue;
 		if (owlProperty == null || owlProperty.trim().equals(""))
 		    continue;
-		OwlDatatypeMapping owlDatatypeMapping = new OwlDatatypeMapping();
+		OwlDatatypeMapping owlDatatypeMapping = new OwlDatatypeMapping(false);
 		owlDatatypeMapping.setSoapId(soapId);
 		owlDatatypeMapping.setArray(soap2isArrayMap.containsKey(soapId) ? soap2isArrayMap.get(soapId) : false);
 		owlDatatypeMapping.setOwlProperty(owlProperty);
@@ -611,16 +614,19 @@ public class WSDL2SAWSDL extends HttpServlet {
 		FileOutputStream fos = new FileOutputStream(new File(main, "lifting.xml"));
 		@SuppressWarnings("unchecked")
 		ArrayList<OwlDatatypeMapping> owlDatatypeMappings = (ArrayList<OwlDatatypeMapping>)session.getAttribute("output_owl_x");
-		Template template = Velocity.getTemplate("lifting_template.vm");	    
-		VelocityContext context = new VelocityContext();
+		Template template = Velocity.getTemplate("lifting_template.vm");
+		// ToolManager is used to escape the URIs
+		ToolManager manager = new ToolManager();
+		Context context = manager.createContext();
+		//VelocityContext context = new VelocityContext();
 		context.put("owl_property_mappings", session.getAttribute("output_owl_x"));
 		context.put("sadi_output_owl_class", 
-			String.format("%s%s/%s/owl#outputClass", 
+			Base64.byteArrayToBase64(String.format("%s%s/%s/owl#outputClass", 
 				BASE_URL, 
 				SAWSDL2SADIServlet.SERVLET_NAME, 
 				session.getAttribute("servicename")
-			)
-		);
+			).getBytes()
+		));
 		
 		StringWriter writer = new StringWriter();
 		template.merge(context, writer);
