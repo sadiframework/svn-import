@@ -9,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -39,8 +40,10 @@ import ca.wilkinsonlab.sadi.service.annotations.URI;
 import ca.wilkinsonlab.sadi.service.ontology.AbstractServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
+import ca.wilkinsonlab.sadi.utils.ContentType;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -262,12 +265,16 @@ public abstract class ServiceServlet extends HttpServlet
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
+		response.setContentType(getContentType(request).getHTTPHeader());
+		
 		outputServiceModel(request, response);
 	}
 
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
+		response.setContentType(getContentType(request).getHTTPHeader());
+		
 		/* create the service-call structure and execute it in a try/catch
 		 * block that sends an appropriate error response...
 		 */
@@ -294,6 +301,20 @@ public abstract class ServiceServlet extends HttpServlet
 			if (outputModel != null)
 				closeOutputModel(outputModel);
 		}
+	}
+
+	public static ContentType getContentType(HttpServletRequest request)
+	{
+		ContentType contentType = null;
+		for (Enumeration<?> headers = request.getHeaders("Accept"); headers.hasMoreElements(); ) {
+			String headerString = (String)headers.nextElement();
+			for (String header: headerString.split(",\\s*")) {
+				contentType = ContentType.getContentType(header);
+				if (contentType != null)
+					return contentType;
+			}
+		}
+		return ContentType.RDFXML;
 	}
 
 	/**
@@ -344,9 +365,8 @@ public abstract class ServiceServlet extends HttpServlet
 		/* output the service model using the request URL as the base for an
 		 * relative URIs...
 		 */
-		response.setContentType("application/rdf+xml");
-		RDFWriter writer = serviceModel.getWriter("RDF/XML-ABBREV");
-		writer.write(serviceModel, response.getWriter(), request.getRequestURL().toString());
+		ContentType contentType = ContentType.getContentType(response.getContentType());
+		contentType.writeModel(serviceModel, response.getWriter(), request.getRequestURL().toString());
 	}
 	
 	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
@@ -354,8 +374,8 @@ public abstract class ServiceServlet extends HttpServlet
 		/* TODO add a mechanism to specify a web-accessible location on disk
 		 * where the servlet can dump the output model and redirect to it...
 		 */
-		response.setContentType("application/rdf+xml");
-		RDFWriter writer = outputModel.getWriter("RDF/XML-ABBREV");
+		ContentType contentType = ContentType.getContentType(response.getContentType());
+		RDFWriter writer = outputModel.getWriter(contentType.getJenaLanguage());
 		QueryableErrorHandler errorHandler = new QueryableErrorHandler();
 		writer.setErrorHandler(errorHandler);
 		writer.write(outputModel, response.getWriter(), "");
@@ -372,11 +392,13 @@ public abstract class ServiceServlet extends HttpServlet
 		/* we can't just write to the response because Jena calls flush() on
 		 * the writer or stream, which commits the response...
 		 */
-//		Model exceptionModel = ExceptionUtils.createExceptionModel(error);
-//		StringWriter buffer = new StringWriter();
-//		exceptionModel.write(buffer);
-//		response.getWriter().print(buffer.toString());
-		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, error.toString());
+//		Model errorModel = ExceptionUtils.createExceptionModel(error);
+		Model errorModel = ModelFactory.createDefaultModel();
+		errorModel.add(errorModel.createResource(), SADI.error, error.toString());
+		
+		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		ContentType contentType = ContentType.getContentType(response.getContentType());
+		contentType.writeModel(errorModel, response.getWriter(), "");
 	}
 	
 	protected ModelMaker createModelMaker()
