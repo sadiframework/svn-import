@@ -16,7 +16,6 @@ import ca.elmonline.util.BatchIterator;
 import ca.wilkinsonlab.sadi.tasks.Task;
 import ca.wilkinsonlab.sadi.tasks.TaskManager;
 import ca.wilkinsonlab.sadi.utils.DurationUtils;
-import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
@@ -57,7 +56,7 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 				if (error != null) {
 					outputErrorResponse(response, error);
 				} else {
-					outputSuccessResponse(response, task.getOutputModel());
+					super.outputSuccessResponse(response, task.getOutputModel());
 					TaskManager.getInstance().disposeTask(taskId);
 				}
 			} else {
@@ -73,9 +72,7 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
 	{
 		response.setStatus(HttpServletResponse.SC_ACCEPTED);
-		response.setContentType("application/rdf+xml");
-		RDFWriter writer = outputModel.getWriter("RDF/XML-ABBREV");
-		writer.write(outputModel, response.getWriter(), "");
+		super.outputSuccessResponse(response, outputModel);
 	}
 
 	private void outputInterimResponse(HttpServletResponse response, String redirectUrl, long waitTime) throws IOException
@@ -86,7 +83,7 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		model.createResource(redirectUrl, outputClass);
 		model.write(response.getWriter());
 		 */
-		response.setHeader("Pragma", String.format("%s = %s", SADI.ASYNC_HEADER, DurationUtils.format(waitTime)));
+		response.setHeader("Retry-After", DurationUtils.format(waitTime));
 		response.sendRedirect(redirectUrl);
 	}
 	

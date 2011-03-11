@@ -55,7 +55,9 @@ public class SADI
 	/**
 	 * A property that connects exceptions and stack traces.
 	 */
-	public static final Property hasStackTrace = m_model.createProperty( NS + "hasStackTrace");
+	public static final Property hasStackTrace = m_model.createProperty( NS + "hasStackTrace" );
     
+	public static final Property error = m_model.createProperty( NS + "error" );
+	
     public static final String ASYNC_HEADER = "sadi-please-wait";
 }
