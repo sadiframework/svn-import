@@ -38,9 +38,12 @@ import ca.wilkinsonlab.daggoo.sparql.SparqlQueryEngine;
 import ca.wilkinsonlab.daggoo.sparql.SparqlResult;
 import ca.wilkinsonlab.daggoo.utils.IOUtils;
 import ca.wilkinsonlab.daggoo.utils.WSDLConfig;
+import ca.wilkinsonlab.sadi.rdfpath.RDFPath;
+import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * 
@@ -184,7 +187,7 @@ public class Daggoo4SadiEngine {
 	    // get the mappings
 	    List<LiftingMap> mappings = IOUtils.getLiftingMappings(lm);
 	    LiftingSchemaMapping lsm = new LiftingSchemaMapping();
-	    lsm.setTemplate(lifting);
+	    lsm.setTemplate(lifting);// this processes inits the paths
 	    lsm.setLiftingMap(mappings);
 	    lsm.setName(key);
 	    liftingMappings.add(lsm);
@@ -259,19 +262,32 @@ public class Daggoo4SadiEngine {
 
 	// create an empty model
 	Model model = ModelFactory.createDefaultModel();
+	// read in the RDFPath for each 'inputNodeURI'
+	// create an RDFPath and path.addValueRootedAt(inputNodeURI, model.createTypedLiteral(result_from_list));
+	
 	for (ResultMap result : resultList) {
 	    for (LiftingSchemaMapping lsm : liftingMappings) {
 		// use velocity to fill in our RDF template
-		VelocityEngine ve = new VelocityEngine();
-		ve.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogChute");
+		
 		VelocityContext context = new VelocityContext();
-		StringWriter writer = new StringWriter();
 		// remove the entry from m and replace it with the parameter
 		// name / value
 		for (LiftingMap l : lsm.getLiftingMap()) {
 		    if (l.getType().equals(LiftingMap.STRING)) {
 			// TODO check that values actually exist
 			context.put(l.getId(), result.getInputs().get(l.getId()));
+			if (!l.getId().trim().equals(SparqlQueryEngine.INPUT_NODE_URI_KEY)) {
+			    if (result.getInputs().get(l.getId()) == null) {
+				continue;
+			    }
+			    // add the value to the resource
+			    RDFPath path = lsm.getRdfPaths().get(l.getId());
+			    if (path == null) {
+				continue;
+			    }
+			    Resource resource = model.createResource(String.format("%s",result.getInputs().get(SparqlQueryEngine.INPUT_NODE_URI_KEY)));
+			    path.addValueRootedAt(resource, model.createTypedLiteral(result.getInputs().get(l.getId())));
+			}
 		    } else if (l.getType().equals(LiftingMap.XPATH)) {
 			String resultXPath = l.getValue();
 			NodeList resultNodes = null;
@@ -287,34 +303,21 @@ public class Daggoo4SadiEngine {
 			    context.put(l.getId(), new String[] {});
 			    continue;
 			}
-			String[] nodes = new String[resultNodes.getLength()];
+			Resource resource = model.createResource(String.format("%s",result.getInputs().get(SparqlQueryEngine.INPUT_NODE_URI_KEY)));
+			RDFPath path = lsm.getRdfPaths().get(l.getId());
 			for (int i = 0; i < resultNodes.getLength(); i++) {
-			    nodes[i] = resultNodes.item(i).getTextContent();
+			    String s = resultNodes.item(i).getTextContent();
+			    path.addValueRootedAt(resource, model.createTypedLiteral(s));
 			}
-			context.put(l.getId(), nodes);
 			// apply XPATH to our result
 		    } else if (l.getType().equals(LiftingMap.REGEX)) {
 			// TODO
 		    }
 		}
-		try {
-		    ve.evaluate(context, writer, "", lsm.getTemplate());
-		} catch (ParseErrorException e) {
-		    e.printStackTrace();
-		} catch (MethodInvocationException e) {
-		    e.printStackTrace();
-		} catch (ResourceNotFoundException e) {
-		    e.printStackTrace();
-		}
-		// should we merge models here?
-		try {
-		    model.read(new ByteArrayInputStream(writer.toString().getBytes()), null);
-		} catch (Exception e) {
-		    model.read(new ByteArrayInputStream(writer.toString().getBytes()), null, "N-TRIPLE");
-		}
 	    }
 	}
 	// done
+	RdfUtils.addNamespacePrefixes(model);
 	return model; //.write(sadiOutput, "RDF/XML-ABBREV");
 
     }
