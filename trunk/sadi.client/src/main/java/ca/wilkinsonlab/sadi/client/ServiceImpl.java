@@ -11,9 +11,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.httpclient.HeaderElement;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -21,14 +22,12 @@ import org.apache.log4j.Logger;
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.beans.ServiceBean;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
-import ca.wilkinsonlab.sadi.utils.DurationUtils;
 import ca.wilkinsonlab.sadi.utils.ExceptionUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
-import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.OntClass;
@@ -399,28 +398,56 @@ public class ServiceImpl extends ServiceBase
 			HttpClient client = new HttpClient();
 			int statusCode = client.executeMethod(method);
 			if (statusCode >= 300 && statusCode < 400) {
-				long toSleep = 2000; // sleep for two seconds by default
-				for (HeaderElement element: method.getResponseHeader("Pragma").getElements()) {
-					if (element.getName().equals(SADI.ASYNC_HEADER)) {
-						try {
-							toSleep = DurationUtils.parse(element.getValue());
-						} catch (NumberFormatException e) {
-							log.error(String.format("error fetching asynchronous data from %s", url), e);
-						}
+				long toSleep = 10000; // sleep for ten seconds by default
+				String retryAfter = getHeaderValue(method, "Retry-After");
+				if (retryAfter != null) {
+					try {
+						toSleep = Long.valueOf(retryAfter);
+					} catch (NumberFormatException e) {
+						log.error(String.format("error parsing value of Retry-After header '%s'", retryAfter), e);
 					}
 				}
+//				// look for legacy header...
+//				String pleaseWait = getHeaderValue(method, "Pragma", SADI.ASYNC_HEADER);
+//				if (pleaseWait != null) {
+//					// toSleep = 1000 * (pleaseWait =~ /\s*=\s*(\d+)/)[0]
+//				}
 				try {
 					log.trace("sleeping " + toSleep + "ms before following redirect");
 					Thread.sleep(toSleep);
 				} catch (InterruptedException e) {
 					log.warn(e);
 				}
+				// get new location...
+				String newURL = getHeaderValue(method, "Location");
+				if (newURL != null)
+					url = newURL;
 			} else if (statusCode >= 200 && statusCode < 300) {
 				return method.getResponseBodyAsStream();
 			} else {
 				throw new HttpStatusException(statusCode);
 			}
 		}
+	}
+	
+	private static String getHeaderValue(HttpMethod method, String headerName)
+	{
+		return getHeaderValue(method, headerName, null);
+	}
+	private static String getHeaderValue(HttpMethod method, String headerName, String headerValuePrefix)
+	{
+		for (Header header: method.getResponseHeaders(headerName)) {
+			String headerValue = header.getValue();
+			if (headerValue == null)
+				continue;
+			if (headerValuePrefix != null) {
+				if (headerValue.startsWith(headerValuePrefix))
+					return headerValue.substring(headerValuePrefix.length());
+			} else {
+				return headerValue;
+			}
+		}
+		return null;
 	}
 	
 	/* (non-Javadoc)
