@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
 
@@ -92,9 +93,14 @@ public class Config extends ca.wilkinsonlab.sadi.Config
 			if (registryKey.contains("."))
 				continue; // only interested in the root property
 			Configuration registrySubset = registryConfig.subset(registryKey);
-			if (registrySubset.getBoolean(REGISTRY_EXCLUDE_KEY, false)) {
-				log.info(String.format("excluding registry %s", registryKey));
-				continue;
+			try {
+				if (registrySubset.getBoolean(REGISTRY_EXCLUDE_KEY, false)) {
+					log.info(String.format("excluding registry %s", registryKey));
+					continue;
+				}
+			} catch (ConversionException e) {
+				// TODO better error message...
+				log.error(String.format("Error configuring registry %s", registryKey), e);
 			}
 			try {
 				stopWatch.start();
