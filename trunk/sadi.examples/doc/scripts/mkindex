@@ -1,0 +1,29 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+print "        <ul>\n";
+my $config = "src/main/resources/sadi.properties";
+open CONFIG, "<", $config
+    or die "error reading $config: $!";
+my %servlet = ();
+while (<CONFIG>) {
+    chomp;
+    /^#/ and next;
+    if (/^(.+)\s+=\s+ca\./) {
+        if (%servlet) {
+            my ($path) = ($servlet{url} =~ /([^\/]+)$/);
+            print "          <li><a href=\"$path\">$servlet{description}</a></li>\n";
+        }
+        %servlet = ( key => $1 );
+    } elsif (defined $servlet{key} && /^$servlet{key}\.(\S+)\s+=\s+(.*)/) {
+        $servlet{$1} = $2;
+    }
+}
+if (%servlet) {
+    my ($path) = ($servlet{url} =~ /([^\/]+)$/);
+    print "          <li><a href=\"$path\">$servlet{description}</a></li>\n";
+}
+print "        </ul>\n";
+print "        <p>updated ", `date`, "</p>\n";
