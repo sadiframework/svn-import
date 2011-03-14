@@ -15,7 +15,6 @@ import org.apache.log4j.Logger;
 import ca.elmonline.util.BatchIterator;
 import ca.wilkinsonlab.sadi.tasks.Task;
 import ca.wilkinsonlab.sadi.tasks.TaskManager;
-import ca.wilkinsonlab.sadi.utils.DurationUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -82,7 +81,7 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		model.createResource(redirectUrl, outputClass);
 		model.write(response.getWriter());
 		 */
-		response.setHeader("Retry-After", DurationUtils.format(waitTime));
+		response.setHeader("Retry-After", String.valueOf(waitTime/1000));
 		response.sendRedirect(redirectUrl);
 	}
 	
@@ -137,6 +136,11 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		return String.format("%s?%s=%s", getServiceURL() == null ? request.getRequestURL().toString() : getServiceURL(), POLL_PARAMETER, taskId);
 	}
 	
+	/**
+	 * Returns the estimated time in ms to completion of the specified task.
+	 * @param task
+	 * @return the estimated time in ms to completion of the specified task.
+	 */
 	protected long getSuggestedWaitTime(Task task)
 	{
 		return 5000;
