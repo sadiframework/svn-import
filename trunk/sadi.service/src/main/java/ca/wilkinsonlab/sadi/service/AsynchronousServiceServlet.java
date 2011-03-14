@@ -18,7 +18,6 @@ import ca.wilkinsonlab.sadi.tasks.TaskManager;
 import ca.wilkinsonlab.sadi.utils.DurationUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.ResourceUtils;
 import com.hp.hpl.jena.vocabulary.RDFS;
