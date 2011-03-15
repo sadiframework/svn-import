@@ -1,7 +1,9 @@
 package ca.wilkinsonlab.sadi.utils.http;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Collection;
@@ -96,6 +98,11 @@ public class HttpUtils
 
 		log.trace("converting JSON object");
 		return JsonUtils.read(json);
+	}
+	
+	public static BufferedReader getReader(String url) throws IOException
+	{
+		return new BufferedReader(new InputStreamReader(GET(new URL(url))));
 	}
 
 	public static class HttpStatusException extends IOException {
