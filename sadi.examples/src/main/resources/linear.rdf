@@ -16,7 +16,7 @@
 
     <mygrid:providedBy>
         <mygrid:organisation rdf:about="#organisation">
-            <mygrid:authoritative>true</mygrid:authoritative>
+            <mygrid:authoritative>0</mygrid:authoritative>
             <dc:creator>mccarthy@elmonline.ca</dc:creator>
             <dc:publisher>wilkinsonlab.ca</dc:publisher>
         </mygrid:organisation>
