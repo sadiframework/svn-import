@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -43,6 +44,7 @@ import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.ContentType;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -75,6 +77,8 @@ public abstract class ServiceServlet extends HttpServlet
 	public static final String PARAMETER_DEFAULTS_KEY = "parameterDefaults";
 	public static final String SERVICE_DEFINITION_KEY = "rdf";
 	public static final String SERVICE_URL_KEY = "url";
+	
+	public static final String SERVICE_DEFINITION_STYLESHEET = "http://sadiframework.org/style/current/service-definition.xsl";
 	
 	/**
 	 * If this system property is set, any configured service URL will be 
@@ -265,14 +269,28 @@ public abstract class ServiceServlet extends HttpServlet
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
-		response.setContentType(getContentType(request).getHTTPHeader());
+		/* XSL transformation is only performed when the stylesheet comes
+		 * from the same domain as the XML it's styling. so we proxy the
+		 * stylesheet from sadiframework.org...
+		 */
+		if (request.getParameter("xsl") != null) {
+			outputXSL(response);
+			return;
+		}
 		
+		/* set the content type on the response so that methods that only 
+		 * have access to the response object know what to output...
+		 */
+		response.setContentType(getContentType(request).getHTTPHeader());
 		outputServiceModel(request, response);
 	}
 
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
+		/* set the content type on the response so that methods that only 
+		 * have access to the response object know what to output...
+		 */
 		response.setContentType(getContentType(request).getHTTPHeader());
 		
 		/* create the service-call structure and execute it in a try/catch
@@ -314,7 +332,7 @@ public abstract class ServiceServlet extends HttpServlet
 					return contentType;
 			}
 		}
-		return ContentType.RDFXML;
+		return ContentType.RDF_XML;
 	}
 
 	/**
@@ -366,6 +384,10 @@ public abstract class ServiceServlet extends HttpServlet
 		 * relative URIs...
 		 */
 		ContentType contentType = ContentType.getContentType(response.getContentType());
+		if (contentType.equals(ContentType.RDF_XML)) {
+			response.getWriter().println("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>");
+			response.getWriter().println("<?xml-stylesheet type=\"text/xsl\" href=\"?xsl\" ?>");
+		}
 		contentType.writeModel(serviceModel, response.getWriter(), request.getRequestURL().toString());
 	}
 	
@@ -399,6 +421,17 @@ public abstract class ServiceServlet extends HttpServlet
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		ContentType contentType = ContentType.getContentType(response.getContentType());
 		contentType.writeModel(errorModel, response.getWriter(), "");
+	}
+	
+	protected void outputXSL(HttpServletResponse response) throws IOException
+	{
+		response.setContentType("application/xml");
+		
+		BufferedReader in = HttpUtils.getReader(SERVICE_DEFINITION_STYLESHEET);
+		for (String line = in.readLine(); line != null; line = in.readLine()) {
+			response.getWriter().println(line);
+		}
+		in.close();
 	}
 	
 	protected ModelMaker createModelMaker()
