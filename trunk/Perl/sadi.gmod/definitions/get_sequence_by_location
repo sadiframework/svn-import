@@ -1,0 +1,29 @@
+# This is a SADI service configuration file
+
+# If you want to use the characters '#', ',', or '='
+# you can either escape them with \ OR
+# enclose the whole string in double quotes.
+# New line characters are not supported
+
+# dont change the service name! if you find that you need to modify
+# the service name, regenerate a new file and remove this one!
+ServiceName = get_sequence_by_location
+
+# modify this value only if you haven't generated
+# your service implementation!
+Authority = wilkinsonlab.ca
+
+# modify the values below as you see fit.
+ServiceType = "http://www.mygrid.org.uk/ontology#retrieving"
+InputClass = "http://sadiframework.org/ontologies/GMOD/genomic-coordinates.owl#GenomicRegion"
+OutputClass = "http://sadiframework.org/ontologies/GMOD/get-sequence-by-location.owl#OutputClass"
+Description = "Retrieve the sequence for a given set of genomic coordinates."
+UniqueIdentifier = urn:lsid:sadi:get-sequence-by-location
+Authoritative = 1
+Provider = ben.vvalk@gmail.com
+ServiceURI = "http://localhost/cgi-bin/get-sequence-by-location"
+URL = "http://localhost/cgi-bin/get-sequence-by-location"
+SignatureURL = "http://localhost/cgi-bin/get-sequence-by-location"
+
+ 
+ 
