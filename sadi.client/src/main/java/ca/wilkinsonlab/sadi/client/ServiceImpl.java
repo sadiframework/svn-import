@@ -402,7 +402,7 @@ public class ServiceImpl extends ServiceBase
 				String retryAfter = getHeaderValue(method, "Retry-After");
 				if (retryAfter != null) {
 					try {
-						toSleep = Long.valueOf(retryAfter);
+						toSleep = 1000 * Long.valueOf(retryAfter);
 					} catch (NumberFormatException e) {
 						log.error(String.format("error parsing value of Retry-After header '%s'", retryAfter), e);
 					}
@@ -410,7 +410,7 @@ public class ServiceImpl extends ServiceBase
 //				// look for legacy header...
 //				String pleaseWait = getHeaderValue(method, "Pragma", SADI.ASYNC_HEADER);
 //				if (pleaseWait != null) {
-//					// toSleep = 1000 * (pleaseWait =~ /\s*=\s*(\d+)/)[0]
+//					// toSleep = (pleaseWait =~ /\s*=\s*(\d+)/)[0]
 //				}
 				try {
 					log.trace("sleeping " + toSleep + "ms before following redirect");
