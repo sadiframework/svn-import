@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import ca.elmonline.util.BatchIterator;
 import ca.wilkinsonlab.sadi.tasks.Task;
 import ca.wilkinsonlab.sadi.tasks.TaskManager;
+import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -81,6 +82,8 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		model.createResource(redirectUrl, outputClass);
 		model.write(response.getWriter());
 		 */
+		// continue to set old header until new client library is rolled out...
+		response.setHeader("Pragma", String.format("%s = %s", SADI.ASYNC_HEADER, waitTime));
 		response.setHeader("Retry-After", String.valueOf(waitTime/1000));
 		response.sendRedirect(redirectUrl);
 	}
