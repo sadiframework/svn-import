@@ -1,0 +1,30 @@
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:coords="http://sadiframework.org/ontologies/GMOD/genomic-coordinates.owl#"
+	xmlns:sio="http://semanticscience.org/resource/">
+	<coords:GenomicRegion rdf:about="http://unresolvable/inputURI">
+		<coords:is-relative-to>
+			<coords:FeatureWithIdentifier>
+				<sio:SIO_000008> <!-- 'has attribute' -->
+					<sio:SIO_000115> <!-- 'identifier' -->
+						<sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">chrIX</sio:SIO_000300>
+					</sio:SIO_000115>
+				</sio:SIO_000008>
+			</coords:FeatureWithIdentifier>
+		</coords:is-relative-to>
+		<coords:start-position>
+			<sio:SIO_000613> <!-- 'ordinal number' -->
+				<sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</sio:SIO_000300>
+			</sio:SIO_000613>
+		</coords:start-position>
+		<coords:end-position>
+			<sio:SIO_000613> <!-- 'ordinal number' -->
+				<sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">100</sio:SIO_000300>
+			</sio:SIO_000613>
+		</coords:end-position>
+		<coords:strand>
+			<sio:SIO_000366> <!-- 'number' -->
+				<sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</sio:SIO_000300>
+			</sio:SIO_000366>
+		</coords:strand>
+	</coords:GenomicRegion>
+</rdf:RDF>
