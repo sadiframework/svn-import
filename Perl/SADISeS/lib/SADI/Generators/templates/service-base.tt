@@ -22,6 +22,7 @@ use SADI::Base;
 use SADI::Service::ServiceBase;
 use SADI::RDF::Core;
 use SADI::Service::Instance;
+use RDF::Notation3::RDFCore;
 
 no strict;
 
@@ -39,6 +40,9 @@ sub [% obj.ServiceName %] {
     
     # instantiate a new SADI::RDF::Core object
     my $core = SADI::RDF::Core->new;
+    # set the incoming content type
+    $core->ContentType($self->get_request_content_type());
+
     # set the Instance for $core
     $core->Signature($self->get_service_signature('[% obj.ServiceName %]'));
 
@@ -64,6 +68,9 @@ sub [% obj.ServiceName %] {
 	    $core->Prepare($data) 
 	      or $self->throw("Error parsing the input RDF. Couldn't create a model!");
     };
+    # set the content type that the client wants us to return
+    $core->ContentType($self->get_response_content_type());
+
     # error in creating parser, or parsing input
     if ($@) {
 		$LOG->logdie ($@) if $in_testing_mode;

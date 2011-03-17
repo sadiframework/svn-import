@@ -43,11 +43,18 @@ use SADI::RDF::Core;
 use SADI::Generators::GenServices;
 use SADI::FileStore;
 
-# the suggested wait time for polling in milliseconds
-my $SUGGESTED_WAIT_TIME = 0.5*60*1000;
+# the suggested wait time for polling in seconds
+my $SUGGESTED_WAIT_TIME = 0.5*60;
 
 # here we require the service module and add it to ISA hierarchy
 use base 'Service::[% obj.ServiceName %]';
+
+my $HTTP_ACCEPT  = 'application/rdf+xml';
+
+if (defined $ENV{HTTP_ACCEPT}) {
+	$HTTP_ACCEPT = 'text/rdf+n3' if $ENV{HTTP_ACCEPT} =~ m|text/rdf\+n3|gi;
+	$HTTP_ACCEPT = 'text/rdf+n3' if $ENV{HTTP_ACCEPT} =~ m|text/n3|gi;
+}
 
 # if this is a GET, send the service interface
 if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
@@ -57,9 +64,10 @@ if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
         # send the signature for this service
         # instantiate a new SADI::RDF::Core object
         my $core = SADI::RDF::Core->new;
+        $core->ContentType($HTTP_ACCEPT);
         # set the Instance for $core
         $core->Signature(__PACKAGE__->get_service_signature('[% obj.ServiceName %]'));
-        print $q->header(-type=>'application/rdf+xml');
+        print $q->header(-type=>$HTTP_ACCEPT);
         print $core->getServiceInterface();
         exit();
     } unless $q->param('poll');
@@ -77,16 +85,14 @@ if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
         # we are done
         eval {$completed = __PACKAGE__->retrieve($poll);};
         unless ($@) {
-          print $q->header(-type=>'application/rdf+xml');
+          print $q->header(-type=>$HTTP_ACCEPT);
           print $completed;
           exit;
         }
     } else {
         # still waiting
         my $signature = __PACKAGE__->get_service_signature('[% obj.ServiceName %]');
-        print $q->redirect(-uri=>$signature->URL . "?poll=$poll", -status=>302, -pragma=>"sadi-please-wait = $SUGGESTED_WAIT_TIME");
-        #print $q->header(-type=>'application/rdf+xml', -sadi_please_wait=>$SUGGESTED_WAIT_TIME);
-        #print __PACKAGE__->get_polling_rdf();
+        print $q->redirect(-uri=>$signature->URL . "?poll=$poll", -status=>302, -Retry_After=>"$SUGGESTED_WAIT_TIME");
         exit;
     }
 } else {
@@ -105,9 +111,9 @@ if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
     );
    my $q = new CGI;
    print $q->header(
-     -type=>'application/rdf+xml',
+     -type=>$HTTP_ACCEPT,
      -status=>202,
-     -pragma=>"sadi-please-wait = $SUGGESTED_WAIT_TIME"
+     -Retry_After=>"$SUGGESTED_WAIT_TIME"
    );
    print __PACKAGE__->get_polling_rdf();
 }
