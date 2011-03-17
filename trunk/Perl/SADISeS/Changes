@@ -1,5 +1,17 @@
 Revision history for Perl extension SADI.
 
+1.08
+    * Changed the sadi-please-wait pragma for asynchronous services to the HTTP header
+      Retry-After.
+    * Updated the test script to handle Retry-After and n3 content type
+    * Changed default contentTYpe in SADI::RDF::Core to application/rdf+xml from text/plain
+    * Added 2 methods to ServiceBase for getting the content type of the incoming message and
+      the content type requested for the outgoing message.
+    * Created a new test case for SADI::RDF::Core
+    * SADI::RDF::Core now obeys the passed in contentType (defaults to rdf/xml; can handle n3)
+    * Updated the testing script documentation
+    * Added a 'how to upgrade' message to the SADI perldoc 
+    
 1.07
     * SADI::Service::Instance now checks that the Authority is a syntactically correct 
       domain URI
