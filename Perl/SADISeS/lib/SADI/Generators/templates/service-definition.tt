@@ -18,11 +18,11 @@ ServiceType = http://someontology.org/services/sometype
 InputClass = "http://someontology.org/datatypes#Input1"
 OutputClass = "http://someontology.org/datatypes#Output1"
 Description = "A implementation of the '[% name %]' service"
-UniqueIdentifier = urn:lsid:myservices:[% name %]
 Authoritative = 1
 Provider = myaddress@organization.org
-ServiceURI = http://localhost/cgi-bin/[% name %]
 URL = http://localhost/cgi-bin/[% name %]
-SignatureURL = http://localhost/cgi-bin/[% name %]
- 
- 
+
+# optional fields uncomment to use them
+# UniqueIdentifier = urn:lsid:myservices:[% name %]
+# ServiceURI = http://localhost/cgi-bin/[% name %]
+# SignatureURL = http://localhost/cgi-bin/[% name %] 
