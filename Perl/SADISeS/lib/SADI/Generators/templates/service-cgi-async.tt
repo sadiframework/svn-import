@@ -49,13 +49,6 @@ my $SUGGESTED_WAIT_TIME = 0.5*60;
 # here we require the service module and add it to ISA hierarchy
 use base 'Service::[% obj.ServiceName %]';
 
-my $HTTP_ACCEPT  = 'application/rdf+xml';
-
-if (defined $ENV{HTTP_ACCEPT}) {
-	$HTTP_ACCEPT = 'text/rdf+n3' if $ENV{HTTP_ACCEPT} =~ m|text/rdf\+n3|gi;
-	$HTTP_ACCEPT = 'text/rdf+n3' if $ENV{HTTP_ACCEPT} =~ m|text/n3|gi;
-}
-
 # if this is a GET, send the service interface
 if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
     my $q = new CGI;
@@ -64,10 +57,10 @@ if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
         # send the signature for this service
         # instantiate a new SADI::RDF::Core object
         my $core = SADI::RDF::Core->new;
-        $core->ContentType($HTTP_ACCEPT);
+        $core->ContentType(__PACKAGE__->get_response_content_type());
         # set the Instance for $core
         $core->Signature(__PACKAGE__->get_service_signature('[% obj.ServiceName %]'));
-        print $q->header(-type=>$HTTP_ACCEPT);
+        print $q->header(-type=>__PACKAGE__->get_response_content_type());
         print $core->getServiceInterface();
         exit();
     } unless $q->param('poll');
@@ -85,7 +78,7 @@ if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
         # we are done
         eval {$completed = __PACKAGE__->retrieve($poll);};
         unless ($@) {
-          print $q->header(-type=>$HTTP_ACCEPT);
+          print $q->header(-type=>__PACKAGE__->get_response_content_type());
           print $completed;
           exit;
         }
@@ -111,7 +104,7 @@ if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
     );
    my $q = new CGI;
    print $q->header(
-     -type=>$HTTP_ACCEPT,
+     -type=>__PACKAGE__->get_response_content_type(),
      -status=>202,
      -Retry_After=>"$SUGGESTED_WAIT_TIME"
    );
