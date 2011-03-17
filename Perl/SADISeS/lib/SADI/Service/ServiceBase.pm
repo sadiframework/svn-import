@@ -15,7 +15,7 @@ use strict;
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.8 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.9 $ =~ /: (\d+)\.(\d+)/;
 
 #-----------------------------------------------------------------
 # process_it
@@ -46,7 +46,7 @@ sub as_uni_string {
 #-----------------------------------------------------------------
 
 my @ENV_TO_REPORT =
-  ( 'REMOTE_ADDR', 'REQUEST_URI' ,'HTTP_USER_AGENT', 'CONTENT_LENGTH', 'CONTENT_TYPE' );
+  ( 'REMOTE_ADDR', 'REQUEST_URI' ,'HTTP_USER_AGENT', 'CONTENT_LENGTH', 'CONTENT_TYPE', 'HTTP_ACCEPT' );
 
 sub log_request {
 	my ($self) = shift;
@@ -72,6 +72,30 @@ sub get_service_signature {
 	$LOG->error("Problems retrieving service signature!\n$@") if $@;
 	return $sig if $sig;
 	$self->throw("Couldn't find a signature for '$name'!.");
+}
+
+# returns the request content type
+# defaults to application/rdf+xml
+sub get_request_content_type {
+	my ($self) = @_;
+    my $CONTENT_TYPE = 'application/rdf+xml';
+    if (defined $ENV{CONTENT_TYPE}) {
+        $CONTENT_TYPE = 'text/rdf+n3' if $ENV{CONTENT_TYPE} =~ m|text/rdf\+n3|gi;
+        $CONTENT_TYPE = 'text/rdf+n3' if $ENV{CONTENT_TYPE} =~ m|text/n3|gi;
+    }
+    return $CONTENT_TYPE;
+}
+
+# returns the response requested content type
+# defaults to application/rdf+xml
+sub get_response_content_type {
+    my ($self) = @_;
+    my $CONTENT_TYPE = 'application/rdf+xml';
+    if (defined $ENV{HTTP_ACCEPT}) {
+        $CONTENT_TYPE = 'text/rdf+n3' if $ENV{HTTP_ACCEPT} =~ m|text/rdf\+n3|gi;
+        $CONTENT_TYPE = 'text/rdf+n3' if $ENV{HTTP_ACCEPT} =~ m|text/n3|gi;
+    }
+    return $CONTENT_TYPE;
 }
 
 1;
@@ -119,6 +143,18 @@ SADI string (type SADI::Data::String).
  # should be called when a request from a client comes; it returns
  # information about the current call (request) that can be used in a
  # log entry
+
+=head2 get_request_content_type
+
+ # Returns the content type of the incoming data, defaults to application/rdf+xml.
+ #
+ # Possible values: 'application/rdf+xml', 'text/rdf+n3'
+
+=head2 get_response_content_type
+
+ # Returns the requested content type of the outgoing data, defaults to application/rdf+xml.
+ #
+ # Possible values: 'application/rdf+xml', 'text/rdf+n3'
 
 =head1 AUTHORS, COPYRIGHT, DISCLAIMER
 
