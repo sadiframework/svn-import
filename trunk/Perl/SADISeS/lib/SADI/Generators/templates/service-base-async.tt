@@ -105,6 +105,7 @@ sub [% obj.ServiceName %] {
     my $uid = $ENV{SADI_UID};
     # instantiate a new SADI::RDF::Core object
     my $core = SADI::RDF::Core->new;
+    $core->ContentType($self->get_request_content_type());
     # set the Instance for $core
     $core->Signature($self->get_service_signature('[% obj.ServiceName %]'));
 
@@ -137,6 +138,8 @@ sub [% obj.ServiceName %] {
 	    $core->Prepare($data) 
 	      or $self->throw("Error parsing the input RDF. Couldn't create a model!");
     };
+    # set the content type that the client wants us to return
+    $core->ContentType($self->get_response_content_type());
     
     # save the input URIs for polling RDF
     {   my @URIS;
@@ -244,6 +247,23 @@ sub get_polling_rdf {
                   },
                   \$polling_rdf
     ) || $LOG->logdie( $tt->error() );
+    # hack to output the pollinng rdf in n3 ...
+    if ($self->get_response_content_type() eq 'text/rdf+n3') {
+        my $rdf = RDF::Notation3::RDFCore->new();
+        my $storage = RDF::Core::Storage::Memory->new();
+        my $model = new RDF::Core::Model( Storage => $storage );
+        my %options = (
+            Model      => $model,
+            Source     => $polling_rdf,
+            SourceType => 'string',
+            #parserOptions
+            BaseURI     => "http://www.foo.com/",
+            BNodePrefix => "genid"
+        );
+        my $parser = new RDF::Core::Model::Parser(%options);
+        eval {$parser->parse;};
+        return $rdf->get_n3($model) unless $@;
+    }
     return $polling_rdf;
 }
 
