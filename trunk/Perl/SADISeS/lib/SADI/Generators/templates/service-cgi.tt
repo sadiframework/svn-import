@@ -45,23 +45,16 @@ use SADI::Generators::GenServices;
 # here we require the service module and add it to ISA hierarchy
 use base 'Service::[% obj.ServiceName %]';
 
-my $HTTP_ACCEPT  = 'application/rdf+xml';
-
-if (defined $ENV{HTTP_ACCEPT}) {
-    $HTTP_ACCEPT = 'text/rdf+n3' if $ENV{HTTP_ACCEPT} =~ m|text/rdf\+n3|gi;
-    $HTTP_ACCEPT = 'text/rdf+n3' if $ENV{HTTP_ACCEPT} =~ m|text/n3|gi;
-}
-
 # if this is a GET, send the service interface
 if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
     # send the signature for this service
 	# instantiate a new SADI::RDF::Core object
  	my $core = SADI::RDF::Core->new;
- 	$core->ContentType($HTTP_ACCEPT);
+ 	$core->ContentType(__PACKAGE__->get_response_content_type());
  	# set the Instance for $core
  	$core->Signature(__PACKAGE__->get_service_signature('[% obj.ServiceName %]'));
  	my $q = new CGI;
-	print $q->header(-type=>$HTTP_ACCEPT);
+	print $q->header(-type=>__PACKAGE__->get_response_content_type());
     print $core->getServiceInterface();
 } else {
     # call the service
@@ -72,7 +65,7 @@ if ($ENV{REQUEST_METHOD} eq 'GET' or $ENV{REQUEST_METHOD} eq 'HEAD') {
     my $x =  __PACKAGE__->[% obj.ServiceName %]($data);
     # print the results
     my $q = new CGI;
-    print $q->header(-type=>$HTTP_ACCEPT);
+    print $q->header(-type=>__PACKAGE__->get_response_content_type());
     print $x;
 }
 
