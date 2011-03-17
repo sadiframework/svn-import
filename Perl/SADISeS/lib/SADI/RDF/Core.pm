@@ -23,6 +23,7 @@ use RDF::Core::Model;
 use RDF::Core::Storage::Memory;
 use RDF::Core::Model::Parser;
 use RDF::Core::Model::Serializer;
+use RDF::Notation3::RDFCore;
 
 use SADI::Utils;
 use SADI::Service::Instance;
@@ -31,7 +32,7 @@ use base ("SADI::Base");
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.21 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.22 $ =~ /: (\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -163,9 +164,8 @@ SADI::RDF::Core - A Perl package for SADI services
 sub init {
 	my ($self) = shift;
 	$self->SUPER::init();
-
 	# set the default format for this signature
-	$self->ContentType('text/plain');
+	$self->ContentType('application/rdf+xml');
 	$self->_default_request_method('GET');
 }
 
@@ -183,21 +183,32 @@ sub init {
 sub Prepare {
 	my ($self, $rdf) = @_;
 	$self->throw("Error in Prepare: No valid RDF/OWL found in\n$rdf\n!!!!")
-	  unless ( $rdf =~ /RDF/ );
+	  unless ( $rdf =~ m|http://www\.w3\.org/1999/02/22-rdf-syntax-ns|g );
 	my $storage = new RDF::Core::Storage::Memory;
-	my $model = new RDF::Core::Model( Storage => $storage );
-	my %options = (
-		Model      => $model,
-		Source     => $rdf,
-		SourceType => 'string',
-
-		#parserOptions
-		BaseURI     => "http://www.foo.com/",
-		BNodePrefix => "genid"
-	);
-	my $parser = new RDF::Core::Model::Parser(%options);
-	eval {$parser->parse;};
-	$self->throw("Error parsing input RDF: $@") if $@;
+	my $model;
+	
+	if ($self->ContentType eq 'text/rdf+n3') {
+		my $rdf_n3 = RDF::Notation3::RDFCore->new();
+	    $rdf_n3->set_storage($storage);
+	    eval{$model = $rdf_n3->parse_file($rdf);};
+	    $self->throw("Error parsing input RDF: $@") if $@;
+	} else {
+		# default to rdf/xml
+		$model = new RDF::Core::Model( Storage => $storage );
+	    my %options = (
+	        Model      => $model,
+	        Source     => $rdf,
+	        SourceType => 'string',
+	
+	        #parserOptions
+	        BaseURI     => "http://www.foo.com/",
+	        BNodePrefix => "genid"
+	    );
+	    my $parser = new RDF::Core::Model::Parser(%options);
+	    eval {$parser->parse;};
+	    $self->throw("Error parsing input RDF: $@") if $@;
+	}
+	
 	$self->_model($model) if $model;
 	return 1 if $model;
 	return undef;
@@ -526,13 +537,17 @@ sub serializeInputModel {
 	my ($self) = @_;
 	my $model = $self->_model;
 	my $output;
-	my $serializer = new RDF::Core::Model::Serializer(
-		Model  => $model,
-		Output => \$output,
-
-	  #                                                        BaseURI => 'URI://BASE/',
-	);
-	$serializer->serialize;
+	if ($self->ContentType eq 'text/rdf+n3') {
+        my $rdf = RDF::Notation3::RDFCore->new();
+        $output = $rdf->get_n3($model);
+    } else {
+        # default to rdf/xml
+        my $serializer = new RDF::Core::Model::Serializer(
+            Model  => $model,
+            Output => \$output,
+        );
+        $serializer->serialize;
+    }
 	return $output;
 }
 
@@ -550,13 +565,18 @@ sub serializeOutputModel {
 	my ($self) = @_;
 	my $model = $self->_output_model;
 	my $output;
-	my $serializer = new RDF::Core::Model::Serializer(
-		Model  => $model,
-		Output => \$output,
 
-	  #                                                        BaseURI => 'URI://BASE/',
-	);
-	$serializer->serialize;
+	if ($self->ContentType eq 'text/rdf+n3') {
+		my $rdf = RDF::Notation3::RDFCore->new();
+		$output = $rdf->get_n3($model);
+	} else {
+		# default to rdf/xml
+		my $serializer = new RDF::Core::Model::Serializer(
+	        Model  => $model,
+	        Output => \$output,
+	    );
+	    $serializer->serialize;
+	}
 	return $output;
 }
 
@@ -621,6 +641,23 @@ sub getServiceInterface {
 				  \$sadi_interface_signature
 	) || $LOG->logdie( $tt->error() );
 
+    # hack to output the signature in n3 ...
+    if ($self->ContentType eq 'text/rdf+n3') {
+        my $rdf = RDF::Notation3::RDFCore->new();
+        my $storage = RDF::Core::Storage::Memory->new();
+        my $model = new RDF::Core::Model( Storage => $storage );
+        my %options = (
+            Model      => $model,
+            Source     => $sadi_interface_signature,
+            SourceType => 'string',
+            #parserOptions
+            BaseURI     => "http://www.foo.com/",
+            BNodePrefix => "genid"
+        );
+        my $parser = new RDF::Core::Model::Parser(%options);
+        eval {$parser->parse;};
+        return $rdf->get_n3($model);
+    }
 	return $sadi_interface_signature;
 }
 
