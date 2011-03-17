@@ -13,7 +13,7 @@ use vars qw{$VERSION};
 
 BEGIN {
 	use vars qw{@ISA @EXPORT @EXPORT_OK};
-	$VERSION = sprintf "%d.%02d", q$Revision: 1.07 $ =~ /: (\d+)\.(\d+)/;
+	$VERSION = sprintf "%d.%02d", q$Revision: 1.08 $ =~ /: (\d+)\.(\d+)/;
 	*SADI::VERSION = *VERSION;
 }
 
@@ -24,6 +24,69 @@ __END__
 =head1 NAME
 
 SADI - Perl extension for the automatic generation of SADI web services
+
+=head2 Upgrading From Versions prior to Version 1.08 to Version 1.08
+
+This new version of SADI contains some modifications to the entry CGI scripts 
+for each service. In order to stay up to date with the SADI methodology, you
+should re-generate the cgi scripts for all of your services.
+
+The easiest way to update your services is to do the following (assuming for a second
+that your home directory is /home/ubuntu/ and that you are using a *NIX machine):
+
+To update your entry scripts, do something like:
+
+=over
+
+=item For synchronous services
+
+ # C<for i in `find /home/ubuntu/Perl-SADI/cgi -type f -print`; do sadi-generate-services.pl $i; done> 
+
+=back
+
+=over
+
+=item For asynchronous services
+
+ # C<for i in `find /home/ubuntu/Perl-SADI/cgi -type f -print`; do sadi-generate-services.pl -A $i; done> 
+
+=back
+
+Of course, you will have to remove the scripts located /home/ubuntu/Perl-SADI/cgi.
+
+If you are on windows, try the following (assuming that your home directory is C:\Users\ubuntu\):
+
+=over
+
+=item For synchronous services
+
+ # C<for /R %i in ("C:\Users\ubuntu\Perl-SADI\cgi\*") do sadi-generate-services %i> 
+
+=back
+
+=over
+
+=item For asynchronous services
+
+ # C<for /R %i in ("C:\Users\ubuntu\Perl-SADI\cgi\*") do sadi-generate-services -A %i> 
+
+=back
+
+Additionally, for those of you that pre-generate your service base files 
+(not default operation), you will need to re-generate your service bases.
+For each service that is affected, do
+
+=over
+ 
+ # C<sadi-generate-service -B your_service_name> 
+ 
+for asynchronous services and a 
+
+ # C<sadi-generate-service -b your_service_name> for synchronous ones.
+
+=back
+
+If you have any problems whatsoever, please contact me or any other SADI developer for help!
 
 =head2 Upgrading From Versions prior to Version 1.04 to Version 1.04
 
