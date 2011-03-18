@@ -114,7 +114,7 @@ sub retrieve {
             my $model;
     		my $rdf_n3 = RDF::Notation3::RDFCore->new();
             $rdf_n3->set_storage($storage);
-            eval{$model = $rdf_n3->parse_file($$value);};
+            eval{$model = $rdf_n3->parse_string($$value);};
             # return what we have if there is an error
             return $value if $@;
             # now serialize rdf/xml
