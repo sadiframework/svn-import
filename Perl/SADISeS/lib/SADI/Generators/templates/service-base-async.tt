@@ -24,6 +24,10 @@ use SADI::RDF::Core;
 use SADI::FileStore;
 use SADI::Service::Instance;
 
+use RDF::Notation3::RDFCore;
+use RDF::Core::Storage::Memory;
+use RDF::Core::Model::Serializer;
+
 use POSIX qw(setsid);
 use Data::Dumper;
 
@@ -53,6 +57,9 @@ sub store {
     my $store = SADI::FileStore->new(ServiceName => "[% obj.ServiceName %]");
     my %hash;
     $hash{value} = $core->serializeOutputModel();
+    # save the content type of our data ... just in case 
+    # the client changes their mind
+    $hash{content_type} = $core->ContentType();
     $hash{done} = $is_finished ? 1 : 0;
     $Data::Dumper::Purity = 1;
     my $str = Data::Dumper->Dump( [ \%hash ], ['*Data'] );
@@ -74,7 +81,53 @@ sub retrieve {
     $self->throw("Error getting data for service ('[% obj.ServiceName %]') given $uid\n$@") if $@;
     eval ($store->get($uid)) if $store->get($uid);
     $store->remove($uid) if $Data{value};
-    return $Data{value} if defined $Data{value};
+    if (defined $Data{value}) {
+    	my $value = $Data{value};
+    	return $value if ($Data{content_type} eq $self->get_response_content_type());
+    	# need to convert the value now ...
+    	# originally request one content type, and now a different one ...
+    	if ($self->get_response_content_type() eq 'text/rdf+n3') {
+    		# get n3 format from rdf/xml ...
+    		my $storage = new RDF::Core::Storage::Memory;
+    		my $model = new RDF::Core::Model( Storage => $storage );
+	        my %options = (
+	            Model      => $model,
+	            Source     => $rdf,
+	            SourceType => 'string',
+	            #parserOptions
+	            BaseURI     => "http://www.foo.com/",
+	            BNodePrefix => "genid"
+	        );
+	        my $parser = new RDF::Core::Model::Parser(%options);
+	        eval {$parser->parse;};
+	        # return what we have if there is an error
+            return $value if $@;
+            # now output n3
+            my $rdf_n3 = RDF::Notation3::RDFCore->new();
+            my $n3;
+            eval{$n3 = $rdf_n3->get_n3($model);};
+            return $value if $@;
+            return $n3;
+    	} else {
+    		# get rdf/xml from n3 format ...
+    		my $storage = new RDF::Core::Storage::Memory;
+            my $model;
+    		my $rdf_n3 = RDF::Notation3::RDFCore->new();
+            $rdf_n3->set_storage($storage);
+            eval{$model = $rdf_n3->parse_file($rdf);};
+            # return what we have if there is an error
+            return $value if $@;
+            # now serialize rdf/xml
+            my $output;
+            my $serializer = new RDF::Core::Model::Serializer(
+                Model  => $model,
+                Output => \$output,
+            );
+            $serializer->serialize;
+            return $value if $@;
+            return $output;
+    	}
+    }
     $self->throw("No value to retrieve!\n");
 }
 
