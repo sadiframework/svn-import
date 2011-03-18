@@ -200,17 +200,26 @@ sub _poll_until_done {
     require RDF::Core::Storage::Memory;
     require RDF::Core::Model::Parser;
     require RDF::Core::Resource;
+    require RDF::Notation3::RDFCore;
+
     my $storage = new RDF::Core::Storage::Memory;
     my $model = new RDF::Core::Model (Storage => $storage);
     
-    my %options = (Model => $model,
-              Source => $content,
-              SourceType => 'string',
-              BaseURI => "http://www.foo.com/",
-    );
-    my $parser = new RDF::Core::Model::Parser(%options);
-    $parser->parse;
-    
+    if ($opt_t) {
+    	# response is n3
+    	my $rdf_n3 = RDF::Notation3::RDFCore->new();
+        $rdf_n3->set_storage($storage);
+        eval{$model = $rdf_n3->parse_string($content);};
+    } else {
+    	# response is rdf/xml
+	    my %options = (Model => $model,
+	              Source => $content,
+	              SourceType => 'string',
+	              BaseURI => "http://www.foo.com/",
+	    );
+        my $parser = new RDF::Core::Model::Parser(%options);
+        $parser->parse;
+    }
     # extract all of the polling urls
     my %urls;
     my $enumerator = $model->getStmts(undef, new RDF::Core::Resource('http://www.w3.org/2000/01/rdf-schema#isDefinedBy') , undef);
@@ -222,7 +231,7 @@ sub _poll_until_done {
     }
     $enumerator->close;
     # free memory
-    $model=undef; $storage = undef; $parser = undef; $enumerator = undef;
+    $model=undef; $storage = undef; $enumerator = undef;
     
     my $sleep_time = 15;
     # now keep polling our unique urls ...
