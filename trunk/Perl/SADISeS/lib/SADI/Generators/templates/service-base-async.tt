@@ -92,7 +92,7 @@ sub retrieve {
     		my $model = new RDF::Core::Model( Storage => $storage );
 	        my %options = (
 	            Model      => $model,
-	            Source     => $rdf,
+	            Source     => $value,
 	            SourceType => 'string',
 	            #parserOptions
 	            BaseURI     => "http://www.foo.com/",
@@ -114,7 +114,7 @@ sub retrieve {
             my $model;
     		my $rdf_n3 = RDF::Notation3::RDFCore->new();
             $rdf_n3->set_storage($storage);
-            eval{$model = $rdf_n3->parse_file($rdf);};
+            eval{$model = $rdf_n3->parse_file($$value);};
             # return what we have if there is an error
             return $value if $@;
             # now serialize rdf/xml
