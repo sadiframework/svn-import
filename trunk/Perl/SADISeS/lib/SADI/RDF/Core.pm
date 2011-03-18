@@ -190,7 +190,7 @@ sub Prepare {
 	if ($self->ContentType eq 'text/rdf+n3') {
 		my $rdf_n3 = RDF::Notation3::RDFCore->new();
 	    $rdf_n3->set_storage($storage);
-	    eval{$model = $rdf_n3->parse_file($rdf);};
+	    eval{$model = $rdf_n3->parse_string($rdf);};
 	    $self->throw("Error parsing input RDF: $@") if $@;
 	} else {
 		# default to rdf/xml
