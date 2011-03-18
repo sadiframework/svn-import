@@ -18,7 +18,7 @@ END {
 # its man page ( perldoc Test::More ) for help writing this test script.
 
 use_ok('SADI::Utils');
-use_ok('SADI::::Service::ServiceBase');
+use_ok('SADI::Service::ServiceBase');
 use_ok('SADI::Service::Instance');
 
 use_ok('SADI::RDF::Core');
