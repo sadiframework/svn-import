@@ -86,6 +86,7 @@ t/SADI-Config.t
 t/SADI-Datatypes.t
 t/SADI-FileStore.t
 t/SADI-OWL-SADIServiceParser.t
+t/SADI-RDF-Core.t
 t/SADI-Service-Instance.t
 t/sadi-services.cfg
 t/SADI-Utils.t
