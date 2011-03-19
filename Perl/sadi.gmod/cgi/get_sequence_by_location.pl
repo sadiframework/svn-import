@@ -22,9 +22,10 @@ use strict;
 
 # --- during service generation --- 
 # leave at the top!
-use lib '/home/ben/Programming/perl.workspace.sadi.gmod.services/sadi.gmod/generated';
-use lib '/home/ben/Programming/perl.workspace.sadi.gmod.services/sadi.gmod/services';
-use lib '/home/ben/Perl-SADI';
+use lib '/home/ben/Programming/perl.workspace.gmod/sadi.gmod/generated';
+use lib '/home/ben/Programming/perl.workspace.gmod/sadi.gmod/services';
+use lib '/home/ben/Programming/perl.workspace.gmod/sadi.gmod/lib';
+use lib '/home/ben/Programming/perl.workspace.gmod';
 
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
