@@ -1,6 +1,8 @@
 package Utils::GMOD;
 
 use strict;
+use Bio::GMOD::Config;
+use Bio::GMOD::DB::Config;
 
 =head2 get_db_conf
 
