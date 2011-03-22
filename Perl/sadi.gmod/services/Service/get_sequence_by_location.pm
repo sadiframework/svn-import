@@ -34,14 +34,15 @@ use SADI::RDF::Predicates::RDFS;
 use SADI::Utils;
 
 use Bio::DB::Das::Chado;
-use Bio::Chado::AutoDBI;
 use Utils::SIO;
 use Utils::RDF; 
 use Utils::GMOD;
+use Utils::Sequence;
 
 use Vocab::GenomicCoordinates;
 use Vocab::Properties;
 use Vocab::SIO;
+
 
 use constant GMOD_DB_PROFILE => 'default';
 
@@ -199,6 +200,12 @@ sub process_it {
             $LOG->warn("skipping input $inputURI, database does not have any sequence data for the specified coordinates");
             next;
         }
+    
+        my $sequence = $segment->seq->seq;
+
+        if($strand eq -1) {
+            $sequence = Utils::Sequence::get_complementary_dna_sequence($sequence);
+        }
         
         #------------------------------------------------------------------------------
         # Encode the output data
@@ -209,49 +216,61 @@ sub process_it {
         Utils::SIO::add_attribute_values(
                 $outputModel, 
                 $input, 
-                $Vocab::SIO::SEQUENCE, 
+                $Vocab::SIO::DNA_SEQUENCE, 
                 $Vocab::Properties::HAS_SEQUENCE, 
                 $bnodePrefix, 
-                ($segment->seq->seq)
+                ($sequence)
                 );
         
         $inputCount++;
     }
+
 }
 
 #-------------------------------------------------------------------------------------------
 # SUBROUTINES
 #-------------------------------------------------------------------------------------------
 
-sub get_segment()
+sub get_segment
 {
-    my ($db, $id, $start, $end) = @_;
+    my ($db, $uniquename, $start, $end) = @_;
     
     # Bio::DB::Das::Chado quirk -- when retrieving segments/features, we must always supply 
     # the name of the feature (e.g. chromosome "IX") in addition to whatever information
-    # we want to query by (e.g. ID).
+    # we want to query by (e.g. uniquename).
     
-    my $name = get_name_for_feature_id($id);
+    my $name = get_name_by_uniquename($db->dbh, $uniquename);
     return undef unless $name;
     
-    my @segments = $db->segment(-name => $name, -db_id => $id, -start => $start, -end => $end);
+    my @segments = $db->segment(-name => $name, -db_id => $uniquename, -start => $start, -end => $end);
 
-    LOG->error("GMOD database is corrupt!, feature ID (i.e. 'uniquename') '$id' matches multiple features (using the first match only)") if @segments > 1;
-    return undef unless @segments == 1;
+    $LOG->error("GMOD database is corrupt!, uniquename '$uniquename' matches multiple features (using the first match only)") if @segments > 1;
 
     return $segments[0];
 }
 
-sub get_name_for_feature_id()
+sub get_name_by_uniquename
 {
-    my ($id) = @_;
+    my ($dbh, $uniquename) = @_;
 
-    my @features = Bio::Chado::CDBI::Feature->search(uniquename => $id);
+# This code was inexplicably causing some error in DBD::Pg ('server unexpectedly closed connection').
+#
+#    my @features = Bio::Chado::CDBI::Feature->search(uniquename => $uniquename);
+#
+#    LOG->error("GMOD database is corrupt!, feature ID (i.e. 'uniquename') '$uniquename' matches multiple features (using the first match only)") if @features > 1;
+#    return undef unless @features == 1;
+#
+#    return $features[0]->get('name');
+    
+    my $sth = $dbh->prepare('SELECT name FROM feature WHERE uniquename = ?');
+    $sth->execute($uniquename) or die sprintf("error executing SQL: %s", $sth->errstr);
 
-    LOG->error("GMOD database is corrupt!, feature ID (i.e. 'uniquename') '$id' matches multiple features (using the first match only)") if @features > 1;
-    return undef unless @features == 1;
-
-    return $features[0]->get('name');
+    my $hashref = $sth->fetchrow_hashref;
+    return undef unless $hashref;
+    
+    $LOG->error("GMOD database is corrupt!, uniquename '$uniquename' matches multiple features (using the first match only)") if $sth->fetchrow_hashref;
+    
+    return $$hashref{'name'};
 }
 
 1;

@@ -25,7 +25,7 @@ use strict;
 use lib '/home/ben/Programming/perl.workspace.gmod/sadi.gmod/generated';
 use lib '/home/ben/Programming/perl.workspace.gmod/sadi.gmod/services';
 use lib '/home/ben/Programming/perl.workspace.gmod/sadi.gmod/lib';
-use lib '/home/ben/Programming/perl.workspace.gmod';
+use lib '/home/ben/Programming/perl.workspace.gmod/sadi.gmod';
 
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);

@@ -18,6 +18,8 @@ our $HAS_VALUE = new RDF::Core::Resource(ONTOLOGY_PREFIX . "SIO_000300");
 our $IDENTIFIER = new RDF::Core::Resource(ONTOLOGY_PREFIX . "SIO_000115");
 our $ORDINAL_NUMBER = new RDF::Core::Resource(ONTOLOGY_PREFIX . "SIO_000613");
 our $NUMBER = new RDF::Core::Resource(ONTOLOGY_PREFIX . "SIO_000366");
+
 our $SEQUENCE = new RDF::Core::Resource(ONTOLOGY_PREFIX . "SIO_000030");
+our $DNA_SEQUENCE = new RDF::Core::Resource(ONTOLOGY_PREFIX . "SIO_010018");
 
 1;

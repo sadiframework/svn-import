@@ -21,9 +21,9 @@ Description = "Retrieve the sequence for a given set of genomic coordinates."
 UniqueIdentifier = urn:lsid:sadi:get-sequence-by-location
 Authoritative = 1
 Provider = ben.vvalk@gmail.com
-ServiceURI = "http://localhost/cgi-bin/get-sequence-by-location"
-URL = "http://localhost/cgi-bin/get-sequence-by-location"
-SignatureURL = "http://localhost/cgi-bin/get-sequence-by-location"
+ServiceURI = "http://localhost/cgi-bin/get_sequence_by_location"
+URL = "http://localhost/cgi-bin/get_sequence_by_location"
+SignatureURL = "http://localhost/cgi-bin/get_sequence_by_location"
 
  
  
