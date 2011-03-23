@@ -132,9 +132,6 @@ public class MultiSPARQLEndpointIterator implements Iterator<Triple>
 				} 
 				catch(IOException e) {
 					log.trace(String.format("failed to query endpoint %s", endpoint), e);
-					if(getRegistry().isWritable()) {
-						getRegistry().setServiceStatus(endpoint.getURI(), ServiceStatus.DEAD);
-					}
 				}
 			}
 		}
