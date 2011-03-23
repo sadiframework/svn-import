@@ -14,8 +14,6 @@ import ca.wilkinsonlab.sadi.client.Registry;
 
 public interface SPARQLRegistry extends Registry 
 {
-	public boolean hasPredicate(String predicateURI) throws IOException;
-	
 	public List<SPARQLEndpoint> getAllEndpoints() throws IOException;
 	public SPARQLEndpoint getEndpoint(String uri) throws IOException;
 
@@ -23,7 +21,4 @@ public interface SPARQLRegistry extends Registry
 
 	public boolean subjectMatchesRegEx(String endpointURI, String uri) throws IOException;
 	public boolean objectMatchesRegEx(String endpointURI, String uri) throws IOException;
-	
-	public long getNumTriplesOrLowerBound(String endpointURI) throws IOException;
-
 }
