@@ -787,7 +787,7 @@ public class SHAREKnowledgeBase
 	private boolean gatherTriples(PotentialValues subjects, Collection<OntProperty> predicates, PotentialValues objects)
 	{
 		log.debug(String.format("gathering triples with predicates %s", predicates));
-		log.trace(String.format("potential subjects %s", subjects.values));
+		log.trace(String.format("potential subjects %s", subjects));
 
 		if (subjects == null) {
 			log.warn("attempt to call gatherTriplesByPredicate with null subject");
