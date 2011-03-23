@@ -10,13 +10,7 @@ import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 
 /**
- * A registry that holds SPARQL endpoints.
- * 
- * This is a "tagging" interface; it exists only because 
- * I needed to distinguish between SPARQL and non-SPARQL 
- * registries. For example, the RandomQueryGenerator and 
- * PredicateStatsDB classes only work on SPARQL registries.
- * -- BV   
+ * A registry that holds SPARQL endpoints.  
  */
 
 public interface SPARQLRegistry extends Registry 
