@@ -160,9 +160,6 @@ public class SPARQLDataMapper {
 			} 
 			catch(IOException e) {
 				log.trace(String.format("failed to query endpoint %s, skipping to next endpoint", endpoint.getURI()), e);
-				if(getRegistry().isWritable()) {
-					getRegistry().setServiceStatus(endpoint.getURI(), ServiceStatus.DEAD);
-				}
 				continue;
 			}
 			catch(ExceededMaxAttemptsException e) {

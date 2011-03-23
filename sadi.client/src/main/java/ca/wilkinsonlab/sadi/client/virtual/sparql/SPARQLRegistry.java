@@ -7,7 +7,6 @@ import java.util.List;
 import com.hp.hpl.jena.graph.Triple;
 
 import ca.wilkinsonlab.sadi.client.Registry;
-import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 
 /**
  * A registry that holds SPARQL endpoints.  
@@ -15,27 +14,16 @@ import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
 
 public interface SPARQLRegistry extends Registry 
 {
-	public long getNumTriples(String endpointURI) throws IOException;
-	
 	public boolean hasPredicate(String predicateURI) throws IOException;
 	
 	public List<SPARQLEndpoint> getAllEndpoints() throws IOException;
 	public SPARQLEndpoint getEndpoint(String uri) throws IOException;
-	public Collection<SPARQLEndpoint> findEndpointsByPredicate(String predicate) throws IOException;
-	public Collection<SPARQLEndpoint> findEndpointsByTriplePattern(Triple triplePattern) throws IOException;
 
-	public Collection<String> getPredicatesForEndpoint(String endpointURI) throws IOException;
-	public Collection<String> getAllPredicates() throws IOException;
+	public Collection<SPARQLEndpoint> findEndpointsByTriplePattern(Triple triplePattern) throws IOException;
 
 	public boolean subjectMatchesRegEx(String endpointURI, String uri) throws IOException;
 	public boolean objectMatchesRegEx(String endpointURI, String uri) throws IOException;
 	
-	public String getSubjectRegEx(String endpointURI) throws IOException;
-	public String getObjectRegEx(String endpointURI) throws IOException;
-	
-	public long getNumTriplesLowerBound(String endpointURI) throws IOException;
 	public long getNumTriplesOrLowerBound(String endpointURI) throws IOException;
 
-	public void setServiceStatus(String endpointURI, ServiceStatus newStatus) throws IOException;
-	public boolean isWritable();
 }

@@ -124,15 +124,9 @@ public class TripleSampler
 			}
 			catch(NoSampleAvailableException e) {
 				log.warn(String.format("failed to retrieve sample from %s", endpoint), e);
-				if(getRegistry().isWritable()) {
-					getRegistry().setServiceStatus(endpoint.getURI(), ServiceStatus.DEAD);
-				}
 			}
 			catch(IOException e) {
 				log.warn(String.format("failed to retrieve sample from %s", endpoint), e);
-				if(getRegistry().isWritable()) {
-					getRegistry().setServiceStatus(endpoint.getURI(), ServiceStatus.DEAD);
-				}
 			}
 			
 			endpoints.remove(endpointIndex);
