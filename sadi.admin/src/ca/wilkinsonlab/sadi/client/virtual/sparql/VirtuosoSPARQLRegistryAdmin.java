@@ -1,9 +1,6 @@
 package ca.wilkinsonlab.sadi.client.virtual.sparql;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,10 +14,25 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.Option;
+
+import virtuoso.jena.driver.VirtModel;
+import ca.wilkinsonlab.sadi.client.Config;
+import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint.EndpointType;
+import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint.TripleIterator;
+import ca.wilkinsonlab.sadi.utils.RegExUtils;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
+import ca.wilkinsonlab.sadi.utils.graph.BoundedBreadthFirstIterator;
+import ca.wilkinsonlab.sadi.utils.graph.RDFTypeConstraint;
+import ca.wilkinsonlab.sadi.utils.graph.SPARQLSearchNode;
+import ca.wilkinsonlab.sadi.utils.graph.SearchNode;
+import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
@@ -31,28 +43,8 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-
-import ca.wilkinsonlab.sadi.utils.RegExUtils;
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.graph.BoundedBreadthFirstIterator;
-import ca.wilkinsonlab.sadi.utils.graph.RDFTypeConstraint;
-import ca.wilkinsonlab.sadi.utils.graph.SPARQLSearchNode;
-import ca.wilkinsonlab.sadi.utils.graph.SearchNode;
-import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
-import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpointFactory;
-import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
-import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint.EndpointType;
-import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint.TripleIterator;
-import ca.wilkinsonlab.sadi.client.Config;
-import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
-
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
-
-import virtuoso.jena.driver.VirtModel;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * <p>Class for performing administrative tasks on a Virtuoso SPARQL endpoint
@@ -1043,9 +1035,6 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 	
 	protected static String getUsageNotes() throws IOException 
 	{
-		String usage;
-		
-		
 		return SPARQLStringUtils.readFully(VirtuosoSPARQLRegistryAdmin.class.getResource("/resources/sparql.registry.usage.txt"));
 	}
 }
