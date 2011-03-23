@@ -46,10 +46,14 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	{
 		String taskId = request.getParameter(POLL_PARAMETER);
 		if (taskId != null) {
+			/* set the content type on the response so that methods that only 
+			 * have access to the response object know what to output...
+			 */
+			response.setContentType(getContentType(request).getHTTPHeader());
+			
 			InputProcessingTask task = (InputProcessingTask)TaskManager.getInstance().getTask(taskId);
 			if (task == null) {
-				/* TODO send error response...
-				 */
+				outputErrorResponse(response, new Exception(String.format("no such task ID %s", taskId)));
 			} else if (task.isFinished()) {
 				Throwable error = task.getError();
 				if (error != null) {
