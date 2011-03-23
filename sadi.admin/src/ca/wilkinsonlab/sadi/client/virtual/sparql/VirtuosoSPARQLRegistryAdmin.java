@@ -1041,8 +1041,11 @@ public class VirtuosoSPARQLRegistryAdmin implements SPARQLRegistryAdmin {
 		System.exit(exitCode);
 	}
 	
-	protected static String getUsageNotes() throws IOException {
-		Reader reader = new BufferedReader(new FileReader(VirtuosoSPARQLRegistryAdmin.class.getResource("resource/usage.notes.txt").toString()));
-		return IOUtils.toString(reader);
+	protected static String getUsageNotes() throws IOException 
+	{
+		String usage;
+		
+		
+		return SPARQLStringUtils.readFully(VirtuosoSPARQLRegistryAdmin.class.getResource("/resources/sparql.registry.usage.txt"));
 	}
 }
