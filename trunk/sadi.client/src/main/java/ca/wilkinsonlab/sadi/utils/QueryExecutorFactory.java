@@ -172,9 +172,9 @@ public class QueryExecutorFactory
 		@SuppressWarnings("unchecked")
 		public static List<Map<String, String>> convertResults(Object result)
 		{
-			List<Map<String, Map>> virtuosoBindings = (List)((Map)((Map)result).get("results")).get("bindings");
+			List<Map<String, Map<?, ?>>> virtuosoBindings = (List<Map<String, Map<?, ?>>>)((Map<?, ?>)((Map<?, ?>)result).get("results")).get("bindings");
 			List<Map<String, String>> localBindings = new ArrayList<Map<String, String>>(virtuosoBindings.size());
-			for (Map<String, Map> virtuosoBinding: virtuosoBindings) {
+			for (Map<String, Map<?, ?>> virtuosoBinding: virtuosoBindings) {
 				Map<String, String> ourBinding = new HashMap<String, String>();
 				for (String variable: virtuosoBinding.keySet()) {
 					ourBinding.put(variable, (String)virtuosoBinding.get(variable).get("value"));

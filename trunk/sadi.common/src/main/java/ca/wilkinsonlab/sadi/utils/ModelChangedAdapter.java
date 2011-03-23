@@ -26,14 +26,13 @@ public abstract class ModelChangedAdapter implements ModelChangedListener
 			addedStatement(s);
 	}
 
-	@SuppressWarnings("unchecked")
-	public void addedStatements(List statements)
+	public void addedStatements(List<Statement> statements)
 	{
 		if (getLog().isTraceEnabled())
 			getLog().trace( String.format("adding %d statements from list ", statements.size()) );
 		
-		for (Object o: statements)
-			addedStatement((Statement)o);
+		for (Statement s: statements)
+			addedStatement(s);
 	}
 
 	public void addedStatements(StmtIterator statements)
@@ -68,14 +67,13 @@ public abstract class ModelChangedAdapter implements ModelChangedListener
 			removedStatement(s);
 	}
 
-	@SuppressWarnings("unchecked")
-	public void removedStatements(List statements)
+	public void removedStatements(List<Statement> statements)
 	{
 		if (getLog().isTraceEnabled())
 			getLog().trace( String.format("removing %d statements from list ", statements.size()) );
 		
-		for (Object o: statements)
-			removedStatement((Statement)o);
+		for (Statement s: statements)
+			removedStatement(s);
 	}
 
 	public void removedStatements(StmtIterator statements)
