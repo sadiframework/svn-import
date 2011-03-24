@@ -2,7 +2,6 @@ package ca.wilkinsonlab.sadi.rdfpath;
 
 import static org.junit.Assert.fail;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,13 +17,16 @@ import org.junit.Test;
 import ca.wilkinsonlab.sadi.rdfpath.RDFPath.PropertyValueIterator;
 import ca.wilkinsonlab.sadi.utils.LSRNUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import ca.wilkinsonlab.sadi.vocab.MyGrid;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 /**
  * @author Luke McCarthy
@@ -136,13 +138,37 @@ public class RDFPathTest
 		path.addValueRootedAt(hsa00232, model.createTypedLiteral("D02261"));
 		path.addValueRootedAt(hsa00232, model.createTypedLiteral("D02262"));
 		RdfUtils.addNamespacePrefixes(model);
-		model.getWriter("N3").write(model, new FileOutputStream("/tmp/out.n3"), "");
+//		model.getWriter("N3").write(model, new FileOutputStream("/tmp/out.n3"), "");
+	}
+	
+	@Test
+	public void testCreateLiteralRootedAt() throws Exception
+	{
+		RDFPath path = new RDFPath(new String[]{ 
+				MyGrid.authoritative.getURI(), 
+					XSDDatatype.XSDboolean.getURI()
+		});
+		Model model = ModelFactory.createDefaultModel();
+		Resource root = model.createResource();
+		path.createLiteralRootedAt(root, "true");
+		assertCollectionContains(path.getValuesRootedAt(root), ResourceFactory.createTypedLiteral(true));
+		root.addLiteral(MyGrid.authoritative, "not a boolean");
+		assertCollectionDoesNotContain(path.getValuesRootedAt(root), ResourceFactory.createTypedLiteral("not a boolean"));
 	}
 	
 	private static void assertCollectionContains(Collection<?> collection, Object item)
 	{
-		log.debug(String.format("looking for %s in %s", item, StringUtils.join(collection, ", ")));
+		String collectionString = String.format("[%s]", StringUtils.join(collection, ", "));
+		log.debug(String.format("looking for %s in %s", item, collectionString));
 		if (!collection.contains(item))
-			fail(String.format("missing %s from %s", item, collection));
+			fail(String.format("missing %s from %s", item, collectionString));
+	}
+	
+	private static void assertCollectionDoesNotContain(Collection<?> collection, Object item)
+	{
+		String collectionString = String.format("[%s]", StringUtils.join(collection, ", "));
+		log.debug(String.format("looking for %s in %s", item, collectionString));
+		if (collection.contains(item))
+			fail(String.format("unexpected %s in %s", item, collectionString));
 	}
 }

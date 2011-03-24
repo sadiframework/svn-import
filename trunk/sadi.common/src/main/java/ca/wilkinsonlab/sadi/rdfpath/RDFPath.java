@@ -8,6 +8,8 @@ import java.util.List;
 
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
+import com.hp.hpl.jena.datatypes.RDFDatatype;
+import com.hp.hpl.jena.datatypes.TypeMapper;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -247,7 +249,8 @@ public class RDFPath extends ArrayList<Resource>
 		while (nodes.hasNext()) {
 			RDFNode node = nodes.next();
 			if ((type == null) || // wild card...
-				(node.isResource() && node.asResource().hasProperty(RDF.type, type))) {
+				(node.isResource() && node.asResource().hasProperty(RDF.type, type)) ||
+				(node.isLiteral() && node.asLiteral().getDatatype().equals(TypeMapper.getInstance().getTypeByName(type.getURI())))) {
 					matches.add(node);
 			}
 		}
@@ -391,7 +394,18 @@ public class RDFPath extends ArrayList<Resource>
 	 */
 	public Literal createLiteralRootedAt(Resource root, String value)
 	{
-		Literal literal = RdfUtils.createTypedLiteral(value);
+		Literal literal;
+		if (isEmpty()) {
+			literal = RdfUtils.createTypedLiteral(value);
+		} else {
+			Resource type = get(size()-1);
+			if (type == null) {
+				literal = RdfUtils.createTypedLiteral(value);
+			} else {
+				RDFDatatype datatype = TypeMapper.getInstance().getTypeByName(type.getURI());
+				literal = ResourceFactory.createTypedLiteral(value, datatype);
+			}
+		}
 		addValueRootedAt(root, literal);
 		return literal;
 	}
