@@ -28,7 +28,6 @@ import ca.wilkinsonlab.daggoo.utils.IOUtils;
 import ca.wilkinsonlab.daggoo.utils.WSDLConfig;
 import ca.wilkinsonlab.sadi.tasks.Task;
 import ca.wilkinsonlab.sadi.tasks.TaskManager;
-import ca.wilkinsonlab.sadi.utils.DurationUtils;
 import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -354,8 +353,9 @@ public class SAWSDL2SADIServlet extends HttpServlet {
             model.createResource(redirectUrl, outputClass);
             model.write(response.getWriter());
              */
-            response.setHeader("Pragma", String.format("%s = %s", SADI.ASYNC_HEADER, DurationUtils.format(waitTime)));
-            response.sendRedirect(redirectUrl);
+	response.setHeader("Pragma", String.format("%s = %s", SADI.ASYNC_HEADER, waitTime));
+	response.setHeader("Retry-After", String.valueOf(waitTime/1000));
+	response.sendRedirect(redirectUrl);
     }
     
     protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
