@@ -40,13 +40,14 @@ public class JSON {
 	StringBuilder sb = new StringBuilder("[");
 	Model m = ModelFactory.createDefaultModel();
 	m.read("http://semanticscience.org/ontology/sio-core.owl", null);
+	m.read("http://sadiframework.org/ontologies/predicates.owl", null);
 	ResIterator iterator = m.listResourcesWithProperty(RDF.type,OWL.ObjectProperty);
 	int count = 0;
 	while (iterator.hasNext()) {
 	    Resource node = iterator.next();
 	    sb.append(count++ == 0 ? "" : ",");
 	    String uri = node.getURI();
-	    String label = node.getProperty(RDFS.label).getObject().toString();
+	    String label = node.hasProperty(RDFS.label) ? node.getProperty(RDFS.label).getObject().toString() : node.getLocalName();
 	    String description = node.hasProperty(DC_11.description) ? node.getProperty(RDFS.label).getObject().toString() : "";
 	    if (label.trim().matches(".*@\\w+")) {
 		label = label.trim().substring(0, label.length()-3);
@@ -62,7 +63,7 @@ public class JSON {
 	    sb.append(count++ == 0 ? "" : ",");
 	    String uri = node.getURI();
 	    String description = node.hasProperty(DC_11.description) ? node.getProperty(RDFS.label).getObject().toString() : "";
-	    String label = node.getProperty(RDFS.label).getObject().toString();
+	    String label = node.hasProperty(RDFS.label) ? node.getProperty(RDFS.label).getObject().toString() : node.getLocalName();
 	    if (label.trim().matches(".*@\\w+")) {
 		label = label.trim().substring(0, label.length()-3);
 	    }
