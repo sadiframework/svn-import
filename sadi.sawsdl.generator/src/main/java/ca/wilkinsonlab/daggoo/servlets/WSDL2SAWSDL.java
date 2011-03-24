@@ -31,7 +31,6 @@ import ca.wilkinsonlab.daggoo.OwlDatatypeMapping;
 import ca.wilkinsonlab.daggoo.SAWSDLService;
 import ca.wilkinsonlab.daggoo.WSDLParser;
 import ca.wilkinsonlab.daggoo.listeners.ServletContextListener;
-import ca.wilkinsonlab.daggoo.utils.Base64;
 import ca.wilkinsonlab.daggoo.utils.IOUtils;
 
 /**
@@ -621,13 +620,11 @@ public class WSDL2SAWSDL extends HttpServlet {
 		//VelocityContext context = new VelocityContext();
 		context.put("owl_property_mappings", session.getAttribute("output_owl_x"));
 		context.put("sadi_output_owl_class", 
-			Base64.byteArrayToBase64(String.format("%s%s/%s/owl#outputClass", 
+			String.format("%s%s/%s/owl#outputClass", 
 				BASE_URL, 
 				SAWSDL2SADIServlet.SERVLET_NAME, 
 				session.getAttribute("servicename")
-			).getBytes()
 		));
-		
 		StringWriter writer = new StringWriter();
 		template.merge(context, writer);
 		fos.write(IOUtils.GenerateLiftingSchema(owlDatatypeMappings, writer.toString()).getBytes());
