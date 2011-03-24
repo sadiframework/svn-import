@@ -17,6 +17,6 @@
     <!-- regex implies that we apply the regex expression (in the text content) to our soap output -->
 	</mapping>
 	<template>
-drugResults=aHR0cDovL3NlbWFudGljc2NpZW5jZS5vcmcvcmVzb3VyY2UvU0lPXzAwMDI2Mg\=\=,aHR0cDovL2xvY2FsaG9zdDo4MDgwL1NBV1NETDJTQURJU2VydmxldC9nZXREcnVnc0J5UGF0aHdheS9vd2wjb3V0cHV0Q2xhc3M\=,aHR0cDovL3NlbWFudGljc2NpZW5jZS5vcmcvcmVzb3VyY2UvU0lPXzAwMDAwOA\=\=,aHR0cDovL3B1cmwub2NsYy5vcmcvU0FESS9MU1JOL0tFR0dfRFJVR19JZGVudGlmaWVy,aHR0cDovL3NlbWFudGljc2NpZW5jZS5vcmcvcmVzb3VyY2UvU0lPXzAwMDMwMA\=\=,*
+drugResults=http://semanticscience.org/resource/SIO_000132,http://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Record,http://semanticscience.org/resource/SIO_000008,http://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Identifier,http://semanticscience.org/resource/SIO_000300,*
 	</template>
 </lifting>
