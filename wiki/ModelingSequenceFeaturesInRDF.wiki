@@ -36,7 +36,7 @@ then a region with coordinates (start,end,strand) = (2,6,-1) has the sequence:
 
 CTAGC
 
-= Genome Assembly =
+= Genome Assemblies =
 
 A genome assembly is a release version of a genome.  
 
