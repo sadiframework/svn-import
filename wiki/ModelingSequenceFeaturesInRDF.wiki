@@ -43,9 +43,9 @@ A genome assembly is a release version of a genome.
 Each genome assembly has:
 
   * a *source organism*, identified by it's NCBI taxon ID
-  * a version number
+  * a *version number* (optional)
 
-The assembly version number will be optional. While GMOD has a recommended best practice for storing genome assembly versions (as described [http://generic-model-organism-system-database.450254.n5.nabble.com/Chado-Assembly-Group-td458445.html here), it does not appear to explicitly supported by the GFF (Generic Feature Format) loading script, `gmod_bulk_load_gff3.pl`.    
+While GMOD has a recommended best practice for storing genome assembly versions (as described [http://generic-model-organism-system-database.450254.n5.nabble.com/Chado-Assembly-Group-td458445.html here]), it does not appear to explicitly supported by the GFF (Generic Feature Format) loading script, `gmod_bulk_load_gff3.pl`.    
  
 = Features =
 
