@@ -406,7 +406,7 @@ public class IOUtils{
 	
 	Document respDoc = getDocBuilder().parse(new ByteArrayInputStream(xml.getBytes()));
 	if (respDoc != null) {
-	    NodeList nodes = respDoc.getElementsByTagName("sadiSoapMapping");
+	    NodeList nodes = respDoc.getElementsByTagName("template");
 	    // only one sadiSoapMapping
 	    for (int x = 0; x < nodes.getLength(); x++) {
 		Node n = nodes.item(x);
@@ -414,7 +414,7 @@ public class IOUtils{
 		    NodeList children = n.getChildNodes();
 		    for (int y = 0; y <children.getLength(); y++) {
 			Node child = children.item(y);
-			// direct children of sadiSoapMapping only!
+			// direct children of template only!
 			if (child != null && child.getNodeType() == Node.ELEMENT_NODE && child.getParentNode() != null && child.getParentNode().equals(n)) {
 			    String name = child.getLocalName(); // the soap name and the key into our map!
 			    // is this input an array of items?
@@ -455,12 +455,12 @@ public class IOUtils{
     }
     public static void main(String[] args) throws Exception{
 	Map<String, Object> map = IOUtils.ParseSoapMappings("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n" + 
-			"<sadiSoapMapping>\r\n" + 
+			"<template>\r\n" + 
 			"<pathway_id>hsa:000987</pathway_id>\r\n" + 
 			"<pathway_ids><item>hsa:000987</item><item>hsa:000988</item><item>hsa:000989</item></pathway_ids>\r\n" + 
 			"<id>some single id</id>\r\n" + 
 			"<ids><item>1</item><item>2</item><item>3</item></ids>\r\n" + 
-			"</sadiSoapMapping>");
+			"</template>");
 	for (String key : map.keySet()) {
 	    Object o = map.get(key);
 	    if (o instanceof String[]) {

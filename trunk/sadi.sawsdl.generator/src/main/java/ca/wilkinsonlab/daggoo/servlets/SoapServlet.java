@@ -3,7 +3,6 @@ package ca.wilkinsonlab.daggoo.servlets;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -30,7 +29,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ca.wilkinsonlab.daggoo.WrappingServlet;
-import ca.wilkinsonlab.daggoo.WrappingServlet.MyNodeList;
 import ca.wilkinsonlab.daggoo.utils.IOUtils;
 import ca.wilkinsonlab.daggoo.utils.SourceMap;
 
@@ -41,7 +39,6 @@ import ca.wilkinsonlab.daggoo.utils.SourceMap;
  * functionality), please see the documentation at
  * http://biomoby.open-bio.org/CVS_CONTENT/moby-live/Java/docs/soapServlet.html
  */
-@SuppressWarnings("restriction")
 public class SoapServlet extends WrappingServlet {
     
     private static final String STYLESHEET = "css/style.css";
@@ -1879,7 +1876,7 @@ System.err.println(String.format("TODO handle extension properly ... %s", elemen
 	    // use paramValue to get the values for our service ... basically parse the XML <soap /> Map<String, Object> where Object is either a String or a String[]
 	    Map<String, Object> sMappings = null;
 	    try {
-		sMappings = IOUtils.ParseSoapMappings(paramValue);
+		sMappings = IOUtils.ParseSoapMappings("<template>"+paramValue+"</template>");
 		for (String key : sMappings.keySet()) {
 		    Object o = sMappings.get(key);
 		    if (o instanceof String[]) {
