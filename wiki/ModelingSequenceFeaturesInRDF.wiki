@@ -97,7 +97,7 @@ feature:Chr1
      sio:SIO_000061                                          # 'is located in'
         [ a region:GenomicRegion;
           region:is-relative-to featureURI:Chr1;             # reference feature
-          region:SIO_000061 assemblyURI:Assembly1.2.0 ] .   # 'is located in'
+          region:SIO_000061 assemblyURI:Assembly1.2.0 ] .    # 'is located in'
             
 assemblyURI:Assembly1.2.0
      a assembly:Assembly;
