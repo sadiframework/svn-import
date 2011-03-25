@@ -1,3 +1,5 @@
+#summary SADI Services for GMOD
+
 = SADI Services For GMOD =
 
 We are currently developing SADI services to be included with the GMOD (Generic Model Organism Database) project: http://gmod.org. GMOD is a popular toolkit for setting up a model organism database and associated website. Prime examples of GMOD users are [http://flybase.org FlyBase], [http://wormbase.org WormBase], and [http://yeastgenome.org SGD].
