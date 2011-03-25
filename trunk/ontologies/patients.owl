@@ -44,6 +44,16 @@
     </owl:equivalentClass>
   </owl:Class>
 
+  <owl:Class rdf:ID="LikelyRejecter">
+    <rdfs:subClassOf rdf:resource="#Patient"/>
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#creatinineLevels"/>
+        <owl:someValuesFrom rdf:resource="#ElevatedCreatinineCollection"/>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+
   <owl:Class rdf:ID="ElevatedCreatinineCollection">
     <rdfs:subClassOf rdf:resource="&regress;Collection"/>
     <owl:equivalentClass>
@@ -53,5 +63,9 @@
       </owl:Restriction>
     </owl:equivalentClass>
   </owl:Class>
-  
+
+  <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#latestCreatinine"/>
+  <owl:DatatypeProperty rdf:about="http://sadiframework.org/ontologies/predicates.owl#latestBUN"/>
+  <owl:DatatypeProperty rdf:about="http://purl.org/dc/elements/1.1/date"/>
+
 </rdf:RDF>

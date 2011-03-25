@@ -40,4 +40,18 @@
     </owl:equivalentClass>
   </owl:Class>
   
+  <owl:ObjectProperty rdf:about="#p"/>
+
+  <owl:ObjectProperty rdf:about="#equivalentToP">
+    <owl:equivalentProperty rdf:resource="#p"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#subP">
+    <rdfs:subPropertyOf rdf:resource="#p"/>
+  </owl:ObjectProperty>
+
+  <owl:ObjectProperty rdf:about="#subEquivalentToP">
+    <rdfs:subPropertyOf rdf:resource="#equivalentToP"/>
+  </owl:ObjectProperty>
+
 </rdf:RDF>
