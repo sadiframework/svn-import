@@ -1,7 +1,7 @@
-<sadiSoapMapping>#foreach ($item in $owl_property_mappings)
+#foreach ($item in $owl_property_mappings)
 #if($item.isArray())
 \#foreach($l_template_value_xyz in $${item.getSoapId()})<$item.getSoapId()><item>$item.getPrefix()$l_template_value_xyz</item></$item.getSoapId()>\#end
 #else
 \#foreach($l_template_value_xyz in $${item.getSoapId()})<$item.getSoapId()>$item.getPrefix()$l_template_value_xyz</$item.getSoapId()>\#end
 #end
-#end</sadiSoapMapping>
+#end

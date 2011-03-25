@@ -15,5 +15,5 @@
         }
     }
   </sparqlQuery>
-  <template>&lt;sadiSoapMapping>#foreach($l_template_value_xyz in $literalID)&lt;pathway_id>path:$l_template_value_xyz&lt;/pathway_id>#end&lt;/sadiSoapMapping></template>
+<template>#foreach($l_template_value_xyz in $literalID)&lt;pathway_id>path:$l_template_value_xyz&lt;/pathway_id>#end</template>
 </lowering>
