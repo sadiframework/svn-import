@@ -5,17 +5,17 @@
     <!ENTITY SO "http://purl.org/obo/owl/SO#" >
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
-    <!ENTITY resource "http://semanticscience.org/resource/" >
+    <!ENTITY sio "http://semanticscience.org/resource/" >
+    <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY properties "http://sadiframework.org/ontologies/properties.owl#" >
 ]>
 
-<!-- Author: Ben Vandervalk -->
-
 <rdf:RDF
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:sio="http://semanticscience.org/resource/"
+     xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -27,7 +27,7 @@
         <owl:imports rdf:resource="http://sadiframework.org/ontologies/properties.owl"/>
     </owl:Ontology>
 
-    <!-- 
+   <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
     // Object Properties
@@ -35,19 +35,7 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    <owl:ObjectProperty rdf:about="#is-relative-to">
-        <rdfs:subPropertyOf rdf:resource="&sio;SIO_000061"/> <!-- 'is located in' -->
-    </owl:ObjectProperty>
-    
-    <owl:ObjectProperty rdf:about="#end-position">
-        <rdfs:subPropertyOf rdf:resource="&sio;SIO_000008"/> <!-- 'has attribute' -->
-    </owl:ObjectProperty>
-
-    <owl:ObjectProperty rdf:about="#start-position">
-        <rdfs:subPropertyOf rdf:resource="&sio;SIO_000008"/> <!-- 'has attribute' --> 
-    </owl:ObjectProperty>
-
-    <owl:ObjectProperty rdf:about="#strand">
+    <owl:ObjectProperty rdf:about="#version">
         <rdfs:subPropertyOf rdf:resource="&sio;SIO_000008"/> <!-- 'has attribute' --> 
     </owl:ObjectProperty>
 
@@ -59,40 +47,32 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    <owl:Class rdf:about="#GenomicRegion">
+    <owl:Class rdf:about="#Assembly">
+        <rdfs:subClassOf rdf:resource="&SO;SO_0001248"/> <!-- 'assembly' -->
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
                     <owl:Restriction>
-                        <owl:onProperty rdf:resource="#is-relative-to"/>
-                        <owl:someValuesFrom rdf:resource="#FeatureWithIdentifier"/>
+                        <owl:onProperty rdf:resource="&sio;SIO_000066"/>  <!-- 'has source' -->
+                        <owl:someValuesFrom rdf:resource="#Organism"/> <!-- 'identifier' -->
                     </owl:Restriction>
                     <owl:Restriction>
-                        <owl:onProperty rdf:resource="#start-position"/>
-                        <owl:someValuesFrom rdf:resource="&sio;SIO_000071"/> <!--'coordinate' -->
-                    </owl:Restriction>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="#end-position"/>
-                        <owl:someValuesFrom rdf:resource="&sio;SIO_000071"/> <!-- 'coordinate' -->
-                    </owl:Restriction>
-                    <!-- note: possible values for stand: +1 (positive strand), -1 (negative strand), 0 (strand unknown or irrelevant) -->
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="#strand"/>
-                        <owl:someValuesFrom rdf:resource="&sio;SIO_000366"/> <!-- 'number' -->
+                        <!-- version number for sequence assembly (optional) -->
+                        <owl:onProperty rdf:resource="#version"/>  
+                        <owl:minCardinality>0</owl:minCardinality>
                     </owl:Restriction>
                  </owl:intersectionOf>
             </owl:Class>
-        </owl:equivalentClass>
+         </owl:equivalentClass>
     </owl:Class>
-    
-    <owl:Class rdf:about="FeatureWithIdentifier">
+
+    <owl:Class rdf:about="#Organism">
         <owl:equivalentClass>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&sio;000008"/>  <!-- 'has attribute' -->
-                <owl:someValuesFrom rdf:resource="&sio;000115"/> <!-- 'identifier' -->
+                <owl:onProperty rdf:resource="&sio;SIO_000008"/>  <!-- 'has attribute' -->
+                <owl:someValuesFrom rdf:resource="&lsrn;taxon_Identifier"/>
             </owl:Restriction>
         </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="&SO;SO_0000110"/>
     </owl:Class>
 
 </rdf:RDF>
