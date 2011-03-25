@@ -1,0 +1,21 @@
+#summary Proposals for modeling sequence features in RDF/OWL
+
+= Proposals for Modeling Sequence Features in RDF/OWL =
+
+The motivation for these RDF/OWL models is the development of [ServicesForGMOD SADI services for GMOD].  
+
+= Features =
+
+A feature is an annotated region of a biological sequence (e.g. a chromosome or an amino acid sequence). Examples of features are genes, transcripts, exons, transcription factor binding sites, proteins, and so on.  
+
+Every feature has:
+
+  * a *genomic range* consisting of a *start position*, an *end position*, and a *strand* ("+" or "-")
+  * a *reference feature*, which determines the reference frame for the above genomic range
+  * an *identifier* that is unique to the sequence database (e.g. "chrIX" for the 9th chromosome in yeast)
+
+Each part of the genomic range is optional:
+
+  * *no start position* means that the genomic range starts at the first base / amino acid of the reference feature
+  * *no end position* means that the genomic range ends at the last base / amino acid of the reference feature
+  * *no strand* means one of three things: i) the feature is on the same strand as the reference feature, ii) the strand is irrelevant (e.g. region of a domain in a protein), iii) the strand is relevant but unknown
