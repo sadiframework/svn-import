@@ -45,7 +45,7 @@ Each genome assembly has:
   * a *source organism*, identified by it's NCBI taxon ID
   * a *version number* (optional)
 
-While GMOD has a recommended best practice for storing genome assembly versions (as described [http://generic-model-organism-system-database.450254.n5.nabble.com/Chado-Assembly-Group-td458445.html here]), it does not appear to explicitly supported by the GFF (Generic Feature Format) loading script, `gmod_bulk_load_gff3.pl`.    
+It appears that in many cases, the specific assembly version will not be available.  While GMOD has a recommended best practice for storing genome assembly versions (as described [http://generic-model-organism-system-database.450254.n5.nabble.com/Chado-Assembly-Group-td458445.html here]), it does not appear to explicitly supported by their data loading tools (e.g. `gmod_bulk_load_gff3.pl`).    
  
 = Features =
 
