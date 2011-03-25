@@ -110,6 +110,8 @@ assemblyURI:Assembly1.2.0
 
 }}}
 
+Note that top-level features (e.g. chromosome 'Chr1' above) point to themselves as a reference feature.
+
 The OwL classes defining genomic regions, genome assemblies, and features may be viewed here:
 
   * [http://sadiframework.org/ontologies/GMOD/genomic_region.owl]
