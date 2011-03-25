@@ -50,19 +50,49 @@ Every feature has:
 Suppose the example feature has ID 'BindingSite1', and the ID of the chromosome is 'ChrIX'. Then the feature could be encoded in RDF/N3 as:
 
 {{{
-@prefix feature: <http://sequencedb.org/feature/>
+@prefix feature: <http://sadiframework.org/ontologies/GMOD/feature.owl#>
 @prefix region: <http://sadiframework.org/ontologies/GMOD/genomic_region.owl#>
+@prefix assembly: <http://sadiframework.org/ontologies/GMOD/genome_assembly.owl#>
+
+@prefix featureURI: <TO_BE_DECIDED>
+@prefix regionURI: <TO_BE_DECIDED>
+@prefix assemblyURI: <TO_BE_DECIDED>
+
 @prefix sio: <http://semanticscience.org/resource/>
 @prefix so: <http://purl.org/obo/owl/SO#>
 
-
-feature:BindingSite1 
-     a so:SO_0000235; # TF_binding_site
-     region:is-relative-to Chr1;
+featureURI:BindingSite1
+     a feature:Feature; 
+     a so:SO_0000235;                                # 'TF_binding_site'
+     sio:SIO_000008                                  # 'has attribute' 
+        [ a sio:SIO_000115;                          # 'identifier'
+          sio:SIO_000300 'BindingSite1' ];
+     sio:SIO_000061                                  # 'is located in'
+        [ a region:GenomicRegion;
+          region:is-relative-to featureURI:Chr1;     # reference feature
+          region:SIO_000061 assemblyURI:Assembly1;   # 'is located in'
+          region:start-position 2;
+          region:end-position 6;
+          region:strand -1; ] .
        
-
-feature:Chr1 
+feature:Chr1
+     a feature:Feature; 
      a so:SO_0000340; # chromosome
-               
+     sio:SIO_000008                                  # 'has attribute' 
+        [ a sio:SIO_000115;                          # 'identifier'
+          sio:SIO_000300 'BindingSite1' ];
+     sio:SIO_000061                                  # 'is located in'
+        [ a region:GenomicRegion;
+          region:is-relative-to featureURI:Chr1;     # reference feature
+          region:SIO_000061 assemblyURI:Assembly1; ] # 'is located in'
+            
+assemblyURI:Assembly1.2.0
+     a assembly:Assembly;
+     sio:SIO_000066 
+        [ a assembly:Organism;
+          sio:SIO_000008                             # 'has attribute' 
+              [ a lsrn:taxon_Identifier;
+                sio:SIO_000300 "4932"; ]
+     assembly:version "1.2.0" .                 
 
 }}}    
