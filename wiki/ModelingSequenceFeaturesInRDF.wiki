@@ -58,7 +58,7 @@ Every feature has:
 
 == Example Feature in RDF/N3 ==
 
-Suppose the example feature has ID 'BindingSite1', and the ID of the chromosome is 'ChrIX'. Then the feature could be encoded in RDF/N3 as:
+Suppose we have a feature with ID 'BindingSite1', and a chromosome with ID 'Chr1'. The feature could be encoded in RDF/N3 as:
 
 {{{
 @prefix feature: <http://sadiframework.org/ontologies/GMOD/feature.owl#>
