@@ -65,34 +65,34 @@ Suppose the example feature has ID 'BindingSite1', and the ID of the chromosome 
 
 featureURI:BindingSite1
      a feature:Feature; 
-     a so:SO_0000235;                                # 'TF_binding_site'
-     sio:SIO_000008                                  # 'has attribute' 
-        [ a sio:SIO_000115;                          # 'identifier'
+     a so:SO_0000235;                                        # 'TF_binding_site'
+     sio:SIO_000008                                          # 'has attribute' 
+        [ a sio:SIO_000115;                                  # 'identifier'
           sio:SIO_000300 'BindingSite1'^^xsd:string ];
-     sio:SIO_000061                                  # 'is located in'
+     sio:SIO_000061                                          # 'is located in'
         [ a region:GenomicRegion;
-          region:is-relative-to featureURI:Chr1;     # reference feature
-          region:SIO_000061 assemblyURI:Assembly1.2.0;   # 'is located in'
+          region:is-relative-to featureURI:Chr1;             # reference feature
+          region:SIO_000061 assemblyURI:Assembly1.2.0;       # 'is located in'
           region:start-position '2'^^xsd:nonNegativeInteger;
           region:end-position '6'^^xsd:nonNegativeInteger;
           region:strand '-1'^^xsd:integer; ] .
        
 feature:Chr1
      a feature:Feature; 
-     a so:SO_0000340;                                # 'chromosome'
-     sio:SIO_000008                                  # 'has attribute' 
-        [ a sio:SIO_000115;                          # 'identifier'
+     a so:SO_0000340;                                        # 'chromosome'
+     sio:SIO_000008                                          # 'has attribute' 
+        [ a sio:SIO_000115;                                  # 'identifier'
           sio:SIO_000300 'Chr1'^^xsd:string ];
-     sio:SIO_000061                                  # 'is located in'
+     sio:SIO_000061                                          # 'is located in'
         [ a region:GenomicRegion;
-          region:is-relative-to featureURI:Chr1;     # reference feature
-          region:SIO_000061 assemblyURI:Assembly1.2.0; ] . # 'is located in'
+          region:is-relative-to featureURI:Chr1;             # reference feature
+          region:SIO_000061 assemblyURI:Assembly1.2.0; ] .   # 'is located in'
             
 assemblyURI:Assembly1.2.0
      a assembly:Assembly;
-     sio:SIO_000066 
+     sio:SIO_000066                                          # 'has source'
         [ a assembly:Organism;
-          sio:SIO_000008                             # 'has attribute' 
+          sio:SIO_000008                                     # 'has attribute' 
               [ a lsrn:taxon_Identifier;
                 sio:SIO_000300 '4932'^^xsd:string; ]
      assembly:version '1.2.0'^^xsd:string .                 
