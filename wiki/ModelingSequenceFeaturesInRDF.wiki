@@ -6,14 +6,22 @@ The motivation for these RDF/OWL models is the development of [ServicesForGMOD S
 
 = Features =
 
-A feature is an annotated region of a biological sequence (e.g. a chromosome or an amino acid sequence). Examples of features are genes, transcripts, exons, transcription factor binding sites, proteins, and so on.  
+A feature is an annotated region of a biological sequence (e.g. a chromosome or an amino acid sequence). Examples of features are chromosomes, genes, transcripts, exons, transcription factor binding sites, proteins, protein domains, and so on.  Everything is a feature.  
 
 Every feature has:
 
-  * a *genomic range* consisting of a *start position*, an *end position*, and a *strand* ("+" or "-")
+  * a *genomic range*, which is described by any combination of a *start position*, an *end position*, and a *strand*. (Each part is optional; see below.)
   * a *reference feature*, which determines the reference frame for the above genomic range
   * an *identifier* that is unique to the sequence database (e.g. "chrIX" for the 9th chromosome in yeast)
 
+Here we adopt the same semantics for "strand" as GMOD. The strand part of the genomic range has a value of either +1 or -1.  In the first case (+1), the feature is on the same DNA/RNA strand as the reference feature and has the same direction. In the second case (-1), the feature is on the opposite strand of the reference feature and has the opposite direction. For example, if we have a short chromosome consisting of:
+
+`AGCTAGCTAGCT`
+
+then a feature with coordinates (start,end,strand) = (2,6,-1) has the sequence:
+
+`CTAGC`
+ 
 Each part of the genomic range is optional:
 
   * *no start position* means that the genomic range starts at the first base / amino acid of the reference feature
