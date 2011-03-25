@@ -1,24 +1,49 @@
-#SADI Services For GMOD
-
-= Introduction =
+= SADI Services For GMOD =
 
 We are currently developing SADI services to be included with the GMOD (Generic Model Organism Database) project: http://gmod.org. GMOD is a popular toolkit for setting up a model organism database and associated website. Prime examples of GMOD users are [http://flybase.org FlyBase], [http://wormbase.org WormBase], and [http://yeastgenome.org SGD].
 
 = Ideas for Services =
 
-= Sequences and Features =
+Please submit your ideas for GMOD-related services here. 
 
-The core data in GMOD are sequences and sequence annotations (i.e. "features"). This part of the database is described by the [http://gmod.org/wiki/Chado_Sequence_Module Sequence Module] of [http://gmod.org/wiki/Introduction_to_Chado Chado]. ("Chado" is the database schema for GMOD.)      
+To get a feel for kinds of data that are in a GMOD database, have a look at the [http://gmod.org/wiki/Introduction_to_Chado#A_Modular_Schema modules in Chado]. 
+ 
+== Sequences and Features ==
 
-  * get_sequence_for_region (Ben): retrieve a sequence for a given genomic region (e.g. bases 3012 to 4192 on chromosome 'chrIX').
-  * get_features_overlapping_region (Ben): retrieve all features overlapping a given genomic region
-  * get_features_contained_by_region (Ben): retrieve all features completely contained by a given genomic region
-  * get_features_containing_region (Ben): retrieve all features that completely contain the given genomic region
-  * get_child_features (Ben): retrieve features that are immediate children of a given feature (e.g. exon features are children of mRNA features)
-  * get_parent_features (Ben): retrieve features that are immediate parents of a given feature
-  * get_descendant_features (Ben): retrieve features that are descendants of a given feature
-  * get_ancestor_features (Ben): retrieve features that are ancestors of a given feature
+The core data in GMOD are sequences and sequence annotations (i.e. "features"). This part of the database is described by the [http://gmod.org/wiki/Chado_Sequence_Module Sequence Module] of [http://gmod.org/wiki/Introduction_to_Chado Chado]. ("Chado" is the database schema for GMOD.)
 
-  * Automatic links to other wiki pages
+Current ideas for services are:      
 
-= Phenotyes
+  * (Ben) *get_sequence_for_region*: retrieve a sequence for a given genomic region (e.g. bases 3012 to 4192 on chromosome 'chrIX').
+  * (Ben) *get_features_overlapping_region*: retrieve all features overlapping a given genomic region
+  * (Ben) *get_features_contained_by_region*: retrieve all features completely contained by a given genomic region
+  * (Ben) *get_features_containing_region*: retrieve all features that completely contain the given genomic region
+  * (Ben) *get_child_features*: retrieve features that are immediate children of a given feature (e.g. exon features are children of mRNA features)
+  * (Ben) *get_parent_features*: retrieve features that are immediate parents of a given feature
+  * (Ben) *get_descendant_features*: retrieve features that are descendants of a given feature
+  * (Ben) *get_ancestor_features*: retrieve features that are ancestors of a given feature
+
+== Phenotypes ==
+
+  * (Mark) *alleles => phenotypes* (images, PCR primers, etc.)
+
+== ID Mapping == 
+
+  * (Mark) *common gene name => gene ID*
+
+== Publications ==
+
+  * (Mark) *common gene name => publications*
+
+= Modeling GMOD Data in RDF/OWL =
+
+Ben is currently working on the feature-related services for GMOD, which will require modeling:
+
+  # features
+  # genomic coordinates
+
+A proposal for how to model these things in RDF is given here: [ModelingSequenceFeaturesInRDF].
+
+= Demo Services =
+
+Coming soon. Ben will setup some example SADI services on dev and register them in the public SADI registry.  The services will use a mirrored copy of a real GMOD database (e.g. Flybase).  
