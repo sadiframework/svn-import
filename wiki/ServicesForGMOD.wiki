@@ -35,6 +35,10 @@ Current ideas for services are:
 
   * (Mark) *common gene name => publications*
 
+== BLAST ==
+  
+  (Ben) *BLAST*: Mark and Luke advise against this if the services are set up automatically during GMOD installation, because BLAST may incur heavy CPU usage.  
+  
 = Modeling GMOD Data in RDF/OWL =
 
 Ben is currently working on the feature-related services for GMOD, which will require modeling:
@@ -46,4 +50,14 @@ A proposal for how to model these things in RDF is given here: [ModelingSequence
 
 = Demo Services =
 
-Coming soon. Ben will setup some example SADI services on dev and register them in the public SADI registry.  The services will use a mirrored copy of a real GMOD database (e.g. Flybase).  
+Coming soon. Ben will set up some example SADI services on dev and register them in the public SADI registry.  The services will use a mirrored copy of a real GMOD database (e.g. Flybase). 
+
+= Distribution/Installation =
+
+The goal is to install SADI services alongside GMOD in as automatic a manner as possible.  However, the base distribution for GMOD only includes utilities for setting up the postgres database; everything else (e.g. GBrowse) must be installed as a separate module. 
+
+There have been a couple suggestions about this:
+
+  # (Mark) Distribute the SADI services with GBrowse
+  # (Ben) Distribute the SADI services with CPAN  
+  
