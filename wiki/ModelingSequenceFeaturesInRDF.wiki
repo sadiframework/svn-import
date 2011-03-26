@@ -1,6 +1,6 @@
-#summary Proposals for modeling sequence features in RDF/OWL
+#summary Proposal for modeling sequence features in RDF/OWL
 
-= Proposals for Modeling Sequence Features in RDF/OWL =
+= Proposal for Modeling Sequence Features in RDF/OWL =
 
 The motivation for these RDF/OWL models is the development of [ServicesForGMOD SADI services for GMOD].  
 
