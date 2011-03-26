@@ -79,7 +79,7 @@ featureURI:BindingSite1
      a so:SO_0000235;                                        # 'TF_binding_site'
      sio:SIO_000008                                          # 'has attribute' 
         [ a sio:SIO_000115;                                  # 'identifier'
-          sio:SIO_000300 'BindingSite1'^^xsd:string ];
+          sio:SIO_000300 'BindingSite1'^^xsd:string ];       # 'has value'
      sio:SIO_000061                                          # 'is located in'
         [ a region:GenomicRegion;
           region:is-relative-to featureURI:Chr1;             # reference feature
@@ -88,12 +88,12 @@ featureURI:BindingSite1
           region:end-position '6'^^xsd:nonNegativeInteger;
           region:strand '-1'^^xsd:integer ] .
        
-feature:Chr1
+featureURI:Chr1
      a feature:Feature; 
      a so:SO_0000340;                                        # 'chromosome'
      sio:SIO_000008                                          # 'has attribute' 
         [ a sio:SIO_000115;                                  # 'identifier'
-          sio:SIO_000300 'Chr1'^^xsd:string ];
+          sio:SIO_000300 'Chr1'^^xsd:string ];               # 'has value'
      sio:SIO_000061                                          # 'is located in'
         [ a region:GenomicRegion;
           region:is-relative-to featureURI:Chr1;             # reference feature
