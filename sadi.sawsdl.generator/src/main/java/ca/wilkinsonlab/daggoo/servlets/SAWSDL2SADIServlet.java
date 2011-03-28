@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +29,8 @@ import ca.wilkinsonlab.daggoo.utils.IOUtils;
 import ca.wilkinsonlab.daggoo.utils.WSDLConfig;
 import ca.wilkinsonlab.sadi.tasks.Task;
 import ca.wilkinsonlab.sadi.tasks.TaskManager;
+import ca.wilkinsonlab.sadi.utils.ContentType;
+import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -95,6 +98,7 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 		// send error response
 		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, String.format("invocation for '%s' does not exist", taskId));
 	    } else if (task.isFinished()) {
+		response.setContentType(getContentType(request).getHTTPHeader());
 		Throwable error = task.getError();
 		if (error == null ) {
 		    outputSuccessResponse(response, task.getOutputModel());
@@ -137,6 +141,7 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 		log.info("empty request, redirecting to WSDL2SAWSDL ...");
 		return;
 	    } else {
+		@SuppressWarnings("unchecked")
 		Map<String, SAWSDLService> services = (Map<String, SAWSDLService>) getServletContext().getAttribute(ServletContextListener.SAWSDL_SERVICE_MAP);
 		if (services == null) {
 		    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Null service map encountered. Please report this error!");
@@ -229,6 +234,19 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 	}
     }
     
+    public static ContentType getContentType(HttpServletRequest request) {
+            ContentType contentType = null;
+            for (Enumeration<?> headers = request.getHeaders("Accept"); headers.hasMoreElements(); ) {
+                    String headerString = (String)headers.nextElement();
+                    for (String header: headerString.split(",\\s*")) {
+                            contentType = ContentType.getContentType(header);
+                            if (contentType != null)
+                                    return contentType;
+                    }
+            }
+            return ContentType.RDF_XML;
+    }
+    
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	String requestURI = request.getRequestURI();
@@ -258,11 +276,13 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 				: request.getContextPath(), "/"
 				+ WSDL2SAWSDL.class.getSimpleName()));
 	    return;
-	} else {
+	} else {	    
+	    @SuppressWarnings("unchecked")
 	    Map<String, SAWSDLService> services = (Map<String, SAWSDLService>) getServletContext().getAttribute(ServletContextListener.SAWSDL_SERVICE_MAP);
 	    if (services == null) {
 		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Null service map encountered. Please report this error!");
 	    }
+	    response.setContentType(getContentType(request).getHTTPHeader());
 	    // create a new task
 	    SAWSDLService s = services.get(service);
 	    if (s != null) {
@@ -282,41 +302,58 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 	
 	String inputString = readInput(s.getRequest());
         Model inputModel = readInputIntoModel(s.getRequest(), inputString);
+        Model outputModel = createOutputModel();
         WSDLConfig wsdl = null;
         try {
             wsdl = new WSDLConfig(new File(s.getWsdlLocation()).toURI().toURL());
         } catch (Exception e) {
-            // TODO what should i do?
-            e.printStackTrace();
+            outputErrorResponse(s.getResponse(), e);
             if (inputModel != null)
         	inputModel.close();
+            if (outputModel != null)
+        	outputModel.close();
             return;
         }
         wsdl.setCurrentService(s.getName());
-        
+
         /* process each input batch in it's own task thread...*/
         DaggooTask task = new DaggooTask(s, mappingPrefix, inputString);
         TaskManager.getInstance().startTask(task);
-        
-	String inputClass = wsdl.getPrimaryInputs().keySet().iterator().next();
-	inputClass = wsdl.getPrimaryInputs().get(inputClass).substring(inputClass.length() + 1);
+
+        String inputClass = wsdl.getPrimaryInputs().keySet().iterator().next();
+        inputClass = wsdl.getPrimaryInputs().get(inputClass).substring(inputClass.length() + 1);
         Collection<Resource> newBatch = inputModel.listResourcesWithProperty(RDF.type, inputModel.createResource(inputClass)).toList();
-        
-        /* add the poll location data to the output that will be returned immediately...*/
-        Model outputModel = createOutputModel();
-        Resource pollResource = outputModel.createResource(getPollUrl(s.getRequest(), task.getId()));
-        for (Resource inputNode: newBatch) {
-                Resource outputNode = outputModel.getResource(inputNode.getURI());
-                outputNode.addProperty(RDFS.isDefinedBy, pollResource);
+        try {
+            /* add the poll location data to the output that will be returned immediately...*/
+
+            Resource pollResource = outputModel.createResource(getPollUrl(s.getRequest(), task.getId()));
+            for (Resource inputNode: newBatch) {
+        	Resource outputNode = outputModel.getResource(inputNode.getURI());
+        	outputNode.addProperty(RDFS.isDefinedBy, pollResource);
+            }
+            if (inputModel != null) {
+        	inputModel.close();   
+            }   
+            outputSuccessResponse(s.getResponse(), outputModel);
+        } catch (Exception e) {
+            outputErrorResponse(s.getResponse(), e);
+            if (inputModel != null)
+        	inputModel.close();
+            if (outputModel != null)
+        	outputModel.close();
         }
-        if (inputModel != null) {
-            inputModel.close();   
-        }       
-        outputSuccessResponse(s.getResponse(), outputModel);
     }
 
-    protected String readInput(HttpServletRequest request) throws IOException
-    {
+    protected void outputErrorResponse(HttpServletResponse response, Throwable error) throws IOException {
+	Model errorModel = ModelFactory.createDefaultModel();
+	errorModel.add(errorModel.createResource(), SADI.error, error.toString());
+	response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+	ContentType contentType = ContentType.getContentType(response.getContentType());
+	contentType.writeModel(errorModel, response.getWriter(), "");
+    }
+
+    
+    protected String readInput(HttpServletRequest request) throws IOException {
 	Model inputModel = ModelFactory.createMemModelMaker().createFreshModel();
 	String contentType = request.getContentType();
 	if (contentType.equals("application/rdf+xml")) {
@@ -330,8 +367,7 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 	inputModel.write(writer, "RDF/XML-ABBREV");
 	return writer.toString();
     }
-    protected Model readInputIntoModel(HttpServletRequest request, String input) throws IOException
-    {
+    protected Model readInputIntoModel(HttpServletRequest request, String input) throws IOException {
 	Model inputModel = ModelFactory.createMemModelMaker().createFreshModel();
 	String contentType = request.getContentType();
 	if (contentType.equals("application/rdf+xml")) {
@@ -345,58 +381,45 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 	
     }
     
-    private void outputInterimResponse(HttpServletResponse response, String redirectUrl, long waitTime) throws IOException
-    {
-            /* according to spec, "response SHOULD contain a short hypertext note with a hyperlink to the new URI(s)",
-             * but Tomcat doesn't want us to send a body with the redirect; this probably won't be a problem...
-            Model model = modelMaker.createFreshModel();
-            model.createResource(redirectUrl, outputClass);
-            model.write(response.getWriter());
-             */
+    private void outputInterimResponse(HttpServletResponse response, String redirectUrl, long waitTime) throws IOException {
 	response.setHeader("Pragma", String.format("%s = %s", SADI.ASYNC_HEADER, waitTime));
 	response.setHeader("Retry-After", String.valueOf(waitTime/1000));
 	response.sendRedirect(redirectUrl);
     }
     
-    protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
-    {
-            response.setStatus(HttpServletResponse.SC_ACCEPTED);
-            response.setContentType("application/rdf+xml");
-            RDFWriter writer = outputModel.getWriter("RDF/XML-ABBREV");
-            writer.write(outputModel, response.getWriter(), "");
+    protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException {
+	response.setStatus(HttpServletResponse.SC_ACCEPTED);
+	ContentType contentType = ContentType.getContentType(response.getContentType());
+        RDFWriter writer = outputModel.getWriter(contentType.getJenaLanguage());
+        QueryableErrorHandler errorHandler = new QueryableErrorHandler();
+        writer.setErrorHandler(errorHandler);
+        writer.write(outputModel, response.getWriter(), "");
+        if (errorHandler.hasLastError()) {
+                Exception e = errorHandler.getLastError();
+                String message = String.format("error writing output RDF: %s", e.getMessage());
+                log.error(message, e);
+                throw new IOException(message);
+        }
     }
     
-    protected String getPollUrl(HttpServletRequest request, String taskId)
-    {
-            /* TODO allow override of request URL?
-             * not really useful if proxies are set up properly...
-             */
-            return String.format("%s?%s=%s", request.getRequestURL().toString(), POLL_PARAMETER, taskId);
+    protected String getPollUrl(HttpServletRequest request, String taskId) {
+	return String.format("%s?%s=%s", request.getRequestURL().toString(), POLL_PARAMETER, taskId);
     }
     
-    protected long getSuggestedWaitTime(Task task)
-    {
+    protected long getSuggestedWaitTime(Task task) {
             return 5000;
     }
 
-    protected Model prepareOutputModel(Model inputModel, Resource inputClass, Resource outputClass)
-    {
-	// TODO instead of this, use the input URIS and a velocity template to contruct these temporary models
-	/* 2009-03-17 Luke and Mark decide that inputs will be explicitly typed,
-	 * so reasoning is not required here...
-	 */
+    protected Model prepareOutputModel(Model inputModel, Resource inputClass, Resource outputClass) {
 	Model outputModel = createOutputModel();
 	for (ResIterator i = inputModel.listSubjectsWithProperty(RDF.type, inputClass); i.hasNext();) {
 	    outputModel.createResource(i.nextResource().getURI(), outputClass);
 	}
 	return outputModel;
     }
-    protected Model createOutputModel()
-    {
+    protected Model createOutputModel() {
 	Model model = ModelFactory.createMemModelMaker().createFreshModel();
 	log.trace(String.format("created output model %s", model.hashCode()));
 	return model;
     }
-
-
 }
