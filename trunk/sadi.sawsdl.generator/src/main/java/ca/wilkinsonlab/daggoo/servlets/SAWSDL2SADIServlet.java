@@ -27,7 +27,7 @@ import ca.wilkinsonlab.daggoo.engine.DaggooTask;
 import ca.wilkinsonlab.daggoo.listeners.ServletContextListener;
 import ca.wilkinsonlab.daggoo.utils.IOUtils;
 import ca.wilkinsonlab.daggoo.utils.WSDLConfig;
-import ca.wilkinsonlab.sadi.tasks.Task;
+import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
 import ca.wilkinsonlab.sadi.tasks.TaskManager;
 import ca.wilkinsonlab.sadi.utils.ContentType;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
@@ -35,8 +35,6 @@ import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.RDFWriter;
-import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
@@ -44,7 +42,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 /**
  * Servlet implementation class SAWSDL2SADIServlet
  */
-public class SAWSDL2SADIServlet extends HttpServlet {
+public class SAWSDL2SADIServlet extends AsynchronousServiceServlet {
 
     public static final String POLL_PARAMETER = "poll";
     
@@ -70,6 +68,12 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 	Velocity.setProperty(Velocity.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.NullLogChute");
     }
     
+    @Override
+    public void init() throws ServletException {
+	// need to init these since we dont call through to parents init()
+	errorHandler = new QueryableErrorHandler();
+        modelMaker = createModelMaker();
+    }
     /**
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
      *      response)
@@ -300,7 +304,7 @@ public class SAWSDL2SADIServlet extends HttpServlet {
     
     protected void processInput(SAWSDLService s, String mappingPrefix) throws IOException {
 	
-	String inputString = readInput(s.getRequest());
+	String inputString = readInputFromRequest(s.getRequest());
         Model inputModel = readInputIntoModel(s.getRequest(), inputString);
         Model outputModel = createOutputModel();
         WSDLConfig wsdl = null;
@@ -343,17 +347,8 @@ public class SAWSDL2SADIServlet extends HttpServlet {
         	outputModel.close();
         }
     }
-
-    protected void outputErrorResponse(HttpServletResponse response, Throwable error) throws IOException {
-	Model errorModel = ModelFactory.createDefaultModel();
-	errorModel.add(errorModel.createResource(), SADI.error, error.toString());
-	response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-	ContentType contentType = ContentType.getContentType(response.getContentType());
-	contentType.writeModel(errorModel, response.getWriter(), "");
-    }
-
     
-    protected String readInput(HttpServletRequest request) throws IOException {
+    protected String readInputFromRequest(HttpServletRequest request) throws IOException {
 	Model inputModel = ModelFactory.createMemModelMaker().createFreshModel();
 	String contentType = request.getContentType();
 	if (contentType.equals("application/rdf+xml")) {
@@ -367,6 +362,7 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 	inputModel.write(writer, "RDF/XML-ABBREV");
 	return writer.toString();
     }
+    
     protected Model readInputIntoModel(HttpServletRequest request, String input) throws IOException {
 	Model inputModel = ModelFactory.createMemModelMaker().createFreshModel();
 	String contentType = request.getContentType();
@@ -387,39 +383,14 @@ public class SAWSDL2SADIServlet extends HttpServlet {
 	response.sendRedirect(redirectUrl);
     }
     
-    protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException {
-	response.setStatus(HttpServletResponse.SC_ACCEPTED);
-	ContentType contentType = ContentType.getContentType(response.getContentType());
-        RDFWriter writer = outputModel.getWriter(contentType.getJenaLanguage());
-        QueryableErrorHandler errorHandler = new QueryableErrorHandler();
-        writer.setErrorHandler(errorHandler);
-        writer.write(outputModel, response.getWriter(), "");
-        if (errorHandler.hasLastError()) {
-                Exception e = errorHandler.getLastError();
-                String message = String.format("error writing output RDF: %s", e.getMessage());
-                log.error(message, e);
-                throw new IOException(message);
-        }
-    }
-    
+    @Override
     protected String getPollUrl(HttpServletRequest request, String taskId) {
 	return String.format("%s?%s=%s", request.getRequestURL().toString(), POLL_PARAMETER, taskId);
     }
-    
-    protected long getSuggestedWaitTime(Task task) {
-            return 5000;
-    }
 
-    protected Model prepareOutputModel(Model inputModel, Resource inputClass, Resource outputClass) {
-	Model outputModel = createOutputModel();
-	for (ResIterator i = inputModel.listSubjectsWithProperty(RDF.type, inputClass); i.hasNext();) {
-	    outputModel.createResource(i.nextResource().getURI(), outputClass);
-	}
-	return outputModel;
-    }
-    protected Model createOutputModel() {
-	Model model = ModelFactory.createMemModelMaker().createFreshModel();
-	log.trace(String.format("created output model %s", model.hashCode()));
-	return model;
+    @Override
+    protected InputProcessingTask getInputProcessingTask(Model model, Collection<Resource> resources) {
+	// not used here
+	return null;
     }
 }
