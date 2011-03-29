@@ -4,19 +4,32 @@
 
 The motivation for these RDF/OWL models is the development of [ServicesForGMOD SADI services for GMOD].  
 
-= Genomic Regions =
+= Features =
 
-A genomic region is a contiguous chain of residues within a biological molecule (e.g. a chromosome).
+A *feature* is a contiguous chain of residues within a macromolecule (e.g. a chromosome, a protein).  Any macromolecule in its entirety is also considered a feature. Examples of features are chromosomes, protein domains, genes, and transcription factor binding sites. Everything is a feature. 
 
-The location of a genomic region is described by a ranged sequence position consisting of:
+Every feature has:
 
-  * a *start position*: the index of the first base / amino acid
-  * an *end position*: the index of the last base / amino acid
-  * a *strand*: the '+' or '-' strand of the containing double-stranded DNA/RNA molecule
-  * a *reference feature*: determines the frame of reference for the start and end coordinates
-
-The '+' strand of a chromosome corresponds to the sequence that is stored in the database. We use the same conventions as GMOD when we wish to describe the location of a genomic region on the '-' strand. That is to say, we give the start and end coordinates with respect to the '+' strand, but indicate that the region is on the '-' strand. To obtain the sequence for a region on the '-' strand, we must reverse the direction of the sequence on the '+' strand and take the genetic complement.
+  * an *rdf:type* (e.g. 'gene'), taken from the [http://purl.org/obo/owl/SO# OWL version of the Sequence Ontology]
+  * a *ranged sequence position*, as described below 
   
+In addition, most features will have a public database identifier, which will be typed according to its corresponding namespace in the [http://lsrn.org LSRN registry].
+
+= Ranged Sequence Positions =
+
+A *ranged sequence position* consists of:
+
+  * a *start position*
+  * an *end position*
+  * a *reference sequence*
+
+The reference sequence is a string representation of either:
+ 
+  * the '+' or '-' strand of a feature, OR
+  * a feature (in cases where a feature has only one strand, such as an mRNA or a protein) 
+
+In the case of double-stranded features, the '+' strand corresponds to the sequence that is stored in the database. We use the same conventions as GMOD when we wish to describe the location of a genomic region on the '-' strand. That is to say, we give the start and end coordinates with respect to the '+' strand, but indicate that the region is on the '-' strand. To obtain the sequence for a region on the '-' strand, we must reverse the direction of the sequence on the '+' strand and take the genetic complement.
+
 For example, if we have a short chromosome 'chr1' represented by:
 
 AGCTAGCTAGCT
@@ -24,17 +37,6 @@ AGCTAGCTAGCT
 then a region with coordinates (start,end) = (2,6) on the minus strand of 'chr1' has the sequence: 
 
 CTAGC
-
-= Features =
-
-A feature is a typed genomic region. Examples of features are chromosomes, genes, and transcription factor binding sites. 
-
-Every feature has:
-
-  * an *rdf:type* (e.g. 'gene'), taken from the [http://purl.org/obo/owl/SO# OWL version of the Sequence Ontology]
-  * a *ranged sequence position*, as described above 
-
-In addition, most features will have a public database identifier, which will be typed according to its corresponding namespace in the [http://lsrn.org LSRN registry].
 
 == Example Feature in RDF/N3 ==
 
