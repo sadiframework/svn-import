@@ -24,7 +24,7 @@
      xmlns:SO="http://purl.org/obo/owl/SO#">
 
     <owl:Ontology rdf:about="">
-        <owl:imports rdf:resource="http://sadiframework.org/ontologies/GMOD/genome_assembly.owl#" >
+        <owl:imports rdf:resource="http://sadiframework.org/ontologies/GMOD/genome_assembly.owl#"/>
         <owl:imports rdf:resource="http://purl.org/obo/owl/sequence"/>
         <owl:imports rdf:resource="http://sadiframework.org/ontologies/properties.owl"/>
     </owl:Ontology>
@@ -97,13 +97,16 @@
                     </owl:Restriction>
                     <owl:Restriction>
                         <!-- 
-                            Optional. No strand means that the strand is either: 
-    
-                                1) the same as the reference feature 
-                                2) not relevant (e.g. a region of a protein sequence)
-                                3) relevant, but unknown
-
-                            Possible values: +1 (positive strand), -1 (negative strand) 
+                            Optional. Possible values are: 
+                            
+                            +1 (positive strand), 
+                            -1 (negative strand),
+                             0 (relevant, but unknown)
+                        
+                            If no strand value is given, it means that the strand
+                            is not applicable for describing the location of the
+                            feature.  For example, it makes no sense to indicate 
+                            a strand when describing the location of a motif within a protein.
                         -->
                         <owl:onProperty rdf:resource="#strand"/>
                         <owl:minCardinality>0</owl:minCardinality>
