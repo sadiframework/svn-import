@@ -6,116 +6,100 @@ The motivation for these RDF/OWL models is the development of [ServicesForGMOD S
 
 = Genomic Regions =
 
-A genomic region is a contiguous chain of bases/amino acids within a biological sequence (e.g. a chromosome or a protein).  
+A genomic region is a contiguous chain of residues within a biological molecule (e.g. a chromosome).
 
-A genomic region is described by a combination of:
+The location of a genomic region is described by a ranged sequence position consisting of:
 
   * a *start position*: the index of the first base / amino acid
   * an *end position*: the index of the last base / amino acid
-  * a *strand*: the strand ('+', '-', or 'unknown')
-  * a *reference feature*: determines the frame of reference for the  coordinates (start, end, and strand)  
-  * a *genome assembly*: the genome that contains the genomic region
+  * a *strand*: the '+' or '-' strand of the containing double-stranded DNA/RNA molecule
+  * a *reference feature*: determines the frame of reference for the start and end coordinates
 
-Each coordinate of the genomic range is optional:
-
-  * *no start position* means that the genomic range starts at the first base / amino acid of the reference feature
-  * *no end position* means that the genomic range ends at the last base / amino acid of the reference feature
-  * *no strand* means that the strand is irrelevant (e.g. a region of a protein)
-
-We adopt the same semantics for "strand" as GMOD. The strand part of the genomic region has three possible values:
-
-  * +1: the feature is on the same DNA/RNA strand as the reference feature and has the same direction 
-  * -1: the feature is on the opposite strand of the reference feature and has the opposite direction
-  *  0: the strand is relevant, but unknown.
-
-For example, if we have a short chromosome consisting of:
+The '+' strand of a chromosome corresponds to the sequence that is stored in the database. We use the same conventions as GMOD when we wish to describe the location of a genomic region on the '-' strand. That is to say, we give the start and end coordinates with respect to the '+' strand, but indicate that the region is on the '-' strand. To obtain the sequence for a region on the '-' strand, we must reverse the direction of the sequence on the '+' strand and take the genetic complement.
+  
+For example, if we have a short chromosome 'chr1' represented by:
 
 AGCTAGCTAGCT
 
-then a region with coordinates (start,end,strand) = (2,6,-1) has the sequence: 
+then a region with coordinates (start,end) = (2,6) on the minus strand of 'chr1' has the sequence: 
 
 CTAGC
 
-= Genome Assemblies =
-
-A genome assembly is a release version of a genome.  
-
-Each genome assembly has:
-
-  * a *source organism*, identified by it's NCBI taxon ID
-  * a *version number* (optional)
-
-It appears that in many cases, the specific assembly version will not be available.  While GMOD has a recommended best practice for storing genome assembly versions (as described [http://generic-model-organism-system-database.450254.n5.nabble.com/Chado-Assembly-Group-td458445.html here]), it does not appear to explicitly supported by their data loading tools (e.g. `gmod_bulk_load_gff3.pl`).    
- 
 = Features =
 
-A feature is a typed genomic region. Examples of features are chromosomes, genes, transcripts, exons, transcription factor binding sites, proteins, protein domains, and so on.  Everything is a feature.  
+A feature is a typed genomic region. Examples of features are chromosomes, genes, and transcription factor binding sites. 
 
 Every feature has:
 
-  * a *genomic region*, as described above
-  * an *identifier* that is unique to the sequence database (e.g. "chrIX" for the ninth chromosome in yeast)
+  * an *rdf:type* (e.g. 'gene'), taken from the [http://purl.org/obo/owl/SO# OWL version of the Sequence Ontology]
+  * a *ranged sequence position*, as described above 
+
+In addition, most features will have a public database identifier, which will be typed according to its corresponding namespace in the [http://lsrn.org LSRN registry].
 
 == Example Feature in RDF/N3 ==
 
-Suppose we have a feature with ID 'BindingSite1', and a chromosome with ID 'Chr1'. The feature could be encoded in RDF/N3 as:
+Below, we give the RDF/N3 representation of a tRNA gene in the Drosophilia melanogaster (fruitfly) genome with identifier FlyBase:FBgn0011935.  This gene is located on the right arm of chromosome 2 ('2R'), which has the identifier GB:AE013599. (GB is the identifier namespace for the International Nucleotide Sequence Database Consortium, consisting of GenBank, ENA, and DDBJ.) 
 
 {{{
-@prefix feature: <http://sadiframework.org/ontologies/GMOD/feature.owl#>
-@prefix region: <http://sadiframework.org/ontologies/GMOD/genomic_region.owl#>
-@prefix assembly: <http://sadiframework.org/ontologies/GMOD/genome_assembly.owl#>
+@prefix feature: <http://sadiframework.org/ontologies/GMOD/Feature.owl#> .
+@prefix range: <http://sadiframework.org/ontologies/GMOD/RangedSequencePosition.owl#> .
+@prefix strand: <http://sadiframework.org/ontologies/GMOD/Strand.owl#> .
 
-@prefix featureURI: <TO_BE_DECIDED>
-@prefix regionURI: <TO_BE_DECIDED>
-@prefix assemblyURI: <TO_BE_DECIDED>
+# Not sure this is the best choice...
+@prefix FlyBase: <http://flybase.org/cgi-bin/gbrowse/dmel/?Search=1;name=> .
+@prefix GB: <http://www.ncbi.nlm.nih.gov/nuccore/> .
 
-@prefix sio: <http://semanticscience.org/resource/>
-@prefix so: <http://purl.org/obo/owl/SO#>
+@prefix lsrn: <http://purl.oclc.org/SADI/LSRN/> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix so: <http://purl.org/obo/owl/SO#> .
 
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#>
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-featureURI:BindingSite1
-     a feature:Feature; 
-     a so:SO_0000235;                                        # 'TF_binding_site'
-     sio:SIO_000008                                          # 'has attribute' 
-        [ a sio:SIO_000115;                                  # 'identifier'
-          sio:SIO_000300 'BindingSite1'^^xsd:string ];       # 'has value'
-     sio:SIO_000061                                          # 'is located in'
-        [ a region:GenomicRegion;
-          region:is-relative-to featureURI:Chr1;             # reference feature
-          region:SIO_000061 assemblyURI:Assembly1.2.0;       # 'is located in'
-          region:start-position '2'^^xsd:nonNegativeInteger;
-          region:end-position '6'^^xsd:nonNegativeInteger;
-          region:strand '-1'^^xsd:integer ] .
+FlyBase:FBgn0011935
+     a so:SO_0001272; # 'tRNA_gene'
+     sio:SIO_000008 # 'has attribute' 
+        [ a lsrn:FLYBASE_Identifier;
+          sio:SIO_000300 'FBgn0011935'^^xsd:string ]; # p = 'has value'
+     sio:SIO_000008 # 'has attribute'
+        [ a range:RangedSequencePosition;
+          range:in_relation_to GB:AE013599/minus_strand/sequence; 
+          sio:SIO_000093 [ a region:start_position; sio:SIO_000300 2077634 ]; # p = 'is proper part of'
+          sio:SIO_000093 [ a region:end_position; sio:SIO_000300 2077707 ] # p = 'is proper part of'
+        ] .
        
-featureURI:Chr1
-     a feature:Feature; 
-     a so:SO_0000340;                                        # 'chromosome'
-     sio:SIO_000008                                          # 'has attribute' 
-        [ a sio:SIO_000115;                                  # 'identifier'
-          sio:SIO_000300 'Chr1'^^xsd:string ];               # 'has value'
-     sio:SIO_000061                                          # 'is located in'
-        [ a region:GenomicRegion;
-          region:is-relative-to featureURI:Chr1;             # reference feature
-          region:SIO_000061 assemblyURI:Assembly1.2.0 ] .    # 'is located in'
-            
-assemblyURI:Assembly1.2.0
-     a assembly:Assembly;
-     sio:SIO_000066                                          # 'has source'
-        [ a assembly:Organism;
-          sio:SIO_000008                                     # 'has attribute' 
-              [ a lsrn:taxon_Identifier;
-                sio:SIO_000300 '4932'^^xsd:string ];
-     assembly:version '1.2.0'^^xsd:string .                 
+GB:AE013599 # chromosome arm '2R'
+     a so:SO_0000105; # 'chromosome_arm'
+     sio:SIO_000008 # 'has attribute' 
+        [ a lsrn:GB_Identifier;
+          sio:SIO_000300 'AE013599'^^xsd:string ]; # p = 'has value'
+     sio:SIO_000061 # 'is located in'
+        [ a range:RangedSequencePosition;
+          range:in_relation_to GB:AE013599/plus_strand/sequence; 
+          sio:SIO_000093 [ a region:start_position; sio:SIO_000300 1 ]; # p = 'is proper part of'
+          sio:SIO_000093 [ a region:end_position; sio:SIO_000300 21146708 ] # p = 'is proper part of'
+        ] .
+ 
+GB:AE013599/plus_strand/sequence 
+    a sio:SIO_000030; # o = 'sequence'
+    sio:000011 # 'is attribute of'
+        [ a strand:PlusStrand; 
+          sio:SIO_000093 GB:AE013599 ] . # p = 'is proper part of'
+    
+GB:AE013599/minus_strand/sequence 
+    a sio:SIO_000030; # o = 'sequence'
+    sio:000011 # 'is attribute of'
+        [ a strand:MinusStrand; 
+          sio:SIO_000093 GB:AE013599 ] . # p = 'is proper part of'
 
 }}}
 
-Note that top-level features (e.g. chromosome 'Chr1' above) point to themselves as a reference feature.
+Note that the RangedSequencePosition for chromosome '2R' (GB:AE013599) is the full length of the chromosome  (1 .. 21146708), and that this range is defined relative to the sequence for the chromosome's plus strand.
 
-The OWL classes defining genomic regions, genome assemblies, and features may be viewed here:
+Note also that some statements are included at the end which relate a sequence to its strand, and which relate a strand to its chromosome. These connections are necessary for determining the identifier of the reference feature, which is needed for any useful processing of a RangedSequencePosition (e.g. retrieving the sequence from a GMOD database.)
 
-  * [http://sadiframework.org/ontologies/GMOD/genomic_region.owl]
-  * [http://sadiframework.org/ontologies/GMOD/genome_assembly.owl]
-  * [http://sadiframework.org/ontologies/GMOD/feature.owl]
+One unresolved issue regarding the example above is that the URIs for the plus/minus strand sequences do not  resolve to anything. 
 
-    
+The OWL classes defining a Feature and a RangedSequencePosition are here: 
+
+  * [http://sadiframework.org/ontologies/GMOD/Feature.owl]
+  * [http://sadiframework.org/ontologies/GMOD/RangedSequencePosition.owl]
