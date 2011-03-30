@@ -35,54 +35,6 @@ wsdl and some example inputs for some of their services.
 *
 * better way to map prefixes/suffixes, etc for input/output mapper
 * steal lukes style sheet
-* 
-WSDL/SOAP 2 SADI
-* 
-* **** WSDL ****
-* 
-* Document style passes XML documents around
-*     will use the mapping element in the lowering schema to construct the soap service input
-* 
-* RPC encodes the params:
-*     if 1 param, then pass string as is
-*     if > 1 param, then need to pass an array of strings
-*     probably wont use the mapping element of the lowering schema
-* 
-* 
-* **** SAWSDL ****
-* Document contains the model references and schema mappings
-*   Model references point to input and output OWL classes
-*   schema mappings define how to do SADI->SOAP and SOAP->SADI
-* 
-* 
-* *************** How does the service use the loweringSchemaMapping? *********************
-* loweringSchemaMapping points to an XML file
-*   this XML file contains a root element "lowering" and at most 2 child elements
-*     sparqlQuery - the query that we will use to extract the data
-*           -> 
-*     template - an optional velocity template that is used to construct the SOAP input
-*       if mapping is missing, it is assumed that the result from the sparql query should
-*         be passed to the soap service as is (one at a time)
-* 
-*
-* 
-* *************** How does the service use the liftingSchemaMapping? *********************
-* liftingSchemaMapping points to an XML file
-*   this XML file contains a root element "lifting" and two child elements:
-*     template - a velocity template that is used to construct the service output
-*       the template uses N3 notation to construct the output
-* 
-*     mapping  - a way of mapping SOAP output results to variables for our velocity template.
-*       example: 
-*         <mapping>
-*           <map id="$pathway" type="string">path:hsa04370</map>
-*           <map id="$drugResults" type="xpath">XPATH that returns an array of drug ids (extracted from soap service output)</map>
-*           <map id="$drugResults" type="regex">regular expression that returns an array of drug ids (extracted from soap service output)</map>
-*         </mapping>
-* 
-* 
-* 
-* 
 
 http://www.soapclient.com/soaptest.html
 http://www.validwsdl.com/
@@ -92,10 +44,4 @@ get_pathways_by_genes
 eco:b0077, eco:b0078
 
 http://soap.genome.jp/KEGG.wsdl
-
-example: 
-
-
-cd C:\Users\Eddie\My Documents\Biomoby\src\sadi.wsdl2sadi\src\main\resources
-curl -d @input.rdf --url http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway
 
