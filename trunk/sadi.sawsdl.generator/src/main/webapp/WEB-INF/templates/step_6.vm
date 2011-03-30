@@ -11,7 +11,6 @@
     <li><a href="$url_owl" target="_blank">Your input/output OWL class definitions</a></li>
 </ol>
 <h2>Now what?</h2>
-<p>If you ever want to remove this service, do the following (TODO - provide a string of text that they call the service with to remove it ... http://../name/SOME_TEXT_HERE)</p>
 <p>Go to the <a href="http://sadiframework.org">SADI</a> home page</p>
 <p>To create another service, click <a href="$url">here</a></p>
 #include("FOOTER.vm")
