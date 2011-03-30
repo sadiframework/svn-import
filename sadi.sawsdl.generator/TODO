@@ -4,12 +4,6 @@ TODO
 *   locations (currently execution of service uses sawsdl; 
 *   looking up signature does not)
 * 
-* *Construct an appropriate inputClass based on the 
-*   properties/classes passed into input mapper form
-* 
-* *Construct an appropriate outputClass (similar to the point above)
-* 
-* *Update the output mapper to look and feel like the input mapper
 * 
 * *Currently, no forward/back/reload functionality in WSDL2SAWSDL, this is impt
 * 
@@ -17,13 +11,31 @@ TODO
 * 
 * *Look through source for places where we have TODOs for exception handling and
 *   handle the exceptions
+*
+* *Support for wsdl 2.0 ... we can parse 2.0, but we need to add the correct annotations (http://wso2.org/repos/wso2/people/jonathan/flickr.wsdl)
+* 
+* Add support for parsing complicated data types from WSDL (currently only handles 
+* 
+* Update the UI for the generator page:
+*   # make sure that all of the templates have the ability to insert default values
+*   # add buttons to restart process (restart button that clears session)
+*   # add buttons to go forward and back (input/output mapper may be tough, but not impossible, to implement)
+*   # remove comments from the templates
+*   # clean up the http GET method so that each step calls out to a method (makes code more readable)
+*   # remove indentation for input/output mapper 
+*   # (make each text box disabled after a property has been added)
 * 
 *  
+http://togows.dbcls.jp/soap/wsdl/togows.wsdl
 
 Below is a description of what I was thinking, as well as some links to 
 resources that may be useful. Additionally, there is a link to the KEGG 
 wsdl and some example inputs for some of their services.
 
+*
+* better way to map prefixes/suffixes, etc for input/output mapper
+* steal lukes style sheet
+* 
 WSDL/SOAP 2 SADI
 * 
 * **** WSDL ****
