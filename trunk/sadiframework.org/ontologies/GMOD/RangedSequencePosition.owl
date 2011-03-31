@@ -3,7 +3,7 @@
 <!DOCTYPE rdf:RDF [
     <!ENTITY SO "http://purl.org/obo/owl/SO#" >
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
-    <!ENTITY feature="http://sadiframework.org/ontologies/GMOD/Feature.owl#" >
+    <!ENTITY feature "http://sadiframework.org/ontologies/GMOD/Feature.owl#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
     <!ENTITY sio "http://semanticscience.org/resource/" >
     <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/" >
