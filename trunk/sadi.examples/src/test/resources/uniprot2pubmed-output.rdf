@@ -19,6 +19,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:18996393">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/18996393"/>
+        <rdfs:label>Suad O. et al, Structural basis of restoring sequence-specific DNA binding and transactivation to mutant p53 by suppressor mutations.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >18996393</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:17967874">
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/17967874"/>
         <rdfs:label>Shouse G.P., Cai X. &amp; Liu X., Serine 15 phosphorylation of p53 directs its interaction with B56gamma and the tumor suppressor activity of B56gamma-specific protein phosphatase 2A.</rdfs:label>
@@ -247,6 +259,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:14534297">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/14534297"/>
+        <rdfs:label>Joerger A.C., Allen M.D. &amp; Fersht A.R., Crystal structure of a superstable mutant of human p53 core domain. Insights into the mechanism of rescuing oncogenic mutations.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >14534297</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:15489334">
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/15489334"/>
         <rdfs:label>The MGC Project Team, The status, quality, and expansion of the NIH full-length cDNA project: the Mammalian Gene Collection (MGC).</rdfs:label>
@@ -254,6 +278,18 @@
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >15489334</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:1849234">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/1849234"/>
+        <rdfs:label>Hsu I.C. et al, Mutational hotspot in the p53 gene in human hepatocellular carcinomas.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >1849234</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
@@ -283,13 +319,25 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
-      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:1849234">
-        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/1849234"/>
-        <rdfs:label>Hsu I.C. et al, Mutational hotspot in the p53 gene in human hepatocellular carcinomas.</rdfs:label>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:20660729">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/20660729"/>
+        <rdfs:label>Burrows A.E., Smogorzewska A. &amp; Elledge S.J., Polybromo-associated BRG1-associated factor components BRD7 and BAF180 are critical regulators of p53 required for induction of replicative senescence.</rdfs:label>
         <j.1:SIO_000008>
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >1849234</j.1:SIO_000300>
+            >20660729</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:20870725">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/20870725"/>
+        <rdfs:label>West L.E. et al, The MBT repeats of L3MBTL1 link SET8-mediated p53 methylation at lysine 382 to target gene repression.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >20870725</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
@@ -451,6 +499,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:20364130">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/20364130"/>
+        <rdfs:label>Kitayner M. et al, Diversity in DNA recognition by p53 revealed by crystal structures with Hoogsteen base pairs.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >20364130</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:7773777">
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/7773777"/>
         <rdfs:label>Lee W. et al, Solution structure of the tetrameric minimum transforming domain of p53.</rdfs:label>
@@ -482,6 +542,18 @@
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >1647768</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:20142040">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/20142040"/>
+        <rdfs:label>Basse N. et al, Toward the rational design of p53-stabilizing drugs: probing the surface of the oncogenic Y220C mutant.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >20142040</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
@@ -542,6 +614,18 @@
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >16959974</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:16793544">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/16793544"/>
+        <rdfs:label>Kitayner M. et al, Structural basis of DNA recognition by p53 tetramers.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >16793544</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
@@ -638,6 +722,18 @@
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >10644996</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:20228809">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/20228809"/>
+        <rdfs:label>Drost J. et al, BRD7 is a candidate tumour suppressor gene required for p53 function.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >20228809</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
@@ -787,6 +883,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:20118233">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/20118233"/>
+        <rdfs:label>Huang J. et al, G9a and Glp methylate lysine 373 in the tumor suppressor p53.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >20118233</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:11239457">
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/11239457"/>
         <rdfs:label>Keller D.M. et al, A DNA damage-induced p53 serine 392 kinase complex contains CK2, hSpt16, and SSRP1.</rdfs:label>
@@ -818,6 +926,18 @@
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >8266092</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:17707234">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/17707234"/>
+        <rdfs:label>Shi X. et al, Modulation of p53 function by SET8-mediated methylation at lysine 382.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >17707234</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
@@ -902,6 +1022,30 @@
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >11706030</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:18650397">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/18650397"/>
+        <rdfs:label>Boeckler F.M. et al, Targeted rescue of a destabilized mutant of p53 by an in silico screened drug.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >18650397</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:17015838">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/17015838"/>
+        <rdfs:label>Joerger A.C., Ang H.C. &amp; Fersht A.R., Structural basis for understanding oncogenic p53 mutations and designing rescue drugs.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >17015838</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
@@ -1195,6 +1339,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:18453682">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/18453682"/>
+        <rdfs:label>Tu C. et al, Impact of low-frequency hotspot mutation R282Q on the structure of p53 DNA-binding domain as revealed by crystallography at 1.54 angstroms resolution.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >18453682</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:3894933">
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/3894933"/>
         <rdfs:label>Harlow E. et al, Molecular cloning and in vitro expression of a cDNA clone for human cellular tumor antigen p53.</rdfs:label>
@@ -1351,6 +1507,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:19556538">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/19556538"/>
+        <rdfs:label>Allton K. et al, Trim24 targets endogenous p53 for degradation.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >19556538</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:16474402">
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/16474402"/>
         <rdfs:label>Sheng Y. et al, Molecular recognition of p53 and MDM2 by USP7/HAUSP.</rdfs:label>
@@ -1370,6 +1538,18 @@
           <j.2:PMID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >11740489</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:19515728">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/19515728"/>
+        <rdfs:label>Khoo K.H. et al, Stabilising the DNA-binding domain of p53 by rational design of its hydrophobic core.</rdfs:label>
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >19515728</j.1:SIO_000300>
           </j.2:PMID_Identifier>
         </j.1:SIO_000008>
       </j.2:PMID_Record>
