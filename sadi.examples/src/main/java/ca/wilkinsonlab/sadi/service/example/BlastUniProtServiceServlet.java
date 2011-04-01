@@ -121,7 +121,7 @@ public class BlastUniProtServiceServlet extends AsynchronousServiceServlet
 		log.info("submitting job to UniProt BLAST service...");
 		String jobid = service.submitBlast(input);
 
-		while (service.checkStatus(jobid) != JobStatus.DONE) {
+		while (service.checkStatus(jobid) != JobStatus.FINISHED) {
 			log.info("polling UniProt BLAST service..");
 			try {
 				Thread.sleep(BLAST_POLLING_INTERVAL);

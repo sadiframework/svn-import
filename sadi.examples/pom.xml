@@ -65,7 +65,7 @@
     <dependency>
     	<groupId>uk.ac.ebi.uniprot.kraken</groupId>
     	<artifactId>uniprotjapi</artifactId>
-   		<version>2010.11</version>
+   		<version>2011.03.01</version>
    		<exclusions>
           <exclusion>
             <groupId>log4j</groupId>
