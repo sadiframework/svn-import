@@ -65,8 +65,8 @@ FlyBase:FBgn0011935
      sio:SIO_000008 # 'has attribute'
         [ a range:RangedSequencePosition;
           range:in_relation_to GB:AE013599/minus_strand/sequence; 
-          sio:SIO_000053 [ a region:start_position; sio:SIO_000300 2077634 ]; # p = 'has proper part'
-          sio:SIO_000053 [ a region:end_position; sio:SIO_000300 2077707 ] # p = 'has proper part'
+          sio:SIO_000053 [ a range:start_position; sio:SIO_000300 2077634 ]; # p = 'has proper part'
+          sio:SIO_000053 [ a range:end_position; sio:SIO_000300 2077707 ] # p = 'has proper part'
         ] .
        
 GB:AE013599 # chromosome arm '2R'
@@ -77,8 +77,8 @@ GB:AE013599 # chromosome arm '2R'
      sio:SIO_000061 # 'is located in'
         [ a range:RangedSequencePosition;
           range:in_relation_to GB:AE013599/plus_strand/sequence; 
-          sio:SIO_000053 [ a region:start_position; sio:SIO_000300 1 ]; # p = 'has proper part'
-          sio:SIO_000053 [ a region:end_position; sio:SIO_000300 21146708 ] # p = 'has proper part'
+          sio:SIO_000053 [ a range:start_position; sio:SIO_000300 1 ]; # p = 'has proper part'
+          sio:SIO_000053 [ a range:end_position; sio:SIO_000300 21146708 ] # p = 'has proper part'
         ] .
  
 GB:AE013599/plus_strand/sequence 
