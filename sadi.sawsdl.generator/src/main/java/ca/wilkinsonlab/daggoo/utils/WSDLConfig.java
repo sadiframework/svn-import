@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
@@ -128,6 +130,11 @@ public class WSDLConfig extends SADISpecWrapper {
 	} catch (Exception e) {
 	    e.printStackTrace();
 	}
+    }
+    
+    public static void main(String[] args) throws Exception{
+	WSDLConfig w = new WSDLConfig(new URL("http://wso2.org/repos/wso2/people/jonathan/flickr.wsdl"));
+	System.out.println(w);
     }
     
     /**
@@ -839,11 +846,21 @@ public class WSDLConfig extends SADISpecWrapper {
 	for (int i = 0; i < serviceNameAttrs.getLength(); i++) {
 	    Element el = (Element) serviceNameAttrs.item(i);
 	    String serviceName = el.getAttributeNS(
-		    SadiPrefixResolver.SADI_XML_NAMESPACE, SERVICE_NAME_ATTR);
+		    SadiPrefixResolver.SAWSDL_NAMESPACE, "modelReference");
 	    if (serviceName == null || serviceName.trim().length() == 0) {
 		throw new Exception("The Sadi service attribute "
 			+ SERVICE_NAME_ATTR
 			+ " is missing or blank for service " + serviceName);
+	    }
+	    // service name here is a url, with the last bit being the service name
+	    Pattern regexp = Pattern.compile(String.format("/(\\w+)*$"));
+	    Matcher matcher = regexp.matcher(serviceName);
+	    if (matcher.find()) {
+		serviceName = matcher.group(1);
+	    }
+	    if (serviceName.startsWith("/")) {
+		// relic, shouldnt get here ...
+		serviceName = serviceName.substring(1);
 	    }
 	    if (!serviceName.trim().matches("[A-Za-z0-9_]+")) {
 		throw new Exception("The Sadi service name attribute ("
@@ -852,51 +869,15 @@ public class WSDLConfig extends SADISpecWrapper {
 			+ "which are illegal in Sadi names");
 	    }
 
-	    // We expect the authority, contact and description in the same tag
-	    // Element el = serviceAttr.getOwnerElement();
-	    String serviceContact = el
-		    .getAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE,
-			    SERVICE_CONTACT_ATTR);
-	    if (serviceContact == null || serviceContact.trim().length() == 0) {
-		throw new Exception("The Sadi service attribute "
-			+ SERVICE_CONTACT_ATTR
-			+ " is missing or blank for service " + serviceName);
-	    }
-	    String serviceAuthority = el.getAttributeNS(
-		    SadiPrefixResolver.SADI_XML_NAMESPACE, SERVICE_AUTH_ATTR);
-	    if (serviceAuthority == null
-		    || serviceAuthority.trim().length() == 0) {
-		throw new Exception("The Sadi service attribute "
-			+ SERVICE_AUTH_ATTR
-			+ " is missing or blank for service " + serviceName);
-	    }
-	    String serviceDescription = el.getAttributeNS(
-		    SadiPrefixResolver.SADI_XML_NAMESPACE, SERVICE_DESC_ATTR);
-	    if (serviceDescription == null
-		    || serviceDescription.trim().length() == 0) {
-		throw new Exception("The Sadi service attribute "
-			+ SERVICE_DESC_ATTR
-			+ " is missing or blank for service " + serviceName);
-	    }
-	    String serviceCategory = el.getAttributeNS(
-		    SadiPrefixResolver.SAWSDL_NAMESPACE, SAWSDL_MODEL_ATTR);
-
-	    // The user can optionally pick the registry where the service will
-	    // be published
-	    // Later, the servlet code will check if the ontology terms used are
-	    // valid within that registry
-	    String registryEndpoint = el.getAttributeNS(
-		    SadiPrefixResolver.SADI_XML_NAMESPACE, REGISTRY_ATTR);
-
 	    // Set the vars for retrieval by the servlet, cleaning up errant
 	    // whitespace where possible
 	    currentService = serviceName.trim();
-	    setContactEmail(serviceContact);
-	    setCentralEndpoint(registryEndpoint == null ? null
-		    : registryEndpoint.trim());
-	    setServiceType(serviceCategory.trim());
-	    setProviderURI(serviceAuthority.trim());
-	    setServiceDesc(serviceDescription.trim());
+	    // FIXME - if below is not set, the sawsdl is not parsed properly and service wont work.
+	    setContactEmail("");
+	    setCentralEndpoint("");
+	    setServiceType("");
+	    setProviderURI("");
+	    setServiceDesc("");
 
 	    parseSOAPServiceSpecs(el);
 
@@ -917,6 +898,8 @@ public class WSDLConfig extends SADISpecWrapper {
 	    if ("operation".equals(opElement.getLocalName())
 		    && (SadiPrefixResolver.WSDL_NAMESPACE.equals(opElement
 			    .getNamespaceURI()) || SadiPrefixResolver.WSDL20_NAMESPACE
+			    .equals(opElement.getNamespaceURI())
+			    || SadiPrefixResolver.WSDL20_NAMESPACE2
 			    .equals(opElement.getNamespaceURI()))) {
 		break;
 	    }
@@ -984,6 +967,10 @@ public class WSDLConfig extends SADISpecWrapper {
 	if (inputElements == null || inputElements.getLength() == 0) {
 	    inputElements = opElement.getElementsByTagNameNS(
 		    SadiPrefixResolver.WSDL20_NAMESPACE, "input");
+	    if (inputElements == null || inputElements.getLength() == 0) {
+		    inputElements = opElement.getElementsByTagNameNS(
+			    SadiPrefixResolver.WSDL20_NAMESPACE2, "input");
+	    }
 	}
 	if (inputElements == null || inputElements.getLength() == 0) {
 	    throw new Exception(
@@ -1003,6 +990,10 @@ public class WSDLConfig extends SADISpecWrapper {
 	if (outputElements == null || outputElements.getLength() == 0) {
 	    outputElements = opElement.getElementsByTagNameNS(
 		    SadiPrefixResolver.WSDL20_NAMESPACE, "output");
+	    if (outputElements == null || outputElements.getLength() == 0) {
+		    outputElements = opElement.getElementsByTagNameNS(
+			    SadiPrefixResolver.WSDL20_NAMESPACE2, "output");
+	    }
 	}
 	if (outputElements == null || outputElements.getLength() == 0) {
 	    throw new Exception(
@@ -1084,8 +1075,10 @@ public class WSDLConfig extends SADISpecWrapper {
 			    .getNamespaceURI())
 		    || "interface".equals(porttypeInterfaceElement
 			    .getLocalName())
-		    && SadiPrefixResolver.WSDL20_NAMESPACE.equals(opElement
-			    .getNamespaceURI())) {
+		    && (SadiPrefixResolver.WSDL20_NAMESPACE.equals(opElement
+			    .getNamespaceURI()) 
+			    || SadiPrefixResolver.WSDL20_NAMESPACE2.equals(opElement
+				    .getNamespaceURI()) )) {
 		break;
 	    }
 	}
@@ -1223,6 +1216,7 @@ public class WSDLConfig extends SADISpecWrapper {
 	    if ("service".equals(serviceElement.getLocalName())
 		    && (SadiPrefixResolver.WSDL_NAMESPACE.equals(opElement
 			    .getNamespaceURI()) || SadiPrefixResolver.WSDL20_NAMESPACE
+			    .equals(opElement.getNamespaceURI()) || SadiPrefixResolver.WSDL20_NAMESPACE2
 			    .equals(opElement.getNamespaceURI()))) {
 		break;
 	    }
