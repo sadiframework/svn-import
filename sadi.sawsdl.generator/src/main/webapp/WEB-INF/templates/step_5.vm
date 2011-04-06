@@ -13,8 +13,8 @@
       <fieldset>
         <legend>Soap Output #if(!$required[$soap_output_count])(<i>optional</i>)#end ('<i>$item</i>'):</legend>
         <p>
-            <p><i>maps to OWL property</i>: <input type="text" name="${soap_output_count}_owl_property" id="${soap_output_count}_owl_property" doautocomplete2="true" /> 
-              <i>with values from OWL class</i>: <input type="text" name="${soap_output_count}_owl_class" id="${soap_output_count}_owl_class" doautocomplete="true" /> 
+            <p><i>maps to OWL property</i>: <input type="text" name="${soap_output_count}_owl_property" id="${soap_output_count}_owl_property" json_type="property"/> 
+              <i>with values from OWL class</i>: <input type="text" name="${soap_output_count}_owl_class" id="${soap_output_count}_owl_class" json_type="class" /> 
               <span class="ui-button" num=0 soapid="$item" soap="${soap_output_count}_extra" soapCount=${soap_output_count} type="addRow">+</span>
             </p>
             <blockquote id="${item}_extras" ></blockquote>
@@ -73,18 +73,10 @@ var handler = function () {
                 return;
             }
         }
-        // remove the autocomplete attribute
-        if (num > 0) {
-            $(sprintf("#%s_%d_owl_property", soapCount, num)).removeAttr('doautocomplete2');
-            $(sprintf("#%s_%d_owl_class", soapCount, num)).removeAttr('doautocomplete');
-        } else {
-            $(sprintf("#%s_owl_property", soapCount)).removeAttr('doautocomplete2');
-            $(sprintf("#%s_owl_class", soapCount)).removeAttr('doautocomplete');
-        }
         var domString = sprintf(
             '<p>' +
-            '    <i>maps to OWL property</i>: <input type="text" name="%s_owl_property" id="%s_owl_property" doautocomplete2="true"/>' + 
-            '    <i>with values from OWL class</i>: <input type="text" name="%s_owl_class" id="%s_owl_class" doautocomplete="true"/>' +
+            '    <i>maps to OWL property</i>: <input type="text" name="%s_owl_property" id="%s_owl_property" json_type="property"/>' + 
+            '    <i>with values from OWL class</i>: <input type="text" name="%s_owl_class" id="%s_owl_class" json_type="class"/>' +
             '    <span class="ui-button" num=%d soapid="%s" soapCount=%s soap="%s_extra" type="addRow">+</span>' +
             '</p>', extraId, extraId, extraId, extraId, num+1, soapid, soapCount, extraId)
         
@@ -103,71 +95,75 @@ var handler = function () {
           $(this).removeClass("ui-state-hover"); 
         }
    );
-   //autocomplete
-     $(function() {
-      $('input[doautocomplete]').removeData('autocompleter');
-      $('input[doautocomplete]').autocomplete({
-          url: "resources/LSRN.json",
-          displayValue: function(value, data) { return data.uri; },
-          showResult : function(value, data) {
-              var item = "<p";
-              if (data.uri) {
-                  item += " title='" + data.uri + "'";
+   // bind on focus/unfocus handlers to our text fields
+   $('input[type=text]')
+    .focus(function() {
+        var jType = $(this).attr('json_type');
+        if (jType == 'property') {
+            $(this).removeData('autocompleter');
+            $(this).autocomplete({
+                  url: "resources/props.json",
+                  displayValue: function(value, data) { return data.uri; },
+                  showResult : function(value, data) {
+                      var item = "<p";
+                      if (data.uri) {
+                          item += " title='" + data.uri + "'";
+                      }
+                      item += "><span class='label'>" + data.label + "</span>";
+                      if (data.description) {
+                          item += " <span class='description'>" + data.description + "</span>";
+                      }
+                      return item;
+                  },
+                  resultsClass : "sparqlassist-results"
+            });
+            var autocompleter = $(this).data('autocompleter');
+            autocompleter.parseRemoteData = function(results) {
+                  if (!(results instanceof Array)) {
+                      results = eval(results);
+                  }
+                  var i, a=[];
+                  for (i=0; i<results.length; ++i) {
+                      var result = results[i];
+                      a.push({ value: result.label, data: result });
+                  }
+                  return a;
+            };
+        } else if (jType == 'class') {
+            $(this).removeData('autocompleter');
+            $(this).autocomplete({
+              url: "resources/LSRN.json",
+              displayValue: function(value, data) { return data.uri; },
+              showResult : function(value, data) {
+                  var item = "<p";
+                  if (data.uri) {
+                      item += " title='" + data.uri + "'";
+                  }
+                  item += "><span class='label'>" + data.label + "</span>";
+                  if (data.description) {
+                      item += " <span class='description'>" + data.description + "</span>";
+                  }
+                  return item;
+              },
+              resultsClass : "sparqlassist-results"
+            });
+            var autocompleter = $(this).data('autocompleter');
+            autocompleter.parseRemoteData = function(results) {
+              if (!(results instanceof Array)) {
+                  results = eval(results);
               }
-              item += "><span class='label'>" + data.label + "</span>";
-              if (data.description) {
-                  item += " <span class='description'>" + data.description + "</span>";
+              var i, a=[];
+              for (i=0; i<results.length; ++i) {
+                  var result = results[i];
+                  a.push({ value: result.label, data: result });
               }
-              return item;
-          },
-          resultsClass : "sparqlassist-results"
-      });
-      var autocompleter = $('input[doautocomplete]')
-        .data('autocompleter');
-      autocompleter.parseRemoteData = function(results) {
-          if (!(results instanceof Array)) {
-              results = eval(results);
-          }
-          var i, a=[];
-          for (i=0; i<results.length; ++i) {
-              var result = results[i];
-              a.push({ value: result.label, data: result });
-          }
-          return a;
-      };
-     });
-   //autocomplete
-     $(function() {
-      $('input[doautocomplete2]').removeData('autocompleter');
-      $('input[doautocomplete2]').autocomplete({
-          url: "resources/props.json",
-          displayValue: function(value, data) { return data.uri; },
-          showResult : function(value, data) {
-              var item = "<p";
-              if (data.uri) {
-                  item += " title='" + data.uri + "'";
-              }
-              item += "><span class='label'>" + data.label + "</span>";
-              if (data.description) {
-                  item += " <span class='description'>" + data.description + "</span>";
-              }
-              return item;
-          },
-          resultsClass : "sparqlassist-results"
-      });
-      var autocompleter = $('input[doautocomplete2]').data('autocompleter');
-      autocompleter.parseRemoteData = function(results) {
-          if (!(results instanceof Array)) {
-              results = eval(results);
-          }
-          var i, a=[];
-          for (i=0; i<results.length; ++i) {
-              var result = results[i];
-              a.push({ value: result.label, data: result });
-          }
-          return a;
-      };
-     });
+              return a;
+            };
+        }
+    })
+    .blur(function() {
+        $(this).unbind('focus');
+    });
 }                                    
 </script> 
 
