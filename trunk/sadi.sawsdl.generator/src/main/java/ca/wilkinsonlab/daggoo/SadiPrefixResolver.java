@@ -52,6 +52,7 @@ public class SadiPrefixResolver implements PrefixResolver{
     public static final String WSDL_NAMESPACE = "http://schemas.xmlsoap.org/wsdl/";
     public static final String WSDL20_PREFIX = "wsdl20";
     public static final String WSDL20_NAMESPACE = "http://www.w3.org/2006/01/wsdl";
+    public static final String WSDL20_NAMESPACE2 = "http://www.w3.org/ns/wsdl/";
     public static final String HTTP_PREFIX = "http";
     public static final String HTTP_NAMESPACE = "http://schemas.xmlsoap.org/wsdl/http/";
     public static final String SAWSDL_PREFIX = "sawsdl";
