@@ -29,7 +29,8 @@ public class JSON {
 	String xsdUri = "http://w3c.org/2001/XMLSchema#";
 	String[] primitives = {"string", "int", "boolean", "decimal","float","double"};
 	for (String s : primitives) {
-	    sb.append(String.format(",{\"uri\":\"%s\", \"label\":\"%s\"}", xsdUri+s, s));
+	    sb.append(count++ == 0 ? "" : ",");
+	    sb.append(String.format("{\"uri\":\"%s\", \"label\":\"%s\"}", xsdUri+s, s));
 	}
 	
 	sb.append("]");
