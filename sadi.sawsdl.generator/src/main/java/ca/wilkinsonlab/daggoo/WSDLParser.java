@@ -103,9 +103,9 @@ public class WSDLParser {
 	Element e = sawsdlDoc.createElementNS(SadiPrefixResolver.SAWSDL_NAMESPACE, "attrExtensions");
 	e.setAttributeNS(
 		SadiPrefixResolver.SAWSDL_NAMESPACE,
-		"modelReference",
+		SadiPrefixResolver.SAWSDL_PREFIX + WSDLConfig.SAWSDL_MODEL_ATTR,
 		baseURL != null ? (baseURL.endsWith("/") ? baseURL.substring(0, baseURL.length() - 1) : baseURL) : serviceName); 
-	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_NAME_ATTR, serviceName);
+//	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_NAME_ATTR, serviceName);
 //	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_AUTH_ATTR,serviceAuthority);
 //	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_CONTACT_ATTR, contactEmail);
 //	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_DESC_ATTR, description);
