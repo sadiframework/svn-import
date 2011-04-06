@@ -104,14 +104,12 @@ public class WSDLParser {
 	e.setAttributeNS(
 		SadiPrefixResolver.SAWSDL_NAMESPACE,
 		"modelReference",
-		serviceType == null || serviceType.trim().equals("") ? 
-			"http://www.mygrid.org.uk/ontology/retrieving"
-			: serviceType);
+		baseURL != null ? (baseURL.endsWith("/") ? baseURL.substring(0, baseURL.length() - 1) : baseURL) : serviceName); 
 	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_NAME_ATTR, serviceName);
-	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_AUTH_ATTR,serviceAuthority);
-	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_CONTACT_ATTR, contactEmail);
-	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_DESC_ATTR, description);
-	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.REGISTRY_ATTR, SAWSDLService.REGISTRY_ENDPOINT);
+//	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_AUTH_ATTR,serviceAuthority);
+//	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_CONTACT_ATTR, contactEmail);
+//	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.SERVICE_DESC_ATTR, description);
+//	e.setAttributeNS(SadiPrefixResolver.SADI_XML_NAMESPACE, SadiPrefixResolver.SADI_XML_PREFIX + ":" + WSDLConfig.REGISTRY_ATTR, SAWSDLService.REGISTRY_ENDPOINT);
 	
 	list = sawsdlDoc.getElementsByTagNameNS("http://schemas.xmlsoap.org/wsdl/","portType");
 	// list should technically only have 1 item in it ...
