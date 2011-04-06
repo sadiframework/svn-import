@@ -68,6 +68,9 @@ public class CachedNamespaceContextImpl implements NamespaceContext {
      */
     private void examineNode(Node node, boolean attributesOnly) {
         NamedNodeMap attributes = node.getAttributes();
+        if (attributes == null) {
+            return;
+        }
         for (int i = 0; i < attributes.getLength(); i++) {
             Node attribute = attributes.item(i);
             storeAttribute((Attr) attribute);
