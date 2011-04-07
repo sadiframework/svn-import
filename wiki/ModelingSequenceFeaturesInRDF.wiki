@@ -64,7 +64,7 @@ FlyBase:FBgn0011935
           sio:SIO_000300 'FBgn0011935'^^xsd:string ]; # p = 'has value'
      sio:SIO_000008 # 'has attribute'
         [ a range:RangedSequencePosition;
-          range:in_relation_to GB:AE013599/minus_strand/sequence; 
+          range:in_relation_to GB:AE013599_minus_strand_sequence; 
           sio:SIO_000053 [ a range:StartPosition; sio:SIO_000300 2077634 ]; # p = 'has proper part'
           sio:SIO_000053 [ a range:EndPosition; sio:SIO_000300 2077707 ] # p = 'has proper part'
         ] .
@@ -76,20 +76,20 @@ GB:AE013599 # chromosome arm '2R'
           sio:SIO_000300 'AE013599'^^xsd:string ]; # p = 'has value'
      sio:SIO_000061 # 'is located in'
         [ a range:RangedSequencePosition;
-          range:in_relation_to GB:AE013599/plus_strand/sequence; 
+          range:in_relation_to GB:AE013599_plus_strand_sequence; 
           sio:SIO_000053 [ a range:StartPosition; sio:SIO_000300 1 ]; # p = 'has proper part'
           sio:SIO_000053 [ a range:EndPosition; sio:SIO_000300 21146708 ] # p = 'has proper part'
         ] .
  
-GB:AE013599/plus_strand/sequence 
+GB:AE013599_plus_strand_sequence 
     a sio:SIO_000030; # o = 'sequence'
-    sio:000011 # 'is attribute of'
+    sio:SIO_000011 # 'is attribute of'
         [ a strand:PlusStrand; 
           sio:SIO_000093 GB:AE013599 ] . # p = 'is proper part of'
     
-GB:AE013599/minus_strand/sequence 
+GB:AE013599_minus_strand_sequence 
     a sio:SIO_000030; # o = 'sequence'
-    sio:000011 # 'is attribute of'
+    sio:SIO_000011 # 'is attribute of'
         [ a strand:MinusStrand; 
           sio:SIO_000093 GB:AE013599 ] . # p = 'is proper part of'
 
