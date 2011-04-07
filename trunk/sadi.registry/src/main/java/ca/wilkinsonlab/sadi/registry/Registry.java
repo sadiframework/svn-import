@@ -301,7 +301,7 @@ public class Registry
 							restriction.setValuesFromLabel(buf.toString());
 						else
 							restriction.setValuesFromLabel(null);
-						service.getRestrictions().add(restriction);
+						service.getRestrictionBeans().add(restriction);
 					}
 				} else {
 					RestrictionBean restriction = new RestrictionBean();
@@ -309,7 +309,7 @@ public class Registry
 					restriction.setOnPropertyLabel(onPropertyLabel);
 					restriction.setValuesFromURI(null);
 					restriction.setValuesFromLabel(null);
-					service.getRestrictions().add(restriction);
+					service.getRestrictionBeans().add(restriction);
 				}
 			} catch (Exception e) {
 				log.error(String.format("bad restriction attached to %s", serviceNode), e);
