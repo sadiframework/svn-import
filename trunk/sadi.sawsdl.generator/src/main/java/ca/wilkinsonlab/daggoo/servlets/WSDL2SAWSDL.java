@@ -103,8 +103,35 @@ public class WSDL2SAWSDL extends HttpServlet {
 	if (session.isNew()) {
 	    session.setAttribute("state", 0);
 	}
-	int state =((Integer)session.getAttribute("state")).intValue(); 
-	switch (state) {
+		
+	// did they click reset?
+	if (request.getParameter("h_reset") != null && request.getParameter("h_reset").trim().equals("true")) {
+	    session.invalidate();
+	    session = request.getSession(true);
+	    session.setAttribute("state", 0);
+	}
+	
+	// check for next ...
+	boolean hasNext = request.getParameter("h_next") != null && request.getParameter("h_next").trim().equals("true");
+	boolean hasPrevious = request.getParameter("h_back") != null && request.getParameter("h_back").trim().equals("true");
+	// check if the user submitted the form or reloaded the browser ... 
+	// i.e. check if either back/next were clicked
+	if (!hasNext & !hasPrevious) {
+	    // next not set, so they used the URL
+	    session.invalidate();
+	    session = request.getSession(true);
+	    session.setAttribute("state", 0);
+	}
+	// check for back button ...
+	if (hasPrevious) {
+	    // user clicked the back button
+	    // -- the state count
+	    int c = ((Integer)session.getAttribute("state")).intValue();
+	    if (c > 0) {
+		session.setAttribute("state", (c - 2) <= 0 ? 0 : (c-2));
+	    }
+	}
+	switch (((Integer)session.getAttribute("state")).intValue()) {
 	case 0: {
 	    Template template = null;
 	    try {
@@ -132,21 +159,6 @@ public class WSDL2SAWSDL extends HttpServlet {
 	    String parameter = request.getParameter("wsdl");
 	    if (parameter == null) {
 		parameter = (String)session.getAttribute("wsdl");
-	    }
-	    boolean hasNext = request.getParameter("next") != null && request.getParameter("next").trim().equals("true");
-	    // check if we submitted form or if the page was reloaded ...
-	    if (!hasNext) {
-		// page reload
-		int s = ((Integer)session.getAttribute("state")).intValue() - 1;
-		session.setAttribute("state", s <0 ? 0 : s);
-		response.
-		sendRedirect(String.format(
-			"%s%s",
-			request.getContextPath() == null || request.getContextPath().trim().equals("") ? 
-				""
-				: request.getContextPath(), "/"
-				+ getClass().getSimpleName()));
-		return;
 	    }
 	    
 	    URL url = null;
@@ -199,20 +211,6 @@ public class WSDL2SAWSDL extends HttpServlet {
 	}
 	break;
 	case 2: {
-	    boolean hasNext = request.getParameter("next") != null && request.getParameter("next").trim().equals("true");
-	    // check if we submitted form or if the page was reloaded ...
-	    if (!hasNext) {
-		// page reload
-		int s = ((Integer)session.getAttribute("state")).intValue() - 1;
-		session.setAttribute("state", s <0 ? 0 : s);
-		response.sendRedirect(String.format(
-			"%s%s",
-			request.getContextPath() == null
-				|| request.getContextPath().trim().equals("") ? ""
-				: request.getContextPath(), "/"
-				+ WSDL2SAWSDL.class.getSimpleName()));
-		return;
-	    }
 	    String parameter = request.getParameter("operationname");
 	    if (parameter == null) {
 		// got here via page reload?
@@ -231,6 +229,14 @@ public class WSDL2SAWSDL extends HttpServlet {
 	    context.put("title", String.format("%s - step 3: SADI Service Details", this.getClass().getSimpleName()));
 	    context.put("operationname", parameter);
 	    context.put("servlet_action", this.getClass().getSimpleName());
+
+	    // fill pre-existing possible values
+	    String[] possibleSessionValues = {"servicename", "serviceauthority", "serviceemail", "servicedescription"};
+	    for (String s : possibleSessionValues) {
+		if (session.getAttribute(s) != null) {
+		    context.put(s, session.getAttribute(s));
+		}
+	    }
 	    if (session.getAttribute("error") != null) {
 		context.put("error", session.getAttribute("error"));
 		session.removeAttribute("error");
@@ -242,75 +248,73 @@ public class WSDL2SAWSDL extends HttpServlet {
 	}
 	break;
 	case 3: {
-	    
-	    boolean hasNext = request.getParameter("next") != null && request.getParameter("next").trim().equals("true");
-	    // check if we submitted form or if the page was reloaded ...
-	    if (!hasNext) {
-		// page reload
-		int s = ((Integer)session.getAttribute("state")).intValue() - 1;
-		session.setAttribute("state", s <0 ? 0 : s);
-		response.sendRedirect(String.format(
-			"%s%s",
-			request.getContextPath() == null
-				|| request.getContextPath().trim().equals("") ? ""
-				: request.getContextPath(), "/"
-				+ WSDL2SAWSDL.class.getSimpleName()));
-		return;
-	    }
+	    // did we get here from a latter page?
+	    // either all set or none set
 	    String 
-	    	serviceName = request.getParameter("servicename"), 
-	    	serviceAuthority = request.getParameter("serviceauthority"), 
-	    	contactEmail = request.getParameter("serviceemail"), 
-	    	description = request.getParameter("servicedescription"), 
-	    	serviceType = request.getParameter("servicetype");
+		serviceName = (String)session.getAttribute("servicename"), 
+		serviceAuthority = (String)session.getAttribute("serviceauthority"), 
+		contactEmail = (String)session.getAttribute("serviceemail"), 
+		description = (String)session.getAttribute("servicedescription"), 
+		serviceType = ""; //request.getParameter("servicetype");
 	    
-	    // check the validity of the service name ...
-	    try{
-		StringBuilder errors = new StringBuilder("Please correct the following errors before continuing:<br/><br/>");
-		int errorCount = 0;
-		if (!isValidName(serviceName)) {
-		    errorCount++;
-		    errors.append("Service name already exists. Please choose a new one!<br/>");
-		}
-		if (!isValidEmailAddress(contactEmail)) {
-		    errorCount++;
-		    errors.append("Please enter a valid email address!<br/>");
-		}
-		if (!isValidAuthority(serviceAuthority)) {
-		    errorCount++;
-		    errors.append("Please enter a valid service authority! Valid authorities look like 'sadiframework.org', 'www.somedomain.com', etc<br/>");   
-		}
-		if (errorCount > 0) {
-		    response.setContentType("text/html");
-		    Template template = Velocity.getTemplate("step_3.vm");
-		    // fill in the context with our values
-		    VelocityContext context = new VelocityContext();
-		    context.put("title", String.format("%s - step 3: SADI Service Details", this.getClass().getSimpleName()));
-		    context.put("operationname", session.getAttribute("operationname"));
-		    context.put("error", errors.toString());
-		    context.put("servicename", serviceName);
-		    context.put("serviceemail", contactEmail);
-		    context.put("servicedescription", description);
-		    context.put("serviceauthority", serviceAuthority);
-		    context.put("servicetype", serviceType);
-		    context.put("servlet_action", this.getClass().getSimpleName());
-		    StringWriter writer = new StringWriter();
-		    template.merge(context, writer);
-		    response.getOutputStream().println(writer.toString());
-		    session.setAttribute("state", 3);
+	    if (
+		description == null && 
+		contactEmail == null && 
+		serviceAuthority == null && 
+		serviceName == null) {
+		serviceName = request.getParameter("servicename");
+		serviceAuthority = request.getParameter("serviceauthority"); 
+		contactEmail = request.getParameter("serviceemail");
+		description = request.getParameter("servicedescription"); 
+		// serviceType = request.getParameter("servicetype");
+		// check the validity of the service name ...
+		try{
+		    StringBuilder errors = new StringBuilder("Please correct the following errors before continuing:<br/><br/>");
+		    int errorCount = 0;
+		    if (!isValidName(serviceName)) {
+			errorCount++;
+			errors.append("Service name already exists. Please choose a new one!<br/>");
+		    }
+		    if (!isValidEmailAddress(contactEmail)) {
+			errorCount++;
+			errors.append("Please enter a valid email address!<br/>");
+		    }
+		    if (!isValidAuthority(serviceAuthority)) {
+			errorCount++;
+			errors.append("Please enter a valid service authority! Valid authorities look like 'sadiframework.org', 'www.somedomain.com', etc<br/>");   
+		    }
+		    if (errorCount > 0) {
+			response.setContentType("text/html");
+			Template template = Velocity.getTemplate("step_3.vm");
+			// fill in the context with our values
+			VelocityContext context = new VelocityContext();
+			context.put("title", String.format("%s - step 3: SADI Service Details", this.getClass().getSimpleName()));
+			context.put("operationname", session.getAttribute("operationname"));
+			context.put("error", errors.toString());
+			context.put("servicename", serviceName);
+			context.put("serviceemail", contactEmail);
+			context.put("servicedescription", description);
+			context.put("serviceauthority", serviceAuthority);
+			context.put("servicetype", serviceType);
+			context.put("servlet_action", this.getClass().getSimpleName());
+			StringWriter writer = new StringWriter();
+			template.merge(context, writer);
+			response.getOutputStream().println(writer.toString());
+			session.setAttribute("state", 3);
+			return;
+		    }
+		} catch (Exception e) {
+		    // shouldnt get here ...
+		    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
 		    return;
 		}
-	    } catch (Exception e) {
-		// shouldnt get here ...
-		response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getLocalizedMessage());
-		return;
+
+		session.setAttribute("servicename", serviceName);
+		session.setAttribute("servicedescription", description);
+		session.setAttribute("serviceauthority", serviceAuthority);
+		session.setAttribute("servicetype", serviceType);
+		session.setAttribute("serviceemail", contactEmail);
 	    }
-	    
-	    session.setAttribute("servicename", serviceName);
-	    session.setAttribute("servicedescription", description);
-	    session.setAttribute("serviceauthority", serviceAuthority);
-	    session.setAttribute("servicetype", serviceType);
-	    session.setAttribute("serviceemail", contactEmail);
 	    response.setContentType("text/html");
 	    Template template = Velocity.getTemplate("step_4.vm");
 	    // fill in the context with our values
@@ -341,20 +345,6 @@ public class WSDL2SAWSDL extends HttpServlet {
 	}
 	break;
 	case 4: {
-	    boolean hasNext = request.getParameter("next") != null && request.getParameter("next").trim().equals("true");
-	    // check if we submitted form or if the page was reloaded ...
-	    if (!hasNext) {
-		// page reload
-		int s = ((Integer)session.getAttribute("state")).intValue() - 1;
-		session.setAttribute("state", s <0 ? 0 : s);
-		response.sendRedirect(String.format(
-			"%s%s",
-			request.getContextPath() == null
-				|| request.getContextPath().trim().equals("") ? ""
-				: request.getContextPath(), "/"
-				+ WSDL2SAWSDL.class.getSimpleName()));
-		return;
-	    }
 	    // read our inputs to the service
 	    WSDLParser wSDLParser = (WSDLParser)session.getAttribute("WSDLParser");
 	    int count = wSDLParser.getInputSoapDatatypeParameterNames().size();
@@ -391,7 +381,6 @@ public class WSDL2SAWSDL extends HttpServlet {
 		owlDatatypeMappings.add(owlDatatypeMapping);
 	    }
 	    session.setAttribute("input_owl_x", owlDatatypeMappings);
-	    System.out.println(owlDatatypeMappings);
 	    
 	    response.setContentType("text/html");
 	    Template template = Velocity.getTemplate("step_5.vm");
@@ -413,20 +402,6 @@ public class WSDL2SAWSDL extends HttpServlet {
 	}
 	break;
 	case 5: {
-	    boolean hasNext = request.getParameter("next") != null && request.getParameter("next").trim().equals("true");
-	    // check if we submitted form or if the page was reloaded ...
-	    if (!hasNext) {
-		// page reload
-		int s = ((Integer)session.getAttribute("state")).intValue() - 1;
-		session.setAttribute("state", s <0 ? 0 : s);
-		response.sendRedirect(String.format(
-			"%s%s",
-			request.getContextPath() == null
-				|| request.getContextPath().trim().equals("") ? ""
-				: request.getContextPath(), "/"
-				+ WSDL2SAWSDL.class.getSimpleName()));
-		return;
-	    }
 	    // read our outputs to the service
 	    String owlDocument;
 	    WSDLParser wSDLParser = (WSDLParser)session.getAttribute("WSDLParser");

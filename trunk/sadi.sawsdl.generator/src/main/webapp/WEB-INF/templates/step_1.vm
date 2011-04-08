@@ -15,7 +15,7 @@
     <form id="wsdlform" name="wsdlform" method="post" action="$servlet_action"> 
 <p>
     <input name="wsdl" type="text" id="wsdl" size="82" />
-    <input name="next" type="hidden" id="next" value="true" />
+    <input name="h_next" type="hidden" id="h_next" value="true" />
     <input type="submit" name="submit" id="submit" value="Submit" /> 
 </p> 
 </form>
