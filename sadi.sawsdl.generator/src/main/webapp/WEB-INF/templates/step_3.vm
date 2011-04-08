@@ -35,16 +35,13 @@
         <input name="serviceemail" type="text" id="serviceemail" size="82" value="$!serviceemail" /> 
       </div></td> 
     </tr> 
-    <tr> 
-      <td><div align="right">Service Type:</div></td> 
-      <td><div align="left"> 
-        <input name="servicetype" type="text" id="servicetype" size="82" value="$!servicetype"/> 
-      </div></td> 
-    </tr> 
+##    <tr> 
+##      <td><div align="right">Service Type:</div></td> 
+##      <td><div align="left"> 
+##        <input name="servicetype" type="text" id="servicetype" size="82" value="$!servicetype"/> 
+##      </div></td> 
+##    </tr> 
   </table> 
-  <p>
-    <input type="submit" name="submit" id="submit" value="Submit" /> 
-  </p>
-  <input name="next" type="hidden" id="next" value="true" />
+#include("navigation_buttons.vm")
 </form>
 #include("FOOTER.vm")

@@ -28,10 +28,7 @@
 #set( $soap_input_count = $soap_input_count + 1 )
 #end
 #end
-    <p>
-        <input type="submit" name="submit" id="submit" value="Submit" /> 
-    </p>
-    <input name="next" type="hidden" id="next" value="true" />
+#include("navigation_buttons.vm")
 </form>
 <div class="sparqlassist-results" style="display: none; position: absolute;"></div>
 
@@ -168,5 +165,4 @@ var handler = function () {
     });
 }                                    
 </script> 
-
 #include("FOOTER.vm")

@@ -122,6 +122,10 @@ public class WSDLParser {
     
     public void processWSDL(String name) {
 
+	// reset our input/outputs
+	inputSoapDatatypes = new ArrayList<SoapDatatypeMapping>();
+	outputSoapDatatypes = new ArrayList<SoapDatatypeMapping>();
+	
 	try {
 	    
 	    // Use JAX-WS to get the service and port list

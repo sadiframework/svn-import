@@ -28,10 +28,7 @@
 #set( $soap_output_count = $soap_output_count + 1 )
 #end
 #end
-    <p>
-        <input type="submit" name="submit" id="submit" value="Submit" /> 
-    </p>
-    <input name="next" type="hidden" id="next" value="true" />
+#include("navigation_buttons.vm")
 </form>
 </p>
 
@@ -166,5 +163,4 @@ var handler = function () {
     });
 }                                    
 </script> 
-
 #include("FOOTER.vm")

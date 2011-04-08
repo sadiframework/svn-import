@@ -18,10 +18,7 @@
 #end
     </select>
   </p>
-  <p> 
-    <input type="submit" name="submit" id="submit" value="Submit" /> 
-  </p>
-  <input name="next" type="hidden" id="next" value="true" />
+#include("navigation_buttons.vm")
 </form>
 #else
 <h2>No services have been found</h2>
