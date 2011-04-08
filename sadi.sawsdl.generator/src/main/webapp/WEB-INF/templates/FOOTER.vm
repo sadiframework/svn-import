@@ -1,2 +1,30 @@
+<script>
+$("input[type=submit]")
+    .bind("click", 
+        function(e){
+            $(this).attr("submit_selector_attr","YES");
+        }
+    );
+$("form")
+    .submit(
+        function(){
+            var e = $("[submit_selector_attr=YES]").removeAttr('submit_selector_attr').get(0);
+            if ($(e).attr('id') == 'b_reset') {
+                $("input[name=h_reset]").val('true');
+                $('input[name=h_next]').remove();
+                $('input[name=h_back]').remove();
+            } else if ($(e).attr('id') == 'b_submit') {
+                $('input[name=h_next]').val('true');
+                $("input[name=h_reset]").remove();
+                $('input[name=h_back]').remove();
+            } else if ($(e).attr('id') == 'b_back') {
+                $('input[name=h_back]').val('true');
+                $("input[name=h_reset]").remove();
+                $('input[name=h_next]').remove();
+            }
+            return true;
+        }
+     );
+</script>
 </body>
 </html>
