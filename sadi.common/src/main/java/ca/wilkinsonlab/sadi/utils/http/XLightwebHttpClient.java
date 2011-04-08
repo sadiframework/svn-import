@@ -122,7 +122,7 @@ public class XLightwebHttpClient implements HttpClient {
 		maxRetries = config.getInt(MAX_RETRIES_CONFIG_KEY, 0);
 		
 		xLightWebClient.setCacheMaxSizeKB(0);
-		xLightWebClient.setFollowsRedirect(false);
+		xLightWebClient.setFollowsRedirect(true);
 	}
 	
 	public InputStream GET(URL url) throws IOException {
