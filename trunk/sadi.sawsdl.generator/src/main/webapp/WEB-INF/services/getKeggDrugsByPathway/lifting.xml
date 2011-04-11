@@ -1,22 +1,8 @@
-<?xml version='1.0' ?>
-<lifting>
-	<mapping>
-	  <!-- string implies that we get the value from our input map -->
-		<map
-			id="pathway_id"
-			type="string"/>
-		<map
-      id="inputNodeURI"
-      type="string"/>
-		<!-- xpath implies that we apply the xpath expression (in the text content) to our soap output -->
-		<map
-			id="drugResults"
-			type="xpath">
-//item/text()
-    </map>
-    <!-- regex implies that we apply the regex expression (in the text content) to our soap output -->
-	</mapping>
-	<template>
-drugResults=http://semanticscience.org/resource/SIO_000132,http://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Record,http://semanticscience.org/resource/SIO_000008,http://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Identifier,http://semanticscience.org/resource/SIO_000300,*
-	</template>
+<?xml version="1.0" encoding="UTF-8"?><lifting>
+  <mapping>
+    <map id="inputNodeURI" type="string"/>
+    <map id="return" type="xpath">//return/item/text()</map>
+  </mapping>
+  <template>                                                                            return=http\://semanticscience.org/resource/SIO_000132,http\://localhost\:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway/owl\#outputClass,http\://semanticscience.org/resource/SIO_000008,http\://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Identifier,http\://semanticscience.org/resource/SIO_000300,*&#13;
+    </template>
 </lifting>

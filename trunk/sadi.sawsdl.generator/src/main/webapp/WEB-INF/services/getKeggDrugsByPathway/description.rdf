@@ -13,34 +13,33 @@
   <rdf:Description rdf:about="http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway">
     <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#serviceDescription"/>
     <b:format>sadi</b:format>
-    <b:identifier>foobar</b:identifier>
-    <a:locationURI>http://localhost:8080/foo/getKeggDrugsByPathway</a:locationURI>
-    <a:hasServiceDescriptionText>impl of getKeggDrugsByPathway</a:hasServiceDescriptionText>
-    <a:hasServiceDescriptionLocation/>
-    <a:hasServiceNameText>getKeggDrugsByPathway</a:hasServiceNameText>
+    <b:identifier>http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway</b:identifier>
+    <a:locationURI>http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway</a:locationURI>
+    <a:hasServiceDescriptionText>a prototype SAWSDL sadi web service representing the get_drugs_by_pathway kegg service</a:hasServiceDescriptionText>
+        <a:hasServiceDescriptionLocation>http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway</a:hasServiceDescriptionLocation>    <a:hasServiceNameText>getKeggDrugsByPathway</a:hasServiceNameText>
     <a:providedBy>
         <rdf:Description rdf:about="getKeggDrugsByPathway_sadiframework.org_1">
             <a:authoritative rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</a:authoritative>
-            <b:creator>kawas@foo.com</b:creator>
+            <b:creator>example@sadiframework.org</b:creator>
             <b:publisher>sadiframework.org</b:publisher>
             <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#organisation"/>
         </rdf:Description>
     </a:providedBy>
     <a:hasOperation>
         <rdf:Description rdf:about="getKeggDrugsByPathway_sadiframework.org_2">
-            <a:hasOperationNameText>$name</a:hasOperationNameText>
+            <a:hasOperationNameText>getKeggDrugsByPathway</a:hasOperationNameText>
             <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#operation"/>
             <a:performsTask>
                 <rdf:Description rdf:about="getKeggDrugsByPathway_sadiframework.org_3">
                     <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#operationTask"/>
-                    <rdf:type rdf:resource="$type"/>
+                    <rdf:type rdf:resource=""/>
                 </rdf:Description>
             </a:performsTask>
             <a:inputParameter>
                 <rdf:Description rdf:about="getKeggDrugsByPathway_sadiframework.org_4">
                     <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameter"/>
                     <a:objectType>
-                        <rdf:Description rdf:about="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Record"/>
+                        <rdf:Description rdf:about="http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway/owl#inputClass"/>
                     </a:objectType>
                 </rdf:Description>
             </a:inputParameter>
@@ -48,7 +47,7 @@
                 <rdf:Description rdf:about="getKeggDrugsByPathway_sadiframework.org_5">
                     <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameter"/>
                     <a:objectType>
-                        <rdf:Description rdf:about="http://dev.biordf.net/~kawas/sawsdl/owl/get_drugs_by_pathway.owl#getDrugRecordsByPathway"/>
+                        <rdf:Description rdf:about="http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway/owl#outputClass"/>
                     </a:objectType>
                 </rdf:Description>
             </a:outputParameter>
