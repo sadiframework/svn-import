@@ -662,8 +662,9 @@
 		end = (end >= 0) ? end + caret.end : elementValue.length;
 		var left = elementValue.substring(0, start);
 		var right = elementValue.substring(end, elementValue.length);
+        var shift = data.shift || 0;
 		this.dom.$elem.val(left + displayValue + right);
-		this.dom.$elem.caret(start + displayValue.length + data.shift);
+		this.dom.$elem.caret(start + displayValue.length + shift);
 		this.callHook('onItemSelect', { value: value, data: data });
 		this.finish();
 	};
