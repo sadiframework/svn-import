@@ -1,0 +1,44 @@
+.sparqlassist-results {
+	padding: 0px;
+	border: 1px solid WindowFrame;
+	background-color: Window;
+	overflow: hidden;
+}
+
+.sparqlassist-results ul {
+	width: 100%;
+	list-style-position: outside;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+
+.sparqlassist-results li {
+	margin: 0px;
+	padding: 0px;
+	cursor: pointer;
+	display: block;
+	width: 100%;
+	font: menu;
+	font-size: 12px;
+	overflow: hidden;
+}
+.sparqlassist-results p {
+    margin: 0px;
+    padding: .25em;
+}
+.sparqlassist-results span.label {
+}
+.sparqlassist-results span.description {
+    display: block;
+    padding-left: 1em;
+}
+.sparqlassist-loading {
+    background: url('indicator.gif') no-repeat fixed center;
+}
+.sparqlassist-confirmed {
+    font-weight: bold;
+}
+.sparqlassist-unconfirmed {
+    color: #666;
+}
