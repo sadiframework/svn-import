@@ -6,7 +6,7 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sparql-assist</artifactId>
   <name>SPARQL Assist</name>
-  <version>0.1.3</version>
+  <version>0.1.3-SNAPSHOT</version>
   <packaging>war</packaging>
   <build>
     <plugins>
@@ -17,6 +17,18 @@
           <source>1.6</source> <!-- required by Jena -->
           <target>1.6</target>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>attach-source</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
       	<groupId>org.mortbay.jetty</groupId>
@@ -30,8 +42,10 @@
       </plugin>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
+        <version>2.1.1</version>
         <configuration>
           <packagingExcludes>index.html</packagingExcludes>
+          <attachClasses>true</attachClasses>
         </configuration>
       </plugin>
       <plugin>
