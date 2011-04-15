@@ -21,7 +21,6 @@ public class AutoCompleteServlet extends HttpServlet
 	
 	private static final long serialVersionUID = 1L;
 
-	private JSONWriter json;
 	private Map<String, AutoCompleter> autoCompleters;
 	private Thread cleanupThread;
 	
@@ -29,7 +28,6 @@ public class AutoCompleteServlet extends HttpServlet
 	public void init() throws ServletException
 	{
 		super.init();
-		json = new JSONWriter(false); // don't add class to JSON map
 		autoCompleters = new HashMap<String, AutoCompleter>();
 		cleanupThread = new Thread(new CleanupRunnable(), "AutoComplete cleanup thread");
 		cleanupThread.start();
@@ -65,11 +63,12 @@ public class AutoCompleteServlet extends HttpServlet
 			if (log.isDebugEnabled())
 				log.debug(String.format("%s: processing request %s", id, req));
 			try {
-				String out = json.write(getAutoCompleter(id).processRequest(req));
+				// new JSONWriter(false) = don't add object class to JSON map...
+				String json = new JSONWriter(false).write(getAutoCompleter(id).processRequest(req));
 				if (log.isDebugEnabled())
-					log.debug(String.format("%s: sending response %s", id, out));
+					log.debug(String.format("%s: sending response %s", id, json));
 				response.setContentType("application/json");
-				response.getWriter().write(out);
+				response.getWriter().write(json);
 			} catch (Exception e) {
 				log.error(String.format("error processing request %s", req), e);
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
@@ -100,7 +99,7 @@ public class AutoCompleteServlet extends HttpServlet
 			AutoCompleter autoCompleter = autoCompleters.get(id);
 			if (autoCompleter == null) {
 				log.debug(String.format("creating new AutoCompleter with id %s", id));
-				autoCompleter = new AutoCompleter();
+				autoCompleter = createAutoCompleter();
 				autoCompleters.put(id, autoCompleter);
 			}
 			return autoCompleter;
