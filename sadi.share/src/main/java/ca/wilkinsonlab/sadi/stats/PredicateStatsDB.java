@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
@@ -101,7 +102,13 @@ public class PredicateStatsDB
 	
 	protected void initCache() 
 	{
-		String statsCacheName = String.valueOf(System.currentTimeMillis()); 
+		/* clearly the intention here was to generate a unique name,
+		 * but on a fast machine this fails in the mock subclass used
+		 * by QueryPatternComparatorTest; moral of the story: if you
+		 * want a unique ID, use a unique ID...
+		 */
+		//String statsCacheName = String.valueOf(System.currentTimeMillis()); 
+		String statsCacheName = UUID.randomUUID().toString();
 		
 		statsCache = new Cache(new CacheConfiguration(statsCacheName, INTERNAL_STATS_CACHE_SIZE)
 				       .memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
