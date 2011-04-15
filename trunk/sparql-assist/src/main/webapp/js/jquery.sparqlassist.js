@@ -333,8 +333,12 @@ $.SparqlAssistant.prototype.fetchRemoteData = function(options, decorator, filte
                        //} else {
                            var acData = [];
                            for (var i=0; i<data.length; ++i) {
-                        	   if (typeof decorator == 'function')
+                        	   if (data[i].URI && !data[i].uri) {
+                        		   data[i].uri = data[i].URI;
+                        	   }
+                        	   if (typeof decorator == 'function') {
                         		   decorator(data[i]);
+                        	   }
                                acData.push({
                                    value : data[i].label,
                                     data : data[i]
