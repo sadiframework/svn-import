@@ -34,7 +34,10 @@
     padding-left: 1em;
 }
 .sparqlassist-loading {
-    background: url('indicator.gif') no-repeat fixed center;
+	/*
+	visibility: hidden;
+    */
+    background: url('indicator.gif') no-repeat center center;
 }
 .sparqlassist-confirmed {
     font-weight: bold;

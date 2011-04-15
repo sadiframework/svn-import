@@ -18,6 +18,7 @@
       <directory>${project.basedir}/src/main/webapp</directory>
       <includes>
         <include>index.html</include>
+        <include>sparql.html</include>
         <include>js/*</include>
         <include>style/*</include>
         <include>resources/*</include>

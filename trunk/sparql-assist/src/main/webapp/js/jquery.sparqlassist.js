@@ -40,6 +40,7 @@ $.SparqlAssistant = function($elem, options) {
     
     // set loading class on element...
     $elem.addClass($.SparqlAssistant.loadingClass);
+    $elem.bind({'focus': $.SparqlAssistant.blur});
     
     // load initial data...
     var self = this;
@@ -70,6 +71,9 @@ $.SparqlAssistant = function($elem, options) {
         }
     });
 };
+$.SparqlAssistant.blur = function() {
+	$(this).blur();
+}; 
 // credit to Shahram Javey for the GUID bit
 // http://note19.com/2007/05/27/javascript-guid-generator/
 $.SparqlAssistant.S4 = function() {
@@ -91,10 +95,16 @@ $.SparqlAssistant.decoratePredicate = function(p) {
     if (!p.value && p.uri) {
         p.value = "<" + p.uri + "> ";
     }
+    if (!p.label && p.uri) {
+    	p.label = p.uri;
+    }
 };
 $.SparqlAssistant.decorateIndividual = function(i) {
     if (!i.value && i.uri) {
         i.value = "<" + i.uri + "> ";
+    }
+    if (!i.label && i.uri) {
+    	i.label = i.uri;
     }
 };
 $.SparqlAssistant.loadData = function(options, target, callback) {
@@ -131,13 +141,16 @@ $.SparqlAssistant.loadData = function(options, target, callback) {
                                target.push(data[i]);
                            }
                        //}
+                       //callback(data);
                    },
            error : function(request, textStatus, errorThrown) {
-                       console.log("error in LoadData");
-                       console.log(this.url);
-                       console.log(options);
-                       console.log(textStatus);
-                       console.log(errorThrown);
+                       //console.log("error in LoadData");
+                       //console.log(this.url);
+                       //console.log(options);
+                       //console.log(textStatus);
+                       //console.log(errorThrown);
+        	           alert("error '" + textStatus + "' loading data from " + this.url);
+        	           //callback(data);
                    }
     }, options);
     $.ajax(o);
@@ -171,6 +184,7 @@ $.SparqlAssistant.prototype.init = function($elem) {
     
     // remove loading class on element...
     $elem.removeClass($.SparqlAssistant.loadingClass);
+    $elem.unbind({'focus': $.SparqlAssistant.blur});
 };
 $.SparqlAssistant.prototype.getVariables = function() {
     var sparql = this.$elem.val();
