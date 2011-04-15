@@ -83,6 +83,9 @@ $.SparqlAssistant.decorateNamespace = function(ns) {
     if (!ns.value && ns.uri) {
         ns.value = ns.label + ": <" + ns.uri + ">\n";
     }
+    if (!ns.description && ns.uri) {
+    	ns.description = ns.uri;
+    }
 };
 $.SparqlAssistant.decoratePredicate = function(p) {
     if (!p.value && p.uri) {
@@ -221,13 +224,13 @@ $.SparqlAssistant.prototype.fetchData = function(value) {
             if (word.toUpperCase() == "PREFIX") {
                 localData = this.namespaces;
                 remoteData = this.options.remoteNamespaces;
-                decorateData = this.options.decorateNamespaces;
+                decorateData = this.options.decorateNamespace;
             } else if (word.toUpperCase() == "SELECT") {
                 localData = this.fetchData.SELECT;
             } else if (word.toUpperCase() == "FROM") {
                 localData = this.documents;
                 remoteData = this.options.remoteDocuments;
-                decorateData = this.options.decorateDocuments;
+                decorateData = this.options.decorateDocument;
             } else if (word.toUpperCase() == "WHERE") {
                 localData = this.fetchData.WHERE;
             } else {
@@ -330,7 +333,8 @@ $.SparqlAssistant.prototype.fetchRemoteData = function(options, decorator, filte
                        //} else {
                            var acData = [];
                            for (var i=0; i<data.length; ++i) {
-                               decorator(data[i]);
+                        	   if (typeof decorator == 'function')
+                        		   decorator(data[i]);
                                acData.push({
                                    value : data[i].label,
                                     data : data[i]

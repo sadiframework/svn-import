@@ -22,7 +22,7 @@ public class AutoCompleter
 {
 	private static final Logger log = Logger.getLogger(AutoCompleter.class);
 	
-	private static final Pattern FROM_PATTERN = Pattern.compile("FROM\\s*<(._?)>", Pattern.CASE_INSENSITIVE);
+	private static final Pattern FROM_PATTERN = Pattern.compile("FROM\\s*<(.+?)>", Pattern.CASE_INSENSITIVE);
 	private static final int FROM_PATTERN_URL_GROUP = 1;
 	
 	OntModel model;
@@ -68,21 +68,25 @@ public class AutoCompleter
 		return lastAccess;
 	}
 	
-	private void updateLastAccess()
+	protected void updateLastAccess()
 	{
 		lastAccess = System.currentTimeMillis();
 	}
 	
-	private void loadFromClauses(String sparql)
+	protected void loadFromClauses(String sparql)
 	{
+		if (log.isTraceEnabled())
+			log.trace(String.format("looking for FROM clauses in %s", sparql));
 		for (Matcher matcher = FROM_PATTERN.matcher(sparql); matcher.find(); ) {
 			String url = matcher.group(FROM_PATTERN_URL_GROUP);
 			try {
 				model.enterCriticalSection(Lock.WRITE);
 				if (!model.hasLoadedImport(url)) {
-					log.debug(String.format("loading ontology from %s", url));
+					log.debug(String.format("loading ontology %s", url));
 					model.read(url);
 				}
+			} catch (Exception e) {
+				log.warn(String.format("error reading ontology %s: %s", url, e.toString()));
 			} finally {
 				model.leaveCriticalSection();
 			}
@@ -90,7 +94,7 @@ public class AutoCompleter
 	}
 	
 	
-	private void addMatchingProperties(Pattern query, List<AutoCompleteMatch> results)
+	protected void addMatchingProperties(Pattern query, List<AutoCompleteMatch> results)
 	{
 		try {
 			model.enterCriticalSection(Lock.READ);
@@ -100,7 +104,7 @@ public class AutoCompleter
 		}
 	}
 
-	private void addMatchingIndividuals(Pattern query, List<AutoCompleteMatch> results)
+	protected void addMatchingIndividuals(Pattern query, List<AutoCompleteMatch> results)
 	{
 		try {
 			model.enterCriticalSection(Lock.READ);
@@ -110,7 +114,7 @@ public class AutoCompleter
 		}
 	}
 	
-	private void addMatchingOntResources(Iterator<? extends OntResource> i, Pattern query, List<AutoCompleteMatch> results)
+	protected void addMatchingOntResources(Iterator<? extends OntResource> i, Pattern query, List<AutoCompleteMatch> results)
 	{
 		while (i.hasNext()) {
 			OntResource subject = i.next();
@@ -130,19 +134,24 @@ public class AutoCompleter
 		}
 	}
 	
-	private void addMatchingNamespaces(Pattern query, List<AutoCompleteMatch> results)
+	protected void addMatchingNamespaces(Pattern query, List<AutoCompleteMatch> results)
 	{
-		for (Map.Entry<String, String> entry: model.getNsPrefixMap().entrySet()) {
-			if (query.matcher(entry.getKey()).find()) {
-				results.add(new AutoCompleteMatch()
-					.setUri(entry.getValue())
-					.setLabel(entry.getKey())
-				);
+		try {
+			model.enterCriticalSection(Lock.READ);
+			for (Map.Entry<String, String> entry: model.getNsPrefixMap().entrySet()) {
+				if (query.matcher(entry.getKey()).find()) {
+					results.add(new AutoCompleteMatch()
+						.setUri(entry.getValue())
+						.setLabel(entry.getKey())
+					);
+				}
 			}
+		} finally {
+			model.leaveCriticalSection();
 		}
 	}
 	
-	private static String getDescription(OntResource subject, String language)
+	protected static String getDescription(OntResource subject, String language)
 	{
 		// try specified language...
 		String description = subject.getComment(language);

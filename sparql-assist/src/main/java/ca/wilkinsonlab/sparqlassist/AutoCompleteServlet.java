@@ -29,7 +29,7 @@ public class AutoCompleteServlet extends HttpServlet
 	public void init() throws ServletException
 	{
 		super.init();
-		json = new JSONWriter();
+		json = new JSONWriter(false); // don't add class to JSON map
 		autoCompleters = new HashMap<String, AutoCompleter>();
 		cleanupThread = new Thread(new CleanupRunnable(), "AutoComplete cleanup thread");
 		cleanupThread.start();
@@ -75,7 +75,7 @@ public class AutoCompleteServlet extends HttpServlet
 				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
 			}
 			if (log.isDebugEnabled())
-				log.debug(String.format("%s: finished processing reuqest", id));
+				log.debug(String.format("%s: finished processing request", id));
 		}
 	}
 	
@@ -83,6 +83,15 @@ public class AutoCompleteServlet extends HttpServlet
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
 		doGet(request, response);
+	}
+	
+	/**
+	 * Create and return a new AutoCompleter for a fresh SPARQL Assist instance.
+	 * @return a new AutoCompleter
+	 */
+	protected AutoCompleter createAutoCompleter()
+	{
+		return new AutoCompleter();
 	}
 	
 	private AutoCompleter getAutoCompleter(String id)
@@ -106,7 +115,8 @@ public class AutoCompleteServlet extends HttpServlet
 		public CleanupRunnable()
 		{
 			// TODO make these configurable...
-			msBetweenScans = 900000; // 15 minutes
+			// maximum time before cleanup = msBeforeCleanup + msBetweenScans
+			msBetweenScans = 300000; // 5 minutes 
 			msBeforeCleanup = 900000; // 15 minutes
 		}
 		
@@ -118,19 +128,30 @@ public class AutoCompleteServlet extends HttpServlet
 				} catch (InterruptedException e) {
 					log.warn(String.format("cleanup thread interrupted: %s", e.getMessage()));
 				}
-				for (Iterator<AutoCompleter> i = autoCompleters.values().iterator(); i.hasNext(); ) {
-					AutoCompleter ac = i.next();
-					if (ac.getLastAccess() < System.currentTimeMillis() - msBeforeCleanup) {
+				long cutoff = System.currentTimeMillis() - msBeforeCleanup;
+				if (log.isTraceEnabled())
+					log.trace(String.format("cutoff for cleanup is %d", cutoff));
+				for (Iterator<Map.Entry<String, AutoCompleter>> i = autoCompleters.entrySet().iterator(); i.hasNext(); ) {
+					Map.Entry<String, AutoCompleter> entry = i.next();
+					AutoCompleter ac = entry.getValue();
+					if (log.isTraceEnabled())
+						log.trace(String.format("AutoCompleter last accessed at %d", ac.getLastAccess()));
+					if (ac.getLastAccess() < cutoff) {
 						i.remove();
+						if (log.isDebugEnabled())
+							log.debug(String.format("cleaning up AutoCompleter %s", entry.getKey()));
 						ac.destroy();
 					}
 				}
 			}
 			// servlet is going down, so cleanup leftover AutoCompleters...
 			synchronized (autoCompleters) {
-				for (Iterator<AutoCompleter> i = autoCompleters.values().iterator(); i.hasNext(); ) {
-					AutoCompleter ac = i.next();
+				for (Iterator<Map.Entry<String, AutoCompleter>> i = autoCompleters.entrySet().iterator(); i.hasNext(); ) {
+					Map.Entry<String, AutoCompleter> entry = i.next();
+					AutoCompleter ac = entry.getValue();
 					i.remove();
+					if (log.isDebugEnabled())
+						log.debug(String.format("cleaning up AutoCompleter %s", entry.getKey()));
 					ac.destroy();
 				}
 			}
