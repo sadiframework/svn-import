@@ -378,7 +378,9 @@ $.SparqlAssistant.prototype.applyRemoteData = function(data) {
         if (item.data.label > data.label && next) {
             // onto the next element...
             return;
-        } else {
+        } else if (item.data.label == data.label && item.data.uri == data.uri) {
+        	$(this).addClass("sparqlassist-confirmed");
+        }else {
             if (item.data.label && item.data.value) {
                 // otherwise no point...
                 $li = ac.createListItem(item);
