@@ -1,9 +1,11 @@
 package ca.wilkinsonlab.sparqlassist;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,34 +35,30 @@ public class AutoCompleter
 		model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
 		updateLastAccess();
 	}
+
+	public void destroy()
+	{
+		model.close();
+	}
 	
 	public List<AutoCompleteMatch> processRequest(AutoCompleteRequest request)
 	{
 		updateLastAccess();
 		loadFromClauses(request.getSPARQL());
-		List<AutoCompleteMatch> results = new ArrayList<AutoCompleteMatch>();
-		Pattern query = Pattern.compile(Pattern.quote(request.getQuery()), Pattern.CASE_INSENSITIVE);
-		switch (request.getCategory()) {
-			case PROPERTY:
-				addMatchingProperties(query, results);
-				break;
-			case INDIVIDUAL:
-				addMatchingIndividuals(query, results);
-				break;
-			case NAMESPACE:
-				addMatchingNamespaces(query, results);
-				break;
-			case DEFAULT:
-				addMatchingIndividuals(query, results);
-				addMatchingProperties(query, results);
-				break;
+		List<AutoCompleteMatch> results = getMatches(request);
+		
+		// remove duplicates...
+		Set<String> seen = new HashSet<String>();
+		for (Iterator<AutoCompleteMatch> matches = results.iterator(); matches.hasNext(); ) {
+			AutoCompleteMatch match = matches.next();
+			String key = String.format("%s %s", match.getURI(), match.getLabel());
+				// works because URIs can't have spaces...
+			if (seen.contains(key))
+				matches.remove();
+			else
+				seen.add(key);
 		}
 		return results;
-	}
-
-	public void destroy()
-	{
-		model.close();
 	}
 	
 	public long getLastAccess()
@@ -71,6 +69,11 @@ public class AutoCompleter
 	protected void updateLastAccess()
 	{
 		lastAccess = System.currentTimeMillis();
+	}
+	
+	protected OntModel getModel()
+	{
+		return model;
 	}
 	
 	protected void loadFromClauses(String sparql)
@@ -92,7 +95,29 @@ public class AutoCompleter
 			}
 		}
 	}
-	
+
+	protected List<AutoCompleteMatch> getMatches(AutoCompleteRequest request)
+	{
+		List<AutoCompleteMatch> results;
+		results = new ArrayList<AutoCompleteMatch>();
+		Pattern query = Pattern.compile(Pattern.quote(request.getQuery()), Pattern.CASE_INSENSITIVE);
+		switch (request.getCategory()) {
+			case PROPERTY:
+				addMatchingProperties(query, results);
+				break;
+			case INDIVIDUAL:
+				addMatchingIndividuals(query, results);
+				break;
+			case NAMESPACE:
+				addMatchingNamespaces(query, results);
+				break;
+			case DEFAULT:
+				addMatchingIndividuals(query, results);
+				addMatchingProperties(query, results);
+				break;
+		}
+		return results;
+	}
 	
 	protected void addMatchingProperties(Pattern query, List<AutoCompleteMatch> results)
 	{
@@ -124,7 +149,7 @@ public class AutoCompleter
 					String text = label.getLexicalForm();
 					if (query.matcher(text).find()) {
 						results.add(new AutoCompleteMatch()
-							.setUri(subject.getURI())
+							.setURI(subject.getURI())
 							.setLabel(text)
 							.setDescription(getDescription(subject, label.getLanguage()))
 						);
@@ -141,7 +166,7 @@ public class AutoCompleter
 			for (Map.Entry<String, String> entry: model.getNsPrefixMap().entrySet()) {
 				if (query.matcher(entry.getKey()).find()) {
 					results.add(new AutoCompleteMatch()
-						.setUri(entry.getValue())
+						.setURI(entry.getValue())
 						.setLabel(entry.getKey())
 					);
 				}

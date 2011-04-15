@@ -15,7 +15,7 @@ public class AutoCompleteRequest
 	
 	public AutoCompleteRequest()
 	{
-		caret = 0;
+		caret = -1;
 	}
 
 	public String getQuery() { return query != null ? query: ""; }
@@ -27,7 +27,7 @@ public class AutoCompleteRequest
 	public String getSPARQL() { return sparql != null ? sparql : ""; }
 	public void setSPARQL(String sparql) { this.sparql = sparql; }
 
-	public int getCaret() { return caret; }
+	public int getCaret() { return caret < 0 ? getSPARQL().length() : caret; }
 	public void setCaret(int caret) { this.caret = caret; }
 	public void setCaret(String caret)
 	{
