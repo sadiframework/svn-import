@@ -45,8 +45,8 @@
     </form>
     <h2>Configuration</h2>
     <p>If you view the source of this web page, you'll see how SPARQL assist is configured.
-     This example is very simple.  It looks like this:
-    <pre>$(function() { <br>&nbsp;&nbsp;&nbsp;&nbsp;$(&quot;#queryBox&quot;).sparqlassist({ <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initNamespaces : &quot;resources/LSRN.json&quot;, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initPredicates : &quot;resources/props.json&quot; <br>&nbsp;&nbsp;&nbsp;&nbsp;}); <br>});</pre>
+     This example is fairly simple.  It looks like this:
+    <pre>$(function() { <br>&nbsp;&nbsp;&nbsp;&nbsp;$(&quot;#queryBox&quot;).sparqlassist({ <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initNamespaces : &quot;resources/LSRN.json&quot;, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;initPredicates : &quot;resources/props.json&quot;, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remotePredicates : &quot;autocomplete?category=predicates&quot;, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remoteNamespaces : &quot;autocomplete?category=namespaces&quot;, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;remoteIndividuals : &quot;autocomplete?category=individuals&quot; <br>&nbsp;&nbsp;&nbsp;&nbsp;}); <br>});</pre>
     <p>This configuration reads an initial vocabulary of properties from
      <span class='code'>resources/props.json</span> and an initial vocabulary
      of namespaces from <span class='code'>resources/LSRN.json</span>. Each of
@@ -56,6 +56,12 @@
     <p>Of these fields, <span class='code'>label</span> and one of
      <span class='code'>value</span> or <span class='code'>uri</span> are required.
      If <span class='code'>value</span> is missing, it will be computed from the URI.</p>
+    <p>In addition, this configuration fetches remote data from the included servlet.
+     The actual autocompletion duties are handled by the <code>ca.wilkinsonlab.sparqlassist.AutoCompleter</code>
+     class. This class loads any ontology named in a FROM clause of the SPARQL query and returns matching
+     properties, individuals or namespaces. More complicated behaviour can be implemented by extending 
+     this class and overriding one or more of the relevant methods. See below for more information about
+     remote data.</p>
     <p>The complete list of configuration options follows:</p>
     <dl style='background: #eee; padding: .25em;'>
       <dt class='code'>initNamespaces</dt>
@@ -105,8 +111,7 @@
       <dt class='code'>caret</dt>
         <dd>The position of the cursor in the SPARQL query</dd>
       <dt class='code'>id</dt>
-        <dd>An ID that should be unique to this particular instance of the web page.
-         Collisions are possible, but unlikely.</dd>
+        <dd>An ID that should be unique to this particular instance of the web page.</dd>
     </dl>
     <h3>More information</h3>
     <p>That's really it.  If you have other questions or bug reports, post them to the
