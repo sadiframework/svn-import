@@ -23,3 +23,36 @@ The steps (and items) needed to compile the SADI plugin for protege 4.1+.
 
 We have included some launch configurations to help you use the plugin while
 developing it. They can be found in the home directory of the plugin source code.
+
+***** HOW TO CREATE A RELEASE OF THE SADI PLUGIN *****
+
+1. CD into the root project directory (i.e. svn/trunk/sadi.protege/).
+
+2. Open build.xml and update the version properties as you see fit. For example, 
+to make a version 2.1.0 release, you would edit the build.xml as shown below:
+    <property name="major.version" value="2"/>
+    <property name="minor.version" value="1"/>
+    <property name="micro.version" value="0"/>
+
+3. Having saved and closed the build.xml file, you will need to now build the 
+project. From the console, type:
+
+    ant clean install
+
+this will compile your changes and create the sadi.protege.jar file. In addition,
+the update.properties file will also be updated. This file is used by protege to
+determine when it should notify users of a new version of the plugin.
+
+4. Update the version-info.txt file. This file holds the Change log for the SADI
+plugin. When users consider upgrading their version of the SADI plugin, this file
+will be shown to them.
+
+5. {optional} Test the plugin. Download the latest version of Protege (4.1+) and
+copy the sadi.protege.jar file into the plugins directory. Make sure that everything
+works as expected.
+
+6. Commit sadi.protege.jar, update.properties and version-info.txt to the SVN.
+Protege will notice that the plugin has changed and notify current users of the
+update. 
+
+  
