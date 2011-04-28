@@ -7,7 +7,7 @@
 
 = Details =
 
-Download the [http://code.google.com/p/sadi/downloads/detail?name=SHARE-client-0.0.5.jar SHARE command-line client].
+Download the [http://code.google.com/p/sadi/downloads/detail?name=SHARE-client-0.1.jar SHARE command-line client].
 
 Execute as follows:
 {{{
