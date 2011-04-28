@@ -11,5 +11,5 @@ Download the [http://code.google.com/p/sadi/downloads/detail?name=SHARE-client-0
 
 Execute as follows:
 {{{
-java -Xmx1024m -jar SHARE-0.0.5.jar </path/to/query.sparql
+java -Xmx1024m -jar SHARE-client-0.1.jar </path/to/query.sparql
 }}}
