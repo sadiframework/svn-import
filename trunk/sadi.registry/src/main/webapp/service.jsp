@@ -21,6 +21,8 @@
 		}
 	}
 %>
+<c:choose>
+  <c:when test='${service != null}'>
 <table class='service-detail'>
   <tr>
     <th>Name</th>
@@ -34,7 +36,7 @@
     <th>Properties attached</th>
     <td>
       <dl>
-       <c:forEach var="restriction" items="${service.restrictions}">
+       <c:forEach var="restriction" items="${service.restrictionBeans}">
         <dt><a href='${restriction.onPropertyURI}'><c:out value="${restriction.onPropertyLabel}" default="${restriction.onPropertyURI}"/></a></dt>
          <c:choose>
 	      <c:when test='${!empty restriction.valuesFromURI}'>
@@ -49,3 +51,8 @@
     </td>
   </tr>
 </table>
+  </c:when>
+  <c:otherwise>
+<p>No such service is registered.</p>
+  </c:otherwise>
+</c:choose>
