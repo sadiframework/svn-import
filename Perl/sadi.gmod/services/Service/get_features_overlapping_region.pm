@@ -56,12 +56,10 @@ use RDF::Query;
 use RDF::Trine::Parser;
 
 use Vocab::SIO;
-use Vocab::RangedSequencePosition;
 use Vocab::LSRN;
 use Vocab::Strand;
 
 use Utils::GMOD;
-use Utils::RangedSequencePosition;
 use Utils::Chado::Feature qw(
     is_double_stranded 
     get_feature_name
