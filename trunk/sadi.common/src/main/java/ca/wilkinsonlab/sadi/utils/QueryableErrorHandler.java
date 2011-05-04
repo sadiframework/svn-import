@@ -48,6 +48,8 @@ public class QueryableErrorHandler implements RDFErrorHandler
 	@Override
 	public void warning(Exception e)
 	{
+		if (e.getMessage().endsWith("A processing instruction is in RDF content. No processing was done."))
+			return;
 		log.warn(e);
 		lastWarning = e;
 	}

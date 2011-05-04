@@ -190,12 +190,12 @@ public class ServiceBean implements Serializable, ServiceDescription
 	 * @see ca.wilkinsonlab.sadi.ServiceDescription#getRestrictions()
 	 */
 	@Override
-	public Collection<RestrictionBean> getRestrictions()
+	public Collection<RestrictionBean> getRestrictionBeans()
 	{
 		return restrictions;
 	}
 
-	public void setRestrictions(Collection<RestrictionBean> restrictions)
+	public void setRestrictionBeans(Collection<RestrictionBean> restrictions)
 	{
 		this.restrictions = restrictions;
 	}
