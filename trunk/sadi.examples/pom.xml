@@ -32,6 +32,11 @@
   </build>
   <repositories>
   	<repository>
+  		<id>dev.biordf.net</id>
+  		<name>dev.biordf.net</name>
+  		<url>http://dev.biordf.net/maven</url>
+  	</repository>
+  	<repository>
     	<id>ebi-repo</id>
     	<name>ebi-repo</name>
     	<url>http://www.ebi.ac.uk/~maven/m2repo</url>
