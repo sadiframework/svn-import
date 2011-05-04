@@ -1,0 +1,32 @@
+PREFIX strand: <http://sadiframework.org/ontologies/GMOD/Strand.owl#>
+PREFIX sio: <http://semanticscience.org/resource/>
+
+SELECT ?ref_feature ?strand_type
+WHERE {
+
+   # Case 1): Reference feature is double-stranded.
+
+   {
+       <[% ref_sequence_uri %]>
+            a sio:SIO_000030; # 'sequence'
+            sio:SIO_000011 # p = 'is attribute of' 
+                [ a ?strand_type; # strand:PlusStrand or strand:MinusStrand
+                  sio:SIO_000093 ?ref_feature ] . # p = 'is proper part of'
+
+       FILTER (sameTerm(?strand_type, strand:PlusStrand) || sameTerm(?strand_type, strand:MinusStrand))
+   }
+    
+   UNION
+
+   # Case 2): Reference feature is single-stranded.
+
+   {
+        <[% ref_sequence_uri %]>
+            a sio:SIO_000030; # 'sequence'
+            sio:SIO_000011 ?ref_feature . # p = 'is attribute of'
+   }        
+
+   FILTER (isIRI(?ref_feature) && (!bound(?strand_type) || isIRI(?strand_type)))
+}
+
+

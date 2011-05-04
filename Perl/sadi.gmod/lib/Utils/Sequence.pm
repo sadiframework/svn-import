@@ -12,4 +12,8 @@ sub get_complementary_dna_sequence
     return $complement;
 }
 
+sub build_sequence_node
+{
+}
+
 1;
