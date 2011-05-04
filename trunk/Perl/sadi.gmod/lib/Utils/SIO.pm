@@ -5,7 +5,7 @@ use RDF::Core::Resource;
 use RDF::Core::Model;
 use RDF::Core::Constants qw(:rdf);
 use Vocab::SIO;
-use Utils::RDF;
+use Utils::RDF::Core;
 
 sub get_attribute_values
 {
@@ -16,8 +16,8 @@ sub get_attribute_values
     my @values = ();
     
     foreach my $attributeNode (@{$model->getObjects($root, $predicate)}) {
-        next unless Utils::RDF::is_resource($attributeNode);
-        foreach my $value (@{$model->getObjects(Utils::RDF::as_resource($attributeNode), $Vocab::SIO::HAS_VALUE)}) {
+        next unless Utils::RDF::Core::is_resource($attributeNode);
+        foreach my $value (@{$model->getObjects(Utils::RDF::Core::as_resource($attributeNode), $Vocab::SIO::HAS_VALUE)}) {
             push @values, $value->getLabel if $value->isLiteral;
         }
     }

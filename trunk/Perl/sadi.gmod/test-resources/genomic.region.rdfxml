@@ -1,0 +1,47 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:range="http://sadiframework.org/ontologies/GMOD/RangedSequencePosition.owl#"
+    xmlns:strand="http://sadiframework.org/ontologies/GMOD/Strand.owl#"
+    xmlns:RefSeq="http://lsrn.org/RefSeq:"
+    xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:region="http://sadiframework.org/ontologies/GMOD/BiopolymerRegion.owl#"
+    xmlns:so="http://purl.org/obo/owl/SO#"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <region:BiopolymerRegion rdf:about="http://unresolvable/region">
+    <sio:SIO_000008>
+      <range:RangedSequencePosition>
+        <range:in_relation_to>
+          <sio:SIO_000030>
+            <sio:SIO_000011>
+              <strand:PlusStrand>
+                <sio:SIO_000093>
+                  <rdf:Description rdf:about="http://lsrn.org/RefSeq:NC_001133">
+                    <sio:SIO_000008>
+                      <lsrn:RefSeq_Identifier>
+                        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+                        >NC_001133</sio:SIO_000300>
+                      </lsrn:RefSeq_Identifier>
+                    </sio:SIO_000008>
+                  </rdf:Description>
+                </sio:SIO_000093>
+              </strand:PlusStrand>
+            </sio:SIO_000011>
+          </sio:SIO_000030>
+        </range:in_relation_to>
+        <sio:SIO_000053>
+          <range:StartPosition>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+            >140000</sio:SIO_000300>
+          </range:StartPosition>
+        </sio:SIO_000053>
+        <sio:SIO_000053>
+          <range:EndPosition>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger"
+            >141000</sio:SIO_000300>
+          </range:EndPosition>
+        </sio:SIO_000053>
+      </range:RangedSequencePosition>
+    </sio:SIO_000008>
+  </region:BiopolymerRegion>
+</rdf:RDF>

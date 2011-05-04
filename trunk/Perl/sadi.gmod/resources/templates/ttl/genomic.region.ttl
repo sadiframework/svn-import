@@ -1,0 +1,32 @@
+@prefix region: <http://sadiframework.org/ontologies/GMOD/BiopolymerRegion.owl#> .
+@prefix range: <http://sadiframework.org/ontologies/GMOD/RangedSequencePosition.owl#> .
+@prefix strand: <http://sadiframework.org/ontologies/GMOD/Strand.owl#> .
+
+@prefix FlyBase_Annotation: <http://lsrn.org/FlyBase_Annotation:> .
+
+@prefix lsrn: <http://purl.oclc.org/SADI/LSRN/> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix so: <http://purl.org/obo/owl/SO#> .
+
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://unresolvable/region>
+     a region:BiopolymerRegion;
+     sio:SIO_000008 # 'has attribute'
+        [ a range:RangedSequencePosition;
+          range:in_relation_to _:ref_sequence; 
+          sio:SIO_000053 [ a range:StartPosition; sio:SIO_000300 "9333205"^^xsd:nonNegativeInteger ]; # p = 'has proper part'
+          sio:SIO_000053 [ a range:EndPosition; sio:SIO_000300 "9333814"^^xsd:nonNegativeInteger ] # p = 'has proper part'
+        ] .
+      
+_:ref_sequence 
+    a sio:SIO_000030; # o = 'sequence'
+    sio:SIO_000011 # 'is attribute of'
+        [ a strand:PlusStrand; 
+          sio:SIO_000093 FlyBase_Annotation:2R ] . # p = 'is proper part of'
+
+FlyBase_Annotation:2R # chromosome arm 2R
+     sio:SIO_000008 # 'has attribute' 
+        [ a lsrn:FlyBase_Annotation_Identifier;
+          sio:SIO_000300 "2R"^^xsd:string ] . # p = 'has value'
+ 

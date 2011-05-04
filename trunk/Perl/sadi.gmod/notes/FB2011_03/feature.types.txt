@@ -1,0 +1,87 @@
+SELECT DISTINCT v.name
+FROM feature f
+     INNER JOIN cvterm v ON (f.type_id = v.cvterm_id);
+
+                     name                      
+-----------------------------------------------
+ BAC_cloned_genomic_insert
+ CDS
+ DNA
+ DNA_motif
+ DNA_segment
+ EST
+ Muller_element
+ RNAi_reagent
+ RepeatMasker:dummy
+ aberration_junction
+ alignment
+ bogus symbol
+ breakpoint
+ cDNA
+ cDNA_clone
+ chromosome
+ chromosome_arm
+ chromosome_band
+ chromosome_structure_variation
+ complex_substitution
+ contig
+ deletion
+ engineered_construct
+ enhancer
+ exon
+ exon_junction
+ five_prime_untranslated_region
+ gene
+ genomic_clone
+ golden_path_region
+ insertion_site
+ insulator
+ intergenic_region
+ intron
+ mRNA
+ match
+ matrix_attachment_site
+ mature_peptide
+ miRNA
+ misc. non-coding RNA
+ miscellaneous curator's observation
+ natural_transposable_element
+ natural_transposon_isolate_named
+ ncRNA
+ oligo
+ oligonucleotide
+ orthologous_region
+ pcr_product
+ point_mutation
+ polyA_site
+ polypeptide_domain
+ pre_miRNA
+ processed_transcript
+ protein
+ protein_binding_site
+ pseudogene
+ rRNA
+ region
+ regulatory_region
+ remark
+ repeat_region
+ rescue_fragment
+ sequence_variant
+ signal_peptide
+ single balancer
+ snRNA
+ snoRNA
+ so
+ syntenic_region
+ tRNA
+ tandem_repeat
+ three_prime_untranslated_region
+ transgenic_transposon
+ transposable_element
+ transposable_element_flanking_region
+ transposable_element_insertion_site
+ transposable_element_target_site_duplication
+ ultra_scaffold
+ uncharacterized_change_in_nucleotide_sequence
+(79 rows)
+
