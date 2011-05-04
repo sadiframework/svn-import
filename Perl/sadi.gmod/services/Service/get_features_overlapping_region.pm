@@ -79,6 +79,8 @@ use Utils::Chado::Dbxref qw(
 
 use Utils::RDF::Trine;
 use Utils::RDF::Query qw(build_query execute_query);
+use Utils::RDF::Core;
+
 use constant::boolean;
 
 use constant GMOD_CONF_FILE => 'sadi.gmod.conf';
