@@ -1,0 +1,77 @@
+#summary Building parameterized services.
+
+= Examples using 0.1.1-SNAPSHOT =
+
+== Synchronous parameterized services ==
+
+Extend `SynchronousServiceServlet` and override `processInput(Resource, Resource, Resource)`:
+
+{{{
+public class MyParameterizedSynchronousServiceServlet extends SynchronousServiceServlet
+{
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.SynchronousServiceServlet#processInput(com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource)
+	 */
+	@Override
+	public void processInput(Resource input, Resource output, Resource parameters)
+	{
+		...
+	}
+}
+}}}
+
+Working example in sadi.examples: [http://code.google.com/p/sadi/source/browse/trunk/sadi.examples/src/main/java/ca/wilkinsonlab/sadi/service/example/ParameterizedHelloWorldServiceServlet.java ParameterizedHelloWorldServiceServlet]
+
+For bulk processing, extend `SynchronousServiceServlet` and override `processInput(ServiceCall)`:
+ 
+{{{
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#processInput(ca.wilkinsonlab.sadi.service.ServiceCall)
+	 */
+	@Override
+	protected void processInput(ServiceCall call) throws Exception
+	{
+		Model inputModel = call.getInputModel();
+		Model outputModel = call.getOutputModel();
+		Collection<Resource> inputNodes = call.getInputNodes();
+		Resource parameters = call.getParameters();
+		...
+	}
+}}}
+
+== Asynchronous parameterized services ==
+
+Extend `AsynchronousServiceServlet` and override `processInput(Resource, Resource, Resource)`:
+
+{{{
+public class MyParameterizedAsynchronousServiceServlet extends AsynchronousServiceServlet
+{
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet#processInput(com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource)
+	 */
+	@Override
+	public void processInput(Resource input, Resource output, Resource parameters)
+	{
+		...
+	}
+}
+}}}
+
+For bulk processing, extend `AsynchronousServiceServlet` and override `processInputBatch(ServiceCall)`:
+
+{{{
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet#processInputBatch(ca.wilkinsonlab.sadi.service.ServiceCall)
+	 */
+	@Override
+	protected void processInputBatch(ServiceCall call)
+	{
+		Model inputModel = call.getInputModel();
+		Model outputModel = call.getOutputModel();
+		Collection<Resource> inputNodes = call.getInputNodes();
+		Resource parameters = call.getParameters();
+		...
+	}
+}}}
+
+Working example in sadi.examples: [http://code.google.com/p/sadi/source/browse/trunk/sadi.examples/src/main/java/ca/wilkinsonlab/sadi/service/example/AsyncParameterizedHelloWorldServiceServlet.java AsyncParameterizedHelloWorldServiceServlet]
