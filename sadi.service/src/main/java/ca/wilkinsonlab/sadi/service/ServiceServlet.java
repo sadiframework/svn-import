@@ -109,99 +109,6 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	private boolean ignoreForcedURL;
 	
-//	/* In most cases, the service URI in the description will be null, in which case the
-//	 * service model is constructed with a root node whose URI is "" (and 
-//	 * the service URI URL the service model is retrieved from will be the service URI).
-//	 * In some cases, probably involving baroque network configurations,
-//	 * it might be necessary to supply an explicit service URI.
-//	 */
-//	serviceUrl = (System.getProperty("sadi.service.ignoreForcedURL") != null) ?
-//			null : config.getString("url");		String serviceModelUrl = config.getString("rdf");
-//	
-//	if (serviceModelUrl != null) {
-//		try {
-//			/* if serviceModelUrl is a valid URL, read from that URL;
-//			 * if not, assume it is a location relative to the classpath...
-//			 */
-//			try {
-//				serviceModel.read(new URL(serviceModelUrl).toString());
-//				log.debug(String.format("read service model from URL %s", serviceModelUrl));
-//			} catch (MalformedURLException e) {
-//				log.debug(String.format("reading service model from classpath location %s", serviceModelUrl));
-//				serviceModel.read(getClass().getResourceAsStream(serviceModelUrl), StringUtils.defaultString(serviceUrl));
-//			}
-//			if (errorHandler.hasLastError())
-//				throw errorHandler.getLastError();
-//			
-//			serviceDescription = getServiceOntologyHelper().getServiceDescription(serviceModel.getResource(serviceUrl));
-//		} catch (Exception e) {
-//			throw new ServletException(String.format("error reading service definition from %s: %s", serviceModelUrl, e.toString()));
-//		}
-//	} else {
-//		try {
-//			/* create the service model from the information in the config...
-//			 */
-//			log.trace("creating service description model");
-//			ServiceBean serviceDescription = new ServiceBean();
-//			serviceDescription.setURI(serviceUrl == null ? "" : serviceUrl);
-//			serviceDescription.setName(config.getString("name", "noname"));
-//			serviceDescription.setDescription(config.getString("description", "no description"));
-//			serviceDescription.setInputClassURI(config.getString("inputClass"));
-//			serviceDescription.setOutputClassURI(config.getString("outputClass"));
-//			getServiceOntologyHelper().createServiceNode(serviceDescription, serviceModel);
-//			this.serviceDescription = serviceDescription;
-//		} catch (ServiceOntologyException e) {
-//			throw new ServletException("error creating service definition from configuration: " + e.toString(), e);
-//		}
-//	}
-//	
-//	log.trace("creating service ontology model");
-//	ontologyModel = createOntologyModel();
-//	
-//	try {
-//		inputClass = loadInputClass();
-//	} catch (Exception e) {
-//		throw new ServletException("error loading input class: " + e.toString(), e);
-//	}
-//	
-//	try {
-//		outputClass = loadOutputClass();
-//	} catch (Exception e) {
-//		throw new ServletException("error loading input class: " + e.toString(), e);
-//	}
-//	
-//	protected OntModel createOntologyModel()
-//	{
-//		/* according to the SADI spec, input nodes are explicitly typed, so
-//		 * we don't need any reasoning here...
-//		 */
-//		OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
-//		model.getReader().setErrorHandler(errorHandler);
-//		return model;
-//	}
-//	
-//	protected OntClass loadInputClass() throws Exception
-//	{
-//		String inputClassUri = serviceDescription.getInputClassURI();
-//		OwlUtils.loadOntologyForUri(ontologyModel, inputClassUri);
-//		OntClass inputClass = ontologyModel.getOntClass(inputClassUri);
-//		if (errorHandler.hasLastError())
-//			throw errorHandler.getLastError();
-//		else
-//			return inputClass;
-//	}
-//	
-//	protected OntClass loadOutputClass() throws Exception
-//	{
-//		String outputClassUri = serviceDescription.getOutputClassURI();
-//		OwlUtils.loadOntologyForUri(ontologyModel, outputClassUri);
-//		outputClass = ontologyModel.getOntClass(outputClassUri);
-//		if (errorHandler.hasLastError())
-//			throw errorHandler.getLastError();
-//		else
-//			return outputClass;
-//	}
-	
 	@Override
 	public void init() throws ServletException
 	{
@@ -300,24 +207,20 @@ public abstract class ServiceServlet extends HttpServlet
 		call.setRequest(request);
 		call.setResponse(response);
 		
-		Model inputModel = null;
-		Model outputModel = null;
 		try {
-			inputModel = readInput(request);
+			Model inputModel = readInput(request);
 			call.setInputModel(inputModel);
 			call.setInputNodes(inputModel.listResourcesWithProperty(RDF.type, getInputClass()).toList());
-			outputModel = prepareOutputModel(inputModel);
+			Model outputModel = prepareOutputModel(inputModel);
 			call.setOutputModel(outputModel);
 			Resource parameters = createParameters(inputModel);
 			call.setParameters(parameters);
 			processInput(call);
 			outputSuccessResponse(response, call.getOutputModel());
+			cleanupServiceCall(call);
 		} catch (Exception e) {
 			outputErrorResponse(response, e);
-			if (inputModel != null)
-				closeInputModel(inputModel);
-			if (outputModel != null)
-				closeOutputModel(outputModel);
+			cleanupServiceCall(call);
 		}
 	}
 
@@ -344,7 +247,6 @@ public abstract class ServiceServlet extends HttpServlet
 	 */
 	protected void processInput(ServiceCall call) throws Exception
 	{
-		
 		// populate parameter instance, list of input instances, etc.
 	}
 	
@@ -471,6 +373,14 @@ public abstract class ServiceServlet extends HttpServlet
 	{
 		model.close();
 		log.trace(String.format("closed output model %s", model.hashCode()));
+	}
+
+	protected void cleanupServiceCall(ServiceCall call)
+	{
+		if (call.getInputModel() != null)
+			closeInputModel(call.getInputModel());
+		if (call.getOutputModel() != null)
+			closeOutputModel(call.getOutputModel());
 	}
 	
 	protected ServiceOntologyHelper getServiceOntologyHelper()

@@ -42,7 +42,7 @@ public class EntrezGene2UniProtServiceServletTest extends ServiceServletTestBase
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi-examples/entrezGene2Uniprot";
+		return "http://localhost:8180/sadi-examples/entrezGene2Uniprot";
 	}
 
 	@Override

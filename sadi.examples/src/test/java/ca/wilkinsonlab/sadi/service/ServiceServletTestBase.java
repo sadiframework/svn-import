@@ -29,7 +29,7 @@ public abstract class ServiceServletTestBase extends TestCase
 {
 	private static final Log log = LogFactory.getLog(ServiceServletTestBase.class);
 	static String uriPrefix = "http://sadiframework.org/examples/";
-	static String altPrefix = "http://localhost:8080/sadi-examples/";
+	static String altPrefix = "http://localhost:8180/sadi-examples/";
 	
 	protected Model getInputModel()
 	{

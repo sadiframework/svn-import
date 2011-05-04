@@ -20,6 +20,8 @@ import ca.wilkinsonlab.sadi.vocab.SADI;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.ResourceUtils;
+import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 public abstract class AsynchronousServiceServlet extends ServiceServlet
@@ -72,6 +74,10 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#outputSuccessResponse(javax.servlet.http.HttpServletResponse, com.hp.hpl.jena.rdf.model.Model)
+	 */
+	@Override
 	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
 	{
 		response.setStatus(HttpServletResponse.SC_ACCEPTED);
@@ -98,9 +104,6 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	@Override
 	protected void processInput(ServiceCall call)
 	{
-		Model inputModel = call.getInputModel();
-		Model outputModel = call.getOutputModel();
-		
 		for (Iterator<Collection<Resource>> batches = getInputBatches(call); batches.hasNext(); ) {
 			Collection<Resource> batch = batches.next();
 			
@@ -115,24 +118,31 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 				newBatch.add(inputNode.inModel(subInputModel).as(Resource.class));
 			}
 			
+			/* add secondary parameters to the input model...
+			 */
+			Resource parameters = call.getParameters();
+			subInputModel.add(ResourceUtils.reachableClosure(parameters));
+			parameters = parameters.inModel(subInputModel);
+			
 			/* process each input batch in it's own task thread...
 			 */
-			InputProcessingTask task = getInputProcessingTask(subInputModel, newBatch);
+			ServiceCall batchCall = new ServiceCall();
+			batchCall.setInputModel(subInputModel);
+			batchCall.setInputNodes(newBatch);
+			batchCall.setOutputModel(createOutputModel());
+			batchCall.setParameters(parameters);
+			InputProcessingTask task = getInputProcessingTask(batchCall);
 			TaskManager.getInstance().startTask(task);
 			
 			/* add the poll location data to the output that will be returned immediately...
 			 */
+			Model outputModel = call.getOutputModel();
 			Resource pollResource = outputModel.createResource(getPollUrl(call.getRequest(), task.getId()));
 			for (Resource inputNode: newBatch) {
 				Resource outputNode = outputModel.getResource(inputNode.getURI());
 				outputNode.addProperty(RDFS.isDefinedBy, pollResource);
 			}
 		}
-	
-		/* input model is partitioned among the input processing tasks, so
-		 * we can dispose of it here...
-		 */
-		closeInputModel(inputModel);
 	}
 	
 	protected String getPollUrl(HttpServletRequest request, String taskId)
@@ -172,36 +182,85 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		}
 	}
 	
-	protected abstract InputProcessingTask getInputProcessingTask(Model inputModel, Collection<Resource> inputNodes);
-	
-	protected abstract class InputProcessingTask extends Task
+	/**
+	 * Process an input batch, reading properties from input nodes and
+	 * creating corresponding output nodes.
+	 * @param call a ServiceCall representing the input batch
+	 */
+	protected void processInputBatch(ServiceCall call)
 	{
-		protected Model inputModel;
-		protected Collection<Resource> inputNodes;
-		protected Model outputModel;
-		
-		public InputProcessingTask(Model inputModel, Collection<Resource> inputNodes)
-		{
-			this.inputModel = inputModel;
-			this.inputNodes = inputNodes;
-			outputModel = createOutputModel();
+		Resource parameters = call.getParameters();
+		boolean needsParameters = !parameters.hasProperty(RDF.type, OWL.Nothing);
+		for (Resource inputNode: call.getInputNodes()) {
+			Resource outputNode = call.getOutputModel().getResource(inputNode.getURI());
+			if (needsParameters)
+				processInput(inputNode, outputNode, parameters);
+			else
+				processInput(inputNode, outputNode);
 		}
+	}
+	
+	/**
+	 * Process a single input, reading properties from an input node and 
+	 * attaching properties to the corresponding output node.
+	 * @param input the input node
+	 * @param output the output node
+	 */
+	public void processInput(Resource input, Resource output)
+	{
+	}
+	
+	/**
+	 * Process a single input, reading properties from an input node and 
+	 * attaching properties to the corresponding output node.
+	 * @param input the input node
+	 * @param output the output node
+	 * @param parameters the populated parameters object
+	 */
+	public void processInput(Resource input, Resource output, Resource parameters)
+	{
+	}
+	
+	/**
+	 * Create a new InputProcessingTask from the specified ServiceCall.
+	 * Note that this ServiceCall will not have valid 
+	 * @param call
+	 * @return
+	 */
+	protected InputProcessingTask getInputProcessingTask(ServiceCall call)
+	{
+		return new InputProcessingTask(call);
+	}
+	
+	protected class InputProcessingTask extends Task
+	{
+		protected ServiceCall call;
 		
+		public InputProcessingTask(ServiceCall call)
+		{
+			this.call = call;
+		}
+
 		public void dispose()
 		{
-			inputNodes.clear();
-			closeInputModel(inputModel);
-			closeOutputModel(outputModel);
-		}
-		
-		public Collection<Resource> getInputNodes()
-		{
-			return inputNodes;
+			call.getInputNodes().clear();
+			closeInputModel(call.getInputModel());
+			closeOutputModel(call.getOutputModel());
 		}
 		
 		public Model getOutputModel()
 		{
-			return outputModel;
+			return call.getOutputModel();
+		}
+
+		/* (non-Javadoc)
+		 * @see java.lang.Runnable#run()
+		 */
+		@Override
+		public void run()
+		{
+			processInputBatch(call);
+			success();
 		}
 	}
 }

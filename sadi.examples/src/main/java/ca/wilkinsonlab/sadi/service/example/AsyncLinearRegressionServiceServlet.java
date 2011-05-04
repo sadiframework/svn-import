@@ -7,15 +7,10 @@ import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
-@SuppressWarnings("serial")
 public class AsyncLinearRegressionServiceServlet extends SimpleAsynchronousServiceServlet
 {
+	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(AsyncLinearRegressionServiceServlet.class);
-	
-	public AsyncLinearRegressionServiceServlet()
-	{
-		super();
-	}
 	
 	public void processInput(Resource input, Resource output)
 	{

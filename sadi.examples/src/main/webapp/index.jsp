@@ -53,7 +53,7 @@
           <li><a href="entrezGene2Kegg">Maps Entrez Gene IDs to KEGG gene IDs</a></li>
           <li><a href="keggGene2EntrezGene">Maps KEGG gene IDs to Entrez Gene IDs</a></li>
         </ul>
-        <p>updated Mon 14 Mar 2011 11:22:48 PDT</p>
+        <p>updated Wed  4 May 2011 14:50:02 PDT</p>
         </div> <!-- content -->
         <div id='footer'>
           <img class="sponsor" style="margin-top: 10px;" src="http://sadiframework.org/images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>

@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import ca.wilkinsonlab.sadi.service.SynchronousServiceServlet;
 import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.Description;
 import ca.wilkinsonlab.sadi.service.annotations.InputClass;
@@ -7,7 +8,6 @@ import ca.wilkinsonlab.sadi.service.annotations.Name;
 import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
 import ca.wilkinsonlab.sadi.service.annotations.ParameterClass;
 import ca.wilkinsonlab.sadi.service.annotations.ParameterDefaults;
-import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -31,19 +31,17 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 @OutputClass("http://sadiframework.org/examples/hello.owl#GreetedIndividual")
 @ParameterClass("http://sadiframework.org/examples/hello.owl#SecondaryParameters")
 @ParameterDefaults({"http://sadiframework.org/examples/hello.owl#lang, http://www.w3.org/2001/XMLSchema#string", "en"})
-public class ParameterizedHelloWorldServiceServlet extends SimpleSynchronousServiceServlet
+public class ParameterizedHelloWorldServiceServlet extends SynchronousServiceServlet
 {
 	private static final long serialVersionUID = 1L;
 
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet#processInput(com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource)
+	 * @see ca.wilkinsonlab.sadi.service.SynchronousServiceServlet#processInput(com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource)
 	 */
 	@Override
-	public void processInput(Resource input, Resource output)
+	public void processInput(Resource input, Resource output, Resource parameters)
 	{
 		String name = input.getProperty(FOAF.name).getString();
-		
-		Resource parameters = getParameters();
 		String lang = parameters.getProperty(Vocab.lang).getString();
 		String greeting = null;
 		if (lang.equalsIgnoreCase("fr"))

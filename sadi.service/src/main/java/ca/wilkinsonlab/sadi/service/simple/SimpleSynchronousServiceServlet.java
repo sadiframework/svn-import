@@ -1,9 +1,8 @@
 package ca.wilkinsonlab.sadi.service.simple;
 
-import com.hp.hpl.jena.rdf.model.Resource;
-
-import ca.wilkinsonlab.sadi.service.ServiceCall;
 import ca.wilkinsonlab.sadi.service.SynchronousServiceServlet;
+
+import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * @author Luke McCarthy
@@ -12,19 +11,9 @@ public abstract class SimpleSynchronousServiceServlet extends SynchronousService
 {
 	private static final long serialVersionUID = 1L;
 	
-	private Resource parameters;
-	public Resource getParameters()
-	{
-		return parameters;
-	}
-	
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.SynchronousServiceServlet#processInput(com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource)
+	 */
 	@Override
-	public void processInput(ServiceCall call) throws Exception
-	{
-		synchronized (this) {
-			parameters = call.getParameters();
-			super.processInput(call);
-			parameters = null;
-		}
-	}
+	public abstract void processInput(Resource input, Resource output);
 }

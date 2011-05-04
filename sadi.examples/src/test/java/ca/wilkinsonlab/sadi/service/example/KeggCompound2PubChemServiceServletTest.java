@@ -32,7 +32,7 @@ public class KeggCompound2PubChemServiceServletTest extends ServiceServletTestBa
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi-examples/keggCompound2PubChem";
+		return "http://localhost:8180/sadi-examples/keggCompound2PubChem";
 	}
 
 	@Override

@@ -32,7 +32,7 @@ public class KeggPathway2CompoundServiceServletTest extends ServiceServletTestBa
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi-examples/keggPathway2Compound";
+		return "http://localhost:8180/sadi-examples/keggPathway2Compound";
 	}
 
 	@Override
