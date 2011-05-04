@@ -242,6 +242,17 @@ public class Registry
 	}
 	
 	/**
+	 * Returns true if the registry contains the specified service,
+	 * false otherwise.
+	 * @param serviceURI
+	 * @return true if the registry contains the specified service, false otherwise
+	 */
+	public boolean containsService(String serviceURI)
+	{
+		return getServiceBean(serviceURI) != null;
+	}
+	
+	/**
 	 * Returns a bean describing the specified registered service, 
 	 * or null if the service is not registered.
 	 * @param serviceURI

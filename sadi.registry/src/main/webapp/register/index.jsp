@@ -1,24 +1,47 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sadi" uri="/WEB-INF/sadi.tld" %>
 <%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="ca.wilkinsonlab.sadi.SADIException" %>
 <%@ page import="ca.wilkinsonlab.sadi.beans.ServiceBean" %>
+<%@ page import="ca.wilkinsonlab.sadi.client.ServiceConnectionException" %>
+<%@ page import="ca.wilkinsonlab.sadi.client.ServiceImpl" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.utils.Twitter" %>
 <%@ page import="ca.wilkinsonlab.sadi.service.validation.*" %>
 <%
+	boolean doValidate = request.getParameter("ignoreWarnings") == null;
+	boolean doRegister = true;
+	boolean doTweet = Registry.getConfig().getBoolean("sendTweets", false);
+	
 	String serviceURI = request.getParameter("serviceURI");
 	if (serviceURI != null) {
 		Logger log = Logger.getLogger("ca.wilkinsonlab.sadi.registry");
 		Registry registry = null;
 		try {
 			registry = Registry.getRegistry();
-			boolean doValidate = request.getParameter("ignoreWarnings") == null;
-			boolean doRegister = true;
-			boolean doTweet = Registry.getConfig().getBoolean("sendTweets", false) &&
-			                  registry.getServiceBean(serviceURI) == null; // only new services
+			
+			ServiceImpl service = null;
+			try {
+				service = new ServiceImpl(serviceURI);
+			} catch (ServiceConnectionException e) {
+				if (registry.containsService(serviceURI)) {
+					doValidate = false;
+					doRegister = false;
+					registry.unregisterService(serviceURI);
+					
+					ServiceBean serviceBean = new ServiceBean();
+					serviceBean.setURI(serviceURI);
+					request.setAttribute("service", serviceBean);
+					request.setAttribute("unregister", true);
+				} else {
+					throw e;
+				}
+			} // other exceptions thrown to outer...
+			
 			
 			if (doValidate) {
-				ValidationResult result = ServiceValidator.validateService(serviceURI);
+				// TODO replace with validateService(service) once we update the API...
+				ValidationResult result = ServiceValidator.validateService(service.getServiceModel().getResource(serviceURI));
 				request.setAttribute("service", result.getService());
 				request.setAttribute("warnings", result.getWarnings());
 				if (!result.getWarnings().isEmpty()) {
@@ -27,11 +50,12 @@
 			}
 			
 			if (doRegister) {
-				ServiceBean service = registry.registerService(serviceURI);
-				pageContext.setAttribute("service", service);
+				doTweet &= registry.containsService(serviceURI); // only tweet new services
+				ServiceBean serviceBean = registry.registerService(serviceURI);
+				request.setAttribute("service", serviceBean);
 				if (doTweet) {
 					try {
-						Twitter.tweetService(service);
+						Twitter.tweetService(serviceBean);
 					} catch (final Exception e) {
 						log.error(String.format("error tweeting registration of %s: %s", serviceURI, e));
 					}
@@ -85,7 +109,7 @@
 	      </div>
     </c:when>
 	<c:otherwise>
-	  <c:choose>     
+	  <c:choose>   
 	    <c:when test='${warnings != null and not empty warnings}'>
 	      <jsp:include page="../validate/warnings.jsp"/>
 	      <div id='validation-form'>
@@ -96,6 +120,12 @@
 	        </form>
 	      </div> 
 	    </c:when>
+	    <c:when test='${unregister == true}'>
+	      <div id='registration-success'>
+	        <h3>Success</h3>
+	        <p>Successfully unregistered the service at <a href='${service.URI}'>${service.URI}</a>.</p>
+	      </div>
+    	</c:when>
 	    <c:otherwise>
 	      <div id='registration-success'>
 	        <h3>Success</h3>
