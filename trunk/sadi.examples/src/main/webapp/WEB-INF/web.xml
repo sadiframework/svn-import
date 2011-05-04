@@ -22,6 +22,11 @@
   </servlet>
   
   <servlet>
+    <servlet-name>hello-param-async</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.AsyncParameterizedHelloWorldServiceServlet</servlet-class>
+  </servlet>
+  
+  <servlet>
     <servlet-name>linear</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.LinearRegressionServiceServlet</servlet-class>
   </servlet>
@@ -144,6 +149,11 @@
   <servlet-mapping>
     <servlet-name>hello-param</servlet-name>
     <url-pattern>/hello-param</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>hello-param-async</servlet-name>
+    <url-pattern>/hello-param-async</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
