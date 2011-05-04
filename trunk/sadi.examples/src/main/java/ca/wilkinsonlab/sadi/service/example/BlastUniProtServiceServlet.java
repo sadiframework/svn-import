@@ -16,6 +16,10 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastData;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastHit;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastInput;
+import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
+import ca.wilkinsonlab.sadi.utils.SIOUtils;
+import ca.wilkinsonlab.sadi.vocab.Properties;
+import ca.wilkinsonlab.sadi.vocab.SIO;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -23,11 +27,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.vocabulary.OWL;
-
-import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
-import ca.wilkinsonlab.sadi.utils.SIOUtils;
-import ca.wilkinsonlab.sadi.vocab.Properties;
-import ca.wilkinsonlab.sadi.vocab.SIO;
 
 /**
  * BLAST an amino acid sequence against the UniProt database,
@@ -50,7 +49,7 @@ import ca.wilkinsonlab.sadi.vocab.SIO;
  * @author Ben Vandervalk
  */
 @SuppressWarnings("serial")
-public class BlastUniProtServiceServlet extends AsynchronousServiceServlet 
+public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet 
 {
 	private static final Log log = LogFactory.getLog(BlastUniProtServiceServlet.class);
 	private static final int BLAST_POLLING_INTERVAL = 5000;
@@ -74,14 +73,8 @@ public class BlastUniProtServiceServlet extends AsynchronousServiceServlet
 		public static final Resource UniProt_Type = ResourceFactory.createResource(LSRN_PREFIX + "UniProt_Record");
 		public static final Resource UniProt_Identifier = ResourceFactory.createResource(LSRN_PREFIX + "UniProt_Identifier");
 	}
-	
-	@Override
-	protected InputProcessingTask getInputProcessingTask(Model inputModel, Collection<Resource> inputNodes) 
-	{
-		return new BlastInputProcessingTask(inputModel, inputNodes);
-	}
 
-	private void processInput(Resource input, Resource output)
+	public void processInput(Resource input, Resource output)
 	{
 		log.info(String.format("processing input %s", input.getURI()));
 		
@@ -196,22 +189,4 @@ public class BlastUniProtServiceServlet extends AsynchronousServiceServlet
 	{
 		return String.format("%s%s", Vocab.OLD_UNIPROT_PREFIX, uniprotId);
 	}
-	
-	protected class BlastInputProcessingTask extends InputProcessingTask
-	{	
-		public BlastInputProcessingTask(Model inputModel, Collection<Resource> inputNodes)
-		{
-			super(inputModel, inputNodes);
-		}
-
-		public void run()
-		{
-			for(Resource inputNode : inputNodes) {
-				Resource outputNode = outputModel.getResource(inputNode.getURI());
-				processInput(inputNode, outputNode);
-			}
-			success();
-		}
-	}
-
 }

@@ -23,7 +23,7 @@ public class Pdb2UniProtServiceServlet extends SimpleAsynchronousServiceServlet
 	private static final Log log = LogFactory.getLog(Pdb2UniProtServiceServlet.class);
 	
 	@Override
-	protected void processInput(Resource input, Resource output) 
+	public void processInput(Resource input, Resource output) 
 	{
 		String pdbId = ServiceUtils.getDatabaseId(input, LSRN.PDB);
 

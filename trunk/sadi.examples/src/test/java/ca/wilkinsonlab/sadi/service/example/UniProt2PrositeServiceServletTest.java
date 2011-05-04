@@ -32,7 +32,7 @@ public class UniProt2PrositeServiceServletTest extends ServiceServletTestBase
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi-examples/uniprot2prosite";
+		return "http://localhost:8180/sadi-examples/uniprot2prosite";
 	}
 
 	@Override

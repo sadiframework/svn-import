@@ -32,7 +32,7 @@ public class KeggGene2EntrezGeneServiceServletTest extends ServiceServletTestBas
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi-examples/keggGene2EntrezGene";
+		return "http://localhost:8180/sadi-examples/keggGene2EntrezGene";
 	}
 
 	@Override

@@ -36,7 +36,7 @@ public class ParameterizedHelloWorldServiceServletTest extends ServiceServletTes
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi-examples/hello";
+		return "http://localhost:8180/sadi-examples/hello";
 	}
 
 	@Override

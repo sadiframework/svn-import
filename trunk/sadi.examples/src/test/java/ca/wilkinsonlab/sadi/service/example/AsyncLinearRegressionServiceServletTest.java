@@ -49,7 +49,7 @@ public class AsyncLinearRegressionServiceServletTest extends ServiceServletTestB
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi-examples/linear-async";
+		return "http://localhost:8180/sadi-examples/linear-async";
 	}
 
 	@Override

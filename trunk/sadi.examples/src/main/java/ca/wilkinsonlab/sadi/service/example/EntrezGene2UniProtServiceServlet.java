@@ -41,9 +41,8 @@ public class EntrezGene2UniProtServiceServlet extends SimpleAsynchronousServiceS
 {
 	private static final Log log = LogFactory.getLog(EntrezGene2UniProtServiceServlet.class);
 	
-
 	@Override
-	protected void processInput(Resource input, Resource output) 
+	public void processInput(Resource input, Resource output) 
 	{
 		String entrezGeneId = ServiceUtils.getDatabaseId(input, LSRN.Entrez.Gene);
 
@@ -63,5 +62,4 @@ public class EntrezGene2UniProtServiceServlet extends SimpleAsynchronousServiceS
 	    	output.addProperty(SIO.encodes, uniprotNode);
 	    }
 	}
-	
 }

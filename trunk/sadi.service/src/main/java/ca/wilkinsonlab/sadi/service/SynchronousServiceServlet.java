@@ -1,11 +1,8 @@
 package ca.wilkinsonlab.sadi.service;
 
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
-import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * This is the base class extended by synchronous SADI services.
@@ -14,25 +11,42 @@ import com.hp.hpl.jena.rdf.model.Resource;
 public abstract class SynchronousServiceServlet extends ServiceServlet
 {
 	private static final long serialVersionUID = 1L;
-
-	@Override
-	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
-	{
-		super.outputSuccessResponse(response, outputModel);
-		closeOutputModel(outputModel);
-	}
 	
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#processInput(ca.wilkinsonlab.sadi.service.ServiceCall)
+	 */
 	@Override
-	public void processInput(ServiceCall call) throws Exception
+	protected void processInput(ServiceCall call) throws Exception
 	{
+		Resource parameters = call.getParameters();
+		boolean needsParameters = !parameters.hasProperty(RDF.type, OWL.Nothing);
 		for (Resource inputNode: call.getInputNodes()) {
 			Resource outputNode = call.getOutputModel().getResource(inputNode.getURI());
-			processInput(inputNode, outputNode);
+			if (needsParameters)
+				processInput(inputNode, outputNode, parameters);
+			else
+				processInput(inputNode, outputNode);
 		}
-		closeInputModel(call.getInputModel());
 	}
 	
+	/**
+	 * Process a single input, reading properties from an input node and 
+	 * attaching properties to the corresponding output node.
+	 * @param input the input node
+	 * @param output the output node
+	 */
 	public void processInput(Resource input, Resource output)
+	{
+	}
+	
+	/**
+	 * Process a single input, reading properties from an input node and 
+	 * attaching properties to the corresponding output node.
+	 * @param input the input node
+	 * @param output the output node
+	 * @param parameters the populated parameters object
+	 */
+	public void processInput(Resource input, Resource output, Resource parameters)
 	{
 	}
 }

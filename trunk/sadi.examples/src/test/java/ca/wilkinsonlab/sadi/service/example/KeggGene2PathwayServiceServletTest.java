@@ -32,7 +32,7 @@ public class KeggGene2PathwayServiceServletTest extends ServiceServletTestBase
 	@Override
 	protected String getLocalServiceURL()
 	{
-		return "http://localhost:8080/sadi-examples/keggGene2Pathway";
+		return "http://localhost:8180/sadi-examples/keggGene2Pathway";
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
+import ca.wilkinsonlab.sadi.service.ServiceCall;
 import ca.wilkinsonlab.sadi.utils.UniProtUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -29,33 +30,21 @@ public abstract class UniProtServiceServlet extends AsynchronousServiceServlet
 	}
 	
 	@Override
-	protected InputProcessingTask getInputProcessingTask(Model inputModel, Collection<Resource> inputNodes)
+	protected void processInputBatch(ServiceCall call)
 	{
-		return new UniProtInputProcessingTask(inputModel, inputNodes);
-	}
-	
-	protected abstract void processInput(UniProtEntry input, Resource output);
-	
-	private class UniProtInputProcessingTask extends InputProcessingTask
-	{	
-		public UniProtInputProcessingTask(Model inputModel, Collection<Resource> inputNodes)
-		{
-			super(inputModel, inputNodes);
+		Collection<Resource> inputNodes = call.getInputNodes();
+		Model outputModel = call.getOutputModel();
+		Map<String, Resource> idToOutputNode = new HashMap<String, Resource>(inputNodes.size());
+		for (Resource inputNode: inputNodes) {
+			String id = UniProtUtils.getUniProtId(inputNode);
+			idToOutputNode.put(id, outputModel.getResource(inputNode.getURI()));
 		}
+		Set<Entry<String, UniProtEntry>> entries = UniProtUtils.getUniProtEntries(idToOutputNode.keySet()).entrySet();
+		log.debug(String.format("retrieved %d entries", entries.size()));
+		for (Entry<String, UniProtEntry> entry: entries) {
+			processInput(entry.getValue(), idToOutputNode.get(entry.getKey()));
+		}
+	}
 
-		public void run()
-		{
-			Map<String, Resource> idToOutputNode = new HashMap<String, Resource>(inputNodes.size());
-			for (Resource inputNode: inputNodes) {
-				String id = UniProtUtils.getUniProtId(inputNode);
-				idToOutputNode.put(id, outputModel.getResource(inputNode.getURI()));
-			}
-			Set<Entry<String, UniProtEntry>> entries = UniProtUtils.getUniProtEntries(idToOutputNode.keySet()).entrySet();
-			log.debug(String.format("retrieved %d entries", entries.size()));
-			for (Entry<String, UniProtEntry> entry: entries) {
-				processInput(entry.getValue(), idToOutputNode.get(entry.getKey()));
-			}
-			success();
-		}
-	}
+	public abstract void processInput(UniProtEntry input, Resource output);
 }
