@@ -113,7 +113,7 @@ public interface ServiceDescription extends URIable
 	/**
 	 * @return the restrictions
 	 */
-	Collection<RestrictionBean> getRestrictions();
+	Collection<RestrictionBean> getRestrictionBeans();
 
 //	/**
 //	 * @param restrictions the restrictions to set
