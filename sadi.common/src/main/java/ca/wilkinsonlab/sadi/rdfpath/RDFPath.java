@@ -1,10 +1,12 @@
 package ca.wilkinsonlab.sadi.rdfpath;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
@@ -47,13 +49,26 @@ public class RDFPath extends ArrayList<Resource>
 	}
 	
 	/**
+	 * Constructs a new RDFPath from the specified chain of properties and
+	 * classes.
+	 * @param resources
+	 */
+	public RDFPath(Resource... resources)
+	{
+		this(Arrays.asList(resources));
+	}
+	
+	/**
 	 * Constructs a new RDFPath from the specified chain of property/class URIs.
 	 * @param path the chain of property/class URIs
 	 */
-	public RDFPath(String[] path)
+	public RDFPath(String... path)
 	{
 		super(path.length);
 		reuseExistingNodes = true;
+		
+		if (path.length == 1)
+			path = Pattern.compile("[,\\s]+").split(path[0]);
 		
 		if (path.length % 2 > 0)
 			throw new IllegalArgumentException("path must contain an even number of elements in property/class pairs");
