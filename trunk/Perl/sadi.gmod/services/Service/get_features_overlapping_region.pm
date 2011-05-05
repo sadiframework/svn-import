@@ -173,13 +173,15 @@ sub process_it {
     # services are able to load resource files from the SADI GMOD 
     # directory tree.
 
-    my $SADI_GMOD_ROOT = $ENV{ SADI_GMOD_ROOT } || '.';
+    my $SADI_GMOD_ROOT = $ENV{SADI_GMOD_ROOT} || '.';
 
     # load SADI GMOD config
 
 #    my %sadi_gmod_config = ();
 #    Config::Simple->import_from(catfile($SADI_GMOD_ROOT, GMOD_CONF_FILE), \%sadi_gmod_config);
     my $sadi_gmod_config = LoadFile(catfile($SADI_GMOD_ROOT, GMOD_CONF_FILE));
+
+    $ENV{GMOD_ROOT} = $sadi_gmod_config->{GMOD_ROOT} if $sadi_gmod_config->{GMOD_ROOT};
 
     # for building TURTLE and SPARQL from templates.
 
