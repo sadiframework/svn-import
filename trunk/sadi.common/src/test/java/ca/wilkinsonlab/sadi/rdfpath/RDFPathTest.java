@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.rdfpath;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -27,6 +28,8 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.sparql.vocabulary.FOAF;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * @author Luke McCarthy
@@ -66,6 +69,16 @@ public class RDFPathTest
 	@After
 	public void tearDown() throws Exception
 	{
+	}
+	
+	@Test
+	public void testConstructors()
+	{
+		RDFPath path1 = new RDFPath(FOAF.name, RDF.value);
+		RDFPath path2 = new RDFPath(FOAF.name.getURI(), RDF.value.getURI());
+		RDFPath path3 = new RDFPath(String.format("%s, %s", FOAF.name, RDF.value));
+		assertEquals(path1, path2);
+		assertEquals(path2, path3);
 	}
 	
 	/**
