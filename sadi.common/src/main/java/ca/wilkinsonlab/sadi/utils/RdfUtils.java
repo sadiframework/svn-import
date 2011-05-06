@@ -368,41 +368,6 @@ public class RdfUtils
 		}
 	}
 	
-	/**
-	 * This method needs work.
-	 * Specifically, it assumes a single value for each property.
-	 * @param from
-	 * @param to
-	 * @param overwrite
-	 */
-	public static void copyValues(Resource from, Resource to, boolean overwrite)
-	{
-		log.trace(String.format("copying from %s to %s", from, to));
-		for (StmtIterator statements = from.listProperties(); statements.hasNext(); ) {
-			Statement statement = statements.next();
-			Property p = statement.getPredicate();
-			if (to.hasProperty(p) && !overwrite)
-				continue;
-			RDFNode o = statement.getObject();
-			if (o.isResource()) {
-				if (o.isURIResource() && to.hasProperty(p)) {
-					to.removeAll(p);
-				}
-				Resource oTo = to.getPropertyResourceValue(p);
-				if (oTo == null) {
-					oTo = to.getModel().createResource(o.asResource().getURI());
-					to.addProperty(p, oTo);
-				}
-				copyValues(o.asResource(), oTo, overwrite);
-			} else {
-				if (to.hasProperty(p)) {
-					to.removeAll(p);
-				}
-				to.addProperty(p, o);
-			}
-		}
-	}
-	
 //	/**
 //	 * Write a collection of triples to a file, as RDF.  
 //	 * @param filename The name of the file to write to

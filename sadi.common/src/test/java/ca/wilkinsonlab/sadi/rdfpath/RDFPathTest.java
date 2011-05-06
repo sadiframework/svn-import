@@ -6,6 +6,8 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -81,6 +83,19 @@ public class RDFPathTest
 		assertEquals(path2, path3);
 	}
 	
+	@Test
+	public void testSetMembership()
+	{
+		Set<RDFPath> paths = new HashSet<RDFPath>();
+		RDFPath path1 = new RDFPath(FOAF.name, RDF.value);
+		RDFPath path2 = new RDFPath(FOAF.name.getURI(), RDF.value.getURI());
+		RDFPath path3 = new RDFPath(String.format("%s, %s", FOAF.name, RDF.value));
+		paths.add(path1);
+		paths.add(path2);
+		paths.add(path3);
+		assertEquals(1, paths.size());
+	}
+	
 	/**
 	 * Test method for {@link ca.wilkinsonlab.sadi.rdfpath.RDFPath#collectNodesOfType(java.util.Iterator, com.hp.hpl.jena.rdf.model.Resource, java.util.Collection)}.
 	 */
@@ -152,6 +167,28 @@ public class RDFPathTest
 		path.addValueRootedAt(hsa00232, model.createTypedLiteral("D02262"));
 		RdfUtils.addNamespacePrefixes(model);
 //		model.getWriter("N3").write(model, new FileOutputStream("/tmp/out.n3"), "");
+	}
+	
+	@Test
+	public void testCreateValuesRootedAt() throws Exception
+	{
+		Model model = ModelFactory.createDefaultModel();
+		Resource root = model.createResource(); 
+		RDFPath path1 = new RDFPath(
+			"http://semanticscience.org/resource/SIO_000552, " +
+				"http://unbsj.biordf.net/fishtox/BLAST-sadi-service-ontology.owl#E_Value, " +
+			"http://semanticscience.org/resource/SIO_000300, " +
+				"http://www.w3.org/2001/XMLSchema#double"
+		);
+		path1.createLiteralRootedAt(root, "0.0001");
+		RDFPath path2 = new RDFPath(
+			"http://semanticscience.org/resource/SIO_000552, " +
+				"http://unbsj.biordf.net/fishtox/BLAST-sadi-service-ontology.owl#BitScore, " +
+			"http://semanticscience.org/resource/SIO_000300, " +
+				"http://www.w3.org/2001/XMLSchema#double"
+		);
+		path2.createLiteralRootedAt(root, "25");
+//		model.getWriter("N3").write(model, System.out, "");
 	}
 	
 	@Test
