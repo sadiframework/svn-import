@@ -32,7 +32,6 @@ WHERE {
 
    {
        ?ref_sequence 
-            a sio:SIO_000030; # 'sequence'
             sio:SIO_000011 # p = 'is attribute of' 
                 [ a ?strand_type; # strand:PlusStrand or strand:MinusStrand
                   sio:SIO_000093 ?ref_feature ] . # p = 'is proper part of'
@@ -44,7 +43,6 @@ WHERE {
 
    {
         ?ref_sequence
-            a sio:SIO_000030; # 'sequence'
             sio:SIO_000011 ?ref_feature . # p = 'is attribute of'
    }        
 
