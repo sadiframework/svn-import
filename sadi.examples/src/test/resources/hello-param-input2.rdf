@@ -8,7 +8,7 @@
 	</hello:NamedIndividual>
 	
 	<hello:SecondaryParameters>
-		<hello:lang>fr</hello:lang>
+		<hello:lang rdf:datatype="http://www.w3.org/2001/XMLSchema#string">fr</hello:lang>
 	</hello:SecondaryParameters>
 
 </rdf:RDF>
