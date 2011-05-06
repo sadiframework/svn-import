@@ -21,6 +21,7 @@ import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.MultiRegistry;
 import ca.wilkinsonlab.sadi.client.Service;
+import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLServiceWrapper;
 import ca.wilkinsonlab.sadi.decompose.RestrictionAdapter;
@@ -387,6 +388,8 @@ public class SHAREKnowledgeBase
 		}
 	}
 	
+	private enum ResolutionDirection { FORWARD, REVERSE }
+	
 	private void processPattern(Triple pattern)
 	{	
 		log.trace(String.format("query pattern %s", pattern));
@@ -398,12 +401,12 @@ public class SHAREKnowledgeBase
 		PotentialValues predicates = expandQueryNode(pattern.getPredicate());
 		PotentialValues objects = expandQueryNode(pattern.getObject());
 		
-		Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(predicates.values));
-		
 		if (!allowPredicateVariables && predicates.isEmpty()) {
 			log.error("variables are not permitted in the predicate position of triple patterns");
 			return;
 		}
+		
+		Set<OntProperty> properties = getOntProperties(RdfUtils.extractResources(predicates.values));
 			
 		/* if the predicate position has bindings, but none of them are URIs, 
 		 * then this pattern has no solutions. 
@@ -412,78 +415,18 @@ public class SHAREKnowledgeBase
 			log.trace(String.format("pattern has no solution, all bindings for predicate var %s are non-URI values", predicates.key));
 			return;
 		}
-			
-		boolean directionIsForward = true;
-		boolean patternIsResolvable = true;
 		
-		if (!subjects.isEmpty()) { // bound subject...
-			if (!objects.isEmpty()) { // bound subject and object...
-				if (useAdaptiveQueryPlanning()) {
-					directionIsForward = (new QueryPatternComparator()).bestDirectionIsForward(pattern);
-				} else { 
-					directionIsForward = true;
+		for (ResolutionDirection direction: computeResolutionDirectionPreference(pattern, subjects, objects)) {
+			boolean directionIsForward = direction.equals(ResolutionDirection.FORWARD);
+			log.trace(String.format("resolving pattern %s in %s direction", pattern, directionIsForward ? "forward" : "reverse"));
+			boolean results = gatherTriples(pattern, subjects, properties, objects, directionIsForward);
+			if (results) {
+				if (recordQueryStats()) {
+					recordStats(subjects, predicates, objects, directionIsForward, (int)stopWatch.getTime());
 				}
-			} else { // bound subject, unbound object...
-				directionIsForward = true;
-			}
-		} else if (!objects.isEmpty()) { // unbound subject, bound object...
-			directionIsForward = false;
-		} else { // unbound subject, unbound object...
-			patternIsResolvable = false;
-			
-			if (this.resolveUnboundPatterns) {
-				
-				log.warn(String.format("resolving pattern whose subject and object are both unbound variables %s", pattern));
-
-				/* try to find subjects by looking for instances of input
-				 * classes for services that generate the required property...
-				 * TODO clean this up...
-				 */
-				{
-					Collection<Service> services = getServicesByPredicate(properties, getConstraints(objects.variable));
-					for (Service service: services) {
-						Collection<Resource> inputInstances = service.discoverInputInstances(dataModel);
-						subjects.values.addAll(inputInstances);
-						log.debug(String.format("found service %s with %d inputs", service, inputInstances.size()));
-					}
-					if (!subjects.values.isEmpty()) {
-						patternIsResolvable = true;
-						directionIsForward = true;
-					}
-				}
-				if (subjects.values.isEmpty()) {
-					Collection<Service> services = getServicesByPredicate(getInverseProperties(properties), getConstraints(subjects.variable));
-					for (Service service: services) {
-						Collection<Resource> inputInstances = service.discoverInputInstances(dataModel);
-						objects.values.addAll(inputInstances);
-						log.debug(String.format("found service %s with %d inputs", service, inputInstances.size()));
-					}
-					if (!objects.values.isEmpty()) {
-						patternIsResolvable = true;
-						directionIsForward = false;
-					}
-				}
-			} else {
-				log.warn(String.format("skipping pattern whose subject and object are both unbound variables %s", pattern));
-			}
-			
-		}
-		
-		if (patternIsResolvable) {
-			boolean retrievedData;
-			if (directionIsForward) {
-				log.trace(String.format("resolving pattern %s in forward direction", pattern));
-				retrievedData = gatherTriples(subjects, properties, objects);
-			} else {
-				log.trace(String.format("resolving pattern %s in reverse direction", pattern));
-				retrievedData = gatherTriples(objects, getInverseProperties(properties), subjects);
-			}
-
-			if (retrievedData && recordQueryStats()) {
-				recordStats(subjects, predicates, objects, directionIsForward, (int)stopWatch.getTime());
 			}
 		}
-
+	
 		/* note: this must come after normal processing of the triple pattern,
 		 * so that rdf:type patterns are also resolved against SPARQL endpoints.
 		 * --BV
@@ -501,6 +444,73 @@ public class SHAREKnowledgeBase
 		
 		stopWatch.stop();
 		log.trace(String.format("resolved pattern %s in %dms", pattern, stopWatch.getTime()));
+	}
+
+	private List<ResolutionDirection> computeResolutionDirectionPreference(Triple pattern, PotentialValues subjects, PotentialValues objects)
+	{
+		List<ResolutionDirection> resolutionPreference = new ArrayList<ResolutionDirection>(ResolutionDirection.values().length);
+		if (!subjects.isEmpty()) { // bound subject...
+			if (!objects.isEmpty()) { // bound subject and object...
+				if (useAdaptiveQueryPlanning()) {
+					if ((new QueryPatternComparator()).bestDirectionIsForward(pattern)) {
+						resolutionPreference.add(ResolutionDirection.FORWARD);
+						resolutionPreference.add(ResolutionDirection.REVERSE);
+					} else {
+						resolutionPreference.add(ResolutionDirection.REVERSE);
+						resolutionPreference.add(ResolutionDirection.FORWARD);
+					}
+				} else {
+					resolutionPreference.add(ResolutionDirection.FORWARD);
+					resolutionPreference.add(ResolutionDirection.REVERSE);
+				}
+			} else { // bound subject, unbound object...
+				resolutionPreference.add(ResolutionDirection.FORWARD);
+				resolutionPreference.add(ResolutionDirection.REVERSE);
+			}
+		} else if (!objects.isEmpty()) { // unbound subject, bound object...
+			resolutionPreference.add(ResolutionDirection.REVERSE);
+			resolutionPreference.add(ResolutionDirection.FORWARD);
+		} else { // unbound subject, unbound object...
+			resolutionPreference.add(ResolutionDirection.FORWARD);
+			resolutionPreference.add(ResolutionDirection.REVERSE);
+		}
+		return resolutionPreference;
+	}
+
+	private boolean gatherTriples(Triple pattern, PotentialValues subjects, Set<OntProperty> properties, PotentialValues objects, boolean directionIsForward)
+	{
+		if (!directionIsForward) {
+			PotentialValues tmp = subjects;
+			subjects = objects;
+			objects = tmp;
+			properties = getInverseProperties(properties);
+		}
+		if (subjects.isEmpty()) {
+			if (resolveUnboundPatterns) {
+				findSubjects(subjects, properties, objects);
+			} else {
+				log.warn(String.format("skipping query pattern %s because of unbound variable", pattern));
+				return false;
+			}
+		}
+		return gatherTriples(subjects, properties, objects);
+	}
+	
+	/* try to find subjects by looking for instances of input
+	 * classes for services that generate the required property...
+	 */
+	private Collection<ServiceInputPair> findSubjects(PotentialValues subjects, Collection<OntProperty> properties, PotentialValues objects)
+	{
+		log.debug(String.format("dynamically discovering potential subjects for %s", properties));
+		Collection<ServiceInputPair> results = new ArrayList<ServiceInputPair>();
+		Collection<Service> services = getServicesByPredicate(properties, getConstraints(objects.variable));
+		for (Service service: services) {
+			Collection<Resource> inputInstances = service.discoverInputInstances(reasoningModel);
+			log.trace(String.format("found service %s with %d inputs", service, inputInstances.size()));
+			subjects.values.addAll(inputInstances);
+			results.add(new ServiceInputPair(service, inputInstances));
+		}
+		return results;
 	}
 	
 	protected Set<OntProperty> getOntProperties(Collection<Resource> predicates) 
@@ -832,7 +842,9 @@ public class SHAREKnowledgeBase
 					log.trace(String.format("adding triple to data model %s", triple));
 					RdfUtils.addTripleToModel(dataModel, triple);
 				}
-				retrievedData = true;
+				if (!retrievedData && !isOutputClassTypeTriple(triple, service)) {
+					retrievedData = true;
+				}
 			}
 			reasoningModel.rebind();
 
@@ -849,6 +861,12 @@ public class SHAREKnowledgeBase
 		return retrievedData;
 	}
 	
+	private boolean isOutputClassTypeTriple(Triple triple, Service service)
+	{
+		return RDF.type.getURI().equals(triple.getPredicate().getURI()) &&
+		       triple.getObject().hasURI(service.getOutputClassURI());
+	}
+
 	protected boolean violatesConstraints(Service service, OntProperty p, Collection<Triple> variableConstraints)
 	{
 		/* TODO replace this whole bit with Service.listRestrictions() or Service.listRestrictionsOnProperty()
@@ -1490,6 +1508,19 @@ public class SHAREKnowledgeBase
 			
 			stopWatch.stop();
 			log.trace(String.format("invocation of service %s completed in %dms", service.getURI(), stopWatch.getTime()));		
+			
+//			/* remove output class from output triples;
+//			 * TODO move this to client API...
+//			 */
+//			for (Iterator<Triple> triples = output.iterator(); triples.hasNext(); ) {
+//				Triple triple = triples.next();
+//				if (RDF.type.equals(triple.getPredicate().getURI()) &&
+//					triple.getObject().isURI() &&
+//					triple.getObject().getURI().equals(service.getOutputClassURI())) {
+//					
+//					triples.remove();
+//				}
+//			}
 			
 			return output;
 		} catch (ServiceInvocationException e) {

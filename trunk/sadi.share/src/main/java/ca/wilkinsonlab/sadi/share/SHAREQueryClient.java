@@ -1,6 +1,7 @@
 package ca.wilkinsonlab.sadi.share;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.time.StopWatch;
@@ -9,8 +10,10 @@ import org.apache.log4j.Logger;
 import ca.wilkinsonlab.sadi.client.QueryClient;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
+import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.Syntax;
@@ -77,7 +80,6 @@ public class SHAREQueryClient extends QueryClient
 			stopWatch.start();
 			kb.executeQuery(query);
 			stopWatch.stop();
-			
 			log.debug(String.format("populated SHARE knowledge base in %dms", stopWatch.getTime()));
 			
 			kb.getReasoningModel().rebind();
@@ -85,22 +87,34 @@ public class SHAREQueryClient extends QueryClient
 
 			stopWatch.reset();
 			stopWatch.start();			
-			
-			QueryExecution qe = getQueryExecution(query, kb.getReasoningModel());
-			ResultSet resultSet = qe.execSelect();
-			while (resultSet.hasNext()) {
-				QuerySolution binding = resultSet.nextSolution();
-				Map<String, String> bindingAsMap = new HashMap<String, String>();
-				for (String var: resultSet.getResultVars()) {
-					RDFNode varValue = binding.get(var);
-					bindingAsMap.put(var, varValue != null ? RdfUtils.getPlainString(varValue.asNode()) : null);
-				}
-				results.add(bindingAsMap);
-			}
-			qe.close();
-			
+			execQuery(results, query, kb.getReasoningModel());
+
 			stopWatch.stop();
-			log.debug(String.format("solved query against populated SHARE knowledge base in %dms", stopWatch.getTime()));			
+			log.debug(String.format("solved query against populated SHARE knowledge base in %dms", stopWatch.getTime()));
+		}
+		
+		private void execQuery(List<Map<String, String>> results, String query, Model model)
+		{
+			QueryExecution qe = getQueryExecution(query, kb.getReasoningModel());
+			Query q = QueryFactory.create(query, kb.getQuerySyntax());
+			if (q.isSelectType()) {
+				ResultSet resultSet = qe.execSelect();
+				while (resultSet.hasNext()) {
+					QuerySolution binding = resultSet.nextSolution();
+					Map<String, String> bindingAsMap = new HashMap<String, String>();
+					for (String var: resultSet.getResultVars()) {
+						RDFNode varValue = binding.get(var);
+						bindingAsMap.put(var, varValue != null ? RdfUtils.getPlainString(varValue.asNode()) : null);
+					}
+					results.add(bindingAsMap);
+				}
+			} else if (q.isAskType()) {
+				boolean result = qe.execAsk();
+				Map<String, String> binding = new HashMap<String, String>();
+				binding.put("result", String.valueOf(result));
+				results.add(binding);
+			}
+			qe.close();		
 		}
 	}
 }
