@@ -182,8 +182,6 @@ sub process_it {
     Log::Log4perl->init(catfile($SADI_GMOD_ROOT, 'log4perl.properties'));
     $LOG = Log::Log4perl->get_logger('services');
 
-    $LOG->warn("test!");
-
     # load SADI GMOD config
 
     my $sadi_gmod_config = LoadFile(catfile($SADI_GMOD_ROOT, GMOD_CONF_FILE));
