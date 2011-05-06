@@ -8,6 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
@@ -48,6 +50,35 @@ public class RDFPath extends ArrayList<Resource>
 		reuseExistingNodes = true;
 	}
 	
+	/* (non-Javadoc)
+	 * @see java.util.AbstractList#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object o)
+	{
+		/* we shouldn't actually need to do this; Collection.equals() and
+		 * Resource.equals() do the right thing...
+		 */
+		return super.equals(o);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		/* this we need to do; Resource.equals() uses native.hashCode() which
+		 * means that two Resources with the same URI could have different
+		 * hash codes...
+		 */
+		HashCodeBuilder builder = new HashCodeBuilder(19, 11);
+		for (Resource r: this) {
+			/* .toString() is either the URI, the node ID or the literal
+			 * value, all of which work for our purposes...
+			 */
+			builder.append(r == null ? 0 : r.toString());
+		}
+		return builder.toHashCode();
+	}
+
 	/**
 	 * Constructs a new RDFPath from the specified chain of properties and
 	 * classes.
@@ -265,7 +296,7 @@ public class RDFPath extends ArrayList<Resource>
 			RDFNode node = nodes.next();
 			if ((type == null) || // wild card...
 				(node.isResource() && node.asResource().hasProperty(RDF.type, type)) ||
-				(node.isLiteral() && node.asLiteral().getDatatype().equals(TypeMapper.getInstance().getTypeByName(type.getURI())))) {
+				(node.isLiteral() && type.isURIResource() && type.getURI().equals(node.asLiteral().getDatatypeURI()))) {
 					matches.add(node);
 			}
 		}
