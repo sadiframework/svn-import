@@ -7,6 +7,7 @@ use warnings;
 # imports
 #------------------------------------------------------------
 
+use Log::Log4perl;
 use DBI;
 #use Config::Simple;
 use File::Spec::Functions qw(catfile);
@@ -62,7 +63,7 @@ my $DBNAME_TO_URIPREFIX = LoadFile($DBNAME_TO_URIPREFIX_MAPPING_FILE);
 # logging
 #------------------------------------------------------------
 
-my $LOG = Log::Log4perl->get_logger(__PACKAGE__);
+my $LOG = Log::Log4perl->get_logger('services');
 
 #------------------------------------------------------------
 # subroutines
