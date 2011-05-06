@@ -7,6 +7,7 @@ use warnings;
 # imports
 #------------------------------------------------------------
 
+use Log::Log4perl;
 use DBI;
 use Utils::Chado::Cvterm qw(
     is_a
@@ -42,7 +43,7 @@ use vars qw(@ISA @EXPORT_OK);
 # logging
 #------------------------------------------------------------
 
-my $LOG = Log::Log4perl->get_logger(__PACKAGE__);
+my $LOG = Log::Log4perl->get_logger('services');
 
 #------------------------------------------------------------
 # subroutines

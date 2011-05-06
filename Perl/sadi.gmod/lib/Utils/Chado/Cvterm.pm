@@ -7,6 +7,7 @@ use warnings;
 # imports
 #------------------------------------------------------------
 
+use Log::Log4perl;
 use Algorithm::Search;
 use Utils::TypeQuerySearchNode;
 use DBI;
@@ -31,7 +32,7 @@ use vars qw(@ISA @EXPORT_OK);
 # logging
 #------------------------------------------------------------
 
-my $LOG = Log::Log4perl->get_logger(__PACKAGE__);
+my $LOG = Log::Log4perl->get_logger('services');
 
 #------------------------------------------------------------
 # subroutines
