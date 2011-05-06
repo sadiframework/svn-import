@@ -27,6 +27,7 @@ import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.ServiceDescription;
 import ca.wilkinsonlab.sadi.beans.ServiceBean;
 import ca.wilkinsonlab.sadi.rdfpath.RDFPath;
+import ca.wilkinsonlab.sadi.rdfpath.RDFPathUtils;
 import ca.wilkinsonlab.sadi.service.annotations.Authoritative;
 import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.Description;
@@ -518,8 +519,15 @@ public abstract class ServiceServlet extends HttpServlet
 		}
 		i.close();
 		
-		if (getDefaultParameters() != null)
-			RdfUtils.copyValues(getDefaultParameters(), parameters, false);
+		Resource defaults = getDefaultParameters();
+		if (defaults != null) {
+			// TODO inefficient; could cache leaf paths/values...
+			Collection<RDFPath> leafPaths = RDFPathUtils.getLeafPaths(defaults);
+			for (RDFPath leafPath: leafPaths){ 
+				if (leafPath.getValuesRootedAt(parameters).isEmpty())
+					leafPath.addValuesRootedAt(parameters, leafPath.getValuesRootedAt(defaults));
+			}
+		}
 		
 		return parameters;
 	}
