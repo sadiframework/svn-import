@@ -175,15 +175,10 @@ sub process_it {
 
     my $SADI_GMOD_ROOT = $ENV{SADI_GMOD_ROOT} || '.';
 
-    # Somehow the log4perl configuration for $LOG is being completely lost after 
-    # being correctly initialized in SADI::Base, and I can't figure it out. 
-    # As a workaround, I am reinitializing here.
-
-    Log::Log4perl->init(catfile($SADI_GMOD_ROOT, 'log4perl.properties'));
-    $LOG = Log::Log4perl->get_logger('services');
-
     # load SADI GMOD config
 
+#    my %sadi_gmod_config = ();
+#    Config::Simple->import_from(catfile($SADI_GMOD_ROOT, GMOD_CONF_FILE), \%sadi_gmod_config);
     my $sadi_gmod_config = LoadFile(catfile($SADI_GMOD_ROOT, GMOD_CONF_FILE));
 
     $ENV{GMOD_ROOT} = $sadi_gmod_config->{GMOD_ROOT} if $sadi_gmod_config->{GMOD_ROOT};
