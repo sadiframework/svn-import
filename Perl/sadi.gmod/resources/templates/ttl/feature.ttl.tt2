@@ -27,7 +27,7 @@ from type term => type URI
 
 [% END %]
 
-    sio:SIO_000008 [  # p = "has attribute"
+    range:position [  # p = "has attribute"
         a range:RangedSequencePosition;
         range:in_relation_to [% ref_sequence_uri %];
         sio:SIO_000053 [ a range:StartPosition; sio:SIO_000300 "[% start_pos %]"^^xsd:nonNegativeInteger ]; # p = "has proper part"
