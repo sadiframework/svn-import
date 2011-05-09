@@ -37,13 +37,32 @@
      -->
 
     <owl:Class rdf:about="#Feature">
-        <rdfs:subClassOf rdf:resource="&region;BiopolymerRegion"/>
-        <rdfs:subClassOf rdf:resource="&SO;SO_0000110"/> <!-- 'sequence_feature' -->
+        <!-- <rdfs:subClassOf rdf:resource="&region;BiopolymerRegion"/> -->
+        <!-- <rdfs:subClassOf rdf:resource="&SO;SO_0000110"/> --> <!-- 'sequence_feature' -->
         <owl:equivalentClass>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&sio;SIO_000008"/>  <!-- 'has attribute' -->
-                <owl:someValuesFrom rdf:resource="&sio;SIO_000115"/> <!-- 'identifier' -->
+                <!-- <owl:someValuesFrom rdf:resource="&sio;SIO_000115"/> --> <!-- 'identifier' -->
+                <owl:someValuesFrom rdf:resource="#Identifier"/> <!-- 'identifier' -->
             </owl:Restriction>
+        </owl:equivalentClass>
+    </owl:Class>
+
+    <owl:Class rdf:about="#Identifier">
+        <rdfs:subClassOf rdf:resource="&lsrn;LSRN_Identifier"/>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&rdf;type"/>
+                        <owl:someValuesFrom rdf:resource="&lsrn;LSRN_Identifier"/> 
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&sio;SIO_000300"/> <!-- 'has value' -->
+                        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
         </owl:equivalentClass>
     </owl:Class>
 
@@ -52,9 +71,11 @@
     // In the majority of cases, we will want to use some type of LSRN_Identifier.
     -->
 
+<!--
     <owl:Class rdf:about="&lsrn;LSRN_Identifier">
         <rdfs:subClassOf rdf:resource="&sio;SIO_000115"/>
     </owl:Class>
-        
+-->
+
 </rdf:RDF>
 

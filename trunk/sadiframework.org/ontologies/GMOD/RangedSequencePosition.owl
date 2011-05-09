@@ -7,6 +7,7 @@
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
     <!ENTITY sio "http://semanticscience.org/resource/" >
     <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/" >
+    <!ENTITY strand "http://sadiframework.org/ontologies/GMOD/Strand.owl#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY properties "http://sadiframework.org/ontologies/properties.owl#" >
@@ -16,6 +17,7 @@
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:sio="http://semanticscience.org/resource/"
      xmlns:feature="http://sadiframework.org/ontologies/GMOD/Feature.owl#"
+     xmlns:strand="http://sadiframework.org/ontologies/GMOD/Strand.owl#"
      xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
@@ -26,6 +28,8 @@
     <owl:Ontology rdf:about="">
         <owl:imports rdf:resource="http://purl.org/obo/owl/sequence"/>
         <owl:imports rdf:resource="http://sadiframework.org/ontologies/properties.owl"/>
+        <owl:imports rdf:resource="http://sadiframework.org/ontologies/GMOD/Feature.owl"/>
+        <owl:imports rdf:resource="http://sadiframework.org/ontologies/Strand.owl"/>
     </owl:Ontology>
 
     <!-- 
@@ -68,8 +72,23 @@
         </owl:equivalentClass>
     </owl:Class>
 
-    <owl:Class rdf:about="#StartPosition"/>
-    <owl:Class rdf:about="#EndPosition"/>
+    <owl:Class rdf:about="#StartPosition">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&sio;SIO_000300"/> <!-- 'has value' -->
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+            </owl:Restriction>
+        </owl:equivalentClass>
+    </owl:Class>
+
+    <owl:Class rdf:about="#EndPosition">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&sio;SIO_000300"/> <!-- 'has value' -->
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+            </owl:Restriction>
+        </owl:equivalentClass>
+    </owl:Class>
 
     <owl:Class rdf:about="#SequenceForStrandOrFeature">
         <owl:unionOf rdf:parseType="Collection">
@@ -79,7 +98,7 @@
     </owl:Class>
 
     <owl:Class rdf:about="#SequenceForStrand">
-        <rdfs:subClassOf rdf:resource="&sio;SIO_000030"/> <!-- 'sequence' -->
+        <!-- <rdfs:subClassOf rdf:resource="&sio;SIO_000030"/> --> <!-- 'sequence' -->
         <owl:equivalentClass>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&sio;SIO_000011"/> <!-- 'is attribute of' -->
@@ -89,7 +108,7 @@
     </owl:Class>
 
     <owl:Class rdf:about="#SequenceForFeature">
-        <rdfs:subClassOf rdf:resource="&sio;SIO_000030"/> <!-- 'sequence' -->
+        <!-- <rdfs:subClassOf rdf:resource="&sio;SIO_000030"/> --> <!-- 'sequence' -->
         <owl:equivalentClass>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&sio;SIO_000011"/> <!-- 'is attribute of' -->
@@ -99,12 +118,19 @@
     </owl:Class>
 
     <owl:Class rdf:about="#StrandOfFeature">
-        <rdfs:subClassOf rdf:resource="#Strand"/>
         <owl:equivalentClass>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&sio;SIO_000093"/> <!-- 'is proper part of' -->
-                <owl:someValuesFrom rdf:resource="&feature;Feature"/>
-            </owl:Restriction>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&rdf;type"/> <!-- 'is proper part of' -->
+                        <owl:someValuesFrom rdf:resource="&strand;Strand"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&sio;SIO_000093"/> <!-- 'is proper part of' -->
+                        <owl:someValuesFrom rdf:resource="&feature;Feature"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
         </owl:equivalentClass>
     </owl:Class>
 
