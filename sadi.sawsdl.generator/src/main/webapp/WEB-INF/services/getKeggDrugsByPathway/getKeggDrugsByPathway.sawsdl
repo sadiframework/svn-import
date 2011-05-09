@@ -20,7 +20,7 @@
     <operation name="get_drugs_by_pathway">
       <input message="typens:get_drugs_by_pathwayRequest"/>
       <output message="typens:get_drugs_by_pathwayResponse"/>
-    <attrExtensions sawsdl:modelReference="http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway"/>
+      <attrExtensions xmlns="http://www.w3.org/ns/sawsdl" sawsdl:modelReference="http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway"/>
     </operation>
   </portType>
   <message name="get_drugs_by_pathwayRequest">
