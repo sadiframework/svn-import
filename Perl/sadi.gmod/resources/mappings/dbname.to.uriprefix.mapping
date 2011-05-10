@@ -1,6 +1,0 @@
-FlyBase:                     'http://lsrn.org/FLYBASE:'
-GB:                          'http://lsrn.org/GB:' 
-NCBI:                        'http://lsrn.org/RefSeq:'
-SGD:                         'http://lsrn.org/SGD:'
-SO:                          'http://purl.org/obo/owl/SO#SO_'
-FlyBase Annotation IDs:      'http://lsrn.org/SADI/LSRN/FlyBase_Annotation:'

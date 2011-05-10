@@ -1,8 +1,0 @@
-<p> 
-    <input name="reset" type="submit" id="b_reset" value="Reset" />
-    <input name="back" type="submit" id="b_back" value="Back" />
-    <input type="submit" name="submit" id="b_submit" value="Next" /> 
-</p>
-<input name="h_reset" type="hidden" id="h_reset" value="false" />
-<input name="h_next" type="hidden" id="h_next" value="false" />
-<input name="h_back" type="hidden" id="h_back" value="false" />

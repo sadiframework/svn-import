@@ -42,11 +42,6 @@ public class SADI
     public static final Property decoratesWith = m_model.createProperty( NS + "decoratesWith" );
     
     /**
-     * A property that indicates when a service was registered.
-     */
-    public static final Property registration = m_model.createProperty( NS + "registration" );
-    
-    /**
      * An RDF type for SADI service exceptions.
      */
 	public static final Resource Exception = m_model.createResource( NS + "Exception" );

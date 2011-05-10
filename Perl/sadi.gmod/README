@@ -1,3 +1,0 @@
-The Perl SADI service generator relies on absolute paths, both in the configuration files and in the auto-generated source code for the services / CGI scripts.  Before doing anything with the code, do:
-
-> ./update.absolute.paths.sh ROOT_DIRECTORY $(pwd)
