@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project 
+  xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ca.wilkinsonlab.sadi</groupId>
+  <artifactId>sadi-share</artifactId>
+  <name>SHARE classes</name>
+  <version>0.1.0</version>
+  <description>The Semantic Health and Research Environment</description>
+  <parent>
+    <groupId>ca.wilkinsonlab.sadi</groupId>
+    <artifactId>sadi-parent</artifactId>
+    <version>0.1.0</version>
+  </parent>
+  
+  <build>
+   <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-surefire-plugin</artifactId>
+      <configuration>
+        <excludes>
+          <exclude>ca/wilkinsonlab/sadi/test/*</exclude>
+        </excludes>
+      </configuration>
+    </plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-jar-plugin</artifactId>
+      <executions>
+        <execution>
+          <goals>
+            <goal>test-jar</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+    <plugin>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <version>2.2-beta-5</version>
+      <!-- build standalone jar for command line SHARE client  -->
+      <configuration>
+        <archive>
+          <manifest>
+            <mainClass>ca.wilkinsonlab.sadi.commandline.SHAREClient</mainClass>
+          </manifest>
+        </archive>
+        <descriptors>
+          <descriptor>src/main/assembly/share.client.xml</descriptor>
+        </descriptors>
+      </configuration>
+      <executions>
+        <execution>
+          <id>make-assembly</id> <!-- this is used for inheritance merges -->
+          <phase>package</phase> <!-- append to the packaging phase -->
+          <goals>
+            <goal>single</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+   </plugins>
+  </build>
+  
+  <repositories>
+  	<repository>
+  	  <id>dev.biordf.net</id>
+  	  <name>dev.biordf.net</name>
+  	  <url>http://dev.biordf.net/maven</url>
+  	</repository>
+    <repository>
+      <id>thirdparty.dev.biordf.net</id>
+      <name>dev.biordf.net thirdparty</name>
+      <url>http://dev.biordf.net/nexus/content/repositories/thirdparty</url>
+      <layout>default</layout>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </releases>
+    </repository>
+  </repositories>
+  
+  <dependencies>
+    <dependency>
+      <groupId>ca.wilkinsonlab.sadi</groupId>
+      <artifactId>sadi-common</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>ca.wilkinsonlab.sadi</groupId>
+      <artifactId>sadi-client</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>commons-math</groupId>
+    	<artifactId>commons-math</artifactId>
+    	<version>1.2</version>
+    </dependency>
+    <dependency>
+    	<groupId>net.sf.ehcache</groupId>
+    	<artifactId>ehcache-core</artifactId>
+    	<version>2.0.1</version>
+    </dependency>
+
+    <dependency>
+    	<groupId>args4j</groupId>
+    	<artifactId>args4j</artifactId>
+    	<version>2.0.12</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

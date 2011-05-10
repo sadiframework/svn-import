@@ -1,0 +1,10 @@
+PREFIX db: <http://sadiframework.org/ontologies/predicatestats.owl#>
+
+SELECT ?timePerInput
+FROM %u%
+WHERE 
+{
+	{ ?s db:timePerInputForward ?timePerInput }
+	UNION
+	{ ?s db:timePerInputReverse ?timePerInput }
+}
