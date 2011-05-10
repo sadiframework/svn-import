@@ -1,0 +1,14 @@
+package ca.wilkinsonlab.sadi.service.annotations;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+/**
+ * Annotation holding the contact email address for the service.
+ * @author Luke McCarthy
+ */
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ServiceProvider
+{
+	String value();
+}
