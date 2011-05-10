@@ -1,0 +1,45 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns="http://wilkinsonlab.ca/sadi/service/hello.owl#">
+    
+  <owl:Ontology rdf:about="">
+  	<owl:imports rdf:resource="http://xmlns.com/foaf/0.1/name"/>
+  </owl:Ontology>
+  
+  <owl:DatatypeProperty rdf:about="#greeting"/>
+  
+  <owl:Class rdf:ID="NamedIndividual">
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="http://xmlns.com/foaf/0.1/name"/>
+        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+  
+  <owl:Class rdf:ID="GreetedIndividual">
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#greeting"/>
+        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+  
+  <owl:DatatypeProperty rdf:about="#lang"/>
+  
+  <owl:Class rdf:ID="SecondaryParameters">
+    <owl:equivalentClass>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#lang"/>
+        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+      </owl:Restriction>
+    </owl:equivalentClass>
+  </owl:Class>
+  
+  <SecondaryParameters rdf:ID="defaultParameters">
+  	<lang rdf:datatype="http://www.w3.org/2001/XMLSchema#string">en</lang>
+  </SecondaryParameters>
+  
+</rdf:RDF>
