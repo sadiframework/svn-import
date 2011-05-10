@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.service.validation;
 
 
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import org.apache.commons.validator.EmailValidator;
 import org.stringtree.util.StringUtils;
@@ -69,12 +70,18 @@ public class ServiceValidator
 		if (StringUtils.isBlank(service.getDescription()) || service.getDescription().equals("no description"))
 			result.getWarnings().add(new ValidationWarning("no service description"));
 		
-		if (StringUtils.isBlank(service.getContactEmail()))
+		if (isValidEmailAddress(service.getContactEmail()))
 			result.getWarnings().add(new ValidationWarning("no contact email"));
 		else if (!EmailValidator.getInstance().isValid(service.getContactEmail()))
 			result.getWarnings().add(new ValidationWarning(String.format("%s doesn't look like a valid email address", service.getContactEmail())));
 		
 		return result;
+	}
+	
+	private static final Pattern rfc2822 = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
+	private static boolean isValidEmailAddress(String email)
+	{
+		return email != null && rfc2822.matcher(email).matches();
 	}
 	
 	public static void main(String args[])
