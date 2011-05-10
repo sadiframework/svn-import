@@ -4,7 +4,7 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-registry</artifactId>
   <packaging>war</packaging>
-  <version>0.1.0</version>
+  <version>0.1.1-SNAPSHOT</version>
   <name>SADI registry webapp</name>
   <url>http://sadiframework.org/registry/</url>
   <parent>
