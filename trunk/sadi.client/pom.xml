@@ -60,6 +60,10 @@
           <groupId>javax.xml</groupId>
           <artifactId>jsr173</artifactId>	
         </exclusion>
+        <exclusion>
+          <groupId>javax.servlet</groupId>
+          <artifactId>servlet-api</artifactId>	
+        </exclusion>
       </exclusions>
     </dependency>
     

@@ -41,6 +41,8 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.shared.DoesNotExistException;
+import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
@@ -135,7 +137,15 @@ public class ServiceImpl extends ServiceBase
 		if (!model.isEmpty())
 			log.warn(String.format("service %s may have been initialized twice; this could indicate multithreading problems", getURI()));
 		
-		model.read(getURI());
+		try {
+			model.read(getURI());
+		} catch (JenaException e) {
+			if (e instanceof DoesNotExistException) {
+				throw new ServiceConnectionException("does not exist");//String.format("no such service %s", getURI()));
+			} else if (e.getMessage().endsWith("Connection refused")) {
+				throw new ServiceConnectionException("connection refused");//String.format("connection refused to service %s", getURI()));
+			}
+		}
 		if (errorHandler.hasLastError())
 			throw errorHandler.getLastError();
 		
