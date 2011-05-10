@@ -1,0 +1,20 @@
+PREFIX moby: <http://moby/>
+
+SELECT ?construct_query
+#FROM <http://mobyreg/servicepredicates/>
+WHERE
+{
+	#-------------------------------------------------------------------------
+	# A variable number of triples is inserted
+	# here, to accomodate any number of
+	# synonymous predicate URIs.   The triples
+	# are of the form:
+	#  
+	# <predURI> moby:hasOutputType ?outputType
+	#-------------------------------------------------------------------------
+	
+	%v%
+	
+	?outputType rdf:type %u% .
+	?outputType moby:hasConstructQuery ?construct_query .
+}

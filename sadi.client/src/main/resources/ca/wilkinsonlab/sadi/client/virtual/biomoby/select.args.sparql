@@ -1,0 +1,51 @@
+PREFIX svc: <http://www.mygrid.org.uk/mygrid-moby-service#>
+PREFIX dc: <http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX moby: <http://moby/>
+
+SELECT ?articlename ?paramtype ?objtype ?datatype ?default
+#FROM <http://mobyreg/services/>
+{
+
+   #----------------------------------------------------
+   # It is possible for a web service to perform
+   # more than one operation, although Moby services
+   # never do.
+   #----------------------------------------------------
+   
+   %u% svc:hasOperation ?operation .
+   ?operation %u% ?argnode .
+   
+   ?argnode svc:hasParameterNameText ?articlename .
+
+   #-----------------------------------------------------
+   # ?paramtype is a: simple, parameter, or collection.
+   #-----------------------------------------------------
+   
+   ?argnode svc:hasParameterType ?paramtype_node .
+   ?paramtype_node rdf:type ?paramtype .
+   
+   #-----------------------------------------------------
+   # Simples and collections have object types, but
+   # parameters (secondary arguments) have datatypes.
+   # In order to cover both cases, we must make
+   # these two blocks optional.
+   #-----------------------------------------------------
+   
+   OPTIONAL
+   { 
+   		?argnode svc:objectType ?objtype_node .
+   		?objtype_node rdf:type ?objtype .
+   }
+   
+   OPTIONAL
+   { 
+   	    ?argnode svc:datatype ?datatype .
+    }
+    
+   OPTIONAL
+   {
+   	    ?argnode svc:hasDefaultValue ?default .
+   } 
+
+}
