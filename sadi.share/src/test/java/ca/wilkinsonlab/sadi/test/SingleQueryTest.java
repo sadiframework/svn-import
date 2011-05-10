@@ -186,6 +186,39 @@ public class SingleQueryTest
 //			" ?attr ss:SIO_000300 ?value . " +
 //			"}";
 		
+//		query =
+//			"PREFIX test: <http://unbsj.biordf.net/test/test-sadi-service-ontology.owl#> " +
+//			"SELECT ?b " +
+//			"FROM <http://unbsj.biordf.net/test/test-sadi-service-ontology.owl> " +
+//			"WHERE { " +
+//			"  ?b a test:B . " +
+//			"  test:a1 test:R1 ?b . " +
+//			"}";
+//		
+//		query =
+//			"PREFIX test: <http://unbsj.biordf.net/test/test-sadi-service-ontology.owl#> " +
+//			"SELECT ?b " +
+//			"FROM <http://unbsj.biordf.net/test/test-sadi-service-ontology.owl> " +
+//			"WHERE { " +
+//			"  ?b a test:B . " +
+//			"  ?b test:R2 test:a1 . " +
+//			"}";
+//		
+//		query =
+//			"PREFIX test: <http://unbsj.biordf.net/test/test-sadi-service-ontology.owl#> " +
+//			"ASK " +
+//			"FROM <http://unbsj.biordf.net/test/test-sadi-service-ontology.owl> " +
+//			"WHERE { " +
+//			"  test:a1 test:R1 test:b1 . " +
+//			"}";
+		
+		query = 
+			"SELECT * " +
+			"WHERE { " +
+			"  <http://bio2rdf.org/uniprot:P12345> <http://purl.uniprot.org/core/classifiedWith> ?term . " +
+			"  ?term <http://semanticscience.org/resource/SIO_000226> ?protein " +
+			"}";
+		
 		log.info( String.format("executing query\n%s", query) );
 		
 		StopWatch stopWatch = new StopWatch();
