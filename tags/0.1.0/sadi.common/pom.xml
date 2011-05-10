@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project 
+  xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ca.wilkinsonlab.sadi</groupId>
+  <artifactId>sadi-common</artifactId>
+  <version>0.1.0</version>
+  <parent>
+    <groupId>ca.wilkinsonlab.sadi</groupId>
+    <artifactId>sadi-parent</artifactId>
+    <version>0.1.0</version>
+  </parent>
+  <name>Common SADI classes</name>
+  <description>Classes used by both SADI clients and SADI services</description>
+  
+  <repositories>
+  	<repository>
+  	  <id>dev.biordf.net</id>
+  	  <name>dev.biordf.net</name>
+  	  <url>http://dev.biordf.net/maven</url>
+  	  <snapshots>
+  	    <enabled>true</enabled>
+  	  </snapshots>
+  	</repository>
+  </repositories>
+  
+  <dependencies>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.4</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-configuration</groupId>
+      <artifactId>commons-configuration</artifactId>
+      <version>1.5</version>
+    </dependency>
+    
+    <!--
+     xlightweb doesn't do basic authentication, so we still need both libraries for now...
+     (also, we use URI and URIException that come proximately from commons-httpclient...)
+     -->
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.xlightweb</groupId>
+    	<artifactId>xlightweb</artifactId>
+    	<!--
+    	 xlightweb has a dependency with a version range that breaks Raven,
+    	 Taverna's runtime Maven thingy, so we've had to deploy our own version...
+    	 -->
+    	<version>2.10-taverna</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.hp.hpl.jena</groupId>
+      <artifactId>jena</artifactId>
+      <version>2.6.3</version>
+    </dependency>
+    <dependency>
+      <groupId>com.hp.hpl.jena</groupId>
+      <artifactId>arq</artifactId>
+      <version>2.8.4</version>
+    </dependency>
+    
+    <!--
+     Jena 2.6.3 depends on slf4j-log4j12-1.5.8, but doesn't specify it...
+     -->
+  	<dependency>
+  		<groupId>org.slf4j</groupId>
+  		<artifactId>slf4j-log4j12</artifactId>
+  		<version>1.5.8</version>
+  	</dependency>
+  	 
+    <dependency>
+      <groupId>stringtree</groupId>
+      <artifactId>stringtree-json</artifactId>
+      <version>2.0.9</version>
+    </dependency>
+    
+    <dependency>
+    	<groupId>commons-validator</groupId>
+    	<artifactId>commons-validator</artifactId>
+    	<version>1.3.1</version>
+    </dependency>
+    <dependency> <!-- this is declared optional in commons-validator, but we need it here -->
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.8</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
