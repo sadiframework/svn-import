@@ -1,0 +1,8 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:uniprot2go="http://sadiframework.org/examples/uniprot2go.owl#">
+
+	<lsrn:PDB_Record rdf:about="http://lsrn.org/PDB:3IWT"/>
+
+</rdf:RDF>

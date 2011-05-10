@@ -1,0 +1,21 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.0="http://semanticscience.org/resource/"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:j.1="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:j.2="http://sadiframework.org/ontologies/properties.owl#"
+    xmlns:j.3="http://sadiframework.org/examples/keggCompound2PubChem.owl#">
+  <j.3:OutputClass rdf:about="http://lsrn.org/KEGG_COMPOUND:cpd:C00791">
+    <j.2:isSubstance>
+      <j.1:PubChem_Substance_Record rdf:about="http://lsrn.org/PubChem_Substance:4049">
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PubChem_Substance/4049"/>
+        <j.0:SIO_000008>
+          <j.1:PubChem_Substance_Identifier>
+            <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >4049</j.0:SIO_000300>
+          </j.1:PubChem_Substance_Identifier>
+        </j.0:SIO_000008>
+      </j.1:PubChem_Substance_Record>
+    </j.2:isSubstance>
+  </j.3:OutputClass>
+</rdf:RDF>
