@@ -11,7 +11,7 @@
 <%
 	boolean doValidate = request.getParameter("ignoreWarnings") == null;
 	boolean doRegister = true;
-	boolean doTweet = Registry.getConfig().getBoolean("sendTweets", false);
+	boolean doTweet = Registry.getConfig().getBoolean("twitter.sendTweets", false);
 	
 	String serviceURI = request.getParameter("serviceURI");
 	if (serviceURI != null) {
@@ -50,12 +50,12 @@
 			}
 			
 			if (doRegister) {
-				doTweet &= registry.containsService(serviceURI); // only tweet new services
+				doTweet &= !registry.containsService(serviceURI); // only tweet new services
 				ServiceBean serviceBean = registry.registerService(serviceURI);
 				request.setAttribute("service", serviceBean);
 				if (doTweet) {
 					try {
-						Twitter.tweetService(serviceBean);
+						//Twitter.tweetService(serviceBean);
 					} catch (final Exception e) {
 						log.error(String.format("error tweeting registration of %s: %s", serviceURI, e));
 					}

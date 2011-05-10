@@ -3,6 +3,7 @@ package ca.wilkinsonlab.sadi.registry;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -41,6 +42,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.util.ResourceUtils;
+import com.hp.hpl.jena.vocabulary.DC;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
@@ -358,6 +360,7 @@ public class Registry
 		 * successfully fetched...
 		 */
 		Resource serviceNode = getModel().createResource(serviceUrl, SADI.Service);
+		log.info(String.format("registered service %s", serviceUrl));
 		
 		attachMetaData(serviceNode, service);
 
@@ -369,6 +372,9 @@ public class Registry
 		for (Restriction restriction: service.getRestrictions()) {
 			attachRestriction(serviceNode, restriction);
 		}
+		Resource reg = serviceNode.getModel().createResource();
+		serviceNode.addProperty(SADI.registration, reg);
+		reg.addLiteral(DC.date, Calendar.getInstance().getTime());
 	}
 	
 	/* TODO in some cases, we're ending up with multiple copies of what is
