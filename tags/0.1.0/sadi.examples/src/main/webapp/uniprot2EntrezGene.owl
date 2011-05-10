@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE rdf:RDF [
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+  <!ENTITY owl "http://www.w3.org/2002/07/owl#">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+  <!ENTITY sadi "http://sadiframework.org/ontologies/properties.owl#">
+  <!ENTITY sio "http://semanticscience.org/resource/">
+  <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/">
+]>
+<rdf:RDF
+    xml:base="http://sadiframework.org/examples/uniprot2EntrezGene.owl#"
+    xmlns="http://sadiframework.org/examples/uniprot2EntrezGene.owl#"
+    xmlns:rdf="&rdf;"
+    xmlns:rdfs="&rdfs;"
+    xmlns:owl="&owl;"
+    xmlns:xsd="&xsd;"
+    xmlns:sadi="&sadi;"
+    xmlns:sio="&sio;"
+    xmlns:lsrn="&lsrn;">
+
+  <owl:Ontology rdf:about=""/>
+  
+  <owl:Class rdf:ID="AnnotatedUniProtRecord">
+    <rdfs:subClassOf rdf:resource="&lsrn;UniProt_Record"/>
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&sio;SIO_010079"/>
+        <owl:someValuesFrom rdf:resource="&lsrn;GeneID_Record"/>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+  
+</rdf:RDF>

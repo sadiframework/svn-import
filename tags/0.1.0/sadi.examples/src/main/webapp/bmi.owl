@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!DOCTYPE rdf:RDF [
+  <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+  <!ENTITY owl "http://www.w3.org/2002/07/owl#">
+  <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+  <!ENTITY mged "http://mged.sourceforge.net/ontologies/MGEDOntology.owl#">
+]>
+
+<rdf:RDF
+    xml:base="http://sadiframework.org/examples/bmi.owl"
+    xmlns="http://sadiframework.org/examples/bmi.owl#"
+    xmlns:rdf="&rdf;"
+    xmlns:rdfs="&rdfs;"
+    xmlns:owl="&owl;"
+    xmlns:xsd="&xsd;"
+    xmlns:mged="&mged;">
+    
+  <owl:Ontology rdf:about="">
+    <owl:imports rdf:resource="http://sadiframework.org/ontologies/MGED.measurement.owl"/>
+  </owl:Ontology>
+  
+  <owl:Class rdf:ID="PopulatedMeasurement">
+    <rdfs:subClassOf rdf:resource="&mged;Measurement"/>
+    <owl:intersectionOf rdf:parseType="Collection">
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&mged;has_units"/>
+        <owl:someValuesFrom rdf:resource="&mged;Unit"/>
+      </owl:Restriction>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&mged;has_value"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality> 
+      </owl:Restriction>
+    </owl:intersectionOf>
+  </owl:Class>
+  
+  <owl:Class rdf:ID="NewInputClass">
+    <owl:intersectionOf rdf:parseType="Collection">
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&mged;has_height"/>
+        <owl:someValuesFrom rdf:resource="#PopulatedMeasurement"/> 
+      </owl:Restriction>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&mged;has_mass"/>
+        <owl:someValuesFrom rdf:resource="#PopulatedMeasurement"/>
+      </owl:Restriction>
+    </owl:intersectionOf>
+  </owl:Class>
+  
+  <owl:Class rdf:ID="InputClass">
+    <owl:intersectionOf rdf:parseType="Collection">
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&mged;has_height"/>
+        <owl:someValuesFrom rdf:resource="&mged;Measurement"/> 
+      </owl:Restriction>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="&mged;has_mass"/>
+        <owl:someValuesFrom rdf:resource="&mged;Measurement"/>
+      </owl:Restriction>
+    </owl:intersectionOf>
+  </owl:Class>
+  
+  <owl:Class rdf:ID="OutputClass">
+    <rdfs:subClassOf>
+      <owl:Restriction>
+        <owl:onProperty>
+          <owl:DatatypeProperty rdf:ID="BMI"/>
+        </owl:onProperty>
+        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+      </owl:Restriction>
+    </rdfs:subClassOf>
+  </owl:Class>
+  
+</rdf:RDF>
