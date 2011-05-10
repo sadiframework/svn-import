@@ -1,0 +1,8 @@
+PREFIX db: <http://sadiframework.org/ontologies/predicatestats.owl#>
+
+SELECT ?averageBaseTime
+FROM %u%
+WHERE 
+{
+	%u% db:averageBaseTime ?averageBaseTime .
+}

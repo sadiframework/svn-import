@@ -1,0 +1,12 @@
+PREFIX db: <http://sadiframework.org/ontologies/predicatestats.owl#>
+
+SELECT ?timestamp
+FROM %u%
+WHERE {
+	?s db:timestamp ?timestamp .
+}
+ORDER BY ?timestamp
+LIMIT 1
+OFFSET %v%
+
+ 
