@@ -15,6 +15,11 @@ the provision of SADI services.</p>
 
 <h3>Version info</h3>
 
+<h4>v1.1.9 (11th May 2011)</h4>
+<ul>
+    <li>Updated the maven plugin behind the java generator.</li>
+</ul
+
 <h4>v1.1.8 (14th February 2011)</h4>
 <ul>
     <li>Direct link to the plugin documenation can now be found from the SADI preferences panel.</li>
