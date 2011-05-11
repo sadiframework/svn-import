@@ -81,9 +81,6 @@ public class MavenExecutor {
         params.add(String.format("-DserviceClass=%s", serviceClass.trim()));
         params.add(String.format("-DinputClass=%s", inputClass.trim()));
         params.add(String.format("-DoutputClass=%s", outputClass.trim()));
-        if (definition.isAsync()) {
-            params.add("-Dasync=true");
-        }
         
         /*
          * add the following properties:
@@ -106,8 +103,7 @@ public class MavenExecutor {
             params.add(String.format("-DcontactEmail=%s", definition.getProvider().trim()));
         }
         params.add(String.format("-Dauthoritative=%s", definition.isAuthoritative()));
-        
-
+        params.add(String.format("-Dasync=%s", definition.isAsync()));
 
         CLIManager cliManager = new CLIManager();
         CommandLine cli = null;
