@@ -15,7 +15,7 @@ the provision of SADI services.</p>
 
 <h3>Version info</h3>
 
-<h4>v1.1.9 &amp; 1.1.10 (11th May 2011)</h4>
+<h4>v1.1.9 &amp; 1.1.10 &amp; 1.1.11 (11th May 2011)</h4>
 <ul>
     <li>Updated the maven plugin behind the java generator.</li>
 </ul>
