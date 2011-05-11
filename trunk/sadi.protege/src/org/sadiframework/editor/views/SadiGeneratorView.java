@@ -547,6 +547,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
+        
+        dir.mkdirs();
         if (!dir.canWrite()) {
             JOptionPane.showMessageDialog(null, bundle
                     .getString("definition_cannot_write_directory"), "Error",
@@ -896,13 +898,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        if (def.getEndpoint() == null || def.getEndpoint().equals("")) {
-            JOptionPane.showMessageDialog(
-                    SadiGeneratorView.this, 
-                    bundle.getString("definition_validation_endpoint"),
-                    bundle.getString("definition_validation_title"), 
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
+        if (def.getEndpoint() == null || def.getEndpoint().trim().equals("")) {
+            def.setEndpoint("http://somedomain.org/services/"+def.getName());
         }
         return true;
     }    
