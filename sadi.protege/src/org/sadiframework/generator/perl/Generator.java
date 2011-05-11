@@ -84,7 +84,7 @@ public class Generator {
         }
     }
 
-    public String generateService(String servicename, boolean isAsync, boolean doBoth, boolean useForce) throws IOException, InterruptedException {
+    public String generateService(String servicename, String pSadiHomedir, boolean isAsync, boolean doBoth, boolean useForce) throws IOException, InterruptedException {
         validate();
         ArrayList<String> command = new ArrayList<String>();
         Process p;
@@ -134,6 +134,10 @@ public class Generator {
 
         // execute the command
         ProcessBuilder pb = new ProcessBuilder(command.toArray(new String[]{}));
+        if (pSadiHomedir != null && !pSadiHomedir.trim().equals("")) {
+            pb.environment().put("SADI_CFG_DIR", pSadiHomedir);    
+        }
+        
         // merge the error stream with stdout
         pb.redirectErrorStream(true);
         // start our thread
