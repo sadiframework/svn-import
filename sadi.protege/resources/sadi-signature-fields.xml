@@ -51,7 +51,7 @@
         type="text"
         id="URL"
         index="5"
-        required="true"
+        required="false"
         helpText="definition_endpoint_help"
         key="URL"
         icon="" />
