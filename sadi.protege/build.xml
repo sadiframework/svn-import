@@ -9,7 +9,7 @@
    <property file="version.properties"/>
    <property name="major.version" value="1"/>
    <property name="minor.version" value="1"/>
-   <property name="micro.version" value="10"/>
+   <property name="micro.version" value="11"/>
 
    <property name = "plugin"          value = "sadi.protege"/>
 
