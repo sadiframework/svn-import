@@ -5,8 +5,10 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
@@ -223,7 +225,7 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
             success = MavenExecutor.GenerateService(
                     serviceDir.getAbsolutePath(), 
                     definition.getName(),
-                    String.format("%s%s", getServicePackage(), definition.getName()),
+                    String.format("%s%s", getServicePackage(), getValidClassName(definition.getName())),
                     definition,
                     getExtraMavenArgs().split(" "));
         } catch (SADIServiceException sse) {
@@ -243,6 +245,15 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
         }
     }
 
+    private static Pattern startsWithLetter = Pattern.compile("^[a-zA-Z]");
+    private static Pattern nonLetterOrDigit = Pattern.compile("\\W+");
+    private static String getValidClassName(String name)
+    {
+    	String className = startsWithLetter.matcher(name).find() ? name : "SADI" + name;
+    	className = WordUtils.capitalizeFully(className);
+    	return nonLetterOrDigit.matcher(className).replaceAll("");
+    }
+    
     /*
      * (non-Javadoc)
      * 
