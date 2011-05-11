@@ -266,6 +266,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             }
 
         }
+        UIUtils.addComponent(p, getSyncOrAsyncRadioButtons(), 0, numPairs, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(ComponentFactory.createTitledBorder(bundle
@@ -432,9 +433,9 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         UIUtils.addComponent(panel, packageField, 1, 2, 2, 1, UIUtils.WEST, UIUtils.HORI, 0.0, 0.0);
         UIUtils.addComponent(panel, extralabel, 0, 3, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, extraField, 1, 3, 2, 1, UIUtils.WEST, UIUtils.HORI, 0.0, 0.0);
-        UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 4, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 5, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { generateBtn, javaLocalDeployBtn, javaPackageWarBtn }), 0, 6, 2, 1, UIUtils.WEST, UIUtils.NONE, 1.0, 0.0);
+        //UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 4, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        //UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 5, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[] { generateBtn, javaLocalDeployBtn, javaPackageWarBtn }), 0, 5, 2, 1, UIUtils.WEST, UIUtils.NONE, 1.0, 0.0);
         // remember to make the panel suck up the remainder vertical space
         return panel;
     }
@@ -497,7 +498,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         UIUtils.addComponent(panel, deflabel, 0, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, defField, 1, 0, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
         UIUtils.addComponent(panel, perlDefinitionBtn, 3, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 1, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        //UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 1, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 2, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, getPerlSadiUseForceCheckbox(), 0, 3, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         // create the generate/cancel button panel
