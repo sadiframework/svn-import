@@ -53,10 +53,11 @@ public class ServiceGeneratorPerlWorker extends SwingWorker<String, Object> {
         boolean useForce = manager.getBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, false);
         
         String name = manager.getPreference(SADIProperties.GENERATOR_SERVICE_NAME, "");
+        String pSadiHomedir = manager.getPreference(SADIProperties.PERL_SADI_HOME_DIRECTORY, "");
         Generator gen = new Generator(perl, libs, scriptDir);
         String str = "";
         try {
-            str = gen.generateService(name, isAsync, doBoth, useForce);
+            str = gen.generateService(name, pSadiHomedir, isAsync, doBoth, useForce);
         } catch (IOException ioe) {
             manager.saveBooleanPreference(SADIProperties.DO_PERL_SERVICE_GENERATION, false);
         } catch (InterruptedException ie) {
