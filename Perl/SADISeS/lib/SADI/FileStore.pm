@@ -15,12 +15,13 @@ use SADI::Utils;
 use Carp;
 use File::Spec;
 use File::Path;
+use Cwd 'abs_path';
 use Fcntl qw( :DEFAULT :flock :mode );
 use strict;
 
 # add versioning to this module
 use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.11 $ =~ /: (\d+)\.(\d+)/;
+$VERSION = sprintf "%d.%02d", q$Revision: 1.12 $ =~ /: (\d+)\.(\d+)/;
 
 =head1 NAME
 
@@ -221,7 +222,7 @@ sub add {
 	$self->throw(
 			   'Before you can add a data to the store, you need to set ServiceName!\n')
 	  unless $self->ServiceName;
-	my $async_dir = $SADICFG::ASYNC_TMP || SADI::Utils->find_file( $Bin, 'async' );
+	my $async_dir = defined $SADICFG::ASYNC_TMP ? $SADICFG::ASYNC_TMP : File::Spec->tmpdir(); #$SADICFG::ASYNC_TMP || SADI::Utils->find_file( $Bin, 'async' );
 	unless ( -e File::Spec->catfile( $async_dir, $self->_escaped_name ) ) {
 		unless (
 				 File::Path::mkpath(
@@ -233,6 +234,7 @@ sub add {
 		}
 	}
 	my $path = File::Spec->catfile( $async_dir, $self->_escaped_name, $id );
+	$LOG->debug("Adding file '$path' to filestore ...");
 
 	# make certain our filehandle goes away when we fall out of scope
 	local *FH;
@@ -271,7 +273,7 @@ sub remove {
 	$self->throw(
 			'Before you can remove data from the store, you need to set ServiceName!\n')
 	  unless $self->ServiceName;
-	my $async_dir = $SADICFG::ASYNC_TMP || SADI::Utils->find_file( $Bin, 'async' );
+	my $async_dir = defined $SADICFG::ASYNC_TMP ? $SADICFG::ASYNC_TMP : File::Spec->tmpdir(); #$SADICFG::ASYNC_TMP || SADI::Utils->find_file( $Bin, 'async' );
 	my $path = File::Spec->catfile( $async_dir, $self->_escaped_name, $id );
 
 	# remove the file if the path exists ...
@@ -298,7 +300,7 @@ sub get {
 	$self->throw(
 		  'Before you can retrieve data from the store, you need to set ServiceName!\n')
 	  unless $self->ServiceName;
-	my $async_dir = $SADICFG::ASYNC_TMP || SADI::Utils->find_file( $Bin, 'async' );
+	my $async_dir = defined $SADICFG::ASYNC_TMP ? $SADICFG::ASYNC_TMP : File::Spec->tmpdir(); #$SADICFG::ASYNC_TMP || SADI::Utils->find_file( $Bin, 'async' );
 	my $path = File::Spec->catfile( $async_dir, $self->_escaped_name, $id );
 	return undef unless -e $path;
 
@@ -327,7 +329,7 @@ sub clean_store {
 	return unless $self->ServiceName;
 	$age = 2.00 unless defined $age;
 	$age = 2.00 unless $age =~ m/^\s*(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?\s*$/;
-	my $async_dir = $SADICFG::ASYNC_TMP || SADI::Utils->find_file( $Bin, 'async' );
+	my $async_dir = defined $SADICFG::ASYNC_TMP ? $SADICFG::ASYNC_TMP : File::Spec->tmpdir(); # $SADICFG::ASYNC_TMP || SADI::Utils->find_file( $Bin, 'async' );
 	for my $eachFile (
 				glob( File::Spec->catfile( $async_dir, $self->_escaped_name ) . '/*' ) )
 	{
@@ -352,9 +354,15 @@ sub _clean_servicename {
 
 sub _is_dir_empty {
 	my ( $self, $path ) = @_;
+	return 1 unless $path;
+	# catch cases where the path doesnt exist and therefore is empty
+	eval {$path = abs_path($path)};
+	return 1 if $@;
+	
 	opendir (my $dfh, $path);
-	while ( my $entry = readdir ($dfh) ) {
-		next if ( $entry =~ /^\.\.?$/ );
+	while ( readdir ($dfh) ) {
+		next unless defined $_;
+		next if ( $_ =~ m/^\./ );
 		closedir ($dfh);
 		return 0;
 	}
