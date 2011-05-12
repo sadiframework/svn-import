@@ -28,6 +28,11 @@ is($config->param('generators.outdir'), 'foo', 'check for generators.outdir para
 is($config->param('a'), 'b', 'check for "a" parameter');
 $config->delete('a');
 is($config->param('a'), undef, 'check for recently deleted "a" parameter');
-is($config->param('async.tmp'), 'tmp', 'check for "async.tmp" parameter');
-$config->delete('async.tmp');
-is($config->param('async.tmp'), undef, 'check for recently deleted "async.tmp" parameter');
+is($config->param('generators.outdir2'), 'foo/bar', 'check for generators.outdir2 parameter (uses ${} syntax)');
+is($config->param('generators.outdir3'), 'foo/foo/bar/${generators.notHere}', 'check for generators.outdir3 parameter (uses ${} syntax)');
+$config->import_names('SADICFG');
+is($SADICFG::GENERATORS_OUTDIR3, 'foo/foo/bar/${generators.notHere}', 'imported names - check for imported parameter ($SADICFG::GENERATORS_OUTDIR3)');
+is($SADICFG::GENERATORS_OUTDIR, 'foo', 'imported names - check for imported parameter ($SADICFG::GENERATORS_OUTDIR)');
+is($config->param('t_unfold', '${generators.outdir}/unfolded'), 'foo/unfolded', 'check the unfolding of an key we add ourselves via code (t_unfold = ${generators.outdir}/unfolded');
+is($config->param('generators.outdir4'), '${generators.outdir4}', 'check the unfolding of an key that is is recursive with ${xxx} syntax');
+is($SADICFG::DONT_EXIST, undef, 'query for a parameter that does not exist ($SADICFG::DONT_EXIST)');
