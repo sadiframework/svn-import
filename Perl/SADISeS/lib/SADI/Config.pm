@@ -89,7 +89,7 @@ sub init {
 	}
     }
     # Remove potential whitespaces from the keys (Config::Simple may
-    # leave theme there)
+    # leave them there)
     map { my $orig_key = $_;
 	  s/\s//g and $Config{$_} = delete $Config{$orig_key}  } keys %Config;
 }
@@ -134,11 +134,11 @@ sub param {
 
     # if called with a single argument, return the value
     # matching this key
-    return $Config{$_[0]} if @_ == 1;
+    return _unfold($Config{$_[0]}, $_[0]) if @_ == 1; #${} syntax unfolding
 
     # more arguments means adding...
 #    return $Config{$_[0]} = $_[1];
-    my $ret = $Config{$_[0]} = $_[1];
+    my $ret = $Config{$_[0]} = _unfold($_[1], $_[0]);
     SADI::Config->import_names ('SADICFG');
     return $ret;
 }
@@ -181,8 +181,9 @@ sub import_names {
     no strict 'refs';
     no warnings;   # avoid "Useless use of a variable..."
     while ( my ($key, $value) = each %Config ) {
+    my $old = $key;
 	$key =~ s/\W/_/g;
-	${$namespace . '::' . uc($key)} = $value;
+	${$namespace . '::' . uc($key)} = _unfold($value, $old); #${} syntax unfolding
     }
 }
 
@@ -199,7 +200,32 @@ sub failed_files {
     return %Unsuccess;
 }
 
+##
+## basically looks at the value part and determines if we need to substitute other values into it 
+##
+sub _unfold {
+	my ($val, $key) = @_;
+	# not defined, nothing to unfold
+	return $val unless defined $val;
+	# no folding
+	return $val unless $val =~ m/\$\{(\w+(\.\w+)+)\}/g;
+	# substitute ${x} with known keys
+	$val =~ s/\$\{(\w+(\.\w+)+)\}/exists $Config{$1} ? '"$Config{$1}"' : '"__D__E__L__I__M__{$1}"'/eeg;
 
+	unless ($val =~ m/\$\{(\w+(\.\w+)+)\}/g) {
+	   $val =~ s/__D__E__L__I__M__/\$/g;
+	   return $val;	
+	}
+	if($val =~ m/(\$\{$key\})/) {
+	   warn( "Loop detected ...\n");
+	   # primitive loop detection ...
+	   $val =~ s/__D__E__L__I__M__/\$/g;
+	   return $val;
+	}
+	$val = _unfold($val, $key);
+	$val =~ s/__D__E__L__I__M__/\$/g;
+	return $val;
+}
 
 1;
 __END__
