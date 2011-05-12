@@ -8,7 +8,7 @@
     
 	# Define metadata
 	name 'SADI';
-	version '1.08';
+	version '1.09';
 	license 'new BSD';
 	abstract
 'This distribution aids in the creation of SADI perl based web services.';
@@ -17,7 +17,9 @@
 	# Specific dependencies
 	requires 'Carp'             	=> 0;
 	requires 'CGI'              	=> 0;
-	requires 'File::Spec'       	=> 0.80;    
+	requires 'Cwd'                  => 3.33;
+	requires 'File::Spec'       	=> 3.33;
+	requires 'File::Temp'           => 0.22;
 	requires 'File::Path'           => 0;
 	requires 'File::HomeDir'    	=> 0.65;
 	requires 'File::ShareDir'   	=> 1.00;
