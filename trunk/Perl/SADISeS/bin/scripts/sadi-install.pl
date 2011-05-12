@@ -369,8 +369,8 @@ if ( -e $config_file and !$opt_F ) {
 						),
 						'Configuration file',
 						{
-						   '@GENERATED_DIR@'    => $sadi_home . '/generated',
-						   '@SERVICES_DIR@'     => $sadi_home . '/services',
+						   '@GENERATED_DIR@'    => $generated_dir,
+						   '@SERVICES_DIR@'     => $services_dir,
 						   '@DEFINITIONS_DIR@'  => $definitions_dir,
 						   '@ASYNC_OUTDIR@'     => $async_dir,
 						   '@UNIT_TEST_DIR@'   => $unittest_dir,
