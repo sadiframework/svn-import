@@ -1,5 +1,10 @@
 Revision history for Perl extension SADI.
 
+1.09
+    * FileStore now uses the File::Temp->tempdir by default instead of a predefined directory.
+      You can still utilize a user specified directory.
+    * Config now supports the ability to reference previously defined $keys in other keys.
+    
 1.08
     * Changed the sadi-please-wait pragma for asynchronous services to the HTTP header
       Retry-After.
