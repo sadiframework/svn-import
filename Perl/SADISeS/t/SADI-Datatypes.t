@@ -5,24 +5,27 @@
 #use Test::More tests => 7;
 use Test::More qw/no_plan/;
 use strict;
+use Cwd 'abs_path';
 use vars qw /$outdir/;
 
 BEGIN {
 	use FindBin qw ($Bin);
 	use lib "$Bin/../lib";
-	if ($Bin =~ m/t$/) {
-        $outdir = "$Bin/owl";
-    } else {
-        $outdir = "$Bin/t/owl";
-    }
+	if ( $Bin =~ m/t$/ ) {
+		$outdir = abs_path("$Bin") . "/owl";
+	} else {
+		$outdir = abs_path("$Bin/t") . "/owl";
+	}
 	my $cmd = $Bin;
 	$cmd .= "/t" unless $cmd =~ /t$/;
-	$cmd =
-"$^X $cmd/../bin/scripts/sadi-generate-datatypes.pl -o $outdir $cmd/datatypes.xml $cmd/inheritance-bug.owl";
+	$cmd = abs_path($cmd);
 	diag(
-"\nTo run this test, we need to generate perl modules!\nThis is done via the following command:\n$cmd"
-	);
-	`$cmd`;
+"\nTo run this test, we need to generate perl modules!\nThis is done via the following command:\n"
+		  . "$^X '"
+		  . abs_path("$cmd/../bin/scripts/sadi-generate-datatypes.pl")
+		  . "' -o $outdir $cmd/datatypes.xml $cmd/inheritance-bug.owl" );
+	system( $^X, abs_path("$cmd/../bin/scripts/sadi-generate-datatypes.pl"),
+			"-o", $outdir, "$cmd/datatypes.xml", "$cmd/inheritance-bug.owl" );
 }
 
 END {
@@ -31,7 +34,7 @@ END {
 	# delete outdir and its contents ...
 	use File::Path;
 	diag("\nremoving generated modules from $outdir ...");
-	rmtree($outdir, {keep_root => 0});
+	rmtree( $outdir, { keep_root => 0 } );
 	diag("done.");
 }
 #########################
@@ -52,9 +55,7 @@ my @properties = qw/ontology::dumontierlab::com::hasSymbol
 use_ok($_) foreach (@properties);
 
 # check the class default methods
-my $class =
-  sadiframework::org::examples::example::AnnotatedGeneID_Record->new(
-																		'#foo');
+my $class = sadiframework::org::examples::example::AnnotatedGeneID_Record->new('#foo');
 isa_ok( $class, 'OWL::Data::OWL::Class' );
 is( $class->uri,   "#foo", "check uri - set in constructor" );
 is( $class->value, "#foo", "check value - set in constructor" );
@@ -69,17 +70,14 @@ is( $class->label, "my label", "check label - set with setter" );
 
 # check the properties associated with this class
 # check hasSymbol
-$class->hasSymbol(
-			  ontology::dumontierlab::com::hasSymbol->new('Some_Gene_Symbol') );
+$class->hasSymbol( ontology::dumontierlab::com::hasSymbol->new('Some_Gene_Symbol') );
 is( scalar( @{ $class->hasSymbol() } ), 1, "check hasSymbol" );
 $class->add_hasSymbol(
-			 ontology::dumontierlab::com::hasSymbol->new('Some_Gene_Symbol2') );
-is( scalar( @{ $class->hasSymbol() } ), 2, "check hasSymbol adder" );
-is( @{ $class->hasSymbol() }[0]->value,
-	'Some_Gene_Symbol', "check hasSymbol getter" );
-is( @{ $class->hasSymbol() }[1]->value,
-	'Some_Gene_Symbol2', "check hasSymbol getter" );
-is( @{ $class->hasSymbol() }[2], undef, "check hasSymbol getter" );
+					 ontology::dumontierlab::com::hasSymbol->new('Some_Gene_Symbol2') );
+is( scalar( @{ $class->hasSymbol() } ), 2,                   "check hasSymbol adder" );
+is( @{ $class->hasSymbol() }[0]->value, 'Some_Gene_Symbol',  "check hasSymbol getter" );
+is( @{ $class->hasSymbol() }[1]->value, 'Some_Gene_Symbol2', "check hasSymbol getter" );
+is( @{ $class->hasSymbol() }[2],        undef,               "check hasSymbol getter" );
 isa_ok( @{ $class->hasSymbol() }[0], 'ontology::dumontierlab::com::hasSymbol' );
 isa_ok( @{ $class->hasSymbol() }[1], 'ontology::dumontierlab::com::hasSymbol' );
 is(
@@ -95,13 +93,11 @@ is(
 
 # check hasDescription
 $class->hasDescription(
-		   sadiframework::org::ontologies::predicates::hasDescription->new(
-															 'some description')
-);
+	 sadiframework::org::ontologies::predicates::hasDescription->new('some description') );
 is( scalar( @{ $class->hasDescription() } ), 1, "check hasDescription" );
 $class->add_hasDescription(
-		   sadiframework::org::ontologies::predicates::hasDescription->new(
-														   'some description 2')
+						sadiframework::org::ontologies::predicates::hasDescription->new(
+																   'some description 2')
 );
 is( scalar( @{ $class->hasDescription() } ), 2, "check hasDescription adder" );
 is( @{ $class->hasDescription() }[0]->value,
@@ -115,26 +111,22 @@ isa_ok( @{ $class->hasDescription() }[0],
 		'sadiframework::org::ontologies::predicates::hasDescription' );
 isa_ok( @{ $class->hasDescription() }[1],
 		'sadiframework::org::ontologies::predicates::hasDescription' );
-is(
-	@{ $class->hasDescription() }[0]->uri,
+is( @{ $class->hasDescription() }[0]->uri,
 	'http://sadiframework.org/ontologies/predicates.owl#hasDescription',
-	"check type of value in hasDescription slot"
-);
-is(
-	@{ $class->hasDescription() }[1]->uri,
+	"check type of value in hasDescription slot" );
+is( @{ $class->hasDescription() }[1]->uri,
 	'http://sadiframework.org/ontologies/predicates.owl#hasDescription',
-	"check type of value in hasDescription slot"
-);
+	"check type of value in hasDescription slot" );
 
 # check hasProteinName
 $class->hasProteinName(
-		   sadiframework::org::ontologies::predicates::hasProteinName->new(
-															'some protein name')
+						sadiframework::org::ontologies::predicates::hasProteinName->new(
+																	'some protein name')
 );
 is( scalar( @{ $class->hasProteinName() } ), 1, "check hasProteinName" );
 $class->add_hasProteinName(
-		   sadiframework::org::ontologies::predicates::hasProteinName->new(
-														  'some protein name 2')
+						sadiframework::org::ontologies::predicates::hasProteinName->new(
+																  'some protein name 2')
 );
 is( scalar( @{ $class->hasProteinName() } ), 2, "check hasProteinName adder" );
 is( @{ $class->hasProteinName() }[0]->value,
@@ -148,26 +140,19 @@ isa_ok( @{ $class->hasProteinName() }[0],
 		'sadiframework::org::ontologies::predicates::hasProteinName' );
 isa_ok( @{ $class->hasProteinName() }[1],
 		'sadiframework::org::ontologies::predicates::hasProteinName' );
-is(
-	@{ $class->hasProteinName() }[0]->uri,
+is( @{ $class->hasProteinName() }[0]->uri,
 	'http://sadiframework.org/ontologies/predicates.owl#hasProteinName',
-	"check type of value in hasProteinName slot"
-);
-is(
-	@{ $class->hasProteinName() }[1]->uri,
+	"check type of value in hasProteinName slot" );
+is( @{ $class->hasProteinName() }[1]->uri,
 	'http://sadiframework.org/ontologies/predicates.owl#hasProteinName',
-	"check type of value in hasProteinName slot"
-);
+	"check type of value in hasProteinName slot" );
 
 # check hasName
 $class->hasName(
-	  sadiframework::org::ontologies::predicates::hasName->new('some name')
-);
+				sadiframework::org::ontologies::predicates::hasName->new('some name') );
 is( scalar( @{ $class->hasName() } ), 1, "check hasName" );
 $class->add_hasName(
-				  sadiframework::org::ontologies::predicates::hasName->new(
-																  'some name 2')
-);
+			  sadiframework::org::ontologies::predicates::hasName->new('some name 2') );
 is( scalar( @{ $class->hasName() } ), 2,             "check hasName adder" );
 is( @{ $class->hasName() }[0]->value, 'some name',   "check hasName getter" );
 is( @{ $class->hasName() }[1]->value, 'some name 2', "check hasName getter" );
