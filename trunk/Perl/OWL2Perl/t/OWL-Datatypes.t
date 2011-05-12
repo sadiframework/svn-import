@@ -5,25 +5,27 @@
 #use Test::More tests => 7;
 use Test::More qw/no_plan/;
 use strict;
+use Cwd 'abs_path';
 use vars qw /$outdir/;
 
 BEGIN {
-	use FindBin qw ($Bin);
-	use lib "$Bin/../lib";
-	if ($Bin =~ m/t$/) {
-		$outdir = "$Bin/owl";
-	} else {
-	   	$outdir = "$Bin/t/owl";
-	}
-	
-	my $cmd = $Bin;
-	$cmd .= "/t" unless $cmd =~ /t$/;
-	$cmd =
-"$^X $cmd/../bin/scripts/owl2perl-generate-modules.pl -o $outdir $cmd/datatypes.xml $cmd/inheritance-bug.owl";
-	diag(
-"\nTo run this test, we need to generate perl modules!\nThis is done via the following command:\n$cmd"
-	);
-	`$cmd`;
+    use FindBin qw ($Bin);
+    use lib "$Bin/../lib";
+    if ( $Bin =~ m/t$/ ) {
+        $outdir = abs_path("$Bin") . "/owl";
+    } else {
+        $outdir = abs_path("$Bin/t") . "/owl";
+    }
+    my $cmd = $Bin;
+    $cmd .= "/t" unless $cmd =~ /t$/;
+    $cmd = abs_path($cmd);
+    diag(
+"\nTo run this test, we need to generate perl modules!\nThis is done via the following command:\n"
+          . "$^X '"
+          . abs_path("$cmd/../bin/scripts/owl2perl-generate-modules.pl")
+          . "' -o $outdir $cmd/datatypes.xml $cmd/inheritance-bug.owl" );
+    system( $^X, abs_path("$cmd/../bin/scripts/owl2perl-generate-modules.pl"),
+            "-o", $outdir, "$cmd/datatypes.xml", "$cmd/inheritance-bug.owl" );
 }
 
 END {
