@@ -7,7 +7,7 @@
 	name 'PLUTO';
 	author 'IBM';
 	license 'eclipse';
-    version '0.29';
+    version '0.30';
 	
 	all_from 'lib/ODO.pm';
 
@@ -35,12 +35,12 @@
 	requires 'Parse::RecDescent'         => '1.93';
 	requires 'Template'                  => '2.15';
 	
-	# install DBD::mysql if user has mysql running
-	if (`mysql --version 2>&1` =~ m/^mysql\s+Ver\s+.*$/) {
-	   requires 'DBD::mysql'                => '4';	
-	} else {
-		print STDOUT 'DBD::mysql not required since mysql doesnt seem to be accessible!' . "\n";
-	}
+	# install DBD::mysql iff user has mysql running
+#	if (`mysql --version 2>&1` =~ m/^mysql\s+Ver\s+.*$/) {
+#	   requires 'DBD::mysql'                => '4';	
+#	} else {
+#		print STDOUT 'DBD::mysql not required since mysql doesnt seem to be accessible!' . "\n";
+#	}
 	
 	
 	no_index directory => 'examples';
