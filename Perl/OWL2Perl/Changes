@@ -1,5 +1,10 @@
 Revision history for Perl extension OWL2Perl.
 
+1.00
+    * Updated the dependencies required for this module
+    * Updated the datatypes test to fix problems with those running the tests 
+      on systems where spaces are allowed in the path.
+
 0.98.1
     * Removed the dependency on LS::ID because it was causing installation problems on
       windows 64 bit machines.
