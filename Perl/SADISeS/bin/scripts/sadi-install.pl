@@ -320,9 +320,9 @@ if ( -e $log4perl_file and !$opt_F ) {
 
 # define some directories
 my $generated_dir = $SADICFG::GENERATORS_OUTDIR
-  || "$sadi_home/generated";
+  || '${generators.impl.home}/generated';
 my $services_dir = $SADICFG::GENERATORS_IMPL_OUTDIR
-  || "$sadi_home/services";
+  || '${generators.impl.home}/services';
 
 eval {
     my ( $v, $d, $f ) = File::Spec->splitpath( $generated_dir );
