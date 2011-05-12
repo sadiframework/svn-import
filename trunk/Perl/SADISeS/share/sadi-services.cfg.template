@@ -13,7 +13,7 @@
 
 [generators]
 outdir = @GENERATED_DIR@
-impl.outdir = @SERVICES_DIR@
+impl.outdir = ${generators.impl.home}/services
 impl.package.prefix = Service
 impl.definitions    = @DEFINITIONS_DIR@
 impl.home = @HOME_DIR@
