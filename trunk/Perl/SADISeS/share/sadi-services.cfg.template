@@ -7,7 +7,7 @@
 # Perl's @INC array. Keeping it in this directory is usually fine
 # because the SADI code must be found by Perl anyway.
 #
-# $Id: sadi-services.cfg.template,v 1.5 2010-03-08 19:29:16 ubuntu Exp $
+# $Id: sadi-services.cfg.template,v 1.6 2010-03-08 19:29:16 ubuntu Exp $
 # Contact: Edward Kawas <edward.kawas+sadi@gmail.com>
 # ---------------------------------------------------------------
 
@@ -18,8 +18,10 @@ impl.package.prefix = Service
 impl.definitions    = @DEFINITIONS_DIR@
 impl.home = @HOME_DIR@
 
-[async]
-tmp = @ASYNC_OUTDIR@
+#[async]
+# uncomment to use this directory or one you define 
+# (make sure that your webserver can write into)
+#tmp = @ASYNC_OUTDIR@
 
 [unittest]
 dir = @UNIT_TEST_DIR@
