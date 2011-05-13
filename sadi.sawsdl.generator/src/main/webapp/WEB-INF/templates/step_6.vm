@@ -1,6 +1,6 @@
 #parse("HEADER.vm")
 <h1>Daggoo4SADI</h1>
-<p>You have successfully generated a SADI service, <strong>$servicename</strong>, from the one described by WSDL, <strong>$operationname</strong>.</p>
+<p>You have successfully generated a SADI service, <strong>$servicename</strong>, from the one described by WSDL, <strong>$operationname</strong>. In order to use this service inconjunction with other SADI services available on the SADI framework you will need to register this service.</p>
 <h2>Your service details</h2>
 <p>Listed are some links (open in new windows), for your information, that describe the different aspects of your newly generated SADI service</p>
 <ol>
@@ -10,6 +10,7 @@
     <li><a href="$url_lifting" target="_blank">Your lifting schema</a></li>
     <li><a href="$url_owl" target="_blank">Your input/output OWL class definitions</a></li>
 </ol>
+<p>You can register this generated SADI service by clicking <a href="http://sadiframework.org/registry/register/?serviceURI=$url" target="_blank">here</a>!</p>
 <h2>Now what?</h2>
 <p>Go to the <a href="http://sadiframework.org">SADI</a> home page</p>
 <p>To create another service, click <a href="$url">here</a></p>

@@ -4,7 +4,7 @@
 <h2>Getting started</h2>
 <p>All that is needed to get started is the URL to a publicly accessible WSDL document.</p>
 <p>Given that WSDL document, you will be given the opportunity to select a service from that document to wrap. Then you will be given a chance to define what properties your service needs as input and what properties you will add to that OWL class. </p>
-<p>Once all of the information has been collected a SADI compliant web service will be generated, registered within the SADI framework and you will be shown the service interface.</p>
+<p>Once all of the information has been collected a SADI compliant web service will be generated, and you will be given the option to register it within the SADI framework.</p>
 <h2>Let's do it</h2>
 <p>Enter a URL location of a WSDL document to start:</p>
 #if ($error) 

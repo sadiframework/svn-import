@@ -2,7 +2,10 @@
 <h1>Daggoo4SADI</h1>
 <p>Now we map the SOAP service output to your SADI service output class</p>
 <h2>Output Mapping ($operation)</h2>
-<p>Some instructions here ...</p>
+<p>Please map each WSDL output to properties you would like your service to return.</p>
+<p>If you no outputs are shown below, then either your WSDL is too complicated for 
+the current form of this generator or the WSDL service that you would like to wrap 
+does not define any outputs.</p>
 <p><p/>
 <form id="mappingform" name="mappingform" method="post" action="$servlet_action">
 #if($soap_outputs.size() != 0)
