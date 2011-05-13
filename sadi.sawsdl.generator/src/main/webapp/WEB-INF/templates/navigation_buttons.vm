@@ -1,5 +1,4 @@
 <p> 
-    <input name="reset" type="submit" id="b_reset" value="Reset" />
     <input name="back" type="submit" id="b_back" value="Back" />
     <input type="submit" name="submit" id="b_submit" value="Next" /> 
 </p>
