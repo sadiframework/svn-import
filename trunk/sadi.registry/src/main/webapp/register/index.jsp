@@ -55,7 +55,7 @@
 				request.setAttribute("service", serviceBean);
 				if (doTweet) {
 					try {
-						//Twitter.tweetService(serviceBean);
+						Twitter.tweetService(serviceBean);
 					} catch (final Exception e) {
 						log.error(String.format("error tweeting registration of %s: %s", serviceURI, e));
 					}
