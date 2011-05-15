@@ -9,8 +9,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.admin.Config;
-
 public class RegExUtils {
 
 	final static Pattern regexMetaChars = Pattern.compile("[\\[\\]$^.()+*|\\\\-]");
@@ -35,20 +33,10 @@ public class RegExUtils {
 		protected int maxRegExLengthInChars;
 		protected Set<String> prefixes = new HashSet<String>();
 		protected boolean regExHasExceededMaxLength;
-		/** 
-		 * Exceptions to the normal procedure of extracting a prefix from a URI,
-		 * which is to take the string up to the last occurrence 
-		 * of "#", "/", ":".
-		 */
-		protected Set<String> predefinedPrefixes;
 		
 		public URIRegExBuilder(int maxRegExLengthInChars) {
 			setMaxRegExLengthInChars(maxRegExLengthInChars);
 			setRegExHasExceededMaxLength(false);
-			predefinedPrefixes = new HashSet<String>();
-			for(Object prefix : Config.getConfiguration().getList("sadi.registry.sparql.predefinedURIPrefix")) {
-				predefinedPrefixes.add((String)prefix);
-			}
 		}
 	
 		protected int getMaxRegExLengthInChars() {
@@ -73,7 +61,14 @@ public class RegExUtils {
 				throw new IllegalArgumentException("expected non-empty string for uri");
 			}
 			if(!regExIsTruncated()) {
-				String prefix = getURIPrefix(uri);
+				
+				String prefix = URIUtils.getURIPrefix(uri);
+				
+				if(prefix == null) {
+					log.warn(String.format("unable to determine URI prefix for %s, omitting from regular expression", uri));
+					return;
+				}
+				
 				if (!prefixes.contains(prefix)) {
 					log.trace("adding prefix " + prefix + " to uri regex");
 					prefixes.add(prefix);
@@ -145,33 +140,6 @@ public class RegExUtils {
 			return true;
 		}
 		
-		public String getURIPrefix(String uri) 
-		{
-			// check for special cases first
-			for(String prefix : predefinedPrefixes) {
-				if(uri.startsWith(prefix)) {
-					return prefix;
-				}
-			}
-
-			final String delimiters[] = { "/", "#", ":" };
-			
-			// ignore delimiters that occur as the last character
-			if(StringUtils.lastIndexOfAny(uri, delimiters) == (uri.length() - 1))
-				uri = StringUtils.left(uri, uri.length() - 1);
-			
-			int chopIndex = StringUtils.lastIndexOfAny(uri, delimiters);
-	
-			String prefix;
-			if (chopIndex == -1)
-				prefix = uri;
-			else {
-				chopIndex++; // we want to include the last "/", ":", or "#" in the prefix
-				prefix = StringUtils.substring(uri, 0, chopIndex);
-			}
-
-			return prefix;
-		}
 		
 		public static String buildRegExFromPrefixes(Set<String> uriPrefixes) {
 			
