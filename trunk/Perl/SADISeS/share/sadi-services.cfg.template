@@ -12,22 +12,22 @@
 # ---------------------------------------------------------------
 
 [generators]
-outdir = @GENERATED_DIR@
+outdir = ${generators.impl.home}/generated
 impl.outdir = ${generators.impl.home}/services
 impl.package.prefix = Service
-impl.definitions    = @DEFINITIONS_DIR@
+impl.definitions    = ${generators.impl.home}/definitions
 impl.home = @HOME_DIR@
 
 #[async]
 # uncomment to use this directory or one you define 
 # (make sure that your webserver can write into)
-#tmp = @ASYNC_OUTDIR@
+#tmp = ${generators.impl.home}/async
 
 [unittest]
-dir = @UNIT_TEST_DIR@
+dir = ${generators.impl.home}/unittest
 
 [log]
-config = @LOG4PERL_FILE@
+config = ${generators.impl.home}/log4perl.properties
 #file = @LOGFILE@
 #level = info
 #pattern = "%d (%r) %p> [%x] %F{1}:%L - %m%n"
