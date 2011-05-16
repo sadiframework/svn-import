@@ -3,7 +3,7 @@
 # Print the current status of configuration and logging files.
 #
 # $Id: sadi-config-status.pl,v 1.5 2009-08-26 20:02:20 ubuntu Exp $
-# Contact: Martin Senger <martin.senger@gmail.com>
+# Contact: Edward Kawas <edward.kawas+sadi@gmail.com>
 # -----------------------------------------------------------
 
 # some command-line options
@@ -30,6 +30,7 @@ END_OF_USAGE
 
 use File::HomeDir;
 use SADI::Base;
+use SADI;
 use strict;
 
 $LOG->level ('INFO') if $opt_v;
@@ -38,7 +39,7 @@ $LOG->level ('DEBUG') if $opt_d;
 
 sub say { print @_, "\n"; }
 
-say "Perl-SADI VERSION: $SADI::VERSION\n";
+say "SADI (for perl) VERSION: $SADI::VERSION\n";
 
 say 'Configuration';
 say '-------------';
