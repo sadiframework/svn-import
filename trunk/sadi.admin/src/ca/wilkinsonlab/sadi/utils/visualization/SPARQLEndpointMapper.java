@@ -48,6 +48,8 @@ public class SPARQLEndpointMapper
 
 	protected static class MapperSearchNode extends SearchNode<Resource>
 	{
+		private static final int MAX_EXAMPLE_URIS = 3;
+
 		private SPARQLEndpoint endpoint;
 		private Map<Resource,Long> RDFTypeVisitCounter;
 		private int maxVisitsPerRDFType;
@@ -96,7 +98,14 @@ public class SPARQLEndpointMapper
 			removeStatementsWithBlankNodes(model);
 			Resource node = getNode().inModel(model);
 
-			// skip this node if all rdf:types have been visited
+			// log it when we hit a dead end 
+			
+			if (model.listStatements().toList().size() == 0) {
+				log.trace(String.format("end of branch: no triples with subject %s", getNode().getURI()));
+				return successors;
+			}
+			
+			// skip this node if all rdf:types have been exhausted
 
 			if(!isVisitable(node)) {
 				log.trace(String.format("end of branch: all rdf:types exhausted for %s", getNode().getURI()));
@@ -166,10 +175,14 @@ public class SPARQLEndpointMapper
 			
 			// store example URIs 
 			
-			map.add(sForMap, EXAMPLE_URI, s);
+			if (sForMap.listProperties(EXAMPLE_URI).toList().size() < MAX_EXAMPLE_URIS) {
+				map.add(sForMap, EXAMPLE_URI, s);
+			}
 			
 			if(o.isURIResource() && !p.equals(RDF.type)) {
-				map.add(oForMap.asResource(), EXAMPLE_URI, o.asResource());
+				if (oForMap.asResource().listProperties(EXAMPLE_URI).toList().size() < MAX_EXAMPLE_URIS) {
+					map.add(oForMap.asResource(), EXAMPLE_URI, o.asResource());
+				}
 			}
 		}
 		
@@ -262,13 +275,13 @@ public class SPARQLEndpointMapper
 	{
 		public static final int NO_LIMIT = -1;
 		
-		@Argument(required = true, index = 0, usage = "SPARQL endpoint URL")
+		@Argument(required = true, index = 0, metaVar = "URL", usage = "SPARQL endpoint URL")
 		public String endpointURL = null;
 
-		@Argument(required = true, index = 1, usage = "output RDF filename")
+		@Argument(required = true, index = 1, metaVar = "FILENAME", usage = "output RDF filename")
 		public String outputFilename = null;
 
-		@Option(name = "-r", metaVar = "URI", aliases = { "--root-node" }, usage = "use a specific URI as the root node for the data traversal")
+		@Argument(required = true, index = 2, metaVar = "URI", usage = "use a specific URI as the root node for the data traversal")
 		public List<String> rootNodeURIs;
 
 		@Option(name = "-n", metaVar = "N", aliases = { "--max-visits-per-type" }, usage = "visit the same rdf:type at most N times (default = 5)")
@@ -278,7 +291,10 @@ public class SPARQLEndpointMapper
 		public int maxDepth = NO_LIMIT;
 	}
 	
-	public static void main(String[] args) throws IOException
+	private static final int EXIT_STATUS_SUCCESS = 0;
+	private static final int EXIT_STATUS_FAILURE = 0;
+	
+	public static void main(String[] args)
 	{
 	
 		CommandLineOptions options = new CommandLineOptions();
@@ -307,20 +323,28 @@ public class SPARQLEndpointMapper
 			}
 			
 			// the side effect of the iteration is to build the schema map
+			
 			i.iterate();
 			
 			OutputStream os = new BufferedOutputStream(new FileOutputStream(options.outputFilename)); 
 			map.write(os, "N3");
-			
-		}
-		catch (CmdLineException e) {
+
+		} catch (CmdLineException e) {
 
 			System.err.println(e.getMessage());
-			System.err.println("Usage: java -jar endpoint.mapper.jar <endpoint URL> <output RDF filename>\n");
+			System.err.println("Usage: java -jar sparql-mapper.jar <endpoint URL> <output RDF filename>\n");
 			cmdLineParser.printUsage(System.err);
-		
+			
+			System.exit(EXIT_STATUS_FAILURE);
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+			System.exit(EXIT_STATUS_FAILURE);
+			
 		}
 		
+		System.exit(EXIT_STATUS_SUCCESS);
 	}	
 
 }
