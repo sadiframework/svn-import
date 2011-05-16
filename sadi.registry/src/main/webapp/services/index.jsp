@@ -1,4 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="sadi" uri="/WEB-INF/sadi.tld" %>
 <%@ page import="org.apache.log4j.Logger" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
@@ -44,6 +45,7 @@
         </div>
         <div id='content'>
           <h2>Registered services</h2>
+          <p>${fn:length(services)} services are registered.</p>
       	  <div id='services-table-div'>
             <table id='services-table'>
               <thead>
