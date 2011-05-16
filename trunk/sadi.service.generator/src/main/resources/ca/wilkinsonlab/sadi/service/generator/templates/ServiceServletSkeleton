@@ -23,7 +23,11 @@ import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
 import ca.wilkinsonlab.sadi.service.annotations.ParameterClass;
 import ca.wilkinsonlab.sadi.service.annotations.ParameterDefaults;
 #end
+#if ($async)
+import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
+#else
 import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
+#end
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -53,12 +57,21 @@ import com.hp.hpl.jena.rdf.model.Resource;
 @ParameterClass("$description.getParameterClassURI()")
 @ParameterDefaults({})
 #end
+#if ($async)
+public class $class extends SimpleAsynchronousServiceServlet
+#else
 public class $class extends SimpleSynchronousServiceServlet
+#end
 {
 	private static final Logger log = Logger.getLogger(${class}.class);
 	private static final long serialVersionUID = 1L;
-	
+
+	@Override
+#if ($description.getParameterClassURI())
+	public void processInput(Resource input, Resource output, Resource parameters)
+#else
 	public void processInput(Resource input, Resource output)
+#end
 	{
 		/* your code goes here
 		 * (add properties to output node based on properties of input node...)

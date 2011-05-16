@@ -30,6 +30,9 @@ sadi-generator:generate-service
     authoritative
       Whether or not the service is authoritative. This parameter is
       optional, defaulting to false.
+    async
+      Whether or not the service is asynchronous.  This parameter is
+      optional, defaulting to false.
     inputClass
       The URI of the service input class. This parameter is required and
       the URI must resolve to an OWL class definition.

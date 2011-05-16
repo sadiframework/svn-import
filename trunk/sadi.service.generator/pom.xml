@@ -5,45 +5,41 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-generator</artifactId>
+  <version>0.1.0</version>
   <packaging>maven-plugin</packaging>
-  <version>0.1.0-SNAPSHOT</version>
+  <parent>
+    <groupId>ca.wilkinsonlab.sadi</groupId>
+    <artifactId>sadi-parent</artifactId>
+    <version>0.1.0</version>
+  </parent>
   <name>SADI service code generator</name>
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <descriptors>
+            <descriptor>src/main/assembly/skeleton.xml</descriptor>
+          </descriptors>
         </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+            <phase>package</phase> <!-- bind to the packaging phase -->
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
-    <extensions>
-      <extension>
-        <groupId>org.apache.maven.wagon</groupId>
-        <artifactId>wagon-ssh-external</artifactId>
-        <version>1.0-alpha-5</version>
-      </extension>
-    </extensions>
   </build>
-  <distributionManagement>
-    <repository>
-      <id>dev-repository</id>
-      <name>dev.biordf.net Repository</name>
-      <url>scpexe://dev.biordf.net/var/www/maven/</url>
-    </repository>
-    <snapshotRepository>
-      <id>dev-snapshot-repository</id>
-      <name>dev.biordf.net Snapshot Repository</name>
-      <url>scpexe://dev.biordf.net/var/www/maven/</url>
-    </snapshotRepository>
-  </distributionManagement>
   <dependencies>
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-service</artifactId>
-      <version>0.1.0-SNAPSHOT</version>
+      <version>0.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>

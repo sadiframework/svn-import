@@ -64,6 +64,7 @@ sub read_javadoc_block {
 
     my $javadoc = { body => "" };
     while (<$fh>) { # find start of next JavaDoc comment...
+    	/\/\// && next;
         /\/\*\*/ && last;
     }
     return {} if (eof $fh);
