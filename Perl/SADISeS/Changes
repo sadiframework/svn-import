@@ -1,5 +1,9 @@
 Revision history for Perl extension SADI.
 
+1.10
+    * Updated the template for the config file (sadi-services.cfg) so that users have to change 
+      the least amount of hard coded paths if they want to move their generated services elsewhere.
+    *  
 1.09
     * FileStore now uses the File::Temp->tempdir by default instead of a predefined directory.
       You can still utilize a user specified directory.
