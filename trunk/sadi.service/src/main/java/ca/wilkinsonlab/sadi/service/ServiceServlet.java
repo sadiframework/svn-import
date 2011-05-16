@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.ServiceDescription;
 import ca.wilkinsonlab.sadi.beans.ServiceBean;
-import ca.wilkinsonlab.sadi.beans.TestCaseBean;
 import ca.wilkinsonlab.sadi.rdfpath.RDFPath;
 import ca.wilkinsonlab.sadi.rdfpath.RDFPathUtils;
 import ca.wilkinsonlab.sadi.service.annotations.Authoritative;
