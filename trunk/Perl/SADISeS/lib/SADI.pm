@@ -9,12 +9,11 @@ package SADI;
 use strict 'vars';
 
 # add versioning to this module
-use vars qw{$VERSION};
+use vars qw{$VERSION $Revision};
 
 BEGIN {
-	use vars qw{@ISA @EXPORT @EXPORT_OK};
 	$VERSION = sprintf "%d.%02d", q$Revision: 1.10 $ =~ /: (\d+)\.(\d+)/;
-	*SADI::VERSION = *VERSION;
+	$Revision = '$Id: SADI.pm,v 1.10 2011-05-16 00:02:51 ubuntu Exp $';
 }
 
 1;
