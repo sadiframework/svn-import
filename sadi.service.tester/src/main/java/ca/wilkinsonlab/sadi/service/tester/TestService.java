@@ -1,12 +1,10 @@
 package ca.wilkinsonlab.sadi.service.tester;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 
+import org.apache.axis.utils.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -14,17 +12,17 @@ import org.apache.maven.plugin.MojoFailureException;
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceImpl;
+import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.ModelDiff;
+import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
-import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.Individual;
-import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * A Maven plugin to test a SADI service.
@@ -43,8 +41,8 @@ public class TestService extends AbstractMojo
 	
 	/**
 	 * The URL or local path of an input RDF document.
-	 * This parameter is required.
-	 * @parameter expression="${input}"
+	 * This parameter is optional.
+	 * @parameter expression="${input}" default-value=""
 	 */
 	private String inputPath;
 	private static final String INPUT_KEY = "input";
@@ -52,8 +50,8 @@ public class TestService extends AbstractMojo
 	/**
 	 * The URL or local path of the expected output RDF document corresponding
 	 * to the input document specified above.
-	 * This parameter is required.
-	 * @parameter expression="${expected}"
+	 * This parameter is optional.
+	 * @parameter expression="${expected}" default-value=""
 	 */
 	private String expectedPath;
 	private static final String EXPECTED_OUTPUT_KEY = "expected";
@@ -61,24 +59,65 @@ public class TestService extends AbstractMojo
 	/**
 	 * Expected properties:
 	 *  serviceURL (required)
-	 *  input (required) input RDF URL or path to file
+	 *  input (optional) input RDF URL or path to file
 	 *  expected (optional) expected output RDF URL or path to file
 	 */
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException
 	{
 		Service service = initService();
-		Model inputModel = createInputModel();
-		Model expectedModel = createExpectedOutputModel();
-		Model outputModel = createOutputModel(service, inputModel);
-		sanityCheckOutputModel(service, outputModel);
-		if (getLog().isDebugEnabled())
-			getLog().debug(String.format("output from %s:\n%s", service, RdfUtils.logStatements("\t", outputModel)));
-		if (expectedModel != null)
-			if (!compareOutput(outputModel, expectedModel))
-				throw new MojoFailureException("actual output did not match expected output; see above for details");
+		Collection<TestCase> testCases = getTestCases(service);
+		if (!StringUtils.isEmpty(inputPath) && !StringUtils.isEmpty(expectedPath)) {
+			testCases.add(new TestCase(inputPath, expectedPath));
+		}
+		if (testCases.isEmpty())
+			throw new MojoFailureException("no test cases speciied in properties or service definition");
+		for (TestCase testCase: testCases) {
+			Model outputModel;
+			try {
+				outputModel = ((ServiceImpl)service).invokeServiceUnparsed(testCase.inputModel);
+			} catch (IOException e) {
+				throw new MojoFailureException(String.format("error contacting service %s: %s:", service, e.getMessage()));
+			}
+			sanityCheckOutputModel(service, outputModel);
+			if (getLog().isDebugEnabled())
+				getLog().debug(String.format("output from %s:\n%s", service, RdfUtils.logStatements("\t", outputModel)));
+			compareOutput(outputModel, testCase.expectedModel);	
+		}
 	}
 	
+	private Collection<TestCase> getTestCases(Service service)
+	{
+		Collection<TestCase> tests = new ArrayList<TestCase>();
+		// TODO add to ServiceDescription interface and fix this...
+		Model serviceModel = ((ServiceImpl)service).getServiceModel();
+		MyGridServiceOntologyHelper helper = new MyGridServiceOntologyHelper();
+		for (RDFNode testCaseNode: helper.getTestCasePath().getValuesRootedAt(serviceModel.getResource(service.getURI()))) {
+			try {
+				if (!testCaseNode.isResource()) {
+					throw new Exception("test case node is literal");
+				}
+				Resource testCaseResource = testCaseNode.asResource();
+				Collection<RDFNode> inputs = helper.getTestInputPath().getValuesRootedAt(testCaseResource);
+				if (inputs.isEmpty()) {
+					throw new Exception("no input specified, but each test case needs one");
+				} else if (inputs.size() > 1) {
+					throw new Exception("multiple inputs specified, but each test case can only have one");
+				}
+				Collection<RDFNode> outputs = helper.getTestOutputPath().getValuesRootedAt(testCaseResource);
+				if (outputs.isEmpty()) {
+					throw new Exception("no output specified, but each test case needs one");
+				} else if (outputs.size() > 1) {
+					throw new Exception("multiple outputs specified, but each test case can only have one");
+				}
+				tests.add(new TestCase(inputs.iterator().next(), outputs.iterator().next()));
+			} catch (Exception e) {
+				getLog().warn(String.format("skipping test case %s: %s", testCaseNode, e.getMessage()));
+			}
+		}
+		return tests;
+	}
+
 	private void sanityCheckOutputModel(Service service, Model outputModel) throws MojoFailureException
 	{
 		/* TODO put this in the Service interface...
@@ -91,15 +130,15 @@ public class TestService extends AbstractMojo
 			if (outputs.isEmpty())
 				throw new SADIException(String.format("output model doesn't contain any instances of output class %s", service.getOutputClassURI()));
 			StringBuffer buf = new StringBuffer();
-//			for (Restriction restriction: ((ServiceImpl)service).getRestrictions()) {
-//				/* confirm that the expected model attaches the predicates the
-//				 * registry thinks that it does...
-//				 */
-//				for (Individual output: outputs) {
-//					if (!output.hasOntClass(restriction))
-//						buf.append(String.format("\noutput node %s doesn't match restriction %s", output, OwlUtils.getRestrictionString(restriction)));
-//				}
-//			}
+			for (Restriction restriction: ((ServiceImpl)service).getRestrictions()) {
+				/* confirm that the expected model attaches the predicates the
+				 * registry thinks that it does...
+				 */
+				for (Individual output: outputs) {
+					if (!output.hasOntClass(restriction))
+						buf.append(String.format("\noutput node %s doesn't match restriction %s", output, OwlUtils.getRestrictionString(restriction)));
+				}
+			}
 			if (buf.length() > 0) {
 				buf.insert(0, "output doesn't appear to match the restrictions specified on your output class:");
 				throw new SADIException(buf.toString());
@@ -109,7 +148,7 @@ public class TestService extends AbstractMojo
 		}
 	}
 	
-	private boolean compareOutput(Model output, Model expected)
+	private boolean compareOutput(Model output, Model expected) throws MojoFailureException
 	{
 		if (output.isIsomorphicWith(expected)) {
 			getLog().info("actual output matched expected output");
@@ -120,77 +159,18 @@ public class TestService extends AbstractMojo
 				getLog().error("service output had unexpected statements:\n" + RdfUtils.logStatements("\t", diff.inXnotY));
 			if (!diff.inYnotX.isEmpty())
 				getLog().error("service output had missing statements:\n" + RdfUtils.logStatements("\t", diff.inYnotX));
-			return false;
+			throw new MojoFailureException("actual output did not match expected output; see above for details");
 		}
 	}
 	
 	private Service initService() throws MojoExecutionException
 	{
-//		serviceURL = getRequiredProperty(SERVICE_URL_KEY);
 		try {
 			return new ServiceImpl(serviceURL);
 		} catch (SADIException e) {
 			throw new MojoExecutionException(String.format("error connecting to service %s: %s", serviceURL, e.toString()));
 		}
 	}
-	
-	private Model createInputModel() throws MojoFailureException, MojoExecutionException
-	{
-//		inputPath = getRequiredProperty(INPUT_KEY);
-		try {
-			return createModel(inputPath);
-		} catch (MojoFailureException e) {
-			throw new MojoFailureException(String.format("error reading input RDF: %s", e.getMessage()));
-		}
-	}
-	
-	private Model createExpectedOutputModel() throws MojoFailureException
-	{
-//		expectedPath = System.getProperty(EXPECTED_OUTPUT_KEY);
-		if (expectedPath != null)
-			return createModel(expectedPath);
-		else
-			return null;
-	}
-	
-	private static Model createOutputModel(Service service, Model input) throws MojoFailureException, MojoExecutionException
-	{
-		try {
-			OntClass inputClass = service.getInputClass();
-			Collection<Resource> inputNodes = input.listResourcesWithProperty(RDF.type, inputClass).toList();
-			Collection<Triple> triples = service.invokeService(inputNodes);
-			return RdfUtils.triplesToModel(triples);
-		} catch (SADIException e) {
-			throw new MojoExecutionException(String.format("error invoking service %s: %s", service, e.toString()));
-		}
-	}
-	
-	private static Model createModel(String pathOrURL) throws MojoFailureException
-	{
-		Model model = ModelFactory.createDefaultModel();
-		try {
-			URL url = new URL(pathOrURL);
-			model.read(url.toString());
-			return model;
-		} catch (MalformedURLException e) {
-		}
-		try {
-			File f = new File(pathOrURL);
-			model.read(new FileInputStream(f), "");
-			return model;
-		} catch (FileNotFoundException e) {
-			throw new MojoFailureException(String.format("can't read RDF from %s: %s", pathOrURL, e.getMessage()));
-		}
-	}
-	
-//	private static String getRequiredProperty(String key) throws MojoExecutionException
-//	{
-//		String value = System.getProperty(key);
-//		if (value == null)
-//			throw new MojoExecutionException( String.format("required property %s is undefined", key) );
-//		else
-//			return value;
-//	}
 	
 	public static void main(String args[]) throws MojoExecutionException, MojoFailureException
 	{
