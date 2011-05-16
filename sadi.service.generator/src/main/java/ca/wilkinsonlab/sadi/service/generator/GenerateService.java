@@ -25,7 +25,9 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.configuration.SubsetConfiguration;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -44,6 +46,9 @@ import ca.wilkinsonlab.sadi.service.ServiceDefinitionException;
 import ca.wilkinsonlab.sadi.service.ServiceServlet;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
+import ca.wilkinsonlab.sadi.service.validation.ServiceValidator;
+import ca.wilkinsonlab.sadi.service.validation.ValidationResult;
+import ca.wilkinsonlab.sadi.service.validation.ValidationWarning;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
@@ -134,6 +139,14 @@ public class GenerateService extends AbstractMojo
 	private boolean authoritative;
 //	private static final String AUTHORITATIVE_KEY = "authoritative";
 	
+	
+	/**
+	 * Whether or not the service is asynchronous.  This parameter is optional,
+	 * defaulting to false.
+	 * @parameter expression="${async}" default-value="false"
+	 */
+	private boolean async;
+	
 	/**
 	 * The URI of the service input class. This parameter is required
 	 * and the URI must resolve to an OWL class definition.
@@ -158,7 +171,7 @@ public class GenerateService extends AbstractMojo
 	private String parameterClassURI;
 //	private static final String PARAMETER_CLASS_KEY = "parameterClass";
 	
-//	TODO Eddie may set these properties from the Protégé plugin...
+//	TODO Eddie may set these properties from the Protege plugin...
 //	/**
 //	 * inline RDF or a URI that must resolve.
 //	 * @parameter expression="${testInput}"
@@ -262,12 +275,14 @@ public class GenerateService extends AbstractMojo
 			}
 		}
 		try {
-			writeClassFile(classFile, serviceClass, inputClass, outputClass, serviceBean);
+			writeClassFile(classFile, serviceClass, inputClass, outputClass, serviceBean, async);
 		} catch (Exception e) {
 			String message = String.format("failed to write new java file for %s", serviceClass);
 			getLog().error(message, e);
 			throw new MojoExecutionException(message);
-		} 
+		}
+		
+		serviceName = getSimpleServiceName(serviceName);
 		
 		/* write new web.xml...
 		 */
@@ -315,6 +330,14 @@ public class GenerateService extends AbstractMojo
 				getLog().warn(String.format("failed to write new properties file %s: %s", SERVICE_PROPERTIES, e.getMessage()), e);
 			}
 		}
+	}
+
+	private String getSimpleServiceName(String name)
+	{
+		name = Pattern.compile("[^\\w-]").matcher(name).replaceAll(" ");
+		name = WordUtils.capitalizeFully(name);
+		name = Pattern.compile("\\s+").matcher(name).replaceAll("");
+		return name;
 	}
 
 	private void loadServiceDescriptionFromConfig(ServiceBean serviceBean, Configuration serviceConfig)
@@ -392,20 +415,24 @@ public class GenerateService extends AbstractMojo
 
 	private void validateServiceDescription(ServiceBean serviceBean) throws SADIException
 	{
-		if (serviceBean.getInputClassURI() == null)
-			throw new ServiceDefinitionException("no input class URI defined");
-		if (serviceBean.getOutputClassURI() == null)
-			throw new ServiceDefinitionException("no output class URI defined");
-		if (serviceBean.getContactEmail() == null)
-			throw new ServiceDefinitionException("no contact email address defined");
-		else if (!isValidEmailAddress(serviceBean.getContactEmail()))
-			throw new ServiceDefinitionException(String.format("invalid contact email address \"%s\"", serviceBean.getContactEmail()));
-	}
-	
-	private static final Pattern rfc2822 = Pattern.compile("(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])");
-	private boolean isValidEmailAddress(String email)
-	{
-		return email != null && rfc2822.matcher(email).matches();
+		boolean unsetURI = false;
+		if (serviceBean.getURI() == null) {
+			serviceBean.setURI("");
+			unsetURI = true;
+		}
+		Model model = ModelFactory.createDefaultModel();
+		try {
+			Resource serviceNode = new MyGridServiceOntologyHelper().createServiceNode(serviceBean, model);
+			ValidationResult result = ServiceValidator.validateService(serviceNode);
+			for (ValidationWarning warning: result.getWarnings()) {
+				getLog().warn(warning.getMessage());
+			}
+		} finally {
+			model.close();
+		}
+		if (unsetURI) {
+			serviceBean.setURI(null);
+		}
 	}
 	
 	/**
@@ -465,9 +492,21 @@ public class GenerateService extends AbstractMojo
 			String.format("%s.1", s) : 
 			String.format("%s%d", prefix, Integer.valueOf(suffix) + 1);
 	}
-
-	private void writeClassFile(File classFile, String serviceClass, OntClass inputClass, OntClass outputClass, ServiceDescription serviceDescription) throws Exception
+	
+	private void writeClassFile(File classFile, String serviceClass, OntClass inputClass, OntClass outputClass, ServiceDescription serviceDescription, boolean async) throws Exception
 	{
+		/* create a copy of the service description where we can escape stuff...
+		 */
+		ServiceBean escaped = new ServiceBean();
+		escaped.setName(StringEscapeUtils.escapeJava(serviceDescription.getName()));
+		escaped.setDescription(StringEscapeUtils.escapeJava(serviceDescription.getDescription()));
+		escaped.setServiceProvider(StringEscapeUtils.escapeJava(serviceDescription.getServiceProvider()));
+		escaped.setContactEmail(StringEscapeUtils.escapeJava(serviceDescription.getContactEmail()));
+		escaped.setAuthoritative(serviceDescription.isAuthoritative());
+		escaped.setInputClassURI(serviceDescription.getInputClassURI());
+		escaped.setOutputClassURI(serviceDescription.getOutputClassURI());
+		escaped.setParameterClassURI(serviceDescription.getParameterClassURI());
+		
 		/* collect the properties and classes for the Vocab class...
 		 */
 		Set<OntProperty> properties = new HashSet<OntProperty>();
@@ -481,11 +520,12 @@ public class GenerateService extends AbstractMojo
 		FileWriter writer = new FileWriter(classFile);
 		String template = SPARQLStringUtils.readFully(GenerateService.class.getResourceAsStream("templates/ServiceServletSkeleton"));
 		VelocityContext context = new VelocityContext();
-		context.put("description", serviceDescription);
+		context.put("description", escaped);
 		context.put("package", StringUtils.substringBeforeLast(serviceClass, "."));
 		context.put("class", StringUtils.substringAfterLast(serviceClass, "."));
 		context.put("properties", properties);
 		context.put("classes", classes);
+		context.put("async", async);
 		Velocity.init();
 		Velocity.evaluate(context, writer, "SADI", template);
 		writer.close();
