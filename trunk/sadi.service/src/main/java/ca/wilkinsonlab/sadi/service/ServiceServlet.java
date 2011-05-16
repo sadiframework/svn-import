@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.ServiceDescription;
 import ca.wilkinsonlab.sadi.beans.ServiceBean;
+import ca.wilkinsonlab.sadi.beans.TestCaseBean;
 import ca.wilkinsonlab.sadi.rdfpath.RDFPath;
 import ca.wilkinsonlab.sadi.rdfpath.RDFPathUtils;
 import ca.wilkinsonlab.sadi.service.annotations.Authoritative;
@@ -38,6 +39,8 @@ import ca.wilkinsonlab.sadi.service.annotations.ParameterClass;
 import ca.wilkinsonlab.sadi.service.annotations.ParameterDefaults;
 import ca.wilkinsonlab.sadi.service.annotations.ServiceDefinition;
 import ca.wilkinsonlab.sadi.service.annotations.ServiceProvider;
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.annotations.URI;
 import ca.wilkinsonlab.sadi.service.ontology.AbstractServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
@@ -501,7 +504,7 @@ public abstract class ServiceServlet extends HttpServlet
 				}
 			}
 		}
-		parameterInstancePath.addValueRootedAt(serviceModel.getResource(getServiceURL()), parameters);
+		parameterInstancePath.addValueRootedAt(serviceModel.getResource(StringUtils.defaultString(getServiceURL())), parameters);
 		return parameters;
 	}
 	
@@ -738,6 +741,16 @@ public abstract class ServiceServlet extends HttpServlet
 			return config.getStringArray(PARAMETER_DEFAULTS_KEY);
 		} else {
 			return null;
+		}
+	}
+	
+	private TestCase[] getTestCases()
+	{
+		TestCases annotation = getClass().getAnnotation(TestCases.class);
+		if (annotation != null) {
+			return annotation.value();
+		} else {
+			return new TestCase[0];
 		}
 	}
 }
