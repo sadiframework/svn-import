@@ -38,7 +38,7 @@ $LOG->level ('DEBUG') if $opt_d;
 
 sub say { print @_, "\n"; }
 
-say "Perl-SADI VERSION: $SADI::Base::VERSION\n";
+say "Perl-SADI VERSION: $SADI::VERSION\n";
 
 say 'Configuration';
 say '-------------';
