@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml"> 
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
-<link rel="stylesheet" type="text/css" href="css/style.css" />
+<link rel="stylesheet" type="text/css" href="http://sadiframework.org/style/2011-03-14/style.css" />
 <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.9.custom.css" rel="Stylesheet" />
 <link rel="stylesheet" type="text/css" href="css/jquery.autocomplete.css" />
 <link rel="stylesheet" type="text/css" href="css/jquery.sparqlassist.css"/>
@@ -14,3 +14,17 @@
 <title>$title</title> 
 </head>
 <body>
+  <div id='outer-frame'>
+    <div id='inner-frame'>
+      <div id='header'>
+        <h1>SADI</h1>
+        <p class='tagline'>Find. Integrate. Analyze.</p>
+      </div>
+      <div id='nav'>
+        <ul>
+          <li class="page_item current_page_item">DAGGOO</li>
+          <li class="page_item"><a href="index.jsp">SAWSDL services</a></li>
+        </ul>
+      </div>
+      <div id='content'>
+        <h2>$title</h2>

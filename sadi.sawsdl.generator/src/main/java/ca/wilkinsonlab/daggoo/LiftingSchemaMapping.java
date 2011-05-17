@@ -59,8 +59,8 @@ public class LiftingSchemaMapping extends SchemaMapping {
 		String s = (String)p.getProperty(key); 
 		parts = s.split(",");
 		path = new RDFPath(parts);
-	    } else if (p.getProperty(key) instanceof List){
-		List s = (List)p.getProperty(key);
+	    } else if (p.getProperty(key) instanceof List<?>){
+		List<?> s = (List<?>)p.getProperty(key);
 		parts = new String[s.size()];
 		for (int i = 0; i < parts.length; i++) {
 		    parts[i] = s.get(i) +"";

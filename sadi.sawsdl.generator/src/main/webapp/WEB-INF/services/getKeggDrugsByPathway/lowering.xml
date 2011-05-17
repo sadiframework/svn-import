@@ -2,7 +2,7 @@
   <sparqlQuery>PREFIX rdf: &lt;http://www.w3.org/1999/02/22-rdf-syntax-ns#&gt; &#13;
 SELECT ?inputNodeURI  ?pathway_id &#13;
 WHERE { &#13;
-      ?inputNodeURI rdf:type &lt;http://localhost:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway/owl#inputClass&gt; .      &#13;
+      ?inputNodeURI rdf:type &lt;http://localhost:8080/WSDL2SADI/getKeggDrugsByPathway/owl#inputClass&gt; .      &#13;
       ?inputNodeURI &lt;http://semanticscience.org/resource/SIO_000008&gt;  ?sparql_selector_0  .&#13;
  ?sparql_selector_0 rdf:type &lt;http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier&gt; .      ?sparql_selector_0 &lt;http://semanticscience.org/resource/SIO_000300&gt; ?pathway_id .&#13;
 }</sparqlQuery>

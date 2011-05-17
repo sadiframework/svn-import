@@ -1,8 +1,8 @@
-<service-mappings>
-  <service 
-    name="getKeggDrugsByPathway" 
-    sawsdl="getKeggDrugsByPathway/KEGG.sawsdl" 
-    owl="getKeggDrugsByPathway/get_drugs_by_pathway.owl"
-    lifting="getKeggDrugsByPathway/lifting.xml"
-    lowering="getKeggDrugsByPathway/lowering.xml"/>
+<?xml version="1.0" encoding="UTF-8"?><service-mappings>
+  <service lifting="getKeggDrugsByPathway/lifting.xml" lowering="getKeggDrugsByPathway/lowering.xml" name="getKeggDrugsByPathway" owl="getKeggDrugsByPathway/getKeggDrugsByPathway.owl" sawsdl="getKeggDrugsByPathway/getKeggDrugsByPathway.sawsdl"/>
+<service lifting="getKeggPathwayByGene/lifting.xml" lowering="getKeggPathwayByGene/lowering.xml" name="getKeggPathwayByGene" owl="getKeggPathwayByGene/getKeggPathwayByGene.owl" sawsdl="getKeggPathwayByGene/getKeggPathwayByGene.sawsdl"/>
+<service lifting="a/lifting.xml" lowering="a/lowering.xml" name="a" owl="a/a.owl" sawsdl="a/a.sawsdl"/>
+<service lifting="b/lifting.xml" lowering="b/lowering.xml" name="b" owl="b/b.owl" sawsdl="b/b.sawsdl"/>
+<service lifting="getKeggPathwayByGene2/lifting.xml" lowering="getKeggPathwayByGene2/lowering.xml" name="getKeggPathwayByGene2" owl="getKeggPathwayByGene2/getKeggPathwayByGene2.owl" sawsdl="getKeggPathwayByGene2/getKeggPathwayByGene2.sawsdl"/>
+<service lifting="getDrugsByPathwayLuke/lifting.xml" lowering="getDrugsByPathwayLuke/lowering.xml" name="getDrugsByPathwayLuke" owl="getDrugsByPathwayLuke/getDrugsByPathwayLuke.owl" sawsdl="getDrugsByPathwayLuke/getDrugsByPathwayLuke.sawsdl"/>
 </service-mappings>

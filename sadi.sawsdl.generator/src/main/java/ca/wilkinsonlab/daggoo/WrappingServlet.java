@@ -15,7 +15,9 @@ import javax.xml.transform.Transformer;
 
 public abstract class WrappingServlet extends HttpServlet{
 
-    public static final String DATARECORDER_CONTEXTPARAM = "dataRecorder"; // how users spec a DataRecorder in the web.xml
+	private static final long serialVersionUID = 1L;
+	
+	public static final String DATARECORDER_CONTEXTPARAM = "dataRecorder"; // how users spec a DataRecorder in the web.xml
     public static final String SRC_PARAM = "srcSpec"; //used in input form creation
     public static final String ID_PARAM = "seahawkId"; //ditto
     public static final String SERVICE_SPEC_PARAM = "service"; //used in example form submission
@@ -77,7 +79,7 @@ public abstract class WrappingServlet extends HttpServlet{
 
 	    try{
 		// This line can throw many different exception if you didn't get the class right! 
-		Class drClass = getClass().getClassLoader().loadClass(dataRecorderClassName);
+		Class<?> drClass = getClass().getClassLoader().loadClass(dataRecorderClassName);
 		if(drClass == null){
 		    throw new ClassNotFoundException("The DataRecorder class to run (" + 
 						     dataRecorderClassName +

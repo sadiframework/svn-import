@@ -1,0 +1,22 @@
+<rdf:RDF 
+  xmlns:a="http://semanticscience.org/resource/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:map07025">
+      <rdf:type rdf:resource="http://localhost:8080/WSDL2SADI/getKeggDrugsByPathway/owl#inputClass"/>
+      <a:SIO_000008>
+        <rdf:Description>
+          <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+          <a:SIO_000300>map07025</a:SIO_000300>
+        </rdf:Description>
+      </a:SIO_000008>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://lsrn.org/KEGG_PATHWAY:hsa04730">
+      <rdf:type rdf:resource="http://localhost:8080/WSDL2SADI/getKeggDrugsByPathway/owl#inputClass"/>
+      <a:SIO_000008>
+        <rdf:Description>
+          <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_PATHWAY_Identifier"/>
+          <a:SIO_000300>hsa04730</a:SIO_000300>
+        </rdf:Description>
+      </a:SIO_000008>
+    </rdf:Description>
+</rdf:RDF>

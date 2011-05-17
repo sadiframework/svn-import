@@ -33,21 +33,29 @@
     <servlet-name>WSDL2SAWSDL</servlet-name>
     <url-pattern>/WSDL2SAWSDL</url-pattern>
   </servlet-mapping>
-    <servlet>
+  <servlet>
     <description></description>
     <display-name>SAWSDL2SADIServlet</display-name>
     <servlet-name>SAWSDL2SADIServlet</servlet-name>
     <servlet-class>ca.wilkinsonlab.daggoo.servlets.SAWSDL2SADIServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>SAWSDL2SADIServlet</servlet-name>
-    <url-pattern>/SAWSDL2SADIServlet/*</url-pattern>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/css/*</url-pattern>
+    <url-pattern>/js/*</url-pattern>
+    <url-pattern>/resources/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <servlet-name>index</servlet-name>
+    <jsp-file>/index.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>index</servlet-name>
+    <url-pattern>/index.jsp</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>*.css</url-pattern>
-    <url-pattern>*.js</url-pattern>
-    <url-pattern>*.json</url-pattern>
+    <servlet-name>SAWSDL2SADIServlet</servlet-name>
+    <url-pattern>/*</url-pattern>
   </servlet-mapping>
   <listener>
     <listener-class>ca.wilkinsonlab.daggoo.listeners.ServletContextListener</listener-class>

@@ -9,7 +9,7 @@ import java.util.*;
  */
 public class SADISpecWrapper{
 
-    private Map<String,String> serviceNames;
+//    private Map<String,String> serviceNames;
     protected String currentService;
     private Map<String,String> serviceTypes;
     private Map<String,String> serviceDescs;
@@ -26,7 +26,7 @@ public class SADISpecWrapper{
     private Map<String,Map<String,String>> sadiServiceName2SadiParamRenameMap;
 
     public SADISpecWrapper(){
-	serviceNames = new HashMap<String,String>();
+//	serviceNames = new HashMap<String,String>();
 	currentService = "";
 	serviceTypes = new HashMap<String,String>();
 	serviceDescs = new HashMap<String,String>();

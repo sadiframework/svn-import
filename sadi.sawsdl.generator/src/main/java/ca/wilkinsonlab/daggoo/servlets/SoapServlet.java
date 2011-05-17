@@ -65,7 +65,7 @@ public class SoapServlet extends WrappingServlet {
 
     private static final String COLON_OPTION = "colon (:)";
     
-    private static final String SADI_DELIMITER_OPTION = "sadi_delimiter_option";
+//    private static final String SADI_DELIMITER_OPTION = "sadi_delimiter_option";
     
     public static final String SADI_DELIMITER = "__sadi__delimiter__";
 
@@ -192,8 +192,7 @@ public class SoapServlet extends WrappingServlet {
 
 	SourceMap source = new SourceMap(qName, use);
 	// Populate the input data
-	for (@SuppressWarnings("rawtypes")
-	Enumeration e = request.getParameterNames(); e.hasMoreElements();) {
+	for (Enumeration<?> e = request.getParameterNames(); e.hasMoreElements();) {
 	    String paramName = (String) e.nextElement();
 	    if (SERVICE_SPEC_PARAM.equals(paramName)
 		    || SRC_PARAM.equals(paramName)
@@ -1437,7 +1436,7 @@ System.err.println(String.format("TODO handle extension properly ... %s", elemen
 	// check if its an array
 	boolean isArray = false;
 	if (datatype.endsWith("[]") 
-		|| (type2Parts.containsKey(dataType) && ((Map)type2Parts.get(dataType)).containsKey(ARRAY_TYPE_SENTINEL))//
+		|| (type2Parts.containsKey(dataType) && ((Map<?,?>)type2Parts.get(dataType)).containsKey(ARRAY_TYPE_SENTINEL))//
 		) {
 	    isArray = true;
 	    if (datatype.endsWith("[]"))//
