@@ -37,6 +37,8 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.sparql.vocabulary.FOAF;
+import com.hp.hpl.jena.vocabulary.DC;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
@@ -144,10 +146,11 @@ public class SPARQLEndpointMapper
 			Property p = statement.getPredicate();
 			RDFNode o = statement.getObject();
 
-			// Note: Keeping the original rdfs:labels is confusing when viewing the schema in an RDF browser (e.g. tabulator).
+			// Note: Keeping the original rdfs:label / dc:title / foaf:name is confusing 
+			// when viewing the schema in an RDF browser (e.g. tabulator).
 			// We explicitly add our own labels for the map nodes in getURIPatternNode.
 			
-			if (p.equals(RDFS.label)) {
+			if (p.equals(RDFS.label) || p.equals(DC.title) || p.equals(FOAF.name)) {
 				return;
 			}
 			
@@ -250,15 +253,67 @@ public class SPARQLEndpointMapper
 					map.add(mapNode, RDF.type, type);
 				}
 			
-				// for RDF browsers, add a label to hide the ugliness of the number suffixes
+				// For the benefit of RDF browsers, add a rdfs:label giving the URI
+				// pattern and the associated rdf:types.)
+				// 
+				// However, don't add a label for subjects that don't have any triples, 
+				// as this adds a lot of unnecessary clutter to the schema.
 				
-				if (typeCount > 1) {
-					map.add(mapNode, RDFS.label, map.createTypedLiteral(String.format("%s*", URIPrefix)));
+				if (node.listProperties().toList().size() > 0) {
+					
+					String label = getMapNodeLabel(node);
+					map.add(mapNode, RDFS.label, map.createTypedLiteral(label));
+					
 				}
+
 				
 				return mapNode;
 				
 			}
+		}
+		
+		protected String getMapNodeLabel(Resource node) 
+		{
+			String URIPrefix = URIUtils.getURIPrefix(node.getURI());
+			
+			if(URIPrefix == null) {
+				return null;
+			}
+			
+			Set<Resource> RDFTypes = getRDFTypes(node);
+			
+			StringBuilder label = new StringBuilder();
+			label.append(URIPrefix);
+			label.append("*");
+			
+			if (RDFTypes.size() > 0) {
+				
+				label.append(" (");
+				
+				int typeCount = 0;
+				for(Resource type : RDFTypes) {
+					
+					String URISuffix = URIUtils.getURISuffix(type.getURI());
+					
+					if (URISuffix == null) {
+						log.warn(String.format("omitting rdf:type %s from label, unable to determine URI suffix", type));
+						continue;
+					}
+					
+					label.append(URISuffix);
+					
+					if (typeCount < RDFTypes.size() - 1) {
+						label.append(", ");
+					}
+					
+					typeCount++;
+
+				}
+				
+				label.append(")");
+			}
+		
+			return label.toString();
 		}
 		
 		protected Set<Resource> getRDFTypes(Resource node)
