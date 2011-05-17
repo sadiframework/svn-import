@@ -1,0 +1,13 @@
+<rdf:RDF 
+  xmlns:a="http://semanticscience.org/resource/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <rdf:Description rdf:about="http://lsrn.org/KEGG_Record:eco:b0077">
+      <rdf:type rdf:resource="http://localhost:8080/WSDL2SADI/getKeggPathwayByGene2/owl#inputClass"/>
+      <a:SIO_000671>
+        <rdf:Description>
+          <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/KEGG_Identifier"/>
+          <a:SIO_000300>eco:b0077</a:SIO_000300>
+        </rdf:Description>
+      </a:SIO_000671>
+    </rdf:Description>
+</rdf:RDF>

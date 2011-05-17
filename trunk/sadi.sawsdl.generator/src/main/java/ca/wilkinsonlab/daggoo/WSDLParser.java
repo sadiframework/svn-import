@@ -1176,7 +1176,6 @@ public class WSDLParser {
 	return q.replaceAll("cOL_On", ":");
     }
 
-    @SuppressWarnings("rawtypes")
     private SoapDatatypeMapping generateSoapX(String memberName, 
 	    QName dataType, Map<QName, Map<String, QName>> msg2Parts,
 	    Map<QName, Map<String, QName>> type2Parts, String prefix) {
@@ -1204,7 +1203,7 @@ public class WSDLParser {
 	// check if its an array
 	boolean isArray = false;
 	if (datatype.endsWith("[]") 
-		|| (type2Parts.containsKey(dataType) && ((Map)type2Parts.get(dataType)).containsKey(ARRAY_TYPE_SENTINEL))//
+		|| (type2Parts.containsKey(dataType) && ((Map<?,?>)type2Parts.get(dataType)).containsKey(ARRAY_TYPE_SENTINEL))//
 		) {
 	    isArray = true;
 	    if (datatype.endsWith("[]"))//

@@ -3,7 +3,6 @@ package ca.wilkinsonlab.daggoo.utils;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +42,6 @@ import ca.wilkinsonlab.daggoo.SadiPrefixResolver;
  * service.
  * 
  */
-@SuppressWarnings({"rawtypes","unused"})
 public class WSDLConfig extends SADISpecWrapper {
 
     public static final String SERVICE_NAME_ATTR = "serviceName";
@@ -824,7 +822,7 @@ public class WSDLConfig extends SADISpecWrapper {
 	return stringWriter.toString();
     }
 
-    public static String join(Iterable i, String delimiter) {
+    public static String join(Iterable<?> i, String delimiter) {
 	StringBuffer buffer = new StringBuffer();
 	for (Object item : i) {
 	    buffer.append(item.toString());
@@ -1144,11 +1142,11 @@ public class WSDLConfig extends SADISpecWrapper {
 		    if (soapOpName.equals(opName)) {
 			NodeList inputs = op.getElementsByTagNameNS(
 				SadiPrefixResolver.WSDL_NAMESPACE, "input");
-			String inputMsgName = null;
-			QName inputMsgQName = null;
+//			String inputMsgName = null;
+//			QName inputMsgQName = null;
 			for (int n = 0; n < inputs.getLength(); n++) {
 			    Element input = (Element) inputs.item(n);
-			    inputMsgName = input.getAttribute("name");
+//			    inputMsgName = input.getAttribute("name");
 
 			    NodeList soapInputs = input.getElementsByTagNameNS(
 				    "http://schemas.xmlsoap.org/wsdl/soap/",

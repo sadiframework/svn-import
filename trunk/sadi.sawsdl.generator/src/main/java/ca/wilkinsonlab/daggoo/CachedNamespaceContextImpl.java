@@ -138,8 +138,7 @@ public class CachedNamespaceContextImpl implements NamespaceContext {
         return uri2Prefix.get(namespaceURI);
     }
 
-    @SuppressWarnings("rawtypes")
-    public Iterator getPrefixes(String namespaceURI) {
+    public Iterator<?> getPrefixes(String namespaceURI) {
         // Not implemented
         return null;
     }

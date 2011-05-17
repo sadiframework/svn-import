@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -32,6 +34,16 @@ import ca.wilkinsonlab.daggoo.SAWSDLService;
 import ca.wilkinsonlab.daggoo.WSDLParser;
 import ca.wilkinsonlab.daggoo.listeners.ServletContextListener;
 import ca.wilkinsonlab.daggoo.utils.IOUtils;
+
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.ontology.Individual;
+import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.ontology.Restriction;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFList;
 
 /**
  * Servlet implementation class WSDL2SAWSDL
@@ -81,22 +93,35 @@ public class WSDL2SAWSDL extends HttpServlet {
      * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
      *      response)
      */
-    protected void doGet(HttpServletRequest request,
+    @SuppressWarnings("unchecked")
+	protected void doGet(HttpServletRequest request,
 	    HttpServletResponse response) throws ServletException, IOException {
 	if (BASE_URL == null) {
-	    // had problems setting the BASE_URL in the listener, so I am going to do it here ...
-	    String contextPath = request.getContextPath() == null || request.getContextPath().trim().equals("") ? 
-		    "" : 
-			request.getContextPath()+ "/";
-	    String s = (String)getServletContext().getAttribute(ServletContextListener.SERVER_BASE_ADDRESS);
-	    if (contextPath.startsWith("/")) {
-		contextPath = contextPath.length() > 1 ? contextPath.substring(1) : "";
-	    }
-	    s = String.format("%s%s",
-		    s,
-		    contextPath
-	    );
-	    BASE_URL = s;
+//	    // had problems setting the BASE_URL in the listener, so I am going to do it here ...
+//	    String contextPath = request.getContextPath() == null || request.getContextPath().trim().equals("") ? 
+//		    "" : 
+//			request.getContextPath()+ "/";
+//	    String s = (String)getServletContext().getAttribute(ServletContextListener.SERVER_BASE_ADDRESS);
+//	    if (contextPath.startsWith("/")) {
+//		contextPath = contextPath.length() > 1 ? contextPath.substring(1) : "";
+//	    }
+//	    s = String.format("%s%s",
+//		    s,
+//		    contextPath
+//	    );
+//	    BASE_URL = s;
+		// TODO this isn't thread-safe!!!
+		// TODO also this is ugly...
+		try {
+			URL requestURL = new URL(request.getRequestURL().toString());
+//			System.out.println(String.format("request URL is ", requestURL));
+			URL url = new URL(requestURL, ".");
+//			System.out.println(String.format("URL before normalization is %s", url));
+			BASE_URL = url.toURI().normalize().toString();
+//			System.out.println(String.format("base URL is %s", BASE_URL));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
 	}
 	// got hold of the user session
 	HttpSession session = request.getSession(true); // true creates a new session if one doesnt exist
@@ -326,9 +351,8 @@ public class WSDL2SAWSDL extends HttpServlet {
 	    
 	    // update the sawsdl document
 	    String baseURL = String.format(
-		    "%s%s/%s/", 
+		    "%s%s/", 
 		    BASE_URL, 
-		    SAWSDL2SADIServlet.SERVLET_NAME, 
 		    session.getAttribute("servicename"));
 	    wSDLParser.addServiceAttributesToSAWSDL(baseURL, serviceName, serviceAuthority, serviceType, contactEmail, description);
 	    
@@ -439,19 +463,24 @@ public class WSDL2SAWSDL extends HttpServlet {
 	    session.setAttribute("output_owl_x", owlDatatypeMappings);
 	    Template template = Velocity.getTemplate("owl_class.vm");	    
 	    VelocityContext context = new VelocityContext();
-	    context.put("owl_inputs", session.getAttribute("input_owl_x"));
-	    context.put("owl_outputs", owlDatatypeMappings);
-	    context.put("base", 
-		    String.format("%s%s/%s/owl", 
-			    BASE_URL, 
-			    SAWSDL2SADIServlet.SERVLET_NAME, 
-			    session.getAttribute("servicename")
-		    )
-	    );
+//	    context.put("owl_inputs", session.getAttribute("input_owl_x"));
+//	    context.put("owl_outputs", owlDatatypeMappings);
+//	    context.put("base", 
+//		    String.format("%s%s/owl", 
+//			    BASE_URL, 
+//			    session.getAttribute("servicename")
+//		    )
+//	    );
 	    StringWriter writer = new StringWriter();
-	    template.merge(context, writer);
-	    // our owl document to save (contains our input/output owl classes)
-	    owlDocument = writer.toString();
+//	    template.merge(context, writer);
+//	    // our owl document to save (contains our input/output owl classes)
+//	    owlDocument = writer.toString();
+	    OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
+	    createClass(model, "#inputClass", (List<OwlDatatypeMapping>)session.getAttribute("input_owl_x"));
+	    createClass(model, "#outputClass", owlDatatypeMappings);
+	    ByteArrayOutputStream baos1 = new ByteArrayOutputStream(1024);
+	    model.write(baos1, "RDF/XML-ABBREV", "");
+	    owlDocument = baos1.toString();
 	    session.setAttribute("owl", owlDocument);
 	    
 	    
@@ -472,7 +501,7 @@ public class WSDL2SAWSDL extends HttpServlet {
 	    context = new VelocityContext();
 	    context.put("title", String.format("%s - All done!", this.getClass().getSimpleName()));
 	    
-	    String url = String.format("%s%s/%s", BASE_URL, SAWSDL2SADIServlet.SERVLET_NAME, (String)session.getAttribute("servicename"));
+	    String url = String.format("%s%s", BASE_URL, (String)session.getAttribute("servicename"));
 	    context.put("url_description", url);
 	    context.put("url_lowering", url + "/lowering");
 	    context.put("url_lifting", url + "/lifting");
@@ -494,7 +523,57 @@ public class WSDL2SAWSDL extends HttpServlet {
 
     }
 
-    /**
+    private static OntClass createClass(OntModel model, String uri, List<OwlDatatypeMapping> mappings)
+    {
+		RDFList members = model.createList();
+		for (OwlDatatypeMapping mapping: mappings) {
+			/* assuming each thing here is an RDFPath...
+			 */
+//			OntClass c = OwlUtils.createRestrictions(model, mapping.getRDFPath());
+//			members = members.cons(c);
+		}
+		return model.createIntersectionClass(uri, members);
+	}
+
+//	private static OntClass createClass(OntModel model, OwlDatatypeMapping mapping)
+//	{
+//		if (mapping.getExtras().isEmpty()) {
+//			return createRestriction(model, mapping.getOwlProperty(), mapping.getValuesFrom());
+//		} else {
+//			List<String[]> newExtras = new ArrayList<String[]>(mapping.getExtras());
+//			newExtras.add(0, new String[]{mapping.getOwlProperty(), mapping.getValuesFrom()});
+//			return createClass(model, newExtras);
+//		}
+//	}
+//
+//	private static OntClass createRestriction(OntModel model, String onPropertyURI, String valuesFromURI)
+//	{
+//		Restriction restriction;
+//		OntProperty onProperty = model.createOntProperty(onPropertyURI);
+//		if (StringUtils.isEmpty(valuesFromURI)) {
+//			restriction = model.createMinCardinalityRestriction(null, onProperty, 1);
+//		} else {
+//			OntClass valuesFrom = model.createClass(valuesFromURI);
+//			restriction = model.createSomeValuesFromRestriction(null, onProperty, valuesFrom);
+//		}
+//		OntClass equiv = model.createClass();
+//		equiv.setEquivalentClass(restriction);
+//		return equiv;
+//	}
+//
+//	private static OntClass createClass(OntModel model, List<String[]> extras)
+//	{
+//		String[] strings = extras.get(0);
+//		if (extras.size() == 1) {
+//			return createRestriction(model, strings[0], strings[1]);
+//		} else {
+//			OntClass valuesFrom = createClass(model, extras.subList(1, extras.size()));
+//			OntProperty onProperty = model.createOntProperty(strings[0]);
+//			return model.createSomeValuesFromRestriction(null, onProperty, valuesFrom);
+//		}
+//	}
+
+	/**
      * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
      *      response)
      */
@@ -559,9 +638,8 @@ public class WSDL2SAWSDL extends HttpServlet {
 		VelocityContext context = new VelocityContext();
 		context.put("owl_property_mappings", session.getAttribute("input_owl_x"));
 		context.put("base", 
-			String.format("%s%s/%s/owl", 
+			String.format("%s%s/owl", 
 				BASE_URL, 
-				SAWSDL2SADIServlet.SERVLET_NAME, 
 				session.getAttribute("servicename")
 			)
 		);
@@ -595,9 +673,8 @@ public class WSDL2SAWSDL extends HttpServlet {
 		//VelocityContext context = new VelocityContext();
 		context.put("owl_property_mappings", session.getAttribute("output_owl_x"));
 		context.put("sadi_output_owl_class", 
-			String.format("%s%s/%s/owl#outputClass", 
+			String.format("%s%s/owl#outputClass", 
 				BASE_URL, 
-				SAWSDL2SADIServlet.SERVLET_NAME, 
 				session.getAttribute("servicename")
 		));
 		StringWriter writer = new StringWriter();
@@ -630,7 +707,7 @@ public class WSDL2SAWSDL extends HttpServlet {
     
     private String get_service_description(final HttpSession session) throws IOException {
 	String base = BASE_URL;
-	String url = String.format("%s%s/%s", base, SAWSDL2SADIServlet.SERVLET_NAME, (String)session.getAttribute("servicename"));
+	String url = String.format("%s%s", base, (String)session.getAttribute("servicename"));
 	
 	String inputClass = url + "/owl#inputClass";
 	String outputClass = url + "/owl#outputClass";
@@ -697,4 +774,27 @@ public class WSDL2SAWSDL extends HttpServlet {
 	}
 	return false;
     }
+    
+    public static void main(String args[])
+    {
+    	List<OwlDatatypeMapping> mappings = new ArrayList<OwlDatatypeMapping>();
+    	OwlDatatypeMapping inputClass1 = new OwlDatatypeMapping(true);
+    	inputClass1.setOwlProperty("http://semanticscience.org/resource/hasIdentifier");
+    	inputClass1.setValuesFrom("http://purl.oclc.org/SADI/LSRN/KEGG_Identifier");
+    	inputClass1.addExtra("http://semanticscience.org/resource/hasValue", XSDDatatype.XSDstring.getURI());
+    	mappings.add(inputClass1);
+    	OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF);
+ 	    OntClass inputClass = createClass(model, "#inputClass", mappings);
+ 	    model.write(System.out, "RDF/XML-ABBREV", "");
+ 	    
+ 	    Individual id = model.createIndividual(null);
+ 	    id.setPropertyValue(model.createProperty("http://semanticscience.org/resource/hasValue"), model.createTypedLiteral("id"));
+ 	    Individual record = model.createIndividual(null);
+ 	    record.addProperty(model.createProperty("http://semanticscience.org/resource/hasIdentifier"), id);
+ 	    
+ 	    System.out.println("has input class: " + record.hasOntClass(inputClass));
+ 	    System.out.println("has #1: " + record.hasOntClass(model.getResource("http://example.com/class1")));
+ 	    System.out.println("has #2: " + record.hasOntClass(model.getResource("http://example.com/class2")));
+    }
+    
 }
