@@ -1,0 +1,23 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <owl:Class rdf:about="urn:uuid:3afc6e1b-dd3e-4d9a-8e6c-73d5f4c16bfa">
+    <owl:intersectionOf rdf:parseType="Collection">
+      <rdf:Description rdf:about="http://semanticscience.org/resource/SIO_000116"/>
+      <owl:Restriction rdf:about="urn:uuid:ea4c8b4e-88c3-406b-a798-e293e59d2b8a">
+        <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+        <owl:onProperty rdf:resource="http://semanticscience.org/resource/SIO_000300"/>
+      </owl:Restriction>
+    </owl:intersectionOf>
+  </owl:Class>
+  <owl:Restriction rdf:about="urn:uuid:e99379b7-3c7a-4c84-8de6-d8e43d4dc479">
+    <owl:someValuesFrom rdf:resource="urn:uuid:3afc6e1b-dd3e-4d9a-8e6c-73d5f4c16bfa"/>
+    <owl:onProperty rdf:resource="http://semanticscience.org/resource/SIO_000008"/>
+  </owl:Restriction>
+  <owl:Restriction rdf:about="urn:uuid:facb1221-ca6f-4e60-bfb8-2781f000d98c">
+    <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <owl:onProperty rdf:resource="http://semanticscience.org/resource/SIO_000300"/>
+  </owl:Restriction>
+</rdf:RDF>

@@ -10,12 +10,16 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import ca.wilkinsonlab.sadi.rdfpath.RDFPath;
+
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
@@ -32,6 +36,8 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class OwlUtilsTest
 {
+	private static final Logger log = Logger.getLogger(OwlUtilsTest.class);
+	
 	static final String NS = "http://sadiframework.org/ontologies/OwlUtilsTest.owl#";
 	static final String MINIMAL_ONTOLOGY_NS = "http://sadiframework.org/ontologies/test/MinimalOntologyTest.owl#";
 	
@@ -81,6 +87,7 @@ public class OwlUtilsTest
 	}
 	
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testGetLabels()
 	{
 		OntClass c = model.getOntClass(NS + "RangeClass");
@@ -249,7 +256,8 @@ public class OwlUtilsTest
 			assertFalse(String.format("minimal ontology should not contain %s", propE), ontModel.containsResource(propE));
 			
 		} catch(Exception e) {
-			fail(String.format("failed to load minimal ontology for %s:\n%s", rootUri, ExceptionUtils.getStackTrace(e)));
+			log.error("failed to load minimal ontology for %s", e);
+			fail(String.format("failed to load minimal ontology for %s:\n%s", rootUri, e.getMessage()));
 		}
 	}
 	
@@ -301,6 +309,31 @@ public class OwlUtilsTest
 //		model.addSubModel(instance.getModel());
 //		assertTrue(String.format("dummy is not an instance of %s", clazz), clazz.listInstances().toSet().contains(instance));
 //	}
+	
+	@Test
+	public void testCreateRestrictions()
+	{
+		RDFPath path1 = new RDFPath(
+			"http://semanticscience.org/resource/SIO_000300",
+				XSDDatatype.XSDstring.getURI());
+		Resource root1 = model.createResource("root1");
+		path1.createLiteralRootedAt(root1, "value1");
+		OntClass r1 = OwlUtils.createRestrictions(model, path1, false);
+		assertTrue(String.format("%s is not an instance of %s (created by %s)",
+				root1, r1, path1), root1.hasProperty(RDF.type, r1));
+
+		RDFPath path2 = new RDFPath(
+			"http://semanticscience.org/resource/SIO_000008",
+				"http://semanticscience.org/resource/SIO_000116",
+			"http://semanticscience.org/resource/SIO_000300",
+				XSDDatatype.XSDstring.getURI());
+		Resource root2 = model.createResource("root2");
+		path2.createLiteralRootedAt(root2, "value2");
+
+		OntClass r2 = OwlUtils.createRestrictions(model, path2);
+		assertTrue(String.format("%s is not an instance of %s (created by %s)",
+				root2, r2, path2), root2.hasProperty(RDF.type, r2));
+	}
 	
 	private boolean propertyCollectionContains(Set<OntProperty> properties, String uri)
 	{

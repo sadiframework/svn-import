@@ -15,6 +15,20 @@
   <name>Common SADI classes</name>
   <description>Classes used by both SADI clients and SADI services</description>
   
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  
   <repositories>
   	<repository>
   	  <id>dev.biordf.net</id>

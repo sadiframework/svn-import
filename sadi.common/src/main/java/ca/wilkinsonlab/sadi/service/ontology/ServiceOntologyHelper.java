@@ -39,7 +39,7 @@ public interface ServiceOntologyHelper
 	public ServiceBean copyServiceDescription(Resource serviceRoot, ServiceBean serviceBean) throws ServiceOntologyException;
 	
 	/**
-	 * Return an RDF representation of the specified service description
+	 * Returns an RDF representation of the specified service description
 	 * using a new in-memory model.
 	 * @param service the service description
 	 * @return an RDF representation of the service description
@@ -47,7 +47,7 @@ public interface ServiceOntologyHelper
 	public Resource createServiceNode(ServiceDescription service);
 	
 	/**
-	 * Return an RDF representation of the specified service description
+	 * Returns an RDF representation of the specified service description
 	 * using the specified model.
 	 * @param service the service description
 	 * @param model the RDF model to use
@@ -55,4 +55,10 @@ public interface ServiceOntologyHelper
 	 * @throws ServiceOntologyException if the service description is missing any required information
 	 */
 	public Resource createServiceNode(ServiceDescription service, Model model);
+	
+//	/**
+//	 * Returns a SPARQL construct query that will generate a service model.
+//	 * @return a SPARQL construct query that will generate a service model
+//	 */
+//	public String createConstructQuery();
 }
