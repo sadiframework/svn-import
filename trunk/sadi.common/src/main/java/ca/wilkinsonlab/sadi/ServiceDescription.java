@@ -5,13 +5,17 @@ import java.util.Collection;
 import ca.wilkinsonlab.sadi.beans.RestrictionBean;
 
 /**
+ * An interface providing programmatic access to a SADI service description.
  * @author Luke McCarthy
- *
  */
 public interface ServiceDescription extends URIable
 {
 	/**
-	 * @return the URI
+	 * Returns the service URI.
+	 * A SADI service is identified by a URI that is also an HTTP URL. 
+	 * This URL is used to invoke the service as well as to identify it.
+	 *  
+	 * @return the URI of the service
 	 */
 	String getURI();
 
@@ -21,7 +25,11 @@ public interface ServiceDescription extends URIable
 //	void setURI(String URI);
 
 	/**
-	 * @return the name
+	 * Returns the service name, which may be null.
+	 * A SADI service should have a short human-readable name.
+	 * This is not required, but is encouraged.
+	 * 
+	 * @return the service name, which may be null
 	 */
 	String getName();
 
@@ -31,7 +39,11 @@ public interface ServiceDescription extends URIable
 //	void setName(String name);
 
 	/**
-	 * @return the description
+	 * Returns the service description, which may be null.
+	 * A SADI service should have a detailed human-readable description.
+	 * This is not required, but is encouraged.
+	 * 
+	 * @return the service description, which may be null
 	 */
 	String getDescription();
 
@@ -41,6 +53,10 @@ public interface ServiceDescription extends URIable
 //	void setDescription(String description);
 
 	/**
+	 * Returns the service provider, which may be null.
+	 * By convention, this should be the domain name of the institution
+	 * responsible for the service.
+	 * This is not required.
 	 * @return the service provider
 	 */
 	String getServiceProvider();
@@ -51,7 +67,11 @@ public interface ServiceDescription extends URIable
 //	void setServiceProvider(String provider);
 
 	/**
-	 * @return the contact email
+	 * Returns the service contact email address, which may be null.
+	 * This is an email address that can be used to contact the service
+	 * provider in the event that there are problems with the service.
+	 * This is not required, but is encouraged and may one day be required.
+	 * @return the service contact email address
 	 */
 	String getContactEmail();
 
@@ -61,7 +81,10 @@ public interface ServiceDescription extends URIable
 //	void setContactEmail(String email);
 
 	/**
-	 * @return
+	 * Returns true if the service is authoritative and false otherwise.
+	 * A service is authoritative of its output if it is not wrapping a
+	 * third-party data source.
+	 * @return true if the service is authoritative and false otherwise.
 	 */
 	boolean isAuthoritative();
 
@@ -71,7 +94,12 @@ public interface ServiceDescription extends URIable
 //	void setAuthoritative(boolean authoritative);
 
 	/**
-	 * @return the inputClassURI
+	 * Returns the URI of the service's input OWL class.
+	 * A SADI service has an input OWL class whose property restrictions
+	 * describe the data that the service consumes. 
+	 * This is required and the URI must resolve to a definition of the class.
+	 * 
+	 * @return the URI of the service's input OWL class
 	 */
 	String getInputClassURI();
 
@@ -81,7 +109,8 @@ public interface ServiceDescription extends URIable
 //	void setInputClassURI(String inputClassURI);
 
 	/**
-	 * @return the inputClassLabel
+	 * Returns the label of the service's input OWL class.
+	 * @return the label of the service's input OWL class
 	 */
 	String getInputClassLabel();
 
@@ -91,7 +120,12 @@ public interface ServiceDescription extends URIable
 //	void setInputClassLabel(String inputClassLabel);
 
 	/**
-	 * @return the outputClassURI
+	 * Returns the URI of the service's output OWL class.
+	 * A SADI service has an output OWL class whose property restrictions
+	 * describe the data that the service produces.
+	 * This is required and the URI must resolve to a definition of the class.
+	 * 
+	 * @return the URI of the service's output OWL class
 	 */
 	String getOutputClassURI();
 
@@ -101,7 +135,8 @@ public interface ServiceDescription extends URIable
 //	void setOutputClassURI(String outputClassURI);
 
 	/**
-	 * @return the outputClassLabel
+	 * Returns the label of the service's output OWL class.
+	 * @return the label of the service's output OWL class
 	 */
 	String getOutputClassLabel();
 
@@ -121,12 +156,22 @@ public interface ServiceDescription extends URIable
 //	void setRestrictions(Collection<RestrictionBean> restrictions);
 	
 	/**
-	 * @return the secondary parameter class URI
+	 * Returns the URI of the service's parameter OWL class, 
+	 * which may be null.
+	 * A SADI service can have a parameter OWL class whose property 
+	 * restrictions describe secondary parameters that affect the 
+	 * service's behaviour.
+	 * This is not require, but if present  the URI must resolve to a
+	 * definition of the class.
+	 * 
+	 * @return the URI of the service's parameter OWL class
 	 */
 	String getParameterClassURI();
 	
 	/**
-	 * @return the secondary parameter class URI
+	 * Returns the label of the service's parameter OWL class,
+	 * which may be null.
+	 * @return the label of the service's parameter OWL class
 	 */
 	String getParameterClassLabel();
 	

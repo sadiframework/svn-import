@@ -42,14 +42,25 @@ public class QueryableErrorHandler implements RDFErrorHandler
 		lastWarning = null;
 	}
 	
+	public void throwAndClear() throws Exception
+	{
+		Exception error = getLastError();
+		clear();
+		throw error;
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.hp.hpl.jena.rdf.model.RDFErrorHandler#warning(java.lang.Exception)
 	 */
 	@Override
 	public void warning(Exception e)
 	{
+		/* this warning comes up whenever Jena encounters an RDF document
+		 * that links to an XSL stylesheet; it's annoying.
+		 */
 		if (e.getMessage().endsWith("A processing instruction is in RDF content. No processing was done."))
 			return;
+		
 		log.warn(e);
 		lastWarning = e;
 	}

@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import org.apache.commons.lang.StringUtils;
+
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
@@ -149,7 +151,7 @@ public class RDFPath extends ArrayList<Resource>
 	@Override
 	public String toString()
 	{
-		return toString("root");
+		return StringUtils.join(this, ", ");
 	}
 	
 	public String toString(Object root)
@@ -166,6 +168,43 @@ public class RDFPath extends ArrayList<Resource>
 			buf.append("]");
 		}
 		return buf.toString();
+	}
+	
+//	public String toSPARQLClause()
+//	{
+//		return toSPARQLClause("?root", new StringBuilder());
+//	}
+//	
+//	private String toSPARQLClause(String variable, StringBuilder buf)
+//	{
+//		if (isEmpty())
+//			return buf.toString();
+//		
+//		buf.append(variable);
+//		buf.append(" ");
+//		Property p = getProperty();
+//		if (p.isURIResource()) {
+//			buf.append("<");
+//			buf.append(p.getURI());
+//			buf.append(">");
+//		} else {
+//			// TODO this should really be an error...
+//			buf.append("[]");
+//		}
+//		buf.append(" ");
+//		return buf.toString();
+//	}
+
+	/* TODO catch UnsupportedPolymorphismException and
+	 * ArrayIndexOutOfBoundsException and re-throw with more info?
+	 */
+	public Property getProperty()
+	{
+		return get(0).as(Property.class);
+	}
+	public Resource getType()
+	{
+		return get(1);
 	}
 	
 	/**
@@ -265,11 +304,8 @@ public class RDFPath extends ArrayList<Resource>
 			return values;
 		}
 
-		/* TODO catch UnsupportedPolymorphismException and
-		 * ArrayIndexOutOfBoundsException and re-throw with more info?
-		 */
-		Property p = get(0).as(Property.class);
-		Resource type = (Resource)get(1); // might be null...
+		Property p = getProperty();
+		Resource type = getType(); // might be null...
 		Collection<RDFNode> matchingChildren = new ArrayList<RDFNode>();
 		while (roots.hasNext()) {
 			RDFNode rootNode = roots.next();
@@ -333,11 +369,8 @@ public class RDFPath extends ArrayList<Resource>
 			return;
 		}
 		
-		/* TODO catch UnsupportedPolymorphismException and
-		 * ArrayIndexOutOfBoundsException and re-throw with more info?
-		 */
-		Property p = get(0).as(Property.class);
-		Resource type = (Resource)get(1); // might be null...
+		Property p = getProperty();
+		Resource type = getType(); // might be null...
 		RDFPath childPath = getChildPath();
 		if (childPath.isEmpty()) {
 			while (values.hasNext()) {
@@ -378,11 +411,8 @@ public class RDFPath extends ArrayList<Resource>
 			return;
 		}
 		
-		/* TODO catch UnsupportedPolymorphismException and
-		 * ArrayIndexOutOfBoundsException and re-throw with more info?
-		 */
-		Property p = get(0).as(Property.class);
-		Resource type = (Resource)get(1); // might be null...
+		Property p = getProperty();
+		Resource type = getType(); // might be null...
 		RDFPath childPath = getChildPath();
 		if (childPath.isEmpty()) {
 			root.removeAll(p);
@@ -433,9 +463,8 @@ public class RDFPath extends ArrayList<Resource>
 	
 	/**
 	 * Create a new literal as a leaf node of the path.
-	 * TODO try and read datatype from last element of path?
-	 * in which case we could unify with the method above...
-	 * @param uri the URI of the new resource, or null for a bnode
+	 * Reads the datatype from the last element of the path.
+	 * @param value the value of the new literal
 	 * @return the new literal
 	 */
 	public Literal createLiteralRootedAt(Resource root, String value)

@@ -24,7 +24,7 @@ public enum ContentType
 	private final String httpHeader;
 	private final String jenaLanguage;
 	
-	ContentType(String httpHeader, String jenaLanguage)
+	private ContentType(String httpHeader, String jenaLanguage)
 	{
 		this.httpHeader = httpHeader;
 		this.jenaLanguage = jenaLanguage;

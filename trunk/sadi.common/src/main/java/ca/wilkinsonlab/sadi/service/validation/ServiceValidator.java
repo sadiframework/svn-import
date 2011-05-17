@@ -1,6 +1,5 @@
 package ca.wilkinsonlab.sadi.service.validation;
 
-
 import java.util.Collection;
 
 import org.apache.commons.validator.EmailValidator;
@@ -16,6 +15,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.shared.DoesNotExistException;
 import com.hp.hpl.jena.shared.JenaException;
 
 public class ServiceValidator
@@ -25,10 +25,22 @@ public class ServiceValidator
 		Model model = ModelFactory.createDefaultModel();
 		QueryableErrorHandler errorHandler = new QueryableErrorHandler();
 		model.getReader().setErrorHandler(errorHandler);
-		model.read(serviceURI);
-		if (errorHandler.hasLastError())
-			throw new SADIException(String.format("error reading RDF model from %s: %s",
-					serviceURI, errorHandler.getLastError().getMessage()));
+		try {
+			model.read(serviceURI);
+		} catch (JenaException e) {
+			if (e instanceof DoesNotExistException) {
+				throw new SADIException(String.format("no such service %s", serviceURI));
+			} else if (e.getMessage().endsWith("Connection refused")) {
+				throw new SADIException(String.format("connection refused to service %s", serviceURI));
+			}
+		}
+		if (errorHandler.hasLastError()) {
+			Exception e = errorHandler.getLastError();
+			if (e instanceof SADIException)
+				throw (SADIException)e;
+			else
+				throw new SADIException(e.toString(), e);
+		}
 		
 		Resource serviceNode = model.getResource(serviceURI);
 		if (!model.containsResource(serviceNode))

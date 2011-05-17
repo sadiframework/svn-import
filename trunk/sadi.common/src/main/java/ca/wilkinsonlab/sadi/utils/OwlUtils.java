@@ -5,18 +5,18 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.Config;
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.decompose.ClassTracker;
 import ca.wilkinsonlab.sadi.decompose.ClassVisitor;
 import ca.wilkinsonlab.sadi.decompose.RestrictionAdapter;
 import ca.wilkinsonlab.sadi.decompose.RestrictionVisitor;
 import ca.wilkinsonlab.sadi.decompose.VisitingDecomposer;
+import ca.wilkinsonlab.sadi.rdfpath.RDFPath;
 import ca.wilkinsonlab.sadi.utils.graph.BreadthFirstIterator;
 import ca.wilkinsonlab.sadi.utils.graph.OpenGraphIterator;
 import ca.wilkinsonlab.sadi.utils.graph.SearchNode;
@@ -35,6 +35,8 @@ import com.hp.hpl.jena.rdf.model.RDFList;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
@@ -42,16 +44,18 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 public class OwlUtils 
 {
 	private static final Logger log = Logger.getLogger( OwlUtils.class );
+	private static final boolean loadMinimalOntologyByDefault = true;
 	private static final OntModel owlModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
-	private static List<Pattern> deadOntologyPatterns;
-	
-	static {
-		deadOntologyPatterns = new ArrayList<Pattern>();
-		String patterns[] = Config.getConfiguration().getStringArray("sadi.deadOntologyPattern");
-		for(String pattern : patterns) {
-			deadOntologyPatterns.add(Pattern.compile(pattern));
-		}
-	}
+	public static final OntClass OWL_Nothing = owlModel.getOntClass(OWL.Nothing.getURI());
+
+//	private static List<Pattern> deadOntologyPatterns;
+//	static {
+//		deadOntologyPatterns = new ArrayList<Pattern>();
+//		String patterns[] = Config.getConfiguration().getStringArray("sadi.deadOntologyPattern");
+//		for(String pattern : patterns) {
+//			deadOntologyPatterns.add(Pattern.compile(pattern));
+//		}
+//	}
 	
 	/**
 	 * Return an OntModel view of the base OWL ontology.  This is useful
@@ -73,6 +77,7 @@ public class OwlUtils
 	 * 	toString()
 	 * @param resource
 	 * @return a human-readable label for the specified resource
+	 * @deprecated use {@link LabelUtils.getLabel(Resource)} instead
 	 */
 	public static String getLabel(Resource resource)
 	{
@@ -114,7 +119,16 @@ public class OwlUtils
 						log.warn(e.getMessage());
 					}
 				} else if (clazz.isIntersectionClass()) {
-					StringBuffer buf = new StringBuffer("{ ");
+					StringBuffer buf = new StringBuffer("intersection{ ");
+					for (Iterator<? extends OntClass> i = clazz.asIntersectionClass().listOperands(); i.hasNext(); ) {
+						buf.append(getLabel(i.next()));
+						if (i.hasNext())
+							buf.append(", ");
+					}
+					buf.append(" }");
+					return buf.toString();
+				} else if (clazz.isIntersectionClass()) {
+					StringBuffer buf = new StringBuffer("union{ ");
 					for (Iterator<? extends OntClass> i = clazz.asIntersectionClass().listOperands(); i.hasNext(); ) {
 						buf.append(getLabel(i.next()));
 						if (i.hasNext())
@@ -136,6 +150,7 @@ public class OwlUtils
 	 * <code>OwlUtils.getLabel(com.hp.hpl.jena.rdf.model.Resource)</code>.
 	 * @param resources
 	 * @return the concatentation of the human-readable labels for the specified resources
+	 * @deprecated use {@link LabelUtils.getLabel(Resource)} and a mapping function
 	 */
 	public static String getLabels(Iterator<? extends Resource> resources)
 	{
@@ -264,23 +279,25 @@ public class OwlUtils
 			return p.getOntModel().createClass(RDFS.Resource.getURI());
 	}
 	
-	/**
-	 * Return true if the SADI configuration (sadi.common.properties / sadi.properties) 
-	 * indicates that we should bypass the loading of this ontology.
-	 * 
-	 * @param uri The URI of the ontology
-	 * @return true if the configuration indicates the ontology is dead,
-	 * false otherwise
-	 */
-	private static boolean deadOntology(String uri) 
-	{
-		for(Pattern pattern : deadOntologyPatterns) {
-			if(pattern.matcher(uri).find()) {
-				return true;
-			}
-		}
-		return false;
-	}
+//	/**
+//	 * Return true if the SADI configuration (sadi.common.properties / sadi.properties) 
+//	 * indicates that we should bypass the loading of this ontology.
+//	 * 
+//	 * @param uri The URI of the ontology
+//	 * @return true if the configuration indicates the ontology is dead,
+//	 * false otherwise
+//	 * @deprecated use the Jena document/location manager instead...
+//	 */
+//	@Deprecated
+//	private static boolean deadOntology(String uri) 
+//	{
+//		for(Pattern pattern : deadOntologyPatterns) {
+//			if(pattern.matcher(uri).find()) {
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 	
 	/**
 	 * Resolve the specified URI and load the resulting statements into the
@@ -298,10 +315,10 @@ public class OwlUtils
 		
 		String ontologyUri = StringUtils.substringBefore( uri, "#" );
 		
-		if (deadOntology(ontologyUri)) {
-			log.trace(String.format("skipping dead ontology %s", ontologyUri));
-			return;
-		}
+//		if (deadOntology(ontologyUri)) {
+//			log.trace(String.format("skipping dead ontology %s", ontologyUri));
+//			return;
+//		}
 		if (model.hasLoadedImport(ontologyUri)) {
 			log.trace(String.format("skipping previously loaded ontology %s", ontologyUri));
 			return;
@@ -309,7 +326,9 @@ public class OwlUtils
 		
 		log.trace(String.format("reading ontology from %s", ontologyUri));
 		try {
-			model.read( ontologyUri );
+			model.read(ontologyUri);
+			// model.hasLoadedImport(ontologyUri) is now true...
+			// model.hasLoadedImport(all ontologies imported by ontologyUri) is now true...
 		} catch (Exception e) {
 			if (e instanceof SADIException)
 				throw (SADIException)e;
@@ -344,10 +363,10 @@ public class OwlUtils
 	{
 		OntologyUriPair ontologyUriPair = new OntologyUriPair(ontologyUri, uri);
 
-		if (deadOntology(ontologyUri)) {
-			log.debug(String.format("skipping dead ontology %s", ontologyUri));
-			return;
-		}
+//		if (deadOntology(ontologyUri)) {
+//			log.debug(String.format("skipping dead ontology %s", ontologyUri));
+//			return;
+//		}
 		if(visitedUris.contains(ontologyUriPair)) {
 			log.debug(String.format("skipping previously loaded uri %s from %s", uri, ontologyUri));
 			return;
@@ -502,11 +521,28 @@ public class OwlUtils
 	 */
 	public static OntClass getOntClassWithLoad(OntModel model, String uri) throws SADIException
 	{
+		return getOntClassWithLoad(model, uri, loadMinimalOntologyByDefault);
+	}
+	
+	/**
+	 * Return the OntClass with the specified URI, resolving it and loading
+	 * the resolved ontology into the model if it is not already there.
+	 * @param model the OntModel
+	 * @param uri the URI
+	 * @param loadMinimalOntology if true, load only the minimal ontology
+	 * @return the OntClass
+	 */
+	public static OntClass getOntClassWithLoad(OntModel model, String uri, boolean loadMinimalOntology) throws SADIException
+	{
 		OntClass c = model.getOntClass(uri);
 		if (c != null)
 			return c;
 		
-		loadMinimalOntologyForUri(model, uri);
+		if (loadMinimalOntology)
+			loadMinimalOntologyForUri(model, uri);
+		else
+			loadOntologyForUri(model, uri);
+		
 		return model.getOntClass(uri);
 	}
 	
@@ -768,6 +804,29 @@ public class OwlUtils
 		Set<Restriction> restrictions = listRestrictions(clazz);
 		restrictions.removeAll(base);
 		return restrictions;
+	}
+	
+	public static ExtendedIterator<? extends Resource> listTypes(Resource individual)
+	{
+		/* TODO this is causing a problem with Maven; to wit:
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:2.3.2:compile (default-compile) on project sadi-common: Compilation failure
+[ERROR] /Users/luke/Code/eclipse-cocoa-64/sadi.common/src/main/java/ca/wilkinsonlab/sadi/utils/OwlUtils.java:[812,49] incompatible types; inferred type argument(s) com.hp.hpl.jena.rdf.model.Resource do not conform to bounds of type variable(s) T
+[ERROR] found   : <T>com.hp.hpl.jena.util.iterator.ExtendedIterator<T>
+[ERROR] required: com.hp.hpl.jena.util.iterator.ExtendedIterator<? extends com.hp.hpl.jena.rdf.model.Resource>
+[ERROR] -> [Help 1]
+		 * this change shouldn't affect functionality, btu it's annoying...
+		 */
+//		if (individual instanceof Individual)
+//			return ((Individual)individual).listOntClasses(false);
+//		else 
+		if (individual instanceof OntResource)
+			return ((OntResource)individual).listRDFTypes(false);
+		else
+			return individual.listProperties(RDF.type).mapWith(new Map1<Statement, Resource>() {
+				public Resource map1(Statement statement) {
+					return statement.getResource();
+				}
+			});
 	}
 	
 	/**
@@ -1053,6 +1112,40 @@ public class OwlUtils
 				}
 			}
 		}
+	}
+	
+	public static Restriction createRestrictions(OntModel model, RDFPath path)
+	{
+		return createRestrictions(model, path, true);
+	}
+	
+	public static Restriction createRestrictions(OntModel model, RDFPath path, boolean anonymous)
+	{
+		Restriction r = null;
+		for (int i=path.size()-2; i>=0; i-=2) {
+			Property p = path.get(i).as(Property.class);
+			Resource type = path.get(i+1);
+			if (r != null) {
+				if (type != null) {
+					OntClass valuesFrom = model.createIntersectionClass(anonymous ? null : getUURI(), model.createList(new RDFNode[]{type, r}));
+					r = model.createSomeValuesFromRestriction(anonymous ? null : getUURI(), p, valuesFrom);
+				} else {
+					r = model.createSomeValuesFromRestriction(anonymous ? null : getUURI(), p, r);
+				}
+			} else {
+				if (type != null) {
+					r = model.createSomeValuesFromRestriction(anonymous ? null : getUURI(), p, type);
+				} else {
+					r = model.createMinCardinalityRestriction(anonymous ? null : getUURI(), p, 1);
+				}
+			}
+		}
+		return r;
+	}
+	
+	public static String getUURI()
+	{
+		return String.format("urn:uuid:%s", UUID.randomUUID());
 	}
 	
 	/**
