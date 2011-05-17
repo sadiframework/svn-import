@@ -10,8 +10,10 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +24,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
@@ -34,16 +35,18 @@ import ca.wilkinsonlab.daggoo.SAWSDLService;
 import ca.wilkinsonlab.daggoo.WSDLParser;
 import ca.wilkinsonlab.daggoo.listeners.ServletContextListener;
 import ca.wilkinsonlab.daggoo.utils.IOUtils;
+import ca.wilkinsonlab.sadi.rdfpath.RDFPath;
+import ca.wilkinsonlab.sadi.utils.OwlUtils;
 
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.ontology.Ontology;
 import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFList;
+import com.hp.hpl.jena.rdf.model.RDFWriter;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * Servlet implementation class WSDL2SAWSDL
@@ -476,10 +479,17 @@ public class WSDL2SAWSDL extends HttpServlet {
 //	    // our owl document to save (contains our input/output owl classes)
 //	    owlDocument = writer.toString();
 	    OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
-	    createClass(model, "#inputClass", (List<OwlDatatypeMapping>)session.getAttribute("input_owl_x"));
-	    createClass(model, "#outputClass", owlDatatypeMappings);
+	    Set<Resource> imports = new HashSet<Resource>();
+	    createClass(model, "#inputClass", (List<OwlDatatypeMapping>)session.getAttribute("input_owl_x"), imports);
+	    createClass(model, "#outputClass", owlDatatypeMappings, imports);
+	    Ontology ontology = model.createOntology("");
+	    for (Resource r: imports) {
+	    	ontology.addImport(r);
+	    }
 	    ByteArrayOutputStream baos1 = new ByteArrayOutputStream(1024);
-	    model.write(baos1, "RDF/XML-ABBREV", "");
+	    RDFWriter rdfWriter = model.getWriter("RDF/XML-ABBREV");
+	    rdfWriter.setProperty("allowBadURIs", true); // relative URI = bad URI?  bad Jena...
+	    rdfWriter.write(model, baos1, "");
 	    owlDocument = baos1.toString();
 	    session.setAttribute("owl", owlDocument);
 	    
@@ -523,16 +533,32 @@ public class WSDL2SAWSDL extends HttpServlet {
 
     }
 
-    private static OntClass createClass(OntModel model, String uri, List<OwlDatatypeMapping> mappings)
+    private static OntClass createClass(OntModel model, String uri, List<OwlDatatypeMapping> mappings, Set<Resource> imports)
     {
-		RDFList members = model.createList();
+    	ArrayList<Restriction> members = new ArrayList<Restriction>();
 		for (OwlDatatypeMapping mapping: mappings) {
 			/* assuming each thing here is an RDFPath...
 			 */
-//			OntClass c = OwlUtils.createRestrictions(model, mapping.getRDFPath());
-//			members = members.cons(c);
+			ArrayList<String> pathSpec = new ArrayList<String>();
+			pathSpec.add(mapping.getOwlProperty());
+			pathSpec.add(mapping.getValuesFrom()); // there could be trouble if this is ""
+			for (String[] extra: mapping.getExtras()) {
+				pathSpec.add(extra[0]);
+				pathSpec.add(extra[1]);
+			}
+			RDFPath path = new RDFPath(pathSpec.toArray(new String[0]));
+			imports.addAll(path);
+			Restriction r = OwlUtils.createRestrictions(model, path);
+			members.add(r);
 		}
-		return model.createIntersectionClass(uri, members);
+		if (members.size() > 1) {
+			RDFList memberList = model.createList(members.iterator());
+			return model.createIntersectionClass(uri, memberList);
+		} else {
+			OntClass c = model.createClass(uri);
+			c.setEquivalentClass(members.get(0));
+			return c;
+		}
 	}
 
 //	private static OntClass createClass(OntModel model, OwlDatatypeMapping mapping)
@@ -774,27 +800,4 @@ public class WSDL2SAWSDL extends HttpServlet {
 	}
 	return false;
     }
-    
-    public static void main(String args[])
-    {
-    	List<OwlDatatypeMapping> mappings = new ArrayList<OwlDatatypeMapping>();
-    	OwlDatatypeMapping inputClass1 = new OwlDatatypeMapping(true);
-    	inputClass1.setOwlProperty("http://semanticscience.org/resource/hasIdentifier");
-    	inputClass1.setValuesFrom("http://purl.oclc.org/SADI/LSRN/KEGG_Identifier");
-    	inputClass1.addExtra("http://semanticscience.org/resource/hasValue", XSDDatatype.XSDstring.getURI());
-    	mappings.add(inputClass1);
-    	OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF);
- 	    OntClass inputClass = createClass(model, "#inputClass", mappings);
- 	    model.write(System.out, "RDF/XML-ABBREV", "");
- 	    
- 	    Individual id = model.createIndividual(null);
- 	    id.setPropertyValue(model.createProperty("http://semanticscience.org/resource/hasValue"), model.createTypedLiteral("id"));
- 	    Individual record = model.createIndividual(null);
- 	    record.addProperty(model.createProperty("http://semanticscience.org/resource/hasIdentifier"), id);
- 	    
- 	    System.out.println("has input class: " + record.hasOntClass(inputClass));
- 	    System.out.println("has #1: " + record.hasOntClass(model.getResource("http://example.com/class1")));
- 	    System.out.println("has #2: " + record.hasOntClass(model.getResource("http://example.com/class2")));
-    }
-    
 }
