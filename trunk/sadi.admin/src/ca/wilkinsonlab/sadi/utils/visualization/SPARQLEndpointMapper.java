@@ -359,7 +359,7 @@ public class SPARQLEndpointMapper
 	}
 	
 	private static final int EXIT_STATUS_SUCCESS = 0;
-	private static final int EXIT_STATUS_FAILURE = 0;
+	private static final int EXIT_STATUS_FAILURE = 1;
 	
 	public static void main(String[] args)
 	{
