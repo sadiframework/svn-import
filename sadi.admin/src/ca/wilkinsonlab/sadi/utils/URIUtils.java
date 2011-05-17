@@ -57,4 +57,14 @@ public class URIUtils
 		return prefix;
 	}
 	
+	static public String getURISuffix(String URI) 
+	{
+		String URIPrefix = getURIPrefix(URI);
+		
+		if(URIPrefix == null) {
+			return null;
+		}
+		
+		return StringUtils.substringAfter(URI, URIPrefix);
+	}
 }
