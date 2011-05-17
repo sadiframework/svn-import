@@ -38,6 +38,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class SPARQLEndpointMapper 
 {
@@ -142,6 +143,13 @@ public class SPARQLEndpointMapper
 			Resource s = statement.getSubject();
 			Property p = statement.getPredicate();
 			RDFNode o = statement.getObject();
+
+			// Note: Keeping the original rdfs:labels is confusing when viewing the schema in an RDF browser (e.g. tabulator).
+			// We explicitly add our own labels for the map nodes in getURIPatternNode.
+			
+			if (p.equals(RDFS.label)) {
+				return;
+			}
 			
 			Resource sForMap = getURIPatternNode(s);
 			Property pForMap = p;
@@ -179,11 +187,13 @@ public class SPARQLEndpointMapper
 				map.add(sForMap, EXAMPLE_URI, s);
 			}
 			
+			/*
 			if(o.isURIResource() && !p.equals(RDF.type)) {
 				if (oForMap.asResource().listProperties(EXAMPLE_URI).toList().size() < MAX_EXAMPLE_URIS) {
 					map.add(oForMap.asResource(), EXAMPLE_URI, o.asResource());
 				}
 			}
+			*/
 		}
 		
 		protected Resource getURIPatternNode(Resource node)
@@ -192,13 +202,67 @@ public class SPARQLEndpointMapper
 			String URIPrefix = URIUtils.getURIPrefix(URI);
 			
 			if (URIPrefix == null) {
+				
 				log.warn(String.format("unable to determine URI prefix for %s, using full URI", URI));
 				return map.createResource(URI);
+				
 			} else {
-				// use wildcard after prefix to indicate "something goes here"
-				URIPrefix = URIPrefix + "*";
-				return map.createResource(URIPrefix);
+				
+				// Tricky part.
+				// 
+				// For each URI pattern, there may be more than one type of entity in
+				// the endpoint.  For example, in http://uniprot.bio2rdf.org/sparql,
+				// the URI pattern http://bio2rdf.org/uniprot:* is used for both
+				// protein records and for specific annotations within those
+				// records (e.g. a single amino acid polymorphism). In the schema map, 
+				// we differentiate between different types with the same URI pattern
+				// by appending an underscore and a number to the URI, 
+				// e.g. http://bio2rdf.org/uniprot:*_2.  
+				
+				Set<Resource> RDFTypes = getRDFTypes(node);
+				String mapURI;
+				Resource mapNode;
+				
+				for(int typeCount = 1; ;typeCount++) {
+
+					// "*" indicates "something goes here"
+					
+					if (typeCount == 1) {
+						mapURI = String.format("%s*", URIPrefix);
+					} else {
+						mapURI = String.format("%s*_%d", URIPrefix, typeCount);
+					}
+					
+					mapNode = map.createResource(mapURI);
+
+					if(mapNode.listProperties().toList().size() == 0) {
+						break;
+					}
+
+					if (RDFTypes.equals(getRDFTypes(mapNode))) {
+						break;
+					}
+					
+				}
+				
+				for (Resource type : RDFTypes) {
+					map.add(mapNode, RDF.type, type);
+				}
+				
+				map.add(mapNode, RDFS.label, map.createTypedLiteral(String.format("%s*", URIPrefix)));
+				
+				return mapNode;
+				
 			}
+		}
+		
+		protected Set<Resource> getRDFTypes(Resource node)
+		{
+			Set<Resource> types = new HashSet<Resource>();
+			for (Statement statement : node.listProperties(RDF.type).toList()) {
+				types.add(statement.getObject().asResource());
+			}
+			return types;
 		}
 		
 		protected void removeStatementsWithBlankNodes(Model model) 
@@ -221,13 +285,12 @@ public class SPARQLEndpointMapper
 			// (In some cases, this may result in infinite traversals.  This 
 			// can be avoided by setting a maximum depth of traversal.)
 			
-			if (node.listProperties(RDF.type).toList().size() == 0) {
+			if (getRDFTypes(node).size() == 0) {
 				return true;
 			}
 			
 			boolean isVisitable = false;
-			for (Statement statement : node.listProperties(RDF.type).toList()) {
-				Resource type = statement.getObject().asResource();
+			for (Resource type : getRDFTypes(node)) {
 				if(!isRDFTypeExhausted(type)) {
 					isVisitable = true;
 					break;
@@ -239,8 +302,7 @@ public class SPARQLEndpointMapper
 
 		protected void visit(Resource node) 
 		{
-			for (Statement statement : node.listProperties(RDF.type).toList()) {
-				Resource type = statement.getObject().asResource();
+			for (Resource type : getRDFTypes(node)) {
 				visitRDFType(type);
 			}
 		}
