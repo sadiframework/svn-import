@@ -222,8 +222,9 @@ public class SPARQLEndpointMapper
 				Set<Resource> RDFTypes = getRDFTypes(node);
 				String mapURI;
 				Resource mapNode;
-				
-				for(int typeCount = 1; ;typeCount++) {
+
+				int typeCount = 1;
+				for(; ;typeCount++) {
 
 					// "*" indicates "something goes here"
 					
@@ -248,8 +249,12 @@ public class SPARQLEndpointMapper
 				for (Resource type : RDFTypes) {
 					map.add(mapNode, RDF.type, type);
 				}
+			
+				// for RDF browsers, add a label to hide the ugliness of the number suffixes
 				
-				map.add(mapNode, RDFS.label, map.createTypedLiteral(String.format("%s*", URIPrefix)));
+				if (typeCount > 1) {
+					map.add(mapNode, RDFS.label, map.createTypedLiteral(String.format("%s*", URIPrefix)));
+				}
 				
 				return mapNode;
 				
