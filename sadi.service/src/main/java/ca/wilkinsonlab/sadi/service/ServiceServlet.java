@@ -174,6 +174,10 @@ public abstract class ServiceServlet extends HttpServlet
 				throw new ServletException(message);
 			}
 		}
+		
+		for (TestCase testCase: getTestCases()) {
+			createTestCase(testCase);
+		}
 	}
 
 	@Override
@@ -532,6 +536,12 @@ public abstract class ServiceServlet extends HttpServlet
 		}
 		
 		return parameters;
+	}
+
+	private void createTestCase(TestCase testCase)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 	
 	private Resource loadServiceModelFromLocation(String serviceRDF) throws SADIException
