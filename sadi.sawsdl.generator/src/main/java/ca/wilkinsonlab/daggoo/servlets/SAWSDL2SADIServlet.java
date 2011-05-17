@@ -352,11 +352,4 @@ public class SAWSDL2SADIServlet extends AsynchronousServiceServlet {
     protected String getPollUrl(HttpServletRequest request, String taskId) {
 	return String.format("%s?%s=%s", request.getRequestURL().toString(), POLL_PARAMETER, taskId);
     }
-
-	@Override
-	protected InputProcessingTask getInputProcessingTask(Model inputModel,
-			Collection<Resource> inputNodes) {
-		// not actually used here...
-		return null;
-	}
 }
