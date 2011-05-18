@@ -91,7 +91,7 @@ public class MavenExecutor {
          *  authoritative (optional) -> defaults to false
          */
         if (definition.getDescription() != null && !definition.getDescription().trim().equals("")) {
-            params.add(String.format("-DserviceDescription=%s", definition.getDescription().trim()));
+            params.add(String.format("-DserviceDescription=%s", "\"" + definition.getDescription().trim() + "\""));
         }
         if (definition.getEndpoint() != null && !definition.getEndpoint().trim().equals("")) {
             params.add(String.format("-DserviceURL=%s", definition.getEndpoint().trim()));
@@ -105,7 +105,7 @@ public class MavenExecutor {
         params.add(String.format("-Dauthoritative=%s", definition.isAuthoritative()));
         params.add(String.format("-Dasync=%s", definition.isAsync()));
 
-        System.out.println(params);
+        System.out.println(getGenerateServiceCmdString(params));
         CLIManager cliManager = new CLIManager();
         CommandLine cli = null;
         try {
@@ -143,6 +143,17 @@ public class MavenExecutor {
         }
         System.setProperty("log4j.configuration", prop == null ? "" : prop);
         return false;
+    }
+
+    private static String getGenerateServiceCmdString(ArrayList<String> params) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("mvn ca.wilkinsonlab.sadi:sadi-generator:generate-service ");
+        for (String s : params) {
+            if (s != null && !s.trim().equals("")) {
+                sb.append(String.format("%s ", s));
+            }
+        }
+        return sb.toString();
     }
 
     /**
