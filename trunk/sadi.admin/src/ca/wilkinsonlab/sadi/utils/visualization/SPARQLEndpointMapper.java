@@ -12,12 +12,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
+
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 
+import ca.wilkinsonlab.sadi.admin.Config;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpointFactory;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint.EndpointType;
@@ -51,25 +57,62 @@ public class SPARQLEndpointMapper
 
 	protected static class MapperSearchNode extends SearchNode<Resource>
 	{
+		private static final int URI_TO_MODEL_CACHE_MEM_SIZE = 5000;
+		private static final int URI_TO_MODEL_CACHE_DISK_SIZE = 100000;
+		
 		private static final int MAX_EXAMPLE_URIS = 3;
 
 		private SPARQLEndpoint endpoint;
 		private Map<Resource,Long> RDFTypeVisitCounter;
 		private int maxVisitsPerRDFType;
 		private Model map;
+		private Cache URIToModelCache;
 		
 		public MapperSearchNode(SPARQLEndpoint endpoint, Model map, Resource node, int maxVisitsPerRDFType) 
 		{
-			this(endpoint, map, node, maxVisitsPerRDFType, new HashMap<Resource,Long>());
+			super(node);
+
+			this.endpoint = endpoint;
+			this.map = map;
+			this.maxVisitsPerRDFType = maxVisitsPerRDFType;
+			
+			RDFTypeVisitCounter = new HashMap<Resource,Long>();
+
+			URIToModelCache = 
+
+				new Cache(
+						
+					new CacheConfiguration(
+						String.format("%s:%d", "URIToModelCache", System.currentTimeMillis()),
+						URI_TO_MODEL_CACHE_MEM_SIZE
+					)
+					.memoryStoreEvictionPolicy(MemoryStoreEvictionPolicy.LRU)
+					.overflowToDisk(true)
+					.maxElementsOnDisk(URI_TO_MODEL_CACHE_DISK_SIZE)
+					.eternal(true)
+				
+				);
+			
+			Config.getCacheManager().addCache(URIToModelCache);
 		}
 
-		protected MapperSearchNode(SPARQLEndpoint endpoint, Model map, Resource node, int maxVisitsPerRDFType, Map<Resource,Long> RDFTypeVisitCounter) 
+		protected MapperSearchNode(
+		
+				SPARQLEndpoint endpoint, 
+				Model map, 
+				Resource node, 
+				int maxVisitsPerRDFType, 
+				Map<Resource,Long> RDFTypeVisitCounter,
+				Cache URIToModelCache
+		
+		) 
 		{
 			super(node);
 			this.endpoint = endpoint;
+			this.map = map;
 			this.maxVisitsPerRDFType = maxVisitsPerRDFType;
 			this.RDFTypeVisitCounter = RDFTypeVisitCounter;
-			this.map = map;
+			this.URIToModelCache = URIToModelCache;
 		}
 		
 		@Override
@@ -77,41 +120,24 @@ public class SPARQLEndpointMapper
 		{
 			Set<SearchNode<Resource>> successors = new HashSet<SearchNode<Resource>>();
 			
-			log.trace(String.format("visiting %s", getNode().getURI()));
+			log.trace(String.format("visiting %s", getNode()));
 			
-			// get all triples about the current node
-			
-			String query = "CONSTRUCT { %u% ?p ?o } WHERE { %u% ?p ?o }";
-			query = SPARQLStringUtils.strFromTemplate(query, getNode().getURI(), getNode().getURI());
-			Collection<Triple> triples = null;
+			// get a model containing all triples about the current node
 
-			try {
-				
-				triples = endpoint.constructQuery(query);
-
-			} catch(IOException e) {
-				
-				throw new RuntimeException(e);
-		
-			}
-			
-			// convert triples to a Model, for easier processing
-				
-			Model model = RdfUtils.triplesToModel(triples);
-			removeStatementsWithBlankNodes(model);
+			Model model = getModel(getNode());
 			Resource node = getNode().inModel(model);
 
-			// log it when we hit a dead end 
+			// log when we hit a dead end 
 			
-			if (model.listStatements().toList().size() == 0) {
-				log.trace(String.format("end of branch: no triples with subject %s", getNode().getURI()));
+			if (model.size() == 0) {
+				log.trace(String.format("end of branch: no triples with subject %s", getNode()));
 				return successors;
 			}
 			
 			// skip this node if all rdf:types have been exhausted
 
 			if(!isVisitable(node)) {
-				log.trace(String.format("end of branch: all rdf:types exhausted for %s", getNode().getURI()));
+				log.trace(String.format("end of branch: all rdf:types exhausted for %s", getNode()));
 				return successors; 
 			}
 
@@ -132,12 +158,49 @@ public class SPARQLEndpointMapper
 							map, 
 							statement.getObject().asResource(), 
 							maxVisitsPerRDFType, 
-							RDFTypeVisitCounter
+							RDFTypeVisitCounter,
+							URIToModelCache
 					));
 				}
 			}
 
 			return successors;
+		}
+		
+		protected Model getModel(Resource node) 
+		{
+			// check for the model in the cache
+			
+			Element cacheElement = URIToModelCache.get(node);
+			if(cacheElement != null) {
+				return (Model)(cacheElement.getObjectValue());
+			}
+
+			// query the data from the endpoint 
+			
+			Model model;
+				
+			String query = "CONSTRUCT { %u% ?p ?o } WHERE { %u% ?p ?o }";
+			query = SPARQLStringUtils.strFromTemplate(query, node.getURI(), node.getURI());
+			Collection<Triple> triples = null;
+
+			try {
+				triples = endpoint.constructQuery(query);
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			}
+			
+			model = RdfUtils.triplesToModel(triples);
+			
+			// we can't traverse statements about blank nodes, so cull them out
+			
+			removeStatementsWithBlankNodes(model);
+			
+			// cache the model
+			
+			URIToModelCache.put(new Element(node, model));
+			
+			return model;
 		}
 		
 		protected void addStatement(Statement statement)
@@ -146,8 +209,8 @@ public class SPARQLEndpointMapper
 			Property p = statement.getPredicate();
 			RDFNode o = statement.getObject();
 
-			// Note: Keeping the original rdfs:label / dc:title / foaf:name is confusing 
-			// when viewing the schema in an RDF browser (e.g. tabulator).
+			// Note: Storing the original rdfs:label / dc:title / foaf:name in the
+			// scheam is confusing when viewing it in an RDF browser (e.g. Tabulator).
 			// We explicitly add our own labels for the map nodes in getURIPatternNode.
 			
 			if (p.equals(RDFS.label) || p.equals(DC.title) || p.equals(FOAF.name)) {
@@ -184,19 +247,15 @@ public class SPARQLEndpointMapper
 				
 			}
 			
-			// store example URIs 
+			// Store example URIs within the schema.
+			//
+			// Note: we don't store example URIs for the object URI pattern, as that adds 
+			// tends to add too much clutter to the schema.
 			
 			if (sForMap.listProperties(EXAMPLE_URI).toList().size() < MAX_EXAMPLE_URIS) {
 				map.add(sForMap, EXAMPLE_URI, s);
 			}
-			
-			/*
-			if(o.isURIResource() && !p.equals(RDF.type)) {
-				if (oForMap.asResource().listProperties(EXAMPLE_URI).toList().size() < MAX_EXAMPLE_URIS) {
-					map.add(oForMap.asResource(), EXAMPLE_URI, o.asResource());
-				}
-			}
-			*/
+
 		}
 		
 		protected Resource getURIPatternNode(Resource node)
@@ -218,14 +277,19 @@ public class SPARQLEndpointMapper
 				// the URI pattern http://bio2rdf.org/uniprot:* is used for both
 				// protein records and for specific annotations within those
 				// records (e.g. a single amino acid polymorphism). In the schema map, 
-				// we differentiate between different types with the same URI pattern
-				// by appending an underscore and a number to the URI, 
+				// we differentiate between different types of nodes with the same 
+				// URI pattern by appending an underscore and a number to the URI, 
 				// e.g. http://bio2rdf.org/uniprot:*_2.  
+
+				// retrieve all statements about the current node 
+				
+				node = node.inModel(getModel(node));
 				
 				Set<Resource> RDFTypes = getRDFTypes(node);
 				String mapURI;
 				Resource mapNode;
 
+				
 				int typeCount = 1;
 				for(; ;typeCount++) {
 
@@ -252,12 +316,12 @@ public class SPARQLEndpointMapper
 				for (Resource type : RDFTypes) {
 					map.add(mapNode, RDF.type, type);
 				}
-			
+		
 				// For the benefit of RDF browsers, add a rdfs:label giving the URI
 				// pattern and the associated rdf:types.)
 				// 
-				// However, don't add a label for subjects that don't have any triples, 
-				// as this adds a lot of unnecessary clutter to the schema.
+				// Note: We don't add labels to subject URIs that don't have triples
+				// in the endpoint. This avoids adding unnecessary clutter to the schema.
 				
 				if (node.listProperties().toList().size() > 0) {
 					
@@ -266,10 +330,9 @@ public class SPARQLEndpointMapper
 					
 				}
 
-				
 				return mapNode;
-				
 			}
+
 		}
 		
 		protected String getMapNodeLabel(Resource node) 
@@ -291,6 +354,7 @@ public class SPARQLEndpointMapper
 				label.append(" (");
 				
 				int typeCount = 0;
+				
 				for(Resource type : RDFTypes) {
 					
 					String URISuffix = URIUtils.getURISuffix(type.getURI());
@@ -302,7 +366,7 @@ public class SPARQLEndpointMapper
 					
 					label.append(URISuffix);
 					
-					if (typeCount < RDFTypes.size() - 1) {
+					if (typeCount < (RDFTypes.size() - 1)) {
 						label.append(", ");
 					}
 					
@@ -385,7 +449,7 @@ public class SPARQLEndpointMapper
 				visitCount = RDFTypeVisitCounter.get(type) + 1;
 			}
 			
-			if(visitCount < maxVisitsPerRDFType) {
+			if(visitCount <= maxVisitsPerRDFType) {
 				log.trace(String.format("this is visit #%d for rdf:type %s (limit is %d)", visitCount, type, maxVisitsPerRDFType));
 			}
 			
