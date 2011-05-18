@@ -574,11 +574,14 @@ public class SPARQLEndpointMapper
 		List<Resource> types = new ArrayList<Resource>();
 		List<Map<String,String>> typeResults = endpoint.selectQuery("SELECT DISTINCT ?type WHERE { ?s a ?type }");
 
-		final String RDF_TYPE_PREFIX_IGNORE_LIST[] = 
+		// these prefixes occur in Virtuoso demo data
+		
+		final String RDF_TYPE_IGNORE_PREFIXES[] = 
 			
 			new String [] {
-				"http://www.openlinksw.com",
-				"http://www.w3.org",
+				"http://www.openlinksw.com", 
+				"http://rdfs.org/sioc/", 
+				"http://www.w3.org/",
 			};
 
 		for(Map<String,String> result : typeResults) {
@@ -587,7 +590,7 @@ public class SPARQLEndpointMapper
 		
 			boolean skipType = false;
 			
-			for(String prefix : RDF_TYPE_PREFIX_IGNORE_LIST) {
+			for(String prefix : RDF_TYPE_IGNORE_PREFIXES) {
 				if (type.startsWith(prefix)) {
 					skipType = true;
 				}
