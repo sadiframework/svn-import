@@ -91,7 +91,7 @@ public class MavenExecutor {
          *  authoritative (optional) -> defaults to false
          */
         if (definition.getDescription() != null && !definition.getDescription().trim().equals("")) {
-            params.add(String.format("-DserviceDescription=%s", "\"" + definition.getDescription().trim() + "\""));
+            params.add(String.format("-DserviceDescription=%s", definition.getDescription().trim()));
         }
         if (definition.getEndpoint() != null && !definition.getEndpoint().trim().equals("")) {
             params.add(String.format("-DserviceURL=%s", definition.getEndpoint().trim()));
