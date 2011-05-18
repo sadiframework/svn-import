@@ -18,6 +18,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -33,6 +34,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
+import org.apache.commons.lang.WordUtils;
 import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.protege.editor.core.ui.util.ComponentFactory;
 import org.protege.editor.core.ui.util.Icons;
@@ -567,6 +569,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         if (outfile == null)
             return false;
         if (outfile.exists()) {
+            System.out.println(String.format("definition: '%s' exists.", outfile.toString()));
             int confirm = JOptionPane.showConfirmDialog(SadiGeneratorView.this,
                     String
                             .format(bundle.getString("definition_file_exists"), def
@@ -900,8 +903,16 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             return false;
         }
         if (def.getEndpoint() == null || def.getEndpoint().trim().equals("")) {
-            def.setEndpoint("http://somedomain.org/services/"+def.getName());
+            def.setEndpoint("http://somedomain.org/services/"+getValidClassName(def.getName()));
         }
         return true;
     }    
+    private static Pattern startsWithLetter = Pattern.compile("^[a-zA-Z]");
+    private static Pattern nonLetterOrDigit = Pattern.compile("\\W+");
+    private static String getValidClassName(String name)
+    {
+        String className = startsWithLetter.matcher(name).find() ? name : "SADI" + name;
+        className = WordUtils.capitalizeFully(className);
+        return nonLetterOrDigit.matcher(className).replaceAll("");
+    }
 }
