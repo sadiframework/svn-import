@@ -105,6 +105,7 @@ public class MavenExecutor {
         params.add(String.format("-Dauthoritative=%s", definition.isAuthoritative()));
         params.add(String.format("-Dasync=%s", definition.isAsync()));
 
+        System.out.println(params);
         CLIManager cliManager = new CLIManager();
         CommandLine cli = null;
         try {
@@ -345,7 +346,7 @@ public class MavenExecutor {
     private static void setVerbatimLevels(CommandLine cli, MavenExecutionRequest request) {
         // load the logger
        // PropertyConfigurator.configure(MavenExecutor.class.getResource("/resources/log4j.xml"));
-        boolean debug = cli.hasOption(CLIManager.DEBUG); 
+        boolean debug = true;//cli.hasOption(CLIManager.DEBUG); 
         boolean quiet = !debug && cli.hasOption(CLIManager.QUIET);
         if (debug) {
             request.setLoggingLevel(MavenExecutionRequest.LOGGING_LEVEL_DEBUG);
