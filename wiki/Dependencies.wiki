@@ -9,12 +9,12 @@ If you have Maven 2 working from the command line:
   # unzip that file and open a shell in the resulting `sadi-services` directory
   # execute the following command:
     {{{
-$ mvn ca.wilkinsonlab.sadi:sadi-generator:generate-service -DserviceName=hello -DserviceClass=com.example.HelloWorldService   -DinputClass=http://sadiframework.org/examples/hello.owl#NamedIndividual   -DoutputClass=http://sadiframework.org/examples/hello.owl#GreetedIndividual   -DcontactEmail=nobody@mailinator.com
+$ mvn ca.wilkinsonlab.sadi:sadi-generator:generate-service -DserviceName=hello -DserviceClass=com.example.HelloWorldService -DinputClass=http://sadiframework.org/examples/hello.owl#NamedIndividual  -DoutputClass=http://sadiframework.org/examples/hello.owl#GreetedIndividual -DcontactEmail=nobody@mailinator.com
     }}}
     (you've just built a SADI service)
   # execute the following command:
     {{{
-$ mvn org.mortbay.jetty:jetty-maven-plugin:run`
+$ mvn org.mortbay.jetty:jetty-maven-plugin:run
     }}}
     (you're now running a SADI service and will therefore have downloaded all the dependencies)
 
@@ -38,4 +38,9 @@ $ perl -MCPAN -e "install SADI"
 = Ontologies =
 
   # download http://sadiframework.org/downloads/training1105-ontologies.zip
-  # unzip that file and put the four resulting ontologies somewhere you'll be able to find them easily
+  # that file should contain the following ontologies:
+    * http://sadi-ontology.semanticscience.org/pharmacogenomics-depression-sadi.owl 
+    * http://sadi-ontology.semanticscience.org/pharmacogenomics-complex-sadi.owl
+    * http://sadi-ontology.semanticscience.org/pharmacogenomics-primitive-sadi.owl
+    * http://ontology.dumontierlab.com/biomedical-measure-primitive
+  # unzip that file and put the ontologies somewhere you can easily find them
