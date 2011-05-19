@@ -9,11 +9,14 @@ If you have Maven 2 working from the command line:
   # unzip that file and open a shell in the resulting `sadi-services` directory
   # execute the following command (all on one line)
     {{{
-mvn ca.wilkinsonlab.sadi:sadi-generator:generate-service -DserviceName=hello -DserviceClass=com.example.HelloWorldService   -DinputClass=http://sadiframework.org/examples/hello.owl#NamedIndividual   -DoutputClass=http://sadiframework.org/examples/hello.owl#GreetedIndividual   -DcontactEmail=nobody@mailinator.com
+$ mvn ca.wilkinsonlab.sadi:sadi-generator:generate-service -DserviceName=hello -DserviceClass=com.example.HelloWorldService   -DinputClass=http://sadiframework.org/examples/hello.owl#NamedIndividual   -DoutputClass=http://sadiframework.org/examples/hello.owl#GreetedIndividual   -DcontactEmail=nobody@mailinator.com
     }}}
     (you've just built a SADI service)
-  # execute the command `mvn org.mortbay.jetty:jetty-maven-plugin:run`
-  (you're now running a SADI service and should have all the dependencies)
+  # execute the command 
+    {{{
+$ mvn org.mortbay.jetty:jetty-maven-plugin:run`
+    }}}
+    (you're now running a SADI service and will therefore have downloaded all the dependencies)
 
 If you have Maven 2 working in Eclipse:
   # download http://sadiframework.org/downloads/sadi-service-skeleton-0.1.0.zip
@@ -27,7 +30,10 @@ Otherwise:
 
 = Perl dependencies =
 
-  # `perl -MCPAN -e "install SADI"` — this is in an interactive process
+  # Execute the following command (this is in an interactive process and can take a long time)
+{{{
+$ perl -MCPAN -e "install SADI"`
+}}}
 
 = Ontologies =
 
