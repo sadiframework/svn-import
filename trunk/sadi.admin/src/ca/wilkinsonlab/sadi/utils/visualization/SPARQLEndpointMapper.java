@@ -422,7 +422,10 @@ public class SPARQLEndpointMapper
 			{
 				Set<Resource> types = new HashSet<Resource>();
 				for (Statement statement : node.listProperties(RDF.type).toList()) {
-					types.add(statement.getObject().asResource());
+					RDFNode type = statement.getObject();
+					if(type.isURIResource()) {
+						types.add(type.asResource());
+					}
 				}
 				return types;
 			}
