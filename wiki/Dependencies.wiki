@@ -32,7 +32,7 @@ Otherwise:
 
   # execute the following command (this is in an interactive process and can take a long time):
 {{{
-$ perl -MCPAN -e "install SADI"`
+$ perl -MCPAN -e "install SADI"
 }}}
 
 = Ontologies =
