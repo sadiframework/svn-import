@@ -30,7 +30,6 @@ import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpointFactory;
 import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLEndpoint.EndpointType;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.URIUtils;
 import ca.wilkinsonlab.sadi.utils.graph.BoundedBreadthFirstIterator;
 import ca.wilkinsonlab.sadi.utils.graph.BreadthFirstIterator;
