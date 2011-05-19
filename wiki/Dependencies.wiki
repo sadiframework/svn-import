@@ -32,4 +32,4 @@ Otherwise:
 = Ontologies =
 
   # download http://sadiframework.org/downloads/training1105-ontologies.zip
-  # unzip them and put them somewhere you'll be able to find them easily
+  # unzip that file and put the four resulting ontologies somewhere you'll be able to find them easily
