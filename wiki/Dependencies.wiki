@@ -28,3 +28,8 @@ Otherwise:
 = Perl dependencies =
 
   # `perl -MCPAN -e "install SADI"` — this is in an interactive process
+
+= Ontologies =
+
+  # download http://sadiframework.org/downloads/training1105-ontologies.zip
+  # unzip them and put them somewhere you'll be able to find them easily
