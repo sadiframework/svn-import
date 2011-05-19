@@ -216,8 +216,7 @@ public class SPARQLEndpointMapper
 				
 				Model model;
 					
-				String query = "CONSTRUCT { %u% ?p ?o } WHERE { %u% ?p ?o }";
-				query = SPARQLStringUtils.strFromTemplate(query, node.getURI(), node.getURI());
+				String query = String.format("CONSTRUCT { <%s> ?p ?o } WHERE { <%s> ?p ?o }", node, node);
 				Collection<Triple> triples = null;
 
 				try {
