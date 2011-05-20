@@ -39,8 +39,8 @@ $ perl -MCPAN -e "install SADI"
 
   # download http://sadiframework.org/downloads/training1105-ontologies.zip
   # that file should contain the following ontologies:
-    * http://sadi-ontology.semanticscience.org/pharmacogenomics-depression-sadi.owl 
-    * http://sadi-ontology.semanticscience.org/pharmacogenomics-complex-sadi.owl
-    * http://sadi-ontology.semanticscience.org/pharmacogenomics-primitive-sadi.owl
-    * http://ontology.dumontierlab.com/biomedical-measure-primitive
+    # http://ontology.dumontierlab.com/biomedical-measure-primitive
+    # http://sadi-ontology.semanticscience.org/pharmacogenomics-primitive-sadi.owl
+    # http://sadi-ontology.semanticscience.org/pharmacogenomics-complex-sadi.owl
+    # http://sadi-ontology.semanticscience.org/pharmacogenomics-depression-sadi.owl 
   # unzip that file and put the ontologies somewhere you can easily find them
