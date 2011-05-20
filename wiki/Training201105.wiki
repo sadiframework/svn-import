@@ -2,12 +2,14 @@
 
 =Scratch page for May 2011 training course=
 
-Suggested URL for ontology:
-  http://cstomcat.unbsj.ca/sadi-fred##/cbrass1105.owl
+==Suggested URL for ontology==
+ http://cstomcat.unbsj.ca/sadi-fred##/cbrass1105.owl
 
+==URLs for test input/output==
   * http://sadiframework.org/training1105/cbrass201105-input.rdf
   * http://sadiframework.org/training1105/cbrass201105-input-untyped.rdf
 
+==SPARQL query to find drugs==
 {{{
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX pharm: <http://sadi-ontology.semanticscience.org/pharmacogenomics-primitive-sadi.owl#>
