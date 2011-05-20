@@ -1,3 +1,5 @@
 #summary Scratch page for May 2011 training course
 
 =Scratch page for May 2011 training course=
+
+  * http://sadiframework.org/training1105/cbrass201105-input.rdf
