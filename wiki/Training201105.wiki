@@ -43,3 +43,39 @@ WHERE {
                 lmap:prefix "http://sadiframework.org/examples/"
               ] .
 }}}
+
+==Source code==
+{{{
+private static final String query = 
+        "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" + 
+        "PREFIX pharm: <http://sadi-ontology.semanticscience.org/pharmacogenomics-primitive-sadi.owl#>\n" + 
+        "SELECT *\n" + 
+        "WHERE {\n" + 
+        "  ?disease pharm:hasIdentifier ?id .\n" + 
+        "  ?id pharm:hasValue '%s' .\n" + 
+        "  ?treatment pharm:targets ?disease .\n" + 
+        "  ?treatment pharm:hasAgent ?agent .\n" + 
+        "  ?agent rdf:type pharm:Drug\n" + 
+        "}";
+	
+	@Override
+	public void processInput(Resource input, Resource output)
+	{
+		/* your code goes here
+		 * (add properties to output node based on properties of input node...)
+		 */
+		Resource identifier = input.getPropertyResourceValue(Vocab.hasIdentifier);
+		String idString = identifier.getProperty(Vocab.hasValue).getString();
+		
+		OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF);
+		model.read(GetDrugsByDisease.class.getResourceAsStream("/pharmacogenomics-depression-sadi.owl"), "");
+		QueryExecution qe = QueryExecutionFactory.create(String.format(query, idString), model);
+		ResultSet resultSet = qe.execSelect();
+		while (resultSet.hasNext()) {
+				QuerySolution binding = resultSet.nextSolution();
+				RDFNode drug = binding.get("drug");
+				output.addProperty(Vocab.hasMedication, drug);
+  		 }
+		qe.close();
+	}
+}}}
