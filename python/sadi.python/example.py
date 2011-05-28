@@ -28,6 +28,7 @@ class ExampleService(sadi.Service):
         output.hello_greeting = "Hello, "+input.foaf_name[0]
         output.save()
 
+resource = ExampleService()
+
 if __name__ == "__main__":
-    service = ExampleService()
-    sadi.publishService(service)
+    sadi.publishTwistedService(resource, port=9090)
