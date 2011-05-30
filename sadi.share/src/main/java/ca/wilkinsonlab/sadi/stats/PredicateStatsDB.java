@@ -97,7 +97,7 @@ public class PredicateStatsDB
 		this.statsGraph = statsGraph;
 
 		stopWatch.stop();
-		log.info(String.format("initialized predicate stats db in %dms", stopWatch.getTime()));
+		log.debug(String.format("initialized predicate stats db in %dms", stopWatch.getTime()));
 	}
 	
 	protected void initCache() 
