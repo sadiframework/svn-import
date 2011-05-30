@@ -35,6 +35,8 @@ import com.hp.hpl.jena.rdf.model.RDFList;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.shared.DoesNotExistException;
+import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -329,11 +331,14 @@ public class OwlUtils
 			model.read(ontologyUri);
 			// model.hasLoadedImport(ontologyUri) is now true...
 			// model.hasLoadedImport(all ontologies imported by ontologyUri) is now true...
+		} catch (JenaException e) {
+			if (e instanceof DoesNotExistException) {
+				throw new SADIException(String.format("no such ontology %s", uri));
+			} else if (e.getMessage().endsWith("Connection refused")) {
+				throw new SADIException(String.format("connection refused to %s", uri));
+			}
 		} catch (Exception e) {
-			if (e instanceof SADIException)
-				throw (SADIException)e;
-			else
-				throw new SADIException(e.toString(), e);
+			throw new SADIException(e.toString(), e);
 		}
 		
 		/* Michel Dumontier's predicates resolve to a minimal definition that
