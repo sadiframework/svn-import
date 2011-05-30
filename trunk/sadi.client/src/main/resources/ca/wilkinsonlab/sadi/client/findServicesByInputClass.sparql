@@ -11,6 +11,7 @@ WHERE
 	?serviceURI mygrid:hasServiceDescriptionText ?description .
 	?serviceURI sadi:decoratesWith ?decoration .
 	?op mygrid:inputParameter ?input .
+	?input rdf:type mygrid:parameter .
 	?input mygrid:objectType %u% .
 	?input mygrid:objectType ?inputClassURI .
 	?op mygrid:outputParameter ?output .
