@@ -12,6 +12,7 @@ WHERE
 	?serviceURI sadi:decoratesWith ?decoration .
 	?decoration owl:someValuesFrom %u% .
 	?op mygrid:inputParameter ?input .
+	?input rdf:type mygrid:parameter .
 	?input mygrid:objectType ?inputClassURI .
 	?op mygrid:outputParameter ?output .
 	?output mygrid:objectType ?outputClassURI .
