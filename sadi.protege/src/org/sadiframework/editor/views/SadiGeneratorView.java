@@ -11,13 +11,12 @@ import java.beans.PropertyChangeListener;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.ButtonGroup;
@@ -43,6 +42,7 @@ import org.sadiframework.editor.AbstractDefinitionFieldGenerator;
 import org.sadiframework.editor.DefinitionField;
 import org.sadiframework.editor.DefinitionFieldGeneratorImpl;
 import org.sadiframework.generator.java.JavaGeneratorWorker;
+import org.sadiframework.generator.perl.Generator;
 import org.sadiframework.generator.perl.ServiceGeneratorPerlWorker;
 import org.sadiframework.preferences.PreferenceManager;
 import org.sadiframework.properties.SADIProperties;
@@ -467,27 +467,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                 
                 // set the actual definitions dir by reading the sadi-services.cfg file
                 // Read properties file. 
-                Properties properties = new Properties(); 
-                try { 
-                    properties.load(new FileInputStream(String.format("%s/%s", file.getAbsolutePath(), "sadi-services.cfg"))); 
-                } catch (IOException ioe) { 
-                    manager.savePreference(
-                            SADIProperties.PERL_SADI_DEFINITION_DIRECTORY, 
-                            String.format("%s/%s", file.getAbsolutePath(), "definitions")
-                    );
-                    return;
-                }
-                if (properties.containsKey("impl.definitions")) {
-                    manager.savePreference(
-                            SADIProperties.PERL_SADI_DEFINITION_DIRECTORY, 
-                            String.format("%s", properties.getProperty("impl.definitions")).trim()
-                    );
-                } else  {
-                    manager.savePreference(
-                            SADIProperties.PERL_SADI_DEFINITION_DIRECTORY, 
-                            String.format("%s/%s", file.getAbsolutePath(), "definitions").trim()
-                    );
-                }
+                //setDefinitionDirectoryFromSadiConfigurationScript();
             }
         });
         
@@ -536,6 +516,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
     }
     
     private boolean savePerlSADIDefinition(ServiceDefinition def) {
+        
+        setDefinitionDirectoryFromSadiConfigurationScript();
 
         // get chooser for directories
         File dir = null;
@@ -568,6 +550,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         // if it exists, prompt to overwrite
         if (outfile == null)
             return false;
+        System.out.println(String.format("definition to be saved to: '%s'.", outfile.toString()));
         if (outfile.exists()) {
             System.out.println(String.format("definition: '%s' exists.", outfile.toString()));
             int confirm = JOptionPane.showConfirmDialog(SadiGeneratorView.this,
@@ -907,6 +890,39 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         }
         return true;
     }    
+    private void setDefinitionDirectoryFromSadiConfigurationScript() {
+        String perl = manager.getPreference(SADIPreferencePanel.PERL_PATH, "");
+        String libs = manager.getPreference(SADIPreferencePanel.PERL_5LIB_DIR, "");
+        String scriptDir = manager.getPreference(SADIPreferencePanel.PERL_SADI_SCRIPTS_DIR, "");
+        String pSadiHomedir = manager.getPreference(SADIProperties.PERL_SADI_HOME_DIRECTORY, "");
+        Generator gen = new Generator(perl, libs, scriptDir);
+        String configString = "";
+        try {
+            //gen.configStatus(pSadiHomedir);
+            configString = gen.configStatus(pSadiHomedir);
+        } catch (IOException ioe) {
+            manager.saveBooleanPreference(SADIProperties.DO_PERL_SERVICE_GENERATION, false);
+        } catch (InterruptedException ie) {
+            manager.saveBooleanPreference(SADIProperties.DO_PERL_SERVICE_GENERATION, false);
+        }
+        // parse the string and extract the value we need
+        Pattern pattern = Pattern.compile("generators\\.impl\\.definitions => (.*)$", Pattern.MULTILINE);                    
+        // Determine if pattern exists in input
+        Matcher matcher = pattern.matcher(configString);
+        if (matcher.find()) {
+            String match = matcher.group(1);
+            match = match == null ? "" : match.trim();
+            manager.savePreference(
+                    SADIProperties.PERL_SADI_DEFINITION_DIRECTORY, 
+                    String.format("%s", match.trim())
+            );
+        } else {
+            manager.savePreference(
+                    SADIProperties.PERL_SADI_DEFINITION_DIRECTORY, 
+                    String.format("%s/%s", manager.getPreference(SADIProperties.PERL_SADI_HOME_DIRECTORY, ""), "definitions").trim()
+            );
+        }
+    }
     private static Pattern startsWithLetter = Pattern.compile("^[a-zA-Z]");
     private static Pattern nonLetterOrDigit = Pattern.compile("\\W+");
     private static String getValidClassName(String name)

@@ -23,6 +23,9 @@ public class Generator {
 
     public static final String GEN_SERVICE_SCRIPT_NAME = "sadi-generate-services.pl";
     public static final String WIN_GEN_SERVICE_SCRIPT_NAME = "sadi-generate-services.bat";
+    
+    public static final String GEN_CONFIG_SCRIPT_NAME = "sadi-config-status.pl";
+    public static final String WIN_CONFIG_SCRIPT_NAME = "sadi-config-status.bat";
 
     public static final String GEN_OWL_SCRIPT_NAME = "sadi-generate-datatypes.pl";
     public static final String WIN_GEN_OWL_SCRIPT_NAME = "sadi-generate-datatypes.bat";
@@ -130,6 +133,62 @@ public class Generator {
             command.add("-g");
         // add the name of the service
         command.add(servicename);
+        System.out.println(String.format("command: %s", command));
+
+        // execute the command
+        ProcessBuilder pb = new ProcessBuilder(command.toArray(new String[]{}));
+        if (pSadiHomedir != null && !pSadiHomedir.trim().equals("")) {
+            pb.environment().put("SADI_CFG_DIR", pSadiHomedir);    
+        }
+        
+        // merge the error stream with stdout
+        pb.redirectErrorStream(true);
+        // start our thread
+        p = pb.start();
+        // read the stream and redirect to stdout (so our console with gobble it up)
+        GeneratorStream stdout = new GeneratorStream(p.getInputStream());
+        stdout.start();
+        // block until we are done
+        int retVal = p.waitFor();
+        // done
+        System.out.println(String.format("(%s)", retVal));
+        return String.format("%s", stdout.getStreamAsString());
+    }
+    
+    public String configStatus(String pSadiHomedir) throws IOException, InterruptedException {
+        validate();
+        ArrayList<String> command = new ArrayList<String>();
+        Process p;
+        // construct the command to generate services ...
+        // perl sadi-generate-services.pl [-A] service_name
+        if (!getPerlPath().trim().equals("")) {
+            if (!getScriptsLocation().trim().equals("")) {
+                // add full path of script name
+                command.add(getPerlPath());
+                for (String l : this.libs)
+                    command.add(String.format("-I%s", l));
+                command.add(getScriptsLocation() + "/" + GEN_CONFIG_SCRIPT_NAME);
+            } else {
+                // add just the script name
+                if (isWindowsPC()) {
+                    command.add(WIN_CONFIG_SCRIPT_NAME);
+                } else {
+                    command.add(GEN_CONFIG_SCRIPT_NAME);
+                }
+            }
+        } else {
+            if (!getScriptsLocation().trim().equals("")) {
+                // add full path of script name
+                command.add(getScriptsLocation() + "/" + GEN_CONFIG_SCRIPT_NAME);
+            } else {
+                // add just the script name
+                if (isWindowsPC()) {
+                    command.add(WIN_CONFIG_SCRIPT_NAME);
+                } else {
+                    command.add(GEN_CONFIG_SCRIPT_NAME);
+                }
+            }
+        }
         System.out.println(String.format("command: %s", command));
 
         // execute the command
