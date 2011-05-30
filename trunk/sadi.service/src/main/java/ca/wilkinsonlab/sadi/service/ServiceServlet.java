@@ -320,6 +320,8 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	protected void outputErrorResponse(HttpServletResponse response, Throwable error) throws IOException
 	{
+		log.error("error during service call", error);
+		
 		/* we can't just write to the response because Jena calls flush() on
 		 * the writer or stream, which commits the response...
 		 */
