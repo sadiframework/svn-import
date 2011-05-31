@@ -27,6 +27,7 @@ import ca.wilkinsonlab.sadi.client.virtual.sparql.SPARQLServiceWrapper;
 import ca.wilkinsonlab.sadi.decompose.RestrictionAdapter;
 import ca.wilkinsonlab.sadi.decompose.VisitingDecomposer;
 import ca.wilkinsonlab.sadi.stats.PredicateStatsDB;
+import ca.wilkinsonlab.sadi.utils.LabelUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.PropertyResolvabilityCache;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
@@ -97,6 +98,7 @@ public class SHAREKnowledgeBase
 	private boolean useAdaptiveQueryPlanning;
 	/** record statistics during query execution */
 	private boolean recordQueryStats;
+	
 	/** 
 	 * Compute intersections of bindings, if variables are encountered more than once 
 	 * in a query. In many cases this will speed up query evaluation significantly.
@@ -424,6 +426,7 @@ public class SHAREKnowledgeBase
 				if (recordQueryStats()) {
 					recordStats(subjects, predicates, objects, directionIsForward, (int)stopWatch.getTime());
 				}
+				break;
 			}
 		}
 	
@@ -831,8 +834,8 @@ public class SHAREKnowledgeBase
 			 */
 			Set<RDFNode> inputs = new HashSet<RDFNode>(subjects.values);
 			Collection<Triple> output = maybeCallService(service, inputs);
-			if (!output.isEmpty())
-				skipInputClasses.clear();
+//			if (!output.isEmpty())
+//				skipInputClasses.clear();
 			
 			/* add the service output to the data model */
 			for (Triple triple: output) {
@@ -913,9 +916,11 @@ public class SHAREKnowledgeBase
 					OntClass attachedValuesFrom = OwlUtils.getValuesFromAsClass(r);
 					if (attachedValuesFrom != null) {
 						if (classesOverlap(constrainedType, attachedValuesFrom)) { // hasSuperClass because we might be building up; this is non-ideal...
-							log.debug(String.format("service %s attaches values of type %s to property %s which is compatible with type %s", service, OwlUtils.getLabel(attachedValuesFrom),  OwlUtils.getLabel(p),  OwlUtils.getLabel(constrainedType)));
+							if (log.isDebugEnabled())
+								log.debug(String.format("service %s attaches values of type %s to property %s which is compatible with type %s", service, LabelUtils.getLabel(attachedValuesFrom),  LabelUtils.getLabel(p),  LabelUtils.getLabel(constrainedType)));
 						} else {
-							log.debug(String.format("service %s attaches values of type %s to property %s and we're looking for values of type %s", service, OwlUtils.getLabel(attachedValuesFrom),  OwlUtils.getLabel(p),  OwlUtils.getLabel(constrainedType)));
+							if (log.isDebugEnabled())
+								log.debug(String.format("service %s attaches values of type %s to property %s and we're looking for values of type %s", service, LabelUtils.getLabel(attachedValuesFrom),  LabelUtils.getLabel(p),  LabelUtils.getLabel(constrainedType)));
 							return true;
 						}
 					}
@@ -1232,7 +1237,7 @@ public class SHAREKnowledgeBase
 		return statements;
 	}
 
-	Set<String> skipInputClasses = new HashSet<String>();
+//	Set<String> skipInputClasses = new HashSet<String>();
 	private Collection<Triple> maybeCallService(Service service, Set<RDFNode> subjects)
 	{
 		log.trace(String.format("found service %s", service));
@@ -1245,7 +1250,7 @@ public class SHAREKnowledgeBase
 		log.trace(String.format("filtering inputs previously sent to service %s", service));
 		for (Iterator<? extends RDFNode> i = subjects.iterator(); i.hasNext(); ) {
 			RDFNode input = i.next();
-			if (tracker.beenThere(service, input)) {
+			if (tracker.beenThere(service, input, false)) {
 				log.trace(String.format("skipping input %s (been there)", input));
 				i.remove();
 			}
@@ -1255,15 +1260,15 @@ public class SHAREKnowledgeBase
 			return Collections.emptyList();
 		}
 		
-		String inputClassURI = service.getInputClassURI();
-		if (inputClassURI != null && !inputClassURI.equals(OWL.Nothing.getURI()) && skipInputClasses.contains(inputClassURI)) {
-			log.trace(String.format("skipping input class %s because we know we have no instances", inputClassURI));
-			return Collections.emptyList();
-		}
+//		String inputClassURI = service.getInputClassURI();
+//		if (inputClassURI != null && !inputClassURI.equals(OWL.Nothing.getURI()) && skipInputClasses.contains(inputClassURI)) {
+//			log.trace(String.format("skipping input class %s because we know we have no instances", inputClassURI));
+//			return Collections.emptyList();
+//		}
 		filterByInputClass(subjects, service);
 		if (subjects.isEmpty()) {
 			log.trace("nothing left to do");
-			skipInputClasses.add(inputClassURI);
+//			skipInputClasses.add(inputClassURI);
 			return Collections.emptyList();
 		}
 		
@@ -1503,6 +1508,9 @@ public class SHAREKnowledgeBase
 						log.error(String.format("error loading input class for service %s", service), e);
 					}
 				}
+				for (Resource inputResource: inputResources) {
+					tracker.beenThere(service, inputResource);
+				}
 				output = service.invokeService(inputResources);
 			}
 			
@@ -1650,14 +1658,22 @@ public class SHAREKnowledgeBase
 		{
 			visited = new HashSet<String>();
 		}
-		
+
 		public synchronized boolean beenThere(Service service, RDFNode input)
+		{
+			return beenThere(service, input, true);
+		}
+		
+		public synchronized boolean beenThere(Service service, RDFNode input, boolean update)
 		{
 			String key = getHashKey(service, input);
 			if (visited.contains(key)) {
 				return true;
 			} else {
-				visited.add(key);
+				if (update) {
+					log.trace(String.format("tracking (%s, %s)", service, input));
+					visited.add(key);
+				}
 				return false;
 			}
 		}
@@ -1668,6 +1684,7 @@ public class SHAREKnowledgeBase
 			if (visited.contains(key)) {
 				return true;
 			} else {
+				log.trace(String.format("tracking (%s, %s)", instances, asClass));
 				visited.add(key);
 				return false;
 			}
