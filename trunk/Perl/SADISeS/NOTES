@@ -19,7 +19,7 @@ Assuming you want to create the distribution, do*:
 
    perl Makefile.PL
    make manifest
-   make distribution
+   make dist
    make realclean
 
 A SADI-###.tar.gz (where ### is the version number)
