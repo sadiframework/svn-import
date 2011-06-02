@@ -1,5 +1,8 @@
 Revision history for Perl extension SADI.
 
+1.13 
+    * Forgot to update $Revision at top of SADI.pm in release 1.12.
+
 1.12 
     * Fixed botched 1.11 release (see below).
 

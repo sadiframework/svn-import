@@ -12,8 +12,8 @@ use strict 'vars';
 use vars qw{$VERSION $Revision};
 
 BEGIN {
-	$VERSION = sprintf "%d.%02d", q$Revision: 1.12 $ =~ /: (\d+)\.(\d+)/;
-	$Revision = '$Id: SADI.pm,v 1.10 2011-05-16 00:02:51 ubuntu Exp $';
+	$VERSION = sprintf "%d.%02d", q$Revision: 1.13 $ =~ /: (\d+)\.(\d+)/;
+	$Revision = '$Id: SADI.pm,v 1.13 2011-06-02 19:31:20 ubuntu Exp $';
 }
 
 1;
