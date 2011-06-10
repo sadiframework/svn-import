@@ -1,5 +1,6 @@
 from rdflib import *
 import rdflib
+import mimeparse
 
 googleAppEngine = False
 try:
@@ -25,11 +26,6 @@ rdflib.plugin.register('sparql', rdflib.query.Result,
 
 ns.register(myGrid="http://www.mygrid.org.uk/mygrid-moby-service#")
 ns.register(protegedc="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#")
-
-formats= {
-    "text/n3":"n3",
-    "application/rdf+xml":"xml",
-}
 
 # Install required libraries using easy_install:
 # sudo easy_install 'rdflib>=3.0' surf rdfextras surf.rdflib
@@ -106,12 +102,13 @@ class ServiceBase:
     def getInstances(self, session, store, graph):
         InputClass = session.get_class(self.getInputClass())
         instances = InputClass.all()
+        return instances
 
-    def processGraph(self,content):
+    def processGraph(self,content, type):
         inputStore = Store(reader="rdflib", writer="rdflib",
                            rdflib_store='IOMemory')
         inputSession = Session(inputStore)
-        inputStore.reader.graph.parse(StringIO(content))
+        inputStore.reader.graph.parse(StringIO(content), type)
         outputStore = Store(reader="rdflib", writer="rdflib",
                             rdflib_store='IOMemory')
         outputSession = Session(outputStore)
@@ -119,26 +116,41 @@ class ServiceBase:
 
         instances = self.getInstances(inputSession, inputStore,
                                       inputStore.reader.graph)
-        print len(instances)
         for i in instances:
-            print i.subject
             o = OutputClass(i.subject)
             self.process(i, o)
         return outputStore.reader.graph
+
+contentTypes = {
+    "application/rdf+xml":'xml',
+    'text/turtle':'turtle',
+    'application/x-turtle':'turtle',
+    'text/plain':'nt',
+    'text/n3':'n3',
+    'text/rdf+n3':'n3',
+}
+
+def getFormat(contentType):
+    if contentType == None: return [ "application/rdf+xml",'xml']
+    type = mimeparse.best_match(contentTypes.keys(),contentType)
+    if type != None: return [type,contentTypes[type]]
+    else: return [ "application/rdf+xml",'xml']
 
 if googleAppEngine:
     class GAEService(ServiceBase, webapp.RequestHandler):
         def get(self):
             modelGraph = self.getServiceDescription()
+            acceptType = getFormat(self.request.headers["Accept"])
             self.response.headers.add_header("Content-Type",
-                                             "application/rdf+xml")
-            self.response.write(modelGraph.serialize(format="pretty-xml"))
+                                             acceptType[0])
+            self.response.write(modelGraph.serialize(format=acceptType[1]))
             
-            def post(self):
-                content = self.request.get('content')
-                graph = self.processGraph(content)
-                self.request.add_header("Content-Type","application/rdf+xml")
-                self.response.write(graph.serialize(format="pretty-xml"))
+        def post(self):
+            postType = getFormat(self.request.headers["Content-Type"])[1]
+            graph = self.processGraph(content, postType)
+            acceptType = getFormat(self.request.headers["Accept"])
+            response.headers.add_header("Content-Type",acceptType[0])
+            return graph.serialize(format=acceptType[1])
     Service = GAEService
 else:
     class TwistedService(ServiceBase, twisted.web.resource.Resource):
@@ -146,15 +158,18 @@ else:
         
         def render_GET(self, request):
             modelGraph = self.getServiceDescription()
-            request.setHeader("Content-Type","application/rdf+xml")
-            return modelGraph.serialize(format="pretty-xml")
+            acceptType = getFormat(request.getHeader("Accept"))
+            
+            request.setHeader("Content-Type",acceptType[0])
+            return modelGraph.serialize(format=acceptType[1])
         
         def render_POST(self, request):
             content = request.content.read()
-            print content
-            graph = self.processGraph(content)
-            request.setHeader("Content-Type","application/rdf+xml")
-            return graph.serialize(format="pretty-xml")
+            postType = getFormat(request.getHeader("Content-Type"))[1]
+            graph = self.processGraph(content, postType)
+            acceptType = getFormat(request.getHeader("Accept"))
+            request.setHeader("Content-Type",acceptType[0])
+            return graph.serialize(format=acceptType[1])
 
     Service = TwistedService
 
