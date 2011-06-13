@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -173,6 +174,16 @@ public class RdfUtils
 		}
 	}
 	
+	public static boolean isURL(String url)
+	{
+		try {
+			new URL(url);
+			return true;
+		} catch (MalformedURLException e) {
+			return false;
+		}
+	}
+	
 	/**
 	 * Returns true if the specified resource has at least one rdf:type,
 	 * false otherwise.
@@ -320,6 +331,7 @@ public class RdfUtils
 	 * @param pathOrURL a local path or a remote URL
 	 * @return the new model
 	 * @throws IOException if the argument is an invalid URL and can't be read locally
+	 * @deprecated use loadModelFromString (and create/destroy your own model)
 	 */
 	public static Model createModelFromPathOrURL(String pathOrURL) throws IOException
 	{
@@ -333,6 +345,7 @@ public class RdfUtils
 	 * @param pathOrURL a local path or a remote URL
 	 * @return the model
 	 * @throws IOException if the argument is an invalid URL and can't be read locally
+	 * @deprecated use loadModelFromString
 	 */
 	public static Model loadModelFromPathOrURL(Model model, String pathOrURL) throws IOException
 	{
@@ -353,6 +366,84 @@ public class RdfUtils
 			log.error(String.format("error reading RDF from %s: %s", pathOrURL, e.toString()));
 			throw new IOException(String.format("%s did not parse as a URL and could not be read as a file: %s", pathOrURL, e.getMessage()));
 		}
+	}
+	
+	/**
+	 * Load the specified model according to the argument,
+	 * which can be a remote URL, a local path, or inline RDF.
+	 * @param s a remote URL, a local path, or inline RDF
+	 * @return the new model
+	 * @throws IOException if the argument is invalid
+	 */
+	public static Model loadModelFromString(Model model, String s) throws IOException
+	{
+		return loadModelFromString(model, s, null);
+	}
+	
+	/**
+	 * Load the specified model according to the argument,
+	 * which can be a remote URL, a local path, or inline RDF.
+	 * @param s a remote URL, a local path, or inline RDF
+	 * @param c a class relative to which to search for a resource, or null
+	 * @return the new model
+	 * @throws IOException if the argument is invalid
+	 */
+	public static Model loadModelFromString(Model model, String s, Class<?> c) throws IOException
+	{
+		// try as URL first...
+		try {
+			URL url = new URL(s);
+			if (log.isDebugEnabled())
+				log.debug(String.format("identified %s as a URL", s));
+			model.read(url.toString());
+			return model;
+		} catch (MalformedURLException e) {
+			if (log.isDebugEnabled())
+				log.debug(String.format("'%s' is not a URL: %s", s, e.getMessage()));
+		}
+		
+		// try as classpath resource next...
+		if (c != null) {
+			InputStream stream = c.getResourceAsStream(s);
+			if (stream != null) {
+				if (log.isDebugEnabled())
+					log.debug(String.format("identified %s as a classpath resource", s));
+				model.read(stream, "");
+			} else {
+				if (log.isDebugEnabled())
+					log.debug(String.format("'%s' is not a classpath resource", s));
+			}
+		}
+		
+		// try as local path next...
+		try {
+			File f = new File(s);
+			if (log.isDebugEnabled())
+				log.debug(String.format("identified %s as a path", s));
+			model.read(new FileInputStream(f), "");
+			return model;
+		} catch (FileNotFoundException e) {
+			if (log.isDebugEnabled())
+				log.debug(String.format("error reading RDF from '%s': %s", s, e.toString()));
+		}
+		
+		// try as inline RDF last...
+		ByteArrayInputStream stream = new ByteArrayInputStream(s.getBytes());
+		for (ContentType type: ContentType.getUniqueContentTypes()) {
+			stream.reset();
+			try {
+				type.readModel(model, stream, "");
+				if (log.isDebugEnabled())
+					log.debug(String.format("identified '%s' as %s", s, type));
+				return model;
+			} catch (Exception e) {
+				if (log.isDebugEnabled())
+					log.debug(String.format("error parsing '%s' as %s: %s", s, type, e.toString()));
+			}
+		}
+		
+		// not a remote URL, local path or inline RDF...
+		throw new IOException(String.format("could not identify '%s' as a remote URL, local path or inline RDF", s));
 	}
 	
 	/**

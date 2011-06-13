@@ -5,12 +5,16 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+
 import org.junit.Test;
 
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 public class RdfUtilsTest
 {
@@ -112,6 +116,7 @@ public class RdfUtilsTest
 		assertFalse(RdfUtils.getBoolean(model.createLiteral("no")));
 		assertTrue(RdfUtils.getBoolean(model.createLiteral("y")));
 		assertFalse(RdfUtils.getBoolean(model.createLiteral("n")));
+		model.close();
 	}
 	
 	@Test
@@ -122,5 +127,51 @@ public class RdfUtilsTest
 		assertEquals("http://sadiframework.org/ontologies/properties.owl#", model.getNsPrefixURI("sadi"));
 		assertEquals("http://sadiframework.org/ontologies/predicates.owl#", model.getNsPrefixURI("sadi.old"));
 		assertEquals("http://semanticscience.org/resource/", model.getNsPrefixURI("sio"));
+		model.close();
+	}
+	
+	@Test
+	public void testLoadModelFromRemoteURL() throws IOException
+	{
+		Model model = ModelFactory.createDefaultModel();
+		String ontology = "http://sadiframework.org/ontologies/sadi.owl";
+		RdfUtils.loadModelFromString(model, ontology);
+		assertTrue(model.contains(ResourceFactory.createResource(ontology), RDF.type, OWL.Ontology));
+		model.close();
+	}
+	
+	@Test
+	public void testLoadModelFromClasspathResource() throws IOException
+	{
+		Model model = ModelFactory.createDefaultModel();
+		RdfUtils.loadModelFromString(model, "src/test/resources/classpathResource.rdf", RdfUtilsTest.class);
+		assertTrue(model.contains(ResourceFactory.createResource("http://wilkinsonlab.ca/sadi/utils/RdfUtils.rdf#1"),
+				RDF.value, ResourceFactory.createPlainLiteral("classpath resource")));
+		model.close();
+	}
+	
+	@Test
+	public void testLoadModelFromLocalFile() throws IOException
+	{
+		Model model = ModelFactory.createDefaultModel();
+		RdfUtils.loadModelFromString(model, "src/test/resources/classpathResource.rdf");
+		assertTrue(model.contains(ResourceFactory.createResource("http://wilkinsonlab.ca/sadi/utils/RdfUtils.rdf#1"),
+				RDF.value, ResourceFactory.createPlainLiteral("local file")));
+		model.close();
+	}
+	
+	@Test
+	public void testLoadModelFromRDF() throws IOException
+	{
+		Model model = ModelFactory.createDefaultModel();
+		RdfUtils.loadModelFromString(model, 
+				"<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\n" + 
+				"    <rdf:Description rdf:about=\"http://wilkinsonlab.ca/sadi/utils/RdfUtils.rdf#1\">\n" + 
+				"      <rdf:value>inline RDF</rdf:value>\n" + 
+				"    </rdf:Description>\n" + 
+				"</rdf:RDF>");
+		assertTrue(model.contains(ResourceFactory.createResource("http://wilkinsonlab.ca/sadi/utils/RdfUtils.rdf#1"),
+				RDF.value, ResourceFactory.createPlainLiteral("inline RDF")));
+		model.close();
 	}
 }
