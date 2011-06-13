@@ -1,6 +1,7 @@
 package ca.wilkinsonlab.sadi.service;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -53,9 +54,11 @@ import ca.wilkinsonlab.sadi.vocab.SADI;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -104,6 +107,7 @@ public abstract class ServiceServlet extends HttpServlet
 	protected ModelMaker modelMaker;
 	protected ServiceOntologyHelper serviceOntologyHelper;
 	protected Model serviceModel;
+	protected Resource serviceNode;
 	protected ServiceDescription serviceDescription;
 	protected Resource inputClass;
 	protected Resource outputClass;
@@ -146,11 +150,11 @@ public abstract class ServiceServlet extends HttpServlet
 		try {
 			String serviceRDF = getServiceRDF();
 			if (serviceRDF != null) {
-				Resource serviceNode = loadServiceModelFromLocation(serviceRDF);
+				serviceNode = loadServiceModelFromLocation(serviceRDF);
 				serviceDescription = getServiceOntologyHelper().getServiceDescription(serviceNode);
 			} else {
 				serviceDescription = createServiceDescription();
-				getServiceOntologyHelper().createServiceNode(serviceDescription, serviceModel);
+				serviceNode = getServiceOntologyHelper().createServiceNode(serviceDescription, serviceModel);
 			}
 		} catch (SADIException e) {
 			String message = e.getMessage();
@@ -542,10 +546,38 @@ public abstract class ServiceServlet extends HttpServlet
 
 	private void createTestCase(TestCase testCase)
 	{
-		// TODO Auto-generated method stub
-		
+		RDFNode inputNode = createTestIONode(testCase.input());
+		RDFNode outputNode = createTestIONode(testCase.output());
+		if (inputNode != null && outputNode != null) {
+			RDFPath testCasePath = ((AbstractServiceOntologyHelper)getServiceOntologyHelper()).getTestCasePath();
+			Resource testCaseNode = testCasePath.createResourceRootedAt(serviceNode, null);
+			RDFPath testInputPath = ((AbstractServiceOntologyHelper)getServiceOntologyHelper()).getTestInputPath();
+			testInputPath.addValueRootedAt(testCaseNode, inputNode);
+			RDFPath testOutputPath = ((AbstractServiceOntologyHelper)getServiceOntologyHelper()).getTestOutputPath();
+			testOutputPath.addValueRootedAt(testCaseNode, outputNode);
+		}
 	}
 	
+	private RDFNode createTestIONode(String io)
+	{
+		RDFNode node = null;
+		if (RdfUtils.isURL(io)) {
+			node = ResourceFactory.createResource(io);
+		} else { // local path or inline RDF...
+			Model model = ModelFactory.createDefaultModel();
+			try {
+				RdfUtils.loadModelFromString(model, io, getClass());
+				ByteArrayOutputStream stream = new ByteArrayOutputStream();
+				model.write(stream);
+				node = ResourceFactory.createTypedLiteral(stream.toString());
+			} catch (IOException e) {
+				log.error(String.format("failed to parse '%s' as local resource or inline RDF", io));
+			}
+			model.close();
+		}
+		return node;
+	}
+
 	private Resource loadServiceModelFromLocation(String serviceRDF) throws SADIException
 	{
 		String serviceURL = getServiceURL();
