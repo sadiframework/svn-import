@@ -8,6 +8,8 @@ import ca.wilkinsonlab.sadi.service.annotations.Name;
 import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
 import ca.wilkinsonlab.sadi.service.annotations.ParameterClass;
 import ca.wilkinsonlab.sadi.service.annotations.ParameterDefaults;
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -31,6 +33,46 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 @OutputClass("http://sadiframework.org/examples/hello.owl#GreetedIndividual")
 @ParameterClass("http://sadiframework.org/examples/hello.owl#SecondaryParameters")
 @ParameterDefaults({"http://sadiframework.org/examples/hello.owl#lang, http://www.w3.org/2001/XMLSchema#string", "en"})
+@TestCases({
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/hello-input.rdf", 
+				output = "http://sadiframework.org/examples/t/hello-output.rdf"
+		)
+		, @TestCase(
+				input = "src/test/resources/hello-param-input1.rdf", 
+				output = "src/test/resources/hello-param-output1.rdf"
+		)
+		, @TestCase(
+				input = "src/test/resources/hello-param-input2.rdf", 
+				output = "src/test/resources/hello-param-output2.rdf"
+		)
+		, @TestCase(
+				input = "src/test/resources/hello-param-input3.rdf", 
+				output = "src/test/resources/hello-param-output3.rdf"
+		)
+		, @TestCase(
+				input = 
+					"<rdf:RDF\n" + 
+					"    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" + 
+					"    xmlns:foaf=\"http://xmlns.com/foaf/0.1/\"\n" + 
+					"    xmlns:hello=\"http://sadiframework.org/examples/hello.owl#\">\n" + 
+					"	<hello:NamedIndividual rdf:about=\"http://sadiframework.org/examples/hello-input.rdf#1\">\n" + 
+					"		<foaf:name>Guy Incognito</foaf:name>\n" + 
+					"	</hello:NamedIndividual>\n" + 
+					"	<hello:SecondaryParameters>\n" + 
+					"		<hello:lang rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">es</hello:lang>\n" + 
+					"	</hello:SecondaryParameters>\n" + 
+					"</rdf:RDF>",
+				output = 
+					"<rdf:RDF\n" + 
+					"    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" + 
+					"    xmlns:hello=\"http://sadiframework.org/examples/hello.owl#\">\n" + 
+					"	<hello:GreetedIndividual rdf:about=\"http://sadiframework.org/examples/hello-input.rdf#1\">\n" + 
+					"		<hello:greeting>Hola, Guy Incognito!</hello:greeting>\n" + 
+					"	</hello:GreetedIndividual>\n" + 
+					"</rdf:RDF>"
+		)
+})
 public class ParameterizedHelloWorldServiceServlet extends SynchronousServiceServlet
 {
 	private static final long serialVersionUID = 1L;
