@@ -16,6 +16,8 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastData;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastHit;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastInput;
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.vocab.Properties;
@@ -48,9 +50,15 @@ import com.hp.hpl.jena.vocabulary.OWL;
  * 
  * @author Ben Vandervalk
  */
-@SuppressWarnings("serial")
+@TestCases(
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/blastUniprot-input.rdf", 
+				output = "http://sadiframework.org/examples/t/blastUniprot.output.1.rdf"
+		)
+)
 public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet 
 {
+	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(BlastUniProtServiceServlet.class);
 	private static final int BLAST_POLLING_INTERVAL = 5000;
 	

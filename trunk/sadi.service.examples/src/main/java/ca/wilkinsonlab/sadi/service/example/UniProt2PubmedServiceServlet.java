@@ -13,6 +13,8 @@ import uk.ac.ebi.kraken.interfaces.uniprot.citations.Author;
 import uk.ac.ebi.kraken.interfaces.uniprot.citations.AuthoringGroup;
 import uk.ac.ebi.kraken.interfaces.uniprot.citations.JournalArticle;
 import uk.ac.ebi.kraken.interfaces.uniprot.citations.PubMedId;
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
@@ -22,9 +24,15 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-@SuppressWarnings("serial")
+@TestCases(
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/uniprot2pubmed-input.rdf", 
+				output = "http://sadiframework.org/examples/t/uniprot2pubmed.output.1.rdf"
+		)
+)
 public class UniProt2PubmedServiceServlet extends UniProtServiceServlet
 {
+	private static final long serialVersionUID = 1L;
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2PubmedServiceServlet.class);
 	

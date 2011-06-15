@@ -8,6 +8,8 @@ import ca.wilkinsonlab.sadi.service.annotations.Name;
 import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
 import ca.wilkinsonlab.sadi.service.annotations.ParameterClass;
 import ca.wilkinsonlab.sadi.service.annotations.ParameterDefaults;
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -31,6 +33,20 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 @OutputClass("http://sadiframework.org/examples/hello.owl#GreetedIndividual")
 @ParameterClass("http://sadiframework.org/examples/hello.owl#SecondaryParameters")
 @ParameterDefaults({"http://sadiframework.org/examples/hello.owl#lang, http://www.w3.org/2001/XMLSchema#string", "en"})
+@TestCases({
+		@TestCase(
+				input = "/t/hello-param-input1.rdf", 
+				output = "/t/hello-param-output1.rdf"
+		)
+		, @TestCase(
+				input = "/t/hello-param-input2.rdf", 
+				output = "/t/hello-param-output2.rdf"
+		)
+		, @TestCase(
+				input = "/t/hello-param-input3.rdf", 
+				output = "/t/hello-param-output3.rdf"
+		)
+})
 public class AsyncParameterizedHelloWorldServiceServlet extends AsynchronousServiceServlet
 {
 	private static final long serialVersionUID = 1L;

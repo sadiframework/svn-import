@@ -10,6 +10,8 @@ import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.FieldType;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Name;
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.utils.UniProtUtils;
 import ca.wilkinsonlab.sadi.vocab.Properties;
@@ -18,9 +20,15 @@ import ca.wilkinsonlab.sadi.vocab.SIO;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
-@SuppressWarnings("serial")
+@TestCases(
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/uniprotInfo-input.rdf", 
+				output = "http://sadiframework.org/examples/t/uniprotInfo-output.rdf"
+		)
+)
 public class UniProtInfoServiceServlet extends UniProtServiceServlet
 {
+	private static final long serialVersionUID = 1L;
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProtInfoServiceServlet.class);
 

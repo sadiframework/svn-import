@@ -1,5 +1,7 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -13,15 +15,23 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
  * 
  * @author Luke McCarthy
  */
-@SuppressWarnings("serial")
+@TestCases({
+	@TestCase(
+			input = "http://sadiframework.org/examples/t/hello-input.rdf", 
+			output = "http://sadiframework.org/examples/t/hello-output.rdf"
+	)
+})
 public class HelloWorldServiceServlet extends SimpleSynchronousServiceServlet
 {
+	private static final long serialVersionUID = 1L;
+
 	protected Model prepareOutputModel(Model inputModel)
 	{
 		Model model = super.prepareOutputModel(inputModel);
 		model.setNsPrefix("hello", Vocab.NS);
 		return model;
 	}
+	
 	public void processInput(Resource input, Resource output)
 	{
 		String name = input.getProperty(FOAF.name).getString();

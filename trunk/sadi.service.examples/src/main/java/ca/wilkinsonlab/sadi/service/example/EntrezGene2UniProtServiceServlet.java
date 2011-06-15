@@ -13,6 +13,8 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
@@ -36,9 +38,15 @@ import ca.wilkinsonlab.sadi.vocab.SIO;
  * Unfortunately, this did not work. (The effect is the same as
  * issuing the queries separately.)
  */
-@SuppressWarnings("serial")
+@TestCases(
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/entrezGene2Uniprot-input.rdf", 
+				output = "http://sadiframework.org/examples/t/entrezGene2Uniprot.output.1.rdf"
+		)
+)
 public class EntrezGene2UniProtServiceServlet extends SimpleAsynchronousServiceServlet 
 {
+	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(EntrezGene2UniProtServiceServlet.class);
 	
 	@Override

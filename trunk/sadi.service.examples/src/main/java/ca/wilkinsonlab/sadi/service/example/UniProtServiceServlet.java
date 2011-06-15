@@ -17,9 +17,9 @@ import ca.wilkinsonlab.sadi.utils.UniProtUtils;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-@SuppressWarnings("serial")
 public abstract class UniProtServiceServlet extends AsynchronousServiceServlet
 {
+	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(UniProtServiceServlet.class);
 	
 	@Override

@@ -39,16 +39,16 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 				output = "http://sadiframework.org/examples/t/hello-output.rdf"
 		)
 		, @TestCase(
-				input = "src/test/resources/hello-param-input1.rdf", 
-				output = "src/test/resources/hello-param-output1.rdf"
+				input = "/t/hello-param-input1.rdf", 
+				output = "/t/hello-param-output1.rdf"
 		)
 		, @TestCase(
-				input = "src/test/resources/hello-param-input2.rdf", 
-				output = "src/test/resources/hello-param-output2.rdf"
+				input = "/t/hello-param-input2.rdf", 
+				output = "/t/hello-param-output2.rdf"
 		)
 		, @TestCase(
-				input = "src/test/resources/hello-param-input3.rdf", 
-				output = "src/test/resources/hello-param-output3.rdf"
+				input = "/t/hello-param-input3.rdf", 
+				output = "/t/hello-param-output3.rdf"
 		)
 		, @TestCase(
 				input = 

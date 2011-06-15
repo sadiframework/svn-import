@@ -1,5 +1,7 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.utils.UniProtUtils;
 
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -9,9 +11,16 @@ import java.util.Collections;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 
-@SuppressWarnings("serial")
+@TestCases(
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/blastUniprotById-input.rdf", 
+				output = "http://sadiframework.org/examples/t/blastUniprotById.output.1.rdf"
+		)
+)
 public class BlastUniProtByIdServiceServlet extends BlastUniProtServiceServlet 
 {
+	private static final long serialVersionUID = 1L;
+
 	@Override
 	protected Collection<String> getSequences(Resource input) 
 	{

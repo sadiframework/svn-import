@@ -1,9 +1,8 @@
 package ca.wilkinsonlab.sadi.service;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Collections;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
@@ -15,144 +14,118 @@ import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.ServiceImpl;
+import ca.wilkinsonlab.sadi.client.testing.ServiceTester;
+import ca.wilkinsonlab.sadi.service.annotations.URI;
 import ca.wilkinsonlab.sadi.utils.ModelDiff;
-import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.LocationMapper;
-import com.hp.hpl.jena.vocabulary.RDF;
 
 public abstract class ServiceServletTestBase extends TestCase
 {
 	private static final Log log = LogFactory.getLog(ServiceServletTestBase.class);
-	static String uriPrefix = "http://sadiframework.org/examples/";
-	static String altPrefix = "http://localhost:8180/sadi-examples/";
 	
-	protected Model getInputModel()
-	{
-		Model model = ModelFactory.createDefaultModel();
-		Object input = getInput();
-		if (input instanceof InputStream)
-			model.read((InputStream)input, "");
-		else if (input instanceof String)
-			model.read((String)input);
-		else
-			throw new IllegalArgumentException("getInput() must return an InputStream or a String");
-		return model;
-	}
-	
-	protected Model getExpectedOutputModel()
-	{
-		Model model = ModelFactory.createDefaultModel();
-		Object output = getExpectedOutput();
-		if (output instanceof InputStream)
-			model.read((InputStream)output, "");
-		else if (output instanceof String)
-			model.read((String)output);
-		else
-			throw new IllegalArgumentException("getOutput() must return an InputStream or a String");
-		return model;
-	}
-	
-	protected ServiceImpl getLocalServiceInstance() throws SADIException
-	{
-		return new ServiceImpl(getLocalServiceURL());
-	}
-	
-	protected Collection<Resource> getInputNodes()
-	{
-		return Collections.singleton(getInputModel().createResource(getInputURI()));
-	}
-	
-	protected abstract Object getInput();
-	
-	protected abstract Object getExpectedOutput();
-
-	protected abstract String getInputURI();
-	
-	protected abstract ServiceServlet getServiceServletInstance();
-	
-	protected abstract String getServiceURI();
-	
-	protected abstract String getLocalServiceURL();
+	public static final String PRODUCTION_URI_PREFIX = "http://sadiframework.org/examples/";
+	public static final String LOCAL_URI_PREFIX = "http://localhost:8180/sadi-examples/";
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
 		System.setProperty("sadi.service.ignoreForcedURL", "true");
-		LocationMapper.get().addAltPrefix(uriPrefix, altPrefix);
+		LocationMapper.get().addAltPrefix(PRODUCTION_URI_PREFIX, LOCAL_URI_PREFIX);
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception
 	{
 		System.setProperty("sadi.service.ignoreForcedURL", null);
-		LocationMapper.get().removeAltPrefix(uriPrefix);
+		LocationMapper.get().removeAltPrefix(PRODUCTION_URI_PREFIX);
 	}
 	
 	@Test
-	public void testInputInstance() throws Exception
+	public void testLocalService() throws Exception
 	{
-		/* inputs to services must be explicitly typed, so there's not much
-		 * to do here now...
-		 */
-		Resource inputClass = getServiceServletInstance().inputClass;
-		for (Resource inputNode: getInputNodes()) {
-			assertTrue(String.format("individual %s is not an instance of class %s", inputNode, inputClass),
-					inputNode.hasProperty(RDF.type, inputClass));
-		}
-	}
-	
-//	@Test
-//	public void testProcessInputModel() throws Exception
-//	{
-//		ServiceServlet serviceServletInstance = getServiceServletInstance();
-//		Model inputModel = getInputModel();
-//		Model expectedOutputModel = getExpectedOutputModel();
-//		Model actualOutputModel = serviceServletInstance.processInput(inputModel);
-//		RdfService.resolveAsynchronousData(actualOutputModel);
-//
-//		if (log.isTraceEnabled()) {
-//			log.trace(RdfUtils.logStatements("Input", inputModel));
-//			log.trace(RdfUtils.logStatements("Expected output", expectedOutputModel));
-//			log.trace(RdfUtils.logStatements("Actual output", actualOutputModel));
-//		}
-//		
-//		assertTrue(String.format("%s.processInput does not produce expected output", serviceServletInstance.getClass().getSimpleName()),
-//				actualOutputModel.isIsomorphicWith(expectedOutputModel));
-//	}
-	
-	@Test
-	public void testServiceInvocation() throws Exception
-	{
-		ServiceImpl regressionService = getLocalServiceInstance();
-		Model expectedOutputModel = getExpectedOutputModel();
-		Model actualOutputModel = RdfUtils.triplesToModel( regressionService.invokeService(getInputNodes()) );
-		
-		if (log.isTraceEnabled()) {
-			Model inputModel = ModelFactory.createDefaultModel();
-			for (Resource inputNode: getInputNodes()) {
-				inputModel.add(OwlUtils.getMinimalModel(inputNode, regressionService.getInputClass()));
-			}
+		ServiceImpl service = getLocalServiceInstance();
+		String serviceFileName = getServiceFileNameBase(service);
+		int i=0;
+		int fail=0;
+		for (ca.wilkinsonlab.sadi.client.testing.TestCase testCase: service.getTestCases()) {
+			++i;
+			log.info(String.format("testing case %d", i));
+			writeModel(testCase.getInputModel(), String.format("target/%s.input.%d", serviceFileName, i));
+			writeModel(testCase.getExpectedOutputModel(), String.format("target/%s.expected.%d", serviceFileName, i));
+			Model outputModel;
 			try {
-				inputModel.getWriter("RDF/XML-ABBREV").write( inputModel, new FileOutputStream( String.format( "target/%s.input.rdf", getClass().getSimpleName() ) ), "" );
-				expectedOutputModel.getWriter("RDF/XML-ABBREV").write( expectedOutputModel, new FileOutputStream( String.format( "target/%s.expected.rdf", getClass().getSimpleName() ) ), "" );
-				actualOutputModel.getWriter("RDF/XML-ABBREV").write( actualOutputModel, new FileOutputStream( String.format( "target/%s.output.rdf", getClass().getSimpleName() ) ), "" );
-			} catch (Exception e) {
-				log.error("error writing models", e);
+				log.debug("calling service");
+				outputModel = service.invokeServiceUnparsed(testCase.getInputModel());
+			} catch (IOException e) {
+				log.error(String.format("error invoking service %s: %s", service, e.getMessage()), e);
+				++fail;
+				continue;
+			}
+			writeModel(outputModel, String.format("target/%s.output.%d", serviceFileName, i));
+			log.debug("comparing expected output to actual output");
+			if (!compareOutput(outputModel, testCase.getExpectedOutputModel())) {
+				++fail;
+				continue;
+			}
+			log.debug("sanity checking output");
+			try {
+				sanityCheckOutput(service, outputModel);
+			} catch (SADIException e) {
+				log.warn(e.getMessage());
 			}
 		}
-		
-		if (!actualOutputModel.isIsomorphicWith(expectedOutputModel)) {
-			ModelDiff diff = ModelDiff.diff(expectedOutputModel, actualOutputModel);
-			StringBuffer buf = new StringBuffer(String.format("service call to %s does not produce expected output\n", getLocalServiceURL()));
-			buf.append(RdfUtils.logStatements("", diff.inXnotY));
-			buf.append(RdfUtils.logStatements("    ", diff.inBoth));
-			buf.append(RdfUtils.logStatements("        ", diff.inYnotX));
-			fail(buf.toString());
+		if (i == 0)
+			fail("no test cases");
+		if (fail > 0)
+			fail(String.format("failed %d/%d test cases", fail, i));
+	}
+	
+	private String getServiceFileNameBase(ServiceImpl service)
+	{
+		String[] elements = service.getURI().split("/");
+		return elements[elements.length-1];
+	}
+	
+	private void writeModel(Model model, String filename)
+	{
+		filename = filename.concat(".rdf");
+		try {
+			model.write(new FileOutputStream(filename), "RDF/XML-ABBREV");
+		} catch (FileNotFoundException e) {
+			log.error(String.format("error writing to %s", filename), e);
 		}
+	}
+	
+	protected boolean compareOutput(Model output, Model expected)
+	{
+		if (output.isIsomorphicWith(expected)) {
+			return true;
+		} else {
+			ModelDiff diff = ModelDiff.diff(output, expected);
+			if (!diff.inXnotY.isEmpty())
+				log.error("service output had unexpected statements:\n" + RdfUtils.logStatements("\t", diff.inXnotY));
+			if (!diff.inYnotX.isEmpty())
+				log.error("service output had missing statements:\n" + RdfUtils.logStatements("\t", diff.inYnotX));
+			return false;
+		}
+	}
+	
+	protected void sanityCheckOutput(ServiceImpl service, Model output) throws SADIException
+	{
+		ServiceTester.sanityCheckOutput(service, output);
+	}
+	
+	protected String getLocalServiceURL()
+	{
+		URI annotation = getClass().getAnnotation(URI.class);
+		return annotation == null ? null : annotation.value();
+	}
+	
+	protected ServiceImpl getLocalServiceInstance() throws SADIException
+	{
+		return new ServiceImpl(getLocalServiceURL());
 	}
 }

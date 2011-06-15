@@ -22,9 +22,9 @@ import ca.wilkinsonlab.sadi.utils.KeggUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN.LSRNRecordType;
 
-@SuppressWarnings("serial")
 public abstract class KeggServiceServlet extends AsynchronousServiceServlet 
 {
+	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(KeggServiceServlet.class);
 	
 	@Override

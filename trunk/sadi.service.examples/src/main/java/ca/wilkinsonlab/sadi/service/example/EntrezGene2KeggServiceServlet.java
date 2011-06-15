@@ -16,6 +16,8 @@ import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
 import ca.wilkinsonlab.sadi.service.ServiceCall;
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
 
@@ -23,9 +25,15 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 
-@SuppressWarnings("serial")
+@TestCases(
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/entrezGene2Kegg-input.rdf", 
+				output = "http://sadiframework.org/examples/t/entrezGene2Kegg-output.rdf"
+		)
+)
 public class EntrezGene2KeggServiceServlet extends AsynchronousServiceServlet
 {
+	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(EntrezGene2KeggServiceServlet.class);
 	
 	@Override
