@@ -1,14 +1,12 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.FileInputStream;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
-
-import ca.wilkinsonlab.sadi.service.ServiceServlet;
-import ca.wilkinsonlab.sadi.service.ServiceServletTestBase;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
@@ -16,58 +14,9 @@ import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
 
-public class LinearRegressionServiceServletTest extends ServiceServletTestBase
+public class LinearRegressionServiceServletTest
 {
-	@Override
-	protected Object getInput()
-	{
-		return LinearRegressionServiceServletTest.class.getResourceAsStream("/regression-input.rdf");
-	}
-
-	@Override
-	protected Object getExpectedOutput()
-	{
-		return LinearRegressionServiceServletTest.class.getResourceAsStream("/regression-output.rdf");
-	}
-
-	@Override
-	protected String getInputURI()
-	{
-		// this method shouldn't be called because we're overriding getInputNodes...
-		throw new UnsupportedOperationException();
-//		return "http://sadiframework.org/examples/input/regression1";
-	}
-	
-	@Override
-	protected Collection<Resource> getInputNodes()
-	{
-		Collection<Resource> inputNodes = new ArrayList<Resource>();
-		for (int i=1; i<=2; ++i) {
-			inputNodes.add(getInputModel().getResource(String.format("http://sadiframework.org/examples/input/regression%d", i)));
-		}
-		return inputNodes;
-	}
-
-	@Override
-	protected String getServiceURI()
-	{
-		return "http://sadiframework.org/examples/linear";
-	}
-
-	@Override
-	protected String getLocalServiceURL()
-	{
-		return "http://localhost:8180/sadi-examples/linear";
-	}
-
-	@Override
-	protected ServiceServlet getServiceServletInstance()
-	{
-		return new LinearRegressionServiceServlet();
-	}
-	
 	@Test
 	public void testOWL() throws Exception
 	{

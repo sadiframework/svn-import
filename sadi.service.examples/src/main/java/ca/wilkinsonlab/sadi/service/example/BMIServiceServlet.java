@@ -1,19 +1,23 @@
 package ca.wilkinsonlab.sadi.service.example;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
 
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
-@SuppressWarnings("serial")
+@TestCases(
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/bmi-input.rdf", 
+				output = "http://sadiframework.org/examples/t/bmi-output.rdf"
+		)
+)
 public class BMIServiceServlet extends SimpleSynchronousServiceServlet
 {
-	@SuppressWarnings("unused")
-	private static final Log log = LogFactory.getLog(BMIServiceServlet.class);
+	private static final long serialVersionUID = 1L;
+//	private static final Log log = LogFactory.getLog(BMIServiceServlet.class);
 	
 	public void processInput(Resource input, Resource output)
 	{

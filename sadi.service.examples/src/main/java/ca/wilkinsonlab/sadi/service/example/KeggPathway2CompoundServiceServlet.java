@@ -6,6 +6,8 @@ import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.utils.KeggUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
@@ -14,9 +16,16 @@ import ca.wilkinsonlab.sadi.vocab.LSRN.LSRNRecordType;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
-@SuppressWarnings("serial")
+@TestCases(
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/keggPathway2Compound-input.rdf", 
+				output = "http://sadiframework.org/examples/t/keggPathway2Compound-output.rdf"
+		)
+)
 public class KeggPathway2CompoundServiceServlet extends KeggServiceServlet
 {
+	private static final long serialVersionUID = 1L;
+	
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(KeggPathway2CompoundServiceServlet.class);
 	private static final String COMPOUND_RECORD_SECTION = "COMPOUND";

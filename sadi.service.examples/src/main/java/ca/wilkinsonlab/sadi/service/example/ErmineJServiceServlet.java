@@ -11,6 +11,8 @@ import org.apache.commons.logging.LogFactory;
 
 import ubic.erminej.ClassScoreSimple;
 import ubic.erminej.Settings;
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -21,9 +23,15 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-@SuppressWarnings("serial")
+@TestCases(
+		@TestCase(
+				input = "/t/ermineJ-input.rdf", 
+				output = "/t/ermineJ-output.rdf"
+		)
+)
 public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 {
+	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(ErmineJServiceServlet.class);
 
 	public void processInput(Resource input, Resource output)

@@ -1,5 +1,7 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,8 +11,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
-import ca.wilkinsonlab.sadi.service.ServiceServlet;
-import ca.wilkinsonlab.sadi.service.ServiceServletTestBase;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -18,50 +18,15 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-public class ErmineJServiceServletTest extends ServiceServletTestBase
+public class ErmineJServiceServletTest
 {
 	private static final Log log = LogFactory.getLog(ErmineJServiceServletTest.class);
-	
-	@Override
-	protected Object getInput()
-	{
-		return ErmineJServiceServletTest.class.getResourceAsStream("/ermineJ-input.rdf");
-	}
-
-	@Override
-	protected Object getExpectedOutput()
-	{
-		return ErmineJServiceServletTest.class.getResourceAsStream("/ermineJ-output.rdf");
-	}
-
-	@Override
-	protected String getInputURI()
-	{
-		return "http://sadiframework.org/examples/input/erminej1";
-	}
-
-	@Override
-	protected String getServiceURI()
-	{
-		return "http://sadiframework.org/examples/ermineJgo";
-	}
-
-	@Override
-	protected String getLocalServiceURL()
-	{
-		return "http://localhost:8180/sadi-examples/ermineJgo";
-	}
-
-	@Override
-	protected ServiceServlet getServiceServletInstance()
-	{
-		return new ErmineJServiceServlet();
-	}
 	
 	@Test
 	public void testConvertInputToRdf() throws Exception
 	{
-		Model expectedInputModel = getInputModel();
+		Model expectedInputModel = ModelFactory.createDefaultModel();
+		RdfUtils.loadModelFromString(expectedInputModel, "/t/ermineJ-input.rdf", getClass());
 		
 		Model convertedInputModel = convertInputToRdf(ErmineJServiceServletTest.class.getResourceAsStream("/HG-U133_Plus_2.na26.annot_test.ErmineJ"));
 		

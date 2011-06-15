@@ -1,17 +1,21 @@
 package ca.wilkinsonlab.sadi.service.example;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import ca.wilkinsonlab.sadi.service.annotations.TestCase;
+import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
-@SuppressWarnings("serial")
+@TestCases(
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/regression-input.rdf", 
+				output = "http://sadiframework.org/examples/t/regression-output.rdf"
+		)
+)
 public class LinearRegressionServiceServlet extends SimpleSynchronousServiceServlet
 {
-	@SuppressWarnings("unused")
-	private static final Log log = LogFactory.getLog(LinearRegressionServiceServlet.class);
+	private static final long serialVersionUID = 1L;
+//	private static final Log log = LogFactory.getLog(LinearRegressionServiceServlet.class);
 	
 	public void processInput(Resource input, Resource output)
 	{
