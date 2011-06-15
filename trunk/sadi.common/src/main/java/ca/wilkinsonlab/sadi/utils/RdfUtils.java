@@ -409,6 +409,7 @@ public class RdfUtils
 				if (log.isDebugEnabled())
 					log.debug(String.format("identified %s as a classpath resource", s));
 				model.read(stream, "");
+				return model;
 			} else {
 				if (log.isDebugEnabled())
 					log.debug(String.format("'%s' is not a classpath resource", s));
