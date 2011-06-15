@@ -11,6 +11,8 @@ import java.util.Map;
 
 import javax.xml.ws.http.HTTPException;
 
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.utils.JsonUtils;
@@ -88,15 +90,14 @@ public class HttpUtils
 	public static Object postAndFetchJson(URL url, Map<String, String> params)
 	throws IOException
 	{
-		log.trace(String.format("posting form data to %s", url));
-//		log.trace(params);
+		log.trace(String.format("posting form data to %s\n%s", url, params));
 		InputStream is = POST(url, params);
 		
 		log.trace("reading response");
 		String json = SPARQLStringUtils.readFully(is);
 		is.close();
 
-		log.trace("converting JSON object");
+		log.trace(String.format("converting JSON object\n%s", json));
 		return JsonUtils.read(json);
 	}
 	
@@ -105,17 +106,43 @@ public class HttpUtils
 		return new BufferedReader(new InputStreamReader(GET(new URL(url))));
 	}
 
-	public static class HttpStatusException extends IOException {
+	public static String getHeaderValue(HttpMethod method, String headerName)
+	{
+		return getHeaderValue(method, headerName, null);
+	}
 
+	public static String getHeaderValue(HttpMethod method, String headerName, String headerValuePrefix)
+	{
+		for (Header header: method.getResponseHeaders(headerName)) {
+			String headerValue = header.getValue();
+			if (headerValue == null)
+				continue;
+			if (headerValuePrefix != null) {
+				if (headerValue.startsWith(headerValuePrefix))
+					return headerValue.substring(headerValuePrefix.length());
+			} else {
+				return headerValue;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @author Ben Vandervalk
+	 */
+	public static class HttpStatusException extends IOException
+	{
 		private static final long serialVersionUID = 1L;
 		int statusCode;
 		
-		public HttpStatusException(int statusCode) {
+		public HttpStatusException(int statusCode)
+		{
 			super("HTTP status code " + String.valueOf(statusCode));
 			this.statusCode = statusCode;
 		}
 		
-		public int getStatusCode() {
+		public int getStatusCode()
+		{
 			return statusCode;
 		}
 	}

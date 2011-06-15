@@ -1,9 +1,10 @@
-package ca.wilkinsonlab.sadi.service.testing;
+package ca.wilkinsonlab.sadi.client.testing;
 
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
+import ca.wilkinsonlab.sadi.beans.TestCaseBean;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -29,6 +30,11 @@ public class TestCase
 	{
 		inputModel = createModel(input);
 		expectedOutputModel = createModel(output);
+	}
+	
+	public TestCase(TestCaseBean bean)
+	{
+		this(bean.getInput(), bean.getExpectedOutput());
 	}
 	
 	public Model getInputModel()
