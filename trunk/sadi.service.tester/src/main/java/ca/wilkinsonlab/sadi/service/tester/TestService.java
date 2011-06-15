@@ -5,9 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.axis.utils.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
@@ -17,18 +15,12 @@ import org.apache.maven.plugin.MojoFailureException;
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceImpl;
-import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
-import ca.wilkinsonlab.sadi.service.testing.TestCase;
+import ca.wilkinsonlab.sadi.client.testing.ServiceTester;
+import ca.wilkinsonlab.sadi.client.testing.TestCase;
 import ca.wilkinsonlab.sadi.utils.ModelDiff;
-import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
-import com.hp.hpl.jena.ontology.Individual;
-import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * A Maven plugin to test a SADI service.
@@ -79,31 +71,32 @@ public class TestService extends AbstractMojo
 			// this shouldn't happen...
 			getLog().error(e.getMessage());
 		}
-		List<TestCase> testCases = getTestCases(service);
+		Collection<TestCase> testCases = ((ServiceImpl)service).getTestCases();
 		if (!StringUtils.isEmpty(inputPath) && !StringUtils.isEmpty(expectedPath)) {
 			testCases.add(new TestCase(inputPath, expectedPath));
 		}
 		if (testCases.isEmpty())
 			throw new MojoFailureException("no test cases speciied in properties or service definition");
-		for (int i=0; i<testCases.size(); ++i) {
-			getLog().info(String.format("executing test case %d/%d", i+1, testCases.size()));
-			TestCase testCase = testCases.get(i);
-			writeModel(testCase.getInputModel(), String.format("target/%s.input.%d", serviceFileName, i+1));
-			writeModel(testCase.getExpectedOutputModel(), String.format("target/%s.expected.%d", serviceFileName, i+1));
+		int i=0;
+		for (TestCase testCase: testCases) {
+			++i;
+			getLog().info(String.format("executing test case %d/%d", i, testCases.size()));
+			writeModel(testCase.getInputModel(), String.format("target/%s.input.%d", serviceFileName, i));
+			writeModel(testCase.getExpectedOutputModel(), String.format("target/%s.expected.%d", serviceFileName, i));
 			Model outputModel;
 			try {
 				outputModel = ((ServiceImpl)service).invokeServiceUnparsed(testCase.getInputModel());
 			} catch (IOException e) {
 				throw new MojoFailureException(String.format("error contacting service %s: %s:", service, e.getMessage()));
 			}
-			writeModel(outputModel, String.format("target/%s.output", serviceFileName));
+			writeModel(outputModel, String.format("target/%s.output.%d", serviceFileName, i));
 			if (getLog().isDebugEnabled())
 				getLog().debug(String.format("output from %s:\n%s", service, RdfUtils.logStatements("\t", outputModel)));
 			compareOutput(outputModel, testCase.getExpectedOutputModel());
 			try {
 				sanityCheckOutputModel(service, outputModel);
 			} catch (SADIException e) {
-				getLog().warn(String.format("sanity check failed: %s", e.getMessage()));
+				getLog().warn(e.getMessage());
 			}
 		}
 	}
@@ -118,62 +111,41 @@ public class TestService extends AbstractMojo
 		}
 	}
 
-	private List<TestCase> getTestCases(Service service)
-	{
-		List<TestCase> tests = new ArrayList<TestCase>();
-		// TODO add to ServiceDescription interface and fix this...
-		Model serviceModel = ((ServiceImpl)service).getServiceModel();
-		MyGridServiceOntologyHelper helper = new MyGridServiceOntologyHelper();
-		for (RDFNode testCaseNode: helper.getTestCasePath().getValuesRootedAt(serviceModel.getResource(service.getURI()))) {
-			try {
-				if (!testCaseNode.isResource()) {
-					throw new Exception("test case node is literal");
-				}
-				Resource testCaseResource = testCaseNode.asResource();
-				Collection<RDFNode> inputs = helper.getTestInputPath().getValuesRootedAt(testCaseResource);
-				if (inputs.isEmpty()) {
-					throw new Exception("no input specified, but each test case needs one");
-				} else if (inputs.size() > 1) {
-					throw new Exception("multiple inputs specified, but each test case can only have one");
-				}
-				Collection<RDFNode> outputs = helper.getTestOutputPath().getValuesRootedAt(testCaseResource);
-				if (outputs.isEmpty()) {
-					throw new Exception("no output specified, but each test case needs one");
-				} else if (outputs.size() > 1) {
-					throw new Exception("multiple outputs specified, but each test case can only have one");
-				}
-				tests.add(new TestCase(inputs.iterator().next(), outputs.iterator().next()));
-			} catch (Exception e) {
-				getLog().warn(String.format("skipping test case %s: %s", testCaseNode, e.getMessage()));
-			}
-		}
-		return tests;
-	}
+//	private List<TestCase> getTestCases(Service service)
+//	{
+//		List<TestCase> tests = new ArrayList<TestCase>();
+//		// TODO add to ServiceDescription interface and fix this...
+//		Model serviceModel = ((ServiceImpl)service).getServiceModel();
+//		MyGridServiceOntologyHelper helper = new MyGridServiceOntologyHelper();
+//		for (RDFNode testCaseNode: helper.getTestCasePath().getValuesRootedAt(serviceModel.getResource(service.getURI()))) {
+//			try {
+//				if (!testCaseNode.isResource()) {
+//					throw new Exception("test case node is literal");
+//				}
+//				Resource testCaseResource = testCaseNode.asResource();
+//				Collection<RDFNode> inputs = helper.getTestInputPath().getValuesRootedAt(testCaseResource);
+//				if (inputs.isEmpty()) {
+//					throw new Exception("no input specified, but each test case needs one");
+//				} else if (inputs.size() > 1) {
+//					throw new Exception("multiple inputs specified, but each test case can only have one");
+//				}
+//				Collection<RDFNode> outputs = helper.getTestOutputPath().getValuesRootedAt(testCaseResource);
+//				if (outputs.isEmpty()) {
+//					throw new Exception("no output specified, but each test case needs one");
+//				} else if (outputs.size() > 1) {
+//					throw new Exception("multiple outputs specified, but each test case can only have one");
+//				}
+//				tests.add(new TestCase(inputs.iterator().next(), outputs.iterator().next()));
+//			} catch (Exception e) {
+//				getLog().warn(String.format("skipping test case %s: %s", testCaseNode, e.getMessage()));
+//			}
+//		}
+//		return tests;
+//	}
 
 	private void sanityCheckOutputModel(Service service, Model outputModel) throws SADIException
 	{
-		/* TODO put this in the Service interface...
-		 */
-		OntModel ontModel = ((ServiceImpl)service).getOutputClass().getOntModel();
-		ontModel.addSubModel(outputModel);
-		ontModel.rebind();
-		Collection<Individual> outputs = ontModel.listIndividuals(service.getOutputClass()).toList();
-		if (outputs.isEmpty())
-			throw new SADIException(String.format("output model doesn't contain any instances of output class %s", service.getOutputClassURI()));
-		StringBuffer buf = new StringBuffer();
-		for (Restriction restriction: ((ServiceImpl)service).getRestrictions()) {
-			/* confirm that the expected model attaches the predicates the
-			 * registry thinks that it does...
-			 */
-			for (Individual output: outputs) {
-				if (!output.hasOntClass(restriction))
-					buf.append(String.format("\noutput node %s doesn't match restriction %s", output, OwlUtils.getRestrictionString(restriction)));
-			}
-		}
-		if (buf.length() > 0) {
-			buf.insert(0, "output doesn't appear to match the restrictions specified on your output class:");
-			throw new SADIException(buf.toString());
-		}
+		ServiceTester.sanityCheckOutput(service, outputModel);
 		getLog().info("actual output matches output class definition");
 	}
 	

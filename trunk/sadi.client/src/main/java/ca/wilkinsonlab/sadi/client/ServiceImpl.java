@@ -11,16 +11,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.beans.ServiceBean;
+import ca.wilkinsonlab.sadi.client.testing.TestCase;
+import ca.wilkinsonlab.sadi.service.ontology.AbstractServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.ExceptionUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
@@ -69,6 +69,7 @@ public class ServiceImpl extends ServiceBase
 	OntClass inputClass;
 	OntClass outputClass;
 	Collection<Restriction> restrictions;
+	Collection<TestCase> tests;
 	
 	/**
 	 * Construct a new SADI service from the service description located at
@@ -295,6 +296,38 @@ public class ServiceImpl extends ServiceBase
 		}
 		return predicates;
 	}
+	
+	public Collection<TestCase> getTestCases()
+	{
+		if (tests == null) {
+			tests = new ArrayList<TestCase>();
+			AbstractServiceOntologyHelper helper = new MyGridServiceOntologyHelper();
+			for (RDFNode testCaseNode: helper.getTestCasePath().getValuesRootedAt(model.getResource(getURI()))) {
+				try {
+					if (!testCaseNode.isResource()) {
+						throw new Exception("test case node is literal");
+					}
+					Resource testCaseResource = testCaseNode.asResource();
+					Collection<RDFNode> inputs = helper.getTestInputPath().getValuesRootedAt(testCaseResource);
+					if (inputs.isEmpty()) {
+						throw new Exception("no input specified, but each test case needs one");
+					} else if (inputs.size() > 1) {
+						throw new Exception("multiple inputs specified, but each test case can only have one");
+					}
+					Collection<RDFNode> outputs = helper.getTestOutputPath().getValuesRootedAt(testCaseResource);
+					if (outputs.isEmpty()) {
+						throw new Exception("no output specified, but each test case needs one");
+					} else if (outputs.size() > 1) {
+						throw new Exception("multiple outputs specified, but each test case can only have one");
+					}
+					tests.add(new TestCase(inputs.iterator().next(), outputs.iterator().next()));
+				} catch (Exception e) {
+					log.warn("skipping test case", e);
+				}
+			}
+		}
+		return tests;
+	}
 
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection)
@@ -409,7 +442,7 @@ public class ServiceImpl extends ServiceBase
 			int statusCode = client.executeMethod(method);
 			if (statusCode >= 300 && statusCode < 400) {
 				long toSleep = 10000; // sleep for ten seconds by default
-				String retryAfter = getHeaderValue(method, "Retry-After");
+				String retryAfter = HttpUtils.getHeaderValue(method, "Retry-After");
 				if (retryAfter != null) {
 					try {
 						toSleep = 1000 * Long.valueOf(retryAfter);
@@ -418,7 +451,7 @@ public class ServiceImpl extends ServiceBase
 					}
 				}
 //				// look for legacy header...
-//				String pleaseWait = getHeaderValue(method, "Pragma", SADI.ASYNC_HEADER);
+//				String pleaseWait = HttpUtils.getHeaderValue(method, "Pragma", SADI.ASYNC_HEADER);
 //				if (pleaseWait != null) {
 //					// toSleep = (pleaseWait =~ /\s*=\s*(\d+)/)[0]
 //				}
@@ -429,7 +462,7 @@ public class ServiceImpl extends ServiceBase
 					log.warn(e);
 				}
 				// get new location...
-				String newURL = getHeaderValue(method, "Location");
+				String newURL = HttpUtils.getHeaderValue(method, "Location");
 				if (newURL != null)
 					url = newURL;
 			} else if (statusCode >= 200 && statusCode < 300) {
@@ -438,26 +471,6 @@ public class ServiceImpl extends ServiceBase
 				throw new HttpStatusException(statusCode);
 			}
 		}
-	}
-	
-	private static String getHeaderValue(HttpMethod method, String headerName)
-	{
-		return getHeaderValue(method, headerName, null);
-	}
-	private static String getHeaderValue(HttpMethod method, String headerName, String headerValuePrefix)
-	{
-		for (Header header: method.getResponseHeaders(headerName)) {
-			String headerValue = header.getValue();
-			if (headerValue == null)
-				continue;
-			if (headerValuePrefix != null) {
-				if (headerValue.startsWith(headerValuePrefix))
-					return headerValue.substring(headerValuePrefix.length());
-			} else {
-				return headerValue;
-			}
-		}
-		return null;
 	}
 	
 	/* (non-Javadoc)
