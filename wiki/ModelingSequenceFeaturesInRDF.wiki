@@ -47,8 +47,7 @@ Below, we give the RDF/N3 representation of a tRNA gene in the Drosophilia melan
 @prefix range: <http://sadiframework.org/ontologies/GMOD/RangedSequencePosition.owl#> .
 @prefix strand: <http://sadiframework.org/ontologies/GMOD/Strand.owl#> .
 
-# Not sure this is the best choice...
-@prefix FlyBase: <http://flybase.org/cgi-bin/gbrowse/dmel/?Search=1;name=> .
+@prefix FlyBase: <http://lsrn.org/FLYBASE:> .
 @prefix GB: <http://www.ncbi.nlm.nih.gov/nuccore/> .
 
 @prefix lsrn: <http://purl.oclc.org/SADI/LSRN/> .
