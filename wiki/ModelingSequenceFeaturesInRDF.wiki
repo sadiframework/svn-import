@@ -76,13 +76,13 @@ GB:AE013599 # chromosome arm '2R'
  
 _:plus_strand 
     a sio:SIO_000030; # o = 'sequence'
-    sio:SIO_000011 # 'is attribute of'
+    sio:SIO_000210 # 'represents'
         [ a strand:PlusStrand; 
           sio:SIO_000093 GB:AE013599 ] . # p = 'is proper part of'
     
 _:minus_strand 
     a sio:SIO_000030; # o = 'sequence'
-    sio:SIO_000011 # 'is attribute of'
+    sio:SIO_000210 # 'represents'
         [ a strand:MinusStrand; 
           sio:SIO_000093 GB:AE013599 ] . # p = 'is proper part of'
 
