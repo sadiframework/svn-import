@@ -1,5 +1,0 @@
-FlyBase:                     'http://purl.oclc.org/SADI/LSRN/FLYBASE_Identifier'
-GB:                          'http://purl.oclc.org/SADI/LSRN/GB_Identifier'
-SGD:                         'http://purl.oclc.org/SADI/LSRN/SGD_Identifier'
-NCBI:                        'http://purl.oclc.org/SADI/LSRN/RefSeq_Identifier'
-FlyBase Annotation IDs:      'http://purl.oclc.org/SADI/LSRN/FlyBase_Annotation_Identifier'
