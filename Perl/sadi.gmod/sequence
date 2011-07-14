@@ -1,0 +1,120 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use lib 'lib';
+
+use CGI;
+use SADI::GMOD::Config qw(
+    get_db_args 
+    get_base_url
+);
+use Vocab::MimeTypes qw(
+    @n3_mime_types
+    @rdfxml_mime_types
+    @legal_mime_types
+);
+use Vocab::URIPrefixes qw(%uri_prefixes);
+use Bio::DB::SeqFeature::Store::Extended;
+use Utils::Array qw(intersection);
+use Utils::URI qw(get_sequence_uri);
+use Utils::Sequence qw(get_complementary_sequence);
+use RDF::Trine::Model;
+use RDF::Trine::Parser;
+use RDF::Trine::Serializer;
+
+my $cgi = new CGI;
+
+#------------------------------------------------------------
+# check for legal MIME type
+#------------------------------------------------------------
+
+my @accept = $cgi->Accept;
+
+if (@accept && !intersection(\@accept, \@legal_mime_types)) {
+    print $cgi->header(-status => 406);    
+    exit 0;
+}
+
+#------------------------------------------------------------
+# check for permitted HTTP METHOD
+#------------------------------------------------------------
+
+$ENV{REQUEST_METHOD} ||= 'GET';
+if (!grep($_ eq $ENV{REQUEST_METHOD}, ('GET','HEAD'))) {
+    print $cgi->header(-status => 405, -allow => 'GET, HEAD');    
+    exit 0;
+}
+
+#------------------------------------------------------------
+# check for required param ('id')
+#------------------------------------------------------------
+
+if (!$cgi->param('id')) {
+    print $cgi->header(-status => 400);
+    exit 0;
+}
+
+#------------------------------------------------------------
+# Retrieve feature(s) from DB
+#------------------------------------------------------------
+
+my $gff_id = $cgi->param('id');
+my $strand = $cgi->param('strand'); # will be undef for single-stranded features
+
+my $store = Bio::DB::SeqFeature::Store::Extended->new( get_db_args() );
+my @features = $store->features(-attributes => { load_id => $gff_id });
+
+if(!@features) {
+    print $cgi->header(-status => 404);
+    exit 0;
+}
+
+if ($ENV{REQUEST_METHOD} eq 'HEAD') {
+    $cgi->header(-status => 200);
+    exit 0;
+}
+
+#------------------------------------------------------------
+# build RDF for feature(s)
+#------------------------------------------------------------
+
+my $model = RDF::Trine::Model->temporary_model;
+my $parser = RDF::Trine::Parser->new('turtle');
+
+foreach my $feature (@features) {
+
+    my $ttl = $feature->ttl_for_sequence($strand);
+
+#    my $sequence = $feature->seq->seq;
+#    $sequence = get_complementary_sequence($sequence) if ($strand && $strand == -1);
+#
+#    $ttl .= sprintf( 
+#
+#        join("\n",
+#            '@prefix sio: <http://semanticscience.org/resource/> .',
+#            '<%s> sio:SIO_000300 "%s" .',
+#        ),
+#        
+#        get_sequence_uri($feature, $strand),
+#        $sequence,        
+#
+#    );
+
+    $parser->parse_into_model(undef, $ttl, $model);
+} 
+
+my $serializer;
+my $content_type;
+
+if (!@accept or intersection(\@accept, ['application/rdf+xml'])) {
+    $serializer = RDF::Trine::Serializer->new('rdfxml', namespaces => \%uri_prefixes);
+    $content_type = 'application/rdf+xml';
+} else {
+    $serializer = RDF::Trine::Serializer->new('turtle', namespaces => \%uri_prefixes);
+    $content_type = $accept[0];
+}
+
+print $cgi->header(-status => 200, -type => $content_type);
+print $serializer->serialize_model_to_string($model);

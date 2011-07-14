@@ -1,0 +1,6 @@
+@prefix sio: <http://semanticscience.org/resource/> .
+
+[% strand_uri %] 
+    a [% strand_type_uri %];
+    sio:SIO_000093 [% feature_uri %] . # p = "is proper part of"
+
