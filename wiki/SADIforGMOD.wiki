@@ -1,0 +1,21 @@
+#summary SADI for GMOD: Services for the Generic Model Organism Database
+
+= Introduction =
+
+SADI for GMOD is a collection of ready-made SADI services for accessing sequence feature data in RDF form. The services were developed as an add-on for the GMOD (Generic Model Organism Database) project, which is a popular toolkit for building model organism databases and their associated websites (e.g. FlyBase).  
+
+For more background info, see:
+
+  * http://sadiframework.org
+  * http://gmod.org
+
+= The Services =
+
+SADI for GMOD provides five SADI services for accessing sequence feature data in various useful ways. The services are: 
+
+|| Service Name || Input || Relationship || Output ||
+|| get_feature_info || database identifier || is about || feature description ||
+|| get_features_overlapping_region || genomic coordinates || overlaps || collection of feature descriptions ||
+|| get_sequence_for_region || genomic coordinates || is represented by || DNA, RNA, or amino acid sequence ||
+|| get_child_features || feature description || has part / derives into || collection of feature descriptions ||
+|| get_parent_feature || feature description || is part of / derives from ||  collection of feature descriptions ||
