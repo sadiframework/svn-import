@@ -20,14 +20,22 @@ SADI for GMOD provides five SADI services for accessing sequence feature data:
 || get_child_features || feature description || has part / derives into || collection of feature descriptions ||
 || get_parent_feature || feature description || is part of / derives from ||  collection of feature descriptions ||
 
-
 = Structure of Service Input/Output RDF =
 
 The main entities of the service input/output data are features and genomic coordinates. For a detailed discussion of how these entities have been modeled, see [ModelingSequenceFeaturesInRDF Modeling Sequence Features in RDF].
 
 = Setting up the Services =
 
-The services are implemented as CGI Perl scripts.  To set up the services:
+The services are implemented as CGI Perl scripts. 
 
-  # Load your GFF files into a Bio::DB::Sequence::Store database (mysql).  There are instructions for doing that on the GBrowse wiki: http://gmod.org/wiki/GBrowse_Backends#Using_Bio::DB::SeqFeature::Store_with_the_MySQL_Backend.
-  # Install the SADI for GMOD depends with CPAN or your OS package manager        
+These instructions assume working apache and mysql installations. To set up the services:
+
+  # *Load your GFF files into a `Bio::DB::Sequence::Store` database (mysql)*.  There are instructions for doing that on the GBrowse wiki: http://gmod.org/wiki/GBrowse_Backends#Using_Bio::DB::SeqFeature::Store_with_the_MySQL_Backend.
+  # *Install the SADI for GMOD depends with CPAN or your OS package manager*:
+    * one
+    * two
+    * three
+  # *Download the SADI for GMOD tarball and unpack into `cgi-bin`*: A subdirectory will be created called `sadi.gmod`.
+  # *Set `Bio::DB::SeqFeature::Store` connection parameters in `../cgi-bin/sadi.gmod/sadi.gmod.conf`. SADI for GMOD uses the GBrowse configuration format. There is documentation within the file to help with filling in each parameter.
+  # *
+   
