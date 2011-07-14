@@ -20,6 +20,7 @@ SADI for GMOD provides five SADI services for accessing sequence feature data:
 || get_child_features || feature description || has part / derives into || collection of feature descriptions ||
 || get_parent_feature || feature description || is part of / derives from ||  collection of feature descriptions ||
 
+
 = Structure of Service Input/Output RDF =
 
 The main entities of the service input/output data are features and genomic coordinates. For a detailed discussion of how these entities have been modeled, see [ModelingSequenceFeaturesInRDF Modeling Sequence Features in RDF].
