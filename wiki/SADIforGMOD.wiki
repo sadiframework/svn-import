@@ -11,7 +11,7 @@ For more background info, see:
 
 = The Services =
 
-SADI for GMOD provides five SADI services for accessing sequence feature data in various useful ways. The services are: 
+SADI for GMOD provides five SADI services for accessing sequence feature data:
 
 || Service Name || Input || Relationship || Output ||
 || get_feature_info || database identifier || is about || feature description ||
@@ -19,3 +19,14 @@ SADI for GMOD provides five SADI services for accessing sequence feature data in
 || get_sequence_for_region || genomic coordinates || is represented by || DNA, RNA, or amino acid sequence ||
 || get_child_features || feature description || has part / derives into || collection of feature descriptions ||
 || get_parent_feature || feature description || is part of / derives from ||  collection of feature descriptions ||
+
+= Structure of Service Input/Output RDF =
+
+The main entities of the service input/output data are features and genomic coordinates. For a detailed discussion of how these entities have been modeled, see [ModelingSequenceFeaturesInRDF Modeling Sequence Features in RDF].
+
+= Setting up the Services =
+
+The services are implemented as CGI Perl scripts.  To set up the services:
+
+  # Load your GFF files into a Bio::DB::Sequence::Store database (mysql).  There are instructions for doing that on the GBrowse wiki: http://gmod.org/wiki/GBrowse_Backends#Using_Bio::DB::SeqFeature::Store_with_the_MySQL_Backend.
+  # Install the SADI for GMOD depends with CPAN or your OS package manager        
