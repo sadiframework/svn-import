@@ -17,6 +17,7 @@ use RDF::Trine::Model;
 use RDF::Trine::Parser;
 use RDF::Trine::Serializer;
 use File::Spec::Functions;
+use Vocab::URIPrefixes qw(%uri_prefixes);
 
 require Exporter;
 our @ISA = qw(Exporter);
@@ -278,9 +279,9 @@ sub serialize_model
     my $serializer;
 
     if (grep($_ eq $mime_type, @N3_MIME_TYPES)) {
-        $serializer = RDF::Trine::Serializer->new('turtle');
+        $serializer = RDF::Trine::Serializer->new('turtle', namespaces => \%uri_prefixes);
     } else {
-        $serializer = RDF::Trine::Serializer->new('rdfxml');
+        $serializer = RDF::Trine::Serializer->new('rdfxml', namespaces => \%uri_prefixes);
     }
     
     return $serializer->serialize_model_to_string($model);
