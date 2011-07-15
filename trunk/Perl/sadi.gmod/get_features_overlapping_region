@@ -2,9 +2,17 @@
 
 package get_features_overlapping_region;
 
+use strict;
+use warnings;
+
+use lib 'lib';
+use base 'SADI::Simple::SyncService';
+
 #-----------------------------------------------------------------
 # SERVICE CONFIGURATION PART
 #-----------------------------------------------------------------
+
+use SADI::GMOD::Config qw(get_base_url);
 
 my %config = (
 
@@ -22,19 +30,7 @@ my %config = (
 # CGI HANDLER PART
 #-----------------------------------------------------------------
 
-use strict;
-use warnings;
-
-use lib 'lib';
-
 use Log::Log4perl;
-use SADI::GMOD::Config qw(
-    get_base_url 
-    get_db_args
-    get_gff_id_to_dbxref_mapping
-);
-
-use base 'SADI::Simple::SyncService';
 
 Log::Log4perl->init('log4perl.properties');
 
@@ -45,6 +41,10 @@ $service->handle_cgi_request;
 # SERVICE IMPLEMENTATION PART
 #-----------------------------------------------------------------
 
+use SADI::GMOD::Config qw(
+    get_db_args
+    get_gff_id_to_dbxref_mapping
+);
 use RDF::Trine::Node::Resource;
 use RDF::Trine::Node::Literal;
 use RDF::Trine::Statement;
