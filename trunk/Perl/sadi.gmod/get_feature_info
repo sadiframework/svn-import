@@ -88,7 +88,7 @@ sub process_it {
     my $db = Bio::DB::SeqFeature::Store::Extended->new(get_db_args, -gff_id_to_dbxref => get_gff_id_to_dbxref_mapping);
     my $parser = RDF::Trine::Parser->new('turtle');
 
-    my $is_information_about = RDF::Trine::Node::Resource->new('http://semanticscience.org/resource/SIO_000146');
+    my $is_about = RDF::Trine::Node::Resource->new('http://semanticscience.org/resource/SIO_000332');
 
     foreach my $input (@$inputs) {
 
