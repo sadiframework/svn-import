@@ -42,7 +42,7 @@ These instructions assume working apache and mysql installations. To set up the 
     * URI
     * Storable
     * Config::IniFiles
-  # *Download the SADI for GMOD tarball and unpack into* `cgi-bin`: A subdirectory will be created called `sadi.gmod`.
+  # *Download the SADI for GMOD tarball and unpack into* `cgi-bin`: http://sadi.googlecode.com/files/sadi.gmod-0.1.tar.gz. A subdirectory will be created called `sadi.gmod`.
   # *Set `Bio::DB::SeqFeature::Store` connection parameters in* `cgi-bin/sadi.gmod/sadi.gmod.conf`. sadi.gmod.conf uses the GBrowse configuration format for configuring data sources.  Synopsis:
 {{{
 [GENERAL]
