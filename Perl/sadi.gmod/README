@@ -1,0 +1,67 @@
+Introduction
+------------
+
+SADI for GMOD is a collection of ready-made SADI services for accessing sequence feature data in RDF form. The services were developed as an add-on for the GMOD (Generic Model Organism Database) project, which is a popular toolkit for building model organism databases and their associated websites (e.g. FlyBase?).
+
+For more background info, see:
+
+    * http://sadiframework.org
+    * http://gmod.org 
+
+The Services
+------------
+
+SADI for GMOD provides five SADI services for accessing sequence feature data:
+
+Service Name                        Input                   Relationship                Output
+--------------------------------------------------------------------------------------------------------------------------
+get_feature_info                    database identifier     is about                    feature description
+get_features_overlapping_region     genomic coordinates     overlaps                    collection of feature descriptions
+get_sequence_for_region             genomic coordinates     is represented by           DNA, RNA, or amino acid sequence
+get_child_features                  feature description     has part / derives into     collection of feature descriptions
+get_parent_feature                  feature description     is part of / derives from   collection of feature descriptions
+
+Structure of Service Input/Output RDF
+-------------------------------------
+
+The main entities of the service input/output data are features and genomic coordinates. For a detailed discussion of how these entities have been modeled, see http://code.google.com/p/sadi/wiki/ModelingSequenceFeaturesInRDF.
+
+Setting up the Services
+-------------------------
+
+The services are implemented as CGI Perl scripts.
+
+These instructions assume working apache and mysql installations. To set up the services:
+
+   1. Load your GFF files into a Bio::DB::Sequence::Store database (mysql). There are instructions for doing that on the GBrowse wiki: http://gmod.org/wiki/GBrowse_Backends#Using_Bio::DB::SeqFeature::Store_with_the_MySQL_Backend.
+
+   2. Install the SADI for GMOD dependencies with CPAN or your OS package manager:
+          * Bio::DB::SeqFeature?::Store
+          * Log::Log4perl
+          * Template
+          * RDF::Trine
+          * RDF::Query
+          * OBO::Core::Ontology
+          * File::Spec
+          * URI
+          * Storable 
+
+   3. Download the SADI for GMOD tarball and unpack into cgi-bin: A subdirectory will be created called sadi.gmod.
+
+   4. Set Bio::DB::SeqFeature::Store connection parameters in cgi-bin/sadi.gmod/sadi.gmod.conf. sadi.gmod.conf uses the GBrowse configuration format for configuring data sources. Synopsis:
+
+      [GENERAL]
+      db_adaptor = Bio::DB::SeqFeature::Store
+      db_args = -adaptor DBI::mysql
+                -dsn dbi:mysql:database=flybase
+      base_url = http://flybase.org/cgi-bin/sadi.gmod/
+
+   5. Configure database crossreference (dbxref) mappings in cgi-bin/sadi.gmod/dbxref.conf. The mapping indicate how dbxref prefixes in the local database should be translated to standard namespaces in the LSRN (Life Science Resource Name) registry. Synopsis:
+
+      [DBXREF_TO_LSRN]
+      SwissProt = UniProt
+      UniProtKB = UniProt
+      SwissProt/TrEMBL = UniProt
+      ...
+
+   6. Register the services in the public SADI registry. (TODO: A script will be provided for this purpose.) 
