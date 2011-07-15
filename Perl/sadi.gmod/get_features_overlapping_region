@@ -38,9 +38,8 @@ use base 'SADI::Simple::SyncService';
 
 Log::Log4perl->init('log4perl.properties');
 
-#my $service = get_feature_info->new(%$config);
 my $service = get_features_overlapping_region->new;
-#$service->handle_cgi_request;
+$service->handle_cgi_request;
 
 #-----------------------------------------------------------------
 # SERVICE IMPLEMENTATION PART
