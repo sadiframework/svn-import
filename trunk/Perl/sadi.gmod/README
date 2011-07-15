@@ -45,6 +45,7 @@ These instructions assume working apache and mysql installations. To set up the 
           * File::Spec
           * URI
           * Storable 
+          * Config::IniFiles 
 
    3. Download the SADI for GMOD tarball and unpack into cgi-bin: A subdirectory will be created called sadi.gmod.
 
