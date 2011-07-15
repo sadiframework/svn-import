@@ -114,7 +114,7 @@ sub process_it {
                 $feature_node = RDF::Trine::Node::Blank->new;
             }
 
-            my $statement = RDF::Trine::Statement->new($input, $is_information_about, $feature_node);
+            my $statement = RDF::Trine::Statement->new($input, $is_about, $feature_node);
             $output_model->add_statement($statement);
             $parser->parse_into_model(undef, $feature->ttl, $output_model);
 
