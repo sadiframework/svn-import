@@ -51,7 +51,7 @@ db_args = -adaptor DBI::mysql
           -dsn dbi:mysql:database=flybase
 base_url = http://flybase.org/cgi-bin/sadi.gmod/
 }}}
-  # *Configure database crossreference (dbxref) mappings in* `cgi-bin/sadi.gmod/dbxref.conf`. The mapping indicate how dbxref prefixes in the local database should be translated to standard namespaces in the LSRN (Life Science Resource Name) registry. Synopsis:
+  # *Configure database crossreference (dbxref) mappings in* `cgi-bin/sadi.gmod/dbxref.conf`. The mappings indicate how dbxref prefixes in the local database should be translated to standard namespaces in the LSRN (Life Science Resource Name) registry. Synopsis:
 {{{
 [DBXREF_TO_LSRN]
 SwissProt = UniProt
