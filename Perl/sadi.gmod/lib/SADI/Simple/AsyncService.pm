@@ -18,7 +18,7 @@ use File::Spec::Functions qw(catfile splitpath);
 use File::Temp qw(tempfile);
 use Storable;
 
-use parent 'SADI::Simple::ServiceBase';
+use base 'SADI::Simple::ServiceBase';
 
 my $LOG = Log::Log4perl->get_logger(__PACKAGE__);
 

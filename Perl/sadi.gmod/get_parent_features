@@ -34,7 +34,7 @@ use SADI::GMOD::Config qw(
     get_gff_id_to_dbxref_mapping
 );
 
-use parent 'SADI::Simple::SyncService';
+use base 'SADI::Simple::SyncService';
 
 Log::Log4perl->init('log4perl.properties');
 

@@ -13,7 +13,7 @@ use strict;
 use SADI::Simple::ServiceDescription;
 use Log::Log4perl;
 
-use parent qw( SADI::Simple::Base );
+use base qw( SADI::Simple::Base );
 
 # add versioning to this module
 use vars qw /$VERSION/;

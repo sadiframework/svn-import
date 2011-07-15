@@ -6,7 +6,7 @@ use RDF::Trine::Parser;
 use Log::Log4perl;
 use Template;
 
-use parent 'SADI::Simple::ServiceBase';
+use base 'SADI::Simple::ServiceBase';
 
 sub handle_cgi_request {
 
