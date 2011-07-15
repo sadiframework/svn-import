@@ -58,7 +58,7 @@ use Utils::BiopolymerRegion qw(parse_biopolymer_region);
 use Utils::Trine qw(is_uri_resource);
 use Utils::Sequence qw(get_complementary_sequence);
 
-my $OUTPUT_TTL_TEMPLATE = <<TTL;
+use constant OUTPUT_TTL_TEMPLATE => <<TTL;
 \@prefix sio: <http://semanticscience.org/resource/> .
 \@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 <[% input_uri %]> sio:SIO_000205 
@@ -96,7 +96,6 @@ sub process_it {
     my $db = Bio::DB::SeqFeature::Store::Extended->new(get_db_args, -gff_id_to_dbxref => get_gff_id_to_dbxref_mapping);
     my $parser = RDF::Trine::Parser->new('turtle');
     my $templater = Template->new;
-    my $is_information_about = RDF::Trine::Node::Resource->new('http://semanticscience.org/resource/SIO_000146');
 
     foreach my $input (@$inputs) {
 
@@ -142,9 +141,10 @@ sub process_it {
         #------------------------------------------------------------
 
         my $ttl;
+        my $template = OUTPUT_TTL_TEMPLATE;
 
         $templater->process(
-                \$OUTPUT_TTL_TEMPLATE,
+                \$template,
                 {
                     input_uri => $input->uri,
                     sequence_string => $sequence,
