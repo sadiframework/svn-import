@@ -33,7 +33,6 @@ These instructions assume working apache and mysql installations. To set up the 
   # *Load your GFF files into a* `Bio::DB::Sequence::Store` *database (mysql)*.  There are instructions for doing that on the GBrowse wiki: http://gmod.org/wiki/GBrowse_Backends#Using_Bio::DB::SeqFeature::Store_with_the_MySQL_Backend.
   # *Install the SADI for GMOD dependencies with CPAN or your OS package manager*:
     * Bio::DB::SeqFeature::Store
-    * Log::Log4perl
     * Template
     * RDF::Trine
     * RDF::Query
@@ -41,6 +40,7 @@ These instructions assume working apache and mysql installations. To set up the 
     * File::Spec
     * URI
     * Storable
+    * constant::boolean
     * Config::IniFiles
   # *Download the SADI for GMOD tarball and unpack into* `cgi-bin`: http://sadi.googlecode.com/files/sadi.gmod-0.1.tar.gz. A subdirectory will be created called `sadi.gmod`.
   # *Set `Bio::DB::SeqFeature::Store` connection parameters in* `cgi-bin/sadi.gmod/sadi.gmod.conf`. sadi.gmod.conf uses the GBrowse configuration format for configuring data sources.  Synopsis:
