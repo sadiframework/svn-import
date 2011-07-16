@@ -1,0 +1,7 @@
+version 0.1.1
+    - remove unintentionally-included 't' and 'owl' subdirs
+    - changes services from SyncService to AsyncService
+
+version 0.1 
+    - initialize release
+

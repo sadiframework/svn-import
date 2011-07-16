@@ -6,7 +6,7 @@ use strict;
 use warnings;
 
 use lib 'lib';
-use base 'SADI::Simple::SyncService';
+use base 'SADI::Simple::AsyncService';
 
 #-----------------------------------------------------------------
 # SERVICE CONFIGURATION PART
