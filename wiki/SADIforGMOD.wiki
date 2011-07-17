@@ -63,7 +63,7 @@ SwissProt/TrEMBL = UniProt
 
 = SVN access =
 
-The source for SADI for GMOD is accessible under the directory /trunk/Perl/sadi.gmod on this site. To check it out (read-only):
+The source for SADI for GMOD can be checked out (read-only) using:
 
 {{{
 svn co http://sadi.googlecode.com/svn/trunk/Perl/sadi.gmod
