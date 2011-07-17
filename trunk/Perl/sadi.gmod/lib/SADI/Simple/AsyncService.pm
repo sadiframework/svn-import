@@ -196,7 +196,9 @@ sub invoke {
     
     # save the input URIs for polling RDF
     {   
-        my $parser = RDF::Trine::Parser->parser_by_media_type($self->get_request_content_type);
+        # transform content type to what RDF::Trine expects
+        my $content_type = $self->get_request_content_type eq 'text/rdf+n3' ? 'application/turtle' : $self->get_request_content_type;
+        my $parser = RDF::Trine::Parser->parser_by_media_type($content_type);
         $parser->parse_into_model(undef, $data, $input_model);
 
         @inputs = $self->_get_inputs_from_model($input_model);
