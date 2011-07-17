@@ -20,7 +20,6 @@ SADI for GMOD provides five SADI services for accessing sequence feature data:
 || get_child_features || feature description || has part / derives into || collection of feature descriptions ||
 || get_parent_feature || feature description || is part of / derives from ||  collection of feature descriptions ||
 
- 
 = Structure of Service Input/Output RDF =
 
 The main entities of the service input/output data are features and genomic coordinates. For a detailed discussion of how these entities have been modeled, see [ModelingSequenceFeaturesInRDF Modeling Sequence Features in RDF].
@@ -61,3 +60,7 @@ SwissProt/TrEMBL = UniProt
 ...
 }}}
   # *Register the services in the public SADI registry*. (TODO: A script will be provided for this purpose.)
+
+= SVN access =
+
+The source for SADI for GMOD is accessible under the directory /trunk/Perl/sadi.gmod on this site.
