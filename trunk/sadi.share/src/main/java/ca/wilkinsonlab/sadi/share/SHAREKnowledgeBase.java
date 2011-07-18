@@ -906,27 +906,10 @@ public class SHAREKnowledgeBase
 		}
 		
 		for (Triple constraint: variableConstraints) {
-			if (constraint.getPredicate().equals(RDF.type.asNode())) {
-				OntClass constrainedType = getNodeAsClass(constraint.getObject());
-				if (constrainedType == null) {
-					log.trace(String.format("skipping type constraint with unknown class %s", constraint.getObject()));
-					continue;
-				}
-				for (Restriction r: restrictions) {
-					OntClass attachedValuesFrom = OwlUtils.getValuesFromAsClass(r);
-					if (attachedValuesFrom != null) {
-						if (classesOverlap(constrainedType, attachedValuesFrom)) { // hasSuperClass because we might be building up; this is non-ideal...
-							if (log.isDebugEnabled())
-								log.debug(String.format("service %s attaches values of type %s to property %s which is compatible with type %s", service, LabelUtils.getLabel(attachedValuesFrom),  LabelUtils.getLabel(p),  LabelUtils.getLabel(constrainedType)));
-						} else {
-							if (log.isDebugEnabled())
-								log.debug(String.format("service %s attaches values of type %s to property %s and we're looking for values of type %s", service, LabelUtils.getLabel(attachedValuesFrom),  LabelUtils.getLabel(p),  LabelUtils.getLabel(constrainedType)));
-							return true;
-						}
-					}
-				}
-			}
+			if (constraintViolatesRestrictions(constraint, restrictions))
+				return true;
 		}
+		return false;
 		
 //		Resource dummy = OwlUtils.createDummyInstance(outputClass);
 //		for (Triple constraint: variableConstraints) {
@@ -982,7 +965,36 @@ public class SHAREKnowledgeBase
 //				}
 //			}
 //		}
-		return false;
+//		return false;
+	}
+
+	private boolean constraintViolatesRestrictions(Triple constraint,
+			Collection<Restriction> restrictions) {
+		if (constraint.getPredicate().equals(RDF.type.asNode())) {
+			OntClass constrainedType = getNodeAsClass(constraint.getObject());
+			if (constrainedType == null) {
+				log.trace(String.format("skipping type constraint with unknown class %s", constraint.getObject()));
+				return false;
+			}
+			boolean conflict = false;
+			for (Restriction r: restrictions) {
+				OntClass attachedValuesFrom = OwlUtils.getValuesFromAsClass(r);
+				if (attachedValuesFrom != null) {
+					if (classesOverlap(constrainedType, attachedValuesFrom)) { // hasSuperClass because we might be building up; this is non-ideal...
+						if (log.isDebugEnabled())
+							log.debug(String.format("service attaches values of type %s which is compatible with type %s", LabelUtils.getLabel(attachedValuesFrom), LabelUtils.getLabel(constrainedType)));
+						return false;
+					} else {
+						if (log.isDebugEnabled())
+							log.debug(String.format("service attaches values of type %s and we're looking for values of type %s", LabelUtils.getLabel(attachedValuesFrom), LabelUtils.getLabel(constrainedType)));
+						conflict = true;
+					}
+				}
+			}
+			return conflict;
+		} else {
+			return false;
+		}
 	}
 
 	private static boolean classesOverlap(OntClass constrainedType, OntClass attachedValuesFrom)
