@@ -83,10 +83,6 @@ SADI::Simple - Module for creating Perl SADI services.
 
             my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
             my $greeting = sprintf("Hello, '%s'!", $name->value);
-            }
-
-            my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
-            my $greeting = sprintf("Hello, '%s'!", $name->value);
             my $greeting_literal = RDF::Trine::Node::Literal->new($greeting);
             
             my $statement = RDF::Trine::Statement->new($input, $greeting_property, $greeting_literal);
