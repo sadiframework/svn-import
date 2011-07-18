@@ -188,7 +188,7 @@ sub invoke {
     
     $self->default_throw_with_stack (0);
 
-    my $input_model = RDF::Trine::Model->temporary_model;
+    my $input_model;
     my $output_model = RDF::Trine::Model->temporary_model;
 
     my @inputs; 
@@ -197,10 +197,11 @@ sub invoke {
     # save the input URIs for polling RDF
     {   
         # transform content type to what RDF::Trine expects
-        my $content_type = $self->get_request_content_type eq 'text/rdf+n3' ? 'application/turtle' : $self->get_request_content_type;
-        my $parser = RDF::Trine::Parser->parser_by_media_type($content_type);
-        $parser->parse_into_model(undef, $data, $input_model);
+#        my $content_type = $self->get_request_content_type eq 'text/rdf+n3' ? 'application/turtle' : $self->get_request_content_type;
+#        my $parser = RDF::Trine::Parser->parser_by_media_type($content_type);
+#        $parser->parse_into_model(undef, $data, $input_model);
 
+        $input_model = $self->_build_model($data, $self->get_request_content_type);
         @inputs = $self->_get_inputs_from_model($input_model);
 
         push @input_uris, $_->uri foreach @inputs;
@@ -226,12 +227,12 @@ sub invoke {
         # tied to a class that doesn't implement OPEN
 
         untie *STDIN;
-        open STDIN, "/dev/null";
+        open STDIN, File::Spec->devnull;
         untie *STDOUT;
-        open(STDOUT, ">/dev/null");
+        open STDOUT, File::Spec->devnull;
         untie *STDERR;
-        open STDERR, ">/dev/null";
-        setsid;
+        open STDERR, File::Spec->devnull;
+        setsid unless ($^O eq 'MSWin32');
     
         # child process
         # do something (this service main task)

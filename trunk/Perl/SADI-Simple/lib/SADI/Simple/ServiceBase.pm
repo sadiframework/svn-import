@@ -12,6 +12,8 @@ use strict;
 
 use SADI::Simple::ServiceDescription;
 use Log::Log4perl;
+use RDF::Trine::Parser;
+use RDF::Trine::Model;
 
 use parent qw( SADI::Simple::Base );
 
@@ -111,6 +113,23 @@ sub get_response_content_type {
         $CONTENT_TYPE = 'text/rdf+n3' if $ENV{HTTP_ACCEPT} =~ m|text/n3|gi;
     }
     return $CONTENT_TYPE;
+}
+
+sub _build_model
+{
+    my ($self, $data, $content_type) = @_;
+
+    my $parser;
+    if ($self->get_request_content_type eq 'text/rdf+n3') {
+        $parser = RDF::Trine::Parser->new('turtle');
+    } else {
+        $parser = RDF::Trine::Parser->new('rdfxml');
+    }
+
+    my $model = RDF::Trine::Model->temporary_model;
+    $parser->parse_into_model(undef, $data, $model);
+
+    return $model;
 }
 
 sub _get_inputs_from_model
