@@ -1,34 +1,30 @@
 #-----------------------------------------------------------------
-# SADI::Service::Instance
-# Author: Edward Kawas <edward.kawas@gmail.com>,
+# SADI::Simple::ServiceDescription
+# Author: Ben Vandervalk (ben [dot] vvalk [at] gmail [dot] com)
+#         Edward Kawas (edward [dot] kawas [at] gmail [dot] com)
 #
 # For copyright and disclaimer see below.
-#
-# $Id: Instance.pm,v 1.6 2010-03-23 16:30:16 ubuntu Exp $
 #-----------------------------------------------------------------
+
 package SADI::Simple::ServiceDescription;
 
 use SADI::Simple::Utils;
 use base ("SADI::Simple::Base");
 use strict;
 
-# add versioning to this module
-use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.7 $ =~ /: (\d+)\.(\d+)/;
-
 =head1 NAME
 
-SADI::Service::Instance - A module that describes a SADI web service.
+SADI::Simple::ServiceDescription- A module that describes a SADI web service.
 
 =head1 SYNOPSIS
 
- use SADI::Service::Instance;
+ use SADI::Simple::ServiceDescription;
 
  # create a new blank SADI service instance object
- my $data = SADI::Service::Instance->new ();
+ my $data = SADI::Simple::ServiceDescription->new ();
 
  # create a new primed SADI service instance object
- $data = SADI::Service::Instance->new (
+ $data = SADI::Simple::ServiceDescription->new (
      ServiceName => "helloworld",
      ServiceType => "http://someontology.org/services/sometype",
      InputClass => "http://someontology.org/datatypes#Input1",
@@ -42,6 +38,9 @@ SADI::Service::Instance - A module that describes a SADI web service.
      URL => "http://helloworld.com/cgi-bin/helloworld.pl",
      SignatureURL =>"http://foo.bar/myServiceDescription",
  );
+
+ # get an RDF representation of the service description
+ my $rdf = $data->getServiceInterface;
 
  # get the service name
  my $name = $data->ServiceName;
@@ -104,7 +103,8 @@ An object representing a SADI service signature.
 
 =head1 AUTHORS
 
- Edward Kawas (edward.kawas [at] gmail [dot] com)
+ Ben Vandevalk (ben [dot] vvalk [at] gmail [dot] com)
+ Edward Kawas (edward [dot] kawas [at] gmail [dot] com)
 
 =cut
 
@@ -182,12 +182,6 @@ A url to the SADI service signature.
 
 {
 	my %_allowed = (
-#		ServiceName      => { type => SADI::Base->STRING },
-#		ServiceType      => { type => SADI::Base->STRING },
-#		InputClass       => { type => SADI::Base->STRING },
-#		OutputClass      => { type => SADI::Base->STRING },
-#		Description      => { type => SADI::Base->STRING },
-#		UniqueIdentifier => { type => SADI::Base->STRING },
 		ServiceName      => { type => SADI::Simple::Base->STRING },
 		ServiceType      => { type => SADI::Simple::Base->STRING },
 		InputClass       => { type => SADI::Simple::Base->STRING },
@@ -195,7 +189,6 @@ A url to the SADI service signature.
 		Description      => { type => SADI::Simple::Base->STRING },
 		UniqueIdentifier => { type => SADI::Simple::Base->STRING },
 		Authority        => {
-#			type => SADI::Base->STRING,
 			type => SADI::Simple::Base->STRING,
 			post => sub {
 				my $i      = shift;
@@ -216,7 +209,6 @@ A url to the SADI service signature.
 			  }
 		},
 		Provider => {
-#			type => SADI::Base->STRING,
 			type => SADI::Simple::Base->STRING,
 			post => sub {
 				my $i = shift;
@@ -237,10 +229,8 @@ A url to the SADI service signature.
 
 			  }
 		},
-#		ServiceURI => { type => SADI::Base->STRING },
 		ServiceURI => { type => SADI::Simple::Base->STRING },
 		URL        => {
-#			type => SADI::Base->STRING,
 			type => SADI::Simple::Base->STRING,
 			post => sub {
 				my $i = shift;
@@ -253,13 +243,9 @@ A url to the SADI service signature.
                 $i->UniqueIdentifier( $i->URL ) unless $i->UniqueIdentifier;
 			  }
 		},
-#		Authoritative => { type => SADI::Base->BOOLEAN },
 		Authoritative => { type => SADI::Simple::Base->BOOLEAN },
-#		Format        => { type => SADI::Base->STRING },
 		Format        => { type => SADI::Simple::Base->STRING },
-#		SignatureURL  => { type => SADI::Base->STRING },
 		SignatureURL  => { type => SADI::Simple::Base->STRING },
-#		UnitTest     => { type => 'SADI::Service::UnitTest', is_array => 1 },
 		UnitTest     => { type => 'SADI::Simple::UnitTest', is_array => 1 },
 	);
 

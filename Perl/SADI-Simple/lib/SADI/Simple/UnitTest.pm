@@ -1,33 +1,21 @@
-#-----------------------------------------------------------------
-# SADI::Service::UnitTest
-# Author: Edward Kawas <edward.kawas@gmail.com>,
-#
-# For copyright and disclaimer see below.
-#
-# $Id: UnitTest.pm,v 1.1 2010-03-08 19:29:11 ubuntu Exp $
-#-----------------------------------------------------------------
 package SADI::Simple::UnitTest;
 
 use strict;
 use base ("SADI::Simple::Base");
 
-# add versioning to this module
-use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.1 $ =~ /: (\d+)\.(\d+)/;
-
 =head1 NAME
 
-SADI::Service::UnitTest - A module that encapsulates unit test information for sadi services.
+SADI::Simple::UnitTest - A module that encapsulates unit test information for sadi services.
 
 =head1 SYNOPSIS
 
- use SADI::Service::UnitTest;
+ use SADI::Simple::UnitTest;
 
  # create a new blank SADI UnitTest object
- my $data = SADI::Service::UnitTest->new ();
+ my $data = SADI::Simple::UnitTest->new ();
 
  # create a new primed SADI UnitTest object
- $data = SADI::Service::UnitTest->new (
+ $data = SADI::Simple::UnitTest->new (
      regex  => '(\w+)+',
      xpath  => '/xml/text()',
      input  => '<xml/>',

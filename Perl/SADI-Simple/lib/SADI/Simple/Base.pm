@@ -1,11 +1,3 @@
-#-----------------------------------------------------------------
-# SADI::Base
-# Author: Edward Kawas  <edward.kawas@gmail.com>
-#         Martin Senger <martin.senger@gmail.com>
-# For copyright and disclaimer see below.
-#
-# $Id: Base.pm,v 1.28 2010-02-11 00:02:51 ubuntu Exp $
-#-----------------------------------------------------------------
 package SADI::Simple::Base;
 
 use strict;
@@ -15,9 +7,6 @@ use URI;
 use Log::Log4perl qw(:no_extra_logdie_message);
 use File::Spec;
 use File::Spec::Functions;
-
-our $VERSION  = sprintf "%d.%02d", q$Revision: 1.29 $ =~ /: (\d+)\.(\d+)/;
-our $Revision = '$Id: Base.pm,v 1.28 2010-02-11 00:02:51 ubuntu Exp $';
 
 our $AUTOLOAD;
 
@@ -482,19 +471,15 @@ SADI::Base - Hash-based abstract super-class for all SADI objects
 
   $self->throw ("This is an error");
 
-  $LOG->info ('This is an info message.');
-  $LOG->error ('This is an error to be logged.');
-
 =head1 DESCRIPTION
 
 This is a hash-based implementation of a general sadi
 super-class. Most SADI objects should inherit from this.
 
-=head1 CONTACT
+=head1 ACKNOWLEDGEMENTS
 
-Re-factored by Edward Kawas E<lt>edward.kawas@gmail.comE<gt> from a
-similar module in perl moses (MOSES::MOBY::Base) created by Martin Senger
-E<lt>martin.senger@gmail.comE<gt>.
+Thanks to Martin Senger, the original author of this code, and 
+also to Edward Kawas who refactored it into it's current form.
 
 =head1 ACCESSIBLE ATTRIBUTES
 
@@ -649,20 +634,6 @@ was set to true).
 
     print $self->format_stack ("Something terrible happen.");
 
-=head1 LOGGING
-
-Logging is available through the $LOG variable create and exported as a result of using this module.
-
-As a service writer, you can $LOG->info('some message'), $LOG->warn('some warning'),
- $LOG->debug('some debug statement') or $LOG->error('some error message').
-
-The next question is where are these messages sent? SADISeS allows you to 
-configure where to send messages in the log4perl.properties file. When 
-you run sadi-install.pl this module, this file is automatically created 
-for you and placed (usually) in your home directory in a folder called 
-Perl-SADI. If no properties file exists, then the messages are usually 
-placed in STDOUT.
-
 =head1 OTHER SUBROUTINES
 
 =head2 new
@@ -717,89 +688,4 @@ Without any parameter, it stringifies the caller object
 
 =cut
 
-
-#-----------------------------------------------------------------
-# Dealing with creating XML...
-#-----------------------------------------------------------------
-
-#-----------------------------------------------------------------
-# Logging...
-#-----------------------------------------------------------------
-
-#-----------------------------------------------------------------
-# module_name_escape
-#
-#   Make sure that the given name can be used as (part of) a Perl
-#   module name.
-#
-#-----------------------------------------------------------------
-
-#-----------------------------------------------------------------
-# datatype2module
-#
-#   Prefix given data type name with a package name SADI::DATA,
-#   and call 'module_name_escape' to substitute bad characters.
-#   The result is a valid Perl module name that can represent
-#   the given SADI data type.
-#
-#-----------------------------------------------------------------
-
-#-----------------------------------------------------------------
-# oProperty2module
-#
-#   Prefix given an object property name with a package name SADI::DATA::OWL,
-#   and call 'module_name_escape' to substitute bad characters.
-#   The result is a valid Perl module name that can represent
-#   the given object property.
-#
-#-----------------------------------------------------------------
-
-#-----------------------------------------------------------------
-# uri2package
-#
-#   Takes a uri and creates a suitable package string from it.
-#   This string can then be used as is, or as a prefix/suffix
-#   to an existing package string.
-#   
-#   Example:
-#    uri given: 
-#      http://sadiframework.org/examples/regression#DatedValue   
-#    package returned:
-#      sadiframework::org::examples::regression
-#
-#-----------------------------------------------------------------
-
-#-----------------------------------------------------------------
-# service2module
-#
-# Return a Perl module name created from the given service (both from
-# its authority and its name).
-#
-#-----------------------------------------------------------------
-
-#-----------------------------------------------------------------
-# init_config
-#-----------------------------------------------------------------
-
-=head2 init_config
-
-Find and read given configuration files (and perhaps some
-others). Import all their properties into C<SADICFG> namespace. More
-about how to use configuration properties is in L<SADI::Config>
-module.
-
-But making a long story short, this is all what you need in your
-service implementation to use a property (excluding the fact that you
-need to know the property name):
-
-    $self->init_config ('my.conf');
-    open HELLO, $SADICFG::MABUHAY_RESOURCE_FILE
-	or $self->throw ('Mabuhay resource file not found.');
-
-Arguments are optional and contain the file names of the configuration
-files to be read, and/or hash references with the direct configuration
-arguments. The files are looking for at the paths defined in the @INC,
-and - if set - by the environment variable C<SADI_CFG_DIR>.
-
-=cut
 
