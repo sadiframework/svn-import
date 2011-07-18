@@ -1,12 +1,12 @@
 package SADI::Simple::SyncService;
 
 use SADI::Simple::Utils;
-use RDF::Trine::Model;
-use RDF::Trine::Parser;
-use Log::Log4perl;
-use Template;
+use RDF::Trine::Model 0.135;
+use RDF::Trine::Parser 0.135;
+use Log::Log4perl 1.32;
+use Template 2.22;
 
-use parent 'SADI::Simple::ServiceBase';
+use base 'SADI::Simple::ServiceBase';
 
 sub handle_cgi_request {
 
