@@ -53,10 +53,6 @@ sub invoke {
 
     # get/parse the incoming RDF
     eval {
-#        # transform content type to what RDF::Trine expects
-#        my $content_type = $self->get_request_content_type eq 'text/rdf+n3' ? 'application/turtle' : $self->get_request_content_type;
-#        my $parser = RDF::Trine::Parser->parser_by_media_type($content_type);
-#        $parser->parse_into_model(undef, $data, $input_model);
         $input_model = $self->_build_model($data, $self->get_request_content_type);
     };
 
@@ -95,3 +91,53 @@ sub invoke {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+SADI::Simple::SyncService - a superclass for all synchronous SADI services
+
+=head1 SYNOPSIS
+
+ use base qw( SADI::Simple::SyncService )
+
+=head1 DESCRIPTION
+
+A common superclass for all SADI::Simple services.
+
+=head1 SUBROUTINES
+
+=head2 process_it
+
+A job-level processing: B<This is the main method to be overriden by a
+service provider!>. Here all the business logic belongs to.
+
+This method is called once for each service invocation request.
+
+Note that here, in C<SADI::Simple::SyncService>, this method does
+nothing. Which means it leaves the output job empty, as it was given
+here. Consequence is that if you do not override this method in a 
+sub-class, the client will get back an empty request. Which may be 
+good just for testing but not really what a client expects (I guess).
+
+You are free to throw an exception (TBD: example here). However, if
+you do so the complete processing of the whole client request is
+considered failed. After such exception the client will not get any
+data back (only an error message).
+
+=head1 AUTHORS, COPYRIGHT, DISCLAIMER
+
+ Ben Vandervalk (ben.vvalk [at] gmail [dot] com)
+ Edward Kawas  (edward.kawas [at] gmail [dot] com)
+
+Copyright (c) 2009 Edward Kawas. All Rights Reserved.
+
+This module is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+This software is provided "as is" without warranty of any kind.
+
+=cut
+
+

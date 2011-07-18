@@ -1,11 +1,3 @@
-#-----------------------------------------------------------------
-# SADI::Service::ServiceBase
-# Author: Edward Kawas <edward.kawas@gmail.com>
-# For copyright and disclaimer see below.
-#
-# $Id: ServiceBase.pm,v 1.8 2010-01-07 21:58:21 ubuntu Exp $
-#-----------------------------------------------------------------
-
 package SADI::Simple::ServiceBase;
 
 use strict;
@@ -195,19 +187,20 @@ sub _add_error_to_model
 }
 
 1;
+
 __END__
 
 =head1 NAME
 
-SADI::ServiceBase - a super-class for all SADI services
+SADI::Simple::ServiceBase - a superclass for all SADI::Simple services
 
 =head1 SYNOPSIS
 
- use base qw( SADI::ServiceBase )
+ use base qw( SADI::Simple::ServiceBase )
 
 =head1 DESCRIPTION
 
-A super class for all SADI services implemented with SADISeS.
+A common superclass for all SADI::Simple services.
 
 =head1 SUBROUTINES
 
@@ -218,7 +211,7 @@ service provider!>. Here all the business logic belongs to.
 
 This method is called once for each service invocation request.
 
-Note that here, in C<SADI::Service::ServiceBase>, this method does
+Note that here, in C<SADI::Simple::ServiceBase>, this method does
 nothing. Which means it leaves the output job empty, as it was given
 here. Consequence is that if you do not override this method in a 
 sub-class, the client will get back an empty request. Which may be 
@@ -228,17 +221,6 @@ You are free to throw an exception (TBD: example here). However, if
 you do so the complete processing of the whole client request is
 considered failed. After such exception the client will not get any
 data back (only an error message).
-
-=head2 as_uni_string
-
-Convert given $value (the only argument) into Unicode and wrap it as a
-SADI string (type SADI::Data::String).
-
-=head2 log_request
-
- # should be called when a request from a client comes; it returns
- # information about the current call (request) that can be used in a
- # log entry
 
 =head2 get_request_content_type
 
@@ -254,6 +236,7 @@ SADI string (type SADI::Data::String).
 
 =head1 AUTHORS, COPYRIGHT, DISCLAIMER
 
+ Ben Vandervalk (ben.vvalk [at] gmail [dot] com)
  Edward Kawas  (edward.kawas [at] gmail [dot] com)
  Martin Senger (martin.senger [at] gmail [dot] com)
 
