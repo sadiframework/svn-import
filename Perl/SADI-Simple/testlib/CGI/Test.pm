@@ -27,14 +27,12 @@ sub simulate_cgi_request
         die "missing required arg '$arg'" unless grep($_ eq $arg, keys %args);
     }
 
-    local %ENV;
-
     $args{request_method} = uc($args{request_method});
 
-    $ENV{REQUEST_METHOD} = $args{request_method} if $args{request_method};
-    $ENV{CONTENT_TYPE} = $args{content_type};
-    $ENV{HTTP_ACCEPT} = $args{http_accept};
-    $ENV{QUERY_STRING} = _build_query_string($args{params}) if $args{params};
+    local $ENV{REQUEST_METHOD} = $args{request_method} if $args{request_method};
+    local $ENV{CONTENT_TYPE} = $args{content_type};
+    local $ENV{HTTP_ACCEPT} = $args{http_accept};
+    local $ENV{QUERY_STRING} = _build_query_string($args{params}) if $args{params};
 
     local *STDIN;
     local *STDOUT;
@@ -48,18 +46,21 @@ sub simulate_cgi_request
     
     my $code = read_file($args{cgi_script});
     
-    # CGI.pm relies on global variables (e.g. @QUERY_PARAMS), based on the
+    # CGI.pm relies uses global state variables (e.g. @QUERY_PARAMS), based on the
     # assumption that only one CGI request will be handled per Perl script.
     # In order to work around this, we need to manually reset the global
     # variables.
 
     CGI::initialize_globals;
 
-    eval $code; 
+    { 
+        no warnings 'redefine';
+        eval $code; 
 
-    if ($@) {
-        warn sprintf('error executing \'%s\': %s', $args{cgi_script}, $@);
-    }
+        if ($@) {
+            warn sprintf('error executing \'%s\': %s', $args{cgi_script}, $@);
+        }
+    }   
 
     my ($headers, $output) = split(/\cM\cJ\cM\cJ/s, $cgi_output, 2);
     my $headers_hash = _parse_headers($headers);
@@ -85,15 +86,19 @@ sub _build_query_string
  
 sub _parse_headers
 {
+    print ".\n";
     my $headers = shift;
+    print ".\n";
     my %hash = ();
-
+    print ".\n";
     foreach my $header_line (split(/\cM\cJ/, $headers)) {
+        print ".\n";
         my ($key, $value) = split(/:/, $header_line, 2);
         $value =~ s/^\s*(\S*)\s*$/$1/;
         $hash{$key} = $value;
     }
 
+    print ".\n";
     return \%hash;
 }
 

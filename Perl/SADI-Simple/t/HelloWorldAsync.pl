@@ -42,7 +42,6 @@ $service->handle_cgi_request;
 use RDF::Trine::Node::Resource;
 use RDF::Trine::Node::Literal;
 use RDF::Trine::Statement;
-use Log::Log4perl;
 
 =head2 process_it
 

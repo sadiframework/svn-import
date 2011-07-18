@@ -48,15 +48,16 @@ sub invoke {
 
     $self->default_throw_with_stack (0);
 
-    my $input_model = RDF::Trine::Model->temporary_model;
+    my $input_model;
     my $output_model = RDF::Trine::Model->temporary_model;
 
     # get/parse the incoming RDF
     eval {
-        # transform content type to what RDF::Trine expects
-        my $content_type = $self->get_request_content_type eq 'text/rdf+n3' ? 'application/turtle' : $self->get_request_content_type;
-        my $parser = RDF::Trine::Parser->parser_by_media_type($content_type);
-        $parser->parse_into_model(undef, $data, $input_model);
+#        # transform content type to what RDF::Trine expects
+#        my $content_type = $self->get_request_content_type eq 'text/rdf+n3' ? 'application/turtle' : $self->get_request_content_type;
+#        my $parser = RDF::Trine::Parser->parser_by_media_type($content_type);
+#        $parser->parse_into_model(undef, $data, $input_model);
+        $input_model = $self->_build_model($data, $self->get_request_content_type);
     };
 
     # error in creating parser, or parsing input

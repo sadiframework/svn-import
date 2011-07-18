@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-no warnings 'redefine';
 
 use lib 't';
 use lib 'lib';
