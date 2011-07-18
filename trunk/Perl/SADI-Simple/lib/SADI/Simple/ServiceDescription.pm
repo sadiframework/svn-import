@@ -8,9 +8,13 @@
 
 package SADI::Simple::ServiceDescription;
 
-use SADI::Simple::Utils;
-use base ("SADI::Simple::Base");
 use strict;
+use warnings;
+
+use SADI::Simple::Utils;
+use Template 2.22;
+
+use base ("SADI::Simple::Base");
 
 =head1 NAME
 

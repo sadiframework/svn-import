@@ -1,17 +1,14 @@
 package SADI::Simple::ServiceBase;
 
 use strict;
+use warnings;
 
 use SADI::Simple::ServiceDescription;
-use Log::Log4perl;
-use RDF::Trine::Parser;
-use RDF::Trine::Model;
+use Log::Log4perl 1.32;
+use RDF::Trine::Parser 0.135;
+use RDF::Trine::Model 0.135;
 
-use parent qw( SADI::Simple::Base );
-
-# add versioning to this module
-use vars qw /$VERSION/;
-$VERSION = sprintf "%d.%02d", q$Revision: 1.9 $ =~ /: (\d+)\.(\d+)/;
+use base qw( SADI::Simple::Base );
 
 sub new {
 

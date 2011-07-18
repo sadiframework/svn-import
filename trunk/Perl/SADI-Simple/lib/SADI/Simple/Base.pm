@@ -2,11 +2,11 @@ package SADI::Simple::Base;
 
 use strict;
 
-use HTTP::Date;
-use URI;
-use Log::Log4perl qw(:no_extra_logdie_message);
-use File::Spec;
-use File::Spec::Functions;
+use HTTP::Date 5.831;
+use URI 1.58;
+use Log::Log4perl 1.32 qw(:no_extra_logdie_message);
+use File::Spec 3.33;
+use File::Spec::Functions 3.33;
 
 our $AUTOLOAD;
 

@@ -3,11 +3,11 @@ package SADI::Simple::Utils;
 use strict;
 use warnings;
 
-use File::Spec;
-use RDF::Trine::Model;
-use RDF::Trine::Parser;
-use RDF::Trine::Serializer;
-use File::Spec::Functions;
+use File::Spec 3.33;
+use RDF::Trine::Model 0.135;
+use RDF::Trine::Parser 0.135;
+use RDF::Trine::Serializer 0.135;
+use File::Spec::Functions 3.33;
 
 =head1 NAME
 
