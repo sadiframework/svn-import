@@ -132,18 +132,18 @@ The main strengths of SADI are:
 =item * SADI supports processing multiple inputs in a single request, i.e. batch processing.
 =item * SADI supports long-running services, i.e. asynchronous services.
 
-For more information about the SADI standard, see http://sadiframework.org.
+For more information about the SADI standard, see L<http://sadiframework.org>.
 
 =head1 SYNCHRONOUS SERVICES VS ASYNCHRONOUS SERVICES
 
 A service providers may implement their services as either synchronous services (subclass of a
 SADI::Simple::SyncService) or asynchronous services (subclass of a SADI::Simple::AsyncService).  
 Callers of synchronous services must wait until the results have been computed before the service 
-returns a response.  As a result, synchronous services must complete before the originating HTTP request times out.  
-On the other hand, asynchronous return immediately and are polled to obtain results.  
+returns.  As a result, synchronous services must complete before the originating HTTP request times out.  
+On the other hand, asynchronous service return immediately and are polled to obtain results.  
 
 In general, asynchronous services are a better choice as they can run for an arbitarily long
 time.  The main advantage of synchronous services is that there is less back-and-forth messaging
-and so they are potentially more efficient for trivial operations.
+and so they are potentially more efficient for services that perform trivial operations.
 
 1;
