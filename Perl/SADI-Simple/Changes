@@ -1,5 +1,7 @@
 {{$NEXT}}
 
+    -- botched move of testlib/CGI/Test.pm below, try again
+
 0.002     2011-07-19 12:45:14 Europe/Vienna
 
     -- moved testlib/CGI/Test.pm to t/CGITest.pm so CPAN doesn't try to install it 
