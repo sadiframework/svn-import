@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use SADI::Simple::ServiceDescription;
-use Log::Log4perl 1.32;
+use Log::Log4perl;
 use RDF::Trine::Parser 0.135;
 use RDF::Trine::Model 0.135;
 
