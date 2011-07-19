@@ -3,8 +3,8 @@ package SADI::Simple::SyncService;
 use SADI::Simple::Utils;
 use RDF::Trine::Model 0.135;
 use RDF::Trine::Parser 0.135;
-use Log::Log4perl 1.32;
-use Template 2.22;
+use Log::Log4perl;
+use Template;
 
 use base 'SADI::Simple::ServiceBase';
 

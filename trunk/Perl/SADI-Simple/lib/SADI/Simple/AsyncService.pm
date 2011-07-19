@@ -3,22 +3,22 @@ package SADI::Simple::AsyncService;
 use SADI::Simple::ServiceDescription;
 use SADI::Simple::Utils;
 
-use Log::Log4perl 1.32;
+use Log::Log4perl;
 
-use POSIX 1.17 qw(setsid);
+use POSIX qw(setsid);
 use Data::Dumper;
 
 use RDF::Trine::Model 0.135;
 use RDF::Trine::Serializer 0.135;
 use RDF::Trine::Parser 0.135;
 use RDF::Trine::Node::Resource 0.135;
-use Template 2.22;
-use File::Spec 3.33;
-use File::Spec::Functions 3.33 qw(catfile splitpath);
-use File::Temp 0.22 qw(tempfile);
-use Storable 2.29;
+use Template;
+use File::Spec;
+use File::Spec::Functions qw(catfile splitpath);
+use File::Temp qw(tempfile);
+use Storable;
 
-use parent 'SADI::Simple::ServiceBase';
+use base 'SADI::Simple::ServiceBase';
 
 my $LOG = Log::Log4perl->get_logger(__PACKAGE__);
 

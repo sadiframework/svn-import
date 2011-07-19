@@ -12,7 +12,7 @@ use strict;
 use warnings;
 
 use SADI::Simple::Utils;
-use Template 2.22;
+use Template;
 
 use base ("SADI::Simple::Base");
 
