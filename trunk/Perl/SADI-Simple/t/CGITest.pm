@@ -1,4 +1,4 @@
-package CGI::Test;
+package CGITest;
 
 use strict;
 use warnings;
