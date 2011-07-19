@@ -1,0 +1,9 @@
+{{$NEXT}}
+
+0.002     2011-07-19 12:45:14 Europe/Vienna
+
+    -- moved testlib/CGI/Test.pm to t/CGITest.pm so CPAN doesn't try to install it 
+
+0.001     2011-07-19 11:44:55 Europe/Vienna
+
+    -- initial release
