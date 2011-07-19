@@ -30,8 +30,8 @@ sub simulate_cgi_request
     $args{request_method} = uc($args{request_method});
 
     local $ENV{REQUEST_METHOD} = $args{request_method} if $args{request_method};
-    local $ENV{CONTENT_TYPE} = $args{content_type};
-    local $ENV{HTTP_ACCEPT} = $args{http_accept};
+    local $ENV{CONTENT_TYPE} = $args{content_type} if $args{content_type};
+    local $ENV{HTTP_ACCEPT} = $args{http_accept} if $args{http_accept};
     local $ENV{QUERY_STRING} = _build_query_string($args{params}) if $args{params};
 
     local *STDIN;

@@ -1,5 +1,8 @@
 package SADI::Simple::AsyncService;
 
+use strict;
+use warnings;
+
 use SADI::Simple::ServiceDescription;
 use SADI::Simple::Utils;
 
@@ -16,11 +19,9 @@ use Template;
 use File::Spec;
 use File::Spec::Functions qw(catfile splitpath);
 use File::Temp qw(tempfile);
-use Storable;
+use Storable ();
 
 use base 'SADI::Simple::ServiceBase';
-
-my $LOG = Log::Log4perl->get_logger(__PACKAGE__);
 
 # in seconds
 use constant POLL_INTERVAL => 30;
@@ -130,6 +131,7 @@ sub retrieve {
 
     my ($self, $poll_id) = @_;
 
+    my $log = Log::Log4perl->get_logger(__PACKAGE__);
     my $filename = $self->_poll_id_to_filename($poll_id);
 
     my $hashref = Storable::retrieve($filename) or $self->throw("no data stored for poll_id $poll_id");
