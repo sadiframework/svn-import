@@ -10,8 +10,8 @@ use lib 'testlib';
 use Test::Simple tests => 2;
 use CGI::Test qw(simulate_cgi_request);
 use Log::Log4perl qw(:easy);
-use RDF::Trine::Model;
-use RDF::Trine::Parser;
+use RDF::Trine::Model 0.135;
+use RDF::Trine::Parser 0.135;
 use File::Spec::Functions;
 
 #----------------------------------------------------------------------
