@@ -1,4 +1,8 @@
 {{$NEXT}}
+    
+    -- minor documentation cleanup on main page (SADI::Simple)
+
+0.003     2011-07-19 13:58:01 Europe/Vienna
 
     -- botched move of testlib/CGI/Test.pm below, try again
 

@@ -463,7 +463,7 @@ __END__
 
 =head1 NAME
 
-SADI::Base - Hash-based abstract super-class for all SADI objects
+SADI::Simple::Base - Hash-based abstract super-class for all SADI objects
 
 =head1 SYNOPSIS
 
