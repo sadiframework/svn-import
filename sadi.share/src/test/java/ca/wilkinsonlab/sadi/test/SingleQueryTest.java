@@ -211,12 +211,19 @@ public class SingleQueryTest
 //			"WHERE { " +
 //			"  test:a1 test:R1 test:b1 . " +
 //			"}";
+//		
+//		query = 
+//			"SELECT * " +
+//			"WHERE { " +
+//			"  <http://bio2rdf.org/uniprot:P12345> <http://purl.uniprot.org/core/classifiedWith> ?term . " +
+//			"  ?term <http://semanticscience.org/resource/SIO_000226> ?protein " +
+//			"}";
 		
 		query = 
-			"SELECT * " +
-			"WHERE { " +
-			"  <http://bio2rdf.org/uniprot:P12345> <http://purl.uniprot.org/core/classifiedWith> ?term . " +
-			"  ?term <http://semanticscience.org/resource/SIO_000226> ?protein " +
+			"SELECT ?gName\n" + 
+			"WHERE {\n" + 
+			"  ?drug drugbank:brandName \"Vasotec\" .\n" + 
+			"  ?drug drugbank:genericName ?gName\n" + 
 			"}";
 		
 		log.info( String.format("executing query\n%s", query) );
