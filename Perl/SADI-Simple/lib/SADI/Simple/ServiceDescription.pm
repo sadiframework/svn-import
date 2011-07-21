@@ -16,174 +16,6 @@ use Template;
 
 use base ("SADI::Simple::Base");
 
-=head1 NAME
-
-SADI::Simple::ServiceDescription- A module that describes a SADI web service.
-
-=head1 SYNOPSIS
-
- use SADI::Simple::ServiceDescription;
-
- # create a new blank SADI service instance object
- my $data = SADI::Simple::ServiceDescription->new ();
-
- # create a new primed SADI service instance object
- $data = SADI::Simple::ServiceDescription->new (
-     ServiceName => "helloworld",
-     ServiceType => "http://someontology.org/services/sometype",
-     InputClass => "http://someontology.org/datatypes#Input1",
-     OutputClass => "http://someontology.org/datatypes#Output1",
-     Description => "the usual hello world service",
-     UniqueIdentifier => "urn:lsid:myservices:helloworld",
-     Authority => "helloworld.com",
-     Authoritative => 1,
-     Provider => 'myaddress@organization.org',
-     ServiceURI => "http://helloworld.com/cgi-bin/helloworld.pl",
-     URL => "http://helloworld.com/cgi-bin/helloworld.pl",
-     SignatureURL =>"http://foo.bar/myServiceDescription",
- );
-
- # get an RDF representation of the service description
- my $rdf = $data->getServiceInterface;
-
- # get the service name
- my $name = $data->ServiceName;
- # set the service name
- $data->ServiceName($name);
-
- # get the service type
- my $type = $data->ServiceType;
- # set the service type
- $data->ServiceType($type);
-
- # get the input class URI
- my $input_class = $data->InputClass;
- # set the input class URI
- $data->InputClass($input_class);
-
- # get the output class URI
- my $output_class = $data->OutputClass;
- # set the output class URI
- $data->OutputClass($input_class);
-
- # get the description
- my $desc = $data->Description;
- # set the description
- $data->Description($desc);
-
- # get the unique id
- my $id = $data->UniqueIdentifier;
- # set the unique id
- $data->UniqueIdentifier($id);
-
- # get the authority
- my $auth = $data->Authority;
- # set the authority
- $data->Authority($auth);
-
- # get the service provider URI
- my $uri = $data->Provider;
- # set the service provider URI
- $data->Provider($uri);
-
- # get the service URI
- my $uri = $data->ServiceURI;
- # set the service URI
- $data->ServiceURI($uri);
-
- # get the service URL
- my $url = $data->URL;
- # set the service URL
- $data->URL($url);
-
- # get the signature url
- my $sig = $data->SignatureURL;
- # set the signature url
- $data->SignatureURL($sig);
-
-=head1 DESCRIPTION
-
-An object representing a SADI service signature.
-
-=head1 AUTHORS
-
- Ben Vandevalk (ben [dot] vvalk [at] gmail [dot] com)
- Edward Kawas (edward [dot] kawas [at] gmail [dot] com)
-
-=cut
-
-#-----------------------------------------------------------------
-# A list of allowed attribute names. See SADI::Base for details.
-#-----------------------------------------------------------------
-
-=head1 ACCESSIBLE ATTRIBUTES
-
-Details are in L<SADI::Base>. Here just a list of them (additionally
-to the attributes from the parent classes)
-
-=over
-
-=item B<ServiceName>
-
-A name for the service.
-
-=item B<ServiceType>
-
-Our SADI service type.
-
-=item B<InputClass>
-
-The URI to the input class for our SADI service.
-
-=item B<OutputClass>
-
-The URI to the output class for our SADI service.
-
-=item B<Description>
-
-A description for our SADI service.
-
-=item B<UniqueIdentifier>
-
-A unique identifier (like an LSID, etc) for our SADI service.
-
-=item B<Authority>
-
-The service provider URI for our SADI service.
-
-=item B<ServiceURI>
-
-The service URI for our SADI service.
-
-=item B<URL>
-
-The URL to our SADI service.
-
-=item B<Provider>
-
-The email address of the service provider. 
-B<Note: This method throws an exception if the address is syntactically invalid!>.
-
-=item B<Authoritative>
-
-Whether or not the provider of the SADI service is an authority over the data. 
-This value must be a boolean value. True values match =~ /true|\+|1|yes|ano/. 
-All other values are false.
-
-Defaults to 1;
-
-=item B<Format>
-
-The format of the service. More than likely, it will be 'sadi' if it is a SADI web service.
-
-=item B<SignatureURL>
-
-A url to the SADI service signature.
-
-=back
-
-=cut
-
 {
 	my %_allowed = (
 		ServiceName      => { type => SADI::Simple::Base->STRING },
@@ -426,3 +258,165 @@ sub getServiceInterface {
 1;
 
 __END__
+
+=head1 NAME
+
+SADI::Simple::ServiceDescription- A module that describes a SADI web service.
+
+=head1 SYNOPSIS
+
+ use SADI::Simple::ServiceDescription;
+
+ # create a new blank SADI service instance object
+ my $data = SADI::Simple::ServiceDescription->new ();
+
+ # create a new primed SADI service instance object
+ $data = SADI::Simple::ServiceDescription->new (
+     ServiceName => "helloworld",
+     ServiceType => "http://someontology.org/services/sometype",
+     InputClass => "http://someontology.org/datatypes#Input1",
+     OutputClass => "http://someontology.org/datatypes#Output1",
+     Description => "the usual hello world service",
+     UniqueIdentifier => "urn:lsid:myservices:helloworld",
+     Authority => "helloworld.com",
+     Authoritative => 1,
+     Provider => 'myaddress@organization.org',
+     ServiceURI => "http://helloworld.com/cgi-bin/helloworld.pl",
+     URL => "http://helloworld.com/cgi-bin/helloworld.pl",
+     SignatureURL =>"http://foo.bar/myServiceDescription",
+ );
+
+ # get an RDF representation of the service description
+ my $rdf = $data->getServiceInterface;
+
+ # get the service name
+ my $name = $data->ServiceName;
+ # set the service name
+ $data->ServiceName($name);
+
+ # get the service type
+ my $type = $data->ServiceType;
+ # set the service type
+ $data->ServiceType($type);
+
+ # get the input class URI
+ my $input_class = $data->InputClass;
+ # set the input class URI
+ $data->InputClass($input_class);
+
+ # get the output class URI
+ my $output_class = $data->OutputClass;
+ # set the output class URI
+ $data->OutputClass($input_class);
+
+ # get the description
+ my $desc = $data->Description;
+ # set the description
+ $data->Description($desc);
+
+ # get the unique id
+ my $id = $data->UniqueIdentifier;
+ # set the unique id
+ $data->UniqueIdentifier($id);
+
+ # get the authority
+ my $auth = $data->Authority;
+ # set the authority
+ $data->Authority($auth);
+
+ # get the service provider URI
+ my $uri = $data->Provider;
+ # set the service provider URI
+ $data->Provider($uri);
+
+ # get the service URI
+ my $uri = $data->ServiceURI;
+ # set the service URI
+ $data->ServiceURI($uri);
+
+ # get the service URL
+ my $url = $data->URL;
+ # set the service URL
+ $data->URL($url);
+
+ # get the signature url
+ my $sig = $data->SignatureURL;
+ # set the signature url
+ $data->SignatureURL($sig);
+
+=head1 DESCRIPTION
+
+An object representing a SADI service signature.
+
+=head1 AUTHORS
+
+ Ben Vandevalk (ben [dot] vvalk [at] gmail [dot] com)
+ Edward Kawas (edward [dot] kawas [at] gmail [dot] com)
+
+=head1 ACCESSIBLE ATTRIBUTES
+
+Details are in L<SADI::Base>. Here just a list of them (additionally
+to the attributes from the parent classes)
+
+=over
+
+=item B<ServiceName>
+
+A name for the service.
+
+=item B<ServiceType>
+
+Our SADI service type.
+
+=item B<InputClass>
+
+The URI to the input class for our SADI service.
+
+=item B<OutputClass>
+
+The URI to the output class for our SADI service.
+
+=item B<Description>
+
+A description for our SADI service.
+
+=item B<UniqueIdentifier>
+
+A unique identifier (like an LSID, etc) for our SADI service.
+
+=item B<Authority>
+
+The service provider URI for our SADI service.
+
+=item B<ServiceURI>
+
+The service URI for our SADI service.
+
+=item B<URL>
+
+The URL to our SADI service.
+
+=item B<Provider>
+
+The email address of the service provider. 
+B<Note: This method throws an exception if the address is syntactically invalid!>.
+
+=item B<Authoritative>
+
+Whether or not the provider of the SADI service is an authority over the data. 
+This value must be a boolean value. True values match =~ /true|\+|1|yes|ano/. 
+All other values are false.
+
+Defaults to 1;
+
+=item B<Format>
+
+The format of the service. More than likely, it will be 'sadi' if it is a SADI web service.
+
+=item B<SignatureURL>
+
+A url to the SADI service signature.
+
+=back
+
+=cut
