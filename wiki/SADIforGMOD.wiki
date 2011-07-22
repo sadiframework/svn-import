@@ -38,9 +38,7 @@ These instructions assume working apache and mysql installations. To set up the 
     * RDF::Trine
     * RDF::Query
     * OBO::Core::Ontology
-    * File::Spec
     * URI
-    * Storable
     * constant::boolean
     * Config::IniFiles
   # *Download the SADI for GMOD tarball and unpack into* `cgi-bin`: http://sadi.googlecode.com/files/sadi.gmod-0.1.2.tar.gz. A subdirectory will be created called `sadi.gmod`.
