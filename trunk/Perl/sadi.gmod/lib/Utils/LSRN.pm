@@ -28,7 +28,7 @@ sub get_id_from_lsrn_record_node
     if (@attribute_nodes == 0) {
         return undef if $record_node->is_blank;
         if ($record_node->uri =~ /^@{[LSRN_ENTITY_PREFIX]}(.*?):(.*)$/) {
-            return ($1 . '_Identifier', $2);
+            return (LSRN_ONTOLOGY_PREFIX . $1 . '_Identifier', $2);
         } else {
             return undef;
         }       
