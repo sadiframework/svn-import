@@ -98,13 +98,13 @@ sub id_type_to_dbxref
 {
     my $id_type = shift;
     my $lsrn = id_type_to_lsrn($id_type);
-    return $lsrn ? lsrn_to_dbxref($lsrn) : undef;
+    return $lsrn ? lsrn_to_dbxref($lsrn) : ();
 }
 
 sub lsrn_to_dbxref
 {
     my $lsrn = shift;
-    return undef unless $DBXREF_TO_LSRN;
+    return () unless $DBXREF_TO_LSRN;
     return grep($DBXREF_TO_LSRN->{$_} eq $lsrn, keys %$DBXREF_TO_LSRN)
 }
 
