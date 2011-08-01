@@ -11,8 +11,10 @@ WHERE {
         range:position [
             a range:RangedSequencePosition;
             range:in_relation_to ?ref_sequence;
-            sio:SIO_000053 [ a range:StartPosition; sio:SIO_000300 ?start_pos ]; # p = 'has proper part'
-            sio:SIO_000053 [ a range:EndPosition; sio:SIO_000300 ?end_pos ] ] .  # p = 'has proper part'
+#            sio:SIO_000053 [ a range:StartPosition; sio:SIO_000300 ?start_pos ]; # p = 'has proper part'
+#            sio:SIO_000053 [ a range:EndPosition; sio:SIO_000300 ?end_pos ] ] .  # p = 'has proper part'
+            range:coordinate [ a range:StartPosition; sio:SIO_000300 ?start_pos ]; # p = 'has proper part'
+            range:coordinate [ a range:EndPosition; sio:SIO_000300 ?end_pos ] ] .  # p = 'has proper part'
 
 }
 
