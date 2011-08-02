@@ -45,7 +45,18 @@
         <owl:equivalentClass>
            <owl:Restriction>
                <owl:onProperty rdf:resource="&sadi;hasSequence"/>
-               <owl:someValuesFrom rdf:resource="&sio;SIO_010015"/>
+<!--           <owl:someValuesFrom rdf:resource="&sio;SIO_010015"/> -->
+<!--           <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality> -->				
+               <owl:someValuesFrom rdf:resource="#AminoAcidSequence"/>
+           </owl:Restriction>
+        </owl:equivalentClass>
+    </owl:Class>
+
+    <owl:Class rdf:ID="AminoAcidSequence">
+        <owl:equivalentClass>
+           <owl:Restriction>
+               <owl:onProperty rdf:resource="&sio;SIO_000300"/>
+               <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
            </owl:Restriction>
         </owl:equivalentClass>
     </owl:Class>
