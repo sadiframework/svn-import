@@ -59,9 +59,10 @@ use Utils::Trine qw(is_uri_resource);
 use Utils::Sequence qw(get_complementary_sequence);
 
 use constant OUTPUT_TTL_TEMPLATE => <<TTL;
+\@prefix sadi: <http://sadiframework.org/ontologies/properties.owl#> .
 \@prefix sio: <http://semanticscience.org/resource/> .
 \@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-<[% input_uri %]> sio:SIO_000205 
+<[% input_uri %]> sadi:hasSequence
     [ sio:SIO_000300 "[% sequence_string %]"^^xsd:string ] .
 TTL
 
