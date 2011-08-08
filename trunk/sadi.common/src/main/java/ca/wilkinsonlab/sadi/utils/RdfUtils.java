@@ -7,14 +7,19 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.configuration.Configuration;
+
+/*
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+*/
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -154,22 +159,22 @@ public class RdfUtils
 
 	/**
 	 * @author Ben Vandervalk
-	 * @param objectValue
-	 * @return
+	 * @param uriString the URI to test, as a string
+	 * @return true if the given string is an absolute URI
 	 */
-	public static boolean isURI(String objectValue)
+	
+	public static boolean isURI(String uriString)
 	{
-		if (StringUtils.isEmpty(objectValue))
+		if (StringUtils.isEmpty(uriString))
 			return false;
 	
 		try {
-			// TODO is "UTF-8" really required here?
-			URI uri = new URI(objectValue, false, "UTF-8");
-			if (uri.isAbsoluteURI())
+			URI uri = new URI(uriString);
+			if (uri.isAbsolute())
 				return true;
 			else
 				return false;
-		} catch (URIException e) {
+		} catch (URISyntaxException e) {
 			return false;
 		}
 	}

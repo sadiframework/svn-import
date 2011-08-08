@@ -174,4 +174,23 @@ public class RdfUtilsTest
 				RDF.value, ResourceFactory.createPlainLiteral("inline RDF")));
 		model.close();
 	}
+	
+	@Test
+	public void testIsURI()
+	{
+		String URL = "http://sadiframework.org/registry";
+		String URN = "urn:isbn:096139210x";
+
+		// the old version of RdfUtils.isURI() actually returned true for this!
+		String notURI = "<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#>"; 
+		String notURI2 = "@one:two:three";
+		String notURI3 = "onetwothree";
+		
+		assertFalse(RdfUtils.isURI(notURI));
+		assertFalse(RdfUtils.isURI(notURI2));
+		assertFalse(RdfUtils.isURI(notURI3));
+		assertTrue(RdfUtils.isURI(URL));
+		assertTrue(RdfUtils.isURI(URN));
+	}
+
 }
