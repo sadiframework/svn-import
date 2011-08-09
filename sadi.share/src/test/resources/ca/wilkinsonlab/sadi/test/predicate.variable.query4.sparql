@@ -1,6 +1,0 @@
-# Test with a typical SPARQL service input in the object position.
-PREFIX uniprot: <http://bio2rdf.org/uniprot:>
-SELECT *
-WHERE {
-	?s ?p uniprot:P04036 .
-}

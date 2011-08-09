@@ -6,13 +6,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-common</artifactId>
+  <version>0.1.1-SNAPSHOT</version>
   <parent>
     <groupId>ca.wilkinsonlab.sadi</groupId>
     <artifactId>sadi-parent</artifactId>
     <version>0.1.0</version>
   </parent>
   <name>Common SADI classes</name>
-  <version>0.2.0-SNAPSHOT</version>
   <description>Classes used by both SADI clients and SADI services</description>
   
   <repositories>
