@@ -1,0 +1,8 @@
+PREFIX db: <http://sadiframework.org/ontologies/predicatestats.owl#>
+
+SELECT ?averageTimePerInput
+FROM %u%
+WHERE 
+{
+	%u% db:averageTimePerInput ?averageTimePerInput .
+}
