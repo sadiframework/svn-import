@@ -15,11 +15,6 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.configuration.Configuration;
-
-/*
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-*/
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
