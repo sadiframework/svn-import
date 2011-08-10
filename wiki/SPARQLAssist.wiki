@@ -6,7 +6,7 @@ SPARQL Assist is a web application that provides context-sensitive type-ahead co
 
 = Details =
 
-In its simplest configuration, SPARQL Assist preloads properties, individuals and namespaces that have been indexed in JSON format.  It can also be deployed with a server-side Java component that will index OWL ontologies directly.  In the future, as much computation as possible will be transferred to the client side to improve both performance and flexibility of deployment, but at present the limited support for OWL in JavaScript requires a server-side component for ontology parsing.
+In its simplest configuration, SPARQL Assist preloads properties, individuals and namespaces that have been indexed in JSON format.  It can also be deployed with a server-side Java component that will index OWL ontologies directly.  In the future, as much computation as possible will be transferred to the client side to improve both performance and flexibility of deployment, but at present the limited support for OWL in !JavaScript requires a server-side component for ontology parsing.
 
 [http://code.google.com/p/sadi/downloads/detail?name=sparql-assist-0.1.3.zip Download the JavaScript-only distribution of SPARQL Assist].  This version is easier to deploy, but you must be able to access entities and their labels in JSON format.
 
@@ -16,5 +16,5 @@ In its simplest configuration, SPARQL Assist preloads properties, individuals an
 
 The pages below contain self-documenting examples of SPARQL Assist running in various situations.  Look at these if the documentation in the distribution is insufficient to get you up and running.
 
-* [http://biordf.net/sparql-assist SPARQL Assist running on a Virtuoso SPARQL endpoint]
-* [http://sadiframework.org/sparql-assist/demo2/ SPARQL Assist running on a remote SPARQL endpoint using a proxy]
+  * [http://biordf.net/sparql-assist SPARQL Assist running on a Virtuoso SPARQL endpoint]
+  * [http://sadiframework.org/sparql-assist/demo2/ SPARQL Assist running on a remote SPARQL endpoint using a proxy]
