@@ -6,6 +6,8 @@ SPARQL Assist is a web application that provides context-sensitive type-ahead co
 
 = Details =
 
+In its simplest configuration, SPARQL Assist preloads properties, individuals and namespaces that have been indexed in JSON format.  It can also be deployed with a server-side Java component that will index OWL ontologies directly.  In the future, as much computation as possible will be transferred to the client side to improve both performance and flexibility of deployment, but at present the limited support for OWL in JavaScript requires a server-side component for ontology parsing.
+
 [http://code.google.com/p/sadi/downloads/detail?name=sparql-assist-0.1.3.zip Download the JavaScript-only distribution of SPARQL Assist].  This version is easier to deploy, but you must be able to access entities and their labels in JSON format.
 
 [http://code.google.com/p/sadi/downloads/detail?name=sparql-assist-0.1.3.war Download the Java servlet distribution of SPARQL Assist].  This version requires a servlet container (e.g.: Tomcat, Jetty) to deploy, but can use OWL ontologies directly as sources of entities and their labels and can dynamically parse ontologies that appear in the FROM clauses of SPARQL queries.
