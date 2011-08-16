@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY dbSNP "http://lsrn.org/dbSNP:" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY LSRN "http://purl.oclc.org/SADI/LSRN/" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY service_objects "http://sadiframework.org/ontologies/service_objects.owl#" >
+]>
+
+<rdf:RDF xmlns="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/snp2gene.owl#"
+     xml:base="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/snp2gene.owl"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:service_objects="http://sadiframework.org/ontologies/service_objects.owl#"
+     xmlns:dbSNP="http://lsrn.org/dbSNP:"
+     xmlns:LSRN="http://purl.oclc.org/SADI/LSRN/"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/snp2gene.owl">
+        <owl:imports rdf:resource="http://www.mygrid.org.uk/ontology"/>
+    </owl:Ontology>
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- http://sadiframework.org/ontologies/service_objects.owl#correspondsToEntrezGene -->
+
+    <owl:ObjectProperty rdf:about="&service_objects;correspondsToEntrezGene"/>
+    
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/snp2gene.owl#dbSNP2Gene_OutputClass -->
+
+    <owl:Class rdf:about="http://sadi.googlecode.com/svn/trunk/sadi.protege/doc/snp2gene.owl#dbSNP2Gene_OutputClass">
+        <rdfs:subClassOf rdf:resource="&LSRN;GeneID_Record"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&service_objects;correspondsToEntrezGene"/>
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+
+    <!-- http://purl.oclc.org/SADI/LSRN/GeneID_Record -->
+
+    <owl:Class rdf:about="&LSRN;GeneID_Record"/>
+
+    <!-- http://purl.oclc.org/SADI/LSRN/dbSNP_Record -->
+
+    <owl:Class rdf:about="&LSRN;dbSNP_Record"/>
+
+    <!-- http://www.w3.org/2002/07/owl#Thing -->
+
+    <owl:Class rdf:about="&owl;Thing"/>
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- http://lsrn.org/dbSNP:rs1800055 -->
+
+    <owl:NamedIndividual rdf:about="&dbSNP;rs1800055">
+        <rdf:type rdf:resource="&LSRN;dbSNP_Record"/>
+    </owl:NamedIndividual>
+
+    <!-- http://lsrn.org/dbSNP:rs1800059 -->
+
+    <owl:NamedIndividual rdf:about="&dbSNP;rs1800059">
+        <rdf:type rdf:resource="&LSRN;dbSNP_Record"/>
+    </owl:NamedIndividual>
+</rdf:RDF>

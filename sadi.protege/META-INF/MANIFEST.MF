@@ -45,7 +45,10 @@ Bundle-ClassPath: .,
  lib/jetty-io-7.0.0.v20091005.jar,
  lib/jetty-util-7.0.0.v20091005.jar,
  lib/wagon-http-jetty-client-1.0-SNAPSHOT.jar,
- lib/commons-lang-2.5.jar
+ lib/commons-lang-2.5.jar,
+ lib/commons-io-1.4.jar,
+ lib/ST-4.0.4.jar,
+ lib/antlr-3.3-complete.jar
 Import-Package: javax.management,
  javax.naming,
  javax.net.ssl,

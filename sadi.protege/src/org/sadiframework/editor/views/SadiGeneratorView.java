@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +34,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.text.JTextComponent;
 
-import org.apache.commons.lang.WordUtils;
+import org.jdesktop.swingworker.SwingWorker.StateValue;
 import org.protege.editor.core.ui.error.ErrorLogPanel;
 import org.protege.editor.core.ui.util.ComponentFactory;
 import org.protege.editor.core.ui.util.Icons;
@@ -52,6 +53,7 @@ import org.sadiframework.swing.DropJTextField;
 import org.sadiframework.swing.JTextFieldWithHistory;
 import org.sadiframework.swing.LoggingWindowFrame;
 import org.sadiframework.swing.UIUtils;
+import org.sadiframework.utils.StringUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
 import org.semanticweb.owlapi.model.AddAxiom;
@@ -324,7 +326,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         return rbPanel;
     }
     
-    private JPanel getGenerateBothCheckbox() {
+    @SuppressWarnings("unused")
+	private JPanel getGenerateBothCheckbox() {
         JCheckBox doBoth = new JCheckBox(bundle.getString("generate_both"));
         // set the default state
         doBoth.setSelected(manager.getBooleanPreference(SADIProperties.GENERATOR_DO_BOTH_GENERATION, false));
@@ -341,7 +344,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         return rbPanel;
     }
     
-    private JPanel getPerlSadiUseForceCheckbox() {
+    @SuppressWarnings("unused")
+	private JPanel getPerlSadiUseForceCheckbox() {
         checkbox = new JCheckBox(bundle.getString("sadi_generator_perl_use_force_title"));
         // set the default state
         checkbox.setSelected(manager.getBooleanPreference(SADIProperties.PERL_SADI_USE_FORCE, false));
@@ -447,8 +451,10 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         panel.setBorder(ComponentFactory.createTitledBorder(bundle.getString("sadi_generator_perl_title")));
         
         // users Perl-SADI/ definition directory
-        JLabel deflabel = new JLabel(bundle.getString("sadi_generator_perl_definition_dir"));
-        JTextFieldWithHistory defField = new JTextFieldWithHistory(25,SADIProperties.PERL_SADI_HOME_DIRECTORY);
+        JLabel deflabel = new JLabel(bundle.getString("sadi_generator_perl_target_dir"));
+//        JTextFieldWithHistory defField = new JTextFieldWithHistory(25,SADIProperties.PERL_SADI_HOME_DIRECTORY);
+        JTextFieldWithHistory defField = new JTextFieldWithHistory(25,SADIProperties.PERL_SADI_TARGET_DIRECTORY);
+        
         defField.setEditable(false);
         deflabel.setLabelFor(defField);
         perlDefinitionBtn = new AbstractButton("", true, new ActionListener() {
@@ -456,14 +462,16 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                 // this is the action that is invoked when the open file button
                 // is clicked on
                 String title = bundle.getString("open");
-                JFileChooser chooser = UIUtils.getOpenDirectoryChooser(title, SADIProperties.PERL_SADI_HOME_DIRECTORY);
+//                JFileChooser chooser = UIUtils.getOpenDirectoryChooser(title, SADIProperties.PERL_SADI_HOME_DIRECTORY);
+                JFileChooser chooser = UIUtils.getOpenDirectoryChooser(title, SADIProperties.PERL_SADI_TARGET_DIRECTORY);
                 if (chooser.showOpenDialog((Component) e.getSource()) != JFileChooser.APPROVE_OPTION) {
                     return;
                 }
                 File file = chooser.getSelectedFile();
                 if (file == null || !file.exists())
                     return;
-                manager.savePreference(SADIProperties.PERL_SADI_HOME_DIRECTORY, file.getAbsolutePath());
+//                manager.savePreference(SADIProperties.PERL_SADI_HOME_DIRECTORY, file.getAbsolutePath());
+                manager.savePreference(SADIProperties.PERL_SADI_TARGET_DIRECTORY, file.getAbsolutePath());
                 
                 // set the actual definitions dir by reading the sadi-services.cfg file
                 // Read properties file. 
@@ -477,14 +485,14 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         
         perlDefinitionBtn.setIcon(Icons.getIcon("project.open.gif"));
         // add the components
-        UIUtils.addComponent(panel, deflabel, 0, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, deflabel, 0, 0, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         UIUtils.addComponent(panel, defField, 1, 0, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
         UIUtils.addComponent(panel, perlDefinitionBtn, 3, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
         //UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 1, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 2, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
-        UIUtils.addComponent(panel, getPerlSadiUseForceCheckbox(), 0, 3, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        //UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 2, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        //UIUtils.addComponent(panel, getPerlSadiUseForceCheckbox(), 0, 1, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
         // create the generate/cancel button panel
-        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[]{generatePerlBtn}), 0, 4, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
+        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[]{generatePerlBtn}), 0, 1, 2, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
         return panel;
     }
     
@@ -515,7 +523,8 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         return def;
     }
     
-    private boolean savePerlSADIDefinition(ServiceDefinition def) {
+    @SuppressWarnings("unused")
+	private boolean savePerlSADIDefinition(ServiceDefinition def) {
         
         setDefinitionDirectoryFromSadiConfigurationScript();
 
@@ -576,6 +585,90 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
         return true;
     }
     
+    private boolean validateOutputFile(File outputFile) {
+    	
+    	File outputDir = outputFile.getParentFile();
+    	
+        if (!outputDir.exists()) {
+            JOptionPane.showMessageDialog(
+                    SadiGeneratorView.this, 
+                    String.format(bundle.getString("dir_doesnt_exist"), outputFile.getParentFile()),
+                    bundle.getString("definition_validation_title"), 
+                    JOptionPane.ERROR_MESSAGE);
+            return false; 
+        }
+        
+        if (!outputFile.exists() && !outputDir.canWrite()) {
+            JOptionPane.showMessageDialog(
+                    SadiGeneratorView.this, 
+                    String.format(bundle.getString("dir_not_writable"), outputDir),
+                    bundle.getString("error"),
+                    JOptionPane.ERROR_MESSAGE);
+            return false; 
+        }
+                
+        if (outputFile.exists()) {
+        	
+        	int choice = JOptionPane.showConfirmDialog(
+        			SadiGeneratorView.this,
+        			String.format(bundle.getString("file_exists"), outputFile),
+        			bundle.getString("warning"),
+        			JOptionPane.YES_NO_OPTION,
+        			JOptionPane.WARNING_MESSAGE,
+        			null
+        			);
+        	
+        	if(choice == JOptionPane.NO_OPTION) 
+        		return false;
+        	
+        	if(!outputFile.canWrite()) {
+                JOptionPane.showMessageDialog(
+                        SadiGeneratorView.this, 
+                        String.format(bundle.getString("file_not_writable"), outputFile),
+                        bundle.getString("error"),
+                        JOptionPane.ERROR_MESSAGE);
+                return false; 
+        	}
+        
+        }
+        
+        return true;
+    }
+    
+    private class PerlGeneratorSuccessListener implements PropertyChangeListener {
+    	
+    	private ServiceGeneratorPerlWorker worker;
+    	
+    	public PerlGeneratorSuccessListener(ServiceGeneratorPerlWorker worker) {
+    		this.worker = worker;
+    	}
+    	
+        public void propertyChange(PropertyChangeEvent event) {
+        	if(event.getPropertyName().equals("state")) {
+        		if (event.getNewValue() == StateValue.DONE) {
+        			boolean success = false;
+        			try {
+        				success = worker.get();
+        			} catch(InterruptedException e) {
+        				success = false;
+        			} catch(ExecutionException e) {
+        				success = false;
+        			}
+        			if(success) {
+        				String successMsg = String.format(bundle.getString("sadi_generator_perl_success"), worker.getOutputFile());
+        				JOptionPane.showMessageDialog(
+        	                    SadiGeneratorView.this, 
+        	                    successMsg, 
+        	                    bundle.getString("success"),
+        	                    JOptionPane.INFORMATION_MESSAGE
+   	            		);
+        			}
+        		}
+        	}
+        }
+    }
+
+    
     // inner class for listening to changes in our properties
     private class GeneratorPropertyListener implements PropertyChangeListener {
 
@@ -596,20 +689,44 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                         return;
                     }
                     
-                    // try to save the definition file
-                    if (!savePerlSADIDefinition(def)) {
+//                    // try to save the definition file
+//                    
+//                    if (!savePerlSADIDefinition(def)) {
+//                        manager.saveBooleanPreference(key, false);
+//                        return;
+//                    }
+                    
+                	String outputDir = manager.getPreference(SADIProperties.PERL_SADI_TARGET_DIRECTORY, null);
+                    
+                    if(StringUtils.isNullOrEmpty(outputDir)) {
+                        JOptionPane.showMessageDialog(
+                                SadiGeneratorView.this, 
+                                bundle.getString("sadi_generator_perl_target_dir_not_set"),
+                                bundle.getString("definition_validation_title"), 
+                                JOptionPane.ERROR_MESSAGE);
                         manager.saveBooleanPreference(key, false);
                         return;
                     }
+
+                	String outputFilename = String.format("%s.pl", StringUtils.getPerlModuleName(def.getName()));  
+                	File outputFile = new File(outputDir, outputFilename);
+                    
+                    if (!validateOutputFile(outputFile)) {
+                    	manager.saveBooleanPreference(key, false);
+                    	return;
+                    }
+                    
                     // start perl sadi service generator
                     generateBtn.setEnabled(false);
                     // put the name of the service into the preference manager
                     manager.savePreference(SADIProperties.GENERATOR_SERVICE_NAME, def.getName());
                     // start perl generator
-                    perlServiceWorker = new ServiceGeneratorPerlWorker();
+//                    perlServiceWorker = new ServiceGeneratorPerlWorker();
+                    perlServiceWorker = new ServiceGeneratorPerlWorker(def, outputFile);
+                    perlServiceWorker.addPropertyChangeListener(new PerlGeneratorSuccessListener(perlServiceWorker));
                     perlServiceWorker.execute();
                     // set up the console
-                    setupConsole(SADIProperties.DO_PERL_SERVICE_GENERATION);
+//                    setupConsole(SADIProperties.DO_PERL_SERVICE_GENERATION);
                     
                 } else {
                     // task is cancelled or we are finished
@@ -857,9 +974,11 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        if (def.getServiceType() == null || def.getServiceType().equals("")) {
-            def.setServiceType("http://someontology.org/services/sometype");
-        }
+//        if (def.getServiceType() == null || def.getServiceType().equals("")) {
+//            def.setServiceType("http://someontology.org/services/sometype");
+//        }
+        
+        //def.setServiceType(null);
         
         if (def.getInputClass() == null || def.getInputClass().equals("")) {
             JOptionPane.showMessageDialog(
@@ -885,9 +1004,12 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        if (def.getEndpoint() == null || def.getEndpoint().trim().equals("")) {
-            def.setEndpoint("http://somedomain.org/services/"+getValidClassName(def.getName()));
-        }
+//        if (def.getEndpoint() == null || def.getEndpoint().trim().equals("")) {
+//            def.setEndpoint("http://somedomain.org/services/"+getValidClassName(def.getName()));
+//        }
+        
+        //def.setEndpoint(null);
+        
         return true;
     }    
     private void setDefinitionDirectoryFromSadiConfigurationScript() {
@@ -923,12 +1045,15 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
             );
         }
     }
+    
+    /*
     private static Pattern startsWithLetter = Pattern.compile("^[a-zA-Z]");
     private static Pattern nonLetterOrDigit = Pattern.compile("\\W+");
     private static String getValidClassName(String name)
     {
         String className = startsWithLetter.matcher(name).find() ? name : "SADI" + name;
-        className = WordUtils.capitalizeFully(className);
+//        className = WordUtils.capitalizeFully(className);
         return nonLetterOrDigit.matcher(className).replaceAll("");
     }
+    */
 }

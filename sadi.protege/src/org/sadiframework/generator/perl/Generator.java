@@ -8,7 +8,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.ArrayList;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.osgi.framework.FrameworkUtil;
+import org.stringtemplate.v4.ST;
+
+import org.sadiframework.service.ServiceDefinition;
+import org.sadiframework.utils.StringUtils;
 
 /**
  * @author Eddie Kawas
@@ -27,8 +36,10 @@ public class Generator {
     public static final String GEN_CONFIG_SCRIPT_NAME = "sadi-config-status.pl";
     public static final String WIN_CONFIG_SCRIPT_NAME = "sadi-config-status.bat";
 
-    public static final String GEN_OWL_SCRIPT_NAME = "sadi-generate-datatypes.pl";
-    public static final String WIN_GEN_OWL_SCRIPT_NAME = "sadi-generate-datatypes.bat";
+//    public static final String GEN_OWL_SCRIPT_NAME = "sadi-generate-datatypes.pl";
+    public static final String GEN_OWL_SCRIPT_NAME = "owl2perl-generate-modules.pl";
+//    public static final String WIN_GEN_OWL_SCRIPT_NAME = "sadi-generate-datatypes.bat";
+    public static final String WIN_GEN_OWL_SCRIPT_NAME = "owl2perl-generate-modules.bat";
 
     public Generator() {
         this("perl", "", "");
@@ -87,7 +98,51 @@ public class Generator {
         }
     }
 
-    public String generateService(String servicename, String pSadiHomedir, boolean isAsync, boolean doBoth, boolean useForce) throws IOException, InterruptedException {
+    public void generateService(ServiceDefinition serviceDefinition, File outputFile) throws IOException 
+    {
+    	/* 
+    	 * Note: due to an eclipse/PDE classpath bug, this is the preferred way to load resources
+    	 * from an OSGi bundle. For more info, see: http://www.eclipsezone.com/eclipse/forums/t101557.html. 
+    	 */
+    	
+        URL templateURL = FrameworkUtil.getBundle(Generator.class).getEntry("resources/perl.sadi.service.template");
+        String template = IOUtils.toString(templateURL.openStream());
+
+    	ST templater = new ST(template);  	
+
+    	String perlModuleName = StringUtils.getPerlModuleName(serviceDefinition.getName());
+    	
+    	// For synchronous services the URL parameter is unused; for
+    	// asynchoronous services it is required (to generate the polling RDF).
+    	
+    	String serviceURL = null;
+    	if (serviceDefinition.isAsync()) {
+    		serviceURL = (serviceDefinition.getEndpoint() == null) ? "" : serviceDefinition.getEndpoint();
+    	}
+    	
+    	// This parameter is optional.
+    	
+    	String serviceType = null;
+    	if (!StringUtils.isNullOrEmpty(serviceDefinition.getServiceType())) 
+    		serviceType = serviceDefinition.getServiceType();
+
+    	templater.add("ModuleName", perlModuleName);
+    	templater.add("ServiceBaseClass", serviceDefinition.isAsync() ? "SADI::Simple::AsyncService" : "SADI::Simple::SyncService");
+    	templater.add("ServiceName", StringUtils.escapeSingleQuotes(serviceDefinition.getName()));
+    	templater.add("ServiceDescription", StringUtils.escapeSingleQuotes(serviceDefinition.getDescription()));
+    	templater.add("InputOWLClassURI", StringUtils.escapeSingleQuotes(serviceDefinition.getInputClass()));
+    	templater.add("OutputOWLClassURI", StringUtils.escapeSingleQuotes(serviceDefinition.getOutputClass()));
+    	templater.add("ServiceURL", serviceURL);
+    	templater.add("ServiceAuthority", StringUtils.escapeSingleQuotes(serviceDefinition.getAuthority()));
+    	templater.add("ContactEmailAddress", StringUtils.escapeSingleQuotes(serviceDefinition.getProvider()));
+    	templater.add("ServiceTypeURI", serviceType);
+    	templater.add("IsAuthoritative", serviceDefinition.isAuthoritative() ? "1" : "0");
+    	
+    	FileUtils.writeStringToFile(outputFile, templater.render());
+    	outputFile.setExecutable(true);
+    }
+    
+    public String generateServiceOld(String servicename, String pSadiHomedir, boolean isAsync, boolean doBoth, boolean useForce) throws IOException, InterruptedException {
         validate();
         ArrayList<String> command = new ArrayList<String>();
         Process p;
@@ -211,7 +266,7 @@ public class Generator {
         return String.format("%s", stdout.getStreamAsString());
     }
 
-    public String generateDatatypes(String ontURL, boolean useForce) throws IOException, InterruptedException {
+    public String generateDatatypes(String ontURL, String targetDir, boolean useForce) throws IOException, InterruptedException {
         validate();
         ArrayList<String> command = new ArrayList<String>();
         Process p;
@@ -254,6 +309,13 @@ public class Generator {
         command.add("-i");
         // add switch to use url
         command.add("-u");
+        
+        // target directory for generated Perl modules
+        if (targetDir != null && !targetDir.trim().equals("")) {
+        	command.add("-o");
+        	command.add(targetDir);
+        }
+        
         // add the name of the service
         command.add(ontURL);
         System.out.println(String.format("command: %s", command));

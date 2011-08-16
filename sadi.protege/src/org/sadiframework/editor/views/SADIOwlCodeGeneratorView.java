@@ -26,8 +26,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 
 import org.protege.editor.core.ui.error.ErrorLogPanel;
+import org.protege.editor.core.ui.util.ComponentFactory;
 import org.protege.editor.core.ui.util.Icons;
 import org.protege.editor.owl.ui.view.cls.AbstractOWLClassViewComponent;
 import org.sadiframework.generator.perl.DatatypeGeneratorPerlWorker;
@@ -37,6 +39,7 @@ import org.sadiframework.swing.AbstractButton;
 import org.sadiframework.swing.JTextFieldWithHistory;
 import org.sadiframework.swing.LoggingWindowFrame;
 import org.sadiframework.swing.UIUtils;
+import org.sadiframework.utils.StringUtils;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.io.RDFXMLOntologyFormat;
 import org.semanticweb.owlapi.model.AddAxiom;
@@ -64,6 +67,7 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
     private LoggingWindowFrame console;
     
     private JCheckBox checkbox = null;
+    
     @Override
     public void initialiseClassView() throws Exception {
         if (pListener == null) {
@@ -74,6 +78,12 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
         mainPane.setAlignmentX(LEFT_ALIGNMENT);
         mainPane.setAlignmentY(TOP_ALIGNMENT);
         UIUtils.addComponent(mainPane, getGenerateOwlGeneratorPanel(), 0, 0, 1, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 1.0);
+        
+        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane.addTab("Perl", getPerlSpecificPanel());
+        tabbedPane.addTab("Java", getJavaSpecificPanel());
+        UIUtils.addComponent(mainPane, tabbedPane, 0, 1, 1, 1, UIUtils.NWEST, UIUtils.HORI, 0.0, 100.0);
+        
         setLayout(new BorderLayout(6, 6));
         setAlignmentY(TOP_ALIGNMENT);
         setAlignmentX(LEFT_ALIGNMENT);
@@ -213,6 +223,7 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
         byClass.setSelected(!manager.getBooleanPreference(SADIProperties.GENERATOR_OWL_BY_FILE, true));
         openOntologyBtn.setEnabled(manager.getBooleanPreference(SADIProperties.GENERATOR_OWL_BY_FILE, true));
 
+        /*
         generateOWLBtn = new AbstractButton(bundle.getString("generate"), true,
                 new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
@@ -268,7 +279,9 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
                         manager.saveBooleanPreference(SADIProperties.GENERATOR_GENERATE_OWL, true);
                     }
                 });
+        */
         
+        /*
         JRadioButton javaRB = new JRadioButton("Java");
         JRadioButton perlRB = new JRadioButton("Perl");
         javaRB.addActionListener(new ActionListener() {
@@ -295,6 +308,9 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
         JPanel rbPanel = new JPanel(new FlowLayout(FlowLayout.LEADING), true);
         rbPanel.add(javaRB);
         rbPanel.add(perlRB);
+        */
+        
+        manager.saveBooleanPreference(SADIProperties.DATATYPE_GEN_USE_PERL, true);
         
         // add the components to the datatype panel
         UIUtils.addComponent(datatypePanel, byFile, 0, 0, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0,
@@ -307,14 +323,129 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
                 0.0);
         UIUtils.addComponent(datatypePanel, owlLabel, 1, 1, 2, 1, UIUtils.WEST, UIUtils.BOTH, 1.0,
                 0.0);
-        UIUtils.addComponent(datatypePanel, rbPanel, 0, 2, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
-        UIUtils.addComponent(datatypePanel, getPerlSadiUseForceCheckbox(), 0, 3, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
-        UIUtils.addComponent(datatypePanel, UIUtils.createButtonPanel(new JButton[] {
-                generateOWLBtn, }), 0, 4, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0,
-                0.0);
+//        UIUtils.addComponent(datatypePanel, rbPanel, 0, 2, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
+//        UIUtils.addComponent(datatypePanel, getPerlSadiUseForceCheckbox(), 0, 3, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
+//        UIUtils.addComponent(datatypePanel, UIUtils.createButtonPanel(new JButton[] {
+//                generateOWLBtn, }), 0, 4, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0,
+//                0.0);
         // add glue to make our panel look proper
         //UIUtils.addComponent(datatypePanel, Box.createGlue(), 0, 3, 2, 1, UIUtils.NWEST, UIUtils.REMAINDER, 0.0, 1.0);
         return datatypePanel;
+    }
+    
+    private JPanel getPerlSpecificPanel() 
+    {
+    	JPanel panel = new JPanel(new GridBagLayout(), true);
+        panel.setBorder(ComponentFactory.createTitledBorder(bundle.getString("sadi_generator_perl_title")));
+        
+        JTextFieldWithHistory dirField = new JTextFieldWithHistory(25, SADIProperties.PERL_GENERATED_MODULES_DIRECTORY);
+        dirField.setEditable(false);
+        
+        JLabel dirLabel = new JLabel(bundle.getString("sadi_generator_perl_datagen_dir"));
+        dirLabel.setLabelFor(dirField);
+
+        JButton dirButton = new AbstractButton("", true, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String title = bundle.getString("open");
+                JFileChooser chooser = UIUtils.getOpenDirectoryChooser(title, SADIProperties.PERL_GENERATED_MODULES_DIRECTORY);
+                if (chooser.showOpenDialog((Component) e.getSource()) != JFileChooser.APPROVE_OPTION) {
+                    return;
+                }
+                File file = chooser.getSelectedFile();
+                if (file == null || !file.exists())
+                    return;
+                manager.savePreference(SADIProperties.PERL_GENERATED_MODULES_DIRECTORY, file.getAbsolutePath());
+                
+                // set the actual definitions dir by reading the sadi-services.cfg file
+                // Read properties file. 
+                //setDefinitionDirectoryFromSadiConfigurationScript();
+            }
+        });
+        
+        generateOWLBtn = new AbstractButton(bundle.getString("generate"), true,
+                new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        String ontFilename = "";
+                        if (manager.getBooleanPreference(SADIProperties.GENERATOR_OWL_BY_FILE, true)) {
+                            // generate code for file ontology
+                            ontFilename = manager.getPreference(SADIProperties.GENERATOR_OWL_ONT_FILENAME, "");
+                            // check that filename is not empty
+                            if (ontFilename == null || ontFilename.trim().equals("")) {
+                                String msg = bundle.getString("sadi_generator_perl_datatype_empty");
+                                String title = bundle.getString("error");
+                                JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+                                        JOptionPane.ERROR_MESSAGE);
+                                manager.saveBooleanPreference(SADIProperties.GENERATOR_GENERATE_OWL, false);
+                                return;
+                            }
+                            try {
+                                ontFilename = new File(ontFilename).toURI().toURL().toString();
+                            } catch (MalformedURLException e1) {
+                                ErrorLogPanel.showErrorDialog(e1);
+                                manager.saveBooleanPreference(SADIProperties.GENERATOR_GENERATE_OWL, false);
+                                return;
+                            }
+                        } else {
+                            // generate owl for specific node
+                            // save the ontology to a temp file ...
+                            if (selectedClassAsString == null
+                                    || selectedClassAsString.trim().equals("")) {
+                                String msg = bundle.getString("sadi_generator_perl_datatype_empty");
+                                String title = bundle.getString("error");
+                                JOptionPane.showMessageDialog(getTopLevelAncestor(), msg, title,
+                                        JOptionPane.ERROR_MESSAGE);
+                                manager.saveBooleanPreference(SADIProperties.GENERATOR_GENERATE_OWL, false);
+                                return;
+                            }
+                            try {
+                                // Create temp file.
+                                File temp = File.createTempFile("SADI_PERL_ONT_TMP-", ".owl");
+                                ontFilename = temp.toURI().toURL().toString();
+                                // Delete temp file when program exits.
+                                temp.deleteOnExit();
+                                // Write to temp file
+                                BufferedWriter out = new BufferedWriter(new FileWriter(temp));
+                                out.write(selectedClassAsString);
+                                out.close();
+                            } catch (IOException ioe) {
+                                ErrorLogPanel.showErrorDialog(ioe);
+                                manager.saveBooleanPreference(SADIProperties.GENERATOR_GENERATE_OWL, false);
+                                return;
+                            }
+                        }
+                        manager.savePreference(SADIProperties.GENERATOR_OWL_TMP_FILE_LOCATION, ontFilename);
+                        manager.saveBooleanPreference(SADIProperties.GENERATOR_GENERATE_OWL, true);
+                    }
+                });
+
+        // the generate btn
+//        if (generatePerlBtn == null)
+//        	getGenerateGeneratorButtons();
+        
+        dirButton.setIcon(Icons.getIcon("project.open.gif"));
+        // add the components
+        UIUtils.addComponent(panel, dirLabel, 0, 0, 1, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, dirField, 1, 0, 2, 1, UIUtils.NWEST, UIUtils.HORI, 1.0, 0.0);
+        UIUtils.addComponent(panel, dirButton, 3, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);   
+        UIUtils.addComponent(panel, getPerlSadiUseForceCheckbox(), 0, 1, 2, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
+        UIUtils.addComponent(panel, generateOWLBtn, 0, 2, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
+        
+        //UIUtils.addComponent(panel, getSyncOrAsyncRadioButtons(), 0, 1, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+//        UIUtils.addComponent(panel, getGenerateBothCheckbox(), 0, 2, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+//        UIUtils.addComponent(panel, getPerlSadiUseForceCheckbox(), 0, 3, 2, 1, UIUtils.WEST, UIUtils.NONE, 0.0, 0.0);
+//        // create the generate/cancel button panel
+//        UIUtils.addComponent(panel, UIUtils.createButtonPanel(new JButton[]{generatePerlBtn}), 0, 4, 2, 1, UIUtils.NWEST, UIUtils.NONE, 1.0, 1.0);
+        return panel;
+
+    }
+    
+    private JPanel getJavaSpecificPanel() 
+    {
+    	JPanel panel = new JPanel(new GridBagLayout(), true);
+        panel.setBorder(ComponentFactory.createTitledBorder(bundle.getString("sadi_generator_java_title")));
+        JLabel notImplementedLabel = new JLabel(bundle.getString("sadi_generator_java_no_owl_gen"));
+        UIUtils.addComponent(panel, notImplementedLabel, 0, 0, 1, 1, UIUtils.NWEST, UIUtils.NONE, 0.0, 0.0);
+        return panel;
     }
     
     private JPanel getPerlSadiUseForceCheckbox() {
@@ -378,6 +509,18 @@ public class SADIOwlCodeGeneratorView extends AbstractOWLClassViewComponent {
                 }
             } else if (key.equals(SADIProperties.DO_PERL_DATATYPE_GENERATION)) {
                 if ((Boolean)evt.getNewValue()) {
+                	
+                	if(StringUtils.isNullOrEmpty(manager.getPreference(SADIProperties.PERL_GENERATED_MODULES_DIRECTORY, null))) {
+                        JOptionPane.showMessageDialog(
+                        		getTopLevelAncestor(), 
+                        		bundle.getString("sadi_generator_perl_datagen_dir_not_set"), 
+                        		bundle.getString("error"),
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                        manager.saveBooleanPreference(key, false);
+                        return;
+                	}
+                	
                     // perl code generator start generator
                     generateOWLBtn.setEnabled(false);
                     perlDatatypeWorker = 

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="lib/ST-4.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jetty-client-7.0.0.v20091005.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jetty-http-7.0.0.v20091005.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jetty-io-7.0.0.v20091005.jar"/>
@@ -44,5 +45,8 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="lib" path="lib/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-3.3-complete.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
