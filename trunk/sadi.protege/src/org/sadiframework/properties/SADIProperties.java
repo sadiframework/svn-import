@@ -21,7 +21,9 @@ public class SADIProperties {
     public static final String PERL_SADI_HOME_DIRECTORY = "perl-sadi-home-directory"; // string
     public static final String PERL_SADI_DEFINITION_DIRECTORY = "perl-sadi-definition-directory"; // string
     public static final String PERL_SADI_USE_FORCE = "perl-sadi-use-force"; // boolean
-
+    public static final String PERL_GENERATED_MODULES_DIRECTORY = "perl-datagen-directory"; // string
+    public static final String PERL_SADI_TARGET_DIRECTORY = "perl-sadi-target-directory"; // string
+    
     // JAVA preference keys
     /**
      * The JAVA package for the service we will generate
