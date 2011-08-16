@@ -15,6 +15,12 @@ the provision of SADI services.</p>
 
 <h3>Version info</h3>
 
+<h4>v1.2.0 (15th Aug 2011)</h4>
+<ul>
+    <li>Change Perl service generator to use SADI::Simple instead of SADISeS</li>
+	<li>Perl OWL 2 Code generator now depends on OWL2Perl instead of SADISeS</li>
+</ul>
+
 <h4>v1.1.12 (17th May 2011)</h4>
 <ul>
     <li>Added some print statements to the console for more information when generating java services.</li>
