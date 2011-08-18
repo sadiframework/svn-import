@@ -128,3 +128,21 @@ sub invoke_async_service
 
     return wantarray ? ($output, $headers) : $output;
 }
+
+#----------------------------------------------------------------------
+# TEST: Service invocation where input is RDF/XML is malformed. 
+# Expected response is HTTP 500.
+#----------------------------------------------------------------------
+
+# TODO: This test works, but displays an XML parser ERROR that looks worrisome 
+# to CPAN users
+
+#my ($output, $headers) = simulate_cgi_request(
+#                        request_method => 'POST',
+#                        cgi_script => catfile('t', 'HelloWorldAsync.pl'),
+#                        input_file => catfile('t', 'hello-input.rdf.malformed'),
+#                        content_type => 'application/rdf+xml',
+#                        http_accept => 'application/rdf+xml',
+#                    );
+#
+#ok($headers->{Status} eq 500, 'test service response on malformed input RDF/XML');

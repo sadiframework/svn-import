@@ -20,6 +20,7 @@ use File::Spec;
 use File::Spec::Functions qw(catfile splitpath);
 use File::Temp qw(tempfile);
 use Storable ();
+use constant::boolean;
 
 use base 'SADI::Simple::ServiceBase';
 
@@ -39,6 +40,10 @@ use constant POLLING_RDF_TEMPLATE => <<TEMPLATE;
 </rdf:RDF>
 TEMPLATE
 
+use constant NOT_FINISHED => 0;
+use constant SUCCESS => 1;
+use constant ERROR => 2;
+
 sub handle_cgi_request
 {
     my $self = shift;
@@ -57,23 +62,25 @@ sub handle_cgi_request
         # we are polling ... 
         # $poll is the id for our file store
         my $poll = $q->param('poll');
-        my $completed;
-        eval {$completed = $self->completed($poll);};
+        my $status;
+        eval {$status = $self->status($poll);};
         # do something if $@
         print $q->header(-status=>"404 nothing found for the given polling parameter" ) if $@;
         return if $@;
-        if ($completed) {
+        if ($status != NOT_FINISHED) {
             # we are done
-            eval {$completed = $self->retrieve($poll);};
+            my $output;
+            eval {$output = $self->retrieve($poll);};
+            my $http_status = ($status == SUCCESS) ? 200 : 500;
             unless ($@) {
-                print $q->header(-status => 200, -type => $self->get_response_content_type());
-                print $completed;
+                print $q->header(-status => $http_status, -type => $self->get_response_content_type());
+                print $output;
                 return;
             }
         } else {
             # still waiting
             my $signature = $self->{Signature};
-            print $q->redirect(-uri=>$signature->URL . "?poll=$poll", -status=>302, -Retry_After=>POLL_INTERVAL);
+            print $q->redirect(-uri=>$self->get_polling_url($poll), -status=>302, -Retry_After=>POLL_INTERVAL);
             return;
         }
     } else {
@@ -83,17 +90,33 @@ sub handle_cgi_request
         my $data = join "",<STDIN>;
 
         # call the service
-        my ($poll_id, @input_uris) = $self->invoke($data);
+        my ($poll_id, $input_uris, $error_msg) = $self->invoke($data);
 
         my $q = new CGI;
+
+        if (!defined($poll_id)) {
+            print $q->header(-status => 500);
+            print $error_msg;
+            return;
+        }
+
         print $q->header(
             -type=>$self->get_response_content_type(),
             -status=>202,
             -Retry_After=>POLL_INTERVAL
         );
-        print $self->get_polling_rdf($poll_id, @input_uris);
+        
+        print $self->get_polling_rdf($poll_id, @$input_uris);
     }
 
+}
+
+sub get_polling_url
+{
+   my ($self, $poll_id) = @_;
+
+   my $base_url = $self->{Signature}->URL || CGI::url();
+   return ($base_url . '?poll=' . $poll_id);    
 }
 
 #-----------------------------------------------------------------
@@ -104,11 +127,11 @@ sub handle_cgi_request
 
 sub store {
 
-    my ($self, $output_model, $is_finished, $poll_id) = @_;
+    my ($self, $output_model, $status, $poll_id) = @_;
 
     my %hash;
     $hash{rdfxml} = SADI::Simple::Utils->serialize_model($output_model, 'application/rdf+xml');
-    $hash{done} = $is_finished ? 1 : 0;
+    $hash{status} = $status;
 
     my $filename = $self->_poll_id_to_filename($poll_id);
     Storable::store(\%hash, $filename) or $self->throw("unable to store state to $filename");
@@ -152,13 +175,13 @@ sub retrieve {
 #   invocation. a Perl true value if completed, 0 | undef otherwise.
 # Throws exception if there is nothing to retrieve for the given $uid
 #----------------------------------------------------------------- 
-sub completed {
+sub status {
 
     my ($self, $poll_id) = @_;
 
     my $filename = $self->_poll_id_to_filename($poll_id);
     my $hashref = Storable::retrieve($filename) or $self->throw("no data stored for poll_id $poll_id");
-    my $rdfxml = $hashref->{done};
+    return $hashref->{status};
 
 }
 
@@ -171,17 +194,8 @@ sub invoke {
 
     my ($self, $data) = @_;
 
+    my $error_msg;
     my $log = Log::Log4perl->get_logger(__PACKAGE__);
-
-    my ($fh, $filename) = tempfile(
-                            TEMPLATE => 'sadi-XXXXXXXX', 
-                            TMPDIR => 1,
-                            UNLINK => 0,  # we do this in retrieve()
-                        );
-
-    close($fh) or $self->throw($!);
-
-    my $poll_id = (splitpath($filename))[2];
 
     Log::Log4perl::NDC->push ($$);
 
@@ -197,22 +211,33 @@ sub invoke {
     my @input_uris = ();
     
     # save the input URIs for polling RDF
-    {   
+    eval {   
         $input_model = $self->_build_model($data, $self->get_request_content_type);
         @inputs = $self->_get_inputs_from_model($input_model);
 
         push @input_uris, $_->uri foreach @inputs;
-    }
+    };
+
     # error in creating parser, or parsing input
     if ($@) {
 		my $stack = $self->format_stack ($@);
-        $self->_add_error_to_model($output_model, $@, 'Error parsing input message for sadi service!', $stack);
+#        $self->_add_error_to_model($output_model, $@, 'Error parsing input message for sadi service!', $stack);
         $log->error ($stack);
 		$log->info ('*** FATAL ERROR RESPONSE BACK ***');
 		Log::Log4perl::NDC->pop();
-		$self->store($output_model, 1, $poll_id);
-		return;
+#        $self->store($output_model, ERROR, $poll_id);
+		return (undef, undef, "Error parsing input RDF: $@");
     }
+
+    my ($fh, $filename) = tempfile(
+                            TEMPLATE => 'sadi-XXXXXXXX', 
+                            TMPDIR => 1,
+                            UNLINK => 0,  # we do this in retrieve()
+                        );
+
+    close($fh) or $self->throw($!);
+
+    my $poll_id = (splitpath($filename))[2];
 
     unless (defined( my $pid = fork() )) {
     } elsif ($pid == 0) {
@@ -235,7 +260,7 @@ sub invoke {
         # do something (this service main task)
         eval {
             # save empty output model before we begin
-            $self->store($output_model, 0, $poll_id);
+            $self->store($output_model, NOT_FINISHED, $poll_id);
             $self->process_it(\@inputs, $input_model, $output_model);
         };
         # error thrown by the implementation class
@@ -246,7 +271,7 @@ sub invoke {
     		$log->info ('*** REQUEST TERMINATED RESPONSE BACK ***');
     		Log::Log4perl::NDC->pop();
     		# signal that we are done
-            $self->store($output_model, 1, $poll_id);
+            $self->store($output_model, ERROR, $poll_id);
     		return ;
         }
         
@@ -254,12 +279,12 @@ sub invoke {
         $log->info ('*** RESPONSE READY *** ');
 
         Log::Log4perl::NDC->pop();
-        $self->store($output_model, 1, $poll_id);
+        $self->store($output_model, SUCCESS, $poll_id);
 
         exit 0;
     } 
 
-    return ($poll_id, @input_uris);
+    return ($poll_id, \@input_uris);
 }
 
 sub get_polling_rdf 
@@ -278,7 +303,7 @@ sub get_polling_rdf
                   {
                      inputURIs     => \@input_uris,
                      outClass      => $signature->OutputClass, 
-                     url           => $signature->URL . '?poll=' . $poll_id,
+                     url           => $self->get_polling_url($poll_id),
                   },
                   \$polling_rdf
     ) || $log->logdie( $tt->error() );

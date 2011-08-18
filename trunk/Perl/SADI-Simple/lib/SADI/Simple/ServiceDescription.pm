@@ -26,44 +26,35 @@ use base ("SADI::Simple::Base");
 		UniqueIdentifier => { type => SADI::Simple::Base->STRING },
 		Authority        => {
 			type => SADI::Simple::Base->STRING,
-			post => sub {
-				my $i      = shift;
-				my $domain = $i->Authority; 
-				if ($domain =~ /[\@\&\%\#\(\)\=]/gi) {
-					$i->{Authority} = ""; 
-                    $i->throw(
-    "Invalid authority specified! '$domain' contains invalid characters ."
-                    );
-				}
-				  unless ($domain =~ /.+\.+.+/gi) {
-				  	$i->{Authority} = "";
-                    $i->throw(
-                       "Invalid authority specified! '$domain' must take the form NNN.NNN.NNN." );
-				  }
-				my $uri = new URI($domain);
-                $i->{Authority} = $uri->authority if defined $uri->authority;
-			  }
+#			post => sub {
+#				my $i      = shift;
+#				my $domain = $i->Authority; 
+#				if ($domain =~ /[\@\&\%\#\(\)\=]/gi) {
+#					$i->{Authority} = ""; 
+#                    warn("Invalid authority specified! '$domain' contains invalid characters .");
+#				}
+#				unless ($domain =~ /.+\.+.+/gi) {
+#				  	$i->{Authority} = "";
+#                    warn( "Invalid authority specified! '$domain' must take the form NNN.NNN.NNN." );
+#                }
+#				my $uri = new URI($domain);
+#                $i->{Authority} = $uri->authority if defined $uri->authority;
+#			  }
 		},
 		Provider => {
 			type => SADI::Simple::Base->STRING,
-			post => sub {
-				my $i = shift;
-				my ( $name, $domain ) = $i->Provider =~ /^(.*)@(.*)$/;
-				$i->throw(   "Invalid email address specified! '"
-						   . $i->Provider
-						   . "' is not a valid address" )
-				  unless $name and $domain;
-				$i->throw(
-"Invalid email address specified! Invalid characters found in username."
-				) if $name =~ /[\@\&\%\#\(\)\=]/gi;
-				$i->throw(
-"Invalid email address specified! Invalid characters found in domain."
-				) if $domain =~ /[\@\&\%\#\(\)\=]/gi;
-				$i->throw(
-"Invalid email address specified! Please check the domain of the address."
-				) unless $domain =~ /.+\.+.+/gi;
-
-			  }
+#			post => sub {
+#				my $i = shift;
+#				my ( $name, $domain ) = $i->Provider =~ /^(.*)@(.*)$/;
+#				$i->throw(   "Invalid email address specified! '"
+#						   . $i->Provider
+#						   . "' is not a valid address" )
+#				  unless $name and $domain;
+#				warn("Invalid email address specified! Invalid characters found in username.") if $name =~ /[\@\&\%\#\(\)\=]/gi;
+#				warn("Invalid email address specified! Invalid characters found in domain.") if $domain =~ /[\@\&\%\#\(\)\=]/gi;
+#				warn( "Invalid email address specified! Please check the domain of the address.") unless $domain =~ /.+\.+.+/gi;
+#
+#			  }
 		},
 		ServiceURI => { type => SADI::Simple::Base->STRING },
 		URL        => {
@@ -122,15 +113,8 @@ use constant SERVICE_DESCRIPTION_TEMPLATE => <<TEMPLATE;
 [% SET TEST_COUNTER = 1 %]
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF
- xmlns="http://www.w3.org/2002/07/owl#"
  xmlns:a="http://www.mygrid.org.uk/mygrid-moby-service#"
  xmlns:b="http://purl.org/dc/elements/1.1/"
- xml:base="http://bioinfo.icapture.ubc.ca/SADI"
- xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
- xmlns:databases="http://sadiframework.org/ontologies/Databases.owl#"
- xmlns:misc="http://sadiframework.org/ontologies/miscellaneousObjects.owl#"
- xmlns:owl="http://www.w3.org/2002/07/owl#"
- xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">    
   <rdf:Description rdf:about="[% uri %]">
     <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#serviceDescription"/>
@@ -243,7 +227,7 @@ sub getServiceInterface {
 					 authoritative => $self->Authoritative,
 					 authority     => $self->Authority,
 					 sigURL        => $self->SignatureURL,
-					 tests         => $self->UnitTest || (),
+					 tests         => $self->UnitTest || undef,
 				  },
 				  \$sadi_interface_signature
 
@@ -255,13 +239,15 @@ sub getServiceInterface {
 
 	return $sadi_interface_signature;
 }
+
+
 1;
 
 __END__
 
 =head1 NAME
 
-SADI::Simple::ServiceDescription- A module that describes a SADI web service.
+SADI::Simple::ServiceDescription - A module that describes a SADI web service.
 
 =head1 SYNOPSIS
 
@@ -343,7 +329,6 @@ SADI::Simple::ServiceDescription- A module that describes a SADI web service.
  my $sig = $data->SignatureURL;
  # set the signature url
  $data->SignatureURL($sig);
-
 =head1 DESCRIPTION
 
 An object representing a SADI service signature.
@@ -418,5 +403,6 @@ The format of the service. More than likely, it will be 'sadi' if it is a SADI w
 A url to the SADI service signature.
 
 =back
-
 =cut
+
+

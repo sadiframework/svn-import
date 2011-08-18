@@ -1,95 +1,92 @@
 package SADI::Simple;
 
+# ABSTRACT: Module for creating Perl SADI services
+
 1;
 __END__
 
 =head1 NAME
 
-SADI::Simple - Module for creating Perl SADI services.
+    SADI::Simple - Module for creating Perl SADI services.
 
 =head1 SYNOPSIS
 
+The following code is a complete implementation of a 'Hello, World!' SADI service as a Perl CGI
+script. 
+
     #!/usr/bin/perl
-
-    #-----------------------------------------------------------------
-    # HelloWorld.pl -- A SADI service that attaches a greeting property 
-    #                  to a named individual.
-    #-----------------------------------------------------------------
-
+    
     package HelloWorld;
 
     use strict;
     use warnings;
-
+    
     #-----------------------------------------------------------------
     # CGI HANDLER PART
     #-----------------------------------------------------------------
-
+    
     use Log::Log4perl qw(:easy);
-    use base 'SADI::Simple::AsyncService';  # or 'SADI::Simple::SyncService'
-
-    Log::Log4perl->easy_init($ERROR);
-
+    use base 'SADI::Simple::AsyncService'; # or 'SADI::Simple::SyncService'
+    
+    Log::Log4perl->easy_init($WARN);
+    
     my $config = {
-
         ServiceName => 'HelloWorld',
-        Authority => 'sadiframework.org', 
+        Description => 'A \'Hello, World!\' service',
         InputClass => 'http://sadiframework.org/examples/hello.owl#NamedIndividual',
         OutputClass => 'http://sadiframework.org/examples/hello.owl#GreetedIndividual',   
-        Description => 'A \'Hello, World!\' service',
+        Authority => 'sadiframework.org', 
         Provider => 'myaddress@organization.org',
-        URL => 'http://organization.org/cgi-bin/HelloWorldAsync', # only required for asynchronous services
-
     };
-
+    
     my $service = HelloWorld->new(%$config);
     $service->handle_cgi_request;
-
+    
     #-----------------------------------------------------------------
     # SERVICE IMPLEMENTATION PART
     #-----------------------------------------------------------------
-
+    
     use RDF::Trine::Node::Resource;
     use RDF::Trine::Node::Literal;
     use RDF::Trine::Statement;
-
+    use Log::Log4perl;
+    
     =head2 process_it
-
+    
      Function: implements the business logic of a SADI service
      Args    : $inputs - ref to an array of RDF::Trine::Node::Resource
                $input_model - an RDF::Trine::Model containing the input RDF data
                $output_model - an RDF::Trine::Model containing the output RDF data
      Returns : nothing (service output is stored in $output_model)
-
+    
     =cut
-
+    
     sub process_it {
-
+    
         my ($self, $inputs, $input_model, $output_model) = @_;
-
-        my $log = Log::Log4perl->get_logger('HelloWorld');
-
+    
+        my $name_property = RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name');
+        my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
+    
         foreach my $input (@$inputs) {
             
-            $log->info(sprintf('processing input %s', $input->uri));
-
-            my $name_property = RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name');
+            INFO(sprintf('processing input %s', $input->uri));
+    
             my ($name) = $input_model->objects($input, $name_property);
-
+    
             if (!$name || !$name->is_literal) {
-                $log->warn(sprintf('skipping input %s, doesn\'t have a name property with a literal value', $input->uri));
+                WARN('skipping input %s, doesn\'t have a <%s> property with a literal value');
                 next;
             }
-
-            my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
+    
             my $greeting = sprintf("Hello, '%s'!", $name->value);
             my $greeting_literal = RDF::Trine::Node::Literal->new($greeting);
             
             my $statement = RDF::Trine::Statement->new($input, $greeting_property, $greeting_literal);
             $output_model->add_statement($statement);
-
+    
         }
-
+    
     }
 
 =head1 DESCRIPTION
@@ -169,3 +166,59 @@ response to a request, and must be polled for the results.
 In general, asynchronous services are a better choice as they can run for an arbitarily long
 time. The main advantage of synchronous services is that there is less back-and-forth messaging
 and so they are potentially more efficient for services that perform trivial operations.
+
+=head1 Service Configuration Parameters
+
+=head2 Required parameters:
+
+=over 
+
+=item C<ServiceName>
+
+A human-readable name for your service.
+
+=item C<Description>
+
+A plain text description of your service.
+
+=item C<InputClass>
+
+The URI of the service's C<input OWL class>. The input OWL class describes the required properties (i.e. predicates) 
+of each input RDF node. In the example of the SYNOPSIS, there is one required property (C<http://xmlns.com/foaf/0.1/name>).
+
+=item C<OutputClass>
+
+The URI of the service's C<output OWL class>. The output OWL class describes the properties (i.e. predicates) 
+that are attached each input RDF node, as a result of the service's computation.  In the example of the SYNOPSIS,
+there is one attached property (C<http://sadiframework.org/examples/hello.owl#greeting>).
+
+=item C<Authority>
+
+The hostname of the organization providing the service (e.g. sadiframework.org).
+
+=item C<Provider>
+
+The contact email address of the service provider, in case of questions / problems.
+
+=back
+
+=head2 Optional parameters:
+
+=over 
+
+=item C<URL>
+
+The URL used to access your service. It is necessary to provide this parameter if the service is asynchronous
+and sits behind proxies/redirects, to ensure that the polling URLs returned by the service are publicly accessible. 
+
+
+=item C<ServiceType>
+
+A URI indicating the type of service. Ideally, this URI should come from a public ontology of service types, such as the 
+L<http://www.mygrid.org.uk/tools/service-management/mygrid-ontology/ myGrid ontology> for bioinformatics services.
+Specifying this parameter can potentially help other SADI users find your service. 
+
+
+=back
+
+=cut

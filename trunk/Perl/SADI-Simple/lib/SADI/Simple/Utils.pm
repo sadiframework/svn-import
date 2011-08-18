@@ -84,4 +84,22 @@ sub serialize_model
     return $serializer->serialize_model_to_string($model);
 }
 
+sub get_standard_content_type
+{
+    my ($self, $content_type) = @_;
+
+    unless(ref($self) =~ m/^SADI::Simple::Utils/ or $self =~ /^SADI::Simple::Utils/) {
+        ($content_type) = @_;
+    }
+
+    my $standard_content_type = 'application/rdf+xml';
+
+    if (defined $content_type) {
+        $standard_content_type = 'text/rdf+n3' if $content_type =~ m|text/rdf\+n3|gi;
+        $standard_content_type = 'text/rdf+n3' if $content_type =~ m|text/n3|gi;
+    }
+
+    return $standard_content_type;
+}
+
 1;
