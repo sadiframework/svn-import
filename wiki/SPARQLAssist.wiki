@@ -16,5 +16,5 @@ In its simplest configuration, SPARQL Assist preloads properties, individuals an
 
 The pages below contain self-documenting examples of SPARQL Assist running in various situations.  Look at these if the documentation in the distribution is insufficient to get you up and running.
 
-  * [http://biordf.net/sparql-assist SPARQL Assist running on a Virtuoso SPARQL endpoint]
-  * [http://sadiframework.org/sparql-assist/demo2 SPARQL Assist running on a cross-domain SPARQL endpoint using a proxy]
+  * [http://biordf.net/sparql-assist/demo1 SPARQL Assist running on a Virtuoso SPARQL endpoint]
+  * [http://biordf.net/sparql-assist/demo2 SPARQL Assist running on a cross-domain SPARQL endpoint using a proxy]
