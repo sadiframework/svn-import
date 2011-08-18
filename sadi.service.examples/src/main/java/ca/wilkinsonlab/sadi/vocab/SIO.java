@@ -39,6 +39,7 @@ public class SIO
     
     public static final Property has_attribute = m_model.createProperty( NS, "SIO_000008" );
 	public static final Property has_value = m_model.createProperty( NS, "SIO_000300" );
+	public static final Property has_unit = m_model.createProperty( NS, "SIO_000221" );
 	public static final Property has_participant = m_model.createProperty( NS, "SIO_000132" );
 	public static final Property is_participant_in = m_model.createProperty( NS, "SIO_000062" );
 	public static final Property encodes = m_model.createProperty( NS, "SIO_010078" );
