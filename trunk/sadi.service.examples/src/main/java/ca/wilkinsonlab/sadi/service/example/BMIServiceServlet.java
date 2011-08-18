@@ -37,7 +37,7 @@ public class BMIServiceServlet extends SimpleSynchronousServiceServlet
 		if (units.equals(Vocab.kg))
 			return Double.parseDouble(value);
 		else
-			throw new IllegalArgumentException("height measurement in unknown units");
+			throw new IllegalArgumentException("weight measurement in unknown units");
 	}
 	/**
 	 * Return the height in meters, assuming the input resource conforms to the
