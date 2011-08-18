@@ -1,0 +1,49 @@
+
+SADI service generator plugin 0.1.0
+  The SADI service generator plugin creates the skeleton of a Java servlet
+  that works as a SADI service.
+
+This plugin has 2 goals:
+
+sadi-generator:generate-service
+  A goal that generates the skeleton of a SADI service.
+  This goal has the following parameters:
+    serviceName
+      The name of the service, which will also be used in the path to the
+      service servlet. This parameter is required.
+    serviceClass
+      The fully-qualified name of the Java class that will implement the
+      service. This parameter is required.
+    serviceURL
+      The URL of the service. This parameter is optional and not normally
+      required, except in certain baroque network configurations.
+    serviceRDF
+      A URL or local path to a service description in RDF. This parameter
+      is optional, but can be used instead of specifying all of the other
+      parameters separately.
+    serviceDescription
+      The service description. This parameter is optional.
+    serviceProvider
+      The service provider. This parameter is optional.
+    contactEmail
+      A contact email address for the service. This parameter is required.
+    authoritative
+      Whether or not the service is authoritative. This parameter is
+      optional, defaulting to false.
+    async
+      Whether or not the service is asynchronous.  This parameter is
+      optional, defaulting to false.
+    inputClass
+      The URI of the service input class. This parameter is required and
+      the URI must resolve to an OWL class definition.
+    outputClass
+      The URI of the service output class. This parameter is required and
+      the URI must resolve to an OWL class definition.
+    parameterClass
+      The URI of the service parameter class. This parameter is optional,
+      but if specified the URI must resolve to an OWL class definition.
+
+sadi-generator:help
+  A goal that describes the goals and parameters of the plugin.
+  This goal has no parameters.
+

@@ -1,0 +1,95 @@
+package $package;
+
+import org.apache.log4j.Logger;
+
+#if ($description.getName())
+import ca.wilkinsonlab.sadi.service.annotations.Name;
+#end
+#if ($description.getDescription())
+import ca.wilkinsonlab.sadi.service.annotations.Description;
+#end
+#if ($description.getServiceProvider())
+import ca.wilkinsonlab.sadi.service.annotations.ServiceProvider;
+#end
+#if ($description.getContactEmail())
+import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
+#end
+#if ($description.getAuthoritative())
+import ca.wilkinsonlab.sadi.service.annotations.Authoritative;
+#end
+import ca.wilkinsonlab.sadi.service.annotations.InputClass;
+import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
+#if ($description.getParameterClassURI())
+import ca.wilkinsonlab.sadi.service.annotations.ParameterClass;
+import ca.wilkinsonlab.sadi.service.annotations.ParameterDefaults;
+#end
+#if ($async)
+import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
+#else
+import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
+#end
+
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
+//import com.hp.hpl.jena.rdf.model.Statement;
+//import com.hp.hpl.jena.rdf.model.StmtIterator;
+
+#if ($description.getName())
+@Name("$description.getName()")
+#end
+#if ($description.getDescription())
+@Description("$description.getDescription()")
+#end
+#if ($description.getServiceProvider())
+@ServiceProvider("$description.getServiceProvider()")
+#end
+#if ($description.getContactEmail())
+@ContactEmail("$description.getContactEmail()")
+#end
+#if ($description.getAuthoritative())
+@Authoritative($description.getAuthoritative())
+#end
+@InputClass("$description.getInputClassURI()")
+@OutputClass("$description.getOutputClassURI()")
+#if ($description.getParameterClassURI())
+@ParameterClass("$description.getParameterClassURI()")
+@ParameterDefaults({})
+#end
+#if ($async)
+public class $class extends SimpleAsynchronousServiceServlet
+#else
+public class $class extends SimpleSynchronousServiceServlet
+#end
+{
+	private static final Logger log = Logger.getLogger(${class}.class);
+	private static final long serialVersionUID = 1L;
+
+	@Override
+#if ($description.getParameterClassURI())
+	public void processInput(Resource input, Resource output, Resource parameters)
+#else
+	public void processInput(Resource input, Resource output)
+#end
+	{
+		/* your code goes here
+		 * (add properties to output node based on properties of input node...)
+		 */
+	}
+
+#if ( !$properties.isEmpty() || !$classes.isEmpty() )
+	@SuppressWarnings("unused")
+	private static final class Vocab
+	{
+		private static Model m_model = ModelFactory.createDefaultModel();
+		
+#foreach( $p in $properties )
+		public static final Property $p.getLocalName() = m_model.createProperty("$p.getURI()");
+#end
+#foreach( $c in $classes )
+		public static final Resource $c.getLocalName() = m_model.createResource("$c.getURI()");
+#end
+	}
+#end
+}
