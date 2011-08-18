@@ -30,6 +30,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 				output = "http://sadiframework.org/examples/t/uniprot2pubmed.output.1.rdf"
 		)
 )
+@SuppressWarnings("deprecation") // PubMed interface is deprecated?
 public class UniProt2PubmedServiceServlet extends UniProtServiceServlet
 {
 	private static final long serialVersionUID = 1L;
