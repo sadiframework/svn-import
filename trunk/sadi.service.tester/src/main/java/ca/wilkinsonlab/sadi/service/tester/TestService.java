@@ -87,7 +87,7 @@ public class TestService extends AbstractMojo
 			try {
 				outputModel = ((ServiceImpl)service).invokeServiceUnparsed(testCase.getInputModel());
 			} catch (IOException e) {
-				throw new MojoFailureException(String.format("error contacting service %s: %s:", service, e.getMessage()));
+				throw new MojoFailureException(String.format("error contacting service %s: %s", service, e.getMessage()));
 			}
 			writeModel(outputModel, String.format("target/%s.output.%d", serviceFileName, i));
 			if (getLog().isDebugEnabled())
