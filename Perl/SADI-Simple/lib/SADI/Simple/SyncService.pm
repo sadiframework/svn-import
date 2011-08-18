@@ -5,6 +5,9 @@ use RDF::Trine::Model 0.135;
 use RDF::Trine::Parser 0.135;
 use Log::Log4perl;
 use Template;
+use Encode;
+use Plack::Request;
+use constant::boolean;
 
 use base 'SADI::Simple::ServiceBase';
 
@@ -25,21 +28,65 @@ sub handle_cgi_request {
         my $data = join "",<STDIN>;
 
         # call the service
-        my $output =  $self->invoke($data);
+        my ($output, $success) =  $self->invoke($data);
+
+        my $q = new CGI;
+
+        if(!$success) {
+            print $q->header(-status => 500);
+            print $output;
+        }
 
         # print the results
-        my $q = new CGI;
-        print $q->header(-type=>$self->get_response_content_type());
+        print $q->header(-type => $self->get_response_content_type());
         print $output;
 
     }
 
 }
 
+# Please keep this, I am expecting it to be useful in future versions.
+# This method has not been tested yet.
+
+#sub plack_app {
+#
+#    my $self = shift;
+#
+#    return sub {
+#
+#        my $env = shift;
+#        
+#        my $status;
+#        my $headers = [];
+#        my $body = [];
+#
+#        push(@$headers, 'Content-type', $self->get_response_content_type());
+#
+#        my $request = Plack::Request->new($env);
+#
+#        if ($request->method eq 'GET' || $request->method eq 'HEAD') {
+#
+#            my $content_type = SADI::Simple::Utils->get_standard_content_type($env);
+#            push(@$body, $self->{Signature}->getServiceInterface($content_type));
+#            return [200, $headers, $body];
+#
+#        } else {
+#
+#            my $data = decode($request->content_encoding, $request->content);
+#            push(@$body, $self->invoke($data));
+#            return [200, $headers, $body]; 
+#
+#        }
+#
+#    } 
+#    
+#}
+
 sub invoke {
 
     my ($self, $data) = @_;
    
+    my $success = TRUE;
     my $LOG = Log::Log4perl->get_logger(__PACKAGE__);
 
     Log::Log4perl::NDC->push ($$);
@@ -58,13 +105,15 @@ sub invoke {
 
     # error in creating parser, or parsing input
     if ($@) {
+        $success = FALSE;
 		# construct an outgoing message
 		my $stack = $self->format_stack ($@);
-        $self->_add_error_to_model($output_model, $@, 'Error parsing input message for sadi service!', $stack);
+        #$self->_add_error_to_model($output_model, $@, 'Error parsing input message for sadi service!', $stack);
         $LOG->error ($stack);
 		$LOG->info ('*** FATAL ERROR RESPONSE BACK ***');
 		Log::Log4perl::NDC->pop();
-        SADI::Simple::Utils->serialize_model($output_model, $self->get_response_content_type);
+        #SADI::Simple::Utils->serialize_model($output_model, $self->get_response_content_type);
+        return ("Error parsing input RDF: $@", $success); 
     }
 	
     # do something (this service main task)
@@ -74,6 +123,7 @@ sub invoke {
     };
     # error thrown by the implementation class
     if ($@) {
+        $success = FALSE;
 		my $stack = $self->format_stack ($@);
 		$self->_add_error_to_model($output_model, $@, 'Error running sadi service!', $stack);
 		$LOG->error ($stack);
@@ -86,8 +136,9 @@ sub invoke {
     $LOG->info ('*** RESPONSE READY *** ');
 
     Log::Log4perl::NDC->pop();
-    SADI::Simple::Utils->serialize_model($output_model, $self->get_response_content_type);
+    my $output = SADI::Simple::Utils->serialize_model($output_model, $self->get_response_content_type);
    
+    return ($output, $success);
 }
 
 1;

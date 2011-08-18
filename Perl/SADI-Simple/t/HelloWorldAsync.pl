@@ -18,7 +18,7 @@ use lib 'lib';
 use Log::Log4perl qw(:easy);
 use base 'SADI::Simple::AsyncService';
 
-Log::Log4perl->easy_init($ERROR);
+Log::Log4perl->easy_init($WARN);
 
 my $config = {
 
@@ -28,7 +28,6 @@ my $config = {
     OutputClass => 'http://sadiframework.org/examples/hello.owl#GreetedIndividual',   
     Description => 'A \'Hello, World!\' service',
     Provider => 'myaddress@organization.org',
-    URL => 'http://localhost/cgi-bin/HelloWorldAsync', # only required for asynchronous services
 
 };
 
@@ -57,21 +56,20 @@ sub process_it {
 
     my ($self, $inputs, $input_model, $output_model) = @_;
 
-    my $log = Log::Log4perl->get_logger('HelloWorld');
+    my $name_property = RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name');
+    my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
 
     foreach my $input (@$inputs) {
         
-        $log->info(sprintf('processing input %s', $input->uri));
+        INFO(sprintf('processing input %s', $input->uri));
 
-        my $name_property = RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name');
         my ($name) = $input_model->objects($input, $name_property);
 
         if (!$name || !$name->is_literal) {
-            $log->warn(sprintf('skipping input %s, doesn\'t have a name property with a literal value', $input->uri));
+            WARN(sprintf('skipping input %s, doesn\'t have a name property with a literal value', $input->uri));
             next;
         }
 
-        my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
         my $greeting = sprintf("Hello, '%s'!", $name->value);
         my $greeting_literal = RDF::Trine::Node::Literal->new($greeting);
         
@@ -82,5 +80,4 @@ sub process_it {
 
 }
 
-1;
 __END__

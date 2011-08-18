@@ -1,9 +1,5 @@
 #!/usr/bin/perl
 
-#-----------------------------------------------------------------
-# CGI HANDLER PART
-#-----------------------------------------------------------------
-
 package HelloWorld;
 
 use strict;
@@ -13,22 +9,24 @@ use warnings;
 # causing redefined sub warning for process_it
 no warnings 'redefine';
 
+#-----------------------------------------------------------------
+# CGI HANDLER PART
+#-----------------------------------------------------------------
+
 use lib 'lib';
 
 use Log::Log4perl qw(:easy);
-use base 'SADI::Simple::SyncService';
+use base 'SADI::Simple::SyncService'; # or 'SADI::Simple::SyncService'
 
-Log::Log4perl->easy_init($ERROR);
+Log::Log4perl->easy_init($WARN);
 
 my $config = {
-
     ServiceName => 'HelloWorld',
     Authority => 'sadiframework.org', 
     InputClass => 'http://sadiframework.org/examples/hello.owl#NamedIndividual',
     OutputClass => 'http://sadiframework.org/examples/hello.owl#GreetedIndividual',   
     Description => 'A \'Hello, World!\' service',
     Provider => 'myaddress@organization.org',
-
 };
 
 my $service = HelloWorld->new(%$config);
@@ -57,21 +55,20 @@ sub process_it {
 
     my ($self, $inputs, $input_model, $output_model) = @_;
 
-    my $log = Log::Log4perl->get_logger('HelloWorld');
+    my $name_property = RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name');
+    my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
 
     foreach my $input (@$inputs) {
         
-        $log->info(sprintf('processing input %s', $input->uri));
+        INFO(sprintf('processing input %s', $input->uri));
 
-        my $name_property = RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name');
         my ($name) = $input_model->objects($input, $name_property);
 
         if (!$name || !$name->is_literal) {
-            $log->warn('skipping input %s, doesn\'t have a <%s> property with a literal value');
+            WARN('skipping input %s, doesn\'t have a <%s> property with a literal value');
             next;
         }
 
-        my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
         my $greeting = sprintf("Hello, '%s'!", $name->value);
         my $greeting_literal = RDF::Trine::Node::Literal->new($greeting);
         
@@ -82,5 +79,4 @@ sub process_it {
 
 }
 
-1;
 __END__

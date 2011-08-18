@@ -1,4 +1,16 @@
 {{$NEXT}}
+
+0.005     2011-08-17 21:00:17 America/Vancouver
+
+    -- URL parameter no longer required for AsyncService config, unless
+       the service is accessed through HTTP redirects
+    -- return HTTP 500 when internal service error occurs, not HTTP 200
+    -- fixed uncaught exception when parsing input RDF in AsyncService.pm
+    -- disable throwing of an exception on malformed email address (Provider) 
+       or malformed authority (Authority)
+    -- fixed incorrect root URI for RDF service description, when service URL is unspecified 
+
+0.004     2011-07-21 06:47:17 Europe/Vienna
     
     -- minor documentation cleanup on main page (SADI::Simple)
 
