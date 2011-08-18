@@ -6,7 +6,6 @@ use RDF::Trine::Parser 0.135;
 use Log::Log4perl;
 use Template;
 use Encode;
-use Plack::Request;
 
 use base 'SADI::Simple::ServiceBase';
 
