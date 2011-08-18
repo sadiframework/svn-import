@@ -43,7 +43,7 @@ public class JavaGeneratorWorker extends SwingWorker<String, Object> {
 
     private PreferenceManager manager = PreferenceManager.newInstance();
     // private final static String SADI_SKELETON_FILENAME = "sadi-service-skeleton-0.0.3.zip";
-    private final static String SADI_SKELETON_URL = "http://sadiframework.org/RESOURCES/protege/1.1.11/sadi-service-skeleton.zip";
+    private final static String SADI_SKELETON_URL = "http://sadiframework.org/RESOURCES/protege/1.2.1/sadi-service-skeleton.zip";
     private final static String SADI_SKELETON_PROJECT_FOLDER = "sadi-services";
 
     private String outputDirectory;
