@@ -22,9 +22,11 @@
   <owl:Ontology rdf:about="">
     <owl:imports rdf:resource="&lsrn;UniProt_Record"/>
     <owl:imports rdf:resource="&lsrn;GO_Record"/>
+    <!-- importing SIO uses too much memory at the moment...
     <owl:imports rdf:resource="&sio;SIO_000061"/>
     <owl:imports rdf:resource="&sio;SIO_000062"/>
     <owl:imports rdf:resource="&sio;SIO_000225"/>
+     -->
   </owl:Ontology>
   
   <owl:Class rdf:ID="AnnotatedUniProtRecord">
