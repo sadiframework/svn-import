@@ -18,7 +18,6 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-@SuppressWarnings("deprecation") // according to Ben, this is a temporary bug on UniProt's part...
 @TestCases(
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/uniprot2pdb-input.rdf", 
