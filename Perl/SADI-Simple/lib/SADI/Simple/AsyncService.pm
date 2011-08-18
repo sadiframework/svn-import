@@ -20,7 +20,6 @@ use File::Spec;
 use File::Spec::Functions qw(catfile splitpath);
 use File::Temp qw(tempfile);
 use Storable ();
-use constant::boolean;
 
 use base 'SADI::Simple::ServiceBase';
 

@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+    -- constant::boolean missing from requires in 0.005, removed references
+    to constant::boolean in the code 
+       
+
 0.005     2011-08-17 21:00:17 America/Vancouver
 
     -- URL parameter no longer required for AsyncService config, unless

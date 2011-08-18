@@ -7,7 +7,6 @@ use Log::Log4perl;
 use Template;
 use Encode;
 use Plack::Request;
-use constant::boolean;
 
 use base 'SADI::Simple::ServiceBase';
 
@@ -86,7 +85,7 @@ sub invoke {
 
     my ($self, $data) = @_;
    
-    my $success = TRUE;
+    my $success = 1;
     my $LOG = Log::Log4perl->get_logger(__PACKAGE__);
 
     Log::Log4perl::NDC->push ($$);
@@ -105,7 +104,7 @@ sub invoke {
 
     # error in creating parser, or parsing input
     if ($@) {
-        $success = FALSE;
+        $success = 0;
 		# construct an outgoing message
 		my $stack = $self->format_stack ($@);
         #$self->_add_error_to_model($output_model, $@, 'Error parsing input message for sadi service!', $stack);
@@ -123,13 +122,14 @@ sub invoke {
     };
     # error thrown by the implementation class
     if ($@) {
-        $success = FALSE;
+        $success = 0;
 		my $stack = $self->format_stack ($@);
 		$self->_add_error_to_model($output_model, $@, 'Error running sadi service!', $stack);
 		$LOG->error ($stack);
 		$LOG->info ('*** REQUEST TERMINATED RESPONSE BACK ***');
 		Log::Log4perl::NDC->pop();
-        SADI::Simple::Utils->serialize_model($output_model, $self->get_response_content_type);
+        my $output = SADI::Simple::Utils->serialize_model($output_model, $self->get_response_content_type);
+        return ($output, $success);
     }
 
     # return result
