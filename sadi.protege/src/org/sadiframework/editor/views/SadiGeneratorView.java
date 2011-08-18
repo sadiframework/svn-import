@@ -195,6 +195,7 @@ public class SadiGeneratorView extends AbstractOWLClassViewComponent {
     public void disposeView() {
         // some cleanup here ...
         removePropertyChangeListener(pListener);
+        manager.removePropertyChangeListener(pListener);
     }
     
     /*
