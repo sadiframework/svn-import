@@ -16,14 +16,19 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-@TestCases(
+@TestCases( {
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/uniprot2go-input.rdf", 
+				input = "http://sadiframework.org/examples/t/uniprot2go-input.1.rdf", 
 				output = "http://sadiframework.org/examples/t/uniprot2go.output.1.rdf"
+		),
+		@TestCase(
+				input = "http://sadiframework.org/examples/t/uniprot2go-input.2.rdf", 
+				output = "http://sadiframework.org/examples/t/uniprot2go.output.2.rdf"
 		)
-)
+} )
 public class UniProt2GoServiceServlet extends UniProtServiceServlet
 {
 	private static final long serialVersionUID = 1L;
@@ -39,15 +44,20 @@ public class UniProt2GoServiceServlet extends UniProtServiceServlet
 	public void processInput(UniProtEntry input, Resource output)
 	{
 		for (Go goTerm: input.getGoTerms()) {
-			Resource goNode = createGoNode(output.getModel(), goTerm);
+			Resource goNode = getGoNode(output.getModel(), goTerm);
 			Property p = getRelationalProperty(goTerm);
 			output.addProperty(p, goNode);
 		}
 	}
 	
-	private Resource createGoNode(Model model, Go goTerm)
+	private Resource getGoNode(Model model, Go goTerm)
 	{
-		Resource goNode = model.createResource(getGoUri(goTerm), GO_Type);
+		Resource goNode = model.getResource(getGoUri(goTerm));
+		if (goNode.hasProperty(RDF.type, GO_Type))
+			return goNode;
+		
+		// add type...
+		goNode.addProperty(RDF.type, GO_Type);
 		
 		// add identifier structure...
 		SIOUtils.createAttribute(goNode, GO_Identifier, goTerm.getGoId().getValue());
