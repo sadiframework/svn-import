@@ -19,7 +19,13 @@
     xmlns:sio="&sio;"
     xmlns:lsrn="&lsrn;">
 
-  <owl:Ontology rdf:about=""/>
+  <owl:Ontology rdf:about="">
+    <owl:imports rdf:resource="&lsrn;UniProt_Record"/>
+    <owl:imports rdf:resource="&lsrn;GO_Record"/>
+    <owl:imports rdf:resource="&sio;SIO_000061"/>
+    <owl:imports rdf:resource="&sio;SIO_000062"/>
+    <owl:imports rdf:resource="&sio;SIO_000225"/>
+  </owl:Ontology>
   
   <owl:Class rdf:ID="AnnotatedUniProtRecord">
     <rdfs:subClassOf rdf:resource="&lsrn;UniProt_Record"/>
