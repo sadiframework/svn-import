@@ -30,7 +30,7 @@
         <class value="org.sadiframework.editor.views.SADIOwlCodeGeneratorView"/>
         <headerColor value="@org.protege.classcolor" />
     </extension>
-    
+
     <extension id="SADITab"
                point="org.protege.editor.core.application.WorkspaceTab">
        <label value="SADI"/>

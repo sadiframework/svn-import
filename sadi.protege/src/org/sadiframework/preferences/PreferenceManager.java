@@ -63,7 +63,7 @@ public class PreferenceManager {
     public void saveBooleanPreference(String key, boolean value) {
         if (key != null && !key.trim().equals("")) {
             prefs.putBoolean(key, value);
-            fire(key.toString(), value);
+            fire(key, value);
         }
     }
 

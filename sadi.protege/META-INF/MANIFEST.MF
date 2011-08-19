@@ -61,7 +61,7 @@ Import-Package: javax.management,
  org.apache.log4j,
  org.osgi.framework,
  org.w3c.dom
-Bundle-Version: 1.1.12
+Bundle-Version: 1.2.1
 Bundle-Activator: org.protege.editor.core.plugin.DefaultPluginActivator
 Require-Bundle: org.eclipse.equinox.registry,
  org.eclipse.equinox.common,
