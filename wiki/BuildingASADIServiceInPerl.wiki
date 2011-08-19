@@ -1,0 +1,17 @@
+#summary Tutorial: Building a SADI Service in Perl
+
+= Building a SADI Service in Perl =
+
+This tutorial describes how a service provider can use SADI::Simple to create, test, and deploy a SADI service in Perl.
+
+== Requirements ==
+
+This tutorial requires:
+
+  * Perl
+  * apache (the default configuration is probably sufficient)
+  * SADI::Simple (install via CPAN)
+
+== Service template ==
+
+Using a SADI::Simple, a complete SADI service can be implemented in a single Perl script.  The following shows the template for a Hello, World! service
