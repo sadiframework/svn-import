@@ -5,6 +5,8 @@ package <ModuleName>;
 use strict;
 use warnings;
 
+use SADI::Simple 0.007;
+
 #-----------------------------------------------------------------
 # CGI HANDLER PART
 #-----------------------------------------------------------------
@@ -21,14 +23,14 @@ my %config = (
     InputClass => '<InputOWLClassURI>',
     OutputClass => '<OutputOWLClassURI>',
 <if(ServiceURL)>
-    URL => '<ServiceURL>', # this is required for asynchronous services!
+    URL => '<ServiceURL>', 
 <endif>
     Authority => '<ServiceAuthority>', 
     Provider => '<ContactEmailAddress>',
 <if(ServiceTypeURI)>
-	ServiceType => '<ServiceTypeURI>',
+    ServiceType => '<ServiceTypeURI>',
 <endif>
-	Authoritative => <IsAuthoritative>,
+    Authoritative => <IsAuthoritative>,
 );
 
 my $service = <ModuleName>->new(%config);

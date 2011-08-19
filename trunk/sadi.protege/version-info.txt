@@ -15,6 +15,12 @@ the provision of SADI services.</p>
 
 <h3>Version info</h3>
 
+<h4>v1.2.1 (15th Aug 2011)</h4>
+<ul>
+    <li>PreferenceManager fix:  old listeners/views were not being disposed when switching between different ontology files (without closing Protege)</li>
+	<li>update Perl service generator to use SADI-Simple 0.007 (makes URL parameter optional for async services)</li>
+</ul>
+
 <h4>v1.2.0 (15th Aug 2011)</h4>
 <ul>
     <li>Change Perl service generator to use SADI::Simple instead of SADISeS</li>

@@ -108,20 +108,14 @@ public class Generator {
         URL templateURL = FrameworkUtil.getBundle(Generator.class).getEntry("resources/perl.sadi.service.template");
         String template = IOUtils.toString(templateURL.openStream());
 
-    	ST templater = new ST(template);  	
+    	ST templater = new ST(template);
 
     	String perlModuleName = StringUtils.getPerlModuleName(serviceDefinition.getName());
-    	
-    	// For synchronous services the URL parameter is unused; for
-    	// asynchoronous services it is required (to generate the polling RDF).
-    	
+
     	String serviceURL = null;
-    	if (serviceDefinition.isAsync()) {
-    		serviceURL = (serviceDefinition.getEndpoint() == null) ? "" : serviceDefinition.getEndpoint();
-    	}
-    	
-    	// This parameter is optional.
-    	
+    	if (!StringUtils.isNullOrEmpty(serviceDefinition.getEndpoint())) 
+    		serviceURL = serviceDefinition.getEndpoint();
+    	    	
     	String serviceType = null;
     	if (!StringUtils.isNullOrEmpty(serviceDefinition.getServiceType())) 
     		serviceType = serviceDefinition.getServiceType();
