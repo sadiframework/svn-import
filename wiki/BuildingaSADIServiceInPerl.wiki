@@ -148,7 +148,7 @@ Note that the [http://sadiframework.org/examples/hello.owl hello.owl] ontology c
 Your business logic should be added to the `process_it` routine, which gets called each time the service is invoked.  In 'process_it', you read statements about each input URI from the input model and add new statements about each input URI to the output model. (A 
 _model_ is a set of RDF triples.)  `SADI::Simple` uses the `RDF::Trine` module for manipulating the input and output models.
 
-For our 'Hello, World!' example, implementing the business logic requires reading the name attached to each input URI and attaching a corresponding greeting in the output model.  The completed service ([http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl]) is shown below:
+For our 'Hello, World!' example, implementing the business logic requires reading the name attached to each input URI and attaching a corresponding greeting to the URI in the output model.  The completed service ([http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl]) is shown below:
 
 {{{
 #!/usr/bin/perl
@@ -230,6 +230,17 @@ sub process_it {
 _[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl]: complete implementation of a SADI 'Hello, World!' service in Perl_
 
 == Testing your service ==
+
+[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] is a CGI script.  You may test the service on your local machine by installing a web server (e.g. [http://www.apache.org/ Apache]) and configuring some directory on your machine to act as a  `cgi-bin` directory.  For a HOWTO on configuring CGI in Apache, see [http://httpd.apache.org/docs/current/howto/cgi.html].
+
+Once you have set up your web server and have copied [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] to the cgi-bin directory, set the file to be executable by everyone with the command:
+
+{{{
+$ chmod a+x <PATH TO CGI-BIN>/hello.pl
+}}}
+     
+Next your will need to test the service with a sample input file.
+
 
 
  
