@@ -14,7 +14,7 @@ This tutorial requires:
 
 == Service template ==
 
-Using SADI::Simple, a complete SADI service can be implemented in a single Perl script. The following shows a template for the 'Hello, World!' service, without the business logic.
+Using SADI::Simple, a complete SADI service can be implemented in a single Perl script. The following code ([http://sadi.googlecode.com/files/sadi-service-skeleton-0.0.1.pl sadi-service-skeleton-0.0.1.pl) shows a template for the 'Hello, World!' service, without the business logic.
 
 {{{
 #!/usr/bin/perl
@@ -53,7 +53,6 @@ $service->handle_cgi_request;
 use RDF::Trine::Node::Resource;
 use RDF::Trine::Node::Literal;
 use RDF::Trine::Statement;
-use Log::Log4perl;
 
 =head2 process_it
 
@@ -69,42 +68,25 @@ sub process_it {
 
     my ($self, $inputs, $input_model, $output_model) = @_;
 
-    my $name_property = RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name');
-    my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
-
     foreach my $input (@$inputs) {
-        
+       
         # Log4perl 'easy mode' routines: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, ALWAYS
         INFO(sprintf('processing input %s', $input->uri));
 
-        my ($name) = $input_model->objects($input, $name_property);
-
-        if (!$name || !$name->is_literal) {
-            WARN('skipping input %s, doesn\'t have a <%s> property with a literal value');
-            next;
-        }
-
-        my $greeting = sprintf("Hello, '%s'!", $name->value);
-        my $greeting_literal = RDF::Trine::Node::Literal->new($greeting);
-        
-        my $statement = RDF::Trine::Statement->new($input, $greeting_property, $greeting_literal);
-        $output_model->add_statement($statement);
+        # Add business logic here.
+        #
+        # Perform the desired computation on $input, then add
+        # new statements about $input to $output_model.
 
     }
 
 }
 }}}
-_Figure 1: Template for an asynchronous SADI service, without business logic._
+_[http://sadi.googlecode.com/files/sadi-service-skeleton-0.0.1.pl sadi-service-skeleton-0.0.1.pl]: Template for an asynchronous SADI service, without business logic._
 
-=== Synchronous vs. Asynchronous Services ===
+To configure the service template, we must choose to subclass one of the following two classes:
 
-Service providers may implement their SADI services as a subclass of either:
-
-SADI::Simple::SyncService
-
-    A service that subclasses SADI::Simple::SyncService is a synchronous service, which means that the service completes its computation before returning any response to the caller.
-SADI::Simple::AsyncService
-
-    A service that subclasses SADI::Simple::AsyncService is a an asynchronous service, which means that the service returns an immediate "ask me later" response to a request, and must be polled for the results.
+  * SADI::Simple::SyncService -- A service that subclasses SADI::Simple::SyncService is a synchronous service, which means that the service completes its computation before returning any response to the caller.
+  * SADI::Simple::AsyncService -- A service that subclasses SADI::Simple::AsyncService is a an asynchronous service, which means that the service returns an immediate "ask me later" response to a request, and must be polled for the results.
 
 In general, asynchronous services are a better choice as they can run for an arbitarily long time. The main advantage of synchronous services is that there is less back-and-forth messaging and so they are potentially more efficient for services that perform trivial operations.
