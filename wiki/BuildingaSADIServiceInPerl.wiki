@@ -1,0 +1,82 @@
+#summary Tutorial: Building a SADI Service in Perl
+
+= Building a SADI Service in Perl =
+
+This tutorial describes how to create, test, and deploy a Perl version of the 'Hello, World!' SADI service described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?].
+
+== Requirements ==
+
+This tutorial requires:
+
+  * Perl
+  * Apache (the default configuration is probably fine)
+  * SADI::Simple (install via CPAN)
+
+== Service template ==
+
+Using SADI::Simple, a complete SADI service can be implemented in a single Perl script. The following shows a template for the 'Hello, World!' service, without the business logic.
+
+
+{{{
+#!/usr/bin/perl
+
+package HelloWorld;
+
+use strict;
+use warnings;
+
+#-----------------------------------------------------------------
+# CGI HANDLER PART
+#-----------------------------------------------------------------
+
+use Log::Log4perl qw(:easy);
+use base 'SADI::Simple::AsyncService'; # or 'SADI::Simple::SyncService'
+
+Log::Log4perl->easy_init($WARN);
+
+my $config = {
+    ServiceName => 'HelloWorld',
+    Description => 'A \'Hello, World!\' service',
+    InputClass => 'http://sadiframework.org/examples/hello.owl#NamedIndividual',
+    OutputClass => 'http://sadiframework.org/examples/hello.owl#GreetedIndividual',   
+    Authority => 'sadiframework.org', 
+    Provider => 'myaddress@organization.org',
+};
+
+my $service = HelloWorld->new(%$config);
+$service->handle_cgi_request;
+
+#-----------------------------------------------------------------
+# SERVICE IMPLEMENTATION PART
+#-----------------------------------------------------------------
+
+use RDF::Trine::Node::Resource;
+use RDF::Trine::Node::Literal;
+use RDF::Trine::Statement;
+use Log::Log4perl;
+
+=head2 process_it
+
+ Function: implements the business logic of a SADI service
+ Args    : $inputs - ref to an array of RDF::Trine::Node::Resource
+           $input_model - an RDF::Trine::Model containing the input RDF data
+           $output_model - an RDF::Trine::Model containing the output RDF data
+ Returns : nothing (service output is stored in $output_model)
+
+=cut
+
+sub process_it {
+
+    my ($self, $inputs, $input_model, $output_model) = @_;
+
+    foreach my $input (@$inputs) {
+        
+        INFO(sprintf('processing input %s', $input->uri));
+
+        # BUSINESS LOGIC GOES HERE
+
+    }
+
+}
+
+}}}
