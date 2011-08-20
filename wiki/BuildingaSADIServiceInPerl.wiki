@@ -2,20 +2,19 @@
 
 = Building a SADI Service in Perl =
 
-This tutorial describes how to create, test, and deploy a Perl version of the 'Hello, World!' SADI service described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?].
+This tutorial describes how to create, test, debug, and deploy a Perl version of the 'Hello, World!' SADI service described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?].
 
 == Requirements ==
 
 This tutorial requires:
 
   * Perl
-  * Apache (the default configuration is probably fine)
   * SADI::Simple (install via CPAN)
+  * Apache 
 
 == Service template ==
 
 Using SADI::Simple, a complete SADI service can be implemented in a single Perl script. The following shows a template for the 'Hello, World!' service, without the business logic.
-
 
 {{{
 #!/usr/bin/perl
@@ -32,15 +31,16 @@ use warnings;
 use Log::Log4perl qw(:easy);
 use base 'SADI::Simple::AsyncService'; # or 'SADI::Simple::SyncService'
 
+# send log messages at level WARN or above to STDERR
 Log::Log4perl->easy_init($WARN);
 
 my $config = {
-    ServiceName => 'HelloWorld',
-    Description => 'A \'Hello, World!\' service',
-    InputClass => 'http://sadiframework.org/examples/hello.owl#NamedIndividual',
-    OutputClass => 'http://sadiframework.org/examples/hello.owl#GreetedIndividual',   
-    Authority => 'sadiframework.org', 
-    Provider => 'myaddress@organization.org',
+    ServiceName => 'HelloWorld', # any name you like  
+    Description => 'A \'Hello, World!\' service', 
+    InputClass => 'http://sadiframework.org/examples/hello.owl#NamedIndividual', # defines a single service input
+    OutputClass => 'http://sadiframework.org/examples/hello.owl#GreetedIndividual', # defines a single service output
+    Authority => 'sadiframework.org', # domain of organization providing service
+    Provider => 'myaddress@organization.org', # contact e-mail address of service provider
 };
 
 my $service = HelloWorld->new(%$config);
@@ -69,14 +69,42 @@ sub process_it {
 
     my ($self, $inputs, $input_model, $output_model) = @_;
 
+    my $name_property = RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name');
+    my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
+
     foreach my $input (@$inputs) {
         
+        # Log4perl 'easy mode' routines: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, ALWAYS
         INFO(sprintf('processing input %s', $input->uri));
 
-        # BUSINESS LOGIC GOES HERE
+        my ($name) = $input_model->objects($input, $name_property);
+
+        if (!$name || !$name->is_literal) {
+            WARN('skipping input %s, doesn\'t have a <%s> property with a literal value');
+            next;
+        }
+
+        my $greeting = sprintf("Hello, '%s'!", $name->value);
+        my $greeting_literal = RDF::Trine::Node::Literal->new($greeting);
+        
+        my $statement = RDF::Trine::Statement->new($input, $greeting_property, $greeting_literal);
+        $output_model->add_statement($statement);
 
     }
 
 }
-
 }}}
+_Figure 1: Template for an asynchronous SADI service, without business logic._
+
+=== Synchronous vs. Asynchronous Services ===
+
+Service providers may implement their SADI services as a subclass of either:
+
+SADI::Simple::SyncService
+
+    A service that subclasses SADI::Simple::SyncService is a synchronous service, which means that the service completes its computation before returning any response to the caller.
+SADI::Simple::AsyncService
+
+    A service that subclasses SADI::Simple::AsyncService is a an asynchronous service, which means that the service returns an immediate "ask me later" response to a request, and must be polled for the results.
+
+In general, asynchronous services are a better choice as they can run for an arbitarily long time. The main advantage of synchronous services is that there is less back-and-forth messaging and so they are potentially more efficient for services that perform trivial operations.
