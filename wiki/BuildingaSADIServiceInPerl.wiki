@@ -144,3 +144,12 @@ This class also specifies a single property restriction, indicating that the ser
 Note that the [http://sadiframework.org/examples/hello.owl hello.owl] ontology completely specifies the properties it uses: it defines the greeting property and imports the foaf:name property.
 
 == Adding business logic ==
+
+Your business logic should be added to the `process_it` routine, which gets called each time the service is invoked.  In 'process_it', you read statements about each input URI from the input model and add new statements about each input URI to the output model. (A 
+_model_ is a set of RDF triples.)  `SADI::Simple` uses the `RDF::Trine` module for manipulating the input and output models.
+
+For our 'Hello, World!' example, implementing the business logic entails reading the name of each input URI and attaching a corresponding greeting to the same URI.  The completed service (hello.pl) is shown below:
+
+{{{
+}}}
+ 
