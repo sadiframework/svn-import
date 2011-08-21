@@ -1,19 +1,23 @@
 #summary Tutorial: Building a SADI Service in Perl
 
-= Building a SADI Service in Perl =
+= Tutorial: Building a SADI Service in Perl =
+
+<wiki:toc max_depth="1" />
+
+= Introduction =
 
 This tutorial describes how to create, test, debug, and deploy a Perl version of the 'Hello, World!' SADI service described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?].
 
-== Requirements ==
+= Requirements for Tutorial =
 
 This tutorial requires:
 
-  * Perl
-  * SADI::Simple (install via CPAN)
-  * Apache 
-  * curl (a command-line HTTP client)
+  * [http://www.perl.org Perl]
+  * [http://search.cpan.org/dist/SADI-Simple/ SADI::Simple] (install via CPAN)
+  * [http://www.apache.org/ Apache] 
+  * [http://curl.haxx.se/ cURL] (a command-line HTTP client)
 
-== Service template ==
+= Service template =
 
 Using SADI::Simple, a complete SADI service can be implemented in a single Perl script. The following code ([http://sadi.googlecode.com/files/sadi-service-skeleton-0.0.1.pl sadi-service-skeleton-0.0.1.pl]) shows a template for the 'Hello, World!' service, without the business logic.
 
@@ -106,7 +110,7 @@ In addition, you may add the following optional parameters to the `$config` hash
   * `URL` -- The URL used to access your service. It is necessary to provide this parameter if the service is asynchronous and sits behind proxies/redirects, to ensure that the polling URLs returned by the service are publicly accessible.
   * `ServiceType` -- A URI indicating the type of service. Ideally, this URI should come from a public ontology of service types, such as the [http://www.mygrid.org.uk/tools/service-management/mygrid-ontology/ myGrid ontology] for bioinformatics services.
 
-== Defining input and output OWL classes ==
+= Defining input and output OWL classes =
 
 Your service’s input and output OWL classes describe its interface to the world. The property restrictions on the input class define the properties your service needs to operate and the property restrictions on the output class define the properties your service will attach.
 
@@ -144,7 +148,7 @@ This class also specifies a single property restriction, indicating that the ser
 
 Note that the [http://sadiframework.org/examples/hello.owl hello.owl] ontology completely specifies the properties it uses: it defines the greeting property and imports the foaf:name property.
 
-== Adding business logic ==
+= Adding business logic =
 
 Your business logic should be added to the `process_it` routine, which gets called each time the service is invoked.  In `process_it`, you read statements about each input URI from the input model and add new statements about each input URI to the output model. (A 
 _model_ is a set of RDF triples.)  `SADI::Simple` uses the `RDF::Trine` module for manipulating the input and output models.
@@ -234,10 +238,10 @@ _[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.p
 
 [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] is a CGI script.  You may test the service on your local machine by installing a web server (e.g. [http://www.apache.org/ Apache]) and configuring some directory on your machine to act as a  `cgi-bin` directory.  For a HOWTO on configuring CGI in Apache, see [http://httpd.apache.org/docs/current/howto/cgi.html].
 
-Once you have set up your web server and have copied [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] to the cgi-bin directory, set the file to be executable by everyone with the command:
+Once you have set up your web server and have copied [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] to the cgi-bin directory, make sure the web server can run the script by making it executable (for everyone):
 
 {{{
-$ chmod a+x <PATH TO CGI-BIN>/hello.pl
+$ chmod a+x $PATH_TO_CGI_BIN/hello.pl
 }}}
      
 Next, you will want to test the service by invoking it with some input. The following RDF ([http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3 hello-input.n3] shows a sample input RDF file in N3 format:
@@ -247,11 +251,11 @@ Next, you will want to test the service by invoking it with some input. The foll
 @prefix hello: <http://sadiframework.org/examples/hello.owl#> .
 @prefix input: <http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#> .
 
-input:1 
+input:a 
     a hello:NamedIndividual;
     foaf:name "Guy Incognito" .
 
-input:2
+input:b
     a hello:NamedIndividual;
     foaf:name "Homer Simpson" .
 }}}
@@ -260,8 +264,15 @@ _[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-i
 To invoke the service, you need to issue an HTTP POST request to the service with [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3 hello-input.n3] as the content of the request.  Here, we will use the `curl` command-line HTTP client to do this:
 
 {{{
-$ curl -H 'Content-Type: text/rdf+n3' --data hello-input.n3 http://localhost/cgi-bin/hello.pl
+$ curl -H 'Content-Type: text/rdf+n3' -H 'Accept: text/rdf+n3' --data  @hello-input.n3  http://localhost/cgi-bin/hello.pl
 }}} 
 
+By default, the service assumes that the input format will be RDF/XML and that desired output format is RDF/XML.  To indicate that the input format is N3 we supply the `Content-Type` header, and to indicate that the desired output is N3 we supply the `Accept` header.  
+
+As this is an asynchronous service, we receive an immediate response that looks like:
+
+{{{
+
+}}}
 
  
