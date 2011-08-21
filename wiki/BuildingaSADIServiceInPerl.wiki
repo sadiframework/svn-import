@@ -87,7 +87,7 @@ sub process_it {
 
 }
 }}}
-_[http://sadi.googlecode.com/files/sadi-service-skeleton-0.0.1.pl sadi-service-skeleton-0.0.1.pl]: Template for an asynchronous SADI service, without business logic._
+_[http://sadi.googlecode.com/files/sadi-service-skeleton-0.0.1.pl sadi-service-skeleton-0.0.1.pl]: template for a Perl SADI service, without business logic._
 
 To configure the service template, you must choose to subclass one of the following two classes:
 
