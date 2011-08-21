@@ -323,6 +323,6 @@ SetEnv PERL5LIB /home/joe/lib/perl5
 
 = Registering your service =
 
-If you think your service might be useful to others, please register it in the public SADI registry! Simply submit the service URL to form at http://sadiframework.org/registry. 
+If you think your service might be useful to others, please register it in the public SADI registry! Simply submit the service URL to the form at http://sadiframework.org/registry. 
 
 Happy hacking!
