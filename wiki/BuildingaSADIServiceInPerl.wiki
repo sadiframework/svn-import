@@ -245,7 +245,7 @@ $ chmod a+x $PATH_TO_CGI_BIN/hello.pl
 }}}
 
 Replace $PATH_TO_CGI_BIN with the path to your local `cgi-bin` directory.
-      
+
 Next, you will want to test the service by invoking it with some input. The following text ([http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3 hello-input.n3]) shows a sample input RDF file in N3 format:
 
 {{{
