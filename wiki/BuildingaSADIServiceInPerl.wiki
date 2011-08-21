@@ -11,6 +11,7 @@ This tutorial requires:
   * Perl
   * SADI::Simple (install via CPAN)
   * Apache 
+  * curl (a command-line HTTP client)
 
 == Service template ==
 
@@ -145,7 +146,7 @@ Note that the [http://sadiframework.org/examples/hello.owl hello.owl] ontology c
 
 == Adding business logic ==
 
-Your business logic should be added to the `process_it` routine, which gets called each time the service is invoked.  In 'process_it', you read statements about each input URI from the input model and add new statements about each input URI to the output model. (A 
+Your business logic should be added to the `process_it` routine, which gets called each time the service is invoked.  In `process_it`, you read statements about each input URI from the input model and add new statements about each input URI to the output model. (A 
 _model_ is a set of RDF triples.)  `SADI::Simple` uses the `RDF::Trine` module for manipulating the input and output models.
 
 For our 'Hello, World!' example, implementing the business logic requires reading the name attached to each input URI and attaching a corresponding greeting to the URI in the output model.  The completed service ([http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl]) is shown below:
@@ -239,8 +240,28 @@ Once you have set up your web server and have copied [http://sadiframework.org/d
 $ chmod a+x <PATH TO CGI-BIN>/hello.pl
 }}}
      
-Next your will need to test the service with a sample input file.
+Next, you will want to test the service by invoking it with some input. The following RDF ([http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3 hello-input.n3] shows a sample input RDF file in N3 format:
 
+{{{
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#> .
+
+input:1 
+    a hello:NamedIndividual;
+    foaf:name "Guy Incognito" .
+
+input:2
+    a hello:NamedIndividual;
+    foaf:name "Homer Simpson" .
+}}}
+_[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3 hello-input.n3]: a sample input RDF file for our 'Hello, World!' service, in N3 format_
+
+To invoke the service, you need to issue an HTTP POST request to the service with [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3 hello-input.n3] as the content of the request.  Here, we will use the `curl` command-line HTTP client to do this:
+
+{{{
+$ curl -H 'Content-Type: text/rdf+n3' --data hello-input.n3 http://localhost/cgi-bin/hello.pl
+}}} 
 
 
  
