@@ -99,7 +99,7 @@ In general, asynchronous services are a better choice as they can run for an arb
 Next, you must fill in appropriate values for the `$config` hash:
 
   * `ServiceName` -- A human-readable name for the service
-  * `Description` -- A plain text description of the service
+  * `Description` -- A human-readable description of the service
   * `InputClass` -- The URI of the service's _input OWL class_. The input OWL class describes the required properties (i.e. predicates) of each input RDF node. A further discussion of the input and output OWL classes will be given in the following section.
   * `OutputClass` -- The URI of the service's output OWL class. The output OWL class describes the properties (i.e. predicates) that are attached each input RDF node, as a result of the service's computation. A further discussion of the input and output OWL classes will be given in the following section.
   * `Authority` -- The hostname of the organization providing the service (e.g. sadiframework.org)
