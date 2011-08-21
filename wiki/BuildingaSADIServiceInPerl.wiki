@@ -114,7 +114,7 @@ In addition, you may add the following optional parameters to the `$config` hash
 
 Your service’s input and output OWL classes describe its interface to the world. The property restrictions on the input class define the properties your service needs to operate and the property restrictions on the output class define the properties your service will attach.
 
-As described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?], your input and output classes must each be identified by an URL that resolves to the class definition. Before you implement a service, you should create the OWL ontology describing your input and output and publish it on the web. Ontology design is beyond the scope of this document, but we provide an example here to help get you started.
+As described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?], your input and output classes must each be identified by an URL that resolves to the class definition. Before you implement a service, you must create the OWL ontology describing the service input and output and publish it on the web. Ontology design is beyond the scope of this document, but we provide an example here to help get you started.
 
 For our 'Hello, World!' example, the input class is http://sadiframework.org/examples/hello.owl#NamedIndividual. The class definition is reproduced below:
 
