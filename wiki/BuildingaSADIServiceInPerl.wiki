@@ -236,9 +236,9 @@ _[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.p
 
 = Testing your service =
 
-[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] is a CGI script.  You may test the service on your local machine by installing a web server (e.g. [http://www.apache.org/ Apache]) and configuring some directory on your machine to act as a  `cgi-bin` directory.  For a HOWTO on configuring CGI in Apache, see [http://httpd.apache.org/docs/current/howto/cgi.html].
+[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] is a [http://en.wikipedia.org/wiki/Common_Gateway_Interface CGI script].  You may test the service on your local machine by installing [http://www.apache.org/ Apache] and configuring a directory on your machine to act as a `cgi-bin` directory.  Here is a HOWTO for configuring CGI in Apache: http://httpd.apache.org/docs/current/howto/cgi.html].
 
-Once you have set up your web server and have copied [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] to the cgi-bin directory, make sure the web server can run the script by making it executable (for everyone):
+Once you have set up your web server and have copied [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] to the cgi-bin directory, ensure the web server can run the script by making it world executable:
 
 {{{
 $ chmod a+x $PATH_TO_CGI_BIN/hello.pl
