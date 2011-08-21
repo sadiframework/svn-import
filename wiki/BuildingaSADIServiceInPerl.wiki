@@ -150,10 +150,10 @@ Note that the [http://sadiframework.org/examples/hello.owl hello.owl] ontology c
 
 = Adding business logic =
 
-Your business logic should be added to the `process_it` routine, which gets called each time the service is invoked.  In `process_it`, you read statements about each input URI from the input model and add new statements about each input URI to the output model. (A 
-_model_ is a set of RDF triples.)  `SADI::Simple` uses the `RDF::Trine` module for manipulating the input and output models.
+Your business logic should be added to the `process_it` routine of [http://sadi.googlecode.com/files/sadi-service-skeleton-0.0.1.pl sadi-service-skeleton-0.0.1.pl]; this method will be called once for each time the service is invoked.  In `process_it`, you read statements about each input URI from the input model and add new statements about each input URI to the output model. (A 
+_model_ is a set of RDF triples.)  `SADI::Simple` uses the `RDF::Trine` module for creating and manipulating the input/output RDF models.
 
-For our 'Hello, World!' example, implementing the business logic requires reading the name attached to each input URI and attaching a corresponding greeting to the URI in the output model.  The completed service ([http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl]) is shown below:
+For our 'Hello, World!' example, implementing the business logic requires reading the name attached to each input URI and then attaching a corresponding greeting to that URI in the output model.  The completed service ([http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl]) is shown below:
 
 {{{
 #!/usr/bin/perl
