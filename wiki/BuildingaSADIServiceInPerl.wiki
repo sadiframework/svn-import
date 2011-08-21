@@ -267,7 +267,7 @@ To invoke the service, you need to issue an HTTP POST request to the service wit
 $ curl -H 'Content-Type: text/rdf+n3' -H 'Accept: text/rdf+n3' -i --data  @hello-input.n3  'http://localhost/cgi-bin/hello.pl'
 }}} 
 
-By default, the service assumes that the input format will be RDF/XML and that the desired output format is RDF/XML.  We supply the `Content-Type` header to indicate that the input format is N3 and the `Accept` header to indicate that the desired output format is N3.  We include the `-i` switch to display the HTTP headers of the response.
+By default, the service assumes that the input format will be RDF/XML and that the desired output format is RDF/XML.  We supply the `Content-Type` header to indicate that the input format is N3 and the `Accept` header to indicate that the desired output format is N3.  We include the `-i` switch to display the HTTP headers of the response (for illustrative purposes).
 
 As this is an asynchronous service, we receive an immediate response that looks like:
 
@@ -286,7 +286,7 @@ Content-Type: text/rdf+n3; charset=ISO-8859-1
 
 }}}
 
-This response tells us that we should wait 30 seconds and then attempt to retrieve the results from `http://localhost/cgi-bin/hello.pl?poll=cE_5RTzFiN`. Again, we specify that we want the output in N3:
+This HTTP 202 response tells us that service has accepted the request and that we should wait 30 seconds before retrieving the results from `http://localhost/cgi-bin/hello.pl?poll=cE_5RTzFiN`. Again, we specify that we want the output in N3:
 
 {{{
 $ curl -H 'Accept: text/rdf+n3' 'http://localhost/cgi-bin/hello.pl?poll=K7CRRwEV7H'
@@ -309,7 +309,9 @@ If you need to run your service in the [http://perldoc.perl.org/perldebtut.html 
 $ REQUEST_METHOD=POST CONTENT_TYPE='text/rdf+n3' HTTP_ACCEPT='text/rdf+n3' perl -d hello.pl < hello-input.n3 
 }}} 
 
-Note that asynchronous services difficult to debug than synchronous services because they spawn a child thread to run the `process_it` method.  To make life easier, you can temporarily change the parent class of your service to `SADI::Simple::SyncService` while debugging.
+The environment variables values at the beginning of the command create a CGI-like environment for the script. 
+
+Note that synchronous services are more difficult to debug than synchronous services because they spawn a child thread to run the `process_it` method.  To make life easier, you can temporarily change the parent class of your service to `SADI::Simple::SyncService` while debugging.
 
 = Deploying your service =
 
