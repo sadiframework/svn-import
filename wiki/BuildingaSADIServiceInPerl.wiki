@@ -8,7 +8,7 @@
 
 This tutorial describes how to create, test, debug, and deploy a Perl version of the 'Hello, World!' SADI service described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?].
 
-= Software requirements for tutorial =
+= Software requirements =
 
 This tutorial requires:
 
