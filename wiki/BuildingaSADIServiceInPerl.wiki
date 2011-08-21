@@ -273,41 +273,58 @@ As this is an asynchronous service, we receive an immediate response that looks 
 
 {{{
 HTTP/1.1 202 Accepted
-Date: Sun, 21 Aug 2011 03:55:23 GMT
+Date: Sun, 21 Aug 2011 04:27:04 GMT
 Server: Apache/2.2.14 (Ubuntu)
 Retry-after: 30
 Transfer-Encoding: chunked
 Content-Type: text/rdf+n3; charset=ISO-8859-1
 
-<http://sadiframework.org/examples/t/hello-input.n3#a> a <http://sadiframework.org/examples/hello.owl#GreetedIndividual> ;
-	<http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://localhost/cgi-bin/hello.pl?poll=cE_5RTzFiN> .
-<http://sadiframework.org/examples/t/hello-input.n3#b> a <http://sadiframework.org/examples/hello.owl#GreetedIndividual> ;
-	<http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://localhost/cgi-bin/hello.pl?poll=cE_5RTzFiN> .
+<http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#a> a <http://sadiframework.org/examples/hello.owl#GreetedIndividual> ;
+	<http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://localhost/cgi-bin/hello.pl?poll=K7CRRwEV7H> .
+<http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#b> a <http://sadiframework.org/examples/hello.owl#GreetedIndividual> ;
+	<http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://localhost/cgi-bin/hello.pl?poll=K7CRRwEV7H> .
+
 }}}
 
 This response tells us that we should wait 30 seconds and then attempt to retrieve the results from `http://localhost/cgi-bin/hello.pl?poll=cE_5RTzFiN`. Again, we specify that we want the output in N3:
 
 {{{
-$ curl -H 'Accept: text/rdf+n3' 'http://localhost/cgi-bin/hello.pl?poll=cE_5RTzFiN'
+$ curl -H 'Accept: text/rdf+n3' 'http://localhost/cgi-bin/hello.pl?poll=K7CRRwEV7H'
 }}}
 
 We then receive the expected output data:
 
 {{{
-<http://sadiframework.org/examples/t/hello-input.n3#a> <http://sadiframework.org/examples/hello.owl#greeting> "Hello, 'Guy Incognito'!" .
-<http://sadiframework.org/examples/t/hello-input.n3#b> <http://sadiframework.org/examples/hello.owl#greeting> "Hello, 'Homer Simpson'!" .
+<http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#a> <http://sadiframework.org/examples/hello.owl#greeting> "Hello, 'Guy Incognito'!" .
+<http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#b> <http://sadiframework.org/examples/hello.owl#greeting> "Hello, 'Homer Simpson'!" .
 }}} 
 
 = Debugging your service =
 
 The above scenario assumes that you have made no errors in coding the business logic of your service.  However, generally that is not how life works.
 
-You can run your service in the [http://perldoc.perl.org/perldebtut.html Perl debugger] with the following command:
+If you need to run your service in the [http://perldoc.perl.org/perldebtut.html Perl debugger], you can use the following command:
 
 {{{
 $ REQUEST_METHOD=POST CONTENT_TYPE='text/rdf+n3' HTTP_ACCEPT='text/rdf+n3' perl -d hello.pl < hello-input.n3 
 }}} 
 
-You may find asynchronous services difficult to debug because they call `process_it` in a child thread.  To make life simpler, you can temporarily change the parent class of the service to `SADI::Simple::SyncService` while you are debugging.
+Note that asynchronous services difficult to debug than synchronous services because they spawn a child thread to run the `process_it` method.  To make life easier, you can temporarily change the parent class of your service to `SADI::Simple::SyncService` while debugging.
 
-= Deploying and registering your service =
+= Deploying your service =
+
+Once you have tested your service, you can deploy it by uploading it to the cgi-bin directory on the target server. 
+
+SADI::Simple and any other Perl modules that your service requires will need to be installed on the target server. If you cannot install Perl modules on the target server because you do not have root access, it is possible to install the Perl modules in your home directory instead. The following link describes how to configure CPAN to install modules in your home directory: http://perldoc.perl.org/perlfaq8.html#How-do-I-keep-my-own-module%2Flibrary-directory%3F. 
+
+Supposing that your personal Perl lib directory is `/home/joe/lib/perl5`, you can add that directory to the `@INC` path for your SADI services by adding the following line to the [http://httpd.apache.org/docs/current/howto/htaccess.html .htaccess] file in your `cgi-bin` directory:
+
+{{
+SetEnv PERL5LIB /home/joe/lib/perl5
+}}
+
+= Registering your service =
+
+If you think your service might be useful to others, you can register it in the public SADI registry.  Simply submit the service URL to form at http://sadiframework.org/registry. 
+
+Happy hacking!
