@@ -101,7 +101,7 @@ Next, you must fill in appropriate values for the `$config` hash:
   * `ServiceName` -- A human-readable name for the service
   * `Description` -- A human-readable description of the service
   * `InputClass` -- The URI of the service's _input OWL class_. The input OWL class describes the required properties (i.e. predicates) of each input RDF node. A further discussion of the input and output OWL classes will be given in the following section.
-  * `OutputClass` -- The URI of the service's output OWL class. The output OWL class describes the properties (i.e. predicates) that are attached each input RDF node, as a result of the service's computation. A further discussion of the input and output OWL classes will be given in the following section.
+  * `OutputClass` -- The URI of the service's _output OWL class_. The output OWL class describes the properties (i.e. predicates) that are attached each input RDF node, as a result of the service's computation. A further discussion of the input and output OWL classes will be given in the following section.
   * `Authority` -- The hostname of the organization providing the service (e.g. sadiframework.org)
   * `Provider` -- The contact email address of the service provider, in case of questions / problems.
 
