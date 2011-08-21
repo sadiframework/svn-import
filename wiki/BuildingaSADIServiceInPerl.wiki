@@ -311,7 +311,7 @@ If you need to run your service in the [http://perldoc.perl.org/perldebtut.html 
 $ REQUEST_METHOD=POST CONTENT_TYPE='text/rdf+n3' HTTP_ACCEPT='text/rdf+n3' perl -d hello.pl < hello-input.n3 
 }}} 
 
-The environment variables values at the beginning of the command create a CGI-like environment for the script. 
+The environment variable values at the beginning of the command create a CGI-like environment for the script. (Note: This command assumes you are using a bash shell under some flavor of Unix.  You will probably have to use other methods to set environment variable values under other operating systems or shells.)  
 
 Note that synchronous services are more difficult to debug than synchronous services because they spawn a child thread to run the `process_it` method.  To make life easier, you can temporarily change the parent class of your service to `SADI::Simple::SyncService` while debugging.
 
