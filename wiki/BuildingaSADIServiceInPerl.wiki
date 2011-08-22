@@ -1,6 +1,4 @@
-#summary Tutorial: Building a SADI service in Perl
-
-= Tutorial: Building a SADI service in Perl =
+#summary Tutorial: building a SADI service in Perl
 
 <wiki:toc max_depth="1" />
 
