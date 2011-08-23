@@ -132,17 +132,11 @@
 
     <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#BlastHit">
         <rdfs:label xml:lang="en">BLAST hit</rdfs:label>
-        <rdfs:subClassOf rdf:resource="http://sadiframework.org/ontologies/blast.owl#SequenceAlignment"/>
         <rdfs:subClassOf>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&resource;SIO_000616"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="&resource;SIO_000059"/>
-                        <owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#SequenceAlignment"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&resource;SIO_000028"/>
+                <owl:someValuesFrom rdf:resource="&resource;SIO_010066"/>
+            </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
     
@@ -223,6 +217,7 @@
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&resource;SIO_010015"/>
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="&resource;SIO_000008"/>
                         <owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#startPosition"/>
@@ -261,13 +256,7 @@
 
     <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#expectation">
         <rdfs:label rdf:datatype="&xsd;string">expectation</rdfs:label>
-        <rdfs:subClassOf rdf:resource="&resource;SIO_000257"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&resource;SIO_000300"/>
-                <owl:someValuesFrom rdf:resource="&xsd;double"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
+        <rdfs:subClassOf rdf:resource="&resource;SIO_000638"/>
     </owl:Class>
     
 
@@ -317,7 +306,18 @@
     <!-- http://sadiframework.org/ontologies/blast.owl#startPosition -->
 
     <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#startPosition">
-        <rdfs:subClassOf rdf:resource="&resource;SIO_000328"/>
+        <rdfs:label xml:lang="en">start position</rdfs:label>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&resource;SIO_000328"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000300"/>
+                        <owl:someValuesFrom rdf:resource="&xsd;integer"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
     </owl:Class>
     
 
@@ -325,7 +325,18 @@
     <!-- http://sadiframework.org/ontologies/blast.owl#stopPosition -->
 
     <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#stopPosition">
-        <rdfs:subClassOf rdf:resource="&resource;SIO_000328"/>
+        <rdfs:label xml:lang="en">stop position</rdfs:label>
+        <rdfs:subClassOf>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&resource;SIO_000328"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000300"/>
+                        <owl:someValuesFrom rdf:resource="&xsd;integer"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </rdfs:subClassOf>
     </owl:Class>
     
 
@@ -363,6 +374,12 @@
     <!-- http://semanticscience.org/resource/SIO_010015 -->
 
     <owl:Class rdf:about="&resource;SIO_010015"/>
+    
+
+
+    <!-- http://semanticscience.org/resource/SIO_010066 -->
+
+    <owl:Class rdf:about="&resource;SIO_010066"/>
 </rdf:RDF>
 
 
