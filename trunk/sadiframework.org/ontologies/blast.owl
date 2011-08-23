@@ -104,75 +104,22 @@
     
 
 
-    <!-- http://sadiframework.org/ontologies/blast.owl#BLASTedSequence -->
+    <!-- http://sadiframework.org/ontologies/blast.owl#BLASTAlignment -->
 
-    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#BLASTedSequence">
-        <rdfs:subClassOf rdf:resource="&resource;SIO_010015"/>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&resource;SIO_000028"/>
-                <owl:someValuesFrom>
-                    <owl:Class>
-                        <owl:intersectionOf rdf:parseType="Collection">
-                            <rdf:Description rdf:about="http://sadiframework.org/ontologies/blast.owl#SubSequence"/>
-                            <owl:Restriction>
-                                <owl:onProperty rdf:resource="&resource;SIO_000068"/>
-                                <owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#BlastHit"/>
-                            </owl:Restriction>
-                        </owl:intersectionOf>
-                    </owl:Class>
-                </owl:someValuesFrom>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://sadiframework.org/ontologies/blast.owl#BlastHit -->
-
-    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#BlastHit">
-        <rdfs:label xml:lang="en">BLAST hit</rdfs:label>
-        <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&resource;SIO_000028"/>
-                <owl:someValuesFrom rdf:resource="&resource;SIO_010066"/>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-    </owl:Class>
-    
-
-
-    <!-- http://sadiframework.org/ontologies/blast.owl#Consensus -->
-
-    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#Consensus">
-        <rdfs:label xml:lang="en">consensus sequence</rdfs:label>
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&resource;SIO_000510"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="&resource;SIO_000210"/>
-                        <owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#SequenceAlignment"/>
-                    </owl:Restriction>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="&resource;SIO_000300"/>
-                        <owl:someValuesFrom rdf:resource="&xsd;string"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-    </owl:Class>
-    
-
-
-    <!-- http://sadiframework.org/ontologies/blast.owl#SequenceAlignment -->
-
-    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#SequenceAlignment">
-        <rdfs:label xml:lang="en">sequence alignment</rdfs:label>
+    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#BLASTAlignment">
+        <rdfs:label xml:lang="en">BLAST alignment</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&resource;SIO_010068"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&resource;SIO_000008"/>
-                <owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#Consensus"/>
+                <owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#score"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&resource;SIO_000028"/>
+                <owl:onClass rdf:resource="http://sadiframework.org/ontologies/blast.owl#Subsequence"/>
+                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">2</owl:minQualifiedCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:subClassOf>
@@ -189,29 +136,91 @@
         </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&resource;SIO_000028"/>
-                <owl:onClass rdf:resource="http://sadiframework.org/ontologies/blast.owl#SubSequence"/>
-                <owl:minQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">2</owl:minQualifiedCardinality>
-            </owl:Restriction>
-        </rdfs:subClassOf>
-        <rdfs:subClassOf>
-            <owl:Restriction>
                 <owl:onProperty rdf:resource="&resource;SIO_000008"/>
-                <owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#score"/>
+                <owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#Consensus"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
     
 
 
-    <!-- http://sadiframework.org/ontologies/blast.owl#SubSequence -->
+    <!-- http://sadiframework.org/ontologies/blast.owl#BLASTHit -->
 
-    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#SubSequence">
+    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#BLASTHit">
+        <rdfs:label xml:lang="en">BLAST hit</rdfs:label>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&resource;SIO_000028"/>
+                <owl:someValuesFrom rdf:resource="&resource;SIO_010066"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://sadiframework.org/ontologies/blast.owl#BLASTedSequence -->
+
+    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#BLASTedSequence">
+        <rdfs:subClassOf rdf:resource="&resource;SIO_000030"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&resource;SIO_000028"/>
+                <owl:someValuesFrom>
+                    <owl:Class>
+                        <owl:intersectionOf rdf:parseType="Collection">
+                            <rdf:Description rdf:about="http://sadiframework.org/ontologies/blast.owl#Subsequence"/>
+                            <owl:Restriction>
+                                <owl:onProperty rdf:resource="&resource;SIO_000068"/>
+                                <owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#BLASTHit"/>
+                            </owl:Restriction>
+                        </owl:intersectionOf>
+                    </owl:Class>
+                </owl:someValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://sadiframework.org/ontologies/blast.owl#Consensus -->
+
+    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#Consensus">
+        <rdfs:label xml:lang="en">consensus sequence</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&resource;SIO_000510"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000210"/>
+                        <owl:someValuesFrom rdf:resource="&resource;SIO_010066"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&resource;SIO_000300"/>
+                        <owl:someValuesFrom rdf:resource="&xsd;string"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://sadiframework.org/ontologies/blast.owl#NucleotideSubsequence -->
+
+    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#NucleotideSubsequence">
+        <rdfs:subClassOf rdf:resource="http://sadiframework.org/ontologies/blast.owl#Subsequence"/>
+    </owl:Class>
+    
+
+
+    <!-- http://sadiframework.org/ontologies/blast.owl#Subsequence -->
+
+    <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#Subsequence">
         <rdfs:label xml:lang="en">subsequence</rdfs:label>
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&resource;SIO_010015"/>
+                    <rdf:Description rdf:about="&resource;SIO_000030"/>
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="&resource;SIO_000008"/>
                         <owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#startPosition"/>
@@ -222,11 +231,12 @@
                     </owl:Restriction>
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="&resource;SIO_000068"/>
-                        <owl:someValuesFrom rdf:resource="&resource;SIO_010015"/>
+                        <owl:someValuesFrom rdf:resource="&resource;SIO_000030"/>
                     </owl:Restriction>
                 </owl:intersectionOf>
             </owl:Class>
         </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&resource;SIO_000030"/>
     </owl:Class>
     
 
@@ -250,16 +260,12 @@
 
     <owl:Class rdf:about="http://sadiframework.org/ontologies/blast.owl#expectation">
         <rdfs:label rdf:datatype="&xsd;string">expectation</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&resource;SIO_000257"/>
         <rdfs:subClassOf>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&resource;SIO_000257"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="&resource;SIO_000300"/>
-                        <owl:someValuesFrom rdf:resource="&xsd;decimal"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&resource;SIO_000300"/>
+                <owl:someValuesFrom rdf:resource="&xsd;decimal"/>
+            </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
     
@@ -345,6 +351,12 @@
     
 
 
+    <!-- http://semanticscience.org/resource/SIO_000030 -->
+
+    <owl:Class rdf:about="&resource;SIO_000030"/>
+    
+
+
     <!-- http://semanticscience.org/resource/SIO_000257 -->
 
     <owl:Class rdf:about="&resource;SIO_000257"/>
@@ -384,6 +396,12 @@
     <!-- http://semanticscience.org/resource/SIO_010066 -->
 
     <owl:Class rdf:about="&resource;SIO_010066"/>
+    
+
+
+    <!-- http://semanticscience.org/resource/SIO_010068 -->
+
+    <owl:Class rdf:about="&resource;SIO_010068"/>
 </rdf:RDF>
 
 
