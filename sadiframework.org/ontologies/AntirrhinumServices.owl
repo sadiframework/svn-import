@@ -164,7 +164,7 @@
                             <rdf:Description rdf:about="&LSRN;DragonDB_Allele_Identifier"/>
                             <owl:Restriction>
                                 <owl:onProperty rdf:resource="&resource;SIO_000300"/>
-                                <owl:someValuesFrom rdf:resource="&xsd;string"/>
+                                <owl:someValuesFrom rdf:resource="&rdfs;Literal"/>
                             </owl:Restriction>
                         </owl:intersectionOf>
                     </owl:Class>
@@ -200,7 +200,7 @@
                             <rdf:Description rdf:about="&LSRN;DragonDB_Locus_Identifier"/>
                             <owl:Restriction>
                                 <owl:onProperty rdf:resource="&resource;SIO_000300"/>
-                                <owl:someValuesFrom rdf:resource="&xsd;string"/>
+                                <owl:someValuesFrom rdf:resource="&rdfs;Literal"/>
                             </owl:Restriction>
                         </owl:intersectionOf>
                     </owl:Class>
@@ -226,7 +226,7 @@
                                     <rdf:Description rdf:about="&LSRN;DragonDB_Allele_Identifier"/>
                                     <owl:Restriction>
                                         <owl:onProperty rdf:resource="&resource;SIO_000300"/>
-                                        <owl:someValuesFrom rdf:resource="&xsd;string"/>
+                                        <owl:someValuesFrom rdf:resource="&rdfs;Literal"/>
                                     </owl:Restriction>
                                 </owl:intersectionOf>
                             </owl:Class>
@@ -252,7 +252,7 @@
                             <rdf:Description rdf:about="&LSRN;DragonDB_Allele_Identifier"/>
                             <owl:Restriction>
                                 <owl:onProperty rdf:resource="&resource;SIO_000300"/>
-                                <owl:someValuesFrom rdf:resource="&xsd;string"/>
+                                <owl:someValuesFrom rdf:resource="&rdfs;Literal"/>
                             </owl:Restriction>
                         </owl:intersectionOf>
                     </owl:Class>
@@ -278,7 +278,7 @@
                                     <rdf:Description rdf:about="&LSRN;DragonDB_Locus_Identifier"/>
                                     <owl:Restriction>
                                         <owl:onProperty rdf:resource="&resource;SIO_000300"/>
-                                        <owl:someValuesFrom rdf:resource="&xsd;string"/>
+                                        <owl:someValuesFrom rdf:resource="&rdfs;Literal"/>
                                     </owl:Restriction>
                                 </owl:intersectionOf>
                             </owl:Class>
@@ -287,7 +287,6 @@
                 </owl:someValuesFrom>
             </owl:Restriction>
         </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="&owl;Thing"/>
     </owl:Class>
     
 
