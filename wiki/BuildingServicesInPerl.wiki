@@ -1,5 +1,6 @@
 #summary Tutorial: building a SADI service in Perl
 
+== Table of Contents ==
 <wiki:toc max_depth="1" />
 
 = Introduction =
