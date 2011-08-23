@@ -1,5 +1,6 @@
 #summary Tutorial: building a SADI service in Java.
 
+== Table of Contents ==
 <wiki:toc max_depth="1" />
 
 In order to make it easier to develop SADI services, we have provided a skeleton Java project. Instructions for using the skeleton are provided here, exemplified by the same Hello, World! service we used in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?].
