@@ -18,9 +18,12 @@ import virtuoso.jena.driver.VirtModel;
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.beans.RestrictionBean;
 import ca.wilkinsonlab.sadi.beans.ServiceBean;
+import ca.wilkinsonlab.sadi.client.Service;
+import ca.wilkinsonlab.sadi.client.ServiceFactory;
 import ca.wilkinsonlab.sadi.client.ServiceImpl;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyException;
+import ca.wilkinsonlab.sadi.utils.LabelUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.vocab.SADI;
 
@@ -353,8 +356,8 @@ public class Registry
 		 * queried...
 		 */
 		log.debug(String.format("fetching service definition from %s", serviceUrl));
-		ServiceImpl service = new ServiceImpl(serviceUrl);
-		getModel().add(service.getServiceModel());
+		Service service = ServiceFactory.createService(serviceUrl);
+		getModel().add(((ServiceImpl)service).getServiceModel());
 		
 		/* attach SADI type only after the service definition has been
 		 * successfully fetched...
@@ -367,7 +370,7 @@ public class Registry
 		return getServiceBean(serviceNode);
 	}
 	
-	private void attachMetaData(Resource serviceNode, ServiceImpl service) throws SADIException
+	private void attachMetaData(Resource serviceNode, Service service) throws SADIException
 	{
 		for (Restriction restriction: service.getRestrictions()) {
 			attachRestriction(serviceNode, restriction);
@@ -396,7 +399,7 @@ public class Registry
 			p = restriction.getOntModel().getOntResource(restriction.getProperty(OWL.onProperty).getResource());
 		}
 		restrictionNode.addProperty(OWL.onProperty, p);
-		getModel().add(p, RDFS.label, OwlUtils.getLabel(p));
+		getModel().add(p, RDFS.label, LabelUtils.getLabel(p));
 		
 		OntResource valuesFrom = OwlUtils.getValuesFrom(restriction);
 		if (valuesFrom != null)
@@ -435,14 +438,14 @@ public class Registry
 		
 		if (valuesFrom.isURIResource()) {
 			restrictionNode.addProperty(OWL.someValuesFrom, valuesFrom);
-			getModel().add(valuesFrom, RDFS.label, OwlUtils.getLabel(valuesFrom));
+			getModel().add(valuesFrom, RDFS.label, LabelUtils.getLabel(valuesFrom));
 		} else if (valuesFrom.isDataRange()) {
 //			DataRange range = valuesFrom.asDataRange();
 			restrictionNode.addProperty(OWL.someValuesFrom, "anonymous data range");
 		} else if (valuesFrom.isClass()) {
 			OntClass firstNamedSuperClass = OwlUtils.getFirstNamedSuperClass(valuesFrom.asClass());
 			restrictionNode.addProperty(OWL.someValuesFrom, firstNamedSuperClass);
-			getModel().add(valuesFrom, RDFS.label, OwlUtils.getLabel(firstNamedSuperClass));
+			getModel().add(valuesFrom, RDFS.label, LabelUtils.getLabel(firstNamedSuperClass));
 		}
 	}
 	

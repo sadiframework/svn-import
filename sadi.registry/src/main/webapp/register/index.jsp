@@ -3,7 +3,9 @@
 <%@ page import="org.apache.log4j.Logger" %>
 <%@ page import="ca.wilkinsonlab.sadi.SADIException" %>
 <%@ page import="ca.wilkinsonlab.sadi.beans.ServiceBean" %>
+<%@ page import="ca.wilkinsonlab.sadi.client.Service" %>
 <%@ page import="ca.wilkinsonlab.sadi.client.ServiceConnectionException" %>
+<%@ page import="ca.wilkinsonlab.sadi.client.ServiceFactory" %>
 <%@ page import="ca.wilkinsonlab.sadi.client.ServiceImpl" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.*" %>
 <%@ page import="ca.wilkinsonlab.sadi.registry.utils.Twitter" %>
@@ -20,9 +22,9 @@
 		try {
 			registry = Registry.getRegistry();
 			
-			ServiceImpl service = null;
+			Service service = null;
 			try {
-				service = new ServiceImpl(serviceURI);
+				service = ServiceFactory.createService(serviceURI);
 			} catch (ServiceConnectionException e) {
 				if (registry.containsService(serviceURI)) {
 					doValidate = false;
@@ -41,7 +43,7 @@
 			
 			if (doValidate) {
 				// TODO replace with validateService(service) once we update the API...
-				ValidationResult result = ServiceValidator.validateService(service.getServiceModel().getResource(serviceURI));
+				ValidationResult result = ServiceValidator.validateService(((ServiceImpl)service).getServiceModel().getResource(serviceURI));
 				request.setAttribute("service", result.getService());
 				request.setAttribute("warnings", result.getWarnings());
 				if (!result.getWarnings().isEmpty()) {
@@ -155,6 +157,7 @@
             <span class="nobreak">the Canadian Institutes of Health Research</span>, and 
             <span class="nobreak">Microsoft Research</span>.
           </p>
+          <!-- 
           <p>Major funding for the 
             <span class="nobreak"><a href="http://gcbioinformatics.ca">Bioinformatics Innovation Center</a></span>
             is provided by the
@@ -166,6 +169,7 @@
             <img class="sponsor" src="../images/GenomeCanada.png" alt="Genome Canada logo" height="116" width="191"/>
             <img class="sponsor" src="../images/GenomeAlberta.png" alt="Genome Alberta logo" height="116" width="185"/>
           </p>
+           -->
         </div> <!-- footer -->
       </div> <!-- inner-frame -->
     </div> <!-- outer-frame -->

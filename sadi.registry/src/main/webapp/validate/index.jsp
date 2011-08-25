@@ -101,6 +101,7 @@
             <span class="nobreak">the Canadian Institutes of Health Research</span>, and 
             <span class="nobreak">Microsoft Research</span>.
           </p>
+          <!-- 
           <p>Major funding for the 
             <span class="nobreak"><a href="http://gcbioinformatics.ca">Bioinformatics Innovation Center</a></span>
             is provided by the
@@ -112,6 +113,7 @@
             <img class="sponsor" src="../images/GenomeCanada.png" alt="Genome Canada logo" height="116" width="191"/>
             <img class="sponsor" src="../images/GenomeAlberta.png" alt="Genome Alberta logo" height="116" width="185"/>
           </p>
+           -->
         </div> <!-- footer -->
       </div> <!-- inner-frame -->
     </div> <!-- outer-frame -->
