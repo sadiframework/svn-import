@@ -37,6 +37,11 @@
     <servlet-name>admin</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.registry.AdminServlet</servlet-class>
   </servlet>
+  
+  <servlet>
+    <servlet-name>api</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.registry.APIServlet</servlet-class>
+  </servlet>
 
   <servlet-mapping>
     <servlet-name>sparql</servlet-name>
@@ -46,6 +51,11 @@
   <servlet-mapping>
     <servlet-name>admin</servlet-name>
     <url-pattern>/admin/</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>api</servlet-name>
+    <url-pattern>/api/</url-pattern>
   </servlet-mapping>
   
 </web-app>
