@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -40,8 +41,13 @@ public class SIOUtils
 		Model model = root.getModel();
 		Resource attribute = model.createResource(attributeClass);
 		root.addProperty(SIO.has_attribute, attribute);
-		if (value != null)
-			attribute.addLiteral(SIO.has_value, value);
+		if (value != null) {
+			if (value instanceof Literal) {
+				attribute.addProperty(SIO.has_value, (Literal)value);
+			} else {
+				attribute.addLiteral(SIO.has_value, value);
+			}
+		}
 		return attribute;
 	}
 	
@@ -141,5 +147,4 @@ public class SIOUtils
 		
 		return values;
 	}
-
 }
