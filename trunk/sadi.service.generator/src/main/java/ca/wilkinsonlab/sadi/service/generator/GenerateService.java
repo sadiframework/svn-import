@@ -334,10 +334,12 @@ public class GenerateService extends AbstractMojo
 
 	private String getSimpleServiceName(String name)
 	{
-		name = Pattern.compile("[^\\w-]").matcher(name).replaceAll(" ");
-		name = WordUtils.capitalizeFully(name);
-		name = Pattern.compile("\\s+").matcher(name).replaceAll("");
-		return name;
+		String newName = Pattern.compile("[^\\w-]").matcher(name).replaceAll(" ");
+		if (!newName.equals(name)) {
+			newName = WordUtils.capitalizeFully(newName);
+			newName = Pattern.compile("\\s+").matcher(newName).replaceAll("");
+		}
+		return newName;
 	}
 
 	private void loadServiceDescriptionFromConfig(ServiceBean serviceBean, Configuration serviceConfig)
