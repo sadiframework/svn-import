@@ -10,6 +10,7 @@ import ca.wilkinsonlab.sadi.service.annotations.ParameterClass;
 import ca.wilkinsonlab.sadi.service.annotations.ParameterDefaults;
 import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
+import ca.wilkinsonlab.sadi.service.annotations.URI;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -26,6 +27,7 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
  * 
  * @author Luke McCarthy
  */
+@URI("http://sadiframework.org/examples/hello-param-async")
 @Name("AsyncParamaterizedHelloWorld")
 @Description("An asynchronous \"Hello, world!\" service where the output language is specified in a parameter")
 @ContactEmail("elmccarthy@gmail.com")
