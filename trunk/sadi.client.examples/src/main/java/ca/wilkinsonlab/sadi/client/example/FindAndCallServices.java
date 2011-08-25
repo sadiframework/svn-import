@@ -1,5 +1,7 @@
 package ca.wilkinsonlab.sadi.client.example;
 
+import java.util.Collection;
+
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.SADIException;
@@ -65,8 +67,7 @@ public class FindAndCallServices
  	 		Resource guy = model.createResource("http://example.com/guy");
  	 		guy.addProperty(FOAF.name, "Guy Incognito");
  	 		
- 	 		/* invoke the service;
- 	 		 * see Service javadoc for more things you can do with the service...
+ 	 		/* invoke the service on a known input...
  	 		 */
 			try {
 				Model output = service.invokeService(guy);
@@ -74,6 +75,19 @@ public class FindAndCallServices
 		 		output.close();
 			} catch (ServiceInvocationException e) {
 				log.error("error invoking service", e);
+			}
+			
+			/* dynamically identify instances of the service's input class;
+ 	 		 * see Service javadoc for more things you can do with the service...
+ 	 		 */
+			try {
+				Collection<Resource> inputs = service.discoverInputInstances(model);
+				System.out.println(String.format("found input instances %s", inputs));
+				Model output = service.invokeService(inputs);
+				output.write(System.out, "N3");
+		 		output.close();
+			} catch (SADIException e) {
+				e.printStackTrace();
 			}
  		}
 	}
