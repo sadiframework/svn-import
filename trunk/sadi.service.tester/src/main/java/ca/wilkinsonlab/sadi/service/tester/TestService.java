@@ -14,6 +14,7 @@ import org.apache.maven.plugin.MojoFailureException;
 
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Service;
+import ca.wilkinsonlab.sadi.client.ServiceFactory;
 import ca.wilkinsonlab.sadi.client.ServiceImpl;
 import ca.wilkinsonlab.sadi.client.testing.ServiceTester;
 import ca.wilkinsonlab.sadi.client.testing.TestCase;
@@ -55,6 +56,11 @@ public class TestService extends AbstractMojo
 	private static final String EXPECTED_OUTPUT_KEY = "expected";
 	
 	/**
+	 * @parameter expression="${output} default-value=""
+	 */
+	private String oldExpectedPath;
+	
+	/**
 	 * Expected properties:
 	 *  serviceURL (required)
 	 *  input (optional) input RDF URL or path to file
@@ -72,8 +78,12 @@ public class TestService extends AbstractMojo
 			getLog().error(e.getMessage());
 		}
 		Collection<TestCase> testCases = ((ServiceImpl)service).getTestCases();
-		if (!StringUtils.isEmpty(inputPath) && !StringUtils.isEmpty(expectedPath)) {
-			testCases.add(new TestCase(inputPath, expectedPath));
+		if (!StringUtils.isEmpty(inputPath)) {
+			if (!StringUtils.isEmpty(expectedPath)) {
+				testCases.add(new TestCase(inputPath, expectedPath));
+			} else if (!StringUtils.isEmpty(oldExpectedPath)) {
+				testCases.add(new TestCase(inputPath, oldExpectedPath));
+			}
 		}
 		if (testCases.isEmpty())
 			throw new MojoFailureException("no test cases speciied in properties or service definition");
@@ -167,7 +177,7 @@ public class TestService extends AbstractMojo
 	private Service initService() throws MojoExecutionException
 	{
 		try {
-			return new ServiceImpl(serviceURL);
+			return ServiceFactory.createService(serviceURL);
 		} catch (SADIException e) {
 			throw new MojoExecutionException(String.format("error connecting to service %s: %s", serviceURL, e.toString()));
 		}
