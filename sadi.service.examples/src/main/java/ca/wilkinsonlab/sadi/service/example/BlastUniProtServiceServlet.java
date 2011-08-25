@@ -1,13 +1,11 @@
 package ca.wilkinsonlab.sadi.service.example;
 
-import java.util.Collection;
-import java.util.HashSet;
+import org.apache.log4j.Logger;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import uk.ac.ebi.kraken.interfaces.blast.Hit;
 import uk.ac.ebi.kraken.interfaces.blast.LocalAlignment;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+import uk.ac.ebi.kraken.model.blast.JobInformation;
 import uk.ac.ebi.kraken.model.blast.JobStatus;
 import uk.ac.ebi.kraken.model.blast.parameters.DatabaseOptions;
 import uk.ac.ebi.kraken.model.blast.parameters.MaxNumberResultsOptions;
@@ -16,28 +14,29 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastData;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastHit;
 import uk.ac.ebi.kraken.uuw.services.remoting.blast.BlastInput;
+import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
+import ca.wilkinsonlab.sadi.service.annotations.Description;
+import ca.wilkinsonlab.sadi.service.annotations.InputClass;
+import ca.wilkinsonlab.sadi.service.annotations.Name;
+import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
 import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
+import ca.wilkinsonlab.sadi.service.annotations.URI;
 import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
+import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
-import ca.wilkinsonlab.sadi.vocab.Properties;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * BLAST an amino acid sequence against the UniProt database,
  * including proteins from all organisms in the search.
- * 
- * TODO: This service was implemented in a hurry. A lot 
- * of the interesting data from the BLAST hits (e.g. the string 
- * representation of the alignment) is not included in the 
- * output RDF. 
  *
  * TODO: Currently, this service submits one BLAST query at a time, and 
  * waits for the results before submitting the next BLAST query. 
@@ -50,6 +49,12 @@ import com.hp.hpl.jena.vocabulary.OWL;
  * 
  * @author Ben Vandervalk
  */
+@URI("http://sadiframework.org/examples/blastUniprot")
+@Name("UniProt BLAST")
+@Description("Issues a BLAST query against the UniProt database using BLASTP, similarity matrix BLOSUM_62, and an expect threshold of 10. A maximum 500 BLAST hits are returned, if the expectation cutoff is not reached. All organisms are included in the search.")
+@ContactEmail("mccarthy@elmonline.ca")
+@InputClass("http://semanticscience.org/resource/SIO_010015")
+@OutputClass("http://sadiframework.org/ontologies/blast.owl#BLASTedSequence")
 @TestCases(
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/blastUniprot-input.rdf", 
@@ -58,134 +63,141 @@ import com.hp.hpl.jena.vocabulary.OWL;
 )
 public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet 
 {
+	private static final Logger log = Logger.getLogger(BlastUniProtServiceServlet.class);
 	private static final long serialVersionUID = 1L;
-	private static final Log log = LogFactory.getLog(BlastUniProtServiceServlet.class);
 	private static final int BLAST_POLLING_INTERVAL = 5000;
-	
-	private static class Vocab
+
+	@Override
+	protected Model createOutputModel()
 	{
-		// prefixes
-		public static final String OLD_UNIPROT_PREFIX = "http://biordf.net/moby/UniProt/";
-		public static final String UNIPROT_PREFIX = "http://lsrn.org/UniProt:";
-		public static final String LSRN_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
-		public static final String ONT_PREFIX = "http://sadiframework.org/examples/blastUniprot.owl#"; 
-		
-		// predicates
-		public static final Property BLAST_HIT = ResourceFactory.createProperty(ONT_PREFIX + "blast-hit");
-		public static final Property MATCH_PROTEIN = ResourceFactory.createProperty(ONT_PREFIX + "match-protein");
-		public static final Property EXPECTATION_VALUE = ResourceFactory.createProperty(ONT_PREFIX + "expectation-value");
-		
-		// classes
-		public static final Resource PROTEIN_BLAST_HIT = ResourceFactory.createResource(ONT_PREFIX + "ProteinBlastHit");
-		public static final Resource EXPECTATION_VALUE_TYPE = ResourceFactory.createResource(ONT_PREFIX + "ExpectationValue");
-		public static final Resource UniProt_Type = ResourceFactory.createResource(LSRN_PREFIX + "UniProt_Record");
-		public static final Resource UniProt_Identifier = ResourceFactory.createResource(LSRN_PREFIX + "UniProt_Identifier");
+		Model model = super.createOutputModel();
+		model.setNsPrefix("blast", "http://sadiframework.org/ontologies/blast.owl#");
+		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
+		return model;
 	}
 
+	@Override
 	public void processInput(Resource input, Resource output)
 	{
-		log.info(String.format("processing input %s", input.getURI()));
-		
-		// if the input protein has multiple sequences attached to it 
-		// (e.g. isoforms), blast them all
-		for(String sequence : getSequences(input)) {
-			BlastData<UniProtEntry> blastResults = runBlast(sequence, output);
-			attachBlastResults(output, blastResults);
+		String sequence = input.getRequiredProperty(SIO.has_value).getString();
+		log.debug(String.format("processing input %s with sequence\n%s", input, sequence));
+		BlastData<UniProtEntry> blastResults = runBlast(sequence, output);
+		Resource blastProcessNode = createBlastProcessNode(output.getModel(), blastResults);
+		for (BlastHit<UniProtEntry> blastHit : blastResults.getBlastHits()) {
+			Resource blastHitNode = createBlastHit(output, blastHit.getHit());
+			blastHitNode.addProperty(SIO.is_output_of, blastProcessNode);
 		}
 	}
-	
-	protected Collection<String> getSequences(Resource input) 
-	{
-		Collection<String> sequences = new HashSet<String>();
 
-		for(Statement statement : input.listProperties(Properties.hasSequence).toList()) {
-			if(!statement.getObject().isResource()) {
-				log.warn(String.format("value of %s is not a resource, ignoring triple %s", Properties.hasSequence, statement));
-				continue;
-			}
-			Resource sequenceNode = statement.getObject().asResource();
-			if(sequenceNode.getProperty(SIO.has_value) == null) {
-				log.warn(String.format("sequence node %s does not have an attached sequence string", sequenceNode));
-				continue;
-			}
-			sequences.add(sequenceNode.getProperty(SIO.has_value).getObject().asLiteral().getLexicalForm());
-		}
-		
-		return sequences;
-	}
-	
 	protected static BlastData<UniProtEntry> runBlast(String sequence, Resource output)
 	{
 		UniProtQueryService service = UniProtJAPI.factory.getUniProtQueryService();
 		BlastInput input = new BlastInput(DatabaseOptions.UNIPROTKB, sequence, MaxNumberResultsOptions.FIVE_HUNDRED);
 		
-		log.info("submitting job to UniProt BLAST service...");
+		log.debug("submitting job to UniProt BLAST service");
 		String jobid = service.submitBlast(input);
+		log.debug(String.format("submitted job id %s", jobid));
 
 		while (service.checkStatus(jobid) != JobStatus.FINISHED) {
-			log.info("polling UniProt BLAST service..");
+			log.debug(String.format("polling job id %s", jobid));
 			try {
 				Thread.sleep(BLAST_POLLING_INTERVAL);
 			} catch (InterruptedException e) {
 				log.warn(String.format("thread %d: ignoring InterruptedException", Thread.currentThread().getId()));
 			}
 		}
+		log.debug(String.format("finished job id %s", jobid));
 		return service.getResults(jobid);
 	}
 	
-	private static void attachBlastResults(Resource output, BlastData<UniProtEntry> blastResults)
+	private Resource createBlastProcessNode(Model model, BlastData<?> blastResults)
 	{
-		Model model = output.getModel();
-		for(BlastHit<UniProtEntry> blastHit : blastResults.getBlastHits()) {
-			
-			Resource blastHitNode = model.createResource(Vocab.PROTEIN_BLAST_HIT);
-			
-			// add UniProt record for hit 
-			Resource uniprotNode = createUniProtNode(model, blastHit.getHit().getAc());
-			blastHitNode.addProperty(Vocab.MATCH_PROTEIN, uniprotNode);
-
-			// add expectation value for hit
-			SIOUtils.createAttribute(blastHitNode, Vocab.EXPECTATION_VALUE, Vocab.EXPECTATION_VALUE_TYPE, getExpectationValue(blastHit));
-
-			// link input node to blast hit
-			output.addProperty(Vocab.BLAST_HIT, blastHitNode);
-			
-			// link input node to UniProt record for hit
-			output.addProperty(SIO.is_homologous_to, uniprotNode);
-			
+		Resource blastProcessNode = model.createResource(null, SIO.software_execution);	
+		Resource blastProgramNode = model.createResource(null, SIO.software_application);
+		blastProcessNode.addProperty(SIO.has_agent, blastProgramNode);
+		JobInformation info = blastResults.getJobInformation();
+		blastProgramNode.addLiteral(RDFS.label, info.getProgram());
+		SIOUtils.createAttribute(blastProgramNode, SIO.version_identifier, info.getVersion());
+		String citation = info.getCitation();
+		if (citation != null) {
+			Resource citationNode = model.createResource();
+			citationNode.addLiteral(RDFS.label, citation);
+			blastProgramNode.addProperty(SIO.has_reference, citationNode);
 		}
-	}
-
-	private static Resource createUniProtNode(Model model, String uniprotId)
-	{
-		Resource uniprotNode = model.createResource(getUniProtUri(uniprotId), Vocab.UniProt_Type);
-		
-		// add identifier structure
-		SIOUtils.createAttribute(uniprotNode, Vocab.UniProt_Identifier, uniprotId);
-		
-		// add relationship to old URI scheme
-		Resource oldUniprotNode = model.createResource(getOldUniProtUri(uniprotId));
-		uniprotNode.addProperty(OWL.sameAs, oldUniprotNode);
-
-		return uniprotNode;
+		String database = info.getDatabase();
+		if (database != null) {
+			Resource databaseNode = model.createResource();
+			databaseNode.addLiteral(RDFS.label, database);
+			blastProcessNode.addProperty(SIO.has_input, databaseNode);
+		}
+		Literal startTime = model.createTypedLiteral(info.getStartTime(), XSDDatatype.XSDdateTime);
+		SIOUtils.createAttribute(blastProcessNode, SIO.start_time, startTime);
+		Literal stopTime = model.createTypedLiteral(info.getStartTime(), XSDDatatype.XSDdateTime);
+		SIOUtils.createAttribute(blastProcessNode, SIO.end_time, stopTime);
+		return blastProcessNode;
 	}
 	
-	private static double getExpectationValue(BlastHit<UniProtEntry> blastHit)
+	private static Resource createBlastHit(Resource querySequenceNode, Hit hit)
 	{
-		// TODO: I don't understand how there can be multiple
-		// alignments for a single BLAST hit. For now, return
-		// the best (lowest) expection value over all of the 
-		// alignments. -- Ben
-		
-		boolean firstValue = true;
-		double lowest = 0;
-		for(LocalAlignment alignment : blastHit.getHit().getAlignments()) {
-			if(firstValue || alignment.getExpectation() < lowest) {
-				lowest = alignment.getExpectation();
-				firstValue = false;
-			}
+		Model model = querySequenceNode.getModel();
+		Resource uniprotSequenceNode = getUniProtSequenceNode(model, hit.getAc());
+		Resource blastHitNode = model.createResource(null, Vocab.blast_hit);
+		for (LocalAlignment alignment: hit.getAlignments()) {
+			Resource alignmentNode = createAlignmentNode(querySequenceNode, uniprotSequenceNode, alignment);
+			blastHitNode.addProperty(SIO.has_part, alignmentNode);
 		}
-		return lowest;
+		return blastHitNode;
+	}
+	
+	private static Resource getUniProtSequenceNode(Model model, String accession)
+	{
+		String uri = getUniProtUri(accession);
+		Resource uniprotNode = model.getResource(uri);
+		Resource uniprotSequenceNode = RdfUtils.getPropertyValue(uniprotNode, SIO.has_attribute, SIO.protein_sequence);
+		if (uniprotSequenceNode == null) {
+			uniprotSequenceNode = model.createResource(null, SIO.protein_sequence);
+			uniprotNode.addProperty(SIO.has_attribute, uniprotSequenceNode);
+			uniprotSequenceNode.addProperty(SIO.is_attribute_of, uniprotNode);
+		}
+		return uniprotSequenceNode;
+	}
+
+	private static Resource createAlignmentNode(Resource querySequence, Resource matchSequence, LocalAlignment alignment)
+	{
+		Resource querySubsequence = createSubsequence(querySequence, 
+				alignment.getStartQuerySeq(), 
+				alignment.getEndQuerySeq(), 
+				alignment.getQuerySeq());
+		
+		Resource matchSubsequence = createSubsequence(matchSequence,
+				alignment.getStartMatchSeq(),
+				alignment.getEndMatchSeq(),
+				alignment.getMatchSeq());
+		
+		Resource alignmentNode = querySequence.getModel().createResource(null, Vocab.sequence_alignment);
+		/* e value has to be decimal because doubles aren't precise enough;
+		 * the fact that the API returns a double is a bug...
+		 */
+		Literal e = ResourceFactory.createTypedLiteral(alignment.getExpectation().toString(), XSDDatatype.XSDdecimal);
+		SIOUtils.createAttribute(alignmentNode, Vocab.expectation, e);
+		SIOUtils.createAttribute(alignmentNode, Vocab.identity, alignment.getIdentity());
+		SIOUtils.createAttribute(alignmentNode, Vocab.bits, alignment.getBits());
+		SIOUtils.createAttribute(alignmentNode, Vocab.score, alignment.getScore());
+		SIOUtils.createAttribute(alignmentNode, Vocab.consensus_sequence, alignment.getPattern());
+		alignmentNode.addProperty(SIO.has_part, querySubsequence);
+		alignmentNode.addProperty(SIO.has_part, matchSubsequence);
+		return alignmentNode;
+	}
+	
+	private static Resource createSubsequence(Resource sequenceNode, int start, int stop, String subsequence)
+	{
+		Resource subsequenceNode = sequenceNode.getModel().createResource(null, SIO.protein_sequence);
+		sequenceNode.addProperty(SIO.has_part, subsequenceNode);
+		subsequenceNode.addProperty(SIO.is_part_of, sequenceNode);
+		SIOUtils.createAttribute(subsequenceNode, SIO.sequence_start_position, start);
+		SIOUtils.createAttribute(subsequenceNode, SIO.sequence_stop_position, stop);
+		subsequenceNode.addProperty(SIO.has_value, subsequence);
+		return subsequenceNode;
 	}
 	
 	private static String getUniProtUri(String uniprotId)
@@ -193,8 +205,21 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		return String.format("%s%s", Vocab.UNIPROT_PREFIX, uniprotId);
 	}
 	
-	private static String getOldUniProtUri(String uniprotId)
+	private static class Vocab
 	{
-		return String.format("%s%s", Vocab.OLD_UNIPROT_PREFIX, uniprotId);
+		public static final String UNIPROT_PREFIX = "http://lsrn.org/UniProt:";
+		
+		public static final Resource blast_hit = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#BlastHit");
+		public static final Resource sequence_alignment = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#SequenceAlignment");
+		public static final Resource expectation = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#expectation");
+		public static final Resource identity = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#identity");
+		public static final Resource bits = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#bits");
+		public static final Resource score = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#score");
+//		public static final Resource subsequence = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#SubSequence");
+		public static final Resource consensus_sequence = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#Consensus");
+		
+//		// these will be replaced by SIO types soon...
+//		public static final Resource start_position = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#startPosition");
+//		public static final Resource stop_position = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#stopPosition");
 	}
 }

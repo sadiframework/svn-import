@@ -1,0 +1,192 @@
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix blast:   <http://sadiframework.org/ontologies/blast.owl#> .
+@prefix sio:     <http://semanticscience.org/resource/> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    
+    # properties in the "blast" namespace should be replaced by some shared
+    # vocabulary, if something suitable can be found
+
+    # this node represents the particular invocation of BLAST that resulted
+    # in the output
+    _:b758
+      # SIO_000667 is "software execution"
+      a       sio:SIO_000667 ;
+
+      # "has attribute"
+      sio:SIO_000008
+
+              # "start time"
+              [ a       sio:SIO_000669 ;
+                sio:SIO_000300 "2011-08-24T02:15:46+01:00"^^<http://www.w3.org/2001/XMLSchema#dateTime>
+              ] ;
+
+      # "has attribute"
+      sio:SIO_000008
+
+              # "end time"
+              [ a       sio:SIO_000670 ;
+                sio:SIO_000300 "2011-08-24T02:15:46+01:00"^^<http://www.w3.org/2001/XMLSchema#dateTime>
+              ] ;
+
+      # "has agent"
+      sio:SIO_000139
+
+              # "software application"
+              # this node should have a URI, if we are able to map the
+              # string label to a known application...
+              [ a       sio:SIO_000101 ;
+                
+                # this label is all we know from the BLAST report
+                rdfs:label "BLASTP"^^<http://www.w3.org/2001/XMLSchema#string> ;
+
+                # "has attribute"
+                sio:SIO_000008
+
+                        # "version identifier"
+                        [ a       sio:SIO_000653 ;
+                          sio:SIO_000300 "2.2.25 [Feb-01-2011]"^^<http://www.w3.org/2001/XMLSchema#string>
+                        ]
+              ] ;
+
+      # "has input"
+      sio:SIO_000230
+              [ rdfs:label "uniprotkb"^^<http://www.w3.org/2001/XMLSchema#string>
+              ] .
+    
+    # this is a BLAST hit 
+    []    a       blast:BlastHit ;
+
+          # a BLAST hit has at least one component local alignments (HSPs)
+          # "has part"
+          sio:SIO_000028
+
+                  # this is an HSP
+                  [ a       blast:SequenceAlignment ;
+
+                    # "has attribute"
+                    sio:SIO_000008
+                            [ a       blast:expectation ;
+                              # "has value"
+                              sio:SIO_000300 0.024
+                            ] ;
+
+                    # "has attribute"
+                    sio:SIO_000008
+                            [ a       blast:identity ;
+                              # "has value"
+                              sio:SIO_000300 "62.0"^^<http://www.w3.org/2001/XMLSchema#float>
+                            ] ;
+
+                    # "has attribute"
+                    sio:SIO_000008
+                            [ a       blast:score ;
+                              # "has value"
+                              sio:SIO_000300 "98"^^<http://www.w3.org/2001/XMLSchema#int>
+                            ] ;
+
+                    # "has attribute"
+                    sio:SIO_000008
+                            [ a       blast:bits ;
+                              # "has value"
+                              sio:SIO_000300 "42.4"^^<http://www.w3.org/2001/XMLSchema#float>
+                            ] ;
+
+                    # "has attribute"
+                    sio:SIO_000008
+                            [ a       blast:Consensus ;
+                              # "has value"
+                              sio:SIO_000300 "S W +V  GPPDPILGVTE +K D + KK"^^<http://www.w3.org/2001/XMLSchema#string>
+                            ] ;
+                    
+                    # a sequence alignment has at least two component
+                    # sequences
+                    # "has part"
+                    sio:SIO_000028 _:b756 , _:b757
+                  ] ;
+
+          # a BLAST hit is the output of a particular BLAST invocation...
+          # "is output of"
+          sio:SIO_000232 _:b758 .
+
+    # this is a sequence that is part of an HSP
+    # in this case, it is a sub-sequence of the query sequence
+    _:b756
+
+      # "protein sequence"
+      a       sio:SIO_010015 ;
+
+      # "has attribute"
+      sio:SIO_000008
+
+              # "sequence start position"
+              [ a       sio:SIO_000791 ;
+                sio:SIO_000300 "30"^^<http://www.w3.org/2001/XMLSchema#int>
+              ] ;
+
+      # "has attribute"
+      sio:SIO_000008
+
+              # "sequence stop position"
+              [ a       sio:SIO_000792 ;
+                sio:SIO_000300 "2"^^<http://www.w3.org/2001/XMLSchema#int>
+              ] ;
+
+      # "is part of"
+      sio:SIO_000068 <http://sadiframework.org/examples/t/blastUniprot-input.rdf#1> ;
+
+      # "has value"
+      sio:SIO_000300 "SWWAHVEMGPPDPILGVTEAYKRDTNSKK" .
+
+    # this is a sequence that is part of an HSP
+    # in this case, it is a sub-sequence of the match sequence
+    # it parallels the previous sub-sequence
+    _:b757
+
+      # "protein sequence"
+      a       sio:SIO_010015 ;
+
+      # "has attribute"
+      sio:SIO_000008
+
+              # "sequence start position"
+              [ a       sio:SIO_000791 ;
+                sio:SIO_000300 "51"^^<http://www.w3.org/2001/XMLSchema#int>
+              ] ;
+
+      # "has attribute"
+      sio:SIO_000008
+
+              # "sequence stop position"
+              [ a       sio:SIO_000792 ;
+                sio:SIO_000300 "79"^^<http://www.w3.org/2001/XMLSchema#int>
+              ] ;
+
+      # "is part of"
+      sio:SIO_000068 _:b1200 ;
+
+      # "has value"
+      sio:SIO_000300 "STWTNVPAGPPDPILGVTEKFKADKSPKK" .
+
+    # this is the query sequence
+    <http://sadiframework.org/examples/t/blastUniprot-input.rdf#1>
+          a       blast:BLASTedSequence ;
+          
+          # "has part"
+          sio:SIO_000028 _:b756 .
+
+    # this is a match sequence
+    _:b1200
+      # "protein sequence"
+      a       sio:SIO_010015 ;
+
+      # "is attribute of"
+      sio:SIO_000011 <http://lsrn.org/UniProt:F5HIL5> ;
+
+      # "has part"
+      sio:SIO_000028 _:b757 .
+
+    # this is the entity that the match sequence is from
+    <http://lsrn.org/UniProt:F5HIL5>
+
+      # "has attribute"
+      sio:SIO_000008 _:b1200 .

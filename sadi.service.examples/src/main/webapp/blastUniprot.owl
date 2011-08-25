@@ -95,5 +95,14 @@
             </owl:Class>
         </owl:equivalentClass>
     </owl:Class>
+    
+    <owl:Class rdf:ID="BlastByIdOutputClass">
+    	<rdfs:subClassOf>
+    		<owl:Restriction>
+    			<owl:onProperty rdf:resource="&sio;SIO_000008"/>
+    			<owl:someValuesFrom rdf:resource="http://sadiframework.org/ontologies/blast.owl#BLASTedSequence"/>
+    		</owl:Restriction>
+    	</rdfs:subClassOf>
+    </owl:Class>
   
 </rdf:RDF>

@@ -35,9 +35,19 @@ public class SIO
     public static final Resource preferred_name = m_model.createResource( NS + "SIO_000117" );
     public static final Resource scientific_name = m_model.createResource( NS + "SIO_000120" );
     public static final Resource amino_acid_sequence = m_model.createResource( NS + "SIO_010015" );
+    public static final Resource protein_sequence = amino_acid_sequence;
     public static final Resource _3d_structure_model = m_model.createResource( NS + "SIO_010530" );
+    public static final Resource probability = m_model.createResource( NS + "SIO_000638" );
+    public static final Resource software_application = m_model.createResource( NS + "SIO_000101" );
+    public static final Resource software_execution = m_model.createResource( NS + "SIO_000667" );
+    public static final Resource start_time = m_model.createResource( NS + "SIO_000669" );
+    public static final Resource end_time = m_model.createResource( NS + "SIO_000670" );
+    public static final Resource version_identifier = m_model.createResource( NS + "SIO_000653" );
+    public static final Resource sequence_start_position = m_model.createResource( NS + "SIO_000791" );
+    public static final Resource sequence_stop_position = m_model.createResource( NS + "SIO_000792" );
     
     public static final Property has_attribute = m_model.createProperty( NS, "SIO_000008" );
+    public static final Property is_attribute_of = m_model.createProperty( NS, "SIO_000011" );
 	public static final Property has_value = m_model.createProperty( NS, "SIO_000300" );
 	public static final Property has_unit = m_model.createProperty( NS, "SIO_000221" );
 	public static final Property has_participant = m_model.createProperty( NS, "SIO_000132" );
@@ -51,5 +61,9 @@ public class SIO
 	public static final Property has_reference = m_model.createProperty( NS, "SIO_000253" );
 	public static final Property is_homologous_to = m_model.createProperty( NS, "SIO_010302");
 	public static final Property is_causally_related_with = m_model.createProperty( NS, "SIO_000243");
-	
+	public static final Property has_part = m_model.createProperty( NS, "SIO_000028" );
+	public static final Property is_part_of = m_model.createProperty( NS, "SIO_000068" );
+	public static final Property is_output_of = m_model.createProperty( NS, "SIO_000232" );
+	public static final Property has_input = m_model.createProperty( NS, "SIO_000230" );
+	public static final Property has_agent = m_model.createProperty( NS, "SIO_000139" );
 }

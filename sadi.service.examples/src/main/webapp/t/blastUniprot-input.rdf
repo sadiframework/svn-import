@@ -1,15 +1,10 @@
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:j.0="http://sadiframework.org/examples/blastUniprot.owl#"
-    xmlns:j.1="http://semanticscience.org/resource/"
-    xmlns:j.2="http://purl.oclc.org/SADI/LSRN/"
-    xmlns:j.3="http://sadiframework.org/ontologies/properties.owl#">
-  <j.0:InputClass rdf:about="http://purl.uniprot.org/uniprot/P12345">
-    <j.3:hasSequence>
-      <j.1:SIO_010015>
-        <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >SSWWAHVEMGPPDPILGVTEAYKRDTNSKK</j.1:SIO_000300>
-      </j.1:SIO_010015>
-    </j.3:hasSequence>
-  </j.0:InputClass>
+    xmlns:sio="http://semanticscience.org/resource/">
+  
+  <sio:SIO_010015 rdf:about="http://sadiframework.org/examples/t/blastUniprot-input.rdf#1">
+    <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+                   >SSWWAHVEMGPPDPILGVTEAYKRDTNSKK</sio:SIO_000300>
+  </sio:SIO_010015>
+  
 </rdf:RDF>

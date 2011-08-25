@@ -1,11 +1,8 @@
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:j.0="http://sadiframework.org/examples/blastUniprot.owl#"
-    xmlns:j.1="http://semanticscience.org/resource/"
-    xmlns:j.2="http://purl.oclc.org/SADI/LSRN/"
-    xmlns:j.3="http://sadiframework.org/ontologies/properties.owl#">
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/">
  
-    <j.2:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/P12345">
-    </j.2:UniProt_Record>
+    <lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/P12345">
+    </lsrn:UniProt_Record>
  
 </rdf:RDF>
