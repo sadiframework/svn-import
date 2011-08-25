@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-services</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1</version>
   <packaging>war</packaging>
   <name>SADI skeleton webapp</name>
   <build>
@@ -31,12 +31,12 @@
       <plugin>
         <groupId>ca.wilkinsonlab.sadi</groupId>
         <artifactId>sadi-generator</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
       </plugin>
       <plugin>
         <groupId>ca.wilkinsonlab.sadi</groupId>
         <artifactId>sadi-tester</artifactId>
-        <version>0.1.0</version>
+        <version>0.1.1</version>
       </plugin>
     </plugins>
   </build>
@@ -58,7 +58,7 @@
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-service</artifactId>
-      <version>0.1.0</version>
+      <version>0.1.1</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
