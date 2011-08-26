@@ -58,10 +58,9 @@
         <snapshots>
             <enabled>true</enabled>
         </snapshots>
-     </repository>
+    </repository>
   </repositories>
   <dependencies>
-    
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-client</artifactId>
@@ -71,17 +70,17 @@
     <dependency>
       <groupId>com.openlinksw.virtuoso</groupId>
       <artifactId>virt_jena</artifactId>
-      <version>5.0.11.3039.Jena2.6-SNAPSHOT</version>
+      <version>5.0.11.3039.Jena2.6.3-SNAPSHOT</version>
       <!-- 
       	temporarily exclude Jena until we can rebuild virt_jena against
       	Jena 2.6.3
-      -->
   	  <exclusions>
 	    <exclusion>
 	      <groupId>com.hp.hpl.jena</groupId>
 	      <artifactId>jena</artifactId>
 	    </exclusion>
       </exclusions>
+      -->
     </dependency>
     
     <dependency> <!-- required by service.jsp for pageContext -->
