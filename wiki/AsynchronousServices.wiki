@@ -29,7 +29,8 @@ Content-type: application/rdf+xml
     xmlns:hello="http://sadiframework.org/examples/hello.owl#">
 
     <hello:GreetedIndividual rdf:about="http://sadiframework.org/examples/hello- 
-input.rdf#1"> <rdfs:isDefinedBy rdf:resource="http://sadiframework.org/examples/hello?poll=1"/> 
+input.rdf#1">
+        <rdfs:isDefinedBy rdf:resource="http://sadiframework.org/examples/hello?poll=1"/> 
     </hello:GreetedIndividual>
 
 </rdf:RDF>
@@ -39,7 +40,7 @@ input.rdf#1"> <rdfs:isDefinedBy rdf:resource="http://sadiframework.org/examples/
 GET /examples/hello?poll=1 
 Host: sadiframework.org
 }}}
-  # If the output is not yet ready, the service sends an HTTP redirect with a `Rertry-after` header that contains the number of seconds that the client should wait before trying again.
+  # If the output is not yet ready, the service sends an HTTP redirect with a `Retry-after` header that contains the number of seconds that the client should wait before trying again.
 {{{
 HTTP/1.1 302 Moved Temporarily 
 Pragma: sadi-please-wait = 5000 
