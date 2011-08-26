@@ -8,7 +8,7 @@ import ca.wilkinsonlab.sadi.service.validation.ServiceValidator;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-public class RegistryServletTest
+public class ValidateRegistry
 {
 	public static void main(String[] args) throws SADIException
 	{
