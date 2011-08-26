@@ -357,13 +357,18 @@ public class Registry
 		 */
 		log.debug(String.format("fetching service definition from %s", serviceUrl));
 		Service service = ServiceFactory.createService(serviceUrl);
+		return registerService(service);
+	}
+	
+	public ServiceBean registerService(Service service) throws SADIException
+	{
 		getModel().add(((ServiceImpl)service).getServiceModel());
 		
 		/* attach SADI type only after the service definition has been
 		 * successfully fetched...
 		 */
-		Resource serviceNode = getModel().createResource(serviceUrl, SADI.Service);
-		log.info(String.format("registered service %s", serviceUrl));
+		Resource serviceNode = getModel().createResource(service.getURI(), SADI.Service);
+		log.info(String.format("registered service %s", service.getURI()));
 		
 		attachMetaData(serviceNode, service);
 
