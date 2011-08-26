@@ -1,3 +1,3 @@
 #summary How are synchronous services implemented in SADI?
 
-Migration in progress.  See 
+Migration in progress.  See [http://sadiframework.org/content/how-sadi-works/synchronous-sadi-services/ Synchronous SADI services on sadiframework.org].
