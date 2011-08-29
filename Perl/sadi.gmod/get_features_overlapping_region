@@ -12,15 +12,18 @@ use base 'SADI::Simple::AsyncService';
 # SERVICE CONFIGURATION PART
 #-----------------------------------------------------------------
 
-use SADI::GMOD::Config qw(get_base_url);
+use SADI::GMOD::Config qw(
+    get_base_url
+    get_gmod_name
+);
 
 my %config = (
 
-    ServiceName => 'get_features_overlapping_region',
-    Authority => 'sadiframework.org', 
+    ServiceName => sprintf('get_features_overlapping_region%s', get_gmod_name() ? sprintf(' (%s)', get_gmod_name()) : ''),
+    Description => 'get sequence features overlapping a specified region of a sequence feature',
     InputClass => 'http://sadiframework.org/ontologies/GMOD/BiopolymerRegion.owl#BiopolymerRegion',
     OutputClass => 'http://sadiframework.org/ontologies/GMOD/service/get_features_overlapping_region.owl#OutputClass',   
-    Description => 'get sequence features overlapping a specified region of a sequence feature',
+    Authority => 'sadiframework.org', 
     Provider => 'ben.vvalk@gmail.com',
     URL => get_base_url . 'get_features_overlapping_region', # only required for asynchronous services
 
@@ -121,7 +124,7 @@ sub process_it {
         }
 
         if (@segments > 1) {
-            $log->warn('multiple matches for feature name \'%s\', using only the first match', $feature->display_name);
+            $log->warn(sprintf('multiple matches for feature name \'%s\', using only the first match', $feature->display_name));
         }
 
         my $segment = $segments[0];

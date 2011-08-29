@@ -12,15 +12,21 @@ use base 'SADI::Simple::AsyncService';
 # SERVICE CONFIGURATION
 #-----------------------------------------------------------------
 
-use SADI::GMOD::Config qw(get_base_url);
+use SADI::GMOD::Config qw(
+    get_base_url
+    get_gmod_name
+    get_primary_dbxref
+);
+
+use Utils::Dbxref qw(dbxref_to_record_type);
 
 my %config = (
 
-    ServiceName => 'get_feature_info',
-    Authority => 'sadiframework.org', 
-    InputClass => 'http://purl.oclc.org/SADI/LSRN/FLYBASE_Record',
+    ServiceName => sprintf('get_feature_info%s', get_gmod_name() ? sprintf(' (%s)', get_gmod_name()) : ''),
+    Description => 'retrieve a description of a feature by its database ID',
+    InputClass => dbxref_to_record_type(get_primary_dbxref),
     OutputClass => 'http://sadiframework.org/ontologies/GMOD/service/get_feature_info.owl#OutputClass',   
-    Description => 'Get a feature description corresponding to a database identifier',
+    Authority => 'sadiframework.org', 
     Provider => 'ben.vvalk@gmail.com',
     URL => get_base_url . 'get_feature_info', # only required for asynchronous services
 

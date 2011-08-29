@@ -32,6 +32,7 @@ our @ISA = qw(Exporter);
 
 our @EXPORT_OK = qw(
     dbxref_to_id_type
+    dbxref_to_record_type
     dbxref_to_entity_type
     dbxref_to_uri
     id_type_to_entity_type
@@ -85,6 +86,13 @@ sub dbxref_to_id_type
     my $dbxref = shift;
     my $lsrn = dbxref_to_lsrn($dbxref);
     return $lsrn ? sprintf('%s%s_Identifier', LSRN_ONTOLOGY_PREFIX, $lsrn) : undef;
+}
+
+sub dbxref_to_record_type
+{
+    my $dbxref = shift;
+    my $lsrn = dbxref_to_lsrn($dbxref);
+    return $lsrn ? sprintf('%s%s_Record', LSRN_ONTOLOGY_PREFIX, $lsrn) : undef;
 }
 
 sub id_type_to_lsrn
