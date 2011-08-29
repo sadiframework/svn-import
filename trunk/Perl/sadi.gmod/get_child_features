@@ -12,15 +12,18 @@ use base 'SADI::Simple::AsyncService';
 # SERVICE CONFIGURATION PART
 #-----------------------------------------------------------------
 
-use SADI::GMOD::Config qw(get_base_url); 
-    
+use SADI::GMOD::Config qw(
+    get_base_url
+    get_gmod_name
+);
+
 my %config = (
 
-    ServiceName => 'get_child_features',
-    Authority => 'sadiframework.org', 
+    ServiceName => sprintf('get_child_features%s', get_gmod_name() ? sprintf(' (%s)', get_gmod_name()) : ''),
+    Description => 'get the child features of a given sequence feature',
     InputClass => 'http://sadiframework.org/ontologies/GMOD/Feature.owl#Feature',
     OutputClass => 'http://sadiframework.org/ontologies/GMOD/service/get_child_features.owl#OutputClass',   
-    Description => 'get the child features of a given sequence feature',
+    Authority => 'sadiframework.org', 
     Provider => 'ben.vvalk@gmail.com',
     URL => get_base_url . 'get_child_features', # only required for asynchronous services
 
