@@ -265,10 +265,10 @@ _[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-i
 To invoke the service, you need to issue an HTTP POST request to the service with [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3 hello-input.n3] as the content of the request.  Here, we will use the `curl` command-line HTTP client to do this:
 
 {{{
-$ curl -H 'Content-Type: text/rdf+n3' -H 'Accept: text/rdf+n3' -i --data  @hello-input.n3  'http://localhost/cgi-bin/hello.pl'
+$ curl -H 'Content-Type: text/rdf+n3' -H 'Accept: text/rdf+n3' -i --data-binary  @hello-input.n3  'http://localhost/cgi-bin/hello.pl'
 }}} 
 
-By default, the service assumes that the input format will be RDF/XML and that the desired output format is RDF/XML.  We supply the `Content-Type` header to indicate that the input format is N3 and the `Accept` header to indicate that the desired output format is N3.  We include the `-i` switch to display the HTTP headers of the response (for illustrative purposes).
+By default, the service assumes that the input format will be RDF/XML and that the desired output format is RDF/XML.  We supply the `Content-Type` header to indicate that the input format is N3 and the `Accept` header to indicate that the desired output format is N3.  Please note that you should you the `--data-binary` option instead of just `--data`  because in the latter case curl strips newlines from the input.  Finally, we include the `-i` switch to display the HTTP headers of the response (for illustrative purposes).
 
 As this is an asynchronous service, we receive an immediate response that looks like:
 
