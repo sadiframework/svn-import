@@ -29,6 +29,8 @@ our @EXPORT_OK = qw(
     get_db_args
     get_base_url
     get_gff_id_to_dbxref_mapping
+    get_gmod_name
+    get_primary_dbxref
 );
 
 #------------------------------------------------------------
@@ -122,6 +124,16 @@ sub get_db_args
 sub get_base_url
 {
     return $SADI_GMOD_CONFIG->setting(general => 'base_url');
+}
+
+sub get_gmod_name
+{
+    return $SADI_GMOD_CONFIG->setting(general => 'gmod_name');
+}
+
+sub get_primary_dbxref
+{
+    return $SADI_GMOD_CONFIG->setting(general => 'primary_dbxref');
 }
 
 sub get_gff_id_to_dbxref_mapping
