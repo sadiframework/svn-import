@@ -1,0 +1,9 @@
+#summary Problematic services that have been removed from the registry.
+
+==30 August 2011==
+There is no server running on port 9090 at s7.semanticscience.org and network requests to that address hang indefinitely (no timeout after 43 minutes and counting...)
+  * http://s7.semanticscience.org:9090/computesas/fgannotate
+  * http://s7.semanticscience.org:9090/lipinskispecial/lipinskihacceptorcount
+  * http://s7.semanticscience.org:9090/lipinskispecial/lipinskihdonorcount
+  * http://s7.semanticscience.org:9090/lipinskispecial/lipinskilogp
+  * http://s7.semanticscience.org:9090/lipinskispecial/lipinskimass
