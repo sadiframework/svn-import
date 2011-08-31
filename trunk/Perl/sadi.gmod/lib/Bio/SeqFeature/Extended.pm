@@ -11,6 +11,7 @@ use Utils::Dbxref qw(
     dbxref_to_entity_type
     dbxref_to_uri
     dbxref_to_id_type
+    dbxref_to_record_type
 );
 use Utils::SO qw(
     is_a
@@ -264,12 +265,19 @@ sub ttl
 
     my $feature_type_uri = sprintf('<%s>', get_uri_for_term($self->primary_tag));
     
-    my $identifiers = [];
+    my $primary_dbxrefs = [];
    
     foreach my $dbxref ($self->primary_dbxrefs) {
         my ($dbname, $id) = split(/:/, $dbxref, 2);
+        my $record_uri = dbxref_to_uri($dbxref);
+        my $record_type_uri = dbxref_to_record_type($dbxref);
         my $id_type_uri = dbxref_to_id_type($dbxref);
-        push(@$identifiers, [ "<$id_type_uri>", $id ]) if $id_type_uri;
+        push(@$primary_dbxrefs, [ 
+                    "<$record_uri>",
+                    "<$record_type_uri>",
+                    "<$id_type_uri>",
+                    $id 
+            ]) if $record_uri;
     } 
     
     #------------------------------------------------------------
@@ -285,7 +293,7 @@ sub ttl
         {
             feature_uri => $feature_uri,
             feature_type_uri => $feature_type_uri,
-            identifiers => $identifiers,
+            primary_dbxrefs => $primary_dbxrefs,
             ref_sequence_uri => $ref_sequence_uri,
             start_pos => $self->start,
             end_pos => $self->end,
