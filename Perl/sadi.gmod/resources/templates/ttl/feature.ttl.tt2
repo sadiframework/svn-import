@@ -23,17 +23,6 @@ from type term => type URI
 
 [% END %] 
 
-[% FOREACH identifier IN identifiers %]
-
-    [% id_type_uri = identifier.0 %]
-    [% id_string = identifier.1 %]   
-
-    sio:SIO_000008 # p = "has attribute"
-        [ a [% id_type_uri %];
-          sio:SIO_000300 "[% id_string %]"^^xsd:string ]; # p = "has value"
-
-[% END %]
-
 #    range:position [  # p = "has attribute"
     region:position [  # p = "has attribute"
         a range:RangedSequencePosition;
@@ -44,3 +33,20 @@ from type term => type URI
         range:coordinate [ a range:EndPosition; sio:SIO_000300 "[% end_pos %]"^^xsd:nonNegativeInteger ] # p = "has proper part"
     ] .  
 
+[% FOREACH primary_dbxref IN primary_dbxrefs %]
+
+[% record_uri = primary_dbxref.0 %]
+[% record_type_uri = primary_dbxref.1 %]
+[% id_type_uri = primary_dbxref.2 %]
+[% id_string = primary_dbxref.3 %]   
+
+[% feature_uri %] sio:SIO_000629 [% record_uri %] .
+
+[% record_uri %] 
+    a [% record_type_uri %];
+    sio:SIO_000008 [ 
+        a [% id_type_uri %];
+        sio:SIO_000300 "[% id_string %]"^^xsd:string
+    ] .
+
+[% END %]
