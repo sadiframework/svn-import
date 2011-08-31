@@ -23,7 +23,10 @@ use Vocab::Strand qw(
     PLUS_STRAND_TYPE_URI
     MINUS_STRAND_TYPE_URI
 );
-use SADI::GMOD::Config qw(get_base_url);
+use SADI::GMOD::Config qw(
+    get_base_url
+    get_primary_dbxref
+);
 use URI::Escape;
 use Utils::URI qw(bracket_if_uri);
 use Template;
@@ -91,7 +94,15 @@ sub AUTOLOAD {
 sub primary_dbxrefs
 {
     my $self = shift;
-    return $self->dbxrefs($self->primary_tag);
+    my @primary_dbxrefs = $self->dbxrefs($self->primary_tag);
+   
+    # add dbxrefs that match primary_dbxref in sadi.gmod.conf
+    foreach my $dbxref ($self->dbxrefs) {
+        my ($dbname, $id) = split(/:/, $dbxref, 2);
+        if (get_primary_dbxref && (get_primary_dbxref eq $dbname)) {
+            push(@primary_dbxrefs, $dbxref);
+        }
+    }
 }
 
 sub dbxrefs
