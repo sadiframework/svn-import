@@ -112,6 +112,10 @@ sub process_it {
         my @is_part_of_parent_ids = $feature->get_tag_values('parent_id');
         my @derives_from_parent_ids = $feature->get_tag_values('Derives_from');
 
+        unless (@is_part_of_parent_ids || @derives_from_parent_ids) {
+            @is_part_of_parent_ids = ($feature->seq_id) if $feature->seq_id;
+        }
+
         my @parent_id_lists = (\@is_part_of_parent_ids, \@derives_from_parent_ids);
         my @properties = ($is_part_of, $derives_from); 
 
