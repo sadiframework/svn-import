@@ -34,7 +34,7 @@
     <owl:Class rdf:about="#OutputClass">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&sio;SIO_000325"/>  <!-- 'overlaps with' -->
+                <owl:onProperty rdf:resource="&sio;SIO_000332"/>  <!-- 'is about' -->
                 <owl:someValuesFrom rdf:resource="&feature;Feature"/> <!-- 'sequence feature' -->
             </owl:Restriction>
         </rdfs:subClassOf>

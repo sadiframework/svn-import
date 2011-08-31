@@ -33,10 +33,18 @@
 
     <owl:Class rdf:about="#OutputClass">
         <rdfs:subClassOf>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="&sio;SIO_000325"/>  <!-- 'overlaps with' -->
-                <owl:someValuesFrom rdf:resource="&feature;Feature"/> <!-- 'sequence feature' -->
-            </owl:Restriction>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&sio;SIO_000028"/>  <!-- 'has part' -->
+                        <owl:someValuesFrom rdf:resource="&feature;Feature"/> <!-- 'sequence feature' -->
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&sio;SIO_000245"/>  <!-- 'derives into' -->
+                        <owl:someValuesFrom rdf:resource="&feature;Feature"/> <!-- 'sequence feature' -->
+                    </owl:Restriction>
+                <owl:unionOf>
+            </owl:Class>
         </rdfs:subClassOf>
     </owl:Class>
         
