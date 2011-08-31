@@ -93,7 +93,7 @@ sub process_it {
     my $db = Bio::DB::SeqFeature::Store::Extended->new(get_db_args, -gff_id_to_dbxref => get_gff_id_to_dbxref_mapping);
     my $parser = RDF::Trine::Parser->new('turtle');
     my $templater = Template->new;
-    my $is_part_of = RDF::Trine::Node::Resource->new(SIO_ONTOLOGY_PREFIX . 'SIO_000028');
+    my $is_part_of = RDF::Trine::Node::Resource->new(SIO_ONTOLOGY_PREFIX . 'SIO_000068');
     my $derives_from = RDF::Trine::Node::Resource->new(SIO_ONTOLOGY_PREFIX . 'SIO_000244');
     my %visited_features = ();
 
