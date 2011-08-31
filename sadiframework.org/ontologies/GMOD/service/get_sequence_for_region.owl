@@ -7,7 +7,7 @@
     <!ENTITY sio "http://semanticscience.org/resource/" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-    <!ENTITY feature "http://sadiframework.org/ontologies/GMOD/Feature.owl#" >
+    <!ENTITY properties "http://sadiframework.org/ontologies/properties.owl#" >
 ]>
 
 <rdf:RDF
@@ -20,7 +20,7 @@
 >
 
     <owl:Ontology rdf:about="">
-        <owl:imports rdf:resource="http://sadiframework.org/ontologies/GMOD/Feature.owl"/>
+        <owl:imports rdf:resource="http://sadiframework.org/ontologies/properties.owl"/>
     </owl:Ontology>
 
     <!-- 
@@ -34,8 +34,8 @@
     <owl:Class rdf:about="#OutputClass">
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&sio;SIO_000325"/>  <!-- 'overlaps with' -->
-                <owl:someValuesFrom rdf:resource="&feature;Feature"/> <!-- 'sequence feature' -->
+                <owl:onProperty rdf:resource="&properties;hasSequence"/> 
+                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
