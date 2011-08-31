@@ -112,7 +112,7 @@ use constant SERVICE_DESCRIPTION_TEMPLATE => <<TEMPLATE;
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF
  xmlns:a="http://www.mygrid.org.uk/mygrid-moby-service#"
- xmlns:b="http://purl.org/dc/elements/1.1/"
+ xmlns:b="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#"
  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">    
   <rdf:Description rdf:about="[% uri %]">
     <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#serviceDescription"/>
