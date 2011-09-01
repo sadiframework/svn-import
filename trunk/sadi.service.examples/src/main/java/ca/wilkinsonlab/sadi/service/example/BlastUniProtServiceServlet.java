@@ -53,8 +53,8 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @Name("UniProt BLAST")
 @Description("Issues a BLAST query against the UniProt database using BLASTP, similarity matrix BLOSUM_62, and an expect threshold of 10. A maximum 500 BLAST hits are returned, if the expectation cutoff is not reached. All organisms are included in the search.")
 @ContactEmail("mccarthy@elmonline.ca")
-@InputClass("http://semanticscience.org/resource/SIO_010015")
-@OutputClass("http://sadiframework.org/ontologies/blast.owl#BLASTedSequence")
+@InputClass("http://semanticscience.org/resource/SIO_010015") // protein sequence
+@OutputClass("http://sadiframework.org/examples/blast-uniprot.owl#UniProtBLASTedSequence")
 @TestCases(
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/blastUniprot-input.rdf", 
@@ -71,6 +71,7 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 	protected Model createOutputModel()
 	{
 		Model model = super.createOutputModel();
+		model.setNsPrefix("uniprot", "http://sadiframework.org/examples/blast-uniprot.owl#");
 		model.setNsPrefix("blast", "http://sadiframework.org/ontologies/blast.owl#");
 		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
 		return model;

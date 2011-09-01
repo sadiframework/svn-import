@@ -1,7 +1,7 @@
 <rdf:RDF
-    xmlns:j.0="http://sadiframework.org/examples/blastUniprot.owl#"
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:uniprot="http://sadiframework.org/examples/blast-uniprot.owl#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:blast="http://sadiframework.org/ontologies/blast.owl#">
   <blast:BlastHit>
@@ -13315,9 +13315,9 @@
     </sio:SIO_000028>
     <sio:SIO_000232 rdf:nodeID="A253"/>
   </blast:BlastHit>
-  <j.0:BlastByIdOutputClass rdf:about="http://purl.uniprot.org/uniprot/P12345">
+  <ublast:BlastByIDOutputClass rdf:about="http://purl.uniprot.org/uniprot/P12345">
     <sio:SIO_000008 rdf:nodeID="A1"/>
-  </j.0:BlastByIdOutputClass>
+  </ublast:BlastByIDOutputClass>
   <blast:BlastHit>
     <sio:SIO_000028>
       <blast:SequenceAlignment>
