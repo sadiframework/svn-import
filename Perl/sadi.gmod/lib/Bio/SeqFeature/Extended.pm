@@ -100,9 +100,11 @@ sub primary_dbxrefs
     foreach my $dbxref ($self->dbxrefs) {
         my ($dbname, $id) = split(/:/, $dbxref, 2);
         if (get_primary_dbxref && (get_primary_dbxref eq $dbname)) {
-            push(@primary_dbxrefs, $dbxref);
+            push(@primary_dbxrefs, $dbxref) unless grep($_ eq $dbxref, @primary_dbxrefs);
         }
     }
+    
+    return @primary_dbxrefs;
 }
 
 sub dbxrefs
