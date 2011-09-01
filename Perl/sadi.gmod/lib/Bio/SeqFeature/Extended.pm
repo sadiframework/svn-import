@@ -374,6 +374,8 @@ sub ttl
 #            );
 #
 #    }
+
+    return $ttl;
 }
 
 sub ttl_for_sequence
