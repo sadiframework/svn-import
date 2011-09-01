@@ -1,6 +1,7 @@
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:uniprot="http://sadiframework.org/examples/blast-uniprot.owl#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
     xmlns:blast="http://sadiframework.org/ontologies/blast.owl#">
   <blast:BlastHit>
@@ -39,7 +40,7 @@
         <sio:SIO_000028>
           <sio:SIO_010015 rdf:nodeID="A0">
             <sio:SIO_000068>
-              <blast:BLASTedSequence rdf:about="http://sadiframework.org/examples/t/blastUniprot-input.rdf#1">
+              <uniprot:UniProtBLASTedSequence rdf:about="http://sadiframework.org/examples/t/blastUniprot-input.rdf#1">
                 <sio:SIO_000028>
                   <sio:SIO_010015 rdf:nodeID="A1">
                     <sio:SIO_000068 rdf:resource="http://sadiframework.org/examples/t/blastUniprot-input.rdf#1"/>
@@ -4523,7 +4524,7 @@
                     <sio:SIO_000300>SSWWAHVEMGPPDPILGVTEAYKRDTNSKK</sio:SIO_000300>
                   </sio:SIO_010015>
                 </sio:SIO_000028>
-              </blast:BLASTedSequence>
+              </uniprot:UniProtBLASTedSequence>
             </sio:SIO_000068>
             <sio:SIO_000008>
               <sio:SIO_000791>
