@@ -113,5 +113,4 @@ public class RegistryTest
 		}
 		fail("registered services did not contain service");
 	}
-
 }
