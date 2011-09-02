@@ -248,12 +248,17 @@ public class XLightwebHttpClient implements HttpClient {
 			xLightwebResponse = xLightWebClient.call(xLightwebRequest);
 		}
 		
-		if(xLightwebResponse.getStatus() != HttpResponse.HTTP_STATUS_SUCCESS) {
+		if(!isSuccessResponse(xLightwebResponse.getStatus())) {
 			xLightwebResponse.getBlockingBody().close();
 			throw new HttpStatusException(xLightwebResponse.getStatus());
 		}
 		
 		return Channels.newInputStream(xLightwebResponse.getBlockingBody());
+	}
+	
+	public static boolean isSuccessResponse(int statusCode)
+	{
+		return statusCode >= 200 && statusCode <300;
 	}
 	
 	public void setHttpAuthCredentials(String host, int port, String realm, String username, String password) {
