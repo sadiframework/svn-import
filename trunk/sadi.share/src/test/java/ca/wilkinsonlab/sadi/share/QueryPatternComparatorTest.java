@@ -8,20 +8,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.test.NodeCreateUtils;
-import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.ontology.OntProperty;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.Resource;
-
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.MultiRegistry;
 import ca.wilkinsonlab.sadi.client.Registry;
 import ca.wilkinsonlab.sadi.client.Service;
@@ -30,7 +24,17 @@ import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.stats.PredicateStatsDB;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
-import org.apache.log4j.Logger;
+import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.graph.test.NodeCreateUtils;
+import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.ontology.OntProperty;
+import com.hp.hpl.jena.ontology.Restriction;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 /*
  * These tests are for QueryPatternComparator, an inner 
@@ -368,7 +372,9 @@ public class QueryPatternComparatorTest
 			return new ArrayList<Service>();
 		}
 
-		protected class DummyService extends ServiceBase {
+		protected class DummyService extends ServiceBase
+		{
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public String getDescription() {
@@ -391,7 +397,7 @@ public class QueryPatternComparatorTest
 			}
 
 			@Override
-			public Collection<Triple> invokeService(Collection<Resource> inputNodes) throws ServiceInvocationException {
+			public Model invokeService(Iterable<Resource> inputNodes) throws ServiceInvocationException {
 				throw new UnsupportedOperationException();
 			}
 
@@ -399,9 +405,32 @@ public class QueryPatternComparatorTest
 			public boolean isInputInstance(Resource resource) {
 				throw new UnsupportedOperationException();
 			}
-			
-		}
 
+			@Override
+			protected Logger getLog() {
+				return log;
+			}
+
+			@Override
+			public OntClass getInputClass() throws SADIException {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public OntClass getOutputClass() throws SADIException {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public Collection<Restriction> getRestrictions() throws SADIException {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public Model invokeService(Iterator<Resource> arg0) throws ServiceInvocationException {
+				throw new UnsupportedOperationException();
+			}
+		}
 	}
 	
 	protected static class MockPredicateStatsDB extends PredicateStatsDB

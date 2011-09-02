@@ -3,8 +3,11 @@ package ca.wilkinsonlab.sadi.client;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
@@ -15,7 +18,10 @@ import ca.wilkinsonlab.sadi.utils.QueryExecutorFactory;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
  * @author Luke McCarthy
@@ -91,13 +97,16 @@ public abstract class RegistryBase implements Registry
 	 */
 	protected String buildQuery(String template, String ... args) throws SADIException
 	{
+		String query = "";
 		try {
-			return SPARQLStringUtils.strFromTemplate(
-				SPARQLStringUtils.readFully(getClass().getResource(template)),
-				args
-			);
+			query = SPARQLStringUtils.readFully(getClass().getResource(template));
 		} catch (IOException e) {
 			throw new SADIException(e.toString());
+		}
+		if (args.length > 0) {
+			return SPARQLStringUtils.strFromTemplate(query, args);
+		} else {
+			return query;
 		}
 	}
 	
@@ -132,24 +141,66 @@ public abstract class RegistryBase implements Registry
 			return createService(serviceURI);
 		}
 	}
-	
-	@Override
-	public Collection<? extends Service> findServicesByInputClass(OntClass clazz) throws SADIException
-	{
-		return findServicesByInputClass(clazz, true);
-	}
-	
-	@Override
-	public Collection<? extends Service> findServicesByConnectedClass(OntClass clazz) throws SADIException
-	{
-		return findServicesByConnectedClass(clazz, true);
-	}
-	
-	/**
-	 * Returns the log4j Logger associated with the concrete registry.
-	 * @return the log4j Logger associated with the concrete registry
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Registry#findServicesByAttachedProperty(com.hp.hpl.jena.rdf.model.Property)
 	 */
-	protected abstract Logger getLog();
+	@Override
+	public Collection<? extends Service> findServicesByAttachedProperty(Property property) throws SADIException
+	{
+		Set<String> propertyURIs= new HashSet<String>();
+		if (property.isURIResource())
+			propertyURIs.add(property.getURI());
+		if (property.canAs(OntProperty.class)) {
+			for (Iterator<? extends Property> i = property.as(OntProperty.class).listSubProperties(); i.hasNext(); ) {
+				Property p = i.next();
+				if (p.isURIResource())
+					propertyURIs.add(p.getURI());
+			}
+		}
+		return findServicesByAttachedProperty(propertyURIs);
+		// TODO
+//		return findServices(RegistrySearchCriteria.findService().addAttachedProperty(property));
+	}
+	
+	@Override
+	public Collection<? extends Service> findServicesByInputClass(Resource clazz) throws SADIException
+	{
+		Set<String> classURIs = new HashSet<String>();
+		if (clazz.isURIResource())
+			classURIs.add(clazz.getURI());
+		if (clazz.canAs(OntClass.class)) {
+			for (Iterator<? extends OntClass> i = clazz.as(OntClass.class).listSubClasses(); i.hasNext(); ) {
+				OntClass c = i.next();
+				if (c.isURIResource())
+					classURIs.add(c.getURI());
+			}
+		}
+		return findServicesByInputClass(classURIs);
+		// TODO
+//		return findServices(RegistrySearchCriteria.findService().addInputClass(clazz));
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Registry#findServicesByConnectedClass(com.hp.hpl.jena.rdf.model.Resource)
+	 */
+	@Override
+	public Collection<? extends Service> findServicesByConnectedClass(Resource clazz) throws SADIException
+	{
+		Set<String> classURIs = new HashSet<String>();
+		if (clazz.isURIResource())
+			classURIs.add(clazz.getURI());
+		if (clazz.canAs(OntClass.class)) {
+			for (Iterator<? extends OntClass> i = clazz.as(OntClass.class).listSubClasses(); i.hasNext(); ) {
+				OntClass c = i.next();
+				if (c.isURIResource())
+					classURIs.add(c.getURI());
+			}
+		}
+		return findServicesByConnectedClass(classURIs);
+		// TODO
+//		return findServices(RegistrySearchCriteria.findService().addConnectedClass(clazz));
+	}
 	
 	/**
 	 * Creates a new service instance corresponding the specified URI.
@@ -157,4 +208,14 @@ public abstract class RegistryBase implements Registry
 	 * @return a new service instance corresponding the specified URI
 	 */
 	protected abstract Service createService(String serviceURI) throws SADIException;
+	
+	/**
+	 * Returns the log4j Logger associated with the concrete registry.
+	 * @return the log4j Logger associated with the concrete registry
+	 */
+	protected abstract Logger getLog();
+
+	protected abstract Collection<? extends Service> findServicesByAttachedProperty(Iterable<String> propertyURIs) throws SADIException;
+	protected abstract Collection<? extends Service> findServicesByConnectedClass(Iterable<String> classURIs) throws SADIException;
+	protected abstract Collection<? extends Service> findServicesByInputClass(Iterable<String> classURIs) throws SADIException;
 }

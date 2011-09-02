@@ -2,9 +2,9 @@ package ca.wilkinsonlab.sadi.client;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Collection;
-import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
@@ -17,6 +17,7 @@ import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -54,15 +55,13 @@ public class ServiceImplTest
 		inputModel = null;
 	}
 	
-	@SuppressWarnings("serial")
 	private static ServiceImpl createDummyService() throws SADIException
 	{
-		ServiceImpl service = new ServiceImpl( new HashMap<String, String>() {{
-			put("serviceURI", DUMMY_SERVICE);
-			put("inputClassURI", DUMMY_INPUT_CLASS);
-			put("outputClassURI", DUMMY_OUTPUT_CLASS);
-		}});
-		
+		ServiceImpl service = new ServiceImpl();
+		service.setURI(DUMMY_SERVICE);
+		service.setInputClassURI(DUMMY_INPUT_CLASS);
+		service.setOutputClassURI(DUMMY_OUTPUT_CLASS);
+		service.ontModel.read(ServiceImplTest.class.getResourceAsStream("dummy.owl"), DUMMY_NS);
 		return service;
 	}
 	
@@ -103,13 +102,14 @@ public class ServiceImplTest
 	}
 	
 	@Test
-	public void testGetPredicates() throws Exception
+	public void testGetRestrictions() throws Exception
 	{
-		String[] expectedPredicates = new String[]{ DUMMY_OUTPUT_PREDICATE };
-		Collection<String> actualPredicates = service.getPredicates();
-		for (String expected: expectedPredicates) {
-			assertTrue("service does not provide expected predicate " + expected, actualPredicates.contains(expected));
+		Collection<Restriction> restrictions = service.getRestrictions();
+		for (Restriction restriction: restrictions) {
+			if (restriction.getOnProperty().getURI().equals(DUMMY_OUTPUT_PREDICATE))
+				return;
 		}
+		fail("service does not provide expected predicate " + DUMMY_OUTPUT_PREDICATE);
 	}
 	
 	@Test

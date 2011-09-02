@@ -47,6 +47,12 @@ public class QueryExecutorFactory
 		return new JenaModelQueryExecutor(createJDBCJenaModel(driver, dsn, username, password, graphName));
 	}
 	
+	/**
+	 * 
+	 * @param endpointURL the URL of the Virtuoso SPARQL endpoint
+	 * @return
+	 * @throws IOException if the URL is invalid
+	 */
 	public static QueryExecutor createVirtuosoSPARQLEndpointQueryExecutor(String endpointURL) throws IOException
 	{
 		return createVirtuosoSPARQLEndpointQueryExecutor(endpointURL, null);
@@ -127,6 +133,18 @@ public class QueryExecutorFactory
 			qe.close();
 			return localBindings;
 		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.utils.QueryExecutor#executeConstructQuery(java.lang.String)
+		 */
+		@Override
+		public Model executeConstructQuery(String query) throws SADIException
+		{
+			QueryExecution qe = QueryExecutionFactory.create(query, model);
+			Model result = qe.execConstruct();
+			qe.close();
+			return result;
+		}
 	}
 	
 	private static class VirtuosoSPARQLEndpointQueryExecutor implements QueryExecutor
@@ -149,6 +167,23 @@ public class QueryExecutorFactory
 			try {
 				Object result = HttpUtils.postAndFetchJson(endpointURL, getPostParameters(query));
 				return convertResults(result);
+			} catch (IOException e) {
+				throw new SADIException(e.toString());
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.utils.QueryExecutor#executeConstructQuery(java.lang.String)
+		 */
+		@Override
+		public Model executeConstructQuery(String query) throws SADIException
+		{
+			Map<String, String> params = getPostParameters(query);
+			params.put("format", "application/rdf+xml");
+			try {
+				Model model = ModelFactory.createDefaultModel();
+				model.read(HttpUtils.POST(endpointURL, params), endpointURL.toString());
+				return model;
 			} catch (IOException e) {
 				throw new SADIException(e.toString());
 			}

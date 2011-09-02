@@ -1,10 +1,14 @@
 package ca.wilkinsonlab.sadi.client;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
@@ -19,22 +23,22 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
 public class RegistryImplTest
 {
-	private static final String TEST_REGISTRY_ENDPOINT = "http://biordf.net/sparql";
-	private static final String TEST_REGISTRY_GRAPH = "http://sadiframework.org/test/registry/";
-
 	private static final Logger log = Logger.getLogger(RegistryImplTest.class);
 	
-	
+	private static final String TEST_REGISTRY_ENDPOINT = "http://biordf.net/sparql";
+	private static final String TEST_REGISTRY_GRAPH = "http://sadiframework.org/test/registry/";
 	private static final String SERVICE_URI = "http://sadiframework.org/examples/linear";
 	private static final String SERVICE_PREDICATE = "http://sadiframework.org/examples/regression.owl#hasRegressionModel";
 	private static final String DIRECT_INPUT_INSTANCE = "http://sadiframework.org/examples/input/regressionDirect";
 	private static final String INFERRED_INPUT_INSTANCE = "http://sadiframework.org/examples/input/regressionInferred";
 	private static final String CONNECTED_CLASS = "http://sadiframework.org/examples/regression.owl#RegressionModel";
-	static Registry registry;
-	static Model inputModel;
+	
+	private static Registry registry;
+	private static Model inputModel;
 	
 	StopWatch timer;
 	
@@ -72,12 +76,37 @@ public class RegistryImplTest
 	{
 		assertFalse("no services found in registry", registry.getAllServices().isEmpty());
 	}
+	
+	@Test
+	public void testGetAllServicesIntInt() throws Exception
+	{
+		Set<String> seen = new HashSet<String>();
+		int limit=1, offset=0, servicesReturned=0;
+		do {
+			offset += servicesReturned;
+			Collection<Service> services = ((RegistryImpl)registry).getAllServices(limit, offset);
+			servicesReturned = services.size();
+			log.info(String.format("found %d services", servicesReturned));
+			for (Service service: services) {
+				if (seen.contains(service.getURI()))
+					fail(String.format("saw %s twice", service));
+				else
+					seen.add(service.getURI());
+			}
+		} while (servicesReturned == limit);
+	}
+	
+	@Test
+	public void testGetServiceStatus() throws Exception
+	{
+		assertEquals("no service status in registry", ServiceStatus.OK, registry.getServiceStatus(SERVICE_URI));
+	}
 
 	@Test
-	public void testFindServicesByPredicate() throws Exception
+	public void testFindServicesByAttachedProperty() throws Exception
 	{
 		assertTrue(String.format("failed to find service %s matching predicate %s", SERVICE_URI, SERVICE_PREDICATE),
-				serviceCollectionContains(registry.findServicesByPredicate(SERVICE_PREDICATE), SERVICE_URI));
+				serviceCollectionContains(registry.findServicesByAttachedProperty(ResourceFactory.createProperty(SERVICE_PREDICATE)), SERVICE_URI));
 	}
 	
 	@Test
@@ -105,16 +134,16 @@ public class RegistryImplTest
 	}
 	
 	@Test
-	public void testFindServicesByInputInstance() throws Exception
+	public void testDiscoverServicesResource() throws Exception
 	{
 		assertTrue(String.format("failed to find service %s from input %s", SERVICE_URI, DIRECT_INPUT_INSTANCE),
-				serviceCollectionContains(registry.findServicesByInputInstance(inputModel.getResource(DIRECT_INPUT_INSTANCE)), SERVICE_URI));
+				serviceCollectionContains(registry.discoverServices(inputModel.getResource(DIRECT_INPUT_INSTANCE)), SERVICE_URI));
 		assertTrue(String.format("failed to find service %s from input %s", SERVICE_URI, INFERRED_INPUT_INSTANCE),
-				serviceCollectionContains(registry.findServicesByInputInstance(inputModel.getResource(INFERRED_INPUT_INSTANCE)), SERVICE_URI));
+				serviceCollectionContains(registry.discoverServices(inputModel.getResource(INFERRED_INPUT_INSTANCE)), SERVICE_URI));
 	}
 
 	@Test
-	public void testDiscoverServices() throws Exception
+	public void testDiscoverServicesModel() throws Exception
 	{
 		Collection<? extends ServiceInputPair> pairs = registry.discoverServices(inputModel);
 		assertTrue("failed to find direct service input pair",
@@ -124,6 +153,7 @@ public class RegistryImplTest
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testFindPredicatesBySubject() throws Exception
 	{
 		Collection<String> predicates;
@@ -132,6 +162,11 @@ public class RegistryImplTest
 		predicates = registry.findPredicatesBySubject(inputModel.getResource(INFERRED_INPUT_INSTANCE));
 		assertTrue("failed to find predicate for inferred input", predicates.contains(SERVICE_PREDICATE));
 	}
+	
+//	public void testFindServicesByAttachedPropertyLabel() throws Exception
+//	{
+//		((RegistryImpl)registry).findServicesByAttachedPropertyLabel("`");
+//	}
 	
 	private boolean serviceCollectionContains(Collection<? extends Service> services, String serviceUri)
 	{

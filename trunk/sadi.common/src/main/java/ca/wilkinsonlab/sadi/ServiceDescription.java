@@ -8,7 +8,7 @@ import ca.wilkinsonlab.sadi.beans.RestrictionBean;
  * An interface providing programmatic access to a SADI service description.
  * @author Luke McCarthy
  */
-public interface ServiceDescription extends URIable
+public interface ServiceDescription extends HasURI
 {
 	/**
 	 * Returns the service URI.
@@ -18,11 +18,6 @@ public interface ServiceDescription extends URIable
 	 * @return the URI of the service
 	 */
 	String getURI();
-
-//	/**
-//	 * @param URI the URI to set
-//	 */
-//	void setURI(String URI);
 
 	/**
 	 * Returns the service name, which may be null.

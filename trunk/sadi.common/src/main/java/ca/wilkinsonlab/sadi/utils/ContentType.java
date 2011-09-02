@@ -28,6 +28,15 @@ public enum ContentType
 		return null;
 	}
 	
+	public static ContentType getContentTypeByJenaLanguage(String jenaLanguage)
+	{
+		for (ContentType type: ContentType.values()) {
+			if (type.getJenaLanguage().equals(jenaLanguage))
+				return type;
+		}
+		return null;
+	}
+	
 	private static Collection<ContentType> uniqueContentTypes = null;
 	public static Collection<ContentType> getUniqueContentTypes()
 	{

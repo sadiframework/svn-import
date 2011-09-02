@@ -20,12 +20,13 @@ public class LSRNUtils
 	
 	public static boolean isLSRNType(Resource type)
 	{
-		if (type.isURIResource() && NS_PATTERN.matcher(type.getURI()).matches())
-			return true;
-		else 
-			return false;
+		return type.isURIResource() && isLSRNType(type.getURI());
 	}
 
+	public static boolean isLSRNType(String uri)
+	{
+		return NS_PATTERN.matcher(uri).matches(); 
+	}
 	
 	/**
 	 * Return a Resource that is an instance of the specified type with the 

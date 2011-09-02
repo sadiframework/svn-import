@@ -7,9 +7,10 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import com.hp.hpl.jena.ontology.OntProperty;
-
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.MultiRegistry;
+
+import com.hp.hpl.jena.ontology.OntProperty;
 
 /*
  * A class which keeps track of which properties are resolvable
@@ -23,7 +24,6 @@ import ca.wilkinsonlab.sadi.client.MultiRegistry;
 
 public class PropertyResolvabilityCache 
 {
-	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(PropertyResolvabilityCache.class);
 	
 	private MultiRegistry registry;
@@ -62,11 +62,14 @@ public class PropertyResolvabilityCache
 
 			}
 			
-			if(registry.findServicesByPredicate(equivalentProperty.getURI()).size() > 0) {
-				isResolvable = true;
-				break;
-			} 
-				
+			try {
+				if(registry.findServicesByAttachedProperty(equivalentProperty).size() > 0) {
+					isResolvable = true;
+					break;
+				}
+			} catch (SADIException e) {
+				log.error(e.getMessage(), e);
+			}
 		}
 		
 		if(isResolvable) {

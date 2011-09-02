@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,6 +14,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang.StringUtils;
@@ -33,6 +35,9 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.util.iterator.ExtendedIterator;
+import com.hp.hpl.jena.util.iterator.MapFilter;
+import com.hp.hpl.jena.util.iterator.MapFilterIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 public class RdfUtils
@@ -151,13 +156,19 @@ public class RdfUtils
 		
 	    return buf.toString();
 	}
+	
+	public static String logModel(Model model)
+	{
+		StringWriter writer = new StringWriter();
+		model.write(writer, "N3");
+		return writer.toString();
+	}
 
 	/**
 	 * @author Ben Vandervalk
 	 * @param uriString the URI to test, as a string
 	 * @return true if the given string is an absolute URI
 	 */
-	
 	public static boolean isURI(String uriString)
 	{
 		if (StringUtils.isEmpty(uriString))
@@ -429,6 +440,24 @@ public class RdfUtils
 		}
 		
 		// try as inline RDF last...
+		try {
+			return loadModelFromInlineRDF(model, s);
+		} catch (IOException e) {
+		}
+		
+		// not a remote URL, local path or inline RDF...
+		throw new IOException(String.format("could not identify '%s' as a remote URL, local path or inline RDF", s));
+	}
+	
+	/**
+	 * Load the specified model with the RDF serialized in the specified string.
+	 * @param model the model
+	 * @param s the inline RDF
+	 * @return the model
+	 * @throws IOException if the inline RDF is serialized in an unrecognized format
+	 */
+	public static Model loadModelFromInlineRDF(Model model, String s) throws IOException
+	{
 		ByteArrayInputStream stream = new ByteArrayInputStream(s.getBytes());
 		for (ContentType type: ContentType.getUniqueContentTypes()) {
 			stream.reset();
@@ -442,9 +471,7 @@ public class RdfUtils
 					log.debug(String.format("error parsing '%s' as %s: %s", s, type, e.toString()));
 			}
 		}
-		
-		// not a remote URL, local path or inline RDF...
-		throw new IOException(String.format("could not identify '%s' as a remote URL, local path or inline RDF", s));
+		throw new IOException(String.format("could not identify '%s' as inline RDF", s));
 	}
 	
 	/**
@@ -458,6 +485,34 @@ public class RdfUtils
 			String key = (String)keys.next();
 			model.setNsPrefix(key, nsConfig.getString(key));
 		}
+	}
+	
+	/**
+	 * Create a Resource with the specified URI that has all of the
+	 * properties of the specified BNode.
+	 * This effectively gives the BNode a URI.
+	 * @param bnode the source BNode
+	 * @param uri the URI of the new Resource
+	 * @return
+	 */
+	public static Resource createNamedClone(Resource bnode, String uri)
+	{
+		Resource target = bnode.getModel().createResource(uri);
+		StmtIterator statements = bnode.listProperties();
+		while (statements.hasNext()) {
+			Statement statement = statements.next();
+			target.addProperty(statement.getPredicate(), statement.getObject());
+		}
+		return target;
+	}
+	
+	/**
+	 * Returns a UUID-based URI.
+	 * @return a UUID-based URI
+	 */
+	public static String createUniqueURI()
+	{
+		return String.format("urn:uuid:%s", UUID.randomUUID());
 	}
 	
 //	/**
@@ -504,4 +559,58 @@ public class RdfUtils
 //			model.close();
 //		}
 //	}
+	
+	/**
+	 * Returns the first value of a property that is of a specified type.
+	 * @param s the subject
+	 * @param p the property
+	 * @param type the type
+	 * @return the first value of a property that is of a specified type
+	 */
+	public static final Resource getPropertyValue(Resource s, Property p, Resource type)
+	{
+		ExtendedIterator<Resource> i = getPropertyValues(s, p, type);
+		try {
+			return i.hasNext() ? i.next() : null;
+		} finally {
+			i.close();
+		}
+	}
+	
+	/**
+	 * Returns values of a property that are of a specified type.
+	 * @param s the subject
+	 * @param p the property
+	 * @param type the type
+	 * @return values of a property that are of a specified type
+	 */
+	public static final ExtendedIterator<Resource> getPropertyValues(Resource s, Property p, Resource type)
+	{
+		return new MapFilterIterator<Statement, Resource>(new StatementToResourceFilter(type), s.listProperties(p));
+	}
+	
+	/**
+	 * 
+	 * @author Luke McCarthy
+	 */
+	public static final class StatementToResourceFilter implements MapFilter<Statement, Resource>
+	{
+		private Resource type;
+		public StatementToResourceFilter(Resource type)
+		{
+			this.type = type;
+		}
+		
+		@Override
+		public Resource accept(Statement s)
+		{
+			RDFNode o = s.getObject();
+			if (o.isResource()) {
+				Resource object = o.asResource();
+				if (type == null || object.hasProperty(RDF.type, type))
+					return object;
+			}
+			return null;
+		}
+	}
 }

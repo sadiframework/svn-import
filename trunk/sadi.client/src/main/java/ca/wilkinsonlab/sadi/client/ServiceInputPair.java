@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.hp.hpl.jena.graph.Triple;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
 /**
@@ -38,7 +38,7 @@ public class ServiceInputPair
 		return input;
 	}
 	
-	public Collection<Triple> invoke() throws Exception
+	public Model invoke() throws ServiceInvocationException
 	{
 		return service.invokeService(input);
 	}

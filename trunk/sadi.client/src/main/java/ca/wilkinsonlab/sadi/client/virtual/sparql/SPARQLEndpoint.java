@@ -36,6 +36,8 @@ import com.hp.hpl.jena.query.QueryParseException;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.shared.JenaException;
 
 /**
@@ -160,7 +162,7 @@ public class SPARQLEndpoint
 	}
 
 	
-	public Collection<Triple> getTriplesMatchingPattern(Triple pattern, long resultsLimit) throws IOException 
+	public Model getTriplesMatchingPattern(Triple pattern, long resultsLimit) throws IOException 
 	{
 		Node s = pattern.getSubject();
 		Node o = pattern.getObject();
@@ -181,7 +183,7 @@ public class SPARQLEndpoint
 			query.append(resultsLimit);
 		}
 		
-		Collection<Triple> triples = constructQuery(query.toString());
+		Model triples = constructQuery(query.toString(), ModelFactory.createDefaultModel());
 		
 		if(resultsLimit != NO_RESULTS_LIMIT && triples.size() == resultsLimit)
 			log.warn("query results may have been truncated at " + resultsLimit + " triples");
@@ -278,7 +280,7 @@ public class SPARQLEndpoint
 		}
 	}
 	
-	public Collection<Triple> constructQuery(String query) throws IOException
+	public Model constructQuery(String query, Model accum) throws IOException
 	{
 		/* We must use syntaxARQ here so that COUNT(*) queries are allowed. */
 		
@@ -286,7 +288,8 @@ public class SPARQLEndpoint
 		long queryLimit = (jenaQuery.getLimit() == Query.NOLIMIT) ? NO_RESULTS_LIMIT : jenaQuery.getLimit();
 		
 		String origQuery = query;
-		List<Triple> aggregateResults = new ArrayList<Triple>();
+//		List<Triple> aggregateResults = new ArrayList<Triple>();
+		Model aggregateResults = accum;
 		
 		while(true) {
 
@@ -296,9 +299,10 @@ public class SPARQLEndpoint
 				
 				// We must use GET here so that the HTTP client knows that it is okay to retry on failure
 				is = HttpUtils.GET(new URL(getURI()), getParamsForConstructQuery(query));				
-				Collection<Triple> results = convertConstructResponseToTriples(is);
+				Model results = ModelFactory.createDefaultModel();
+				convertConstructResponseToTriples(is, results);
 				
-				aggregateResults.addAll(results);
+				aggregateResults.add(results);
 				
 				/* 
 				 * If we get a result set size that is exactly the size of the 
@@ -313,6 +317,8 @@ public class SPARQLEndpoint
 				
 				query = getQueryForNextChunk(origQuery, aggregateResults.size());
 				log.trace(String.format("query results may have been truncated by endpoint limit, issuing additional query: %s", query));
+				
+				results.close();
 				
 			} catch(IOException e) {
 				
@@ -697,16 +703,18 @@ public class SPARQLEndpoint
 		boolean isDatatypeProperty = false;
 		String predicateQuery = "CONSTRUCT { ?s %u% ?o } WHERE { ?s %u% ?o } LIMIT 1";
 		predicateQuery = SPARQLStringUtils.strFromTemplate(predicateQuery, predicateURI, predicateURI);
-		Collection<Triple> results = constructQuery(predicateQuery);
+		Model results = constructQuery(predicateQuery, ModelFactory.createDefaultModel());
 		if(results.size() == 0) {
 			throw new RuntimeException("the endpoint " + getURI() + " doesn't have any triples containing the predicate " + predicateURI);
 		}
 		else {
-			Node o = results.iterator().next().getObject();
+			StmtIterator i = results.listStatements();
+			RDFNode o = i.next().getObject();
 			if(o.isLiteral())
 				isDatatypeProperty = true;
 			else
 				isDatatypeProperty = false;
+			i.close();
 			
 			// Sanity check: Make sure this is not an RDF predicate that has both URIs and literals as values.  
 			if(checkForAmbiguousProperty) {
@@ -728,15 +736,17 @@ public class SPARQLEndpoint
 		throw new UnsupportedOperationException();
 	}
 
-	protected Collection<Triple> convertConstructResponseToTriples(InputStream response) 
+	protected Model convertConstructResponseToTriples(InputStream response, Model model) 
 	{
 		switch(getConstructResultsFormat()) {
 		case N3:
-			return RdfUtils.getTriples(response, "N3");
+			model.read(response, endpointURI, "N3");
+			break;
 		default:
 		case RDFXML:
-			return RdfUtils.getTriples(response, "RDF/XML");
+			model.read(response, endpointURI, "RDF/XML");
 		}
+		return model;
 	}
 
 	protected List<Map<String,String>> convertSelectResponseToBindings(InputStream response) throws IOException 
@@ -837,7 +847,9 @@ public class SPARQLEndpoint
 			
 			String query = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } LIMIT " + blockSize + " OFFSET " + cacheOffset;
 			tripleCache = new ArrayList<Triple>();
-			tripleCache.addAll(endpoint.constructQuery(query));
+//			tripleCache.addAll(endpoint.constructQuery(query));
+			Model model = endpoint.constructQuery(query, ModelFactory.createDefaultModel());
+			tripleCache.addAll(RdfUtils.modelToTriples(model));
 			cacheOffset += blockSize;
 			cacheIndex = 0;
 			if(tripleCache.size() > 0)

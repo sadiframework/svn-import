@@ -3,14 +3,18 @@ package ca.wilkinsonlab.sadi.beans;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+
+import org.apache.commons.lang.StringUtils;
 
 import ca.wilkinsonlab.sadi.ServiceDescription;
+import ca.wilkinsonlab.sadi.HasModifableURI;
 
 /**
  * A simple class describing a SADI service.
  * @author Luke McCarthy
  */
-public class ServiceBean implements Serializable, ServiceDescription
+public class ServiceBean implements Serializable, ServiceDescription, HasModifableURI
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -241,4 +245,48 @@ public class ServiceBean implements Serializable, ServiceDescription
 //	{
 //		this.parameterInstanceURI = parameterInstanceURI;
 //	}
+	
+	@Override
+	public String toString()
+	{
+		StringBuilder buf = new StringBuilder();
+		buf.append("{");
+		buf.append("\n             URI: ");
+		buf.append(getURI());
+		buf.append("\n            Name: ");
+		buf.append(getName());
+		buf.append("\n     Description: ");
+		buf.append(getDescription());
+		buf.append("\nService provider: ");
+		buf.append(getServiceProvider());
+		buf.append("\n   Contact Email: ");
+		buf.append(getContactEmail());
+		buf.append("\n   Authoritative: ");
+		buf.append(isAuthoritative());
+		buf.append("\n     Input Class: ");
+		buf.append(getInputClassURI());
+		buf.append(" (");
+		buf.append(StringUtils.defaultIfEmpty(getInputClassLabel(), "no label"));
+		buf.append(")");
+		buf.append("\n    Output Class: ");
+		buf.append(getOutputClassURI());
+		buf.append(" (");
+		buf.append(StringUtils.defaultIfEmpty(getOutputClassLabel(), "no label"));
+		buf.append(")");
+		buf.append("\n Parameter Class: ");
+		buf.append(getParameterClassURI());
+		if (getParameterClassURI() != null) {
+			buf.append(" (");
+			buf.append(StringUtils.defaultIfEmpty(getParameterClassLabel(), "no label"));
+			buf.append(")");
+		}
+		buf.append("\n    Restrictions: ");
+		for (Iterator<RestrictionBean> i = getRestrictionBeans().iterator(); i.hasNext(); ) {
+			buf.append(i.next().toString());
+			if (i.hasNext())
+				buf.append("\n                  ");
+		}
+		buf.append("\n}");
+		return buf.toString();
+	}
 }

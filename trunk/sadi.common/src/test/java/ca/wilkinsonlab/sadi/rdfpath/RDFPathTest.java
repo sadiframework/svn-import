@@ -1,6 +1,8 @@
 package ca.wilkinsonlab.sadi.rdfpath;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -32,6 +34,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
+import com.hp.hpl.jena.vocabulary.XSD;
 
 /**
  * @author Luke McCarthy
@@ -76,11 +80,30 @@ public class RDFPathTest
 	@Test
 	public void testConstructors()
 	{
+		assertEquals(new RDFPath(), new RDFPath(""));
 		RDFPath path1 = new RDFPath(FOAF.name, RDF.value);
 		RDFPath path2 = new RDFPath(FOAF.name.getURI(), RDF.value.getURI());
 		RDFPath path3 = new RDFPath(String.format("%s, %s", FOAF.name, RDF.value));
+		RDFPath path4 = new RDFPath(String.format("%s some %s", FOAF.name, RDF.value));
 		assertEquals(path1, path2);
 		assertEquals(path2, path3);
+		assertEquals(path3, path4);
+	}
+	
+	@Test
+	public void testConstructFromToString()
+	{
+		RDFPath path1 = new RDFPath(FOAF.name, RDF.value);
+		RDFPath path2 = new RDFPath(path1.toString());
+		assertEquals(path1, path2);
+		
+		path1 = new RDFPath(FOAF.name, null);
+		path2 = new RDFPath(path1.toString());
+		assertEquals(path1, path2);
+		
+		path1 = new RDFPath(FOAF.knows, FOAF.Person, FOAF.name, null);
+		path2 = new RDFPath(path1.toString());
+		assertEquals(path1, path2);
 	}
 	
 	@Test
@@ -107,16 +130,29 @@ public class RDFPathTest
 		Resource c2 = model.createResource(NS + "c2");
 		Resource c1instance = model.createResource(NS + "c1instance", c1);
 		Resource c2instance = model.createResource(NS + "c2instance", c2);
+		Literal plainLiteral = model.createLiteral("plain literal");
+		Literal typedLiteral = model.createTypedLiteral("typed literal");
 		Resource root = model.createResource(NS + "root");
 		Property p = model.createProperty(NS + "p");
 		root.addProperty(p, c1instance);
 		root.addProperty(p, c2instance);
+		root.addProperty(p, plainLiteral);
+		root.addProperty(p, typedLiteral);
+		
 		Collection<RDFNode> matches = new ArrayList<RDFNode>();
 		RDFPath.collectNodesOfType(new PropertyValueIterator(root.listProperties(p)), c1, matches);
 		assertCollectionContains(matches, c1instance);
+		matches.clear();
 		RDFPath.collectNodesOfType(new PropertyValueIterator(root.listProperties(p)), c2, matches);
 		assertCollectionContains(matches, c2instance);
-		
+		matches.clear();
+		RDFPath.collectNodesOfType(new PropertyValueIterator(root.listProperties(p)), RDFS.Literal, matches);
+		assertCollectionContains(matches, plainLiteral);
+		assertCollectionContains(matches, typedLiteral);
+		matches.clear();
+		RDFPath.collectNodesOfType(new PropertyValueIterator(root.listProperties(p)), XSD.xstring, matches);
+		assertCollectionContains(matches, typedLiteral);
+		assertCollectionDoesNotContain(matches, plainLiteral);
 	}
 
 	/**
@@ -134,16 +170,14 @@ public class RDFPathTest
 		
 		root.addProperty(p, instance);
 		RDFPath path = new RDFPath();
-		path.add(p);
-		path.add(type);
+		path.add(p, type);
 		Collection<RDFNode> values = new ArrayList<RDFNode>();
 		path.accumulateValuesRootedAt(Collections.singleton(root).iterator(), values, true);
 		assertCollectionContains(values, instance);
 		
 		Literal literal = model.createLiteral("literal");
 		instance.addProperty(q, literal);
-		path.add(q);
-		path.add(null);
+		path.add(q, null);
 		path.accumulateValuesRootedAt(Collections.singleton(root).iterator(), values, true);
 		assertCollectionContains(values, literal);
 	}
@@ -204,6 +238,19 @@ public class RDFPathTest
 		assertCollectionContains(path.getValuesRootedAt(root), ResourceFactory.createTypedLiteral(true));
 		root.addLiteral(MyGrid.authoritative, "not a boolean");
 		assertCollectionDoesNotContain(path.getValuesRootedAt(root), ResourceFactory.createTypedLiteral("not a boolean"));
+	}
+	
+	@Test
+	public void testCreateResourceRootedAt() throws Exception
+	{
+		RDFPath path = new RDFPath(RDF.value, null);
+		Model model = ModelFactory.createDefaultModel();
+		Resource root = model.createResource();
+		Resource r1 = path.createResourceRootedAt(root, "http://example.com/testing");
+		Resource r2 = root.getPropertyResourceValue(RDF.value);
+		assertNotNull("no resource created", r2);
+		assertEquals("created resource is wrong", r1, r2);
+		assertFalse("created resource is typed", r2.hasProperty(RDF.type));
 	}
 	
 	private static void assertCollectionContains(Collection<?> collection, Object item)

@@ -1,14 +1,12 @@
 package ca.wilkinsonlab.sadi.rdfpath;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -23,14 +21,16 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
  * @author Luke McCarthy
  */
-public class RDFPath extends ArrayList<Resource>
+public class RDFPath extends ArrayList<RDFPathElement>
 {
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = 2L;
+	private static final Pattern stringParsePattern = Pattern.compile("(.*) some (.*)");
+	
 	public boolean reuseExistingNodes;
 	
 	/**
@@ -43,14 +43,33 @@ public class RDFPath extends ArrayList<Resource>
 	}
 	
 	/**
-	 * Constructs a new RDFPath from the specified chain of properties/classes.
-	 * @param path the chain of properties/classes
+	 * Constructs a new RDFPath from the specified chain of property/class pairs.
+	 * @param path the chain of properties/class pairs
 	 */
-	public RDFPath(List<Resource> path)
+	public RDFPath(List<RDFPathElement> path)
 	{
 		super(path);
 		reuseExistingNodes = true;
 	}
+	
+//	/**
+//	 * Constructs a new RDFPath from the specified chain of properties/classes.
+//	 * @param path the chain of properties/classes
+//	 */
+//	public RDFPath(List<Resource> path)
+//	{
+//		super((path.size()+1)/2);
+//		reuseExistingNodes = true;
+//		
+//		if (path.size() % 2 > 0)
+//			throw new IllegalArgumentException("path must contain an even number of elements in property/class pairs");
+//		
+//		for (int i=0; i<path.size(); ) {
+//			Property property = path.get(i++).as(Property.class);
+//			Resource type = path.get(i++);
+//			add(new RDFPathElement(property, type));
+//		}
+//	}
 	
 	/* (non-Javadoc)
 	 * @see java.util.AbstractList#equals(java.lang.Object)
@@ -59,7 +78,7 @@ public class RDFPath extends ArrayList<Resource>
 	public boolean equals(Object o)
 	{
 		/* we shouldn't actually need to do this; Collection.equals() and
-		 * Resource.equals() do the right thing...
+		 * RDFPathElement.equals() do the right thing...
 		 */
 		return super.equals(o);
 	}
@@ -67,18 +86,10 @@ public class RDFPath extends ArrayList<Resource>
 	@Override
 	public int hashCode()
 	{
-		/* this we need to do; Resource.equals() uses native.hashCode() which
-		 * means that two Resources with the same URI could have different
-		 * hash codes...
+		/* we shouldn't actually need to do this; Collection.hashCode() and
+		 * RDFPathElement.hashCode() do the right thing...
 		 */
-		HashCodeBuilder builder = new HashCodeBuilder(19, 11);
-		for (Resource r: this) {
-			/* .toString() is either the URI, the node ID or the literal
-			 * value, all of which work for our purposes...
-			 */
-			builder.append(r == null ? 0 : r.toString());
-		}
-		return builder.toHashCode();
+		return super.hashCode();
 	}
 
 	/**
@@ -88,11 +99,24 @@ public class RDFPath extends ArrayList<Resource>
 	 */
 	public RDFPath(Resource... resources)
 	{
-		this(Arrays.asList(resources));
+		super((resources.length+1)/2);
+		reuseExistingNodes = true;
+		
+		if (resources.length % 2 > 0)
+			throw new IllegalArgumentException("path must contain an even number of elements in property/class pairs");
+		
+		for (int i=0; i<resources.length; ) {
+			Property property = resources[i++].as(Property.class);
+			Resource type = resources[i++];
+			add(new RDFPathElement(property, type));
+		}
 	}
 	
 	/**
 	 * Constructs a new RDFPath from the specified chain of property/class URIs.
+	 * Each string can also be a property/class URI pair in the format
+	 * "propertyURI some classURI". If the path consists of a single string,
+	 * that string will be split on commas before being processed.
 	 * @param path the chain of property/class URIs
 	 */
 	public RDFPath(String... path)
@@ -100,21 +124,30 @@ public class RDFPath extends ArrayList<Resource>
 		super(path.length);
 		reuseExistingNodes = true;
 		
-		if (path.length == 1)
-			path = Pattern.compile("[,\\s]+").split(path[0]);
-		
-		if (path.length % 2 > 0)
-			throw new IllegalArgumentException("path must contain an even number of elements in property/class pairs");
+		if (path.length == 1) {
+			if (path[0].isEmpty())
+				return;
+			else if (path[0] != null)
+				path = Pattern.compile("\\s*,\\s*").split(path[0]);
+		}
 		
 		int i=0;
 		while (i<path.length) {
 			String propertyURI = path[i++];
-			add(ResourceFactory.createProperty(propertyURI));
-			String classURI = path[i++];
+			String classURI = null;
+			Matcher matcher = stringParsePattern.matcher(propertyURI);
+			if (matcher.matches()) {
+				propertyURI = matcher.group(1);
+				classURI = matcher.group(2);
+			} else {
+				if (i<path.length)
+					classURI = path[i++];
+			}
+			Property property = ResourceFactory.createProperty(propertyURI);
 			if (classURI == null || classURI.equals("*"))
-				add(null);
+				add(new RDFPathElement(property));
 			else
-				add(ResourceFactory.createResource(classURI));
+				add(new RDFPathElement(property, ResourceFactory.createResource(classURI)));
 		}
 	}
 	
@@ -134,15 +167,19 @@ public class RDFPath extends ArrayList<Resource>
 	 * Constructs a new RDFPath created by appending the specified property
 	 * and class to the specified parent path
 	 * @param parent the parent path
-	 * @param p the property to append
-	 * @param c the class to append
+	 * @param property the property to append
+	 * @param type the class to append
 	 */
-	public RDFPath(RDFPath parent, Property p, Resource c)
+	public RDFPath(RDFPath parent, Property property, Resource type)
 	{
 		super(parent);
-		add(p);
-		add(c);
+		add(new RDFPathElement(property, type));
 		reuseExistingNodes = parent.reuseExistingNodes;
+	}
+	
+	public void add(Property property, Resource type)
+	{
+		add(new RDFPathElement(property, type));
 	}
 	
 	/* (non-Javadoc)
@@ -160,12 +197,11 @@ public class RDFPath extends ArrayList<Resource>
 		buf.append("[");
 		buf.append(root);
 		buf.append("]");
-		for (Iterator<Resource> i = this.iterator(); i.hasNext(); ) {
-			buf.append(" =<");
-			buf.append(i.next());
-			buf.append(">=> [some ");
-			buf.append(i.next());
-			buf.append("]");
+		for (Iterator<RDFPathElement> i = this.iterator(); i.hasNext(); ) {
+			RDFPathElement element = i.next();
+			buf.append(" =[");
+			buf.append(element);
+			buf.append("]=>");
 		}
 		return buf.toString();
 	}
@@ -200,11 +236,16 @@ public class RDFPath extends ArrayList<Resource>
 	 */
 	public Property getProperty()
 	{
-		return get(0).as(Property.class);
+		return get(0).getProperty();
 	}
 	public Resource getType()
 	{
-		return get(1);
+		return get(0).getType();
+	}
+	
+	public RDFPathElement getLastPathElement()
+	{
+		return isEmpty() ? null: get(size()-1);
 	}
 	
 	/**
@@ -213,12 +254,12 @@ public class RDFPath extends ArrayList<Resource>
 	 */
 	public RDFPath getChildPath()
 	{
-		if (size() <= 2) {
+		if (size() <= 1) {
 			RDFPath childPath = new RDFPath();
 			childPath.reuseExistingNodes = reuseExistingNodes;
 			return childPath;
 		} else {
-			RDFPath childPath = new RDFPath(subList(2, size()));
+			RDFPath childPath = new RDFPath(subList(1, size()));
 			childPath.reuseExistingNodes = reuseExistingNodes;
 			return childPath;
 		}
@@ -295,10 +336,12 @@ public class RDFPath extends ArrayList<Resource>
 	
 	/* Computes the leaf nodes of the path starting from the specified root nodes
 	 * and adds them to the specified collection, returning that collection.
+	 * TODO this is pretty inefficient, creating multiple copies of the path as
+	 * it recurses through; if this becomes a problem, just change it to loop
+	 * rather than recurse at the cost of a little readability...
 	 */
 	Collection<RDFNode> accumulateValuesRootedAt(Iterator<? extends RDFNode> roots, Collection<RDFNode> values, boolean required)
 	{
-		
 		if (isEmpty()) {
 			// meaningless operation; we have to have at least one property in the path...
 			return values;
@@ -332,10 +375,20 @@ public class RDFPath extends ArrayList<Resource>
 			RDFNode node = nodes.next();
 			if ((type == null) || // wild card...
 				(node.isResource() && node.asResource().hasProperty(RDF.type, type)) ||
-				(node.isLiteral() && type.isURIResource() && type.getURI().equals(node.asLiteral().getDatatypeURI()))) {
+				(node.isLiteral() && matchesDatatype(node.asLiteral(), type))) {
 					matches.add(node);
 			}
 		}
+	}
+
+	private static boolean matchesDatatype(Literal literal, Resource datatype)
+	{
+		if (datatype.equals(RDFS.Literal))
+			return true;
+		else if (datatype.isURIResource() && datatype.getURI().equals(literal.getDatatypeURI()))
+			return true;
+		else
+			return false;
 	}
 	
 	/**
@@ -454,8 +507,11 @@ public class RDFPath extends ArrayList<Resource>
 		if (isEmpty()) {
 			node = root.getModel().createResource(uri);
 		} else {
-			Resource type = get(size()-1);
-			node = root.getModel().createResource(uri, type);
+			Resource type = get(size()-1).getType();
+			if (type == null)
+				node = root.getModel().createResource(uri);
+			else
+				node = root.getModel().createResource(uri, type);
 		}
 		addValueRootedAt(root, node);
 		return node;
@@ -473,7 +529,7 @@ public class RDFPath extends ArrayList<Resource>
 		if (isEmpty()) {
 			literal = RdfUtils.createTypedLiteral(value);
 		} else {
-			Resource type = get(size()-1);
+			Resource type = get(size()-1).getType();
 			if (type == null) {
 				literal = RdfUtils.createTypedLiteral(value);
 			} else {

@@ -116,7 +116,7 @@ public class OwlUtils
 				if (clazz.isRestriction()) {
 					Restriction restriction = clazz.asRestriction();
 					try {
-						return getRestrictionString(restriction);
+						return LabelUtils.getRestrictionString(restriction);
 					} catch (Exception e) {
 						log.warn(e.getMessage());
 					}
@@ -170,41 +170,11 @@ public class OwlUtils
 	 * Returns a description of the specified OWL restriction
 	 * @param r the OWL restriction
 	 * @return a description of the OWL restriction
+	 * @deprecated use {@link LabelUtils.getRestrictionString(Restriction)} instead
 	 */
 	public static String getRestrictionString(Restriction r)
 	{
-		StringBuilder buf = new StringBuilder("{");
-		
-		try {
-			buf.append(getLabel(r.getOnProperty()));
-		} catch (ConversionException e) {
-			// this happens if the property is undefined in the ontology model...
-			buf.append(getLabel(r.getProperty(OWL.onProperty).getResource()));
-		}
-		if (r.isAllValuesFromRestriction()) {
-			buf.append(" allValuesFrom ");
-			buf.append(getLabel(r.asAllValuesFromRestriction().getAllValuesFrom()));
-		} else if (r.isSomeValuesFromRestriction()) {
-			buf.append(" someValuesFrom ");
-			buf.append(getLabel(r.asSomeValuesFromRestriction().getSomeValuesFrom()));
-		} else if (r.isHasValueRestriction()) {
-			buf.append(" hasValue ");
-			buf.append(r.asHasValueRestriction().getHasValue());
-		} else if (r.isMinCardinalityRestriction()) {
-			buf.append(" minCardinality ");
-			buf.append(r.asMinCardinalityRestriction().getMinCardinality());
-		} else if (r.isMaxCardinalityRestriction()) {
-			buf.append(" maxCardinality ");
-			buf.append(r.asMaxCardinalityRestriction().getMaxCardinality());
-		} else if (r.isCardinalityRestriction()) {
-			buf.append(" cardinality ");
-			buf.append(r.asCardinalityRestriction().getCardinality());
-		} else {
-			buf.append(" unknown restriction");
-		}
-		
-		buf.append("}");
-		return buf.toString();
+		return LabelUtils.getRestrictionString(r);
 	}
 	
 	/**
@@ -781,7 +751,7 @@ public class OwlUtils
 		 */
 		public void visit(Restriction restriction)
 		{
-			log.trace(String.format("found restriction %s", OwlUtils.getRestrictionString(restriction)));
+			log.trace(String.format("found restriction %s", LabelUtils.getRestrictionString(restriction)));
 			String key = getHashKey(restriction);
 			if (!seen.contains(key)) {
 				restrictions.add(restriction);
@@ -791,7 +761,10 @@ public class OwlUtils
 		
 		private String getHashKey(Restriction restriction)
 		{
-			return OwlUtils.getRestrictionString(restriction);
+			/* TODO this is a pretty costly way of doing this; 
+			 * could be a performance issue...
+			 */
+			return LabelUtils.getRestrictionString(restriction);
 		}
 	}
 
@@ -1127,9 +1100,9 @@ public class OwlUtils
 	public static Restriction createRestrictions(OntModel model, RDFPath path, boolean anonymous)
 	{
 		Restriction r = null;
-		for (int i=path.size()-2; i>=0; i-=2) {
-			Property p = path.get(i).as(Property.class);
-			Resource type = path.get(i+1);
+		for (int i=path.size()-1; i>=0; i-=1) {
+			Property p = path.get(i).getProperty();
+			Resource type = path.get(i).getType();
 			if (r != null) {
 				if (type != null) {
 					OntClass valuesFrom = model.createIntersectionClass(anonymous ? null : getUURI(), model.createList(new RDFNode[]{type, r}));

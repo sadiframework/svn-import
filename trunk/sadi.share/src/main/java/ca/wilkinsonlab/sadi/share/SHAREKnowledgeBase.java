@@ -508,10 +508,15 @@ public class SHAREKnowledgeBase
 		Collection<ServiceInputPair> results = new ArrayList<ServiceInputPair>();
 		Collection<Service> services = getServicesByPredicate(properties, getConstraints(objects.variable));
 		for (Service service: services) {
-			Collection<Resource> inputInstances = service.discoverInputInstances(reasoningModel);
-			log.trace(String.format("found service %s with %d inputs", service, inputInstances.size()));
-			subjects.values.addAll(inputInstances);
-			results.add(new ServiceInputPair(service, inputInstances));
+			Collection<Resource> inputInstances;
+			try {
+				inputInstances = service.discoverInputInstances(reasoningModel);
+				log.trace(String.format("found service %s with %d inputs", service, inputInstances.size()));
+				subjects.values.addAll(inputInstances);
+				results.add(new ServiceInputPair(service, inputInstances));
+			} catch (SADIException e) {
+				log.error("error discovering input instances" , e);
+			}
 		}
 		return results;
 	}
@@ -833,12 +838,12 @@ public class SHAREKnowledgeBase
 			 * for each service...
 			 */
 			Set<RDFNode> inputs = new HashSet<RDFNode>(subjects.values);
-			Collection<Triple> output = maybeCallService(service, inputs);
+			Model output = maybeCallService(service, inputs);
 //			if (!output.isEmpty())
 //				skipInputClasses.clear();
 			
 			/* add the service output to the data model */
-			for (Triple triple: output) {
+			for (Triple triple: RdfUtils.modelToTriples(output)) {
 				if (this.storeInferredTriples) {
 					addTripleWithInferences(triple);
 				} else {
@@ -854,7 +859,7 @@ public class SHAREKnowledgeBase
 			/* load minimal ontologies for any undefined properties 
 			 * that appear in the output data
 			 */
-			for (Triple triple: output) {
+			for (Triple triple: RdfUtils.modelToTriples(output)) {
 				if (triple.getPredicate().isURI()) {
 					getOntProperty(triple.getPredicate().getURI());
 				}
@@ -1250,13 +1255,13 @@ public class SHAREKnowledgeBase
 	}
 
 //	Set<String> skipInputClasses = new HashSet<String>();
-	private Collection<Triple> maybeCallService(Service service, Set<RDFNode> subjects)
+	private Model maybeCallService(Service service, Set<RDFNode> subjects)
 	{
 		log.trace(String.format("found service %s", service));
 		
 		if (deadServices.contains(service.getURI())) {
 			log.debug(String.format("skipping dead service %s", service));
-			return Collections.emptyList();
+			return ModelFactory.createDefaultModel();
 		}
 		
 		log.trace(String.format("filtering inputs previously sent to service %s", service));
@@ -1269,7 +1274,7 @@ public class SHAREKnowledgeBase
 		}
 		if (subjects.isEmpty()) {
 			log.trace("nothing left to do");
-			return Collections.emptyList();
+			return ModelFactory.createDefaultModel();
 		}
 		
 //		String inputClassURI = service.getInputClassURI();
@@ -1281,7 +1286,7 @@ public class SHAREKnowledgeBase
 		if (subjects.isEmpty()) {
 			log.trace("nothing left to do");
 //			skipInputClasses.add(inputClassURI);
-			return Collections.emptyList();
+			return ModelFactory.createDefaultModel();
 		}
 		
 		/* TODO filter by output class, too:
@@ -1314,7 +1319,13 @@ public class SHAREKnowledgeBase
 //				log.debug("refusing to find services for RDF.type or its inverse");
 //				continue;
 //			}
-			Collection<Service> equivalentPropertyServices = getRegistry().findServicesByPredicate(equivalentProperty.getURI());
+			Collection<? extends Service> equivalentPropertyServices;
+			try {
+				equivalentPropertyServices = getRegistry().findServicesByAttachedProperty(equivalentProperty);
+			} catch (SADIException e) {
+				log.error(e.getMessage(), e);
+				equivalentPropertyServices = Collections.emptyList();
+			}
 			for (Service service: equivalentPropertyServices) {
 				if (violatesConstraints(service, equivalentProperty, variableConstraints)) {
 					log.debug(String.format("excluding service %s because it violates constraints on variable", service));
@@ -1472,7 +1483,12 @@ public class SHAREKnowledgeBase
 		 * to do it this way...
 		 */
 		if (input.isResource()) {
-			return service.isInputInstance(input.as(Resource.class));
+			try {
+				return service.isInputInstance(input.as(Resource.class));
+			} catch (SADIException e) {
+				log.error("error in isInputInstance", e);
+				return false;
+			}
 		} else if (input.isLiteral() && service instanceof SPARQLServiceWrapper) {
 			// a literal is only allowed as input if it is an "inverted" SPARQL service
 			return ((SPARQLServiceWrapper)service).mapInputsToObjectPosition();
@@ -1481,11 +1497,11 @@ public class SHAREKnowledgeBase
 		}
 	}
 
-	private Collection<Triple> invokeService(Service service, Set<? extends RDFNode> inputs)
+	private Model invokeService(Service service, Set<? extends RDFNode> inputs)
 	{
 		log.info(getServiceCallString(service, inputs));
 		try {
-			Collection<Triple> output;
+			Model output = ModelFactory.createDefaultModel();
 
 			StopWatch stopWatch = new StopWatch();
 			stopWatch.start();
@@ -1493,7 +1509,7 @@ public class SHAREKnowledgeBase
 			/* see above about special-case coding...
 			 */
 			if (service instanceof SPARQLServiceWrapper) {
-				output = ((SPARQLServiceWrapper)service).invokeServiceOnRDFNodes(inputs);
+				output = ((SPARQLServiceWrapper)service).invokeServiceOnRDFNodes(inputs.iterator(), output);
 			} else {
 				/* generate a list of the OntModel views of each resource
 				 * so that the minimal model extractor can used inferred
@@ -1552,7 +1568,7 @@ public class SHAREKnowledgeBase
 				deadServices.add(serviceURI);
 			}
 			
-			return Collections.emptyList();
+			return ModelFactory.createDefaultModel();
 		}
 	}
 	

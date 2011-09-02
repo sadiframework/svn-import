@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+
 import com.hp.hpl.jena.datatypes.RDFDatatype;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -24,7 +25,6 @@ public class RDFPathUtils
 		addLeafPaths(root, new RDFPath(), leafPaths);
 		return leafPaths;
 	}
-	
 	private static void addLeafPaths(Resource root, RDFPath pathToRoot, Set<RDFPath> accum)
 	{
 		StmtIterator statements = root.listProperties();
@@ -45,7 +45,6 @@ public class RDFPathUtils
 			accum.add(pathToRoot);
 		}
 	}
-	
 	private static RDFPath getChildPath(RDFPath parentPath, Statement statement)
 	{
 		RDFPath childPath = new RDFPath(parentPath);
@@ -60,8 +59,7 @@ public class RDFPathUtils
 			if (datatype != null)
 				type = o.getModel().createResource(datatype.getURI());
 		}
-		childPath.add(p);
-		childPath.add(type);
+		childPath.add(p, type);
 		return childPath;
 	}
 }

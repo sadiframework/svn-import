@@ -11,6 +11,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.virtual.biomoby.BioMobyRegistry;
@@ -35,7 +36,7 @@ public class BioMobyServiceTest
 	}
 	
 	@Test
-	public void testIsInputInstance()
+	public void testIsInputInstance() throws SADIException
 	{
 		Model model = ModelFactory.createDefaultModel();
 		Resource r = model.createResource("http://lsrn.org/UniProt:P12345", inputClass);
@@ -44,7 +45,7 @@ public class BioMobyServiceTest
 	}
 
 	@Test
-	public void testDiscoverInputInstances()
+	public void testDiscoverInputInstances() throws SADIException
 	{
 		Model model = ModelFactory.createDefaultModel();
 		Resource r = model.createResource("http://lsrn.org/UniProt:P12345", inputClass);

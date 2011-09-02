@@ -115,4 +115,16 @@ public class BioMobyRegistryTest extends TestCase
 	{
 		log.info(String.format("found %d services", registry.getAllServices().size()));
 	}
+	
+	public static void main(String[] args) throws Exception
+	{
+		BioMobyRegistryTest test = new BioMobyRegistryTest();
+		test.setUp();
+		test.testGetServicesByPredicate();
+		test.testGetPredicatesByInputNamespace();
+		test.testSPARQLInjection();
+		test.testConvertUriToMobyDataObject();
+		test.testConvertMobyDataObjectToUri();
+		test.testNumberOfServices();
+	}
 }
