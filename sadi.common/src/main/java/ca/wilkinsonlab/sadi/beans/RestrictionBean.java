@@ -2,6 +2,9 @@ package ca.wilkinsonlab.sadi.beans;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 /**
  * A simple class describing a property restriction.
  * @author LukeMcCarthy
@@ -12,15 +15,16 @@ public class RestrictionBean implements Serializable
 	
 	private String onPropertyURI;
 	private String onPropertyLabel;
+
 	private String valuesFromURI;
 	private String valuesFromLabel;
 	
 	public RestrictionBean()
 	{
 		onPropertyURI = null;
-		onPropertyLabel = "";
+		onPropertyLabel = null;
 		valuesFromURI = null;
-		valuesFromLabel = "";
+		valuesFromLabel = null;
 	}
 	
 	/**
@@ -85,5 +89,62 @@ public class RestrictionBean implements Serializable
 	public void setValuesFromLabel(String valuesFromLabel)
 	{
 		this.valuesFromLabel = valuesFromLabel;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		StringBuilder buf = new StringBuilder();
+		if (getOnPropertyLabel() != null)
+			buf.append(getOnPropertyLabel());
+		else
+			buf.append(getOnPropertyURI());
+		if (getValuesFromLabel() != null) {
+			buf.append(" some ");
+			buf.append(getValuesFromLabel());
+		} else if (getValuesFromURI() != null) {
+			buf.append(" some ");
+			buf.append(getValuesFromURI());
+		}
+		return buf.toString();
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode()
+	{
+		return new HashCodeBuilder(27, 11)
+			.append(this.onPropertyURI)
+			.append(this.onPropertyLabel)
+			.append(this.valuesFromURI)
+			.append(this.valuesFromLabel)
+			.toHashCode();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o)
+			return true;
+		if (o == null)
+			return false;
+		if (getClass() != o.getClass())
+			return false;
+		
+		RestrictionBean that = (RestrictionBean)o;
+		return new EqualsBuilder()
+			.append(this.onPropertyURI, that.onPropertyURI)
+			.append(this.onPropertyLabel, that.onPropertyLabel)
+			.append(this.valuesFromURI, that.valuesFromURI)
+			.append(this.valuesFromLabel, that.valuesFromLabel)
+			.isEquals();
 	}
 }

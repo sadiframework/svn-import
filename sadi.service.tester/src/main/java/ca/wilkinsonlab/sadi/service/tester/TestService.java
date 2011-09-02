@@ -2,7 +2,6 @@ package ca.wilkinsonlab.sadi.service.tester;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
@@ -16,6 +15,7 @@ import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceFactory;
 import ca.wilkinsonlab.sadi.client.ServiceImpl;
+import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.client.testing.ServiceTester;
 import ca.wilkinsonlab.sadi.client.testing.TestCase;
 import ca.wilkinsonlab.sadi.utils.ModelDiff;
@@ -96,8 +96,8 @@ public class TestService extends AbstractMojo
 			Model outputModel;
 			try {
 				outputModel = ((ServiceImpl)service).invokeServiceUnparsed(testCase.getInputModel());
-			} catch (IOException e) {
-				throw new MojoFailureException(String.format("error contacting service %s: %s", service, e.getMessage()));
+			} catch (ServiceInvocationException e) {
+				throw new MojoFailureException(String.format("error invoking service %s: %s", service, e.getMessage()));
 			}
 			writeModel(outputModel, String.format("target/%s.output.%d", serviceFileName, i));
 			if (getLog().isDebugEnabled())

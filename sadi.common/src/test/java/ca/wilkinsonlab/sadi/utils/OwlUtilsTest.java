@@ -100,8 +100,8 @@ public class OwlUtilsTest
 	public void testGetRestrictionString()
 	{
 		OntClass c = model.getOntClass(NS + "restrictionOnUndefinedProperty");
-		assertEquals(String.format("{undefinedProperty minCardinality 1}"),
-				OwlUtils.getRestrictionString(c.asRestriction()));
+		assertEquals(String.format("undefinedProperty min 1"),
+				LabelUtils.getRestrictionString(c.asRestriction()));
 	}
 	
 	@Test

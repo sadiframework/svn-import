@@ -4,8 +4,8 @@ import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,7 +14,6 @@ import javax.xml.transform.TransformerException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.biomoby.shared.MobyData;
-import org.biomoby.shared.MobyException;
 import org.biomoby.shared.MobyNamespace;
 import org.biomoby.shared.MobyPrimaryData;
 import org.biomoby.shared.MobyService;
@@ -24,31 +23,32 @@ import org.biomoby.shared.data.MobyDataJob;
 import org.biomoby.shared.data.MobyDataObject;
 
 import ca.wilkinsonlab.sadi.SADIException;
-import ca.wilkinsonlab.sadi.client.Service;
+import ca.wilkinsonlab.sadi.client.ServiceBase;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
+import ca.wilkinsonlab.sadi.utils.LabelUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
-import com.hp.hpl.jena.graph.Triple;
-import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntClass;
-import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.RDFList;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-public class BioMobyService extends MobyService implements Service
+public class BioMobyService extends ServiceBase
 {
+	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(BioMobyService.class);
-	private static final String LSRN_PREFIX = "http://purl.oclc.org/SADI/LSRN/";
+	
+	/* The wrapped Moby service.
+	 */
+	private MobyService mobyService;
 	
 	/* Maps article name => argument
 	 * 
@@ -88,24 +88,34 @@ public class BioMobyService extends MobyService implements Service
 	private Map<String, String> predicateInputMap; // Maps predicate => input article name
 	private Map<String, String> predicateOutputMap; // Maps predicate => output article name
 	
-	private ConstructQueryCache constructQueryCache;
-	
 	private BioMobyRegistry sourceRegistry;
 	
 	private OntClass inputClass;
 	private OntClass outputClass;
-	private OntModel ontModel;
+	private Collection<Restriction> restrictions;
 	
-	BioMobyService()
+	BioMobyService(BioMobyRegistry sourceRegistry, MobyService mobyService)
 	{
 		super();
 		
+		this.sourceRegistry = sourceRegistry;
+		this.mobyService = mobyService;
 		inputMap = new HashMap<String,MobyData>();
 		outputMap = new HashMap<String,MobyData>();
 		predicateInputMap = new HashMap<String, String>();
 		predicateOutputMap = new HashMap<String, String>();
-		constructQueryCache = new ConstructQueryCache();
-		ontModel = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		
+		setName(mobyService.getName());
+		setDescription(mobyService.getDescription());
+		setServiceProvider(mobyService.getAuthority());
+		setContactEmail(mobyService.getEmailContact());
+		setAuthoritative(mobyService.isAuthoritative());
+		setInputClassURI(getInputClass().getURI());
+		setInputClassLabel(LabelUtils.getLabel(getInputClass()));
+		setOutputClassURI(getOutputClass().getURI());
+		setOutputClassLabel(LabelUtils.getLabel(getOutputClass()));
+		// TODO restriction beans...
+		// TODO try to express parameters as a class?
 	}
 	
 	void setSourceRegistry(BioMobyRegistry sourceRegistry)
@@ -113,17 +123,13 @@ public class BioMobyService extends MobyService implements Service
 		this.sourceRegistry = sourceRegistry;
 	}
 	
-	public String toString()
-	{
-		return BioMobyHelper.serviceToString(this);
-	}
-	
 	public void addInput(String name, MobyData input)
 	{
 		// Add to the map.
 		inputMap.put(name, input);
 		// Add to the original Vector (see comment above).
-		super.addInput(input);
+//		super.addInput(input);
+		mobyService.addInput(input);
 	}
 	
 	public MobyData getInput(String name)
@@ -136,7 +142,8 @@ public class BioMobyService extends MobyService implements Service
 		// Add to the map.
 		outputMap.put(name, output);
 		// Add to the original Vector (see comment above).
-		super.addOutput(output);
+//		super.addOutput(output);
+		mobyService.addOutput(output);
 	}
 
 	public MobyData getOutput(String name)
@@ -210,12 +217,12 @@ public class BioMobyService extends MobyService implements Service
 	 */
 	public int getNumPrimaryInputs()
 	{
-		MobyPrimaryData[] inputs = this.getPrimaryInputs();
+		MobyPrimaryData[] inputs = mobyService.getPrimaryInputs();
 		int numInputs = 0;
 		if (inputs != null)
 			numInputs = inputs.length;
 		
-		// TODO if this is really important, use logging, please...
+		// FIXME if this is really important, use logging, please...
 //		if (numInputs == 0)
 //			System.err.println("Warning: Service " + this.getName() + " has no inputs!");
 		
@@ -229,7 +236,7 @@ public class BioMobyService extends MobyService implements Service
 	 */
 	public int getNumPrimaryOutputs()
 	{
-		MobyPrimaryData[] outputs = this.getPrimaryOutputs();
+		MobyPrimaryData[] outputs = mobyService.getPrimaryOutputs();
 		int numOutputs = 0;
 		if(outputs != null)
 			numOutputs = outputs.length;
@@ -240,65 +247,33 @@ public class BioMobyService extends MobyService implements Service
 		
 		return numOutputs;
 	}
-
-	private String serviceURI = null;
-	public String getURI()
-	{
-		if (serviceURI == null) {
-			serviceURI = BioMobyHelper.getServiceURI(getMobyServiceDefinition());
-		}
-		return serviceURI;
-	}
 	
-	/**
-	 * Returns an OntClass describing the input this service can consume.
-	 * Any input to this service must be an instance of this class.
-	 * @return an OntClass describing the input this service can consume
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getInputClass()
 	 */
-	public synchronized OntClass getInputClass()
+	@Override
+	public OntClass getInputClass()
 	{
 		if (inputClass == null) {
-
 			if (getNumPrimaryInputs() > 1) {
 				log.warn("this interface is invalid for BioMoby services with more than one primary input");
 				return null;
 			} 
 
-			MobyNamespace[] namespaces = getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces();
+			MobyNamespace[] namespaces = mobyService.getPrimaryInputs()[0].getNamespaces();
 			if (namespaces.length > 1) {
-				RDFList namespaceTypes = ontModel.createList();
-				for (MobyNamespace namespace: namespaces) 
-					namespaceTypes = namespaceTypes.with(getTypeByNamespace(namespace));
-				inputClass = ontModel.createUnionClass(getURI() + "#inputClass", namespaceTypes);
+				inputClass = sourceRegistry.getUnionType(String.format("%s#inputClass", getURI()), namespaces);
 			} else {
-				return getTypeByNamespace(namespaces[0]);
+				inputClass = sourceRegistry.getTypeByNamespace(namespaces[0]);
 			}
 		}
-		
 		return inputClass;
-	}
+	}	
 	
-	public synchronized OntClass getTypeByNamespace(MobyNamespace ns)
-	{
-		String uri = String.format("%s%s_Record", LSRN_PREFIX, ns.getName());
-		try {
-			OwlUtils.loadMinimalOntologyForUri(ontModel, uri);
-		} catch(SADIException e) {
-			log.warn(String.format("error loading minimal ontology for %s", uri), e);
-		}
-		OntClass type = ontModel.getOntClass(uri);
-		if (type == null) {
-			log.trace(String.format("creating class %s", uri));
-			type = ontModel.createClass(uri);
-		}
-		return type;
-	}		
-	
-	/**
-	 * Returns an OntClass describing the output this service produces.
-	 * Any output from this service will be an instance of this class.
-	 * @return an OntClass describing the output this service produces
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getOutputClass()
 	 */
+	@Override
 	public OntClass getOutputClass()
 	{
 		log.warn("getOutputClass not yet implemented");
@@ -310,6 +285,18 @@ public class BioMobyService extends MobyService implements Service
 			}
 		}
 		return outputClass;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getRestrictions()
+	 */
+	@Override
+	public Collection<Restriction> getRestrictions() throws SADIException
+	{
+		if (restrictions == null) {
+			restrictions = OwlUtils.listRestrictions(getOutputClass(), getInputClass());
+		}
+		return restrictions;
 	}
 	
 //	public Collection<Triple> invokeService(String inputURI, Map<String, String> secondaryParameters)
@@ -377,55 +364,32 @@ public class BioMobyService extends MobyService implements Service
 //		}
 //		return filtered;
 //	}
-
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource)
-	 */
-	public Collection<Triple> invokeService(Resource inputNode) throws ServiceInvocationException
-	{
-		return invokeService(Collections.singletonList(inputNode));
-	}
-
-	/**
-	 * 
-	 * @param inputNode
-	 * @param secondaryParameters
-	 * @return
-	 * @throws ServiceInvocationException
-	 */
-	public Collection<Triple> invokeService(Resource inputNode, Map<String, String> secondaryParameters) throws ServiceInvocationException
-	{
-		return invokeService(Collections.singletonList(inputNode), secondaryParameters);
-	}
-
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource, java.lang.String)
-	 */
-	public Collection<Triple> invokeService(Resource inputNode, String predicate) throws ServiceInvocationException
-	{
-		return filterByPredicate(invokeService(inputNode), predicate);
-	}
-
-	/**
-	 * 
-	 * @param inputNode
-	 * @param predicate
-	 * @param secondaryParameters
-	 * @return
-	 * @throws ServiceInvocationException
-	 */
-	public Collection<Triple> invokeService(Resource inputNode, String predicate, Map<String, String> secondaryParameters) throws ServiceInvocationException
-	{
-		return filterByPredicate(invokeService(inputNode, secondaryParameters), predicate);
-	}
-
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection)
-	 */
-	public Collection<Triple> invokeService(Collection<Resource> inputNodes) throws ServiceInvocationException
-	{
-		return invokeService(inputNodes, BioMobyHelper.EMPTY_PARAMETER_MAP);
-	}
+//	/**
+//	 * 
+//	 * @param inputNode
+//	 * @param predicate
+//	 * @return
+//	 * @throws ServiceInvocationException
+//	 * @deprecated
+//	 */
+//	public Collection<Triple> invokeService(Resource inputNode, String predicate) throws ServiceInvocationException
+//	{
+//		return filterByPredicate(invokeService(inputNode), predicate);
+//	}
+//
+//	/**
+//	 * 
+//	 * @param inputNode
+//	 * @param predicate
+//	 * @param secondaryParameters
+//	 * @return
+//	 * @throws ServiceInvocationException
+//	 * @deprecated
+//	 */
+//	public Collection<Triple> invokeService(Resource inputNode, String predicate, Map<String, String> secondaryParameters) throws ServiceInvocationException
+//	{
+//		return filterByPredicate(invokeService(inputNode, secondaryParameters), predicate);
+//	}
 
 	/**
 	 * 
@@ -434,10 +398,11 @@ public class BioMobyService extends MobyService implements Service
 	 * @return
 	 * @throws ServiceInvocationException
 	 */
-	public Collection<Triple> invokeService(Collection<Resource> inputNodes, Map<String, String> secondaryParameters) throws ServiceInvocationException
+	public Model invokeService(Iterator<Resource> inputNodes, Map<String, String> secondaryParameters) throws ServiceInvocationException
 	{
 		MobyContentInstance contentInstance = new MobyContentInstance();
-		for (Resource inputNode: inputNodes) {
+		while (inputNodes.hasNext()) {
+			Resource inputNode = inputNodes.next();
 			MobyDataObject input;
 			try {
 				input = sourceRegistry.convertUriToMobyDataObject(inputNode.getURI());
@@ -446,55 +411,62 @@ public class BioMobyService extends MobyService implements Service
 			}
 			
 			MobyDataJob job = new MobyDataJob();
-			job.put(this.getPrimaryInputs()[0].getName(), input); // TODO make sure this isn't null...
+			job.put(mobyService.getPrimaryInputs()[0].getName(), input); // TODO make sure this isn't null...
 			job.setID(inputNode.getURI());
 			contentInstance.put(inputNode.getURI(), job);
 		}
 		
 		MobyContentInstance response;
 		try {
-			response = BioMobyHelper.callService(this, contentInstance, secondaryParameters);
+			response = BioMobyHelper.callService(mobyService, contentInstance, secondaryParameters);
 		} catch (Exception e) {
 			throw new ServiceInvocationException(String.format("failed to invoke BioMoby service: %s", e.getMessage()), e);
 		}
 		
-		Collection<Triple> triples = new ArrayList<Triple>();
-		convertMobyContentInstanceToRdf(response, triples);
-		return triples;
+		Model result = ModelFactory.createDefaultModel();
+		convertMobyContentInstanceToRdf(response, result);
+		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection, java.lang.String)
-	 */
-	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate) throws ServiceInvocationException
-	{
-		return filterByPredicate(invokeService(inputNodes), predicate);
-	}
-	
-	/**
-	 * 
-	 * @param inputNodes
-	 * @param predicate
-	 * @param secondaryParameters
-	 * @return
-	 * @throws ServiceInvocationException
-	 */
-	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate, Map<String, String> secondaryParameters) throws ServiceInvocationException
-	{
-		return filterByPredicate(invokeService(inputNodes, secondaryParameters), predicate);
-	}
+//	/**
+//	 * 
+//	 * @param inputNodes
+//	 * @param predicate
+//	 * @return
+//	 * @throws ServiceInvocationException
+//	 * @deprecated
+//	 */
+//	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate) throws ServiceInvocationException
+//	{
+//		return filterByPredicate(invokeService(inputNodes), predicate);
+//	}
+//	
+//	/**
+//	 * 
+//	 * @param inputNodes
+//	 * @param predicate
+//	 * @param secondaryParameters
+//	 * @return
+//	 * @throws ServiceInvocationException
+//	 * @deprecated
+//	 */
+//	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate, Map<String, String> secondaryParameters) throws ServiceInvocationException
+//	{
+//		return filterByPredicate(invokeService(inputNodes, secondaryParameters), predicate);
+//	}
 	
 	/* Convert a MobyContentInstance to RDF, where the ID of each job in the
 	 * instance is the URI of the input submitted in that job.  The converted
 	 * RDF is added (in triple form) to the specified accumulator.
 	 */
-	private void convertMobyContentInstanceToRdf(MobyContentInstance response, Collection<Triple> accum)
+	private void convertMobyContentInstanceToRdf(MobyContentInstance response, Model accum)
 	{
 		for (MobyDataJob job: response.values()) {
 			/* we stored the URI of the input as the job ID;
 			 * hopefully it's preserved...
 			 */
-			String subject = job.getID();
+			String id = job.getID();
+			Resource subject = accum.getResource(id);
 			
 			/* if there's only one output, convert that (service might not set the article name);
 			 * if there's more than one, convert only the article we're interested in...
@@ -504,13 +476,17 @@ public class BioMobyService extends MobyService implements Service
 				 * but all predicates will map to the one output, so just iterate over them...
 				 */
 				MobyDataInstance output = (MobyDataInstance)job.values().iterator().next();
-				for (String predicate: predicateOutputMap.keySet())
+				for (String p: predicateOutputMap.keySet()) {
+					Property predicate = accum.getProperty(p);
 					convertMobyDataInstanceToRdf(output, subject, predicate, accum);
+				}
 			} else {
 				for (String article: job.keySet()) {
 					MobyDataInstance output = job.get(article);
-					for (String predicate: getPredicatesForOutput(article))
+					for (String p: getPredicatesForOutput(article)) {
+						Property predicate = accum.getProperty(p);
 						convertMobyDataInstanceToRdf(output, subject, predicate, accum);
+					}
 				}
 			}
 		}
@@ -519,7 +495,7 @@ public class BioMobyService extends MobyService implements Service
 	/* Convert a MobyDataInstance to RDF using the specified subject and predicate.
 	 * The converted RDF is added (in triple form) to the specified accumulator.
 	 */
-	private void convertMobyDataInstanceToRdf(MobyDataInstance outer, String subject, String predicate, Collection<Triple> accum)
+	private void convertMobyDataInstanceToRdf(MobyDataInstance outer, Resource subject, Property predicate, Model accum)
 	{
 		Object inner = outer.getObject();
 		if (outer instanceof MobyDataObject) { // output object is Simple
@@ -538,11 +514,10 @@ public class BioMobyService extends MobyService implements Service
 	/* Convert a MobyDataObject to RDF using the specified subject and predicate.
 	 * The converted RDF is added (in triple form) to the specified accumulator.
 	 */
-	private void convertMobyDataObjectToRdf(MobyDataObject output, String subject, String predicate, Collection<Triple> accum)
+	private void convertMobyDataObjectToRdf(MobyDataObject output, Resource subject, Property predicate, Model accum)
 	{
 		if (BioMobyHelper.isPrimitive(output.getDataType().getName())) {
-			String typedObject = String.format("'%s'xsd:string", output.getValue());
-			addAndLogTriple(subject, predicate, typedObject, accum);
+			accum.add(subject, predicate, output.getValue());
 			return;
 		}
 
@@ -552,7 +527,7 @@ public class BioMobyService extends MobyService implements Service
 			 * and output objects.  (However, we're not allowed to do that if the property
 			 * is a datatype property).  -- B.V.
 			 */
-			if (sourceRegistry.isDatatypeProperty(predicate)) {
+			if (sourceRegistry.isDatatypeProperty(predicate.getURI())) {
 				log.error(String.format("datatype property <%s> doesn't have a construct query", predicate));
 				return;
 			} else {
@@ -561,17 +536,16 @@ public class BioMobyService extends MobyService implements Service
 				 */
 				if (!StringUtils.isEmpty(output.getId())) {
 					String objectURI = sourceRegistry.convertMobyDataObjectToUri(output);
-					addAndLogTriple(subject, predicate, objectURI, accum);
+					accum.add(subject, predicate, accum.createResource(objectURI));
 				}
 			}
 		} else {
 			try {
-				query = SPARQLStringUtils.strFromTemplate(query, subject, predicate);
+				query = SPARQLStringUtils.strFromTemplate(query, subject.getURI(), predicate.getURI());
 				String rdfXml = BioMobyHelper.convertMobyDataObjectToRdf(output);
 				Model model = runConstructQuery(query, rdfXml);
-				for (StmtIterator i = model.listStatements(); i.hasNext();) {
-					addAndLogTriple(i.nextStatement().asTriple(), accum);
-				}
+				accum.add(model);
+				model.close();
 			} catch (TransformerException e) {
 				log.error("failed to convert MobyDataObject to RDF", e);
 			} catch (IllegalArgumentException e) {
@@ -580,10 +554,15 @@ public class BioMobyService extends MobyService implements Service
 		}
 	}
 
-	private String getConstructQuery(MobyDataObject output, String predicate)
+	private String getConstructQuery(MobyDataObject output, Property predicate)
 	{
 		String outputTypeURI = BioMobyHelper.MOBY_DATATYPE_PREFIX + output.getDataType().getName();
-		return constructQueryCache.getQuery(predicate, outputTypeURI);
+		try {
+			return sourceRegistry.getConstructQueryForPredicate(predicate.getURI(), outputTypeURI);
+		} catch (SADIException e) {
+			log.error(String.format("error fetching construct query for %s/%s", predicate.getURI(), outputTypeURI), e);
+			return null;
+		}
 	}	
 	
 	private static Model runConstructQuery( String sparql, String rdfXml )
@@ -598,63 +577,20 @@ public class BioMobyService extends MobyService implements Service
 		
 		return resultModel;
 	}
-	
-	private static void addAndLogTriple(String subject, String predicate, String object, Collection<Triple> accum)
-	{
-		Triple triple = new Triple(
-				NodeCreateUtils.create(subject),
-				NodeCreateUtils.create(predicate),
-				NodeCreateUtils.create(object)
-		);
-		addAndLogTriple(triple, accum);
-	}
-	
-	private static void addAndLogTriple(Triple triple, Collection<Triple> accum)
-	{
-		log.trace("retrieved triple " + triple);
-		accum.add(triple);
-	}
 
-	/* Filter a collection of triples to pass only those with the
-	 * specified predicate.
-	 */
-	private Collection<Triple> filterByPredicate(Collection<Triple> results, String predicate)
-	{
-		Collection<Triple> filtered = new ArrayList<Triple>();
-		for (Triple triple : results) {
-			if (triple.getPredicate().toString().equals(predicate))
-				filtered.add(triple);
-		}
-		return filtered;
-	}
-
-	
-	/* FIXME apparently BioMobyService doesn't actually contain all of the
-	 * information that MobyService does, despite the fact that it's a
-	 * subclass; this needs to be fixed, but I don't have time right now...
-	 */
-	private MobyService mobyService;
-	private MobyService getMobyServiceDefinition()
-	{
-		if (mobyService == null) {
-			try {
-				MobyService template = new MobyService();
-				template.setAuthority(getAuthority());
-				template.setName(getName());
-				MobyService[] services = sourceRegistry.getMobyCentral().findService(template);
-				if (services.length == 0) {
-					throw new MobyException("no services matched this template");
-				} else if (services.length > 1) {
-					throw new MobyException("more than one service matched this template");
-				} else {
-					mobyService = services[0];
-				}
-			} catch (MobyException e) {
-				log.error("couldn't retrieve service description from BioMoby registry", e);
-			}
-		}
-		return mobyService;
-	}
+//	/* Filter a collection of triples to pass only those with the
+//	 * specified predicate.
+//	 */
+//	private Collection<Triple> filterByPredicate(Model results, String predicate)
+//	{
+//		Collection<Triple> filtered = new ArrayList<Triple>();
+//		StmtIterator i = results.listStatements(null, results.getProperty(predicate), (RDFNode)null);
+//		while (i.hasNext()) {
+//			filtered.add(i.nextStatement().asTriple());
+//		}
+//		i.close();
+//		return filtered;
+//	}
 
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.Service#isInputInstance(com.hp.hpl.jena.rdf.model.Resource)
@@ -664,7 +600,7 @@ public class BioMobyService extends MobyService implements Service
 		/* TODO this can maybe be done better now that the input class is
 		 * properly created...
 		 */
-		MobyNamespace[] namespaces = getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces();
+		MobyNamespace[] namespaces = mobyService.getPrimaryInputs()[0].getNamespaces();
 		for (MobyNamespace namespace: namespaces) {
 			OntClass namespaceType = sourceRegistry.getTypeByNamespace(namespace);
 			if (resource.hasProperty(RDF.type, namespaceType))
@@ -682,63 +618,29 @@ public class BioMobyService extends MobyService implements Service
 		 * properly created...
 		 */
 		Collection<Resource> instances = new ArrayList<Resource>();
-		MobyNamespace[] namespaces = getMobyServiceDefinition().getPrimaryInputs()[0].getNamespaces();
+		MobyNamespace[] namespaces = mobyService.getPrimaryInputs()[0].getNamespaces();
 		for (MobyNamespace namespace: namespaces) {
 			OntClass namespaceType = sourceRegistry.getTypeByNamespace(namespace);
 			instances.addAll(inputModel.listResourcesWithProperty(RDF.type, namespaceType).toList());
 		}
 		return instances;
 	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Iterator)
+	 */
+	@Override
+	public Model invokeService(Iterator<Resource> inputNodes) throws ServiceInvocationException
+	{
+		return invokeService(inputNodes, BioMobyHelper.EMPTY_PARAMETER_MAP);
+	}
 	
-	private class ConstructQueryCache
-	{
-		private final Object NO_HIT = new Object();
-		
-		private Map<String, Object> cache;
-		
-		public ConstructQueryCache()
-		{
-			cache = new HashMap<String, Object>();
-		}
-		
-		public String getQuery(String predicate, String outputTypeURI)
-		{
-			String key = getHashKey(predicate, outputTypeURI);
-			Object query = cache.get(key);
-			if (query == null) {
-				try {
-					query = sourceRegistry.getConstructQueryForPredicate(predicate, outputTypeURI);
-				} catch (SADIException e) {
-					log.error(String.format("error retrieving construct query for predicate <%s>", predicate), e);
-				}
-				if (query == null)
-					query = NO_HIT;
-				cache.put(key, query);
-			}
-			return query.equals(NO_HIT) ? null : (String)query;
-		}
-		
-		private String getHashKey(String predicate, String outputTypeURI)
-		{
-			return String.format("%s:%s", predicate, outputTypeURI);
-		}
-	}
-
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#getInputClassURI()
+	 * @see ca.wilkinsonlab.sadi.client.ServiceBase#getLog()
 	 */
 	@Override
-	public String getInputClassURI()
+	protected Logger getLog()
 	{
-		return getInputClass().getURI();
-	}
-
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#getOutputClassURI()
-	 */
-	@Override
-	public String getOutputClassURI()
-	{
-		return getOutputClass().getURI();
+		return log;
 	}
 }

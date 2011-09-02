@@ -3,7 +3,7 @@ package ca.wilkinsonlab.sadi.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -11,25 +11,27 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.SADIException;
-import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
+import ca.wilkinsonlab.sadi.beans.RestrictionBean;
 import ca.wilkinsonlab.sadi.utils.QueryExecutor;
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
-import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.ResourceUtils;
+import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
- * A registry of SADI native RDF services.
+ * A registry of SADI services.
  * @author Luke McCarthy
  */
 public class RegistryImpl extends RegistryBase
 {
 	private static final Logger log = Logger.getLogger(RegistryImpl.class);
+	
+	private Model model;
 	
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.RegistryBase#(java.lang.String)
@@ -37,6 +39,8 @@ public class RegistryImpl extends RegistryBase
 	public RegistryImpl(Configuration config) throws IOException
 	{
 		super(config);
+		
+		model = ModelFactory.createDefaultModel();
 	}
 	
 	/* (non-Javadoc)
@@ -45,175 +49,79 @@ public class RegistryImpl extends RegistryBase
 	public RegistryImpl(QueryExecutor backend)
 	{
 		super(backend);
+		
+		model = ModelFactory.createDefaultModel();
 	}
 
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.Registry#getAllServices()
 	 */
 	@Override
-	public Collection<ServiceImpl> getAllServices() throws SADIException
+	public Collection<Service> getAllServices() throws SADIException
 	{
-		Collection<ServiceImpl> services = new ArrayList<ServiceImpl>();
-		String query = "";
-		try {
-			query = SPARQLStringUtils.readFully(RegistryImpl.class.getResource("getAllServices.sparql"));
-		} catch (IOException e) {
-			throw new SADIException(e.toString());
-		}
-		for (Map<String, String> binding: executeQuery(query)) {
-			try {
-				services.add(createService(binding));
-			} catch (SADIException e) {
-				log.error(String.format("error creating service from registry data %s", binding), e);
-			}
-		}
-		return services;
-	}
-	
-	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Registry#findServicesByPredicate(java.lang.String)
-     */
-	@Override
-	public Collection<ServiceImpl> findServicesByPredicate(String predicate) throws SADIException
-	{
-		Collection<ServiceImpl> services = new ArrayList<ServiceImpl>();
-		String query = buildQuery("findServicesByPredicate.sparql", predicate);
-		for (Map<String, String> binding: executeQuery(query)) {
-			try {
-				services.add(createService(binding));
-			} catch (SADIException e) {
-				log.error(String.format("error creating service from registry data %s", binding), e);
-			}
-		}
-		return services;
+		return getServicesByQuery("getAllServices.sparql");
 	}
 
-	@Override
-	public Collection<ServiceImpl> findServicesByInputClass(OntClass clazz, boolean withReasoning) throws SADIException
-	{
-		Collection<ServiceImpl> services = new ArrayList<ServiceImpl>();
-		if (withReasoning) {
-			services.addAll(findServicesByInputClass(clazz, false));
-			for (Iterator<OntClass> superClasses = clazz.listSuperClasses(); superClasses.hasNext(); ) {
-				services.addAll(findServicesByInputClass(superClasses.next(), false));
-			}
-		} else {
-			if (!clazz.isURIResource())
-				return services;
-			String query = buildQuery("findServicesByInputClass.sparql", clazz.getURI());
-			for (Map<String, String> binding: executeQuery(query)) {
-				try {
-					services.add(createService(binding));
-				} catch (SADIException e) {
-					log.error(String.format("error creating service from registry data %s", binding), e);
-				}
-			}
-		}
-		return services;
-	}
-	
-	@Override
-	public Collection<ServiceImpl> findServicesByConnectedClass(OntClass clazz, boolean withReasoning) throws SADIException
-	{
-		Collection<ServiceImpl> services = new ArrayList<ServiceImpl>();
-		if (withReasoning) {
-			services.addAll(findServicesByConnectedClass(clazz, false));
-			for (Iterator<OntClass> subClasses = clazz.listSubClasses(); subClasses.hasNext(); ) {
-				services.addAll(findServicesByConnectedClass(subClasses.next(), false));
-			}
-		} else {
-			if (!clazz.isURIResource())
-				return services;
-			String query = buildQuery("findServicesByConnectedClass.sparql", clazz.getURI());
-			for (Map<String, String> binding: executeQuery(query)) {
-				try {
-					services.add(createService(binding));
-				} catch (SADIException e) {
-					log.error(String.format("error creating service from registry data %s", binding), e);
-				}
-			}
-		}
-		return services;
-	}
-	
 	/**
-	 * @deprecated not useful
-	 * @param clazz
-	 * @return
-	 * @throws IOException
+	 * Returns a subset of services in this registry.
+	 * Return at most the specified number of services starting at the
+	 * specified offset (services will be sorted alphabetically by name).
+	 * @param limit maximum number of services to return in this query
+	 * @param offset return services starting at this position
+	 * @return a subset of services registered in the registry
+	 * @throws SADIException if there is a problem communicating with the registry
 	 */
-	public Collection<ServiceImpl> findServicesByOutputClass(OntClass clazz)
-	throws SADIException
+//	/* (non-Javadoc)
+//	 * @see ca.wilkinsonlab.sadi.client.Registry#getAllServices(int, int)
+//	 */
+//	@Override
+	public Collection<Service> getAllServices(int limit, int offset) throws SADIException
 	{
-		return findServicesByOutputClass(clazz, true);
-	}
-	
-	/**
-	 * @deprecated not useful
-	 * @param clazz
-	 * @param withReasoning
-	 * @return
-	 * @throws IOException
-	 */
-	public Collection<ServiceImpl> findServicesByOutputClass(OntClass clazz, boolean withReasoning)
-	throws SADIException
-	{
-		Collection<ServiceImpl> services = new ArrayList<ServiceImpl>();
-		if (withReasoning) {
-			services.addAll(findServicesByOutputClass(clazz, false));
-			for (Iterator<OntClass> subClasses = clazz.listSubClasses(); subClasses.hasNext(); ) {
-				services.addAll(findServicesByOutputClass(subClasses.next(), false));
-			}
-		} else {
-			if (!clazz.isURIResource())
-				return services;
-			String query = buildQuery("findServicesByOutputClass.sparql", clazz.getURI());
-			for (Map<String, String> binding: executeQuery(query)) {
-				try {
-					services.add(createService(binding));
-				} catch (SADIException e) {
-					log.error(String.format("error creating service from registry data %s", binding), e);
-				}
-			}
-		}
-		return services;
+		return getServicesByQuery("getAllServicesLimitOffset.sparql",
+				String.valueOf(limit), String.valueOf(offset));
 	}
 	
 	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Registry#findServices(com.hp.hpl.jena.rdf.model.Resource)
-     */
+	 * @see ca.wilkinsonlab.sadi.client.Registry#getServiceStatus(java.lang.String)
+	 */
 	@Override
-	public Collection<ServiceImpl> findServicesByInputInstance(Resource subject) throws SADIException
+	public ServiceStatus getServiceStatus(String serviceURI) throws SADIException
 	{
-		return findServices(subject, false);
+		/* this query should order by the date the status was reported,
+		 * so the most recent status will be first; if there are results,
+		 * but no status, the service is registered and probably ok; if 
+		 * there are no results, the service isn't registered.
+		 */
+		String query = buildQuery("getServiceStatus.sparql", serviceURI, serviceURI);
+		List<Map<String, String>> bindings = executeQuery(query);
+		if (bindings.isEmpty()) {
+			return null;
+		} else {
+			Map<String, String> binding = bindings.get(0);
+			String status = binding.get("status");
+			if (status == null)
+				return ServiceStatus.OK;
+			else
+				return ServiceStatus.valueOf(status);
+		}
 	}
 
 	/* (non-Javadoc)
      * @see ca.wilkinsonlab.sadi.client.Registry#findServices(com.hp.hpl.jena.rdf.model.Resource, java.lang.String)
      */
 	@Override
-	public Collection<ServiceImpl> findServices(Resource subject, String predicate) throws SADIException
+	public Collection<Service> findServices(Resource subject, String predicate) throws SADIException
 	{
 		return findServices(subject, predicate, false);
 	}
 	
 	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Registry#discoverServices(com.hp.hpl.jena.rdf.model.Model)
-     */
+	 * @see ca.wilkinsonlab.sadi.client.Registry#findServicesByPredicate(java.lang.String)
+	 */
 	@Override
-	public Collection<ServiceInputPair> discoverServices(Model inputModel) throws SADIException
+	public Collection<Service> findServicesByPredicate(String predicate) throws SADIException
 	{
-		Collection<ServiceInputPair> pairs = new ArrayList<ServiceInputPair>();
-		for (ServiceImpl service: getAllServices()) {
-			try {
-				for (Resource input: service.discoverInputInstances(inputModel)) {
-					pairs.add(new ServiceInputPair(service, input));
-				}
-			} catch (Exception e) {
-				log.error(String.format("error finding input instances for %s", service), e);
-			}
-		}
-		return pairs;
+		return getServicesByQuery("findServicesByPredicate.sparql", predicate);
 	}
 
 	/* (non-Javadoc)
@@ -225,6 +133,64 @@ public class RegistryImpl extends RegistryBase
 		return findPredicatesBySubject(subject, false);
 	}
 	
+	/* (non-Javadoc)
+     * @see ca.wilkinsonlab.sadi.client.Registry#discoverServices(com.hp.hpl.jena.rdf.model.Resource)
+     */
+	@Override
+	public Collection<Service> discoverServices(Resource subject) throws SADIException
+	{
+		return findServices(subject, false);
+	}
+	
+	/* (non-Javadoc)
+     * @see ca.wilkinsonlab.sadi.client.Registry#discoverServices(com.hp.hpl.jena.rdf.model.Model)
+     */
+	@Override
+	public Collection<ServiceInputPair> discoverServices(Model inputModel) throws SADIException
+	{
+		Collection<ServiceInputPair> pairs = new ArrayList<ServiceInputPair>();
+		for (Service service: getAllServices()) {
+			try {
+				Collection<Resource> inputInstances = service.discoverInputInstances(inputModel);
+				if (!inputInstances.isEmpty()) {
+					pairs.add(new ServiceInputPair(service, inputInstances));
+				}
+			} catch (Exception e) {
+				log.error(String.format("error finding input instances for %s", service), e);
+			}
+		}
+		return pairs;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Registry#findServices(ca.wilkinsonlab.sadi.client.RegistrySearchCriteria)
+	 */
+	@Override
+	public Collection<? extends Service> findServices(RegistrySearchCriteria criteria) throws SADIException
+	{
+		// FIXME
+		throw new UnsupportedOperationException();
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Registry#findAttachedProperties(ca.wilkinsonlab.sadi.client.RegistrySearchCriteria)
+	 */
+	@Override
+	public Collection<Property> findAttachedProperties(RegistrySearchCriteria criteria) throws SADIException
+	{
+		// FIXME
+		throw new UnsupportedOperationException();
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return backend.toString();
+	}
+	
 	/**
 	 * Returns a collection of services that can consume the specified input
 	 * data, optionally considering only the direct types of the input node.
@@ -232,8 +198,9 @@ public class RegistryImpl extends RegistryBase
 	 * @param direct if true, consider only the direct types of the input node;
 	 *               if false, consider inferred types as well
 	 * @return the collection of matching services
+	 * @deprecated
 	 */
-	public Collection<ServiceImpl> findServices(Resource subject, boolean direct) throws SADIException
+	public Collection<Service> findServices(Resource subject, boolean direct) throws SADIException
 	{
 		/* TODO in the direct case, this could be done more efficiently by
 		 * querying the input classes stored in the registry...
@@ -250,8 +217,9 @@ public class RegistryImpl extends RegistryBase
 	 * @param direct if true, consider only the direct types of the input node;
 	 *               if false, consider inferred types as well
 	 * @return the collection of matching services
+	 * @deprecated
 	 */
-	public Collection<ServiceImpl> findServices(Resource subject, String predicate, boolean direct) throws SADIException
+	public Collection<Service> findServices(Resource subject, String predicate, boolean direct) throws SADIException
 	{
 		/* TODO in the direct case, this could be done more efficiently by
 		 * querying the input class stored in the registry...
@@ -268,18 +236,76 @@ public class RegistryImpl extends RegistryBase
 	 *               if false, consider inferred types as well
 	 * @return the collection of matching predicates
 	 * @throws IOException
+	 * @deprecated
 	 */
 	public Collection<String> findPredicatesBySubject(Resource subject, boolean direct) throws SADIException
 	{
 		Collection<String> predicates = new ArrayList<String>();
-		for (ServiceImpl service: findServices(subject, direct)) {
-			try {
-				predicates.addAll(service.getPredicates());
-			} catch (SADIException e) {
-				log.error(String.format("error determining predicates attached by service %s", service), e);
-			}
+		for (Service service: findServices(subject, direct)) {
+			for (RestrictionBean restriction: service.getRestrictionBeans())
+					predicates.add(restriction.getOnPropertyURI());
 		}
 		return predicates;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 * @throws SADIException
+	 * @deprecated Use {@link #findAttachedProperties(RegistrySearchCriteria)} instead
+	 */
+	public Collection<String> listPredicates() throws SADIException
+	{
+		Collection<String> predicates = new ArrayList<String>();
+		String query = buildQuery("listPredicates.sparql");
+		for (Map<String, String> binding: executeQuery(query)) {
+			predicates.add(binding.get("p"));
+		}
+		return predicates;
+	}
+
+	/**
+	 * 
+	 * @return
+	 * @throws SADIException
+	 * @deprecated Use {@link #findAttachedProperties(RegistrySearchCriteria)} instead
+	 */
+	public Collection<Property> listPredicatesByInputClass(String inputClassURI) throws SADIException
+	{
+		Collection<Property> properties = new HashSet<Property>();
+		String query = buildQuery("listPredicatesByInputClass.sparql", inputClassURI);
+		for (Map<String, String> binding: executeQuery(query)) {
+			Property p = model.getProperty(binding.get("p"));
+			if (!p.hasProperty(RDFS.label)) {
+				String label = binding.get("label");
+				if (label != null)
+					p.addLiteral(RDFS.label, label);
+				else
+					p.addLiteral(RDFS.label, p.getLocalName());
+			}
+			properties.add(p);
+		}
+		return properties;
+	}
+	
+	public Collection<Service> findServicesByAttachedPropertyLabel(String propertyLabel) throws SADIException
+	{
+		return getServicesByQuery("findServicesByAttachedPropertyLabel.sparql", propertyLabel);
+	}
+	
+	public Collection<Service> findServicesByConnectedClassLabel(String classLabel) throws SADIException
+	{
+		return getServicesByQuery("findServicesByConnectedClassLabel.sparql", classLabel);
+	}
+	
+	private Collection<Service> getServicesByQuery(String template, String ... args) throws SADIException
+	{
+		Collection<Service> services = new ArrayList<Service>();
+		String query = buildQuery(template, args);
+		for (Map<String, String> binding: executeQuery(query)) {
+			services.add(createService(binding));
+		}
+		return services;
 	}
 
 	/**
@@ -290,16 +316,17 @@ public class RegistryImpl extends RegistryBase
 	 * @param direct if true, consider only the direct types of the input node;
 	 *               if false, consider inferred types as well
 	 * @return the filtered list of services
+	 * @throws SADIException
 	 */
-	private Collection<ServiceImpl> filterServicesByInput(Collection<ServiceImpl> services, Resource input, boolean direct)
+	private Collection<Service> filterServicesByInput(Collection<Service> services, Resource input, boolean direct) throws SADIException
 	{
-		Collection<ServiceImpl> filteredServices = new ArrayList<ServiceImpl>(services.size());
+		Collection<Service> filteredServices = new ArrayList<Service>(services.size());
 		if (direct) {
 			/* TODO if this is too slow, we can create an ontology model that
 			 * contains only the direct properties of the input node...
 			 */
 			OntModel base = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF, input.getModel() );
-			for (ServiceImpl service: services) {
+			for (Service service: services) {
 				try {
 					if (base.getIndividual(input.getURI()).hasRDFType(service.getInputClass(), true))
 						filteredServices.add(service);
@@ -310,22 +337,12 @@ public class RegistryImpl extends RegistryBase
 		} else {
 			Model base = ResourceUtils.reachableClosure((Resource)input);
 			input = base.getResource(input.getURI());
-			for (ServiceImpl service: services) {
+			for (Service service: services) {
 				if (service.isInputInstance(input))
 					filteredServices.add(service);
 			}
 		}
 		return filteredServices;
-	}
-
-	public ServiceStatus getServiceStatus(String serviceURI) throws SADIException
-	{
-		throw new UnsupportedOperationException();
-	}
-	
-	public String toString()
-	{
-		return backend.toString();
 	}
 
 	/* (non-Javadoc)
@@ -341,8 +358,9 @@ public class RegistryImpl extends RegistryBase
 	 * @see ca.wilkinsonlab.sadi.client.RegistryBase#createService(java.lang.String)
 	 */
 	@Override
-	public ServiceImpl createService(String serviceURI) throws SADIException
+	protected ServiceImpl createService(String serviceURI) throws SADIException
 	{
+		// FIXME use consruct and ServiceOntologyHelper...
 		String query = buildQuery("getService.sparql", serviceURI);
 		List<Map<String, String>> bindings = executeQuery(query);
 		if (bindings.isEmpty()) {
@@ -351,6 +369,36 @@ public class RegistryImpl extends RegistryBase
 			throw new SADIException(String.format("URI %s maps to more than one service in this registry", serviceURI));
 		}
 		return createService(bindings.get(0));
+	}
+
+	@Override
+	protected Collection<? extends Service> findServicesByAttachedProperty(Iterable<String> propertyURIs) throws SADIException
+	{
+		Collection<Service> services = new ArrayList<Service>();
+		for (String p: propertyURIs) {
+			services.addAll(findServicesByPredicate(p));
+		}
+		return services;
+	}
+
+	@Override
+	protected Collection<? extends Service> findServicesByConnectedClass(Iterable<String> classURIs) throws SADIException
+	{
+		Collection<Service> services = new ArrayList<Service>();
+		for (String c: classURIs) {
+			services.addAll(getServicesByQuery("findServicesByConnectedClass.sparql", c));
+		}
+		return services;
+	}
+
+	@Override
+	protected Collection<? extends Service> findServicesByInputClass(Iterable<String> classURIs) throws SADIException
+	{
+		Collection<Service> services = new ArrayList<Service>();
+		for (String c: classURIs) {
+			services.addAll(getServicesByQuery("findServicesByInputClass.sparql", c));
+		}
+		return services;
 	}
 
 	/**
@@ -366,6 +414,54 @@ public class RegistryImpl extends RegistryBase
 	 */
 	private ServiceImpl createService(Map<String, String> binding) throws SADIException
 	{
-		return new ServiceImpl(binding);
+		ServiceImpl service = new ServiceImpl();
+		service.setURI(binding.get("serviceURI"));
+		service.setName(binding.get("name"));
+		service.setDescription(binding.get("description"));
+		service.setInputClassURI(binding.get("inputClassURI"));
+		service.setInputClassLabel(binding.get("inputClassLabel"));
+		service.setOutputClassURI(binding.get("outputClassURI"));
+		service.setOutputClassLabel(binding.get("outputClassLabel"));
+		addRestrictions(service);
+		return service;
 	}
+	
+	private void addRestrictions(ServiceImpl service) throws SADIException
+	{
+		String query = buildQuery("getRestrictions.sparql", service.getURI());
+		for (Map<String, String> binding: executeQuery(query)) {
+			RestrictionBean restriction = new RestrictionBean();
+			restriction.setOnPropertyURI(binding.get("onPropertyURI"));
+			restriction.setOnPropertyLabel(binding.get("onPropertyLabel"));
+			restriction.setValuesFromURI(binding.get("valuesFromURI"));
+			restriction.setValuesFromLabel(binding.get("valuesFromLabel"));
+			if (!service.getRestrictionBeans().contains(restriction))
+				service.getRestrictionBeans().add(restriction);
+		}
+	}
+	
+//	private String createQuery(RegistrySearchCriteria criteria)
+//	{
+//		StringBuilder query = new StringBuilder();
+//		query.append("PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n");
+//		query.append("PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n");
+//		query.append("PREFIX owl: <http://www.w3.org/2002/07/owl#>\n");
+//		query.append("PREFIX sadi: <http://sadiframework.org/ontologies/sadi.owl#>\n");
+//		query.append("PREFIX mygrid: <http://www.mygrid.org.uk/mygrid-moby-service#>\n");
+//		query.append("SELECT *\n");
+//		query.append("WHERE {\n");
+//		query.append("    ?serviceURI mygrid:hasOperation ?op .\n");
+//		query.append("    ?serviceURI mygrid:hasServiceNameText ?name .\n");
+//		query.append("    ?serviceURI mygrid:hasServiceDescriptionText ?description .\n");
+//		query.append("    ?op mygrid:inputParameter ?input .\n");
+//		query.append("    ?input mygrid:objectType ?inputClassURI .\n");
+//		query.append("    ?op mygrid:outputParameter ?output .\n");
+//		query.append("    ?output mygrid:objectType ?outputClassURI .\n");
+//		query.append("    OPTIONAL {\n");
+//		if (criteria.getTarget().equals(Service.class)) {
+//			query.append();
+//		} else if (criteria.getTarget().equals(Property.class)) {
+//			
+//		}
+//	}
 }

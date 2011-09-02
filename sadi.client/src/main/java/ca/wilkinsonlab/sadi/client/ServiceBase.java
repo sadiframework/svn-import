@@ -3,11 +3,16 @@ package ca.wilkinsonlab.sadi.client;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.beans.ServiceBean;
 
-import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -18,81 +23,118 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * 
  * @author Luke McCarthy
  */
-public abstract class ServiceBase implements Service
+public abstract class ServiceBase extends ServiceBean implements Service
 {
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#discoverInputInstances(com.hp.hpl.jena.rdf.model.Model)
-	 */
-	@Override
-	public Collection<Resource> discoverInputInstances(Model inputModel)
-	{
-		return new ArrayList<Resource>(0);
-	}
+	private static final long serialVersionUID = 1L;
 
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#getInputClass()
-	 */
-	@Override
-	public OntClass getInputClass() throws SADIException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#getOutputClass()
-	 */
-	@Override
-	public OntClass getOutputClass() throws SADIException
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#getServiceURI()
-	 */
-	@Override
-	public String getURI()
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	/* (non-Javadoc)
+//	 * @see ca.wilkinsonlab.sadi.client.Service#getInputClass()
+//	 */
+//	@Override
+//	public OntClass getInputClass() throws SADIException
+//	{
+//		return OwlUtils.OWL_Nothing;
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see ca.wilkinsonlab.sadi.client.Service#getOutputClass()
+//	 */
+//	@Override
+//	public OntClass getOutputClass() throws SADIException
+//	{
+//		return OwlUtils.OWL_Nothing;
+//	}
+//	
+//	/* (non-Javadoc)
+//	 * @see ca.wilkinsonlab.sadi.client.Service#getRestrictions()
+//	 */
+//	@Override
+//	public Collection<Restriction> getRestrictions() throws SADIException
+//	{
+//		return Collections.emptyList();
+//	}
 	
 	/* (non-Javadoc)
      * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource)
      */
-	public Collection<Triple> invokeService(Resource inputNode) throws ServiceInvocationException
+	public Model invokeService(Resource inputNode) throws ServiceInvocationException
 	{
-		return invokeService(Collections.singletonList(inputNode));
+		return invokeService(Collections.singleton(inputNode).iterator());
 	}
 
+	@Override
+	public Model invokeService(Iterable<Resource> inputNodes) throws ServiceInvocationException
+	{
+		return invokeService(inputNodes.iterator());
+	}
+
+//	@Override
+//	public Model invokeService(Iterator<Resource> inputNodes) throws ServiceInvocationException
+//	{
+//	}
+	
 	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource, java.lang.String)
+     * @see ca.wilkinsonlab.sadi.client.Service#isInputInstance(com.hp.hpl.jena.rdf.model.Resource)
      */
-	public Collection<Triple> invokeService(Resource inputNode, String predicate) throws ServiceInvocationException
+	@Override
+	public boolean isInputInstance(Resource resource) throws SADIException
 	{
-		return filterByPredicate(invokeService(inputNode), predicate);
-	}
-
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection, java.lang.String)
-	 */
-	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate) throws ServiceInvocationException
-	{
-		return filterByPredicate(invokeService(inputNodes), predicate);
-	}
-
-	/* Filter a collection of triples to pass only those with the
-	 * specified predicate.
-	 */
-	private Collection<Triple> filterByPredicate(Collection<Triple> results, String predicate)
-	{
-		Collection<Triple> filteredTriples = new ArrayList<Triple>();
-		for (Triple triple: results) {
-			if (triple.getPredicate().getURI().equals(predicate))
-				filteredTriples.add(triple);
+		Model inputModel = resource.getModel();
+		OntModel reasoningModel = getInputClass().getOntModel();
+		OntClass inputClass = getInputClass();
+		try {
+			reasoningModel.addSubModel(inputModel);
+			return reasoningModel.getIndividual(resource.getURI()).hasOntClass(inputClass);
+		} catch (Exception e) {
+			/* we're probably here because the service definition is incorrect,
+			 * and we don't want a bad service spoiling everything for everybody...
+			 */
+			getLog().error(String.format("error classifying %s as an instance of %s", resource, inputClass), e);
+			return false;
+		} finally {
+			reasoningModel.removeSubModel(inputModel);
 		}
-		return filteredTriples;
 	}
+	
+	/* (non-Javadoc)
+     * @see ca.wilkinsonlab.sadi.client.Service#discoverInputInstances(com.hp.hpl.jena.rdf.model.Model)
+     */
+	@Override
+	public synchronized Collection<Resource> discoverInputInstances(Model inputModel) throws SADIException
+	{	
+		OntModel reasoningModel = getInputClass().getOntModel();
+		OntClass inputClass = getInputClass();
+		try {
+			reasoningModel.addSubModel(inputModel);
+			Collection<Resource> instancesInInputModel = new ArrayList<Resource>();
+			for (Iterator<? extends OntResource> instances = inputClass.listInstances(); instances.hasNext(); ) {
+				OntResource instance = instances.next();
+				instancesInInputModel.add(instance.inModel(inputModel).as(Resource.class));
+			}
+			return instancesInInputModel;
+		} catch (Exception e) {
+			/* we're probably here because the service definition is incorrect,
+			 * and we don't want a bad service spoiling everything for everybody...
+			 */
+			getLog().error(String.format("error discovering instances of %s", inputClass), e);
+			return Collections.emptyList();
+		} finally {
+			reasoningModel.removeSubModel(inputModel);
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString()
+	{
+		return getURI();
+	}
+	
+	/**
+	 * Returns the log4j Logger associated with the concrete service.
+	 * @return the log4j Logger associated with the concrete service
+	 */
+	protected abstract Logger getLog();
 }

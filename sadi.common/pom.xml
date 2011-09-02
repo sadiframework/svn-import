@@ -6,13 +6,13 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-common</artifactId>
+  <version>0.2.0-SNAPSHOT</version>
   <parent>
     <groupId>ca.wilkinsonlab.sadi</groupId>
     <artifactId>sadi-parent</artifactId>
     <version>0.1.0</version>
   </parent>
   <name>Common SADI classes</name>
-  <version>0.2.0-SNAPSHOT</version>
   <description>Classes used by both SADI clients and SADI services</description>
   
   <repositories>
@@ -89,10 +89,20 @@
     	<artifactId>commons-validator</artifactId>
     	<version>1.3.1</version>
     </dependency>
-    <dependency> <!-- this is declared optional in commons-validator, but we need it here -->
+    
+    <!-- 
+     oro is declared optional in commons-validator, but we need it here 
+     -->
+    <dependency>
       <groupId>oro</groupId>
       <artifactId>oro</artifactId>
       <version>2.0.8</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>ca.elmonline</groupId>
+      <artifactId>elmutils</artifactId>
+      <version>0.1.2</version>
     </dependency>
     
     <dependency>

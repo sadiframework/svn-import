@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,9 +19,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.client.RegistrySearchCriteria;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
-import ca.wilkinsonlab.sadi.client.Service.ServiceStatus;
+import ca.wilkinsonlab.sadi.client.ServiceStatus;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.vocab.SPARQLRegistryOntology;
 
@@ -28,8 +30,10 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.NodeIterator;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -350,8 +354,11 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		statusQuery = SPARQLStringUtils.strFromTemplate(statusQuery, getIndexGraphURI(), serviceURI, SPARQLRegistryOntology.ENDPOINT_STATUS);
 		try {
 			List<Map<String,String>> results = selectQuery(statusQuery);
+			// if the endpoint is registered, it is guaranteed to have a status...
 			if(results.size() == 0)
-				throw new SADIException("Unable to obtain endpoint status for " + serviceURI + " from registry");
+				return null;
+//			else if(results.size() > 1) // this shouldn't happen if everyone uses setServiceStatus below...
+//				throw new SADIException("Unable to obtain endpoint status for " + serviceURI + " from registry");
 			else
 				return ServiceStatus.valueOf(results.get(0).get("status"));
 		} catch (IOException e) {
@@ -530,7 +537,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		// from every endpoint with a matching subject regex.  However this 
 		// highly inaccurate and probably not wise.
 		
-		return new ArrayList<String>();
+		return Collections.emptyList();
 	}
 
 	public Collection<SPARQLServiceWrapper> findServices(Resource subject, String predicate) throws SADIException
@@ -613,28 +620,70 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 			throw new SADIException(e.toString());
 		}
 	}
-	
+
 	@Override
-	public Collection<SPARQLServiceWrapper> findServicesByInputClass(OntClass clazz) throws SADIException
-	{
-		return findServicesByInputClass(clazz, true);
-	}
-	
-	@Override
-	public Collection<SPARQLServiceWrapper> findServicesByConnectedClass(OntClass clazz) throws SADIException
-	{
-		return findServicesByConnectedClass(clazz, true);
+	public Collection<? extends Service> findServicesByAttachedProperty(Property property) throws SADIException {
+		Set<String> propertyURIs= new HashSet<String>();
+		if (property.isURIResource())
+			propertyURIs.add(property.getURI());
+		if (property.canAs(OntProperty.class)) {
+			for (Iterator<? extends Property> i = property.as(OntProperty.class).listSubProperties(); i.hasNext(); ) {
+				Property p = i.next();
+				if (p.isURIResource())
+					propertyURIs.add(p.getURI());
+			}
+		}
+		Collection<SPARQLServiceWrapper> services = new ArrayList<SPARQLServiceWrapper>();
+		for (String propertyURI: propertyURIs) {
+			services.addAll(findServicesByPredicate(propertyURI));
+		}
+		return services;
 	}
 
 	@Override
-	public Collection<SPARQLServiceWrapper> findServicesByInputClass(OntClass clazz, boolean withReasoning) throws SADIException
+	public Collection<? extends Service> findServicesByInputClass(Resource clazz) throws SADIException
 	{
+		// these services don't have input classes...
 		return Collections.emptyList();
 	}
 
 	@Override
-	public Collection<SPARQLServiceWrapper> findServicesByConnectedClass(OntClass clazz, boolean withReasoning) throws SADIException
+	public Collection<? extends Service> findServicesByConnectedClass(Resource clazz) throws SADIException
 	{
+		Set<String> classURIs = new HashSet<String>();
+		if (clazz.isURIResource())
+			classURIs.add(clazz.getURI());
+		if (clazz.canAs(OntClass.class)) {
+			for (Iterator<? extends OntClass> i = clazz.as(OntClass.class).listSubClasses(); i.hasNext(); ) {
+				OntClass c = i.next();
+				if (c.isURIResource())
+					classURIs.add(c.getURI());
+			}
+		}
+		/* FIXME
+		 * use the assembled collection of class URIs to find triples matching 
+		 * 	?s ?p o . ?o rdf:type ?classURI
+		 */
 		return Collections.emptyList();
+	}
+
+	@Override
+	public Collection<? extends Service> discoverServices(Resource subject) throws SADIException
+	{
+		return findServicesByInputInstance(subject);
+	}
+
+	@Override
+	public Collection<? extends Service> findServices(RegistrySearchCriteria criteria) throws SADIException
+	{
+		// FIXME
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Collection<Property> findAttachedProperties(RegistrySearchCriteria criteria) throws SADIException
+	{
+		// FIXME
+		throw new UnsupportedOperationException();
 	}
 }

@@ -5,35 +5,30 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.SADIException;
-import ca.wilkinsonlab.sadi.beans.ServiceBean;
 import ca.wilkinsonlab.sadi.client.testing.TestCase;
 import ca.wilkinsonlab.sadi.service.ontology.AbstractServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
-import ca.wilkinsonlab.sadi.utils.ExceptionUtils;
+import ca.wilkinsonlab.sadi.utils.ContentType;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
+import ca.wilkinsonlab.sadi.vocab.SADI;
 
-import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -43,6 +38,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.shared.DoesNotExistException;
 import com.hp.hpl.jena.shared.JenaException;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
@@ -52,15 +48,8 @@ import com.hp.hpl.jena.vocabulary.RDFS;
  */
 public class ServiceImpl extends ServiceBase
 {
+	private static final long serialVersionUID = 1L;
 	private static final Logger log = Logger.getLogger(ServiceImpl.class);
-	
-	String serviceURI;
-	String name;
-	String description;
-	String inputClassURI;
-	String outputClassURI;
-	
-	RegistryImpl sourceRegistry;
 	
 	Model model;
 	OntModel ontModel;
@@ -70,55 +59,6 @@ public class ServiceImpl extends ServiceBase
 	OntClass outputClass;
 	Collection<Restriction> restrictions;
 	Collection<TestCase> tests;
-	
-	/**
-	 * Construct a new SADI service from the service description located at
-	 * the specified URL.
-	 * @param serviceURL the service URL
-	 * @throws SADIException
-	 */
-	public ServiceImpl(String serviceURL) throws SADIException
-	{
-		this();
-		
-		serviceURI = serviceURL;
-		
-		try {
-			loadServiceModel();
-		} catch (Exception e) {
-			if (e instanceof SADIException)
-				throw (SADIException)e;
-			else
-				throw new SADIException(e.toString(), e);
-		} finally {
-			errorHandler.clear();
-		}
-	}
-	
-	/**
-	 * Construct a new RdfService from a service URI, an input class URI
-	 * and an output class URI. This method is used by the test cases and
-	 * by the registry.
-	 * @param serviceInfo a map containing the service information
-	 */
-	ServiceImpl(Map<String, String> serviceInfo) throws SADIException
-	{
-		this();
-		
-		serviceURI = serviceInfo.get("serviceURI");
-		name = serviceInfo.get("name");
-		description = serviceInfo.get("description");
-		inputClassURI = serviceInfo.get("inputClassURI");
-		outputClassURI = serviceInfo.get("outputClassURI");
-		
-		ServiceBean serviceBean = new ServiceBean();
-		serviceBean.setURI(serviceURI);
-		serviceBean.setName(name);
-		serviceBean.setDescription(description);
-		serviceBean.setInputClassURI(inputClassURI);
-		serviceBean.setOutputClassURI(outputClassURI);
-		new MyGridServiceOntologyHelper().createServiceNode(serviceBean, model);
-	}
 	
 	/* Perform initialization common to all constructors. Jena models are
 	 * created here so they can be used as locks for the thread-safe blocks.
@@ -132,7 +72,7 @@ public class ServiceImpl extends ServiceBase
 		ontModel.getReader().setErrorHandler(errorHandler);
 	}
 	
-	void loadServiceModel() throws Exception
+	void loadServiceModel() throws SADIException
 	{
 		log.debug("fetching service model from " + getURI());
 		if (!model.isEmpty())
@@ -147,60 +87,30 @@ public class ServiceImpl extends ServiceBase
 				throw new ServiceConnectionException("connection refused");//String.format("connection refused to service %s", getURI()));
 			}
 		}
-		if (errorHandler.hasLastError())
-			throw errorHandler.getLastError();
+		if (errorHandler.hasLastError()) {
+			Exception e = errorHandler.getLastError();
+			errorHandler.clear();
+			if (e instanceof SADIException)
+				throw (SADIException)e;
+			else
+				throw new SADIException(e.toString(), e);
+		}
 		
 		Resource serviceRoot = model.getResource(getURI());
-		if (serviceRoot == null) {
-			throw new SADIException(String.format("service model contains no such resource %s", getURI()));
+		if (!model.containsResource(serviceRoot)) {
+			throw new ServiceConnectionException(String.format("service description contains no such resource %s", getURI()));
 		} else {
-			ServiceBean serviceBean = new ServiceBean();
-			new MyGridServiceOntologyHelper().copyServiceDescription(serviceRoot, serviceBean);
-			name = serviceBean.getName();
-			description = serviceBean.getDescription();
-			inputClassURI = serviceBean.getInputClassURI();
-			outputClassURI = serviceBean.getOutputClassURI();
+			new MyGridServiceOntologyHelper().copyServiceDescription(serviceRoot, this);
 		}
 	}
 	
-	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#getServiceURI()
-     */
-	public String getURI()
+	/**
+	 * Returns the service definition as a Jena Model.
+	 * @return the service definition as a Jena Model
+	 */
+	public Model getServiceModel()
 	{
-		return serviceURI;
-	}
-	
-	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#getName()
-     */
-	public String getName()
-	{
-		return name;
-	}
-	
-	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#getDescription()
-     */
-	public String getDescription()
-	{
-		return description;
-	}
-	
-	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#getInputClassURI()
-     */
-	public String getInputClassURI()
-	{
-		return inputClassURI;
-	}
-	
-	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#getOutputClassURI()
-     */
-	public String getOutputClassURI()
-	{
-		return outputClassURI;
+		return model;
 	}
 	
 	/* (non-Javadoc)
@@ -211,11 +121,11 @@ public class ServiceImpl extends ServiceBase
 		synchronized (ontModel) {
 			try {
 				if (inputClass == null) {
-					inputClass = OwlUtils.getOntClassWithLoad(ontModel, inputClassURI);
+					inputClass = OwlUtils.getOntClassWithLoad(ontModel, getInputClassURI(), true);
 					if (errorHandler.hasLastError())
 						throw errorHandler.getLastError();
 					if (inputClass == null)
-						throw new SADIException(String.format("class %s is not defined", inputClassURI));
+						throw new SADIException(String.format("class %s is not defined", getInputClassURI()));
 				}
 				return inputClass;
 			} catch (Exception e) {
@@ -237,11 +147,11 @@ public class ServiceImpl extends ServiceBase
 		synchronized (ontModel) {
 			try {
 				if (outputClass == null) {
-					outputClass = OwlUtils.getOntClassWithLoad(ontModel, outputClassURI);
+					outputClass = OwlUtils.getOntClassWithLoad(ontModel, getOutputClassURI(), true);
 					if (errorHandler.hasLastError())
 						throw errorHandler.getLastError();
 					if (outputClass == null)
-						throw new SADIException(String.format("class %s is not defined", outputClassURI));
+						throw new SADIException(String.format("class %s is not defined", getOutputClassURI()));
 				}
 				return outputClass;
 			} catch (Exception e) {
@@ -255,46 +165,16 @@ public class ServiceImpl extends ServiceBase
 		}
 	}
 	
-	/**
-	 * Returns the property restrictions attached by this service.
-	 * @return the property restrictions attached by this service
-	 * @throws SADIException
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getRestrictions()
 	 */
+	@Override
 	public Collection<Restriction> getRestrictions() throws SADIException
 	{
 		if (restrictions == null) {
 			restrictions = OwlUtils.listRestrictions(getOutputClass(), getInputClass());
 		}
 		return restrictions;
-	}
-	
-	/**
-	 * Returns the service definition as a Jena Model.
-	 * @return the service definition as a Jena Model
-	 */
-	public Model getServiceModel()
-	{
-		return model;
-	}
-
-	/**
-	 * Returns the list of predicates this service attaches to its input.
-	 * @return the list of predicates this service attaches to its input
-	 */
-	public Collection<String> getPredicates() throws SADIException
-	{
-		Collection<Restriction> restrictions = getRestrictions();
-		Collection<String> predicates = new ArrayList<String>( restrictions.size() );
-		for (Restriction restriction: restrictions) {
-			try {
-				predicates.add( restriction.getOnProperty().getURI() );
-			} catch (Exception e) {
-				// ConversionException if the property is undefined
-				// NullPointerException maybe?
-				log.error(String.format("error extracting property from restriction %s", restriction), e);
-			}
-		}
-		return predicates;
 	}
 	
 	public Collection<TestCase> getTestCases()
@@ -332,7 +212,7 @@ public class ServiceImpl extends ServiceBase
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection)
 	 */
-	public Collection<Triple> invokeService(Collection<Resource> inputNodes) throws ServiceInvocationException
+	public Model invokeService(Iterator<Resource> inputNodes) throws ServiceInvocationException
 	{
 		OntClass inputClass;
 		try {
@@ -342,29 +222,15 @@ public class ServiceImpl extends ServiceBase
 		}
 		
 		Model inputModel = ModelFactory.createDefaultModel();
-		for (Resource inputNode: inputNodes) {
+		log.debug(String.format("assembling input to %s", this));
+		while (inputNodes.hasNext()) {
+			Resource inputNode = inputNodes.next();
 			log.debug(String.format("computing minimal RDF for %s as an instance of %s", inputNode, inputClass));
+			inputNode.addProperty(RDF.type, inputClass);
 			inputModel.add(OwlUtils.getMinimalModel(inputNode, inputClass));
 		}
 		
-		Model outputModel = null;
-		try {
-			outputModel = invokeServiceUnparsed(inputModel);
-		} catch (Exception e) {
-			String message = null;
-			if (outputModel != null)
-				message = ExceptionUtils.exceptionModelToString(outputModel);
-			if (StringUtils.isEmpty(message))
-				message = e.getMessage();
-			throw new ServiceInvocationException(message);
-		}
-		
-		Collection<Triple> triples = new ArrayList<Triple>();
-		for (StmtIterator i = outputModel.listStatements(); i.hasNext(); ) {
-			Statement statement = i.nextStatement();
-			triples.add(statement.asTriple());
-		}
-		return triples;
+		return invokeServiceUnparsed(inputModel);
 	}
 
 	/**
@@ -374,22 +240,29 @@ public class ServiceImpl extends ServiceBase
 	 * @return the service output
 	 * @throws IOException 
 	 */
-	public Model invokeServiceUnparsed(Model inputModel) throws IOException
+	public Model invokeServiceUnparsed(Model inputModel) throws ServiceInvocationException
 	{
 		if (log.isTraceEnabled()) {
-			log.trace(String.format("posting RDF to %s:\n%s", getURI(), RdfUtils.logStatements("\t", inputModel)));
+			log.trace(String.format("posting RDF to %s:\n%s", getURI(), RdfUtils.logModel(inputModel)));
 		}
-		InputStream is = HttpUtils.postToURL(new URL(getURI()), inputModel);
+
 		Model model = ModelFactory.createDefaultModel();
-		model.read(is, "");
-		is.close();
+		try {
+			InputStream is = HttpUtils.postToURL(new URL(getURI()), inputModel);
+			model.read(is, "");
+			is.close();
+		} catch (IOException e) {
+			throw new ServiceInvocationException(String.format("error communicating with service: %s", e.getMessage()), e);
+		} catch (Exception e) {
+			throw new ServiceInvocationException(String.format("error parsing service response: %s", e.getMessage()), e);
+		}
 		
 		/* resolve any rdfs:isDefinedBy URIs to fetch asynchronous data...
 		 */
 		resolveAsynchronousData(model);
 		
 		if (log.isTraceEnabled()) {
-			log.trace(String.format("received output:\n%s", RdfUtils.logStatements("\t", model)));
+			log.trace(String.format("received output:\n%s", RdfUtils.logModel(model)));
 		}
 		return model;
 	}
@@ -399,7 +272,7 @@ public class ServiceImpl extends ServiceBase
 	 * asynchronous data.
 	 * @param model the model
 	 */
-	public static void resolveAsynchronousData(Model model)
+	static void resolveAsynchronousData(Model model)
 	{
 		Set<String> seen = new HashSet<String>();
 		for (StmtIterator i = model.listStatements((Resource)null, RDFS.isDefinedBy, (RDFNode)null); i.hasNext(); ) {
@@ -432,15 +305,16 @@ public class ServiceImpl extends ServiceBase
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	private static InputStream fetchAsyncData(String url) throws HttpException, IOException
+	static InputStream fetchAsyncData(String url) throws HttpException, IOException
 	{
 		while (true) {
 			log.debug("fetching asynchronous data from " + url);
 			GetMethod method = new GetMethod(url);
 			method.setFollowRedirects(false);
+			method.setRequestHeader("Accept", ContentType.RDF_XML.getHTTPHeader());
 			HttpClient client = new HttpClient();
 			int statusCode = client.executeMethod(method);
-			if (statusCode >= 300 && statusCode < 400) {
+			if (statusCode == 202 || (statusCode >= 300 && statusCode < 400)) {
 				long toSleep = 10000; // sleep for ten seconds by default
 				String retryAfter = HttpUtils.getHeaderValue(method, "Retry-After");
 				if (retryAfter != null) {
@@ -450,11 +324,11 @@ public class ServiceImpl extends ServiceBase
 						log.error(String.format("error parsing value of Retry-After header '%s'", retryAfter), e);
 					}
 				}
-//				// look for legacy header...
-//				String pleaseWait = HttpUtils.getHeaderValue(method, "Pragma", SADI.ASYNC_HEADER);
-//				if (pleaseWait != null) {
-//					// toSleep = (pleaseWait =~ /\s*=\s*(\d+)/)[0]
-//				}
+				// TODO stop looking for for legacy header at some point?
+				String pleaseWait = HttpUtils.getHeaderValue(method, "Pragma", SADI.ASYNC_HEADER);
+				if (pleaseWait != null) {
+					// toSleep = (pleaseWait =~ /\s*=\s*(\d+)/)[0]
+				}
 				try {
 					log.trace("sleeping " + toSleep + "ms before following redirect");
 					Thread.sleep(toSleep);
@@ -472,62 +346,27 @@ public class ServiceImpl extends ServiceBase
 			}
 		}
 	}
-	
+
 	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#isInputInstance(com.hp.hpl.jena.rdf.model.Resource)
-     */
-	public boolean isInputInstance(Resource resource)
-	{
-		Model inputModel = resource.getModel();
-		OntModel reasoningModel = ontModel;
-		try {
-			OntClass inputClass = getInputClass();
-			reasoningModel.addSubModel(inputModel);
-			return reasoningModel.getIndividual(resource.getURI()).hasOntClass(inputClass);
-		} catch (Exception e) {
-			/* we're probably here because the service definition is incorrect,
-			 * and we don't want a bad service spoiling everything for everybody...
-			 */
-			log.error(String.format("error classifying %s as an instance of %s", resource, inputClass), e);
-			return false;
-		} finally {
-			reasoningModel.removeSubModel(inputModel);
-		}
-	}
-	
-	/* (non-Javadoc)
-     * @see ca.wilkinsonlab.sadi.client.Service#discoverInputInstances(com.hp.hpl.jena.rdf.model.Model)
-     */
-	@SuppressWarnings("unchecked")
-	public synchronized Collection<Resource> discoverInputInstances(Model inputModel)
-	{	
-		OntModel reasoningModel = ontModel;
-		try {
-			OntClass inputClass = getInputClass();
-			reasoningModel.addSubModel(inputModel);
-			Collection<Resource> instancesInInputModel = new ArrayList<Resource>();
-			for (Iterator<? extends OntResource> instances = inputClass.listInstances(); instances.hasNext(); ) {
-				OntResource instance = instances.next();
-				instancesInInputModel.add(instance.inModel(inputModel).as(Resource.class));
-			}
-			return instancesInInputModel;
-		} catch (Exception e) {
-			/* we're probably here because the service definition is incorrect,
-			 * and we don't want a bad service spoiling everything for everybody...
-			 */
-			log.error(String.format("error discovering instances of %s", inputClass), e);
-			return Collections.EMPTY_LIST;
-		} finally {
-			reasoningModel.removeSubModel(inputModel);
-		}
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	 * @see ca.wilkinsonlab.sadi.client.ServiceBase#getLog()
 	 */
 	@Override
-	public String toString()
+	protected Logger getLog()
 	{
-		return getURI();
+		return log;
 	}
+
+//	@Override
+//	public int hashCode()
+//	{
+//		return getURI().hashCode();
+//	}
+//
+//	@Override
+//	public boolean equals(Object obj)
+//	{
+//		return obj != null &&
+//		       obj instanceof ServiceImpl &&
+//		       getURI().equals(((ServiceImpl)obj).getURI());
+//	}
 }

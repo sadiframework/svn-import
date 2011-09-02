@@ -9,7 +9,6 @@ import com.hp.hpl.jena.vocabulary.DC;
 
 public class ResourceFactory
 {
-
 	/**
 	 * Creates an instance of the specified type with the specified id
 	 * in the specified model.

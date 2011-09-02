@@ -6,6 +6,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -33,8 +35,9 @@ public class BioMobyHelper
 	public static final String URI_PREFIX = "http://biordf.net/moby/";
 	public static final String MOBY_NAMESPACE_PREFIX = "http://biomoby.org/RESOURCES/MOBY-S/Namespaces/";
 	public static final String MOBY_DATATYPE_PREFIX = "http://biomoby.org/RESOURCES/MOBY-S/Objects/";
-	
-	static final Map<String, String> EMPTY_PARAMETER_MAP = new HashMap<String, String>(0);
+	public static final String SERVICE_URI_FORMAT_PATTERN = "http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/%s,%s";
+	public static final Pattern SERVICE_URI_REGEX_PATTERN = Pattern.compile("http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/(.+?),(.+)");
+	public static final Map<String, String> EMPTY_PARAMETER_MAP = new HashMap<String, String>(0);
 	
 	/**
 	 * Returns a string representation of the given MobyService.
@@ -55,7 +58,37 @@ public class BioMobyHelper
 	 */
 	public static String getServiceURI( MobyService service )
 	{
-		return String.format( "http://biomoby.org/RESOURCES/MOBY-S/ServiceInstances/%s,%s", service.getAuthority(), service.getName() );
+		return String.format( SERVICE_URI_FORMAT_PATTERN, service.getAuthority(), service.getName() );
+	}
+	
+	/**
+	 * Returns the service authority given a URI returned by getServiceURI above.
+	 * @param serviceURI the service URI
+	 * @return the authority
+	 */
+	public static String getAuthority(String serviceURI)
+	{
+		Matcher matcher = SERVICE_URI_REGEX_PATTERN.matcher(serviceURI);
+		if (matcher.find()) {
+			return matcher.group(1);
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Returns the service name given a URI returned by getServiceURI above.
+	 * @param serviceURI the service URI
+	 * @return the name
+	 */
+	public static String getName(String serviceURI)
+	{
+		Matcher matcher = SERVICE_URI_REGEX_PATTERN.matcher(serviceURI);
+		if (matcher.find()) {
+			return matcher.group(2);
+		} else {
+			return null;
+		}
 	}
 
 	/**

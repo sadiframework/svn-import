@@ -1,17 +1,23 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.utils.OwlUtils;
-
+import com.hp.hpl.jena.ontology.ConversionException;
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Literal;
+import com.hp.hpl.jena.rdf.model.RDFList;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
@@ -19,7 +25,9 @@ import com.hp.hpl.jena.util.iterator.ExtendedIterator;
 import com.hp.hpl.jena.util.iterator.Filter;
 import com.hp.hpl.jena.util.iterator.MapFilter;
 import com.hp.hpl.jena.util.iterator.MapFilterIterator;
+import com.hp.hpl.jena.util.iterator.NullIterator;
 import com.hp.hpl.jena.vocabulary.DC;
+import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class LabelUtils
@@ -107,15 +115,19 @@ public class LabelUtils
 				if (fragment != null)
 					return fragment;
 				
-				String path = uri.getPath();
-				if (path != null) {
-					if (StringUtils.contains(path, "/"))
-						return StringUtils.substringAfterLast(path, "/");
-					else if (StringUtils.contains(path, ":"))
-						return StringUtils.substringAfterLast(path, ":");
-					else
-						return path;
+				String path = StringUtils.defaultString(uri.getPath(), uri.toASCIIString());
+				try {
+					path = URLDecoder.decode(path, "UTF-8");
+				} catch (UnsupportedEncodingException e) {
+					// I don't think this should happen...
+					log.error(String.format("error URL-decoding %s", path), e);
 				}
+				if (StringUtils.contains(path, "/"))
+					return StringUtils.substringAfterLast(path, "/");
+				else if (StringUtils.contains(path, ":"))
+					return StringUtils.substringAfterLast(path, ":");
+				else
+					return path;
 			} catch (URISyntaxException e) {
 				// I don't think this should happen...
 				log.error(String.format("failed to parse URI %s", subject.getURI()), e);
@@ -123,8 +135,8 @@ public class LabelUtils
 		}
 		
 		// if we get here, there was no URI or we couldn't parse it...
-		if (subject.canAs(Restriction.class))
-			return OwlUtils.getRestrictionString(subject.as(Restriction.class));
+		if (subject.canAs(OntClass.class))
+			return LabelUtils.getClassString(subject.as(OntClass.class));
 		
 		return subject.toString();
 	}
@@ -165,7 +177,115 @@ public class LabelUtils
 		return match;
 	}
 	
-    /**
+	/**
+	 * Returns a label for the specified RDF node.
+	 * @param node the RDF node
+	 * @return a label for the RDF node
+	 */
+	public static String toString(RDFNode node)
+	{
+		if (node.isResource())
+			return getLabel(node.asResource());
+		else
+			return node.toString();
+	}
+
+	/**
+	 * Returns a description of the specified OWL restriction
+	 * @param r the OWL restriction
+	 * @return a description of the OWL restriction
+	 */
+	public static String getRestrictionString(Restriction r)
+	{
+		StringBuilder buf = new StringBuilder();
+		try {
+			buf.append(getLabel(r.getOnProperty()));
+		} catch (ConversionException e) {
+			/* if the property is undefined in the ontology model, we won't
+			 * get an OntProperty; in this case, we should be able to get a
+			 * Property by finding the value of OWL.onProperty...
+			 *  this happens if the property is undefined in the ontology model...
+			 */
+			if (r.hasProperty(OWL.onProperty))
+				buf.append(toString(r.getProperty(OWL.onProperty).getObject()));
+			else
+				buf.append("unknown property");
+		}
+		if (r.isMinCardinalityRestriction()) {
+			buf.append(" min ");
+			buf.append(r.asMinCardinalityRestriction().getMinCardinality());
+		} else if (r.isMaxCardinalityRestriction()) {
+			buf.append(" max ");
+			buf.append(r.asMaxCardinalityRestriction().getMaxCardinality());
+		} else if (r.isCardinalityRestriction()) {
+			buf.append(" exactly ");
+			buf.append(r.asCardinalityRestriction().getCardinality());
+		}
+		if (r.isAllValuesFromRestriction()) {
+			buf.append(" only ");
+			buf.append(getLabel(r.asAllValuesFromRestriction().getAllValuesFrom()));
+		} else if (r.isSomeValuesFromRestriction()) {
+			buf.append(" some ");
+			buf.append(getLabel(r.asSomeValuesFromRestriction().getSomeValuesFrom()));
+		} else if (r.isHasValueRestriction()) {
+			buf.append(" value ");
+			buf.append(toString(r.asHasValueRestriction().getHasValue()));
+		}
+		return buf.toString();
+	}
+	
+	public static String getClassString(OntClass c)
+	{
+		String s = "unknown class";
+		if (c.isRestriction())
+			s = LabelUtils.getRestrictionString(c.asRestriction());
+		else if (c.isUnionClass())
+			s = joinOperands(" or ", c.asUnionClass().getOperands());
+		else if (c.isIntersectionClass())
+			s = joinOperands(" and ", c.asIntersectionClass().getOperands());
+		else if (c.isComplementClass())
+			s = String.format("not %s", getLabel(c.asComplementClass().getOperand()));
+		else if (c.isDataRange())
+			s = String.format("one of %s", joinOperands(", ", c.asDataRange().getOneOf()));
+		return String.format("(%s)", s);
+	}
+	
+	static String joinOperands(String conjunction, RDFList operands)
+    {
+    	/* sort the operands so that our labels are predictable...
+    	 */
+    	List<String> labels = new MapFilterIterator<RDFNode, String>(rdfNodeToStringFilter, operands.iterator()).toList();
+    	Collections.sort(labels, labelComparator);
+		return StringUtils.join(labels, conjunction);
+	}
+    private static final Comparator<String> labelComparator = new LabelComparator();
+    private static final class LabelComparator implements Comparator<String>
+    {
+		@Override
+		public int compare(String s1, String s2)
+		{
+			int n1=s1.length(), n2=s2.length();
+            for (int i1=0, i2=0; i1<n1 && i2<n2; i1++, i2++) {
+                char c1 = s1.charAt(i1);
+                char c2 = s2.charAt(i2);
+                if (c1 != c2) {
+                	if (Character.isLetterOrDigit(c1)) {
+                		if (!Character.isLetterOrDigit(c2)) {
+                			return -1; // c1 is alphanumeric, c2 is not
+                		}
+                	} else {
+                		if (Character.isLetterOrDigit(c2)) {
+                			return 1; // c2 is alphanumeric, c1 is not
+                		}
+                	}
+                    return c1 - c2;
+                }
+            }
+            return n1 - n2;
+		}
+    }
+
+	/**
      * Answer true if the desired lang tag matches the target lang tag.
      * {@link com.hp.hpl.jena.ontology.impl.OntResourceImpl#langTagMatch(String, String)}
      * is protected so we have to re-implement here...
@@ -196,7 +316,9 @@ public class LabelUtils
     
 	static ExtendedIterator<Label> getLabelIterator(Resource subject, String lang)
 	{
-		if (subject instanceof OntResource) {
+		if (subject.getModel() == null) {
+			return new NullIterator<Label>();
+		} else if (subject instanceof OntResource) {
 			return new MapFilterIterator<RDFNode, Label>(literalToLabelFilter, 
 					((OntResource)subject).listLabels(lang));
 		} else {
@@ -207,7 +329,9 @@ public class LabelUtils
 	
 	static ExtendedIterator<Label> getDescriptionIterator(Resource subject, String lang)
 	{
-		if (subject instanceof OntResource) {
+		if (subject.getModel() == null) {
+			return new NullIterator<Label>();
+		} else if (subject instanceof OntResource) {
 			return new MapFilterIterator<RDFNode, Label>(literalToLabelFilter, ((OntResource)subject).listComments(lang));
 		} else {
 			return new MapFilterIterator<Statement, Label>(new StatementToLabelFilter(lang), 
@@ -273,6 +397,16 @@ public class LabelUtils
 		public String accept(Label label)
 		{
 			return label.getText();
+		}
+	}
+	
+	private static RDFNodeToStringFilter rdfNodeToStringFilter = new RDFNodeToStringFilter();
+	private static final class RDFNodeToStringFilter implements MapFilter<RDFNode, String>
+	{
+		@Override
+		public String accept(RDFNode node)
+		{
+			return LabelUtils.toString(node);
 		}
 	}
 	

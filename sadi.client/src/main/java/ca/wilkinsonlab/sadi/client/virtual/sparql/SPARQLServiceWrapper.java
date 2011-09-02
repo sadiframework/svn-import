@@ -4,25 +4,28 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
+import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.beans.RestrictionBean;
 import ca.wilkinsonlab.sadi.client.Config;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
+import ca.wilkinsonlab.sadi.utils.LabelUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
-import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.graph.test.NodeCreateUtils;
 import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.OWL;
 
 /**
  * A proxy object which exposes a SPARQL endpoint as a Service.
@@ -70,24 +73,27 @@ public class SPARQLServiceWrapper implements Service
 	}
 	
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#getServiceURI()
+	 * @see ca.wilkinsonlab.sadi.ServiceDescription#getURI()
 	 */
-	public String getURI() {
+	@Override
+	public String getURI()
+	{
 		return getEndpoint().getURI();
 	}
 	
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#getName()
+	 * @see ca.wilkinsonlab.sadi.ServiceDescription#getName()
 	 */
-	public String getName() {
+	public String getName()
+	{
 		return getURI();
 	}
 
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#getDescription()
+	 * @see ca.wilkinsonlab.sadi.ServiceDescription#getDescription()
 	 */
-	public String getDescription() {
-		// TODO Auto-generated method stub
+	public String getDescription()
+	{
 		return null;
 	}
 		
@@ -96,7 +102,7 @@ public class SPARQLServiceWrapper implements Service
 	 */
 	public OntClass getInputClass()
 	{
-		return OwlUtils.getOWLModel().getOntClass(OWL.Nothing.getURI());
+		return OwlUtils.OWL_Nothing;
 	}
 
 	/* (non-Javadoc)
@@ -104,37 +110,43 @@ public class SPARQLServiceWrapper implements Service
 	 */
 	public OntClass getOutputClass()
 	{
-		return OwlUtils.getOWLModel().getOntClass(OWL.Nothing.getURI());
+		return OwlUtils.OWL_Nothing;
 	}
 
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource)
 	 */
-	public Collection<Triple> invokeService(Resource inputNode) throws ServiceInvocationException {
-		return invokeServiceOnRDFNode(inputNode);
-	}
-
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection)
-	 */
-	public Collection<Triple> invokeService(Collection<Resource> inputNodes) throws ServiceInvocationException {
-		return invokeServiceOnRDFNodes(inputNodes);
-	}
-
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(com.hp.hpl.jena.rdf.model.Resource, java.lang.String)
-	 */
-	public Collection<Triple> invokeService(Resource inputNode, String predicate) throws ServiceInvocationException {
-		return invokeServiceOnRDFNode(inputNode, predicate);
-	}
-
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection, java.lang.String)
-	 */
-	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate) throws ServiceInvocationException
+	@Override
+	public Model invokeService(Resource inputNode) throws ServiceInvocationException
 	{
-		return invokeServiceOnRDFNodes(inputNodes, predicate);
+		return invokeService(Collections.singleton(inputNode));
 	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.lang.Iterable)
+	 */
+	@Override
+	public Model invokeService(Iterable<Resource> inputNodes) throws ServiceInvocationException
+	{
+		return invokeService(inputNodes.iterator());
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Iterator)
+	 */
+	@Override
+	public Model invokeService(Iterator<Resource> inputNodes) throws ServiceInvocationException
+	{
+		return invokeServiceOnRDFNodes(inputNodes, ModelFactory.createDefaultModel());
+	}
+
+//	/* (non-Javadoc)
+//	 * @see ca.wilkinsonlab.sadi.client.Service#invokeService(java.util.Collection, java.lang.String)
+//	 */
+//	public Collection<Triple> invokeService(Collection<Resource> inputNodes, String predicate) throws ServiceInvocationException
+//	{
+//		return invokeServiceOnRDFNodes(inputNodes, predicate);
+//	}
 
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.Service#isInputInstance(com.hp.hpl.jena.rdf.model.Resource)
@@ -187,55 +199,56 @@ public class SPARQLServiceWrapper implements Service
 
 
 	
-	protected Collection<Triple> invokeServiceOnRDFNode(RDFNode inputURIorLiteral) throws ServiceInvocationException
+	protected Model invokeServiceOnRDFNode(RDFNode inputURIorLiteral, Model accum) throws ServiceInvocationException
 	{
 		try {
 			Triple queryPattern = getTriplePatternRepresentingServiceInvocation(inputURIorLiteral);
 			String query = SPARQLStringUtils.getConstructQueryString(Collections.singletonList(queryPattern), Collections.singletonList(queryPattern));
-			return filterOutTriplesWithBlankNodes(getEndpoint().constructQuery(query));
+			// blank nodes should be okay if we're using a model...
+//			return filterOutTriplesWithBlankNodes(getEndpoint().constructQuery(query, model));
+			return getEndpoint().constructQuery(query, accum);
 		} catch (IOException e) {
 			throw new ServiceInvocationException(e.getMessage(),e);
 		}
 	}
 	
-	protected Collection<Triple> invokeServiceOnRDFNode(RDFNode inputURIorLiteral, String predicate) throws ServiceInvocationException 
+	protected Model invokeServiceOnRDFNode(RDFNode inputURIorLiteral, String predicate, Model accum) throws ServiceInvocationException 
 	{
 		try {
 			Triple queryPattern = getTriplePatternRepresentingServiceInvocation(inputURIorLiteral, predicate);
 			String query = SPARQLStringUtils.getConstructQueryString(Collections.singletonList(queryPattern), Collections.singletonList(queryPattern));
-			return filterOutTriplesWithBlankNodes(getEndpoint().constructQuery(query));
+			// blank nodes should be okay if we're using a model...
+//			return filterOutTriplesWithBlankNodes(getEndpoint().constructQuery(query));
+			return getEndpoint().constructQuery(query, accum);
 		} catch (IOException e) {
 			throw new ServiceInvocationException(e.getMessage());
 		}
 	}
 
-	public Collection<Triple> invokeServiceOnRDFNodes(Collection<? extends RDFNode> inputNodes) throws ServiceInvocationException 
+	public Model invokeServiceOnRDFNodes(Iterator<? extends RDFNode> inputNodes, Model accum) throws ServiceInvocationException 
 	{
-		Collection<Triple> triples; 
-
-		if(inputNodes.size() > 1 && !getEndpoint().ping()) {
+		if(!getEndpoint().ping()) {
 			throw new ServiceInvocationException("SPARQL endpoint not responding: " + getEndpoint());
 		}
 
 		if(getBatchQueries()) {
 			Collection<String> queries = new ArrayList<String>();
-			for(RDFNode inputNode : inputNodes) {
-				queries.add(getConstructQuery(inputNode));
+			while (inputNodes.hasNext()) {
+				queries.add(getConstructQuery(inputNodes.next()));
 			}
-			triples = batchConstructQueries(queries);
+			batchConstructQueries(queries, accum);
 		} else {
-			triples = new ArrayList<Triple>();
-			for (RDFNode inputNode: inputNodes) {
-				triples.addAll(invokeServiceOnRDFNode(inputNode));
+			while (inputNodes.hasNext()) {
+				invokeServiceOnRDFNode(inputNodes.next(), accum);
 			}
 		}
-		return filterOutTriplesWithBlankNodes(triples);
+		// blank nodes should be okay if we're using a model...
+//		return filterOutTriplesWithBlankNodes(triples);
+		return accum;
 	}
 
-	public Collection<Triple> invokeServiceOnRDFNodes(Collection<? extends RDFNode> inputNodes, String predicate) throws ServiceInvocationException 
+	public Model invokeServiceOnRDFNodes(Collection<? extends RDFNode> inputNodes, String predicate, Model accum) throws ServiceInvocationException 
 	{
-		Collection<Triple> triples; 
-		
 		if(inputNodes.size() > 1 && !getEndpoint().ping()) {
 			throw new ServiceInvocationException("SPARQL endpoint not responding: " + getEndpoint());
 		}
@@ -245,32 +258,34 @@ public class SPARQLServiceWrapper implements Service
 			for(RDFNode inputNode : inputNodes) {
 				queries.add(getConstructQuery(inputNode, predicate));
 			}
-			triples = batchConstructQueries(queries);
+			batchConstructQueries(queries, accum);
 		} else {
-			triples = new ArrayList<Triple>();
 			for (RDFNode inputNode: inputNodes) {
-				triples.addAll(invokeServiceOnRDFNode(inputNode, predicate));
+				invokeServiceOnRDFNode(inputNode, predicate, accum);
 			}
 		}
-		return filterOutTriplesWithBlankNodes(triples);
+		// blank nodes should be okay if we're using a model...
+//		return filterOutTriplesWithBlankNodes(triples);
+		return accum;
 	}
 	
-	protected Collection<Triple> batchConstructQueries(Collection<String> queries) throws ServiceInvocationException
+	protected Model batchConstructQueries(Collection<String> queries, Model accum) throws ServiceInvocationException
 	{
 		Collection<ConstructQueryResult> results = getEndpoint().constructQueryBatch(queries);
 		
-		Model mergedModel = ModelFactory.createDefaultModel();
 		for(ConstructQueryResult result : results) {
 			/* 
 			 * The result model may be null if an exception occurred during the query,
 			 * before any partial results could be retrieved.
 			 */
-			if(result.getResultModel() != null) {		
-				mergedModel.add(result.getResultModel());
+			if(result.getResultModel() != null) {	
+				accum.add(result.getResultModel());
 			}
 		}
 
-		return filterOutTriplesWithBlankNodes(RdfUtils.modelToTriples(mergedModel));
+		// blank nodes should be okay if we're using a model...
+//		return filterOutTriplesWithBlankNodes(RdfUtils.modelToTriples(mergedModel));
+		return accum;
 	}
 	
 	@Override
@@ -351,6 +366,33 @@ public class SPARQLServiceWrapper implements Service
 	}
 
 	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.ServiceDescription#getServiceProvider()
+	 */
+	@Override
+	public String getServiceProvider()
+	{
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.ServiceDescription#getContactEmail()
+	 */
+	@Override
+	public String getContactEmail()
+	{
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.ServiceDescription#isAuthoritative()
+	 */
+	@Override
+	public boolean isAuthoritative()
+	{
+		return false;
+	}
+
+	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.Service#getInputClassURI()
 	 */
 	@Override
@@ -360,11 +402,65 @@ public class SPARQLServiceWrapper implements Service
 	}
 
 	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getInputClassLabel()
+	 */
+	@Override
+	public String getInputClassLabel()
+	{
+		return LabelUtils.getLabel(getInputClass());
+	}
+
+	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.client.Service#getOutputClassURI()
 	 */
 	@Override
 	public String getOutputClassURI()
 	{
 		return getOutputClass().getURI();
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getOutputClassLabel()
+	 */
+	@Override
+	public String getOutputClassLabel()
+	{
+		return LabelUtils.getLabel(getOutputClass());
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.ServiceDescription#getRestrictionBeans()
+	 */
+	@Override
+	public Collection<RestrictionBean> getRestrictionBeans()
+	{
+		return Collections.emptyList();
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.ServiceDescription#getParameterClassURI()
+	 */
+	@Override
+	public String getParameterClassURI()
+	{
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.ServiceDescription#getParameterClassLabel()
+	 */
+	@Override
+	public String getParameterClassLabel()
+	{
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.client.Service#getRestrictions()
+	 */
+	@Override
+	public Collection<Restriction> getRestrictions() throws SADIException
+	{
+		return Collections.emptyList();
 	}
 }
