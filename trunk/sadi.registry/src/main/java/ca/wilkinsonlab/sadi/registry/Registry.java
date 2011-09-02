@@ -378,6 +378,8 @@ public class Registry
 	private void attachMetaData(Resource serviceNode, Service service) throws SADIException
 	{
 		for (Restriction restriction: service.getRestrictions()) {
+			/* TODO skip restrictions that will become duplicates...
+			 */
 			attachRestriction(serviceNode, restriction);
 		}
 		Resource reg = serviceNode.getModel().createResource();
