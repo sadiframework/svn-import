@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Collection;
 import java.util.Map;
 
@@ -15,6 +17,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.log4j.Logger;
 
+import ca.wilkinsonlab.sadi.utils.ContentType;
 import ca.wilkinsonlab.sadi.utils.JsonUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
@@ -76,15 +79,13 @@ public class HttpUtils
 	throws IOException
 	{
 		log.trace(String.format("posting RDF data to %s", url));
-		
-		URLConnection conn = url.openConnection();
-		conn.setDoOutput(true);
-		java.io.OutputStream os = conn.getOutputStream();
-		data.write(os);
-		os.flush();
-		os.close();
-	    
-		return conn.getInputStream();
+		ContentType rdfXML = ContentType.RDF_XML;
+		PipedInputStream in = new PipedInputStream();
+		PipedOutputStream out = new PipedOutputStream(in);
+		new Thread(new ModelWriter(data, out, rdfXML.getJenaLanguage())).start();
+		PostRequest req = new PostRequest(url, in, rdfXML.getHTTPHeader());
+		XLightwebHttpClient client = new XLightwebHttpClient();
+		return client.POST(req);
 	}
 	
 	public static Object postAndFetchJson(URL url, Map<String, String> params)
@@ -144,6 +145,37 @@ public class HttpUtils
 		public int getStatusCode()
 		{
 			return statusCode;
+		}
+	}
+	
+	/**
+	 * @author Luke McCarthy
+	 */
+	public static final class ModelWriter implements Runnable
+	{
+		private static final Logger log = Logger.getLogger(ModelWriter.class);
+		
+		private Model model;
+		private OutputStream out;
+		private String lang;
+		
+		public ModelWriter(Model model, OutputStream out, String lang)
+		{
+			this.model = model;
+			this.out = out;
+			this.lang = lang;
+		}
+
+		@Override
+		public void run()
+		{
+			model.write(out, lang);
+			try {
+				out.flush();				
+				out.close();
+			} catch (IOException e) {
+				log.error(e.toString(), e);
+			}
 		}
 	}
 }
