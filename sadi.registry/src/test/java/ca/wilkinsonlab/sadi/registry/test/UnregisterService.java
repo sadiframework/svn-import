@@ -10,13 +10,28 @@ import com.hp.hpl.jena.vocabulary.OWL;
 
 public class UnregisterService
 {
-	public static void main(String[] args) throws SADIException
+	public static void main(String[] args)
 	{
-		String serviceURI = "http://131.156.145.69:8080/WSDL2SADI-0.0.1-SNAPSHOT/SAWSDL2SADIServlet/getDataSet_input";
-		Registry registry = Registry.getRegistry();
-		Resource serviceNode = registry.getModel().getResource(serviceURI);
-		exploreService(serviceNode);
-		registry.unregisterService(serviceURI);
+		try {
+			unregisterServices(Registry.getRegistry(), args);
+		} catch (SADIException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
+		
+	private static void unregisterServices(Registry registry, String[] uris)
+	{
+		for (String serviceURI: uris) {
+			System.out.println("unregistering " + serviceURI);
+			Resource serviceNode = registry.getModel().getResource(serviceURI);
+			try {
+				exploreService(serviceNode);
+				registry.unregisterService(serviceURI);
+			} catch (Exception e) {
+				System.err.println(String.format("error unregistering service %s: %s", serviceURI, e.toString()));
+			}
+		}
 	}
 	
 	private static void exploreService(Resource serviceNode)
