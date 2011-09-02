@@ -29,7 +29,7 @@
         <owl:imports rdf:resource="http://purl.org/obo/owl/sequence"/>
         <owl:imports rdf:resource="http://sadiframework.org/ontologies/properties.owl"/>
         <owl:imports rdf:resource="http://sadiframework.org/ontologies/GMOD/Feature.owl"/>
-        <owl:imports rdf:resource="http://sadiframework.org/ontologies/Strand.owl"/>
+        <owl:imports rdf:resource="http://sadiframework.org/ontologies/GMOD/Strand.owl"/>
     </owl:Ontology>
 
     <!-- 
