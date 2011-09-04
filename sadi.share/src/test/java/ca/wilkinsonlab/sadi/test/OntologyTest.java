@@ -44,6 +44,7 @@ public class OntologyTest
 					new TransitiveEquivalentPropertiesTest(ontModel),
 					new MultipleEquivalentPropertiesTest(ontModel),
 					new InferredInversePropertiesTest(ontModel),
+					new InferredSubpropertiesFromEquivalentPropertiesTest(ontModel),
 			};
 			
 			for(OntModelTest test : tests) {
@@ -248,6 +249,52 @@ public class OntologyTest
 			}
 			
 			return false;
+		}
+	}
+	
+	public static class InferredSubpropertiesFromEquivalentPropertiesTest extends OntModelTest {
+		
+		public InferredSubpropertiesFromEquivalentPropertiesTest(OntModel ontModel) {
+			super(ontModel, "inferred subproperties from equivalent properties test");
+		}
+		
+		@Override
+		public boolean runTest() {
+			
+			OntModel model = getOntModel();
+			
+			/*
+			 * Ontology contents:
+			 * 
+			 * => property A is equivalent to property B
+			 * => property C is a subproperty of property B
+			 * 
+			 * Test: 
+			 * 
+			 * => Is property B a subproperty of property A?
+			 * => Is property C a subproperty of property A?
+			 */
+			
+			
+			String ontologyFile = InferredSubpropertiesFromEquivalentPropertiesTest.class.getResource("inferred.subproperties.from.equivalent.properties.test.owl").toString();
+			model.read(ontologyFile, ONTOLOGY_PREFIX, "RDF/XML");
+				
+			OntProperty propertyA = model.getOntProperty(ONTOLOGY_PREFIX + "#A");
+			OntProperty propertyB = model.getOntProperty(ONTOLOGY_PREFIX + "#B");
+			OntProperty propertyC = model.getOntProperty(ONTOLOGY_PREFIX + "#C");
+			
+			boolean gotPropertyB = false;
+			boolean gotPropertyC = false;
+			
+			for(OntProperty subproperty : propertyA.listSubProperties().toList()) {
+				if(subproperty.equals(propertyB)) {
+					gotPropertyB = true;
+				} else if (subproperty.equals(propertyC)) {
+					gotPropertyC = true;
+				}
+			}
+			
+			return (gotPropertyB && gotPropertyC);
 		}
 	}
 	
