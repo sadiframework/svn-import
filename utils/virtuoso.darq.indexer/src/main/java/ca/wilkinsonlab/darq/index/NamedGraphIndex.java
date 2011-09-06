@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.utils.darq.index;
+package ca.wilkinsonlab.darq.index;
 
 import java.util.HashMap;
 

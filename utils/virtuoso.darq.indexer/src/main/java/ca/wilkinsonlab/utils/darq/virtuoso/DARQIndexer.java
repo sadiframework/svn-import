@@ -14,11 +14,11 @@ import virtuoso.jena.driver.VirtModel;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
+import ca.wilkinsonlab.darq.index.Capability;
+import ca.wilkinsonlab.darq.index.NamedGraphIndex;
+import ca.wilkinsonlab.darq.index.ServiceDescription;
 import ca.wilkinsonlab.utils.URIUtils;
 import ca.wilkinsonlab.utils.VirtuosoUtils;
-import ca.wilkinsonlab.utils.darq.index.Capability;
-import ca.wilkinsonlab.utils.darq.index.NamedGraphIndex;
-import ca.wilkinsonlab.utils.darq.index.ServiceDescription;
 import ca.wilkinsonlab.vocab.DARQ;
 import ca.wilkinsonlab.vocab.DARQExt;
 
