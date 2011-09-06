@@ -1,4 +1,4 @@
-package distributedsparql.index;
+package ca.wilkinsonlab.utils.darq.index;
 
 import java.util.HashMap;
 

@@ -1,10 +1,11 @@
-package distributedsparql.utils;
+package ca.wilkinsonlab.utils;
 
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import distributedsparql.utils.URIUtils;
+import ca.wilkinsonlab.utils.URIUtils;
+
 
 public class URIUtilsTest 	
 {

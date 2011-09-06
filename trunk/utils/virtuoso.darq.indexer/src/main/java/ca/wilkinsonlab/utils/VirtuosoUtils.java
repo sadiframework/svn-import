@@ -1,10 +1,12 @@
-package distributedsparql.utils.virtuoso;
+package ca.wilkinsonlab.utils;
 
 import virtuoso.jdbc3.VirtuosoException;
 import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtModel;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
+
+import ca.wilkinsonlab.vocab.DARQ;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
@@ -15,7 +17,6 @@ import com.hp.hpl.jena.rdf.model.impl.StatementImpl;
 import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.shared.UpdateDeniedException;
 
-import distributedsparql.vocab.DARQ;
 
 public class VirtuosoUtils 
 {

@@ -1,4 +1,4 @@
-package distributedsparql.utils.virtuoso;
+package ca.wilkinsonlab.utils.darq.virtuoso;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -14,6 +14,14 @@ import virtuoso.jena.driver.VirtModel;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
 
+import ca.wilkinsonlab.utils.URIUtils;
+import ca.wilkinsonlab.utils.VirtuosoUtils;
+import ca.wilkinsonlab.utils.darq.index.Capability;
+import ca.wilkinsonlab.utils.darq.index.NamedGraphIndex;
+import ca.wilkinsonlab.utils.darq.index.ServiceDescription;
+import ca.wilkinsonlab.vocab.DARQ;
+import ca.wilkinsonlab.vocab.DARQExt;
+
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
 import com.hp.hpl.jena.query.QuerySolution;
@@ -22,12 +30,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-import distributedsparql.index.Capability;
-import distributedsparql.index.NamedGraphIndex;
-import distributedsparql.index.ServiceDescription;
-import distributedsparql.utils.URIUtils;
-import distributedsparql.vocab.DARQ;
-import distributedsparql.vocab.DARQExt;
 
 
 public class DARQIndexer 
