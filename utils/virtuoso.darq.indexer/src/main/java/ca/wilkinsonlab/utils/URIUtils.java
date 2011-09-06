@@ -1,4 +1,4 @@
-package distributedsparql.utils;
+package ca.wilkinsonlab.utils;
 
 import org.apache.commons.lang.StringUtils;
 

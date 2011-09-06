@@ -1,15 +1,16 @@
-package distributedsparql.index;
+package ca.wilkinsonlab.utils.darq.index;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import ca.wilkinsonlab.vocab.DARQ;
+import ca.wilkinsonlab.vocab.DARQExt;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
-import distributedsparql.vocab.DARQ;
-import distributedsparql.vocab.DARQExt;
 
 
 public class ServiceDescription 

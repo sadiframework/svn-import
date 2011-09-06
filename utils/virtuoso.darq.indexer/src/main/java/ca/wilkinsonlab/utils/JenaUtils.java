@@ -1,4 +1,4 @@
-package distributedsparql.utils;
+package ca.wilkinsonlab.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
