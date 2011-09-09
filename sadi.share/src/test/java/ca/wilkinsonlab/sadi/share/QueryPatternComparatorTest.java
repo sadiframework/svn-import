@@ -22,6 +22,7 @@ import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceBase;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.stats.PredicateStatsDB;
+import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.graph.Triple;
@@ -363,9 +364,9 @@ public class QueryPatternComparatorTest
 		}
 		
 		@Override
-		public Collection<Service> findServicesByPredicate(String predicate) 
+		public Collection<Service> findServicesByAttachedProperty(Property predicate) 
 		{
-			if(isResolvable.containsKey(predicate) && (isResolvable.get(predicate) == true)) {
+			if(isResolvable.containsKey(predicate.getURI()) && (isResolvable.get(predicate.getURI()) == true)) {
 				return Collections.singleton((Service)(new DummyService()));
 			}
 			
@@ -413,12 +414,12 @@ public class QueryPatternComparatorTest
 
 			@Override
 			public OntClass getInputClass() throws SADIException {
-				throw new UnsupportedOperationException();
+				return OwlUtils.OWL_Nothing;
 			}
 
 			@Override
 			public OntClass getOutputClass() throws SADIException {
-				throw new UnsupportedOperationException();
+				return OwlUtils.OWL_Nothing;
 			}
 
 			@Override
