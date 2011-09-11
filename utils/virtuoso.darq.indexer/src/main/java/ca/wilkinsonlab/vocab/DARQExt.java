@@ -12,7 +12,7 @@ public class DARQExt
 {
 	private static final Model model = ModelFactory.createDefaultModel();
 	
-	public static final String URI_PREFIX = "http://biordf.net/darq-extensions.owl#";
+	public static final String URI_PREFIX = "http://sadiframework.org/ontologies/DARQ/darq-extensions.owl#";
 	
 	public static final Property graph = model.createProperty(String.format("%sgraph", URI_PREFIX));
 	public static final Property URI = model.createProperty(String.format("%sURI", URI_PREFIX));
