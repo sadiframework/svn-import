@@ -28,8 +28,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-
-
 public class DARQIndexer 
 {
 	protected static final Logger log = Logger.getLogger(DARQIndexer.class);
@@ -174,6 +172,8 @@ public class DARQIndexer
 	) 
 	{
 
+		log.info(String.format("indexing Virtuoso SPARQL endpoint at %s:%d", host, port));
+		
 		ServiceDescription serviceDescription = new ServiceDescription(label, description, resultsLimit);
 		
 		/*
