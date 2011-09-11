@@ -13,14 +13,12 @@ import virtuoso.jena.driver.VirtGraph;
 import virtuoso.jena.driver.VirtModel;
 import virtuoso.jena.driver.VirtuosoQueryExecution;
 import virtuoso.jena.driver.VirtuosoQueryExecutionFactory;
-
 import ca.wilkinsonlab.darq.index.Capability;
 import ca.wilkinsonlab.darq.index.NamedGraphIndex;
 import ca.wilkinsonlab.darq.index.ServiceDescription;
 import ca.wilkinsonlab.utils.URIUtils;
 import ca.wilkinsonlab.utils.VirtuosoUtils;
 import ca.wilkinsonlab.vocab.DARQ;
-import ca.wilkinsonlab.vocab.DARQExt;
 
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
@@ -147,7 +145,8 @@ public class DARQIndexer
 		log.info(String.format("successfully indexed %d triples in %d named graphs", serviceDescription.numTriples, serviceDescription.namedGraphs.keySet().size()));
 		log.info(String.format("wrote updated index to named graph <%s>", DARQ.serviceDescriptionGraph));
 
-		
+		/* FOR DEBUGGING
+		 
 		Model model = serviceDescription.asModel();
 		
 		model.setNsPrefix("sd", DARQ.URI_PREFIX);
@@ -156,6 +155,7 @@ public class DARQIndexer
 		model.write(System.out, "TTL");
 		System.out.flush();
 		
+		*/
 		
 		System.exit(EXIT_CODE_SUCCESS);
 		
