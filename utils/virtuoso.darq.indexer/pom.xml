@@ -30,7 +30,7 @@
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>distributedsparql.utils.virtuoso.DARQIndexer</mainClass>
+									<mainClass>ca.wilkinsonlab.utils.darq.virtuoso.DARQIndexer</mainClass>
 								</transformer>
 							</transformers>
 						</configuration>
