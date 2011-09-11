@@ -43,7 +43,7 @@
                         <owl:onProperty rdf:resource="&sio;SIO_000245"/>  <!-- 'derives into' -->
                         <owl:someValuesFrom rdf:resource="&feature;Feature"/> <!-- 'sequence feature' -->
                     </owl:Restriction>
-                <owl:unionOf>
+                </owl:unionOf>
             </owl:Class>
         </rdfs:subClassOf>
     </owl:Class>
