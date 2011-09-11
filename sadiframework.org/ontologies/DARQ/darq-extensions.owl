@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#">
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#">
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#">
+    <!ENTITY darq "http://darq.sf.net/dose/0.1#">
+]>
+
+<rdf:RDF
+     xmlns:owl="&owl;"
+     xmlns:rdf="&rdf;"
+     xmlns:rdfs="&rdfs;"
+     xmlns:xsd="&xsd;"
+     xmlns:darq="&darq;"
+>
+     
+    <owl:Ontology rdf:about="">
+        <rdfs:comment xml:lang="en">Extensions to the DARQ SPARQL Service Description Ontology</rdfs:comment>
+        <owl:versionInfo xml:lang="en">v0.0.1</owl:versionInfo>
+    </owl:Ontology>
+
+    <!-- 
+    *********************************************
+    * Properties describing an endpoint
+    ********************************************* 
+    -->
+
+    <owl:ObjectProperty rdf:about="#graph">
+        <rdfs:comment xml:lang="en">connects root of DARQ service description to a named graph node</rdfs:comment>
+        <rdfs:domain rdf:resource="&darq;Service"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="#resultsLimit">
+        <rdfs:comment xml:lang="en">indicates the maximum number of rows/triples returned by a SELECT/CONSTRUCT query to the endpoint</rdfs:comment>
+        <rdfs:domain rdf:resource="&darq;Service"/>
+    </owl:ObjectProperty>
+
+    <!-- 
+    *********************************************
+    * Properties describing an named graph within 
+    * the endpoint
+    ********************************************* 
+    -->
+
+    <owl:ObjectProperty rdf:about="#URI">
+        <rdfs:comment xml:lang="en">connects a named graph node to the URI for the named graph</rdfs:comment>
+    </owl:ObjectProperty>
+
+    <!-- 
+    *********************************************
+    * Properties describing a predicate within
+    * a named graph (in DARQ lingo, a 'capability')
+    ********************************************* 
+    -->
+
+    <!-- 
+    Note: multiple regexes and rdf:types for the
+    subject/object of the same predicate are logically
+    ORed together
+    -->
+
+    <owl:ObjectProperty rdf:about="#subjectRegex"/>
+    <owl:ObjectProperty rdf:about="#objectRegex"/>
+    <owl:ObjectProperty rdf:about="#subjectType"/>
+    <owl:ObjectProperty rdf:about="#objectType"/>
+
+</rdf:RDF>
