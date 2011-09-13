@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-common</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.2.1-SNAPSHOT</version>
   <parent>
     <groupId>ca.wilkinsonlab.sadi</groupId>
     <artifactId>sadi-parent</artifactId>
@@ -43,20 +43,6 @@
      xlightweb doesn't do basic authentication, so we still need both libraries for now...
      (also, we use URI and URIException that come proximately from commons-httpclient...)
      -->
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.1</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.xlightweb</groupId>
-    	<artifactId>xlightweb</artifactId>
-    	<!--
-    	 xlightweb has a dependency with a version range that breaks Raven,
-    	 Taverna's runtime Maven thingy, so we've had to deploy our own version...
-    	 -->
-    	<version>2.10-taverna</version>
-    </dependency>
     
     <dependency>
       <groupId>com.hp.hpl.jena</groupId>
@@ -110,6 +96,11 @@
       <artifactId>junit</artifactId>
       <version>4.1</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+    	<groupId>org.apache.httpcomponents</groupId>
+    	<artifactId>httpclient</artifactId>
+    	<version>4.1.2</version>
     </dependency>
   </dependencies>
 </project>

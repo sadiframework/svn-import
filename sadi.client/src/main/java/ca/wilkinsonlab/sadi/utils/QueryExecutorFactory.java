@@ -2,6 +2,7 @@ package ca.wilkinsonlab.sadi.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,8 +10,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpResponse;
+
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 import com.hp.hpl.jena.db.DBConnection;
 import com.hp.hpl.jena.db.IDBConnection;
@@ -180,12 +184,23 @@ public class QueryExecutorFactory
 		{
 			Map<String, String> params = getPostParameters(query);
 			params.put("format", "application/rdf+xml");
+			InputStream is = null;
 			try {
+				HttpResponse response = HttpUtils.POST(endpointURL, params);
+				is = response.getEntity().getContent();
+				int statusCode = response.getStatusLine().getStatusCode();
+				if (HttpUtils.isHttpError(statusCode)) {
+					throw new HttpStatusException(statusCode);
+				}
 				Model model = ModelFactory.createDefaultModel();
-				model.read(HttpUtils.POST(endpointURL, params), endpointURL.toString());
+//				model.read(HttpUtils.POST(endpointURL, params), endpointURL.toString());
+				model.read(is, endpointURL.toString());
 				return model;
 			} catch (IOException e) {
 				throw new SADIException(e.toString());
+			} finally {
+				if (is != null)
+					FileUtils.simpleClose(is);
 			}
 		}
 		

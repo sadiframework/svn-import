@@ -5,13 +5,15 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.params.ClientPNames;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.SADIException;
@@ -22,9 +24,9 @@ import ca.wilkinsonlab.sadi.utils.ContentType;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import ca.wilkinsonlab.sadi.utils.http.HttpClient;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
-import ca.wilkinsonlab.sadi.vocab.SADI;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
@@ -305,29 +307,35 @@ public class ServiceImpl extends ServiceBase
 	 * @throws HttpException
 	 * @throws IOException
 	 */
-	static InputStream fetchAsyncData(String url) throws HttpException, IOException
+	static InputStream fetchAsyncData(String url) throws IOException
 	{
+		HttpClient client = new HttpClient();
+		client.getParams().setParameter(ClientPNames.HANDLE_REDIRECTS, false);
+
+		Map<String,String> headers = new HashMap<String,String>();
+		headers.put("Accept", ContentType.RDF_XML.getHTTPHeader());
+		
 		while (true) {
 			log.debug("fetching asynchronous data from " + url);
-			GetMethod method = new GetMethod(url);
-			method.setFollowRedirects(false);
-			method.setRequestHeader("Accept", ContentType.RDF_XML.getHTTPHeader());
-			HttpClient client = new HttpClient();
-			int statusCode = client.executeMethod(method);
+			HttpResponse response = client.GET(new URL(url), null, headers);
+			int statusCode = response.getStatusLine().getStatusCode();
 			if (statusCode == 202 || (statusCode >= 300 && statusCode < 400)) {
+				response.getEntity().getContent().close();
 				long toSleep = 10000; // sleep for ten seconds by default
-				String retryAfter = HttpUtils.getHeaderValue(method, "Retry-After");
+//				String retryAfter = response.getFirstHeader("Retry-After");
+				Header retryAfter = response.getFirstHeader("Retry-After");
 				if (retryAfter != null) {
 					try {
-						toSleep = 1000 * Long.valueOf(retryAfter);
+						toSleep = 1000 * Long.valueOf(retryAfter.getValue());
 					} catch (NumberFormatException e) {
-						log.error(String.format("error parsing value of Retry-After header '%s'", retryAfter), e);
+						log.error(String.format("error parsing value of Retry-After header '%s'", retryAfter.getValue()), e);
 					}
 				}
 				// TODO stop looking for for legacy header at some point?
-				String pleaseWait = HttpUtils.getHeaderValue(method, "Pragma", SADI.ASYNC_HEADER);
+//				String pleaseWait = HttpUtils.getHeaderValue(method, "Pragma", SADI.ASYNC_HEADER);
+				Header pleaseWait = response.getFirstHeader("Pragma");
 				if (pleaseWait != null) {
-					// toSleep = (pleaseWait =~ /\s*=\s*(\d+)/)[0]
+					// toSleep = (pleaseWait =~ /sadi-please-wait\s*=\s*(\d+)/)[0]
 				}
 				try {
 					log.trace("sleeping " + toSleep + "ms before following redirect");
@@ -336,12 +344,15 @@ public class ServiceImpl extends ServiceBase
 					log.warn(e);
 				}
 				// get new location...
-				String newURL = HttpUtils.getHeaderValue(method, "Location");
+//				String newURL = HttpUtils.getHeaderValue(method, "Location");
+				Header newURL = response.getFirstHeader("Location");
 				if (newURL != null)
-					url = newURL;
+					url = newURL.getValue();
 			} else if (statusCode >= 200 && statusCode < 300) {
-				return method.getResponseBodyAsStream();
+//				return method.getResponseBodyAsStream();
+				return response.getEntity().getContent();
 			} else {
+				response.getEntity().getContent().close();
 				throw new HttpStatusException(statusCode);
 			}
 		}

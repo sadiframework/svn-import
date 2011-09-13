@@ -2,7 +2,6 @@ package ca.wilkinsonlab.sadi.service;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 import junit.framework.TestCase;
 
@@ -13,7 +12,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.client.ServiceFactory;
 import ca.wilkinsonlab.sadi.client.ServiceImpl;
+import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.client.testing.ServiceTester;
 import ca.wilkinsonlab.sadi.service.annotations.URI;
 import ca.wilkinsonlab.sadi.utils.ModelDiff;
@@ -59,7 +60,8 @@ public abstract class ServiceServletTestBase extends TestCase
 			try {
 				log.debug("calling service");
 				outputModel = service.invokeServiceUnparsed(testCase.getInputModel());
-			} catch (IOException e) {
+//			} catch (IOException e) {
+			} catch (ServiceInvocationException e) {
 				log.error(String.format("error invoking service %s: %s", service, e.getMessage()), e);
 				++fail;
 				continue;
@@ -126,6 +128,7 @@ public abstract class ServiceServletTestBase extends TestCase
 	
 	protected ServiceImpl getLocalServiceInstance() throws SADIException
 	{
-		return new ServiceImpl(getLocalServiceURL());
+//		return new ServiceImpl(getLocalServiceURL());
+		return (ServiceImpl)ServiceFactory.createService(getLocalServiceURL());
 	}
 }
