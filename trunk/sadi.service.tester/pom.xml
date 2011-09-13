@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-tester</artifactId>
-  <version>0.2.1-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <parent>
     <groupId>ca.wilkinsonlab.sadi</groupId>
@@ -18,7 +18,7 @@
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-client</artifactId>
-      <version>0.2.1-SNAPSHOT</version>
+      <version>0.2.0-SNAPSHOT</version>
     </dependency>
     
     <dependency>

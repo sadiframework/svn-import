@@ -7,7 +7,7 @@
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-share</artifactId>
   <name>SHARE classes</name>
-  <version>0.2.1-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
   <description>The Semantic Health and Research Environment</description>
   <parent>
     <groupId>ca.wilkinsonlab.sadi</groupId>
@@ -87,12 +87,12 @@
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-common</artifactId>
-      <version>0.2.1-SNAPSHOT</version>
+      <version>0.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-client</artifactId>
-      <version>0.2.1-SNAPSHOT</version>
+      <version>0.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
     	<groupId>commons-math</groupId>

@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-examples</artifactId>
-  <version>1.1-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>sadi-examples Maven Webapp</name>
   <description>Sample SADI services</description>
@@ -96,7 +96,7 @@
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-service</artifactId>
-      <version>0.2.1-SNAPSHOT</version>
+      <version>0.2.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
@@ -162,13 +162,13 @@
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-client</artifactId>
-      <version>0.2.1-SNAPSHOT</version>
+      <version>0.2.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-tester</artifactId>
-      <version>0.2.1-SNAPSHOT</version>
+      <version>0.2.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
