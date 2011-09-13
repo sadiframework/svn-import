@@ -4,13 +4,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
+import javax.print.URIException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -20,6 +22,7 @@ import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.sparql.syntax.ElementTriplesBlock;
 import com.hp.hpl.jena.sparql.syntax.TemplateGroup;
+import com.hp.hpl.jena.util.URIref;
 
 /*********************************************************
  * Various routines for building SPARQL query strings
@@ -143,7 +146,6 @@ public class SPARQLStringUtils
 	 * strings into 'template'.
 	 */	
 	public static String strFromTemplate(URL template, String ... substStrings)
-	throws URIException
 	{
 		try {
 			return strFromTemplate(readFully(template), substStrings);
@@ -162,13 +164,19 @@ public class SPARQLStringUtils
 	 * 
 	 * @return a new escaped string.
 	 */
+	
 	public static String escapeURI(String uri)
 	{
 		try {
-			return new URI(uri, false).getEscapedURIReference();
-		} catch (URIException e) {
+			// URL encode any illegal characters in the URI
+			// Note: any existing escape sequences (e.g. %20) will be left untouched
+			String escaped = URIref.encode(uri);
+			// test that the final result is a valid URI
+			new URI(escaped); 
+			return escaped;
+		} catch (URISyntaxException e) {
 			throw new IllegalArgumentException(e.toString());
-		}
+		} 
 	}
 	
 	/**

@@ -2,89 +2,181 @@ package ca.wilkinsonlab.sadi.utils.http;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public interface HttpClient 
-{
-	final static String HTTP_AUTH_ANY_REALM = null;
-	final static int HTTP_AUTH_ANY_PORT = -1;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIUtils;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.message.BasicNameValuePair;
 
-	/**
-	 * Retrieve an URL by HTTP GET.
-	 * 
-	 * @param url
-	 * @return an InputStream containing the contents of the HTTP response body. 
-	 * @throws IOException if there is a network error or the response has a non-success HTTP status code. 
-	 */
-	InputStream GET(URL url) throws IOException;
+/**
+ * <p>A wrapped Apache Commons HTTP client with two differences:</p>
+ * 
+ * <ol>
+ *    <li>additional convenience methods are provided for making GET/POST requests.</li>
+ *    <li>the default connection manager is ThreadSafeClientConnManager, not SingleClientConnManager</li>
+ * </ol>
+ * 
+ * <p>It is important to close the HTTP connections that are opened 
+ * by the GET and POST methods, by calling:</p>
+ * 
+ * {@code response.getEntity().getContent().close()}
+ * 
+ * <p>once you are done with the response. This closes both the InputStream for the 
+ * response content and also the associated HTTP connection. If you do not properly 
+ * close your connections and the client hits its internal limits for the number of 
+ * open connections, the next HTTP request will hang indefinitely.  You may
+ * explicitly specify the connection limits in the constructor for
+ * this class.</p>
+ */
+public class HttpClient extends DefaultHttpClient
+{
+	protected static final String ENCODING_UTF8 = "UTF-8";
 	
-	/**
-	 * Retrieve an URL by HTTP GET.
-	 * 
-	 * @param url
-	 * @param params the name/value pairs of the GET query string.
-	 * @return an InputStream containing the contents of the HTTP response body. 
-	 * @throws IOException if there is a network error or the response has a non-success HTTP status code. 
-	 */
-	InputStream GET(URL url, Map<String,String> params) throws IOException;
+	public HttpClient() 
+	{
+		super(new ThreadSafeClientConnManager());
+	}
 	
-	/**
-	 * Send data to an URL by HTTP POST.
-	 * 
-	 * @param url 
-	 * @param postData an InputStream containing the data to be posted.
-	 * @param contentType the content type (e.g. "text/xml")
-	 * @return an InputStream containing the contents of the HTTP response body. 
-	 * @throws IOException if there is a network error or the response has a non-success HTTP status code. 
-	 */
-	InputStream POST(URL url, InputStream postData, String contentType) throws IOException;
+	public HttpClient(int maxConnectionsPerRoute, int maxConnectionsTotal)
+	{
+		super(getConnectionsManager(maxConnectionsPerRoute, maxConnectionsTotal));
+	}
 	
-	/**
-	 * Send form data to an URL by HTTP POST. Content type is "application/x-www-form-urlencoded".
-	 * 
-	 * @param url 
-	 * @param params the 
-	 * @return an InputStream containing the contents of the HTTP response body. 
-	 * @throws IOException if there is a network error or the response has a non-success HTTP status code. 
-	 */
-	InputStream POST(URL url, Map<String,String> params) throws IOException;
+	protected static ClientConnectionManager getConnectionsManager(int maxConnectionsPerRoute, int maxConnectionsTotal)
+	{
+		ThreadSafeClientConnManager connectionManager = new ThreadSafeClientConnManager();
+		connectionManager.setDefaultMaxPerRoute(maxConnectionsPerRoute);
+		connectionManager.setMaxTotal(maxConnectionsTotal);
+		return connectionManager;
+	}
 	
-	/**
-	 * Send an HTTP request.
-	 *   
-	 * @param request an HTTP request (consists of the HTTP method, the URL, the parameters, etc.)
-	 * @return an InputStream containing the contents of the HTTP response body.
-	 * @throws IOException if there is a network error or the response has a non-success HTTP status code.
-	 */
-	InputStream request(HttpRequest request) throws IOException;
+	public HttpResponse GET(URL url) throws IOException
+	{
+		HttpGet get = new HttpGet(urlToUri(url));
+		return execute(get);
+	}
 	
-	/**
-	 * <p>Issue a batch of HTTP requests in parallel.</p>
-	 * 
-	 * <p>Note that this method does not throw any exceptions. If an exception occurs during any particular
-	 * HttpRequest, HttpResponse.exceptionOccured() will be true in the corresponding 
-	 * HttpResponse.  Each HttpResponse contains a reference to the original HttpRequest.</p>
-	 * 
-	 * <p>The caller need not worry about overloading a server with too many requests.  There
-	 * is an internally set limit on how many simultaneous connections can be made to a
-	 * server at one time.</p>
-	 * 
-	 * @param requests a collection of HTTP requests (each request consists of the HTTP method, the URL, the parameters, etc.)
-	 * @return a collection of responses for the input requests.
-	 */
-	Collection<HttpResponse> batchRequest(Collection<HttpRequest> requests);
+	public HttpResponse GET(URL url, Map<String,String> params) throws IOException
+	{
+		return GET(url, params, null);
+	}
+
+	public HttpResponse GET(URL url, Map<String,String> params, Map<String,String> headers) throws IOException
+	{
+		URI uri;
+		try {
+
+			// merge the query string in the url argument (if any) with the query string 
+			// parameters provided in the params argument (if any)
+			List<NameValuePair> mergedParams = new ArrayList<NameValuePair>();
+			mergedParams.addAll(URLEncodedUtils.parse(urlToUri(url), ENCODING_UTF8));
+			if (params != null)
+				mergedParams.addAll(mapToNameValuePairs(params));
+			
+			String queryString = mergedParams.isEmpty() ? null : URLEncodedUtils.format(mergedParams, ENCODING_UTF8);
+			
+			// the port argument is set to zero here because the port is already included in the string 
+			// returned by url.getAuthority() 
+			uri = URIUtils.createURI(url.getProtocol(), url.getAuthority(), 0, url.getPath(), queryString, url.getRef());
+		
+		} catch(URISyntaxException e) {
+			throw new IOException(e);
+		}
+		HttpGet get = new HttpGet(uri);
+		if (headers != null) {
+			for (String header : headers.keySet()) 
+				get.setHeader(header, headers.get(header));
+		}
+		return execute(get);
+	}
+
+	public HttpResponse POST(URL url, InputStream postData, String contentType) throws IOException
+	{
+		return POST(url, postData, contentType, null);
+	}
 	
-	/**
-	 * Set HTTP authentication credentials for a given (host,port,realm) combination.  Both
-	 * Basic authentication and Digest authentication are supported.
-	 *  
-	 * @param host
-	 * @param port
-	 * @param realm
-	 * @param username
-	 * @param password
-	 */
-	void setHttpAuthCredentials(String host, int port, String realm, String username, String password);
+	public HttpResponse POST(URL url, InputStream postData, String contentType, Map<String,String> headers) throws IOException
+	{
+		InputStreamEntity entity = new InputStreamEntity(postData, -1);
+		entity.setContentType(new BasicHeader("Content-Type", contentType));
+		HttpPost post = new HttpPost(urlToUri(url));
+		post.setEntity(entity);
+		if (headers != null) {
+			for (String header : headers.keySet()) 
+				post.setHeader(header, headers.get(header));
+		}
+		return execute(post);
+	}
+
+	public HttpResponse POST(URL url, Map<String,String> params) throws IOException
+	{
+		return POST(url, params, null);
+	}
+	
+	public HttpResponse POST(URL url, Map<String,String> params, Map<String,String> headers) throws IOException
+	{
+		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(mapToNameValuePairs(params));
+		HttpPost post = new HttpPost(urlToUri(url));
+		post.setEntity(entity);
+		if (headers != null) {
+			for (String header : headers.keySet()) 
+				post.setHeader(header, headers.get(header));
+		}
+		return execute(post);
+	}
+
+	public void setAuthCredentials(String hostname, int port, String realm, String username, String password) 
+	{
+		AuthScope authScope = new AuthScope(hostname, port, realm);
+		Credentials credentials = new UsernamePasswordCredentials(username, password);
+		getCredentialsProvider().setCredentials(authScope, credentials);
+	}
+	
+	static protected List<NameValuePair> mapToNameValuePairs(Map<String,String> map)
+	{
+		List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+		for(String key : map.keySet()) {
+			pairs.add(new BasicNameValuePair(key, map.get(key)));
+		}
+		return pairs;
+	}
+	
+	protected static URI urlToUri(URL url) throws IOException 
+	{
+		URI uri;
+		try {
+			// The Java URI class allows Unicode chars, 
+			// whereas the URI spec only allows ASCII chars.
+			// URI.toASCIIString() does the conversion by %-encoding
+			// any Unicode chars.
+			uri = new URI(url.toURI().toASCIIString());
+		} catch (URISyntaxException e) {
+			// This exception should be rare; it happens when there
+			// are illegal chars in an URL (e.g. a space). 
+			// Wrap it in an IOException so users don't have to deal with 
+			// it separately everywhere.
+			throw new IOException(e);
+		}
+		return uri;
+	}	
+	
+	
 }

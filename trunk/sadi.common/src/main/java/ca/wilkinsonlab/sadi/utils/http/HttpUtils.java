@@ -8,13 +8,11 @@ import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.net.URL;
-import java.util.Collection;
 import java.util.Map;
 
 import javax.xml.ws.http.HTTPException;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.utils.ContentType;
@@ -23,46 +21,54 @@ import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
+/**
+ * <p>Provides convenience methods for issuing HTTP GET/POST requests, and 
+ * for performing other HTTP related tasks. The provided GET/POST methods automatically
+ * follow redirects and do not support HTTP authentication.</p>
+ * 
+ * <p>If you want to manually handle redirects or need to do authentication,
+ * or you need to customize the behaviour of the HTTP client in some way, 
+ * you should create an instance of {@link ca.wilkinsonlab.utils.http.HttpClient} and 
+ * use that instead. It supports the same interface for issuing GET/POST requests.</p>  
+ * 
+ * @author Ben Vandervalk
+ */
 public class HttpUtils
 {
 	private static final Logger log = Logger.getLogger(HttpUtils.class);
-	protected static HttpClient theClient;
+	protected static final String ENCODING_UTF8 = "UTF-8";
 	
-	protected HttpUtils() {}
-	
-	public static synchronized HttpClient theClient() {
-		if(theClient == null) {
-			theClient = new XLightwebHttpClient();
-		}
-		return theClient;
+	static public HttpResponse GET(URL url) throws IOException	{
+		return new HttpClient().GET(url);
+	}
+
+	static public HttpResponse GET(URL url, Map<String,String> params) throws IOException {
+		return new HttpClient().GET(url, params);
+	}
+
+	static public HttpResponse GET(URL url, Map<String,String> params, Map<String,String> headers) throws IOException {
+		return new HttpClient().GET(url, params, headers);
 	}
 	
-	static public InputStream GET(URL url) throws IOException {
-		return theClient().GET(url);
+	static HttpResponse POST(URL url, InputStream postData, String contentType) throws IOException {
+		return new HttpClient().POST(url, postData, contentType);
+	}
+
+	static HttpResponse POST(URL url, InputStream postData, String contentType, Map<String,String> headers) throws IOException {
+		return new HttpClient().POST(url, postData, contentType, headers);
+	}
+
+	static public HttpResponse POST(URL url, Map<String,String> params) throws IOException {
+		return new HttpClient().POST(url, params);
 	}
 	
-	static public InputStream GET(URL url, Map<String,String> params) throws IOException {
-		return theClient().GET(url, params);
+	static public HttpResponse POST(URL url, Map<String,String> params, Map<String,String> headers) throws IOException {
+		return new HttpClient().POST(url, params, headers);
 	}
 	
-	static InputStream POST(URL url, InputStream postData, String contentType) throws IOException {
-		return theClient().POST(url, postData, contentType);
-	}
-	
-	static public InputStream POST(URL url, Map<String,String> params) throws IOException {
-		return theClient().POST(url, params);
-	}
-	
-	static public InputStream request(HttpRequest request) throws IOException {
-		return theClient().request(request);
-	}
-	
-	static public Collection<HttpResponse> batchRequest(Collection<HttpRequest> requests) {
-		return theClient().batchRequest(requests);
-	}
-	
-	static public void setHttpAuthCredentials(String host, int port, String realm, String username, String password) {
-		theClient().setHttpAuthCredentials(host, port, realm, username, password);
+	public static boolean isHttpError(int statusCode) 
+	{
+		return (statusCode >= 400 && statusCode < 600);
 	}
 	
 	static public boolean isHttpServerError(Throwable e) {
@@ -83,16 +89,23 @@ public class HttpUtils
 		PipedInputStream in = new PipedInputStream();
 		PipedOutputStream out = new PipedOutputStream(in);
 		new Thread(new ModelWriter(data, out, rdfXML.getJenaLanguage())).start();
-		PostRequest req = new PostRequest(url, in, rdfXML.getHTTPHeader());
-		XLightwebHttpClient client = new XLightwebHttpClient();
-		return client.POST(req);
+		HttpResponse response = POST(url, in, rdfXML.getHTTPHeader());
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (isHttpError(statusCode)) 
+			throw new HttpStatusException(statusCode);
+		return response.getEntity().getContent();
 	}
 	
 	public static Object postAndFetchJson(URL url, Map<String, String> params)
 	throws IOException
 	{
 		log.trace(String.format("posting form data to %s\n%s", url, params));
-		InputStream is = POST(url, params);
+
+		HttpResponse response = POST(url, params);
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (isHttpError(statusCode)) 
+			throw new HttpStatusException(statusCode);
+		InputStream is = response.getEntity().getContent();
 		
 		log.trace("reading response");
 		String json = SPARQLStringUtils.readFully(is);
@@ -104,14 +117,23 @@ public class HttpUtils
 	
 	public static BufferedReader getReader(String url) throws IOException
 	{
-		return new BufferedReader(new InputStreamReader(GET(new URL(url))));
+		HttpResponse response = GET(new URL(url));
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (isHttpError(statusCode)) 
+			throw new HttpStatusException(statusCode);
+		
+		InputStream is = response.getEntity().getContent();
+		return new BufferedReader(new InputStreamReader(is));
 	}
 
+	/* Unused, depends on commons httpclient 3.x 
 	public static String getHeaderValue(HttpMethod method, String headerName)
 	{
 		return getHeaderValue(method, headerName, null);
 	}
+	*/
 
+	/* Unused, depends on commons httpclient 3.x
 	public static String getHeaderValue(HttpMethod method, String headerName, String headerValuePrefix)
 	{
 		for (Header header: method.getResponseHeaders(headerName)) {
@@ -127,7 +149,8 @@ public class HttpUtils
 		}
 		return null;
 	}
-
+	*/
+	
 	/**
 	 * @author Ben Vandervalk
 	 */

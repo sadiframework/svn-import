@@ -1,14 +1,13 @@
 package ca.wilkinsonlab.sadi.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 public class SPARQLStringUtilsTest
 {
@@ -79,14 +78,30 @@ public class SPARQLStringUtilsTest
 		final String URI1 = "http://with. aspace .com/";
 		final String URI2 = "http://newline\n\n.com";
 		final String URI3 = "http://<anglebracket>.org/";
+		final String URI4 = "http://uri.containing.escaped.chars.com/%25"; 
+		final String URI5 = "_http://not.a.valid.uri/<even>/<after>/<escaping>";
 		
 		final String URI1Result = "before <http://with.%20aspace%20.com/> after";
 		final String URI2Result = "before <http://newline%0A%0A.com> after";
 		final String URI3Result = "before <http://%3Canglebracket%3E.org/> after";
+		final String URI4Result = "before <http://uri.containing.escaped.chars.com/%25> after"; // want to leave already-escaped chars alone
 		
 		assertEquals(URI1Result, SPARQLStringUtils.strFromTemplate(uTemplate, URI1));
 		assertEquals(URI2Result, SPARQLStringUtils.strFromTemplate(uTemplate, URI2));
 		assertEquals(URI3Result, SPARQLStringUtils.strFromTemplate(uTemplate, URI3));
+		assertEquals(URI4Result, SPARQLStringUtils.strFromTemplate(uTemplate, URI4));
+		
+		// Some parts of a URI cannot be fixed by URL-encoding.  In these cases,
+		// we should throw an IllegalArgumentException.
+		
+		boolean threwException = false;
+		try {
+			SPARQLStringUtils.strFromTemplate(uTemplate, URI5); 
+		} catch(IllegalArgumentException e) {
+			threwException = true;
+		}
+		assertTrue(threwException);
 		
 	}
+	
 }

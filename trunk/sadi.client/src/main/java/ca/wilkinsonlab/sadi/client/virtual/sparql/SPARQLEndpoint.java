@@ -2,11 +2,10 @@ package ca.wilkinsonlab.sadi.client.virtual.sparql;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.rmi.AccessException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +14,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.utils.FileUtils;
@@ -22,9 +22,6 @@ import ca.wilkinsonlab.sadi.utils.JsonUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLResultsXMLUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.http.GetRequest;
-import ca.wilkinsonlab.sadi.utils.http.HttpRequest;
-import ca.wilkinsonlab.sadi.utils.http.HttpResponse;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
@@ -32,13 +29,11 @@ import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.graph.Triple;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryFactory;
-import com.hp.hpl.jena.query.QueryParseException;
 import com.hp.hpl.jena.query.Syntax;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.shared.JenaException;
 
 /**
  * <p>Encapsulates access to a SPARQL endpoint (via HTTP).</p>
@@ -213,12 +208,18 @@ public class SPARQLEndpoint
 
 			try {
 				
-				// We must use GET here so that the HTTP client knows that it is okay to retry on failure
-				is = HttpUtils.GET(new URL(getURI()), getParamsForSelectQuery(query));				
+				// We should use GET here so that the HTTP client knows that it is okay to retry on failure
+				HttpResponse response = HttpUtils.GET(new URL(getURI()), getParamsForSelectQuery(query));
+				
+				int statusCode = response.getStatusLine().getStatusCode();
+				if (HttpUtils.isHttpError(statusCode)) 
+					throw new HttpStatusException(statusCode);
+				
+				is = response.getEntity().getContent();
 				List<Map<String,String>> results = convertSelectResponseToBindings(is);
 				
 				aggregateResults.addAll(results);
-
+		
 				/* 
 				 * If we get a result set size that is exactly the size of the 
 				 * endpoint results limit, it probably means that the results
@@ -271,7 +272,7 @@ public class SPARQLEndpoint
 			return selectQuery(query);
 			
 		} catch(HttpStatusException e) {
-			if(e.getStatusCode() != HttpResponse.HTTP_STATUS_GATEWAY_TIMEOUT) {
+			if(e.getStatusCode() != HttpURLConnection.HTTP_GATEWAY_TIMEOUT) {
 				throw e;
 			}
 			return getPartialQueryResults(query);
@@ -298,7 +299,13 @@ public class SPARQLEndpoint
 			try {
 				
 				// We must use GET here so that the HTTP client knows that it is okay to retry on failure
-				is = HttpUtils.GET(new URL(getURI()), getParamsForConstructQuery(query));				
+				HttpResponse response = HttpUtils.GET(new URL(getURI()), getParamsForConstructQuery(query));
+				
+				int statusCode = response.getStatusLine().getStatusCode();
+				if (HttpUtils.isHttpError(statusCode)) 
+					throw new HttpStatusException(statusCode);
+				
+				is = response.getEntity().getContent();
 				Model results = ModelFactory.createDefaultModel();
 				convertConstructResponseToTriples(is, results);
 				
@@ -352,149 +359,6 @@ public class SPARQLEndpoint
 		return aggregateResults;
 	}
 	
-	public Collection<ConstructQueryResult> constructQueryBatch(Collection<String> constructQueries) 
-	{
-		
-		/*
-		 * NOTE: We may need to issue multiple HTTP requests for a single query,
-		 * if the result set size is larger than the results limit on the endpoint.
-		 */
-		
-		Collection<ConstructQueryResult> results = new ArrayList<ConstructQueryResult>(constructQueries.size());
-		Map<HttpRequest, ConstructQueryResult> aggregateResponses = new HashMap<HttpRequest, ConstructQueryResult>(constructQueries.size());
-		Map<HttpRequest, String> origQueries = new HashMap<HttpRequest, String>(constructQueries.size());
-		Map<HttpRequest, Long> queryLimits = new HashMap<HttpRequest, Long>(constructQueries.size());
-		
-		Collection<HttpRequest> requests = new ArrayList<HttpRequest>();
-		
-		for(String query : constructQueries) {
-			
-			try {
-				
-				// We must use GET here so that the HTTP client knows that it is okay to retry on failure
-				HttpRequest request = new GetRequest(new URL(getURI()), getParamsForConstructQuery(query));
-
-				/* 
-				 * Parse the query with Jena first, so that nothing is added to
-				 * the maps if the query has a syntax error.  syntaxARQ is 
-				 * required here to allow COUNT(*) queries.
-				 */
-				
-				Query jenaQuery = QueryFactory.create(query, Syntax.syntaxARQ);
-				long queryLimit = (jenaQuery.getLimit() == Query.NOLIMIT) ? NO_RESULTS_LIMIT : jenaQuery.getLimit();
-				queryLimits.put(request, queryLimit);
-
-				origQueries.put(request, query);
-				
-				requests.add(request);
-				
-			} catch(MalformedURLException e) {
-			
-				log.error(String.format("could not create HTTP POST request, endpoint URI '%s' is not a valid URL", getURI()));
-
-			} catch(QueryParseException e) {
-
-				results.add(new ConstructQueryResult(query, e));
-			
-			}
-			
-		}
-		
-		while(requests.size() > 0) {
-
-			Collection<HttpResponse> responses = HttpUtils.batchRequest(requests);		
-			
-			/*
-			 * The next batch of requests, if any result sets were truncated
-			 * by the endpoint results limit. 
-			 */
-			requests = new ArrayList<HttpRequest>();
-			
-			for(HttpResponse response : responses) {
-
-				HttpRequest request = response.getOriginalRequest();
-				String origQuery = origQueries.get(request);
-			
-				if(response.exceptionOccurred()) {
-					
-					if(!aggregateResponses.containsKey(request)) {
-						aggregateResponses.put(request, new ConstructQueryResult(origQuery, response.getException()));
-					} else {
-						log.debug(String.format("returning only partial results for query: %s", origQuery));
-						aggregateResponses.get(request).setException(response.getException());
-					}
-					
-				} else {
-
-					/* load the construct query results to a Jena model */
-					
-					Model resultModel = ModelFactory.createMemModelMaker().createFreshModel();
-
-					try {
-						String lang = getJenaRDFLangString(getConstructResultsFormat());
-						resultModel.read(response.getInputStream(), "", lang);
-					} catch(JenaException e) {
-						log.error("failed to load service output into Jena model", e);
-					} finally {
-						FileUtils.simpleClose(response.getInputStream());
-					}
-					
-					if(!aggregateResponses.containsKey(request)) {
-						aggregateResponses.put(request, new ConstructQueryResult(origQuery, resultModel));
-					} else {
-						aggregateResponses.get(request).getResultModel().add(resultModel);
-					}
-					
-					/* 
-					 * Determine if we need to issue another query in order to retrieve
-					 * the rest of the results for this query.  
-					 * 
-					 * numResults > getResultLimit() is possible here in the case that 
-					 * the result limit in the registry is less than the actual limit 
-					 * of the endpoint. (This could happen if the administrator changes 
-					 * the limit between refreshes of the registry.)
-					 */
-
-					long numResultsSoFar = aggregateResponses.get(request).getResultModel().listStatements().toList().size();
-					long numResults = resultModel.listStatements().toList().size(); 
-					long queryLimit = queryLimits.get(request);
-					
-					if((queryLimit == NO_RESULTS_LIMIT || numResultsSoFar < queryLimit) && getResultsLimit() != NO_RESULTS_LIMIT && numResults >= getResultsLimit()) {
-						
-						/* 
-						 * We got a result set size that was >= the size of the 
-						 * endpoint results limit.  We can't be 100% that this means the 
-						 * results were truncated, but we must issue another query to 
-						 * be safe. 
-						 */
-
-						String nextQuery = getQueryForNextChunk(origQuery, numResultsSoFar);
-						
-						log.trace(String.format("query results may have been truncated by endpoint limit, queueing additional query: %s", nextQuery));
-
-						/*
-						 * Modify the original request and reuse it, so that it
-						 * has the same requestID (and thus the same key in 
-						 * the maps: aggregateResponses, origQueries, and
-						 * queryLimits.
-						 */
-						
-						request.setParams(getParamsForConstructQuery(nextQuery));
-						requests.add(request);
-							
-					}
-					
-				} // if we received a successful response
-			
-			} // for each response
-			
-		} // while requests.size() > 0
-		
-		results.addAll(aggregateResponses.values());
-		return results;
-		
-	}
-	
 	protected String getQueryForNextChunk(String origQuery, long numResultsRetrieved)
 	{
 		Query jenaQuery = QueryFactory.create(origQuery);
@@ -540,8 +404,12 @@ public class SPARQLEndpoint
 			throw new IOException(String.format("unable to perform update query on %s, endpoint is not writable (check username/password)", getURI()));
 		}
 		
-		InputStream is = HttpUtils.POST(new URL(getURI()), getParamsForUpdateQuery(query));
-		is.close();
+		HttpResponse response = HttpUtils.POST(new URL(getURI()), getParamsForUpdateQuery(query));
+		response.getEntity().getContent().close();
+		
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (HttpUtils.isHttpError(statusCode))
+			throw new HttpStatusException(statusCode);
 	}
 
 	public Set<String> getNamedGraphs() throws IOException
@@ -639,7 +507,7 @@ public class SPARQLEndpoint
 				results = selectQuery(curQuery);
 			}
 			catch(HttpStatusException e) {
-				if(e.getStatusCode() == HttpResponse.HTTP_STATUS_GATEWAY_TIMEOUT) {
+				if(e.getStatusCode() == HttpURLConnection.HTTP_GATEWAY_TIMEOUT) {
 					log.debug("query timed out for LIMIT = " + curPoint);
 					
 					if(curPoint == lastSuccessPoint) {

@@ -231,16 +231,8 @@ public class SPARQLServiceWrapper implements Service
 			throw new ServiceInvocationException("SPARQL endpoint not responding: " + getEndpoint());
 		}
 
-		if(getBatchQueries()) {
-			Collection<String> queries = new ArrayList<String>();
-			while (inputNodes.hasNext()) {
-				queries.add(getConstructQuery(inputNodes.next()));
-			}
-			batchConstructQueries(queries, accum);
-		} else {
-			while (inputNodes.hasNext()) {
-				invokeServiceOnRDFNode(inputNodes.next(), accum);
-			}
+		while (inputNodes.hasNext()) {
+			invokeServiceOnRDFNode(inputNodes.next(), accum);
 		}
 		// blank nodes should be okay if we're using a model...
 //		return filterOutTriplesWithBlankNodes(triples);
@@ -253,38 +245,11 @@ public class SPARQLServiceWrapper implements Service
 			throw new ServiceInvocationException("SPARQL endpoint not responding: " + getEndpoint());
 		}
 		
-		if(getBatchQueries()) {
-			Collection<String> queries = new ArrayList<String>();
-			for(RDFNode inputNode : inputNodes) {
-				queries.add(getConstructQuery(inputNode, predicate));
-			}
-			batchConstructQueries(queries, accum);
-		} else {
-			for (RDFNode inputNode: inputNodes) {
-				invokeServiceOnRDFNode(inputNode, predicate, accum);
-			}
+		for (RDFNode inputNode: inputNodes) {
+			invokeServiceOnRDFNode(inputNode, predicate, accum);
 		}
 		// blank nodes should be okay if we're using a model...
 //		return filterOutTriplesWithBlankNodes(triples);
-		return accum;
-	}
-	
-	protected Model batchConstructQueries(Collection<String> queries, Model accum) throws ServiceInvocationException
-	{
-		Collection<ConstructQueryResult> results = getEndpoint().constructQueryBatch(queries);
-		
-		for(ConstructQueryResult result : results) {
-			/* 
-			 * The result model may be null if an exception occurred during the query,
-			 * before any partial results could be retrieved.
-			 */
-			if(result.getResultModel() != null) {	
-				accum.add(result.getResultModel());
-			}
-		}
-
-		// blank nodes should be okay if we're using a model...
-//		return filterOutTriplesWithBlankNodes(RdfUtils.modelToTriples(mergedModel));
 		return accum;
 	}
 	

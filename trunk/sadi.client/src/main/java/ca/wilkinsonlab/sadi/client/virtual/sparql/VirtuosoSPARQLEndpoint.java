@@ -7,11 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpClient;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
+
+import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 /**
  * @author Ben Vandervalk
@@ -20,29 +24,33 @@ public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 {
 	public final static Logger log = Logger.getLogger(VirtuosoSPARQLEndpoint.class);
 	public final static String VIRTUOSO_SPARQL_AUTH_REALM = "SPARQL";
+	/** Persistent HTTP client, in order to support efficient HTTP authentication. */
+	protected HttpClient httpClient;
 	
-	public VirtuosoSPARQLEndpoint(String endpointURI)
+	public VirtuosoSPARQLEndpoint(String endpointURI) throws MalformedURLException
 	{
-		super(endpointURI, EndpointType.VIRTUOSO);
+		this(endpointURI, null, null);
 	}
 	
 	public VirtuosoSPARQLEndpoint(String endpointURI, String username, String password) throws MalformedURLException
 	{
-		this(endpointURI);
-		if(username != null && password != null)
-			initCredentials(username, password);
-	}
-	
-	protected void initCredentials(String username, String password) throws MalformedURLException
-	{
-		String hostname = new URL(getURI()).getHost();
-		HttpUtils.setHttpAuthCredentials(hostname, HttpClient.HTTP_AUTH_ANY_PORT, VIRTUOSO_SPARQL_AUTH_REALM, username, password);
+		super(endpointURI, EndpointType.VIRTUOSO);
+		httpClient = new HttpClient();
+		if(username != null && password != null) {
+			String hostname = new URL(getURI()).getHost();
+			httpClient.setAuthCredentials(hostname, AuthScope.ANY_PORT, VIRTUOSO_SPARQL_AUTH_REALM, username, password);
+		}
 	}
 	
 	@Override
 	public void updateQuery(String query) throws IOException
 	{
-		HttpUtils.POST(new URL(getURI()), getParamsForUpdateQuery(query)).close();
+		HttpResponse response = HttpUtils.POST(new URL(getURI()), getParamsForUpdateQuery(query));
+		response.getEntity().getContent().close();
+		
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (HttpUtils.isHttpError(statusCode))
+			throw new HttpStatusException(statusCode);
 	}
 
 	protected Map<String,String> getParamsForUpdateQuery(String query) 
