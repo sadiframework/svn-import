@@ -166,7 +166,7 @@ public class SPARQLServiceWrapper implements Service
 			else {
 				matches = getRegistry().subjectMatchesRegEx(getEndpoint().getURI(), resource.getURI());
 			}
-		} catch(IOException e) {
+		} catch(SADIException e) {
 			throw new RuntimeException("error communicating with SPARQL registry: ", e);
 		}
 

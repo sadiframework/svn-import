@@ -1,0 +1,12 @@
+PREFIX darq: <http://darq.sf.net/dose/0.1#>
+PREFIX ext: <http://sadiframework.org/ontologies/DARQ/darq-extensions.owl#>
+PREFIX sadi: <http://sadiframework.org/ontologies/sadi.owl#>
+
+SELECT ?status
+WHERE {
+
+	[] a darq:Service; 
+	   darq:url %u%; 
+	   sadi:serviceStatus ?status .
+
+}

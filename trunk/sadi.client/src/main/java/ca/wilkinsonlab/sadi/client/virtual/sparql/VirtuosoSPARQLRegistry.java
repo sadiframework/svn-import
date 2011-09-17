@@ -159,7 +159,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		
 	}
 	
-	public Collection<SPARQLEndpoint> findEndpointsByTriplePattern(Triple triplePattern) throws IOException 
+	public Collection<SPARQLEndpoint> findSPARQLEndpointsByTriplePattern(Triple triplePattern) throws SADIException
 	{
 		Node s = triplePattern.getSubject();
 		Node p = triplePattern.getPredicate();
@@ -169,7 +169,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 			throw new IllegalArgumentException("blank nodes are not allowed in any position of the triple pattern");
 		}
 		
-		Collection<SPARQLEndpoint> unfiltered = p.isVariable() ? getAllEndpoints() : findEndpointsByPredicate(p.getURI());
+		Collection<SPARQLEndpoint> unfiltered = p.isVariable() ? getAllSPARQLEndpoints() : findEndpointsByPredicate(p.getURI());
 		Collection<SPARQLEndpoint> matches = new ArrayList<SPARQLEndpoint>();  
 		
 		for(SPARQLEndpoint endpoint : unfiltered) {
@@ -182,9 +182,9 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		return matches;
 	}
 	
-	public Collection<SPARQLServiceWrapper> findServicesByTriplePattern(Triple pattern, boolean patternIsInverted) throws IOException
+	public Collection<SPARQLServiceWrapper> findServicesByTriplePattern(Triple pattern, boolean patternIsInverted) throws SADIException
 	{
-		Collection<SPARQLEndpoint> endpoints = findEndpointsByTriplePattern(pattern);
+		Collection<SPARQLEndpoint> endpoints = findSPARQLEndpointsByTriplePattern(pattern);
 		Collection<SPARQLServiceWrapper> services = new ArrayList<SPARQLServiceWrapper>();
 		
 		for(SPARQLEndpoint endpoint: endpoints)
@@ -193,18 +193,18 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		return services;
 	}
 	
-	public Collection<SPARQLEndpoint> findEndpointsByPredicate(String predicate) throws IOException
+	public Collection<SPARQLEndpoint> findEndpointsByPredicate(String predicate) throws SADIException
 	{
 		Set<String> matchingEndpointURIs = findEndpointsByPredicateUsingIndex(predicate);
 
 		Set<SPARQLEndpoint> matches = new HashSet<SPARQLEndpoint>();
 		for(String uri : matchingEndpointURIs) 
-			matches.add(getEndpoint(uri));
+			matches.add(getSPARQLEndpoint(uri));
 
 		return matches;
 	}
 	
-	public Set<String> findEndpointsByPredicateUsingIndex(String predicate) throws IOException
+	public Set<String> findEndpointsByPredicateUsingIndex(String predicate) throws SADIException
 	{
 		Set<String> matchingEndpointURIs = new HashSet<String>();
 		
@@ -220,13 +220,19 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 							SPARQLRegistryOntology.HAS_PREDICATE, predicate,
 							SPARQLRegistryOntology.ENDPOINT_STATUS);
 		
-		List<Map<String,String>> results = selectQuery(predicatesQuery);
+		try {
+			
+			List<Map<String,String>> results = selectQuery(predicatesQuery);
 
-		for(Map<String,String> binding : results) {
-			String uri = binding.get("endpoint");
-			if(ServiceStatus.valueOf(binding.get("status")) == ServiceStatus.DEAD)
-				continue;
-			matchingEndpointURIs.add(uri);
+			for(Map<String,String> binding : results) {
+				String uri = binding.get("endpoint");
+				if(ServiceStatus.valueOf(binding.get("status")) == ServiceStatus.DEAD)
+					continue;
+				matchingEndpointURIs.add(uri);
+			}
+		
+		} catch(IOException e) {
+			throw new SADIException(e);
 		}
 		
 		return matchingEndpointURIs;
@@ -252,11 +258,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		} 
 
 		Triple pattern = new Triple(s, p, o);
-		try {
-			return findServicesByTriplePattern(pattern, isInverted);
-		} catch (IOException e) {
-			throw new SADIException(e.toString());
-		}
+		return findServicesByTriplePattern(pattern, isInverted);
 	}
 
 	public EndpointType getEndpointType(String endpointURI) throws HttpException, IOException
@@ -306,35 +308,38 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 			return false;
 	}
 	
-	public List<SPARQLEndpoint> getAllEndpoints() throws IOException
+	public List<SPARQLEndpoint> getAllSPARQLEndpoints() throws SADIException
 	{
 		List<SPARQLEndpoint> endpoints = new ArrayList<SPARQLEndpoint>();
-		String endpointQuery = "SELECT DISTINCT ?endpoint ?type FROM %u% WHERE { ?endpoint %u% ?type }";
-		endpointQuery = SPARQLStringUtils.strFromTemplate(endpointQuery, getIndexGraphURI(), RDF.type.getURI());
-		List<Map<String,String>> results = selectQuery(endpointQuery);
-		for(Map<String,String> binding : results) {
-			EndpointType type = EndpointType.valueOf(binding.get("type"));
-			String endpointURI = binding.get("endpoint");
-			SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
-			endpoint.setResultsLimit(getResultsLimit(endpointURI));
-			endpoints.add(endpoint);
+
+		try {
+			String endpointQuery = "SELECT DISTINCT ?endpoint ?type FROM %u% WHERE { ?endpoint %u% ?type }";
+			endpointQuery = SPARQLStringUtils.strFromTemplate(endpointQuery, getIndexGraphURI(), RDF.type.getURI());
+			List<Map<String,String>> results = selectQuery(endpointQuery);
+			for(Map<String,String> binding : results) {
+				EndpointType type = EndpointType.valueOf(binding.get("type"));
+				String endpointURI = binding.get("endpoint");
+				SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, type);
+				endpoint.setResultsLimit(getResultsLimit(endpointURI));
+				endpoints.add(endpoint);
+			}
+		} catch(IOException e) {
+			throw new SADIException(e);
 		}
+		
 		return endpoints;
 	}
 	
 	public List<SPARQLServiceWrapper> getAllServices() throws SADIException
 	{
 		List<SPARQLServiceWrapper> services = new ArrayList<SPARQLServiceWrapper>();
-		try {
-			for(SPARQLEndpoint endpoint: getAllEndpoints()) {
-				// return both inverted and non-inverted versions of the SPARQL service
-				services.add(new SPARQLServiceWrapper(endpoint, this, false));
-				services.add(new SPARQLServiceWrapper(endpoint, this, true));
-			}
-			return services;
-		} catch (IOException e) {
-			throw new SADIException(e.toString());
+
+		for(SPARQLEndpoint endpoint: getAllSPARQLEndpoints()) {
+			// return both inverted and non-inverted versions of the SPARQL service
+			services.add(new SPARQLServiceWrapper(endpoint, this, false));
+			services.add(new SPARQLServiceWrapper(endpoint, this, true));
 		}
+		return services;
 	}
 
 	public List<String> getEndpointURIs() throws HttpException, IOException
@@ -475,17 +480,17 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		return predicates;
 	}
 
-	public boolean subjectMatchesRegEx(String endpointURI, String uri) throws IOException
+	public boolean subjectMatchesRegEx(String endpointURI, String uri) 
 	{
 		return matchesRegEx(endpointURI, uri, true);
 	}
 	
-	public boolean objectMatchesRegEx(String endpointURI, String uri) throws IOException
+	public boolean objectMatchesRegEx(String endpointURI, String uri) 
 	{
 		return matchesRegEx(endpointURI, uri, false);
 	}
 	
-	public boolean matchesRegEx(String endpointURI, String uri, boolean uriIsSubject) throws IOException
+	public boolean matchesRegEx(String endpointURI, String uri, boolean uriIsSubject)
 	{
 		String regex = getRegEx(endpointURI, uriIsSubject);
 		Pattern pattern = Pattern.compile(regex);
@@ -513,22 +518,23 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 			return ".*";
 	}
 	
-	public SPARQLEndpoint getEndpoint(String endpointURI) throws IOException
+	public SPARQLEndpoint getSPARQLEndpoint(String endpointURI) throws SADIException 
 	{
-		if(!hasEndpoint(endpointURI))
-			throw new IllegalArgumentException("The SPARQL registry does not contain an entry for the endpoint " + endpointURI);
-		SPARQLEndpoint endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, getEndpointType(endpointURI));
-		endpoint.setResultsLimit(getResultsLimit(endpointURI));
+		SPARQLEndpoint endpoint = null;
+		try {
+			if(!hasEndpoint(endpointURI))
+				throw new IllegalArgumentException("The SPARQL registry does not contain an entry for the endpoint " + endpointURI);
+			endpoint = SPARQLEndpointFactory.createEndpoint(endpointURI, getEndpointType(endpointURI));
+			endpoint.setResultsLimit(getResultsLimit(endpointURI));
+		} catch(IOException e) {
+			throw new SADIException(e);
+		}
 		return endpoint;
 	}
 	
 	public Service getService(String serviceURI) throws SADIException 
 	{
-		try {
-			return new SPARQLServiceWrapper(getEndpoint(serviceURI), this);
-		} catch (IOException e) {
-			throw new SADIException(e.toString());
-		}
+		return new SPARQLServiceWrapper(getSPARQLEndpoint(serviceURI), this);
 	}
 
 	public Collection<String> findPredicatesBySubject(Resource subject)
@@ -560,11 +566,7 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		} 
 		
 		Triple pattern = new Triple(s, p, o);
-		try {
-			return findServicesByTriplePattern(pattern, isInverted);
-		} catch (IOException e) {
-			throw new SADIException(e.toString());
-		}
+		return findServicesByTriplePattern(pattern, isInverted);
 	}
 	
 	public Collection<ServiceInputPair> discoverServices(Model model) throws SADIException
@@ -612,13 +614,9 @@ public class VirtuosoSPARQLRegistry extends VirtuosoSPARQLEndpoint implements SP
 		
 		Collection<SPARQLServiceWrapper> services = new HashSet<SPARQLServiceWrapper>();
 		
-		try {
-			services.addAll(findServicesByTriplePattern(new Triple(s, p, o), false));
-			services.addAll(findServicesByTriplePattern(new Triple(o, p, s), true));
-			return services;
-		} catch (IOException e) {
-			throw new SADIException(e.toString());
-		}
+		services.addAll(findServicesByTriplePattern(new Triple(s, p, o), false));
+		services.addAll(findServicesByTriplePattern(new Triple(o, p, s), true));
+		return services;
 	}
 
 	@Override

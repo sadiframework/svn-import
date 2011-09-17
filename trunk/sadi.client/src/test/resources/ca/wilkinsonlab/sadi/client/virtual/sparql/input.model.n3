@@ -1,0 +1,10 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . 
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+@prefix subjectPrefix1: <subjectPrefix1:> .
+@prefix objectPrefix1: <objectPrefix1:> .
+@prefix nonmatching: <nonmatching:> .  # these URIs don't match any endpoints
+
+subjectPrefix1:subject rdfs:label "label #1"^^xsd:string .
+nonmatching:subject rdf:type objectPrefix1:object .

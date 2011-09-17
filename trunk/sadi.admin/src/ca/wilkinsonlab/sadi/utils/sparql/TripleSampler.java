@@ -136,7 +136,7 @@ public class TripleSampler
 		throw new ExceededMaxAttemptsException("exceeded " + MAX_ATTEMPTS + " attempts when trying to retrieve triples matching " + triplePattern);
 	}
 	
-	protected Triple getSampleFromEndpoint(SPARQLEndpoint endpoint, Triple triplePattern, long sampleIndex) throws IOException, NoSampleAvailableException
+	protected Triple getSampleFromEndpoint(SPARQLEndpoint endpoint, Triple triplePattern, long sampleIndex) throws SADIException, IOException, NoSampleAvailableException
 	{
 		log.trace("retrieving triple #" + sampleIndex + " for " + triplePattern + " from " + endpoint.getURI());
  

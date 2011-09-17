@@ -1,0 +1,9 @@
+PREFIX darq: <http://darq.sf.net/dose/0.1#>
+PREFIX ext: <http://sadiframework.org/ontologies/DARQ/darq-extensions.owl#>
+
+SELECT ?resultsLimit
+WHERE {
+	[] a darq:Service; 
+	   darq:url %u%; 
+	   ext:resultsLimit ?resultsLimit .
+}
