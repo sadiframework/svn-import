@@ -1,11 +1,10 @@
 package ca.wilkinsonlab.sadi.client.virtual.sparql;
 
-import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
 import com.hp.hpl.jena.graph.Triple;
 
+import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.client.Registry;
 
 /**
@@ -14,11 +13,11 @@ import ca.wilkinsonlab.sadi.client.Registry;
 
 public interface SPARQLRegistry extends Registry 
 {
-	public List<SPARQLEndpoint> getAllEndpoints() throws IOException;
-	public SPARQLEndpoint getEndpoint(String uri) throws IOException;
+	public Collection<SPARQLEndpoint> getAllSPARQLEndpoints() throws SADIException;
+	public SPARQLEndpoint getSPARQLEndpoint(String uri) throws SADIException;
 
-	public Collection<SPARQLEndpoint> findEndpointsByTriplePattern(Triple triplePattern) throws IOException;
+	public Collection<SPARQLEndpoint> findSPARQLEndpointsByTriplePattern(Triple triplePattern) throws SADIException;
 
-	public boolean subjectMatchesRegEx(String endpointURI, String uri) throws IOException;
-	public boolean objectMatchesRegEx(String endpointURI, String uri) throws IOException;
+	public boolean subjectMatchesRegEx(String endpointURI, String uri) throws SADIException;
+	public boolean objectMatchesRegEx(String endpointURI, String uri) throws SADIException;
 }

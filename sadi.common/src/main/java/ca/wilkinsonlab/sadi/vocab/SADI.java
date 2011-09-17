@@ -62,6 +62,31 @@ public class SADI
 	 */
 	public static final Property hasStackTrace = m_model.createProperty( NS + "hasStackTrace" );
     
+	/**
+	 * A property that indicates the status of a service (e.g. ok, dead) 
+	 */
+	public static final Property serviceStatus = m_model.createProperty( NS + "serviceStatus" );
+	
+	/**
+	 * Status value that indicates a service is functioning correctly.  
+	 */
+	public static final Resource ok = m_model.createResource( NS + "ok" );
+
+	/**
+	 * Status value that indicates a service is responding more slowly than expected.
+	 */
+	public static final Resource slow = m_model.createResource( NS + "slow" );
+
+	/**
+	 * Status value that indicates a service is generating incorrect results for its test cases.
+	 */
+	public static final Resource incorrect = m_model.createResource( NS + "incorrect" );
+
+	/**
+	 * Status value that indicates a service is not responding.
+	 */
+	public static final Resource dead = m_model.createResource( NS + "dead" );
+	
 	public static final Property error = m_model.createProperty( NS + "error" );
 	
     public static final String ASYNC_HEADER = "sadi-please-wait";
