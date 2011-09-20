@@ -818,6 +818,7 @@ public class SHAREKnowledgeBase
 		/* attach types to untyped nodes where we can infer the type from the
 		 * URI...
 		 */
+		resolveUnknownSubjects(subjects.values);
 		attachTypes(subjects.values);
 		
 		Collection<Service> services;
@@ -869,6 +870,20 @@ public class SHAREKnowledgeBase
 		return retrievedData;
 	}
 	
+	private void resolveUnknownSubjects(Set<RDFNode> subjects)
+	{
+		for (Resource subject: RdfUtils.extractResources(subjects)) {
+			if (subject.isURIResource() && !dataModel.contains(subject, (Property)null, (RDFNode)null)) {
+				log.info(String.format("resolving unknown subject %s", subject));
+				try {
+					OwlUtils.loadMinimalOntologyForUri(dataModel, subject.getURI());
+				} catch (Exception e) {
+					log.error(String.format("error resolving %s: %s", subject, e.toString()), e);
+				}
+			}
+		}
+	}
+
 	private boolean isOutputClassTypeTriple(Triple triple, Service service)
 	{
 		return RDF.type.getURI().equals(triple.getPredicate().getURI()) &&
