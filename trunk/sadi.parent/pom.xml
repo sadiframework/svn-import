@@ -5,13 +5,57 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-parent</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.2.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>SADI parent POM</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
+  <licenses>
+    <license>
+      <name>New BSD License</name>
+      <url>http://www.opensource.org/licenses/bsd-license.php</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>http://code.google.com/p/sadi/source/browse/#svn%2Ftrunk%2Fsadi.parent</url>
+    <connection>http://sadi.googlecode.com/svn/trunk/sadi.parent</connection>
+    <developerConnection>https://sadi.googlecode.com/svn/trunk/sadi.parent</developerConnection>
+  </scm>
+  <issueManagement>
+  	<system>Google Code</system>
+  	<url>http://code.google.com/p/sadi/issues/</url>
+  </issueManagement>
+  <mailingLists>
+    <mailingList>
+      <name>User List</name>
+      <subscribe>http://groups.google.com/group/sadi-discuss/subscribe</subscribe>
+      <unsubscribe>http://groups.google.com/group/sadi-discuss/subscribe</unsubscribe>
+      <post>sadi-discuss@googlegroups.com</post>
+      <archive>http://groups.google.com/group/sadi-discuss</archive>
+    </mailingList>
+    <mailingList>
+      <name>Developer List</name>
+      <subscribe>http://groups.google.com/group/sadi-dev/subscribe</subscribe>
+      <unsubscribe>http://groups.google.com/group/sadi-dev/subscribe</unsubscribe>
+      <post>sadi-dev@googlegroups.com</post>
+      <archive>http://groups.google.com/group/sadi-dev</archive>
+    </mailingList>
+  </mailingLists>
+  <developers>
+    <developer>
+      <id>luke</id>
+      <name>Luke McCarthy</name>
+      <email>mccarthy@elmonline.ca</email>
+    </developer>
+    <developer>
+      <id>benv</id>
+      <name>Ben Vandervalk</name>
+      <email>ben.vvalk@gmail.com</email>
+    </developer>
+  </developers>
   <build>
     <plugins>
       <plugin>
