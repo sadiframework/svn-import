@@ -147,4 +147,14 @@ public class SIOUtils
 		
 		return values;
 	}
+
+	public static Resource getSequenceType(Resource sequenceNode)
+	{
+		if (sequenceNode.hasProperty(RDF.type, SIO.nucleic_acid_sequence))
+			return SIO.nucleic_acid_sequence;
+		else if (sequenceNode.hasProperty(RDF.type, SIO.protein_sequence))
+			return SIO.protein_sequence;
+		else
+			return SIO.biopolymer_sequence;
+	}
 }

@@ -34,7 +34,9 @@ public class SIO
     public static final Resource name = m_model.createResource( NS + "SIO_000116" );
     public static final Resource preferred_name = m_model.createResource( NS + "SIO_000117" );
     public static final Resource scientific_name = m_model.createResource( NS + "SIO_000120" );
+    public static final Resource biopolymer_sequence = m_model.createResource( NS + "SIO_000030" );
     public static final Resource amino_acid_sequence = m_model.createResource( NS + "SIO_010015" );
+    public static final Resource nucleic_acid_sequence = m_model.createResource( NS + "SIO_010016" );
     public static final Resource protein_sequence = amino_acid_sequence;
     public static final Resource _3d_structure_model = m_model.createResource( NS + "SIO_010530" );
     public static final Resource probability = m_model.createResource( NS + "SIO_000638" );
