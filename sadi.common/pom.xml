@@ -10,7 +10,7 @@
   <parent>
     <groupId>ca.wilkinsonlab.sadi</groupId>
     <artifactId>sadi-parent</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
   </parent>
   <name>Common SADI classes</name>
   <description>Classes used by both SADI clients and SADI services</description>
@@ -39,10 +39,11 @@
       <version>1.5</version>
     </dependency>
     
-    <!--
-     xlightweb doesn't do basic authentication, so we still need both libraries for now...
-     (also, we use URI and URIException that come proximately from commons-httpclient...)
-     -->
+    <dependency>
+    	<groupId>org.apache.httpcomponents</groupId>
+    	<artifactId>httpclient</artifactId>
+    	<version>4.1.2</version>
+    </dependency>
     
     <dependency>
       <groupId>com.hp.hpl.jena</groupId>
@@ -96,11 +97,6 @@
       <artifactId>junit</artifactId>
       <version>4.1</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-    	<groupId>org.apache.httpcomponents</groupId>
-    	<artifactId>httpclient</artifactId>
-    	<version>4.1.2</version>
     </dependency>
   </dependencies>
 </project>
