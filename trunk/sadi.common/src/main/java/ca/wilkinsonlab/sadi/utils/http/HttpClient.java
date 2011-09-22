@@ -55,7 +55,7 @@ public class HttpClient extends DefaultHttpClient
 {
 	protected static final String ENCODING_UTF8 = "UTF-8";
 	protected static final String ROOT_CONFIG_KEY = "http"; 
-	protected static final String CHUNKED_CONFIG_KEY = "http.useChunked"; 
+	protected static final String CHUNKED_CONFIG_KEY = "sadi.http.useChunked"; 
 
 	protected boolean useChunked;
 
