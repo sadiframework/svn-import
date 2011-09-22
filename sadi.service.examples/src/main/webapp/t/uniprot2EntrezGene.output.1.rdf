@@ -1,0 +1,6 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.0="http://sadiframework.org/examples/uniprot2EntrezGene.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <j.0:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P47989"/>
+</rdf:RDF>
