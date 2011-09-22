@@ -494,6 +494,7 @@ public class RdfUtils
 	 * @param bnode the source BNode
 	 * @param uri the URI of the new Resource
 	 * @return
+	 * @deprecated use com.hp.hpl.jena.util.ResourceUtils.renameResource instead...
 	 */
 	public static Resource createNamedClone(Resource bnode, String uri)
 	{
