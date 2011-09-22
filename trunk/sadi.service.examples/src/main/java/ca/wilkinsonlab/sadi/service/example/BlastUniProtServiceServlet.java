@@ -71,7 +71,7 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 	protected Model createOutputModel()
 	{
 		Model model = super.createOutputModel();
-		model.setNsPrefix("uniprot", "http://sadiframework.org/examples/blast-uniprot.owl#");
+		model.setNsPrefix("ublast", "http://sadiframework.org/examples/blast-uniprot.owl#");
 		model.setNsPrefix("blast", "http://sadiframework.org/ontologies/blast.owl#");
 		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
 		return model;

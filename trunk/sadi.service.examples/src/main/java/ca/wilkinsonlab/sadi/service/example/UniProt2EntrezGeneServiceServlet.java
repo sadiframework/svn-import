@@ -19,7 +19,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @TestCases(
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/uniprot2EntrezGene-input.rdf", 
-				output = "http://sadiframework.org/examples/t/uniprot2EntrezGene-output.rdf"
+				output = "http://sadiframework.org/examples/t/uniprot2EntrezGene.output.1.rdf"
 		)
 )
 public class UniProt2EntrezGeneServiceServlet extends UniProtServiceServlet
