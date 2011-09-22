@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
@@ -20,11 +21,15 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
+
+import ca.wilkinsonlab.sadi.Config;
 
 /**
  * <p>A wrapped Apache Commons HTTP client with two differences:</p>
@@ -49,15 +54,25 @@ import org.apache.http.message.BasicNameValuePair;
 public class HttpClient extends DefaultHttpClient
 {
 	protected static final String ENCODING_UTF8 = "UTF-8";
-	
+	protected static final String ROOT_CONFIG_KEY = "http"; 
+	protected static final String CHUNKED_CONFIG_KEY = "http.useChunked"; 
+
+	protected boolean useChunked;
+
 	public HttpClient() 
 	{
-		super(new ThreadSafeClientConnManager());
+		this(new ThreadSafeClientConnManager());
 	}
 	
 	public HttpClient(int maxConnectionsPerRoute, int maxConnectionsTotal)
 	{
-		super(getConnectionsManager(maxConnectionsPerRoute, maxConnectionsTotal));
+		this(getConnectionsManager(maxConnectionsPerRoute, maxConnectionsTotal));
+	}
+
+	protected HttpClient(ClientConnectionManager connectionManager)
+	{
+		super(connectionManager);
+		useChunked = Config.getConfiguration().getBoolean(CHUNKED_CONFIG_KEY, false);
 	}
 	
 	protected static ClientConnectionManager getConnectionsManager(int maxConnectionsPerRoute, int maxConnectionsTotal)
@@ -115,7 +130,12 @@ public class HttpClient extends DefaultHttpClient
 	
 	public HttpResponse POST(URL url, InputStream postData, String contentType, Map<String,String> headers) throws IOException
 	{
-		InputStreamEntity entity = new InputStreamEntity(postData, -1);
+		AbstractHttpEntity entity;
+		if (useChunked)
+			entity = new InputStreamEntity(postData, -1);
+		else 
+			entity = new ByteArrayEntity(IOUtils.toByteArray(postData));
+		
 		entity.setContentType(new BasicHeader("Content-Type", contentType));
 		HttpPost post = new HttpPost(urlToUri(url));
 		post.setEntity(entity);
