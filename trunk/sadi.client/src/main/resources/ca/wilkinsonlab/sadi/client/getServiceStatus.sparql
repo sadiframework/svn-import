@@ -10,7 +10,7 @@ WHERE
 {
 	%u% rdf:type sadi:Service .
 	OPTIONAL {
-		%u% sadi:status ?statusNode .
+		%u% sadi:serviceStatus ?statusNode .
 		?statusNode dc:date ?date .
 		?statusNode rdfs:value ?status .
 	}
