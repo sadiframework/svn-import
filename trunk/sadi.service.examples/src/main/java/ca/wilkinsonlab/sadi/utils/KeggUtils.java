@@ -34,7 +34,7 @@ public class KeggUtils
 	public static final String COMPOUND_ID_PREFIX = "cpd:";
 
 	/**
-	 * The maximum number of IDs per request to the UniProt API.
+	 * The maximum number of IDs per request to the KEGG API.
 	 */ 
 	public static int MAX_IDS_PER_REQUEST = 100;
 	
