@@ -16,9 +16,20 @@ public class LSRN
 		Pattern.compile("http://purl.uniprot.org/uniprot/([^\\s\\.\\?]*)"),
 		Pattern.compile("http://www.uniprot.org/uniprot/([^\\s\\.\\?]*)"),
 	};
-	
-	public static final LSRNRecordType UniProt = new LSRNRecordType("UniProt", "UniProt", ADDITIONAL_UNIPROT_URI_PATTERNS);
+
+	public static final LSRNRecordType DDB = new LSRNRecordType("DDB"); // DictyBase
+	public static final LSRNRecordType EcoGene = new LSRNRecordType("ECOGENE"); 
+	public static final LSRNRecordType Ensembl = new LSRNRecordType("ENSEMBL");
+	public static final LSRNRecordType FlyBase = new LSRNRecordType("FLYBASE");
+	public static final LSRNRecordType HGNC = new LSRNRecordType("HGNC");
+	public static final LSRNRecordType MGI = new LSRNRecordType("MGI");
+	public static final LSRNRecordType OMIM = new LSRNRecordType("OMIM");
 	public static final LSRNRecordType PDB = new LSRNRecordType("PDB", "PDB");
+	public static final LSRNRecordType RGD = new LSRNRecordType("RGD");
+	public static final LSRNRecordType SGD = new LSRNRecordType("SGD");
+	public static final LSRNRecordType UniProt = new LSRNRecordType("UniProt", "UniProt", ADDITIONAL_UNIPROT_URI_PATTERNS);
+	public static final LSRNRecordType WormBase = new LSRNRecordType("WormBase");
+	public static final LSRNRecordType ZFIN = new LSRNRecordType("ZFIN");
 	
 	static public class Entrez
 	{
