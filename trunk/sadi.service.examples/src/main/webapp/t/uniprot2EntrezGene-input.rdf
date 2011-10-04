@@ -3,7 +3,7 @@
     xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
     xmlns:uniprot2pdb="http://sadiframework.org/examples/uniprot2pdb.owl#">
 
-	<lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/P47989">
+	<lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/P04637">
 	</lsrn:UniProt_Record>
-	
+
 </rdf:RDF>
