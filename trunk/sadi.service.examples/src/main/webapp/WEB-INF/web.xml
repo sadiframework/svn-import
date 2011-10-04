@@ -132,8 +132,8 @@
   </servlet>
 
   <servlet>
-    <servlet-name>keggGene2EntrezGene</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.example.KeggGene2EntrezGeneServiceServlet</servlet-class>
+    <servlet-name>keggGene2GeneXrefs</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.KeggGene2GeneXrefsServiceServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -262,8 +262,8 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>keggGene2EntrezGene</servlet-name>
-    <url-pattern>/keggGene2EntrezGene</url-pattern>
+    <servlet-name>keggGene2GeneXrefs</servlet-name>
+    <url-pattern>/keggGene2GeneXrefs</url-pattern>
   </servlet-mapping>
 
 </web-app>
