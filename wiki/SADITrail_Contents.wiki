@@ -1,7 +1,7 @@
 #summary Table of Contents for the SADI trail.
 
-* [SADITrail Introduction]
-* [SynchronousServices Synchronous services]
-* [AsynchronousServices Asynchronous services]
-* [BuildingServicesInJava Building services in Java]
-* [BuildingServicesInPerl Building services in Perl]
+  * [SADITrail Introduction]
+  * [SynchronousServices Synchronous services]
+  * [AsynchronousServices Asynchronous services]
+  * [BuildingServicesInJava Building services in Java]
+  * [BuildingServicesInPerl Building services in Perl]
