@@ -1,0 +1,22 @@
+PREFIX region: <http://sadiframework.org/ontologies/GMOD/BiopolymerRegion.owl#>
+PREFIX strand: <http://sadiframework.org/ontologies/GMOD/Strand.owl#>
+PREFIX range: <http://sadiframework.org/ontologies/GMOD/RangedSequencePosition.owl#>
+PREFIX sio: <http://semanticscience.org/resource/>
+
+SELECT *
+WHERE {
+
+    <[% biopolymer_region_uri %]>
+        a region:BiopolymerRegion;
+#        range:position [
+        region:position [
+            a range:RangedSequencePosition;
+            range:in_relation_to ?ref_sequence;
+#            sio:SIO_000053 [ a range:StartPosition; sio:SIO_000300 ?start_pos ]; # p = 'has proper part'
+#            sio:SIO_000053 [ a range:EndPosition; sio:SIO_000300 ?end_pos ] ] .  # p = 'has proper part'
+            range:coordinate [ a range:StartPosition; sio:SIO_000300 ?start_pos ]; # p = 'has proper part'
+            range:coordinate [ a range:EndPosition; sio:SIO_000300 ?end_pos ] ] .  # p = 'has proper part'
+
+}
+
+

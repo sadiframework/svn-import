@@ -1,0 +1,12 @@
+@prefix sio: <http://semanticscience.org/resource/> .
+
+[% IF feature_is_double_stranded %]
+
+[% sequence_uri %] sio:SIO_000210 [% strand_uri %] . # p = "represents"
+
+[% ELSE %]
+
+[% sequence_uri %] sio:SIO_000210 [% feature_uri %] . # p = "represents"
+
+[% END %]
+

@@ -1,0 +1,162 @@
+#!/usr/bin/perl
+
+package get_parent_features;
+
+use strict;
+use warnings;
+
+use lib 'lib';
+use base 'SADI::Simple::AsyncService';
+
+#-----------------------------------------------------------------
+# SERVICE CONFIGURATION PART
+#-----------------------------------------------------------------
+
+use SADI::GMOD::Config qw(
+    get_base_url
+    get_gmod_name
+);
+
+my %config = (
+
+    ServiceName => sprintf('get_parent_features%s', get_gmod_name() ? sprintf(' (%s)', get_gmod_name()) : ''),
+    Description => 'get the parent features of a given sequence feature',
+    Authority => 'sadiframework.org', 
+    InputClass => 'http://sadiframework.org/ontologies/GMOD/Feature.owl#Feature',
+    OutputClass => 'http://sadiframework.org/ontologies/GMOD/service/get_parent_features.owl#OutputClass',   
+    Provider => 'ben.vvalk@gmail.com',
+    URL => get_base_url . 'get_parent_features', # only required for asynchronous services
+
+);
+
+#-----------------------------------------------------------------
+# CGI HANDLER PART
+#-----------------------------------------------------------------
+
+use Log::Log4perl;
+
+Log::Log4perl->init('log4perl.properties');
+
+my $service = get_parent_features->new;
+$service->handle_cgi_request;
+
+#-----------------------------------------------------------------
+# SERVICE IMPLEMENTATION PART
+#-----------------------------------------------------------------
+
+use SADI::GMOD::Config qw(
+    get_db_args
+    get_gff_id_to_dbxref_mapping
+);
+use RDF::Trine::Node::Resource;
+use RDF::Trine::Node::Literal;
+use RDF::Trine::Statement;
+use RDF::Trine::Parser;
+use Bio::DB::SeqFeature::Store::Extended;
+use Utils::Dbxref qw(
+    id_type_to_dbxref
+    get_feature_by_primary_dbxref
+);
+use Utils::BiopolymerRegion qw(parse_biopolymer_region);
+use Utils::Trine qw(is_uri_resource);
+use Vocab::SIO qw(SIO_ONTOLOGY_PREFIX);
+use Utils::URI qw(parse_feature_uri);
+
+=head2 new 
+
+ Function: create a new instance of the service
+ 
+=cut
+
+sub new {
+    my $class = shift;
+    my $self = $class->SUPER::new(%config);
+    bless($self, $class);
+    return $self;
+}
+
+=head2 process_it
+
+ Function: implements the business logic of a SADI service
+ Args    : $inputs - ref to an array of RDF::Trine::Node::Resource
+           $input_model - an RDF::Trine::Model containing the input RDF data
+           $output_model - an RDF::Trine::Model containing the output RDF data
+ Returns : nothing (service output is stored in $output_model)
+
+=cut
+
+sub process_it {
+
+    my ($self, $inputs, $input_model, $output_model) = @_;
+
+    my $log = Log::Log4perl->get_logger('get_feature_info');
+    my $db = Bio::DB::SeqFeature::Store::Extended->new(get_db_args, -gff_id_to_dbxref => get_gff_id_to_dbxref_mapping);
+    my $parser = RDF::Trine::Parser->new('turtle');
+    my $templater = Template->new;
+    my $is_part_of = RDF::Trine::Node::Resource->new(SIO_ONTOLOGY_PREFIX . 'SIO_000068');
+    my $derives_from = RDF::Trine::Node::Resource->new(SIO_ONTOLOGY_PREFIX . 'SIO_000244');
+    my %visited_features = ();
+
+    foreach my $input (@$inputs) {
+
+        next unless is_uri_resource($input);
+        
+        $log->info(sprintf('processing input %s', $input->uri));
+
+        my $gff_id = parse_feature_uri($input->uri);
+        next unless $gff_id;        
+
+        my ($feature) = $db->features(-attributes => { load_id => $gff_id });
+        next unless $feature;
+
+        my @is_part_of_parent_ids = $feature->get_tag_values('parent_id');
+        my @derives_from_parent_ids = $feature->get_tag_values('Derives_from');
+
+        unless (@is_part_of_parent_ids || @derives_from_parent_ids) {
+            @is_part_of_parent_ids = ($feature->seq_id) if $feature->seq_id;
+        }
+
+        my @parent_id_lists = (\@is_part_of_parent_ids, \@derives_from_parent_ids);
+        my @properties = ($is_part_of, $derives_from); 
+
+        #------------------------------------------------------------
+        # encode the output RDF
+        #------------------------------------------------------------
+
+        for (my $i = 0; $i < @parent_id_lists; $i++) {
+
+            my $parent_ids = $parent_id_lists[$i];
+            my $property = $properties[$i];
+
+            foreach my $parent_id (@$parent_ids) {
+
+                my ($feature) = $db->features(-attributes => { load_id => $parent_id });
+
+                next unless $feature;
+                next unless $feature->uri;
+
+                my $feature_node = RDF::Trine::Node::Resource->new($feature->uri);
+                my $statement = RDF::Trine::Statement->new($input, $property, $feature_node);
+                $output_model->add_statement($statement);
+
+                if (!$visited_features{$feature->uri}) {
+                    $parser->parse_into_model(undef, $feature->ttl, $output_model);
+                    $visited_features{$feature->uri} = 1;
+                }
+
+                my $ref_feature = $feature->ref_feature;
+
+                if (!$visited_features{$ref_feature->uri}) {
+                    $parser->parse_into_model(undef, $ref_feature->ttl, $output_model);
+                    $visited_features{$ref_feature->uri} = 1;
+                }
+
+            }
+        }
+
+    }
+}
+
+1;
+
+__END__
