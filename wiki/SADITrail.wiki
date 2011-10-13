@@ -1,5 +1,5 @@
 #summary A collection of primary documentation for the SADI standard
-#sidebar SADITrailContents
+#sidebar SADITrail_Contents
 
 = Introduction =
 
