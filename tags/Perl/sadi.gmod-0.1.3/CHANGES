@@ -1,4 +1,4 @@
-$NEXT_VERSION
+version 0.1.3
     - made get_sequence_for_region harmonious with existing SADI sequence-related services
     - fixed mismatches between service input/output RDF and service ontologies
     - fixed parsing of bare LSRN URIs (get_feature_info)
