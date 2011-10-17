@@ -83,6 +83,9 @@ public class RDFPath extends ArrayList<RDFPathElement>
 		return super.equals(o);
 	}
 
+	/* (non-Javadoc)
+	 * @see java.util.AbstractList#hashCode()
+	 */
 	@Override
 	public int hashCode()
 	{
