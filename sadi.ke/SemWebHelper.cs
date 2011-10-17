@@ -22,6 +22,8 @@ namespace SADI.KEPlugin
             {
                 using (RdfWriter writer = new N3Writer(buf))
                 {
+                    writer.Namespaces.AddNamespace("http://semanticscience.org/resource/", "sio");
+                    writer.Namespaces.AddNamespace("http://purl.oclc.org/SADI/LSRN/", "lsrn");
                     writer.Write(store);
                 }
             }
@@ -29,7 +31,7 @@ namespace SADI.KEPlugin
             {
                 buf.WriteLine(e.ToString());
             }
-            return buf.ToString();
+            return buf.ToString().Replace("\n", Environment.NewLine);
         }
     }
 }

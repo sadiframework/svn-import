@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using IOInformatics.KE.PluginAPI;
+using IOInformatics.KE.PluginAPI.Providers;
 
 namespace SADI.KEPlugin
 {
@@ -9,14 +10,16 @@ namespace SADI.KEPlugin
     {
         public IPluginGraph Graph;
         public ITripleStoreFactory Factory;
+        public IVisibilityManager VisibilityManager;
 
         private const string RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
         private IEntity rdf_type;
 
-        public KEStore(IPluginGraph graph, ITripleStoreFactory factory)
+        public KEStore(IPluginGraph graph, ITripleStoreFactory factory, IVisibilityManager visibilityManager)
         {
             Graph = graph;
             Factory = factory;
+            VisibilityManager = visibilityManager;
 
             rdf_type = factory.CreateEntity(new Uri(RDF + "type"));
         }
@@ -41,6 +44,23 @@ namespace SADI.KEPlugin
                 return true;
             }
             return false;
+        }
+
+        public bool HasType(IResource node, string type)
+        {
+            foreach (IStatement statement in Graph.Select(node, rdf_type, null))
+            {
+                if (statement.Object is IEntity && (statement.Object as IEntity).Uri.ToString() == type)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public KEMapper GetMapper(SemWeb.Store store)
+        {
+            return new KEMapper(this, store);
         }
 
         public static void Import(SemWeb.Store store)

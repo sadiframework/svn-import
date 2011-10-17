@@ -56,8 +56,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.textBox1);
-            this.splitContainer1.Size = new System.Drawing.Size(292, 266);
-            this.splitContainer1.SplitterDistance = 157;
+            this.splitContainer1.Size = new System.Drawing.Size(592, 266);
+            this.splitContainer1.SplitterDistance = 95;
             this.splitContainer1.TabIndex = 0;
             // 
             // dataGridView1
@@ -78,7 +78,7 @@
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowHeadersVisible = false;
             this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(292, 157);
+            this.dataGridView1.Size = new System.Drawing.Size(592, 95);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
             // 
@@ -114,27 +114,26 @@
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
-            this.textBox1.Size = new System.Drawing.Size(292, 105);
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox1.Size = new System.Drawing.Size(592, 167);
             this.textBox1.TabIndex = 0;
-            this.textBox1.Text = resources.GetString("textBox1.Text");
             // 
             // MasterWorker
             // 
             this.MasterWorker.WorkerReportsProgress = true;
             this.MasterWorker.WorkerSupportsCancellation = true;
-            this.MasterWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.InvokeServicesWorker_DoWork);
-            this.MasterWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.InvokeServicesWorker_ProgressChanged);
+            this.MasterWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.MasterWorker_DoWork);
+            this.MasterWorker.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.MasterWorker_ProgressChanged);
             // 
             // ServiceInvocationDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
-            this.ClientSize = new System.Drawing.Size(292, 266);
+            this.ClientSize = new System.Drawing.Size(592, 266);
             this.Controls.Add(this.splitContainer1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ServiceInvocationDialog";
-            this.Text = "ServiceInvocationDialog";
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();

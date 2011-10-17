@@ -78,8 +78,16 @@ namespace SADI.KEPlugin
 
         private void selected_CheckedChanged(object sender, EventArgs e)
         {
-            this.Parent.BackColor = System.Drawing.SystemColors.HighlightText;
-            this.Parent.ForeColor = System.Drawing.SystemColors.HighlightText;
+            if (selected.Checked)
+            {
+                this.BackColor = System.Drawing.SystemColors.Highlight;
+                this.ForeColor = System.Drawing.SystemColors.HighlightText;
+            }
+            else
+            {
+                this.BackColor = System.Drawing.SystemColors.Info;
+                this.ForeColor = System.Drawing.SystemColors.InfoText;
+            }
         }
     }
 }

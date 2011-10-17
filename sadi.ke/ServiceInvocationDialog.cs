@@ -9,67 +9,122 @@ using IOInformatics.KE.PluginAPI;
 using SemWeb;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace SADI.KEPlugin
 {
     public partial class ServiceInvocationDialog : Form
     {
-        private IPluginGraph graph;
-        private ITripleStoreFactory factory;
-        private IEnumerable<SADIService> services;
-        private IEnumerable<IResource> selectedNodes;
+        private KEStore KE;
+        private IEnumerable<SADIService> Services;
+        private IEnumerable<IResource> SelectedNodes;
 
-        public ServiceInvocationDialog(IPluginGraph graph, ITripleStoreFactory factory)
+        public ServiceInvocationDialog(KEStore ke, ICollection<SADIService> services, IEnumerable<IResource> selectedNodes)
         {
-            this.graph = graph;
-            this.factory = factory;
+            KE = ke;
+            Services = services;
+            SelectedNodes = selectedNodes;
             InitializeComponent();
+        }
+
+        internal void invokeServices()
+        {
+            // populate the DataGridView
+            List<ServiceCallStatus> rows = new List<ServiceCallStatus>();
+            foreach (SADIService service in Services)
+            {
+                int i = dataGridView1.Rows.Add(new string[] {"Waiting", service.name, service.uri});
+                dataGridView1.Rows[i].Tag = new StringBuilder();
+                rows.Add(new ServiceCallStatus(i, service));
+            }
+            MasterWorker.RunWorkerAsync(rows);
         }
 
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             Object tag = dataGridView1.Rows[e.RowIndex].Tag;
-            if (tag is StringBuilder)
+            if (tag != null)
             {
                 textBox1.Text = tag.ToString();
             }
         }
 
-        internal void invokeServices(List<SADIService> services, IEnumerable<IOInformatics.KE.PluginAPI.IResource> selectedNodes)
+        private void MasterWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            this.services = services;
-            this.selectedNodes = selectedNodes;
-
-            // populate the DataGridView
-            foreach (SADIService service in services)
+            ServiceCallStatus arg = e.UserState as ServiceCallStatus;
+            DataGridViewRow row = dataGridView1.Rows[arg.Row];
+            row.Cells[0].Value = arg.Status;
+            if (arg.Data is Exception)
             {
-                int i = dataGridView1.Rows.Add(new string[] { "Preparing", service.name, service.uri });
-                MasterWorker.RunWorkerAsync(new RowObjectPair(i, service));
+                addToTag(row, (arg.Data as Exception).Message);
+            }
+            else if (arg.Data is string)
+            {
+                addToTag(row, arg.Data as string);
             }
         }
 
-        private void InvokeServicesWorker_DoWork(object sender, DoWorkEventArgs e)
+        const int MAX_WORKERS = 10;
+        private static int NumWorkers = 0;
+        private void MasterWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            RowObjectPair arg = e.Argument as RowObjectPair;
-            SADIService service = arg.data as SADIService;
+            List<ServiceCallStatus> rows = e.Argument as List<ServiceCallStatus>;
+            int i=0;
+            while (i<rows.Count)
+            {
+                if (NumWorkers < MAX_WORKERS)
+                {
+                    Interlocked.Increment(ref NumWorkers);
+                    SADIHelper.debug("ServiceInvocation", "queueing worker " + NumWorkers, rows[i].Data);
+                    ThreadPool.QueueUserWorkItem(InvokeServicesWorker_DoWork, rows[i++]);
+                }
+                else
+                {
+                    SADIHelper.debug("ServiceInvocation", "waiting for some service calls to finish before spawning more than " + MAX_WORKERS, null);
+                    Thread.Sleep(30000);
+                }
+            }
+            while (NumWorkers > 0)
+            {
+                SADIHelper.trace("ServiceInvocation", "waiting for " + NumWorkers + " service calls to finish", null);
+                Thread.Sleep(1000);
+            }
+        }
+
+        private void InvokeServicesWorker_DoWork(object threadContext)
+        {
+            ServiceCallStatus call = threadContext as ServiceCallStatus;
+            SADIService service = call.Data as SADIService;
             try
             {
-                MemoryStore input = assembleInput(selectedNodes, service);
-                arg.data = SemWebHelper.storeToString(input);
-                MasterWorker.ReportProgress(50, arg);
-                /*
+                call.Status = "Assembling input";
+                MasterWorker.ReportProgress(1, call);
+                MemoryStore input = assembleInput(SelectedNodes, service);
+
+                call.Status = "Calling service";
+                call.Data = "Assembled input:\r\n" + SemWebHelper.storeToString(input);
+                MasterWorker.ReportProgress(33, call);
                 Store output = service.invokeService(input);
-                arg.data = SADIHelper.storeToString(output);
-                SADIHelper.debug("output:", arg.data);
+
+                call.Status = "Storing output";
+                call.Data = "Received output:\r\n" + SemWebHelper.storeToString(output);
+                MasterWorker.ReportProgress(66, call);
                 updateKE(output);
-                arg.data = SADIHelper.storeToString(output);
-                InvokeServicesWorker.ReportProgress(100, arg);
-                 */
+
+                call.Status = "Done";
+                call.Data = service;
+                MasterWorker.ReportProgress(100, call);
             }
             catch (Exception err)
             {
-                arg.data = err;
-                MasterWorker.ReportProgress(100, arg);
+                SADIHelper.error("ServiceCall", "error calling service", service, err);
+                call.Status = "Error";
+                call.Data = service;
+                MasterWorker.ReportProgress(100, call);
+            }
+            finally
+            {
+                Interlocked.Decrement(ref NumWorkers);
             }
         }
 
@@ -86,78 +141,56 @@ namespace SADI.KEPlugin
             return input;
         }
 
-        private static readonly Regex LSRN_pattern = new Regex(@"http://lsrn.org/([^:]+):([^?]+)");
+        private static readonly Regex LSRN_pattern = new Regex("http://lsrn.org/([^:]+):([^?]+)");
         private static readonly string RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
         private static readonly string LSRN = "http://purl.oclc.org/SADI/LSRN/";
         private static readonly string SIO = "http://semanticscience.org/resource/";
         private static readonly Entity rdf_type = RDF + "type";
         private static readonly Entity has_identifier = SIO + "SIO_000671";
         private static readonly Entity has_value = SIO + "SIO_000300";
-        private static void assembleInput(MemoryStore input, IEntity node, string inputClass)
+        private void assembleInput(MemoryStore input, IEntity node, string inputClass)
         {
             String uri = node.Uri.ToString();
+            Entity root = new Entity(uri);
+            if (KE.HasType(node, inputClass))
+            {
+                input.Add(new Statement(root, rdf_type, new Entity(inputClass)));
+            }
             Match match = LSRN_pattern.Match(uri);
             if (match != null)
             {
                 String lsrn_db = match.Groups[1].ToString();
                 String lsrn_id = match.Groups[2].ToString();
                 String type_uri = LSRN + lsrn_db + "_Record";
-                if (type_uri == inputClass)
+                if (type_uri != inputClass)
                 {
-                    Entity root = new Entity(uri);
-                    Entity root_type = new Entity(LSRN + lsrn_db + "_Record");
-                    Entity identifier = new BNode();
-                    Entity identifier_type = new Entity(LSRN + lsrn_db + "_Identifier");
-                    input.Add(new Statement(root, rdf_type, root_type));
-                    input.Add(new Statement(root, has_identifier, identifier));
-                    input.Add(new Statement(identifier, rdf_type, identifier_type));
-                    input.Add(new Statement(identifier, has_value, new Literal(lsrn_id)));
+                    input.Add(new Statement(root, rdf_type, new Entity(type_uri)));
                 }
+                Entity identifier = new BNode();
+                Entity identifier_type = new Entity(LSRN + lsrn_db + "_Identifier");
+                input.Add(new Statement(root, has_identifier, identifier));
+                input.Add(new Statement(identifier, rdf_type, identifier_type));
+                input.Add(new Statement(identifier, has_value, new Literal(lsrn_id)));
             }
         }
 
         private void updateKE(Store output)
         {
-            KEMapper mapper = new KEMapper(graph, factory);
-            graph.BeginUpdate();
+            KEMapper mapper = KE.GetMapper(output);
+            ICollection<IStatement> statements = new List<IStatement>();
             foreach (Statement statement in output.Select(SelectFilter.All))
             {
-                IResource o;
-                if (statement.Object is Literal)
-                {
-                    o = factory.CreateLiteral(statement.Object.ToString());
-                } else {
-                    o = mapper.toKE(statement.Object as Entity);
-                }
-                graph.Add(factory.CreateStatement(
-                    mapper.toKE(statement.Subject),
-                    mapper.toKE(statement.Predicate),
-                    o));
+                statements.Add(KE.Factory.CreateStatement(
+                        mapper.toKE(statement.Subject),
+                        mapper.toKE(statement.Predicate),
+                        mapper.toKE(statement.Object)));
             }
-            graph.EndUpdate();
-        }
-
-        private void InvokeServicesWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            RowObjectPair arg = e.UserState as RowObjectPair;
-            DataGridViewRow row = dataGridView1.Rows[arg.row];
-            if (e.ProgressPercentage == 50)
+            KE.Graph.BeginUpdate();
+            KE.Graph.Add(statements);
+            KE.Graph.EndUpdate();
+            foreach (IStatement statement in statements)
             {
-                row.Cells[0].Value = "Invoking";
-                addToTag(row, "Assembled input:\r\n" + arg.data);
-            }
-            else if (e.ProgressPercentage == 100)
-            {
-                if (arg.data is Exception)
-                {
-                    row.Cells[0].Value = "Error";
-                    addToTag(row, (arg.data as Exception).StackTrace.ToString());
-                }
-                else
-                {
-                    row.Cells[0].Value = "Done";
-                    addToTag(row, "Received output:\r\n" + arg.data);
-                }
+                KE.VisibilityManager.ShowStatement(statement);
             }
         }
 
@@ -167,58 +200,25 @@ namespace SADI.KEPlugin
             {
                 row.Tag = new StringBuilder();
             }
-            (row.Tag as StringBuilder).Append(o.ToString());
-            SADIHelper.debug("addToTag " + row + ":", o);
+            StringBuilder buf = (row.Tag as StringBuilder);
+            if (buf.Length > 0)
+            {
+                buf.Append("\r\n");
+            }
+            buf.Append(o.ToString());
         }
 
-        private class KEMapper
+        private class ServiceCallStatus
         {
-            private IPluginGraph graph;
-            private ITripleStoreFactory factory;
-            private Dictionary<string, IEntity> map;
+            public int Row;
+            public string Status;
+            public Object Data;
 
-            public KEMapper(IPluginGraph graph, ITripleStoreFactory factory)
+            public ServiceCallStatus(int row, Object data)
             {
-                this.graph = graph;
-                this.factory = factory;
-                map = new Dictionary<string, IEntity>();
-            }
-            
-            public IEntity toKE(Resource from)
-            {
-                String key;
-                if (from is BNode)
-                {
-                    key = (from as BNode).LocalName;
-                    if (!map.ContainsKey(key))
-                    {
-                        Guid guid = Guid.NewGuid();
-                        Uri uri = new Uri(String.Format("urn:uuid:{0}", guid));
-                        map.Add(key, factory.CreateEntity(uri));
-                    }
-                }
-                else
-                {
-                    key = from.Uri;
-                    if (!map.ContainsKey(key))
-                    {
-                        Uri uri = new Uri(from.Uri);
-                        map.Add(key, factory.CreateEntity(uri));
-                    }
-                }
-                return map[key];
-            }
-        }
-
-        private class RowObjectPair
-        {
-            public int row { get; set; }
-            public Object data { get; set; }
-
-            public RowObjectPair(int row, Object data)
-            {
-                this.row = row;
-                this.data = data;
+                Row = row;
+                Data = data;
+                Status = "";
             }
         }
     }

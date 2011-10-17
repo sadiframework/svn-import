@@ -126,39 +126,6 @@
   <metadata name="serviceURI.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
-  <data name="textBox1.Text" xml:space="preserve">
-    <value>Assembled data:
-&lt;rdf:RDF
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:sio="http://semanticscience.org/resource/"
-    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"&gt;
-	&lt;lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/P12345"&gt;
-	  &lt;sio:SIO_000671&gt;
-	    &lt;lsrn:UniProt_Identifier&gt;
-	      &lt;sio:SIO_000300&gt;P12345&lt;/sio:SIO_000300&gt;
-	    &lt;/lsrn:UniProt_Identifier&gt;
-	  &lt;/sio:SIO_000671&gt;
-	&lt;/lsrn:UniProt_Record&gt;
-	&lt;lsrn:UniProt_Record rdf:about="http://example.com/not-a-uniprot-id"&gt;
-	  &lt;sio:SIO_000671&gt;
-	    &lt;lsrn:UniProt_Identifier&gt;
-	      &lt;sio:SIO_000300&gt;Q7Z591&lt;/sio:SIO_000300&gt;
-	    &lt;/lsrn:UniProt_Identifier&gt;
-	  &lt;/sio:SIO_000671&gt;
-	&lt;/lsrn:UniProt_Record&gt;
-&lt;/rdf:RDF&gt;
-Invoking service...
-</value>
-  </data>
-  <metadata name="invocationStatus.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="serviceName.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <metadata name="serviceURI.UserAddedColumn" type="System.Boolean, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
   <metadata name="MasterWorker.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
