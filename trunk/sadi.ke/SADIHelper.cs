@@ -9,114 +9,111 @@ using System.Windows.Forms;
 using System.Collections;
 using System.Threading;
 using SemWeb;
+using System.Diagnostics;
+using System.Collections.Specialized;
 
 namespace SADI.KEPlugin
 {
     class SADIHelper
     {
-        private const string SERVLET_URI = "http://biordf.net/sadi/ke";
-        //private const string SERVLET_URI = "http://128.189.253.111:8080/sadi.ke/ke";
-        //private const string SERVLET_URI = "http://wilkinsondev.elmonline.ca/sadi-ke/ke";
-        
-        public static string buildUri(Dictionary<string, string> args)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (KeyValuePair<string, string> kvp in args)
-            {
-                if (sb.Length > 0)
-                    sb.Append("&");
-                sb.Append(kvp.Key);
-                sb.Append("=");
-                sb.Append(Uri.EscapeDataString(kvp.Value));
-            }
-            sb.Insert(0, "?");
-            sb.Insert(0, SERVLET_URI);
-            return sb.ToString();
-        }
+        const string ResolverURI = "http://sadiframework.org/RESOURCES/KE/resolver";
 
-        public static JsonData fetchUri(string uri)
+        internal static void debug(String prefix, String message, Object arg)
         {
-            StringBuilder sb = new StringBuilder();
-            byte[] buf = new byte[4096];
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream stream = response.GetResponseStream();
-            int count;
-            do
+            Debug.WriteLine(message, prefix);
+            if (arg != null)
             {
-                count = stream.Read(buf, 0, buf.Length);
-                if (count != 0)
+                Debug.Indent();
+                if (arg is string)
                 {
-                    sb.Append(Encoding.ASCII.GetString(buf, 0, count));
+                    Debug.WriteLine(arg);
                 }
-            } while (count > 0);
-            return JsonMapper.ToObject(sb.ToString());
-        }
-
-        public static JsonData fetchUriAsync(string uri)
-        {
-            while (true)
-            {
-                JsonData result = fetchUri(uri);
-                if (result.IsObject && result["taskId"] != null) {
-                    uri = SADIHelper.buildUri(new Dictionary<string, string>() { { "poll", (string)result["taskId"] } });
-                    Thread.Sleep(2000);
-                } else {
-                    return result;
-                }
-            }
-        }
-
-        public static string buildArgumentList(IEnumerable<IResource> entities)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (IResource entity in entities)
-            {
-                if (sb.Length > 0)
-                    sb.Append(" ");
-                sb.Append((entity as IEntity).Uri);
-            }
-            return sb.ToString();
-        }
-
-        public static string buildArgumentList(IEnumerable items)
-        {
-            StringBuilder sb = new StringBuilder();
-            foreach (ListViewItem item in items)
-            {
-                string predicate = item.Tag as string;
-                if (sb.Length > 0)
-                    sb.Append(" ");
-                sb.Append(predicate);
-            }
-            return sb.ToString();
-        }
-
-        internal static void debug(String prefix, Object arg)
-        {
-            String s;
-            if (arg is IEnumerable)
-            {
-                StringBuilder buf = new StringBuilder();
-                foreach (Object o in arg as IEnumerable)
+                else if (arg is Store)
                 {
-                    if (buf.Length > 0)
+                    Debug.WriteLine(SemWebHelper.storeToString(arg as Store));
+                }
+                else if (arg is IEnumerable)
+                {
+                    foreach (Object o in arg as IEnumerable)
                     {
-                        buf.Append("\n");
+                        Debug.WriteLine(o.ToString());
                     }
-                    buf.Append(o);
                 }
-                s = buf.ToString();
+                else if (arg != null)
+                {
+                    Debug.WriteLine(arg.ToString());
+                }
+                Debug.Unindent();
             }
-            else if (arg is string)
+            Debug.Flush();
+        }
+
+        internal static void trace(String prefix, String message, Object arg)
+        {
+            Trace.WriteLine(message, prefix);
+            if (arg != null)
             {
-                s = arg as string;
+                Trace.Indent();
+                if (arg is string)
+                {
+                    Trace.WriteLine(arg);
+                }
+                else if (arg is Store)
+                {
+                    Trace.WriteLine(SemWebHelper.storeToString(arg as Store));
+                }
+                else if (arg is IEnumerable)
+                {
+                    foreach (Object o in arg as IEnumerable)
+                    {
+                        Trace.WriteLine(o.ToString());
+                    }
+                }
+                else if (arg != null)
+                {
+                    Trace.WriteLine(arg.ToString());
+                }
+                Trace.Unindent();
             }
-            else
+            Trace.Flush();
+        }
+
+        internal static void error(String prefix, String message, Object arg, Exception e)
+        {
+            Debug.WriteLine(message, prefix);
+            if (arg != null)
             {
-                s = arg.ToString();
+                Debug.Indent();
+                if (arg is string)
+                {
+                    Debug.WriteLine(arg);
+                }
+                else if (arg is IEnumerable)
+                {
+                    foreach (Object o in arg as IEnumerable)
+                    {
+                        Debug.WriteLine(o.ToString());
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine(arg.ToString());
+                }
+                Debug.Write("error: ");
+                Debug.WriteLine(e.Message);
+                Debug.Write("source: ");
+                Debug.WriteLine(e.Source);
+                Debug.WriteLine(e.StackTrace);
+                Debug.Unindent();
             }
-            Console.Out.WriteLine(prefix + "\n" + s);
+            Debug.Flush();
+        }
+
+        internal static Uri GetResolverURI(IEntity node)
+        {
+            NameValueCollection col = System.Web.HttpUtility.ParseQueryString(string.Empty);
+            col.Add("uri", node.Uri.ToString());
+            return new Uri(ResolverURI + "?" + col.ToString());
         }
     }
 }

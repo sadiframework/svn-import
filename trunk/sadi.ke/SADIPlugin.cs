@@ -8,6 +8,7 @@ using System.IO;
 using IOInformatics.KE.PluginAPI;
 using IOInformatics.KE.PluginAPI.Providers;
 using LitJson;
+using System.Diagnostics;
 
 namespace SADI.KEPlugin
 {
@@ -16,7 +17,6 @@ namespace SADI.KEPlugin
         private IPlugInInfo PluginInfo = new SADIPluginInfo();
         private KEStore KEStore;
         private ISelectionProvider SelectionProvider;
-        private IVisibilityManager VisibilityManager;
 
         private ToolStripMenuItem callServicesItem;
 
@@ -24,9 +24,9 @@ namespace SADI.KEPlugin
         {
             ITripleStoreProvider tripleStoreProvider = (ITripleStoreProvider)serviceProvider.GetService(typeof(ITripleStoreProvider));
             ITripleStoreFactory tripleStoreFactory = ((IFactoryProvider)serviceProvider.GetService(typeof(IFactoryProvider))).Factory;
-            KEStore = new KEStore(tripleStoreProvider.Store, tripleStoreFactory);
+            IVisibilityManager visibilityManager = ((IVisibilityManager)serviceProvider.GetService(typeof(IVisibilityManager)));
+            KEStore = new KEStore(tripleStoreProvider.Store, tripleStoreFactory, visibilityManager);
             SelectionProvider = (ISelectionProvider)serviceProvider.GetService(typeof(ISelectionProvider));
-            VisibilityManager = ((IVisibilityManager)serviceProvider.GetService(typeof(IVisibilityManager)));
                         
             callServicesItem = new ToolStripMenuItem("Find SADI services...");
             callServicesItem.Click += new EventHandler(callServicesItem_Click);
@@ -35,6 +35,22 @@ namespace SADI.KEPlugin
             contextMenuProvider.ContextMenu.Opening += new System.ComponentModel.CancelEventHandler(ContextMenu_Opening);
             contextMenuProvider.ContextMenu.Items.Add(new ToolStripSeparator());
             contextMenuProvider.ContextMenu.Items.Add(callServicesItem);
+
+            try
+            {
+                string logFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                Trace.Listeners.Add(new TextWriterTraceListener(System.IO.File.AppendText(logFolder + "\\SADI.KE.log")));
+                Debug.WriteLine("new logging session at " + DateTime.Now);
+                Debug.Flush();
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(
+                    "Unable to configure logging;\n" + e.Message, 
+                    "SADI error", 
+                    MessageBoxButtons.OK, 
+                    MessageBoxIcon.Warning);
+            }
         }
 
         //void _showSelectedItemsInfo_Click( object sender, EventArgs e )

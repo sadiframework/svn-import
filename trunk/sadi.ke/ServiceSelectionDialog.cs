@@ -11,12 +11,12 @@ namespace SADI.KEPlugin
 {
     public partial class ServiceSelectionDialog : Form
     {
-        private KEStore KEStore;
+        private KEStore KE;
         private IEnumerable<IResource> SelectedNodes;
 
-        public ServiceSelectionDialog(KEStore store, IEnumerable<IResource> selectedNodes)
+        public ServiceSelectionDialog(KEStore ke, IEnumerable<IResource> selectedNodes)
         {
-            KEStore = store;
+            KE = ke;
             SelectedNodes = selectedNodes;
             InitializeComponent();
         }
@@ -65,9 +65,9 @@ namespace SADI.KEPlugin
             List<SADIService> services = GetSelectedServices();
             if (services.Count > 0)
             {
-                ServiceInvocationDialog dialog = new ServiceInvocationDialog(KEStore.Graph, KEStore.Factory);
+                ServiceInvocationDialog dialog = new ServiceInvocationDialog(KE, services, SelectedNodes);
                 dialog.Show();
-                dialog.invokeServices(services, SelectedNodes);
+                dialog.invokeServices();
                 CleanUp();
             }
             else
@@ -161,20 +161,29 @@ namespace SADI.KEPlugin
                     {
                         return;
                     }
-                    else if (!KEStore.HasType(node))
+                    else if (!KE.HasType(node))
                     {
                         try
                         {
+                            SADIHelper.debug("ServiceSelection", "resolving URI", node);
                             KEStore.Import(SemWebHelper.resolveURI((node as IEntity).Uri));
                         }
                         catch (Exception err)
                         {
-                            // FIXME set up logging...
-                            Console.WriteLine(err.StackTrace);
+                            SADIHelper.error("ServiceSelection", "error resolving URI", node, err);
+                        }
+                        try
+                        {
+                            SADIHelper.debug("ServiceSelection", "resolving against SADI resolver", node);
+                            KEStore.Import(SemWebHelper.resolveURI(SADIHelper.GetResolverURI(node as IEntity)));
+                        }
+                        catch (Exception err)
+                        {
+                            SADIHelper.error("ServiceSelection", "error resolving against SADI resolver", node, err);
                         }
                     }
 
-                    foreach (IEntity type in KEStore.GetTypes(node as IEntity))
+                    foreach (IEntity type in KE.GetTypes(node as IEntity))
                     {
                         types.Add(type.Uri.ToString());
                     }
@@ -198,7 +207,7 @@ namespace SADI.KEPlugin
                 else
                 {
                     SADIRegistry.Instance().addPropertyRestrictions(service);
-                    FindServicesWorker.ReportProgress(++i * 100 / n, service);
+                    FindServicesWorker.ReportProgress((++i * 100) / n, service);
                 }
             }
 
@@ -225,7 +234,7 @@ namespace SADI.KEPlugin
                         else if (checkForInputInstances(service, SelectedNodes))
                         {
                             SADIRegistry.Instance().addPropertyRestrictions(service);
-                            FindServicesWorker.ReportProgress(++i * 100 / n, service);
+                            FindServicesWorker.ReportProgress((++i * 100) / n, service);
                         }
                     }
                 }

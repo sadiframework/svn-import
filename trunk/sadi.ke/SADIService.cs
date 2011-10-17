@@ -38,6 +38,7 @@ namespace SADI.KEPlugin
 
         public MemoryStore invokeService(MemoryStore input)
         {
+            SADIHelper.trace("SADIService", "sending data to  " + uri, input);
             WebRequest request = WebRequest.Create(this.uri);
             request.ContentType = "application/rdf+xml";
             request.Method = "POST";
@@ -61,8 +62,12 @@ namespace SADI.KEPlugin
             reader.Close();
             stream.Close();
             response.Close();
+            SADIHelper.trace("SADIService", "read data from  " + uri, output);
 
-            resolveAsynchronousData(output);
+            if (((HttpWebResponse)response).StatusCode == HttpStatusCode.Accepted)
+            {
+                resolveAsynchronousData(output);
+            }
             return output;
         }
 
@@ -70,11 +75,16 @@ namespace SADI.KEPlugin
         private static Entity isDefinedBy = RDFS + "isDefinedBy";
         private void resolveAsynchronousData(MemoryStore output)
         {
+            Dictionary<string, object> seen = new Dictionary<string, object>();
             foreach (Statement s in output.Select(new Statement(null, isDefinedBy, null)))
             {
                 if (s.Object.Uri != null)
                 {
-                    resolveAsynchronousData(output, s.Object.Uri);
+                    if (!seen.ContainsKey(s.Object.Uri))
+                    {
+                        seen.Add(s.Object.Uri, null);
+                        resolveAsynchronousData(output, s.Object.Uri);
+                    }
                     output.Remove(s);
                 }
             }
@@ -82,44 +92,51 @@ namespace SADI.KEPlugin
 
         private void resolveAsynchronousData(MemoryStore output, string uri)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
-            request.Method = "GET";
-            request.AllowAutoRedirect = false;
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            if (response.StatusCode == HttpStatusCode.Accepted)
+            while (uri != null)
             {
-                String newURL = response.Headers["Location"];
-                if (newURL == null)
+                SADIHelper.trace("SADIService", "fetching asynchronous data", uri);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+                request.Method = "GET";
+                request.AllowAutoRedirect = false;
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                if (response.StatusCode == HttpStatusCode.Redirect)
                 {
-                    newURL = uri;
-                }
+                    String newURL = response.Headers["Location"];
+                    if (newURL != null)
+                    {
+                        uri = newURL;
+                    }
 
-                int toSleep = 5;
-                String retry = response.Headers["Retry-After"];
-                try
-                {
-                    toSleep = Int16.Parse(retry);
+                    int toSleep = 5;
+                    String retry = response.Headers["Retry-After"];
+                    try
+                    {
+                        if (retry != null)
+                        {
+                            toSleep = Int16.Parse(retry);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        SADIHelper.error("SADIService", "failed to parse Retry-After header", retry, e);
+                    }
+                    SADIHelper.trace("SADIService", "sleeping " + toSleep + "s before asynchronous request", null);
+                    System.Threading.Thread.Sleep(toSleep * 1000);
                 }
-                catch (Exception e)
+                else
                 {
-                    System.Diagnostics.Debug.WriteLine(e.StackTrace);
+                    Stream stream = response.GetResponseStream();
+                    StreamReader reader = new StreamReader(stream);
+                    using (RdfReader rdfReader = new RdfXmlReader(reader))
+                    {
+                        output.Import(rdfReader);
+                    }
+                    reader.Close();
+                    stream.Close();
+                    uri = null;
                 }
-
-                System.Threading.Thread.Sleep(toSleep * 1000);
-                resolveAsynchronousData(output, newURL);
+                response.Close();
             }
-            else
-            {
-                Stream stream = response.GetResponseStream();
-                StreamReader reader = new StreamReader(stream);
-                using (RdfReader rdfReader = new RdfXmlReader(reader))
-                {
-                    output.Import(rdfReader);
-                }
-                reader.Close();
-                stream.Close();
-            }
-            response.Close();
         }
     }
 }

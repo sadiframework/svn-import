@@ -5,6 +5,7 @@ using System.Net;
 using System.IO;
 using LitJson;
 using System.Collections.Specialized;
+using System.Diagnostics;
 
 namespace SADI.KEPlugin
 {
@@ -82,26 +83,26 @@ namespace SADI.KEPlugin
             }
 
             string query =
-                "PREFIX sadi: <http://sadiframework.org/ontologies/sadi.owl#> \n" +
-                "PREFIX mygrid: <http://www.mygrid.org.uk/mygrid-moby-service#> \n" +
-                "SELECT * \n" +
-                "WHERE {\n" +
-                "   ?serviceURI a sadi:Service . \n" +
-                "	?serviceURI mygrid:hasServiceNameText ?name . \n" +
-                "	?serviceURI mygrid:hasServiceDescriptionText ?description . \n" +
-                "	?serviceURI mygrid:hasOperation ?op . \n" +
-                "	?op mygrid:inputParameter ?input . \n" +
-                "	?input a mygrid:parameter . \n" +
-                "	?input mygrid:objectType ?inputClassURI . \n";
+                "PREFIX sadi: <http://sadiframework.org/ontologies/sadi.owl#> \r\n" +
+                "PREFIX mygrid: <http://www.mygrid.org.uk/mygrid-moby-service#> \r\n" +
+                "SELECT * \r\n" +
+                "WHERE {\r\n" +
+                "   ?serviceURI a sadi:Service . \r\n" +
+                "	?serviceURI mygrid:hasServiceNameText ?name . \r\n" +
+                "	?serviceURI mygrid:hasServiceDescriptionText ?description . \r\n" +
+                "	?serviceURI mygrid:hasOperation ?op . \r\n" +
+                "	?op mygrid:inputParameter ?input . \r\n" +
+                "	?input a mygrid:parameter . \r\n" +
+                "	?input mygrid:objectType ?inputClassURI . \r\n";
 
             int n=0;
             foreach (string type in types)
             {
                 if (++n > 1)
                 {
-                    query += "	UNION \n";
+                    query += "	UNION \r\n";
                 }
-                query += "	{ ?input mygrid:objectType <" + type + "> } \n";
+                query += "	{ ?input mygrid:objectType <" + type + "> } \r\n";
                 
             }
 
@@ -122,21 +123,21 @@ namespace SADI.KEPlugin
 
         public void addPropertyRestrictions(SADIService service)
         {
-            String query = 
-                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\r\n" +
-                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\r\n" +
-                "PREFIX owl: <http://www.w3.org/2002/07/owl#>\r\n" +
-                "PREFIX sadi: <http://sadiframework.org/ontologies/sadi.owl#>\r\n" +
-                "PREFIX mygrid: <http://www.mygrid.org.uk/mygrid-moby-service#>\r\n" +
-                "SELECT DISTINCT ?onPropertyURI ?onPropertyLabel ?valuesFromURI ?valuesFromLabel\r\n" +
+            String query =
+                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \r\n" +
+                "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \r\n" +
+                "PREFIX owl: <http://www.w3.org/2002/07/owl#> \r\n" +
+                "PREFIX sadi: <http://sadiframework.org/ontologies/sadi.owl#> \r\n" +
+                "PREFIX mygrid: <http://www.mygrid.org.uk/mygrid-moby-service#> \r\n" +
+                "SELECT DISTINCT ?onPropertyURI ?onPropertyLabel ?valuesFromURI ?valuesFromLabel \r\n" +
                 "WHERE {\r\n" +
-                "	<" + service.uri + "> sadi:decoratesWith ?decoration .\r\n" +
-                "	?decoration owl:onProperty ?onPropertyURI .\r\n" +
-                "	OPTIONAL { ?onPropertyURI rdfs:label ?onPropertyLabel } . \r\n" +
-                "	OPTIONAL {\r\n" +
-                "		?decoration owl:someValuesFrom ?valuesFromURI .\r\n" +
-                "		OPTIONAL { ?valuesFromURI rdfs:label ?valuesFromLabel }\r\n" +
-                "	} .\r\n" +
+                "	<" + service.uri + "> sadi:decoratesWith ?decoration . \r\n" +
+                "	?decoration owl:onProperty ?onPropertyURI . \r\n" +
+                "	OPTIONAL { ?onPropertyURI rdfs:label ?onPropertyLabel } .  \r\n" +
+                "	OPTIONAL { \r\n" +
+                "		?decoration owl:someValuesFrom ?valuesFromURI . \r\n" +
+                "		OPTIONAL { ?valuesFromURI rdfs:label ?valuesFromLabel } \r\n" +
+                "	} . \r\n" +
                 "}";
 
             foreach (JsonData binding in executeQuery(query))
@@ -151,9 +152,8 @@ namespace SADI.KEPlugin
 
         private JsonData executeQuery(string query)
         {
-            Console.Out.WriteLine("executing query:\n" + query);
+            SADIHelper.trace("SADIRegistry", "executing query", query);
             NameValueCollection data = new NameValueCollection();
-            data.Add("", "");
             data.Add("query", query);
             data.Set("format", "JSON");
             if (graph != null)
@@ -164,6 +164,7 @@ namespace SADI.KEPlugin
             WebClient client = new WebClient();
             byte[] response = client.UploadValues(endpoint, data);
             JsonData json = JsonMapper.ToObject(Encoding.UTF8.GetString(response));
+            SADIHelper.trace("SADIRegistry", "query returned", json["results"]["bindings"].ToJson());
             return json["results"]["bindings"];
         }
 
@@ -173,9 +174,8 @@ namespace SADI.KEPlugin
             {
                 return binding[variable]["value"].ToString();
             }
-            catch (Exception e)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine(e.StackTrace);
                 return null;
             }
         }
@@ -186,9 +186,8 @@ namespace SADI.KEPlugin
             {
                 return (int)binding[variable]["value"];
             }
-            catch (Exception e)
+            catch
             {
-                System.Diagnostics.Debug.WriteLine(e.StackTrace);
                 return 0;
             }
         }
