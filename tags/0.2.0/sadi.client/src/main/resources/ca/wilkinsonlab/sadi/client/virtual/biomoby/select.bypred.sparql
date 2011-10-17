@@ -1,0 +1,24 @@
+PREFIX svc: <http://www.mygrid.org.uk/mygrid-moby-service#>
+PREFIX dc: <http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX moby: <http://moby/>
+
+SELECT DISTINCT ?service
+#FROM <http://mobyreg/services/>
+WHERE
+{
+	?service svc:hasOperation ?operation .
+	
+    ?operation svc:inputParameter ?inputarg . 
+    ?operation svc:outputParameter ?outputarg .
+    
+	#-----------------------------------------------------------
+	# The following subquery checks for a
+	# triple connecting ?inputarg to ?outputarg
+	# by the desired predicate URI (or
+	# any of its synonyms).
+	#-----------------------------------------------------------
+	    
+    %v%
+    
+}

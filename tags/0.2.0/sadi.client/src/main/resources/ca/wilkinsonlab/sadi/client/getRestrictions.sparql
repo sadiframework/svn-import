@@ -1,0 +1,17 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX sadi: <http://sadiframework.org/ontologies/sadi.owl#>
+PREFIX mygrid: <http://www.mygrid.org.uk/mygrid-moby-service#>
+
+SELECT DISTINCT ?onPropertyURI ?onPropertyLabel ?valuesFromURI ?valuesFromLabel
+WHERE
+{
+	%u% sadi:decoratesWith ?decoration .
+	?decoration owl:onProperty ?onPropertyURI .
+	OPTIONAL { ?onPropertyURI rdfs:label ?onPropertyLabel } . 
+	OPTIONAL {
+		?decoration owl:someValuesFrom ?valuesFromURI .
+		OPTIONAL { ?valuesFromURI rdfs:label ?valuesFromLabel }
+	} .
+}
