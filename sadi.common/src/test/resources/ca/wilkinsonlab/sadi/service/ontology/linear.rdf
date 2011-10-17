@@ -1,0 +1,45 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dc="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#"
+    xmlns:mygrid="http://www.mygrid.org.uk/mygrid-moby-service#">
+  <mygrid:serviceDescription rdf:about="">
+    <mygrid:hasOperation>
+      <mygrid:operation>
+        <mygrid:outputParameter>
+          <mygrid:parameter>
+            <mygrid:objectType rdf:resource="http://sadiframework.org/examples/regression.owl#OutputClass"/>
+            <!-- 
+            <mygrid:hasParameterNameText>output</mygrid:hasParameterNameText>
+             -->
+          </mygrid:parameter>
+        </mygrid:outputParameter>
+        <mygrid:inputParameter>
+          <mygrid:parameter>
+            <mygrid:objectType rdf:resource="http://sadiframework.org/examples/regression.owl#InputClass"/>
+            <!-- 
+            <mygrid:hasParameterNameText>input</mygrid:hasParameterNameText>
+             -->
+          </mygrid:parameter>
+        </mygrid:inputParameter>
+        <mygrid:inputParameter>
+          <mygrid:secondaryParameter>
+            <mygrid:objectType rdf:resource="http://sadiframework.org/examples/regression.owl#ParameterClass"/>
+          </mygrid:secondaryParameter>
+        </mygrid:inputParameter>
+      </mygrid:operation>
+    </mygrid:hasOperation>
+    <mygrid:providedBy>
+      <mygrid:organisation>
+        <dc:publisher rdf:datatype="http://www.w3.org/2001/XMLSchema#string">wilkinsonlab.ca</dc:publisher>
+        <dc:creator rdf:datatype="http://www.w3.org/2001/XMLSchema#string">mccarthy@elmonline.ca</dc:creator>
+        <mygrid:authoritative rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</mygrid:authoritative>
+      </mygrid:organisation>
+    </mygrid:providedBy>
+    <!-- 
+    <mygrid:hasServiceDescriptionLocation rdf:datatype="http://www.w3.org/2001/XMLSchema#string">http://sadiframework.org/examples/linear</mygrid:hasServiceDescriptionLocation>
+    <mygrid:locationURI rdf:datatype="http://www.w3.org/2001/XMLSchema#string">http://sadiframework.org/examples/linear</mygrid:locationURI>
+     -->
+    <mygrid:hasServiceDescriptionText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">Fits a least-squares regression line.</mygrid:hasServiceDescriptionText>
+    <mygrid:hasServiceNameText rdf:datatype="http://www.w3.org/2001/XMLSchema#string">LinearRegression</mygrid:hasServiceNameText>
+  </mygrid:serviceDescription>
+</rdf:RDF>
