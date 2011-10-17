@@ -1,0 +1,18 @@
+PREFIX svc: <http://www.mygrid.org.uk/mygrid-moby-service#>
+PREFIX dc: <http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX moby: <http://moby/>
+
+SELECT DISTINCT ?namespace
+#FROM <http://mobyreg/services/>
+{
+
+   %u% svc:hasOperation ?operation .
+   
+   ?operation %u% ?argnode .
+
+   ?argnode svc:hasParameterNameText %s%  .
+   ?argnode svc:inNamespaces ?namespaces_node .
+   ?namespaces_node rdf:type ?namespace .
+  	
+}
