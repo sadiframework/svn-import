@@ -4,6 +4,7 @@ import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -35,7 +36,7 @@ public class HelloWorldServiceServlet extends SimpleSynchronousServiceServlet
 	public void processInput(Resource input, Resource output)
 	{
 		String name = input.getProperty(FOAF.name).getString();
-		output.addProperty(Vocab.greeting, String.format("Hello, %s!", name));
+		output.addProperty(Vocab.greeting, String.format("Hello, %s!", name), XSDDatatype.XSDstring);
 	}
 	
 	private static class Vocab
