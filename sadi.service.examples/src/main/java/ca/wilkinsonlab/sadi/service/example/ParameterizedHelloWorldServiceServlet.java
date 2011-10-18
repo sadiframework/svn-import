@@ -11,6 +11,7 @@ import ca.wilkinsonlab.sadi.service.annotations.ParameterDefaults;
 import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -94,7 +95,7 @@ public class ParameterizedHelloWorldServiceServlet extends SynchronousServiceSer
 			greeting = "Hola";
 		else if (lang.equalsIgnoreCase("en"))
 			greeting = "Hello";
-		output.addProperty(Vocab.greeting, String.format("%s, %s!", greeting, name));
+		output.addProperty(Vocab.greeting, String.format("%s, %s!", greeting, name), XSDDatatype.XSDstring);
 	}
 	
 	private static class Vocab
