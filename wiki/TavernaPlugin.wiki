@@ -8,6 +8,6 @@ You can install the latest snapshot (between-release build: more up-to-date, but
 
 = Support =
 
-A tutorial slideshow is available at http://www.slideshare.net/markmoby/sadi-in-taverna-tutorial.
+There is a [http://www.slideshare.net/markmoby/sadi-in-taverna-tutorial tutorial slideshow] on !SlideShare.
 
 If you experience problems with the SADI plugin, you can either open an issue from the [http://code.google.com/p/sadi/issues/ Issues] tab above, or post in the [http://groups.google.com/group/sadi-discuss sadi-discuss] Google group.
