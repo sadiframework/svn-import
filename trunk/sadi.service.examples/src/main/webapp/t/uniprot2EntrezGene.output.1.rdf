@@ -5,17 +5,17 @@
     xmlns:owl="http://www.w3.org/2002/07/owl#"
     xmlns:j.2="http://purl.oclc.org/SADI/LSRN/"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-  <j.0:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P47989">
+  <j.0:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P04637">
     <j.1:SIO_010079>
-      <j.2:GeneID_Record rdf:about="http://lsrn.org/GeneID:7498">
+      <j.2:GeneID_Record rdf:about="http://lsrn.org/GeneID:7157">
         <j.1:SIO_000008>
           <j.2:GeneID_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >7498</j.1:SIO_000300>
+            >7157</j.1:SIO_000300>
           </j.2:GeneID_Identifier>
         </j.1:SIO_000008>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/7498"/>
-        <rdfs:label>7498:-;</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/7157"/>
+        <rdfs:label>7157:-;</rdfs:label>
       </j.2:GeneID_Record>
     </j.1:SIO_010079>
   </j.0:AnnotatedUniProtRecord>
