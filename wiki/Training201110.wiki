@@ -11,4 +11,7 @@ Resource height_units = height.getRequiredProperty(has_units).getResource();
 Resource mass = input.getRequiredProperty(Vocab.has_mass).getResource();
 double mass_value = mass.getRequiredProperty(Vocab.has_value).getDouble();
 Resource mass_units = mass.getRequiredProperty(has_units).getResource();
+
+double bmi = mass_value / (height_value * height_value);
+output.addLiteral(Vocab.BMI, bmi);
 }}}
