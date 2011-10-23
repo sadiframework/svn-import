@@ -18,5 +18,5 @@ output.addLiteral(Vocab.BMI, bmi);
 
 = Generate test output =
 {{{
-$ curl --data @'/home/user/workspace/sadi-services/src/main/resources/bmi-input.rdf'  http://localhost:8080/sadi-services/Calculate+B
+$ curl --data @'/home/user/workspace/sadi-services/src/main/resources/bmi-input.rdf'  http://localhost:8080/sadi-services/Calculate+BMI
 }}}
