@@ -1,3 +1,14 @@
 #summary Scratch page for October 2011 training course
 
 http://sadiframework.org/examples/t/bmi-input.rdf
+
+= Java code =
+{{{
+Resource height = input.getRequiredProperty(Vocab.has_height).getResource();
+double height_value = height.getRequiredProperty(Vocab.has_value).getDouble();
+Property has_units = ResourceFactory.createProperty("http://mged.sourceforge.net/ontologies/MGEDOntology.owl#has_units");
+Resource height_units = height.getRequiredProperty(has_units).getResource();
+Resource mass = input.getRequiredProperty(Vocab.has_mass).getResource();
+double mass_value = mass.getRequiredProperty(Vocab.has_value).getDouble();
+Resource mass_units = mass.getRequiredProperty(has_units).getResource();
+}}}
