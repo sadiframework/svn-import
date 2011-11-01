@@ -8,26 +8,32 @@ namespace SADI.KEPlugin
 {
     public class KEStore
     {
-        public IPluginGraph Graph;
+        public IPluginGraph Graph
+        {
+            get
+            {
+                return StoreProvider.Store;
+            }
+        }
+        public ITripleStoreProvider StoreProvider;
         public ITripleStoreFactory Factory;
         public IVisibilityManager VisibilityManager;
+        
+        private Vocab Vocab;
 
-        private const string RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-        private IEntity rdf_type;
-
-        public KEStore(IPluginGraph graph, ITripleStoreFactory factory, IVisibilityManager visibilityManager)
+        public KEStore(ITripleStoreProvider storeProvider, ITripleStoreFactory factory, IVisibilityManager visibilityManager)
         {
-            Graph = graph;
+            StoreProvider = storeProvider;
             Factory = factory;
             VisibilityManager = visibilityManager;
-
-            rdf_type = factory.CreateEntity(new Uri(RDF + "type"));
+            Vocab = new Vocab(factory);
         }
+
 
         public ICollection<IEntity> GetTypes(IEntity node)
         {
             List<IEntity> types = new List<IEntity>();
-            foreach (IStatement statement in Graph.Select(node, rdf_type, null))
+            foreach (IStatement statement in Graph.Select(node, Vocab.rdf_type, null))
             {
                 if (statement.Object is IEntity)
                 {
@@ -39,7 +45,7 @@ namespace SADI.KEPlugin
 
         public bool HasType(IResource node)
         {
-            foreach (IStatement statement in Graph.Select(node, rdf_type, null))
+            foreach (IStatement statement in Graph.Select(node, Vocab.rdf_type, null))
             {
                 return true;
             }
@@ -48,7 +54,7 @@ namespace SADI.KEPlugin
 
         public bool HasType(IResource node, string type)
         {
-            foreach (IStatement statement in Graph.Select(node, rdf_type, null))
+            foreach (IStatement statement in Graph.Select(node, Vocab.rdf_type, null))
             {
                 if (statement.Object is IEntity && (statement.Object as IEntity).Uri.ToString() == type)
                 {

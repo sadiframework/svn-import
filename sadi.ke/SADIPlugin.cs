@@ -25,7 +25,7 @@ namespace SADI.KEPlugin
             ITripleStoreProvider tripleStoreProvider = (ITripleStoreProvider)serviceProvider.GetService(typeof(ITripleStoreProvider));
             ITripleStoreFactory tripleStoreFactory = ((IFactoryProvider)serviceProvider.GetService(typeof(IFactoryProvider))).Factory;
             IVisibilityManager visibilityManager = ((IVisibilityManager)serviceProvider.GetService(typeof(IVisibilityManager)));
-            KEStore = new KEStore(tripleStoreProvider.Store, tripleStoreFactory, visibilityManager);
+            KEStore = new KEStore(tripleStoreProvider, tripleStoreFactory, visibilityManager);
             SelectionProvider = (ISelectionProvider)serviceProvider.GetService(typeof(ISelectionProvider));
                         
             callServicesItem = new ToolStripMenuItem("Find SADI services...");
