@@ -1,0 +1,10 @@
+#summary Example: A SADI "Hello, World!" Service
+
+To illustrate the different aspects of the SADI protocol in a concrete manner, we will frequently refer to an example "Hello, World!" service. This service consumes one or more input RDF graphs representing people with names (e.g. "Guy Incognito") and returns a set of output RDF graphs containing a corresponding greeting for each person (e.g. "Hello, Guy Incognito!").
+
+
+<wiki:comment>
+, each of which is rooted at a URI representing a person. These URIs represent the _input URIs_ for the service invocation. For the "Hello, World!" service, it is required that each input URI also has an attached value for the foaf:name predicate (e.g. "Guy Incognito"). After processing the input graphs, the service returns one output graph corresponding to each input graph. The root URI of each output graph is the same as the root URI of the corresponding input graph; that is to say, the root URIs of the output graphs also represent people.
+</wiki:comment> 
+
+ 
