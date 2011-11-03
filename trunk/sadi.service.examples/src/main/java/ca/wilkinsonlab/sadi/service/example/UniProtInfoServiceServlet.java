@@ -65,7 +65,7 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 		String shortName = getShortName(name);
 		if (shortName != null) {
 //			Resource shortNameNode = SIOUtils.createAttribute(uniprotNode, SIO.name, shortName);
-			Resource shortNameNode = SIOUtils.createAttribute(uniprotNode, Properties.hasName, shortName);
+			Resource shortNameNode = SIOUtils.createAttribute(uniprotNode, Properties.hasName, SIO.name, shortName);
 			shortNameNode.addProperty(SIO.is_variant_of, nameNode);
 		}
 	}
