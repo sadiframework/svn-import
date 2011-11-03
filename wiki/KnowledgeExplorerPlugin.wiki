@@ -6,7 +6,7 @@ The IO Informatics Sentient Knowledge Explorer Personal Edition can be downloade
 
 = Installation instructions =
 
-  # download the plugin from http://sadi.googlecode.com/files/SADI-KEPlugin-0.0.1.zip
+  # download the plugin from http://sadi.googlecode.com/files/SADI-KEPlugin-0.0.2.zip
   # unzip the file into your `IO Informatics\Sentient Knowledge Explorer\Plugins` directory (the exact name of the directory might be different if you installed to a non-standard location) — if you have previously installed another version of the SADI plugin to this directory, you should remove it before unzipping the new version
   # run Sentient Knowledge Explorer as normal; the SADI plugin functionality is available from the right-click menu
 
