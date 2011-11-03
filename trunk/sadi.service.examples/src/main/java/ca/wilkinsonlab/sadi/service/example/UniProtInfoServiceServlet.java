@@ -23,7 +23,7 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 @TestCases(
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/uniprotInfo-input.rdf", 
-				output = "http://sadiframework.org/examples/t/uniprotInfo-output.rdf"
+				output = "http://sadiframework.org/examples/t/uniprotInfo.output.1.rdf"
 		)
 )
 public class UniProtInfoServiceServlet extends UniProtServiceServlet
