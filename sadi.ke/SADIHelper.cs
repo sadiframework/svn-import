@@ -16,8 +16,6 @@ namespace SADI.KEPlugin
 {
     class SADIHelper
     {
-        const string ResolverURI = "http://sadiframework.org/RESOURCES/KE/resolver";
-
         internal static void debug(String prefix, String message, Object arg)
         {
             Debug.WriteLine(message, prefix);
@@ -109,11 +107,21 @@ namespace SADI.KEPlugin
             Debug.Flush();
         }
 
-        internal static Uri GetResolverURI(IEntity node)
+        internal static Store resolve(Uri uri)
         {
-            NameValueCollection col = System.Web.HttpUtility.ParseQueryString(string.Empty);
-            col.Add("uri", node.Uri.ToString());
-            return new Uri(ResolverURI + "?" + col.ToString());
+            return resolve(uri.ToString());
+        }
+
+        internal static Store resolve(string uri)
+        {
+            return resolve(new Entity(uri));
+        }
+
+        internal static Store resolve(Entity entity)
+        {
+            Store input = new MemoryStore();
+            input.Add(new Statement(entity, SemWebVocab.rdf_type, SemWebVocab.owl_thing));
+            return new SADIService("http://sadiframework.org/RESOURCES/resolver").invokeService(input);
         }
     }
 }

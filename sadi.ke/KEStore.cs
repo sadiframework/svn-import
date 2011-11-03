@@ -19,14 +19,14 @@ namespace SADI.KEPlugin
         public ITripleStoreFactory Factory;
         public IVisibilityManager VisibilityManager;
         
-        private Vocab Vocab;
+        private KEVocab Vocab;
 
         public KEStore(ITripleStoreProvider storeProvider, ITripleStoreFactory factory, IVisibilityManager visibilityManager)
         {
             StoreProvider = storeProvider;
             Factory = factory;
             VisibilityManager = visibilityManager;
-            Vocab = new Vocab(factory);
+            Vocab = new KEVocab(factory);
         }
 
 
@@ -69,9 +69,23 @@ namespace SADI.KEPlugin
             return new KEMapper(this, store);
         }
 
-        public static void Import(SemWeb.Store store)
+        public ICollection<IStatement> Import(SemWeb.Store store)
         {
-            throw new NotImplementedException();
+            KEMapper mapper = GetMapper(store);
+            ICollection<IStatement> statements = new List<IStatement>();
+            foreach (SemWeb.Statement statement in store.Select(SemWeb.SelectFilter.All))
+            {
+                statements.Add(mapper.toKE(statement));
+            }
+            Graph.BeginUpdate();
+            Graph.Add(statements);
+            Graph.EndUpdate();
+            return statements;
+        }
+
+        public bool SPARQLConstruct(SemWeb.Store store, IEntity inputRoot, string inputInstanceQuery)
+        {
+            return false;
         }
     }
 }

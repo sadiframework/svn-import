@@ -166,7 +166,7 @@ namespace SADI.KEPlugin
                         try
                         {
                             SADIHelper.debug("ServiceSelection", "resolving URI", node);
-                            KEStore.Import(SemWebHelper.resolveURI((node as IEntity).Uri));
+                            KE.Import(SemWebHelper.resolveURI((node as IEntity).Uri));
                         }
                         catch (Exception err)
                         {
@@ -175,7 +175,7 @@ namespace SADI.KEPlugin
                         try
                         {
                             SADIHelper.debug("ServiceSelection", "resolving against SADI resolver", node);
-                            KEStore.Import(SemWebHelper.resolveURI(SADIHelper.GetResolverURI(node as IEntity)));
+                            KE.Import(SADIHelper.resolve((node as IEntity).Uri));
                         }
                         catch (Exception err)
                         {

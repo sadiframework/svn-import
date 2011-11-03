@@ -52,7 +52,9 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Vocab.cs" />
+    <Compile Include="LSRNHelper.cs" />
+    <Compile Include="SemWebVocab.cs" />
+    <Compile Include="KEVocab.cs" />
     <Compile Include="KEMapper.cs" />
     <Compile Include="KEStore.cs" />
     <Compile Include="PropertyRestriction.cs" />

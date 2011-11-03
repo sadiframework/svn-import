@@ -21,6 +21,14 @@ namespace SADI.KEPlugin
             FromKE = new Dictionary<string, Entity>();
         }
 
+        public IStatement toKE(Statement statement)
+        {
+            return KE.Factory.CreateStatement(
+                        toKE(statement.Subject),
+                        toKE(statement.Predicate),
+                        toKE(statement.Object));
+        }
+
         public IResource toKE(Resource from)
         {
             String key;

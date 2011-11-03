@@ -54,10 +54,12 @@ namespace SADI.KEPlugin
                 "	?serviceURI mygrid:hasServiceNameText ?name . \r\n" +
                 "	?serviceURI mygrid:hasServiceDescriptionText ?description . \r\n" +
                 "	?serviceURI mygrid:hasOperation ?op . \r\n" +
-                "   ?serviceURI sadi:inputInstanceQuery ?query . \r\n" +
                 "	?op mygrid:inputParameter ?input . \r\n" +
                 "	?input a mygrid:parameter . \r\n" +
                 "	?input mygrid:objectType ?inputClassURI . \r\n" +
+                // instanceQueryPattern is not optional here because we only want services
+                // whose input instances can be dynamically discovered...
+                "   ?inputClassURI sadi:instanceQueryPattern ?query . \r\n" + 
                 "}";
 
             foreach (JsonData binding in executeQuery(query))
@@ -93,7 +95,10 @@ namespace SADI.KEPlugin
                 "	?serviceURI mygrid:hasOperation ?op . \r\n" +
                 "	?op mygrid:inputParameter ?input . \r\n" +
                 "	?input a mygrid:parameter . \r\n" +
-                "	?input mygrid:objectType ?inputClassURI . \r\n";
+                "	?input mygrid:objectType ?inputClassURI . \r\n" +
+                // instanceQueryPattern is optional here because we're matching by
+                // direct type and there's no need for dynamic discovery...
+                "   OPTIONAL { ?inputClassURI sadi:instanceQueryPattern ?query } . \r\n";
 
             int n=0;
             foreach (string type in types)
@@ -116,6 +121,7 @@ namespace SADI.KEPlugin
                     getSPARQLBindingAsString(binding, "name"),
                     getSPARQLBindingAsString(binding, "description"),
                     getSPARQLBindingAsString(binding, "inputClassURI"));
+                service.inputInstanceQuery = getSPARQLBindingAsString(binding, "query");
                 services.Add(service);
             }
             return services;
