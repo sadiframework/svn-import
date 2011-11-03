@@ -18,6 +18,7 @@ namespace SADI.KEPlugin
         private KEStore KE;
         private IEnumerable<SADIService> Services;
         private IEnumerable<IResource> SelectedNodes;
+        private DataGridViewRow SelectedRow;
 
         public ServiceInvocationDialog(KEStore ke, ICollection<SADIService> services, IEnumerable<IResource> selectedNodes)
         {
@@ -40,12 +41,21 @@ namespace SADI.KEPlugin
             MasterWorker.RunWorkerAsync(rows);
         }
 
-        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
         {
-            Object tag = dataGridView1.Rows[e.RowIndex].Tag;
-            if (tag != null)
+            SelectedRow = dataGridView1.SelectedRows[0];
+            updateText();
+        }
+
+        private void updateText()
+        {
+            if (SelectedRow != null)
             {
-                textBox1.Text = tag.ToString();
+                Object tag = SelectedRow.Tag;
+                if (tag != null)
+                {
+                    textBox1.Text = tag.ToString();
+                }
             }
         }
 
@@ -61,6 +71,24 @@ namespace SADI.KEPlugin
             else if (arg.Data is string)
             {
                 addToTag(row, arg.Data as string);
+            }
+        }
+
+        private void addToTag(DataGridViewRow row, object o)
+        {
+            if (row.Tag == null)
+            {
+                row.Tag = new StringBuilder();
+            }
+            StringBuilder buf = (row.Tag as StringBuilder);
+            if (buf.Length > 0)
+            {
+                buf.Append(Environment.NewLine);
+            }
+            buf.Append(o.ToString());
+            if (row == SelectedRow)
+            {
+                updateText();
             }
         }
 
@@ -109,7 +137,9 @@ namespace SADI.KEPlugin
                 call.Status = "Storing output";
                 call.Data = "Received output:\r\n" + SemWebHelper.storeToString(output);
                 MasterWorker.ReportProgress(66, call);
-                updateKE(output);
+                ICollection<IStatement> statements = KE.Import(output);
+                showNewStatements(statements);
+
 
                 call.Status = "Done";
                 call.Data = service;
@@ -135,77 +165,57 @@ namespace SADI.KEPlugin
             {
                 if (node is IEntity)
                 {
-                    assembleInput(input, node as IEntity, service.inputClass);
+                    service.assembleInput(input, node as IEntity, KE);
                 }
             }
             return input;
         }
 
-        private static readonly Regex LSRN_pattern = new Regex("http://lsrn.org/([^:]+):([^?]+)");
-        private static readonly string RDF = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-        private static readonly string LSRN = "http://purl.oclc.org/SADI/LSRN/";
-        private static readonly string SIO = "http://semanticscience.org/resource/";
-        private static readonly Entity rdf_type = RDF + "type";
-        private static readonly Entity has_identifier = SIO + "SIO_000671";
-        private static readonly Entity has_value = SIO + "SIO_000300";
-        private void assembleInput(MemoryStore input, IEntity node, string inputClass)
+        private void showNewStatements(ICollection<IStatement> statements)
         {
-            String uri = node.Uri.ToString();
-            Entity root = new Entity(uri);
-            if (KE.HasType(node, inputClass))
-            {
-                input.Add(new Statement(root, rdf_type, new Entity(inputClass)));
-            }
-            Match match = LSRN_pattern.Match(uri);
-            if (match != null)
-            {
-                String lsrn_db = match.Groups[1].ToString();
-                String lsrn_id = match.Groups[2].ToString();
-                String type_uri = LSRN + lsrn_db + "_Record";
-                if (type_uri != inputClass)
-                {
-                    input.Add(new Statement(root, rdf_type, new Entity(type_uri)));
-                }
-                Entity identifier = new BNode();
-                Entity identifier_type = new Entity(LSRN + lsrn_db + "_Identifier");
-                input.Add(new Statement(root, has_identifier, identifier));
-                input.Add(new Statement(identifier, rdf_type, identifier_type));
-                input.Add(new Statement(identifier, has_value, new Literal(lsrn_id)));
-            }
-        }
-
-        private void updateKE(Store output)
-        {
-            KEMapper mapper = KE.GetMapper(output);
-            ICollection<IStatement> statements = new List<IStatement>();
-            foreach (Statement statement in output.Select(SelectFilter.All))
-            {
-                statements.Add(KE.Factory.CreateStatement(
-                        mapper.toKE(statement.Subject),
-                        mapper.toKE(statement.Predicate),
-                        mapper.toKE(statement.Object)));
-            }
-            KE.Graph.BeginUpdate();
-            KE.Graph.Add(statements);
-            KE.Graph.EndUpdate();
             foreach (IStatement statement in statements)
             {
-                KE.VisibilityManager.ShowStatement(statement);
+                foreach (IResource input in SelectedNodes)
+                {
+                    if (statement.Subject.Equals(input) &&
+                        !isBNode(statement.Object) &&
+                        !isTypeStatement(statement))
+                    {
+                        KE.VisibilityManager.ShowStatement(statement);
+                    }
+                }
+                if (statement.Object is ILiteral)
+                {
+                    KE.VisibilityManager.ShowResource(statement.Object);
+                }
             }
         }
 
-        private void addToTag(DataGridViewRow row, object o)
+        private bool isBNode(IResource resource)
         {
-            if (row.Tag == null)
+            if (resource is IEntity)
             {
-                row.Tag = new StringBuilder();
+                Uri uri = (resource as IEntity).Uri;
+                return uri != null && uri.Scheme == "urn";
             }
-            StringBuilder buf = (row.Tag as StringBuilder);
-            if (buf.Length > 0)
+            else
             {
-                buf.Append("\r\n");
+                return false;
             }
-            buf.Append(o.ToString());
+        }
+
+        private bool isTypeStatement(IStatement statement)
+        {
+            if (statement.Predicate is IEntity)
+            {
+                Uri uri = (statement.Predicate as IEntity).Uri;
+                return uri == SemWebVocab.rdf_type_uri;
+            }
+            else
+            {
+                return false;
+            }
+
         }
 
         private class ServiceCallStatus

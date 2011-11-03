@@ -15,7 +15,7 @@ namespace SADI.KEPlugin
     public class SADIPlugin : IPlugIn
     {
         private IPlugInInfo PluginInfo = new SADIPluginInfo();
-        private KEStore KEStore;
+        private KEStore KE;
         private ISelectionProvider SelectionProvider;
 
         private ToolStripMenuItem callServicesItem;
@@ -25,7 +25,7 @@ namespace SADI.KEPlugin
             ITripleStoreProvider tripleStoreProvider = (ITripleStoreProvider)serviceProvider.GetService(typeof(ITripleStoreProvider));
             ITripleStoreFactory tripleStoreFactory = ((IFactoryProvider)serviceProvider.GetService(typeof(IFactoryProvider))).Factory;
             IVisibilityManager visibilityManager = ((IVisibilityManager)serviceProvider.GetService(typeof(IVisibilityManager)));
-            KEStore = new KEStore(tripleStoreProvider, tripleStoreFactory, visibilityManager);
+            KE = new KEStore(tripleStoreProvider, tripleStoreFactory, visibilityManager);
             SelectionProvider = (ISelectionProvider)serviceProvider.GetService(typeof(ISelectionProvider));
                         
             callServicesItem = new ToolStripMenuItem("Find SADI services...");
@@ -77,7 +77,7 @@ namespace SADI.KEPlugin
 
         void callServicesItem_Click(object sender, EventArgs e)
         {
-            ServiceSelectionDialog dialog = new ServiceSelectionDialog(KEStore, SelectionProvider.SelectedItems);
+            ServiceSelectionDialog dialog = new ServiceSelectionDialog(KE, SelectionProvider.SelectedItems);
             dialog.Show();
             dialog.FindServices();
         }

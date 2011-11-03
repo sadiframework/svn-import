@@ -17,13 +17,17 @@ namespace SADI.KEPlugin
         public String inputInstanceQuery;
         public ICollection<PropertyRestriction> properties;
 
-        public SADIService(string uri, string name, string description, string inputClass)
+        public SADIService(string uri)
         {
             this.uri = uri;
+            this.properties = new List<PropertyRestriction>();
+        }
+
+        public SADIService(string uri, string name, string description, string inputClass) : this(uri)
+        {
             this.name = name;
             this.description = description;
             this.inputClass = inputClass;
-            this.properties = new List<PropertyRestriction>();
         }
 
         internal void addProperty(string onPropertyURI, string onPropertyLabel, string valuesFromURI, string valuesFromLabel)
@@ -36,7 +40,7 @@ namespace SADI.KEPlugin
             return uri;
         }
 
-        public MemoryStore invokeService(MemoryStore input)
+        public MemoryStore invokeService(Store input)
         {
             SADIHelper.trace("SADIService", "sending data to  " + uri, input);
             WebRequest request = WebRequest.Create(this.uri);
@@ -71,12 +75,10 @@ namespace SADI.KEPlugin
             return output;
         }
 
-        private const string RDFS = "http://www.w3.org/2000/01/rdf-schema#";
-        private static Entity isDefinedBy = RDFS + "isDefinedBy";
         private void resolveAsynchronousData(MemoryStore output)
         {
             Dictionary<string, object> seen = new Dictionary<string, object>();
-            foreach (Statement s in output.Select(new Statement(null, isDefinedBy, null)))
+            foreach (Statement s in output.Select(new Statement(null, SemWebVocab.isDefinedBy, null)))
             {
                 if (s.Object.Uri != null)
                 {
@@ -136,6 +138,36 @@ namespace SADI.KEPlugin
                     uri = null;
                 }
                 response.Close();
+            }
+        }
+        
+        public void assembleInput(Store store, IEntity inputRoot, KEStore KE)
+        {
+            String uri = inputRoot.Uri.ToString();
+            Entity root = new Entity(uri);
+
+            if (inputInstanceQuery != null)
+            {
+                if (KE.SPARQLConstruct(store, inputRoot, inputInstanceQuery))
+                {
+                    return;
+                }
+            }
+
+            // if we make it here, we didn't find any input via SPARQL and 
+            // have to try and cheat a little...
+            if (KE.HasType(inputRoot, inputClass))
+            {
+                store.Add(new Statement(root, SemWebVocab.rdf_type, new Entity(inputClass)));
+                LSRNEntity lsrn = LSRNHelper.getEntity(inputRoot.Uri);
+                if (lsrn != null && lsrn.EntityType == inputClass) {
+                    store.Add(new Statement(root, SemWebVocab.rdf_type, new Entity(lsrn.EntityType)));
+                    Entity identifier = new BNode();
+                    Entity identifier_type = new Entity(lsrn.IdentifierType);
+                    store.Add(new Statement(root, SemWebVocab.has_identifier, identifier));
+                    store.Add(new Statement(identifier, SemWebVocab.rdf_type, identifier_type));
+                    store.Add(new Statement(identifier, SemWebVocab.has_value, new Literal(lsrn.ID)));
+                }
             }
         }
     }
