@@ -1,7 +1,10 @@
 #summary Table of Contents for the SADI trail.
 
   * [SADITrail Introduction]
-  * [SynchronousServices Synchronous services]
-  * [AsynchronousServices Asynchronous services]
+  * The SADI Protocol
+    * [SADIHelloWorldService Running Example: The SADI "Hello, World!" Service]
+    * Service Invocation
+      * [SynchronousServices Synchronous services]
+      * [AsynchronousServices Asynchronous services]
   * [BuildingServicesInJava Building services in Java]
   * [BuildingServicesInPerl Building services in Perl]
