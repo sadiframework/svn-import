@@ -1,4 +1,5 @@
 #summary The SADI "Hello, World!" service
+#sidebar SADITrail_Contents
 
 = Running Example: The SADI "Hello, World!" Service =
 
