@@ -3,6 +3,9 @@
   * [SADITrail Introduction]
   * The SADI Protocol
     * [SADIHelloWorldService Running Example: The SADI "Hello, World!" Service]
+    * [ServiceMetadata Service Metadata]
+      * [ServiceMetadata#Retrieving_Service_Metadata Retrieving Service Metadata]
+      * [ServiceMetadata#Representing_Service_Metadata_in_RDF Representing Service Metadata in RDF]
     * Service Invocation
       * [SynchronousServices Synchronous services]
       * [AsynchronousServices Asynchronous services]
