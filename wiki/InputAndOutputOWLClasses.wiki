@@ -1,0 +1,97 @@
+#summary Describing service interfaces using OWL
+#sidebar SADITrail_Contents
+
+= Describing Service Interfaces Using OWL =
+
+The input and output OWL classes for a service provide a machine-readable representation of the service interface.  This facilitates the automation of various data and service matchmaking tasks, such as:
+
+  * identifying services that can consume a subset of a given RDF graph as input  
+  * extracting minimal input graphs for a service from a given RDF graph    
+  * matching the output interface of one service to the input interface of another service, in order to create service execution chains (workflows)
+
+Moreover, the use of OWL for describing service interfaces enables the use an _OWL reasoner_ as the main vehicle for accomplishing these tasks.
+
+== The Input OWL Class ==
+
+The primary purpose of the input OWL class is to identify and extract valid input RDF graphs for a service from a given RDF data set. Each SADI service has exactly one input OWL class which MUST either be referenced by or directly included in the metadata graph for the service. 
+
+For illustrative purposes, the following excerpt shows the definition for `hello:NamedIndividual` which is the input OWL class for the SADI "Hello, World!" service:
+
+{{{
+<owl:Class rdf:ID="NamedIndividual">
+  <owl:equivalentClass>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="http://xmlns.com/foaf/0.1/name"/>
+      <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+    </owl:Restriction>
+  </owl:equivalentClass>
+</owl:Class>
+}}} 
+
+This class definition states that a URI is an instance of `hello:NamedIndividual` if and only if it has one or more values for the `foaf:name` property.  As a result, the root URI of each input graph that is sent to the "Hello, World!" service is expected to have at least one `foaf:name` property.  
+
+=== Instance Checking and the Input OWL Class ===
+
+The identification of instances of an OWL class within an RDF graph is a commonly supported operation of OWL reasoners, which we will we refer as _instance checking_. The purpose of this section is provide guidelines for authoring an input OWL class that enable an OWL reasoner to perform instance checking for that class in a useful manner.  
+
+The most important consideration when authoring an input OWL class is that the conditions for class membership should be defined using necessary and sufficient ('if and only if') conditions.  In OWL, necessary conditions ('if') are defined using the `rdfs:subClassOf` property whereas necessary and sufficient conditions ('if and only if') are defined using the `owl:equivalentClass` property.  For example, the following two excerpts show alternate definitions of `hello:NamedIndividual` which use necessary conditions and necessary and sufficient conditions, respectively:
+
+{{{
+<owl:Class rdf:ID="NamedIndividual">
+  <rdfs:subClassOf>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="http://xmlns.com/foaf/0.1/name"/>
+      <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+    </owl:Restriction>
+  </rdfs:subClassOf>
+</owl:Class>
+}}} 
+
+{{{
+<owl:Class rdf:ID="NamedIndividual">
+  <owl:equivalentClass>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="http://xmlns.com/foaf/0.1/name"/>
+      <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+    </owl:Restriction>
+  </owl:equivalentClass>
+</owl:Class>
+}}} 
+
+The first definition uses only a necessary condition. It states that a URI has one or more `foaf:name` properties _if_ it is an instance of `hello:NamedIndividual`. (A URI is known to be an instance of the `hello:NamedIndividual` if it has an `rdf:type` value of `hello:NamedIndividual`.) From this rule, a reasoner cannot deduce that a given URI is a member of `hello:NamedIndividual` based on its properties.
+
+The second definition uses a necessary and sufficient condition. It states that a URI has one or more `foaf:name` properties _if and only if_ it is an instance of `hello:NamedIndividual`.  From this rule, the reasoner can deduce that a URI with one or more `foaf:name` properties is a member of the `hello:NamedIndividual` class.
+
+A second consideration when authoring an input OWL class is that, at the time of writing this document, the majority of OWL reasoners operate under the Open World Assumption (OWA). The OWA holds that a statement cannot be inferred to be false merely by its absence in a data set.  Instead, the truth value of a such a statement is simply unknown. For example, consider an RDF data set which provides `foaf:name` values for various URIs representing people, as might be used for input to the SADI "Hello, World!" service.  Under the OWA, the fact that a particular URI (person) only has a single value for the `foaf:name` property within a particular data set does not imply that the person only has one name. He or she may have aliases that are represented by other values for `foaf:name` in other RDF data sets on the web. Similarly, one cannot assume that a person does not have a name simply because there is no `foaf:name` value for that person in a particular data set.
+
+Under the OWA, certain types of property restrictions cannot be directly tested for truth. For example, consider the following definition of `hello:NamedIndividual`, which uses an exact cardinality restriction:
+
+{{{
+<owl:Class rdf:ID="NamedIndividual">
+  <owl:equivalentClass>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="http://xmlns.com/foaf/0.1/name"/>
+      <owl:cardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:cardinality>
+    </owl:Restriction>
+  </owl:equivalentClass>
+</owl:Class>
+}}}
+
+This definition states that a URI is a member of the `hello:NamedIndividual` class _if and only if_ it has exactly one `foaf:name` property.  However, even if a URI (person) has exactly one value for `foaf:name` in a particular data set, that same URI may possess any number of additional `foaf:name` values in other RDF data sets on the web.  For this reason, a reasoner using the OWA can never confirm the truth of an exact cardinality restriction by examining the known properties of a URI. It can only prove the falsehood of the cardinality restriction in cases where the URI is known to have a greater number of distinct values for the property than desired.
+
+As the primary purpose of the input OWL class is to automatically identify and extract input graphs for a service from an RDF data set, it is important to define the input OWL class using only property restrictions that can be directly tested for truth.  At the time of writing this document, the most recent W3C recommendation for OWL is OWL 2.  As of OWL 2, the following types of property restrictions satisfy the directly-testable-for-truth criteria:
+
+  * owl:someValuesFrom (existential quantification)
+  * owl:hasValue (value restriction)
+  * owl:minCardinality (minimum cardinality restriction)
+  * owl:minQualifiedCardinality (qualified minimum cardinality restriction)
+
+The following types of property restrictions do NOT satisfy the directly-testable-for-truth criteria:
+
+  * owl:allValuesFrom (universal quantification)
+  * owl:cardinality (cardinality retriction)
+  * owl:qualifiedCardinality (qualified cardinality restriction)
+  * owl:maxCardinality (maximum cardinality restriction)
+  * owl:maxQualifiedCardinality (qualified maximum cardinality restriction)
+
+
