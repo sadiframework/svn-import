@@ -5,6 +5,9 @@
   * [ServiceMetadata Service Metadata]
     * [ServiceMetadata#Retrieving_Service_Metadata Retrieving Service Metadata]
     * [ServiceMetadata#Representing_Service_Metadata_in_RDF Representing Service Metadata in RDF]
+    * [InputAndOutputOWLClasses Describing Service Interfaces Using OWL]
+      * [InputAndOutputOWLClasses#The_Input_OWL_Class The Input OWL Class]
+        * [InputAndOutputOWLClasses#Instance_Checking_and_the_Input_OWL_Class Instance Checking and the Input OWL Class]
   * Service Invocation
     * [SynchronousServices Synchronous services]
     * [AsynchronousServices Asynchronous services]
