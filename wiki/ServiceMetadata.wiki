@@ -29,7 +29,7 @@ In addition, any other data deemed useful to clients of the service MAY be inclu
 
 An RDF document containing the metadata graph MUST be retrievable by an HTTP GET request to the service URL.  
 
-The GET request MAY include a `Accept` header indicating the desired RDF serialization format for the response document.  A SADI service MUST support content types of `text/rdf+n3` for N3 and `application/rdf+xml` for RDF/XML, and MAY support additional content types for these formats or for any other RDF serialization formats.  In the event of an omitted, unrecognized, or unsupported content type, the default content type MUST be RDF/XML.
+The GET request MAY include an `Accept` header indicating the desired RDF serialization format for the response document.  A SADI service MUST support content types of `text/rdf+n3` for N3 and `application/rdf+xml` for RDF/XML, and MAY support additional content types for these formats or for any other RDF serialization formats.  In the event of an omitted, unrecognized, or unsupported content type, the default content type used for the response MUST be RDF/XML.
  
 == Representing Service Metadata in RDF ==
 
