@@ -94,4 +94,24 @@ The following types of property restrictions do NOT satisfy the directly-testabl
   * owl:maxCardinality (maximum cardinality restriction)
   * owl:maxQualifiedCardinality (qualified maximum cardinality restriction)
 
+== The Output OWL Class ==
+
+The output OWL class provides a machine readable description of the output RDF graphs produced by a service, which facilitates the automated identification of services that produce data of interest for either human or software clients. Each SADI service has exactly one output OWL class which MUST be either referenced by or directly included in the metadata graph for the service.
+
+Each input RDF graph that is sent to a service produces exactly one output RDF graph, and each pair of input and output graphs are related by the fact that they share the same root URI.  We term each such URI an _input URI_. While the function of the input OWL class is to identify valid input URIs for a service within an RDF data set, the function of the output OWL class is describe the graph structures that are attached to each input URI as a result of calling the service. Thus, the output OWL class is defined with respect to an input URI.
+
+To illustrate, the following shows the definition of `hello:GreetedIndividual`, the output OWL class for the SADI "Hello, World!" service:
+
+{{{
+<owl:Class rdf:ID="GreetedIndividual">
+  <owl:equivalentClass>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#greeting"/>
+      <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+    </owl:Restriction>
+  </owl:equivalentClass>
+</owl:Class>
+}}}
+
+The definition for `hello:GreetedIndividual` indicates that one or more `hello:greeting` properties will be attached to each input URI as a result of invoking the "Hello, World!" service.
 
