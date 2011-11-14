@@ -26,7 +26,7 @@ Although the intention of the `hello:SecondaryParameters` class is to describe a
 
 When invoking a service, a client indicates the desired values of the execution parameters by including a single _parameter graph_ in the input RDF document for the service invocation, where the parameter graph is an instance of the parameter OWL class.  All input RDF graphs within the document are processed according to this single, shared set of parameter values.
 
-== Specifying Default Values for Execution Parameters ==
+== The Default Parameter Graph ==
 
 The inclusion of a parameter graph in the input RDF document for a service invocation is not required. If no parameter graph is provided, the service MUST use a suitable set of default values for the execution parameters. To improve the transparency of service operation to clients, the service metadata graph MAY include or reference exactly one _default parameter graph_ which represents the default values for the service execution parameters. The output RDF produced by a service invocation that includes the default parameter graph MUST be isomorphic to the output RDF produced by a service invocation that omits the parameter graph entirely.
 
