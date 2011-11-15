@@ -1,4 +1,5 @@
 #summary How are asynchronous services implemented in SADI?
+#sidebar SADITrail_Contents
 
 Asynchronous services are useful in cases where the service can take a long time to process input, but are slightly more complicated to interact with than synchronous services. Communication with an asynchronous SADI service looks like this:
 
