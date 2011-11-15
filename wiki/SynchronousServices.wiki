@@ -33,11 +33,11 @@ Content-type: text/rdf+n3
 
 input:GuyIncognito 
     a hello:GreetedIndividual;
-    hello:greeting "Hello, 'Guy Incognito'!" .
+    hello:greeting "Hello, Guy Incognito!" .
 
 input:HomerSimpson
     a hello:GreetedIndividual;
-    hello:greeting "Hello, 'Homer Simpson'!" .
+    hello:greeting "Hello, Homer Simpson!" .
 }}}
 
 A synchronous service must finish processing its input before the TCP connection between the client and the service times out.  SADI services that must run for longer periods of time should be implemented as asynchronous services, as described in the next section.
