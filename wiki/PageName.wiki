@@ -1,0 +1,52 @@
+#summary Invoking SADI services with execution parameters
+#sidebar SADITrail_Contents
+
+= Invoking Services with Execution Parameters =
+
+_Service execution parameters_ are configuration settings that affect the behaviour of a service and which are separate from the main input data that is processed by the service.  A SADI service MAY have any number of execution parameters that are collectively described by a single _parameter OWL class_, as detailed in [ParameterOWLClass#The_Parameter_OWL_Class The Parameter OWL Class].
+
+A client indicates values for service execution parameters when invoking a synchronous or asynchronous SADI service by including exactly one instance of the parameter OWL class in the input RDF document. All instances of the input OWL class within that same RDF document MUST then be processed according to this shared set of execution parameters. If no instance of the parameter OWL class is provided by the client, the service MUST use a suitable set of default values for the execution parameters.  The metadata graph for the service MAY either reference or directly include an instance of the parameter OWL class known as the _default parameter graph_ which represents the default values for all available execution parameters. If the client includes more than one instance of the parameter OWL class in the input RDF document, the behaviour of the service is undefined.
+
+The following shows an example invocation of the parameterized "Hello, World!" service at http://sadiframework.org/examples/hello-param, which is a synchronous service. The client indicates that the output greetings should be returned in Spanish by including an appropriately constructed instance of the parameter OWL class in the input RDF document.
+
+Request:
+
+{{{
+POST /examples/hello HTTP/1.1
+Host: sadiframework.org
+Accept: text/rdf+n3
+Content-type: text/rdf+n3
+
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/data/examples/hello-input.n3#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+[] a hello:SecondaryParameters; 
+   hello:lang "es" .
+
+input:GuyIncognito
+   a hello:NamedIndividual;
+   foaf:name "Guy Incognito" .
+ 
+input:HomerSimpson
+   a hello:NamedIndividual;
+   foaf:name "Homer Simpson" .
+}}}
+
+Response:
+
+{{{
+HTTP/1.1 200 OK 
+Content-type: text/rdf+n3
+
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/data/examples/hello-input.n3#> .
+
+input:GuyIncognito 
+    a hello:GreetedIndividual;
+    hello:greeting "Hola, Guy Incognito!" .
+
+input:HomerSimpson
+    a hello:GreetedIndividual;
+    hello:greeting "Hola, Homer Simpson!" .
+}}}
