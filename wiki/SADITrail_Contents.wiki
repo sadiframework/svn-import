@@ -15,6 +15,7 @@
   * Service Invocation
     * [SynchronousServices Synchronous Services]
     * [AsynchronousServices Asynchronous Services]
+    * [InvokingServicesWithParameters Invoking Services with Execution Parameters]
   * Tutorials
     * [BuildingServicesInJava Building services in Java]
     * [BuildingServicesInPerl Building services in Perl]
