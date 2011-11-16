@@ -39,6 +39,7 @@ namespace SADI.KEPlugin
                 {
                     Guid guid = Guid.NewGuid();
                     Uri uri = new Uri(String.Format("urn:uuid:{0}", guid));
+                    // TODO add label to node to dodge meaningless URI in display?
                     map.Add(key, KE.Factory.CreateEntity(uri));
                 }
             }
