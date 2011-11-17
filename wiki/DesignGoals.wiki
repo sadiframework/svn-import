@@ -1,15 +1,17 @@
 #summary Motivation and design goals for SADI
 #sidebar SADITrail_Contents
 
-= Motivation =
+= Motivation and Goals =
+
+== Motivation ==
 
 The primary motivation for the development of SADI is the growing complexity of discoverying, accessing, and integrating public data and software in the domain of bioinformatics.  While there are currently thousands of interrelated bioinformatics databases and software tools freely available on the web, they are published using a plethora of incompatible data models, schemas, and software interfaces that impedes their combined use. The authors sought to develop a set of best practices for publishing data and software resources that would simultaneously offer the benefits of Semantic Web standards and technologies, such as the ability to automatically merge data sets and to automatically compute logical inferences from data in a standardized manner.
 
 While SADI has been motivated by bioinformatics use cases, there is nothing that prevents its application to other domains. It is a generic web service standard that is potentially useful in any scenario where integrating online data and/or software resources is required.
 
-= Design Goals =
+== Design Goals ==
 
-== Interoperability with the Semantic Web ==
+=== Interoperability with the Semantic Web ===
 
 One of the primary goals of SADI is to create web services that are compatible with the Semantic Web.  In particular, it is desirable that services should be able to exchange data directly with various consumers and producers of RDF data such as triple stores, static RDF documents, OWL reasoners, and RDF browsers. For this reason, SADI services consume a standard RDF document as input and generate a standard RDF document as output. 
 
@@ -19,19 +21,19 @@ Another key point of compatibility with the Semantic Web is the use OWL to defin
   * extracting minimal input graphs for a service from a given RDF graph
   * matching the output interface of one service to the input interface of another service, in order to create service execution chains (workflows) 
   
-== Stateless Services ==
+=== Stateless Services ===
 
 The scope of SADI is limited to stateless services so that services and clients can be implemented in a straightforward manner, at the expense of certain types of advanced applications.  The set of stateless services includes services that perform any type of data retrieval or data analysis, but excludes services that effect changes in the real world. A common example of the latter type of service would be a service that makes a withdrawal from a bank account. Previous Semantic Web Service standards such as WSMO and OWL-S have been developed to model such stateful services. However, the formal description of stateful services is complex, and the design of software agents to coordinate such services is an ongoing research problem.    
 
-== Fixed Service Choreography  == 
+=== Fixed Service Choreography === 
 
 In keeping with previous usage of the term _choreography_ in the WSMO and OWL-S standards, a service's choreography is the sequence of requests and responses that occurs during an interaction between a client and a service.  The choreography of a SADI service is limited to one of two possibilities, corresponding to synchronous SADI services and asynchronous SADI services. SADI uses predetermined choreographies so that services and clients can be implemented in a straightforward manner. Previous Semantic Web Service standards such as WSMO and OWL-S have been developed to model services with arbitrary choreographies; however, the development of software agents to coordinate such services is a complex task. Moreover, under the limited scope of stateless services, the authors have not encountered any scenarios where custom choreographies are required.
 
-== Explicit Relationship Between Service Input and Output ==
+=== Explicit Relationship Between Service Input and Output ===
 
 It is desirable to ensure that related input and output RDF data from a service invocation are explicitly linked by one or more triples.  This saves a client from the task of tracking input/output relationships on its own, and ensures that the RDF data produced from a series of service invocations produces a connected graph that is queriable in a meaningful manner.  The link(s) between related input and output RDF graphs are guaranteed in SADI by the fact that they share a common URI. Each output RDF graph must be rooted at the same URI as its corresponding input RDF graph.  This constraint is demonstrated concretely in [SADIHelloWorldService Running Example: The SADI "Hello, World!" Service] and is described more formally in [InputAndOutputOWLClasses#The_Output_OWL_Class The Output OWL Class].
 
-== Minimal Constraints on Data Modeling == 
+=== Minimal Constraints on Data Modeling === 
 
 Aside from the constraint of the previous section, SADI does provide any rules about how service input and output data should be modelled in RDF. Service providers are free to encode the data using any OWL or RDFS ontologies deemed suitable. Further, the input and output RDF documents for a service invocation consist only of data that is consumed or generated by the service, respectively. There are no SADI-specific messaging structures within the input/output RDF documents.  
  
