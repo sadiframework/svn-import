@@ -26,7 +26,7 @@ rdflib.plugin.register('sparql', rdflib.query.Processor,
 rdflib.plugin.register('sparql', rdflib.query.Result,
                        'rdfextras.sparql.query', 'SPARQLQueryResult')
 
-ns.register(myGrid="http://www.mygrid.org.uk/mygrid-moby-service#")
+ns.register(mygrid="http://www.mygrid.org.uk/mygrid-moby-service#")
 ns.register(protegedc="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#")
 
 
@@ -36,10 +36,18 @@ ns.register(protegedc="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl
 class DefaultSerializer:
     def __init__(self,format):
         self.format = format
+    def bindPrefixes(self, graph):
+        for n in ns.all().items():
+            graph.bind(n[0].lower(), URIRef(n[1]))
+
     def serialize(self,graph):
-        return graph.serialize(format=format)
+        self.bindPrefixes(graph)
+        return graph.serialize(format=self.format)
     def deserialize(self,graph, content):
-        graph.parse(StringIO(content),format=format)
+        f = self.format
+        if f == 'turtle':
+            f = 'n3'
+        graph.parse(StringIO(content),format=f)
 
 class JSONSerializer:
     def serialize(self,graph):
@@ -120,6 +128,7 @@ class ServiceBase:
 
     def serialize(self, graph, accept):
         format = self.getFormat(accept)
+        return format[1].serialize(graph)
 
     def getClass(self, identifier):
         return self.descriptionSession.get_class(identifier)
@@ -237,9 +246,10 @@ else:
             acceptType = self.getFormat(request.getHeader("Accept"))
             request.setHeader("Content-Type",acceptType[0])
             request.setHeader('Access-Control-Allow-Origin','*')
-            if acceptType[1] == 'json':
-                return to_json(modelGraph)
-            else: return modelGraph.serialize(format=acceptType[1])
+            return self.serialize(modelGraph,request.getHeader("Accept"))
+            #if acceptType[1] == 'json':
+            #    return to_json(modelGraph)
+            #else: return selfmodelGraph.serialize(format=acceptType[1])
         
         def render_POST(self, request):
             content = request.content.read()
@@ -249,13 +259,14 @@ else:
             acceptType = self.getFormat(request.getHeader("Accept"))
             request.setHeader("Content-Type",acceptType[0])
             request.setHeader('Access-Control-Allow-Origin','*')
-            print acceptType
-            if acceptType[1] == 'json':
-                result =  to_json(graph)
-                print "JSON output"
-                print result
-                return result
-            else: return graph.serialize(format=acceptType[1])
+            return self.serialize(graph,request.getHeader("Accept"))
+            #print acceptType
+            #if acceptType[1] == 'json':
+            #    result =  to_json(graph)
+            #    print "JSON output"
+            #    print result
+            #    return result
+            #else: return graph.serialize(format=acceptType[1])
 
     Service = TwistedService
 
