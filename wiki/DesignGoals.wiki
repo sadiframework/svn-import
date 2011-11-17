@@ -25,9 +25,13 @@ Another key point of compatibility with the Semantic Web is the use of OWL to de
 
 The scope of SADI is limited to stateless services so that services and clients can be implemented in a straightforward manner, at the expense of certain types of advanced applications.  The set of stateless services includes services that perform any type of data retrieval or data analysis, but excludes services that effect changes in the real world. A common example of the latter type of service would be a service that makes a withdrawal from a bank account. Previous Semantic Web Service standards such as WSMO and OWL-S have been developed to model such stateful services. However, the formal description of stateful services is complex, and the design of software agents to coordinate such services is an ongoing research problem.    
 
-=== Fixed Service Choreography === 
+=== Batch Processing of Inputs ===
 
-In keeping with previous usage of the term _choreography_ in the WSMO and OWL-S standards, a service's choreography is the sequence of requests and responses that occurs during an interaction between a client and a service.  The choreography of a SADI service is limited to one of two possibilities, corresponding to synchronous SADI services and asynchronous SADI services. SADI uses predetermined choreographies so that services and clients can be implemented in a straightforward manner. Previous Semantic Web Service standards such as WSMO and OWL-S have been developed to model services with arbitrary choreographies; however, the development of software agents to coordinate such services is a complex task. Moreover, under the limited scope of stateless services, the authors have not encountered any scenarios where custom choreographies are required.
+In order to minimize overhead due to network latency, it should be possible to group independent inputs for a service into a single request, and to receive the corresponding outputs in a single response. In SADI, the input RDF document for a service invocation may contain any number of input instances which constitute connected components of the input RDF graph.  Likewise, the output RDF document for a service invocation may contain any number of output instances which constitute connected components of the output RDF graph.
+
+=== Support for Long-Running Services ===
+
+The processing time of a service should not be limited to the lifetime of a TCP connection. Asynchronous SADI services support long-running computations by means of client polling and HTTP redirects, as described in [AsynchronousServices Asynchronous Services].  
 
 === Explicit Relationship Between Service Input and Output ===
 
