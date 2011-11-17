@@ -111,8 +111,7 @@ class ServiceBase:
 
 
     def getFormat(self, contentType):
-
-        if contentType == None: return [ "application/rdf+xml",serializeXML]
+        if contentType == None: return [ "application/rdf+xml",self.contentTypes[None]]
         type = mimeparse.best_match([x for x in self.contentTypes.keys() if x != None],
                                     contentType)
         if type != None: return [type,self.contentTypes[type]]
