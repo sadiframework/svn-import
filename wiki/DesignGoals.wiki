@@ -1,5 +1,5 @@
-#summary : Motivation and design goals for SADI
-#sidebar : SADITrail_Contents
+#summary Motivation and design goals for SADI
+#sidebar SADITrail_Contents
 
 = Motivation =
 
