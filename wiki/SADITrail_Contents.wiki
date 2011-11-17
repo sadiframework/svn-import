@@ -1,6 +1,14 @@
 #summary Table of Contents for the SADI trail.
 
   * [SADITrail Introduction]
+  * [DesignGoals Motivation and Goals]
+    * [DesignGoals#Motivation Motivation]
+    * [DesignGoals#Design_Goals Design Goals]
+      * [DesignGoals#Interoperability_with_the_Semantic_Web Interoperability with the Semantic Web]
+      * [DesignGoals#Stateless_Services Stateless Services]
+      * [DesignGoals#Fixed_Service_Choreography Fixed Service Choreography]
+      * [DesignGoals#Explicit_Relationship_Between_Service_Input_and_Output Explicit Relationship Between Service Input and Output]
+      * [DesignGoals#Minimal_Constraints_on_Data_Modeling Minimal Constraints on Data Modeling]
   * [SADIHelloWorldService Running Example: The SADI "Hello, World!" Service]
   * [ServiceMetadata Service Metadata]
     * [ServiceMetadata#Retrieving_Service_Metadata Retrieving Service Metadata]
