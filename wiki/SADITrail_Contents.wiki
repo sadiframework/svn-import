@@ -6,7 +6,8 @@
     * [DesignGoals#Design_Goals Design Goals]
       * [DesignGoals#Interoperability_with_the_Semantic_Web Interoperability with the Semantic Web]
       * [DesignGoals#Stateless_Services Stateless Services]
-      * [DesignGoals#Fixed_Service_Choreography Fixed Service Choreography]
+      * [DesignGoals#Batch_Processing_of_Inputs Batch Processing of Inputs]
+      * [DesignGoals#Support_for_Long-running_Services Support for Long-running Services]
       * [DesignGoals#Explicit_Relationship_Between_Service_Input_and_Output Explicit Relationship Between Service Input and Output]
       * [DesignGoals#Minimal_Constraints_on_Data_Modeling Minimal Constraints on Data Modeling]
   * [SADIHelloWorldService Running Example: The SADI "Hello, World!" Service]
@@ -25,5 +26,5 @@
     * [AsynchronousServices Asynchronous Services]
     * [InvokingServicesWithParameters Invoking Services with Execution Parameters]
   * Tutorials
-    * [BuildingServicesInJava Building services in Java]
-    * [BuildingServicesInPerl Building services in Perl]
+    * [BuildingServicesInJava Building Services in Java]
+    * [BuildingServicesInPerl Building Services in Perl]
