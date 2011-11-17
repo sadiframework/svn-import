@@ -29,7 +29,7 @@ The scope of SADI is limited to stateless services so that services and clients 
 
 In order to minimize overhead due to network latency, it should be possible to group independent inputs for a service into a single request, and to receive the corresponding outputs in a single response. In SADI, the input RDF document for a service invocation may contain any number of input instances which constitute connected components of the input RDF graph.  Likewise, the output RDF document for a service invocation may contain any number of output instances which constitute connected components of the output RDF graph.
 
-=== Support for Long-Running Services ===
+=== Support for Long-running Services ===
 
 The processing time of a service should not be limited to the lifetime of a TCP connection. Asynchronous SADI services support long-running computations by means of client polling and HTTP redirects, as described in [AsynchronousServices Asynchronous Services].  
 
