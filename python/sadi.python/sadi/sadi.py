@@ -105,8 +105,9 @@ class ServiceBase:
     def getFormat(self, contentType):
 
         if contentType == None: return [ "application/rdf+xml",serializeXML]
-        type = mimeparse.best_match(contentTypes.keys(),contentType)
-        if type != None: return [type,contentTypes[type]]
+        type = mimeparse.best_match([x for x in self.contentTypes.keys() if x != None],
+                                    contentType)
+        if type != None: return [type,self.contentTypes[type]]
         else: return [ "application/rdf+xml",serializeXML]
 
     def serialize(self, graph, accept):
@@ -206,7 +207,7 @@ class ServiceBase:
 if googleAppEngine:
     class GAEService(ServiceBase, webapp.RequestHandler):
         def __init__(self):
-            super(GAEService,self).__init__()
+            ServiceBase.__init__(self)
 
         def get(self):
             modelGraph = self.getServiceDescription()
@@ -216,9 +217,9 @@ if googleAppEngine:
             self.response.write(output[1])
             
         def post(self):
-            postType = getFormat(self.request.headers["Content-Type"])[1]
+            postType = self.getFormat(self.request.headers["Content-Type"])[1]
             graph = self.processGraph(content, postType)
-            acceptType = getFormat(self.request.headers["Accept"])
+            acceptType = self.getFormat(self.request.headers["Accept"])
             response.headers.add_header("Content-Type",acceptType[0])
             if acceptType[1] == 'json':
                 return to_json(modelGraph)
@@ -229,11 +230,11 @@ else:
         isLeaf=True
         
         def __init__(self):
-            super(TwistedService,self).__init__()
+            ServiceBase.__init__(self)
 
         def render_GET(self, request):
             modelGraph = self.getServiceDescription()
-            acceptType = getFormat(request.getHeader("Accept"))
+            acceptType = self.getFormat(request.getHeader("Accept"))
             request.setHeader("Content-Type",acceptType[0])
             request.setHeader('Access-Control-Allow-Origin','*')
             if acceptType[1] == 'json':
@@ -243,9 +244,9 @@ else:
         def render_POST(self, request):
             content = request.content.read()
             print content
-            postType = getFormat(request.getHeader("Content-Type"))[1]
+            postType = self.getFormat(request.getHeader("Content-Type"))[1]
             graph = self.processGraph(content, postType)
-            acceptType = getFormat(request.getHeader("Accept"))
+            acceptType = self.getFormat(request.getHeader("Accept"))
             request.setHeader("Content-Type",acceptType[0])
             request.setHeader('Access-Control-Allow-Origin','*')
             print acceptType
