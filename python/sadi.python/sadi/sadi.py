@@ -39,7 +39,7 @@ class DefaultSerializer:
     def serialize(self,graph):
         return graph.serialize(format=format)
     def deserialize(self,graph, content):
-        graph.parse(StringIO(content),format)
+        graph.parse(StringIO(content),format=format)
 
 class JSONSerializer:
     def serialize(self,graph):
