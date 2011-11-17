@@ -15,7 +15,7 @@ While SADI has been motivated by bioinformatics use cases, there is nothing that
 
 One of the primary goals of SADI is to create web services that are compatible with the Semantic Web.  In particular, it is desirable that services should be able to exchange data directly with various consumers and producers of RDF data such as triple stores, static RDF documents, OWL reasoners, and RDF browsers. For this reason, SADI services consume a standard RDF document as input and generate a standard RDF document as output. 
 
-Another key point of compatibility with the Semantic Web is the use OWL to define the requirements for the input data, output data, and execution parameters of a service.  This permits the use of an OWL reasoner as the main vehicle for data and service matchmaking tasks, such as:
+Another key point of compatibility with the Semantic Web is the use of OWL to define the requirements for the input data, output data, and execution parameters of a service.  This permits the use of an OWL reasoner as the main vehicle for data and service matchmaking tasks, such as:
 
   * identifying services that can consume a subset of a given RDF graph as input
   * extracting minimal input graphs for a service from a given RDF graph
