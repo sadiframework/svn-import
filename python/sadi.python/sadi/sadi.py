@@ -254,20 +254,11 @@ else:
         
         def render_POST(self, request):
             content = request.content.read()
-            print content
-            postType = self.getFormat(request.getHeader("Content-Type"))[1]
-            graph = self.processGraph(content, postType)
+            graph = self.processGraph(content, request.getHeader("Content-Type"))
             acceptType = self.getFormat(request.getHeader("Accept"))
             request.setHeader("Content-Type",acceptType[0])
             request.setHeader('Access-Control-Allow-Origin','*')
             return self.serialize(graph,request.getHeader("Accept"))
-            #print acceptType
-            #if acceptType[1] == 'json':
-            #    result =  to_json(graph)
-            #    print "JSON output"
-            #    print result
-            #    return result
-            #else: return graph.serialize(format=acceptType[1])
 
     Service = TwistedService
 
