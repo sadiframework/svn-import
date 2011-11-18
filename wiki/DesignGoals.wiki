@@ -43,7 +43,7 @@ Aside from the constraint of the previous section, SADI does provide any rules a
 
 == Relationship to Other Web Service Standards ==
 
-=== WSDL === 
+=== Web Services Description Language (WSDL) === 
 
 Web Service Description Language (WSDL) is an XML schema that is the current de facto standard for machine-readable description of web service interfaces. At the time of writing this document, the most recent version of WSDL is WSDL 2.0.  
 
