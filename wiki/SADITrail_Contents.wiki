@@ -29,6 +29,7 @@
     * [SynchronousServices Synchronous Services]
     * [AsynchronousServices Asynchronous Services]
     * [InvokingServicesWithParameters Invoking Services with Execution Parameters]
+  * [ServiceRegistries Service Registries]
   * Tutorials
     * [BuildingServicesInJava Building Services in Java]
     * [BuildingServicesInPerl Building Services in Perl]
