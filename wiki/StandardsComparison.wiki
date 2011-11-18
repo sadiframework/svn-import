@@ -1,9 +1,9 @@
 #summary How SADI relates to other web service standards
 #sidebar SADITrail_Contents
 
-== Relationship to Other Web Service Standards ==
+= Relationship to Other Web Service Standards =
 
-=== Web Services Description Language (WSDL) === 
+== Web Services Description Language (WSDL) == 
 
 WSDL is an XML schema that is the current de facto standard for machine-readable description of web service interfaces. At the time of writing this document, the most recent version of WSDL is WSDL 2.0.  
 
@@ -18,7 +18,7 @@ SADI uses only a small, fixed subset of the behaviours that can described by WSD
 
 The only variables of a SADI service interface are the graph representations of the input data, the output data, and the service execution parameters, which are defined by the [InputAndOutputOWLClasses#The_Input_OWL_Class input OWL class], [InputAndOutputOWLClasses#The_Output_OWL_Class output OWL class], and [ParameterOWLClass#The_Parameter_OWL_Class parameter OWL class], respectively.  For SADI, these three OWL classes are the functional analog of a WSDL service description file. 
 
-=== Semantic Annotations for WSDL (SAWSDL) ===
+== Semantic Annotations for WSDL (SAWSDL) ==
 
 SAWSDL is a small set of extensions to the WSDL XML schema that facilitate the mapping of XML-based services to a semantic data model (e.g. RDF). Specifically, SAWSDL defines 3 additional XML attributes for WSDL:
 
@@ -30,7 +30,7 @@ SAWSDL is a small set of extensions to the WSDL XML schema that facilitate the m
 
 SAWSDL can be used an adaptor layer that maps a WSDL service to the expected behaviour of a SADI service. If the WSDL file defines multiple operations, each operation would become a separate SADI service.
 
-=== OWL-S and the Web Service Modeling Ontology (WSMO) ===
+== OWL-S and the Web Service Modeling Ontology (WSMO) ==
 
 OWL-S and WSMO are two previous Semantic Web Services standards that are similar in their goals and approaches. Both standards define ontologies for describing the _capablities_ and _choreography_ of stateful web services, where capabilities are changes to the world that are effected by a service, and choreography is the sequence of messages exchanged between a client and a service during an interaction. OWL-S and WSMO exceed the descriptive power of WSDL by providing a generic framework for modeling both the internal state of a service and the state of external variables that are affected by the service (e.g. a credit card balance). Transitions between states are formally described by boolean formulas that express preconditions and postconditions for an event. 
 
