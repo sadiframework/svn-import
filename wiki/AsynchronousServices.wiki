@@ -1,6 +1,8 @@
 #summary How are asynchronous services implemented in SADI?
 #sidebar SADITrail_Contents
 
+= Asynchronous Services = 
+
 Asynchronous services are useful in cases where the service can take a long time to process input, but are slightly more complicated to interact with than synchronous services. Communication with an asynchronous SADI service looks like this:
 
   # The client sends a POST request to the service URL. The body of the request is an RDF document containing one or more instances of the service’s input OWL class and, optionally, one instance of the service’s parameter OWL class. The exact format of the RDF document may be specified in the `Content-type` header of the POST request (one of `application/rdf+xml` or `text/rdf+n3`). If no `Content-type` header is sent with the request, the input is assumed to be in RDF/XML format. The desired output serialization can be specified in the `Accept` header (also one of `application/rdf+xml` or `text/rdf+n3`).
