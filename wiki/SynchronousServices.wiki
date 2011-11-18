@@ -1,6 +1,8 @@
 #summary How are synchronous services implemented in SADI?
 #sidebar SADITrail_Contents
 
+= Synchronous Services =
+
 Communication with a synchronous SADI service occurs according to the following steps: 
 
   # The client sends an HTTP POST request to the service URL. The body of the request is an RDF document containing one or more instances of the service’s input OWL class and, optionally, one instance of the service’s parameter OWL class. The serialization format of the RDF document SHOULD be specified in the `Content-type` header of the POST request (one of `application/rdf+xml` or `text/rdf+n3`). If no `Content-type` header is sent with the request, the service MUST assume that the input is in RDF/XML format.  Similarly, the desired serialization format of the response RDF document MAY be indicated with an `Accept` header (also one of `application/rdf+xml` or `text/rdf+xml`).  In the case that the client does not provide an `Accept` header, or the content type is unsupported, the service MUST return RDF/XML.
