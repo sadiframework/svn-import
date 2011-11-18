@@ -3,45 +3,51 @@
 
 = Asynchronous Services = 
 
-Asynchronous services are useful in cases where the service can take a long time to process input, but are slightly more complicated to interact with than synchronous services. Communication with an asynchronous SADI service looks like this:
+Asynchronous services are useful in cases where the service can take a long time to process input, but are slightly more complicated to interact with than synchronous services. Communication with an asynchronous SADI service occurs according to the following steps:
 
-  # The client sends a POST request to the service URL. The body of the request is an RDF document containing one or more instances of the service’s input OWL class and, optionally, one instance of the service’s parameter OWL class. The exact format of the RDF document may be specified in the `Content-type` header of the POST request (one of `application/rdf+xml` or `text/rdf+n3`). If no `Content-type` header is sent with the request, the input is assumed to be in RDF/XML format. The desired output serialization can be specified in the `Accept` header (also one of `application/rdf+xml` or `text/rdf+n3`).
+  # The client sends an HTTP POST request to the service URL. The body of the request is an RDF document containing one or more instances of the service’s input OWL class and, optionally, one instance of the service’s parameter OWL class. The serialization format of the RDF document SHOULD be specified in the Content-type header of the POST request (one of application/rdf+xml or text/rdf+n3). If no Content-type header is sent with the request, the service MUST assume that the input is in RDF/XML format. Similarly, the desired serialization format of the response RDF document MAY be indicated with an Accept header (also one of application/rdf+xml or text/rdf+xml). In the case that the client does not provide an Accept header, or the content type is unsupported, the service MUST return the response in RDF/XML.
 {{{
-POST /examples/hello HTTP/1.1 
+POST /examples/hello HTTP/1.1
 Host: sadiframework.org
+Accept: text/rdf+n3
+Content-type: text/rdf+n3
 
-<rdf:RDF 
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
-    xmlns:foaf="http://xmlns.com/foaf/0.1/" 
-    xmlns:hello="http://sadiframework.org/examples/hello.owl#">
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/data/examples/hello-input.n3#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-    <hello:NamedIndividual rdf:about="http://sadiframework.org/examples/hello-input.rdf#1"> 
-        <foaf:name>Guy Incognito</foaf:name> 
-    </hello:NamedIndividual>
-
-</rdf:RDF>
+input:GuyIncognito
+   a hello:NamedIndividual;
+   foaf:name "Guy Incognito" .
+ 
+input:HomerSimpson
+   a hello:NamedIndividual;
+   foaf:name "Homer Simpson" .
 }}}
-  # The service sends a response with the HTTP response code 202 (accepted but incomplete). The body of the response is an RDF document containing statements about the input instances. The exact format of the RDF document will be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`). The existence of additional data is indicated by `rdfs:isDefinedBy` statements where the object is a URL the client must fetch to receive the complete output. There may be multiple such URLs and it is possible that the initial output may contain only `rdfs:isDefinedBy` statements.
+  # The service sends a response with the HTTP response code 202 (accepted but incomplete). The body of the response is an RDF document containing statements about the input instances. The serialization format of the RDF document MUST be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`). The existence of additional data is indicated by `rdfs:isDefinedBy` statements where the object is a URL the client must fetch to receive the complete output. There MAY be multiple such URLs and the initial output MAY contain only `rdfs:isDefinedBy` statements.
 {{{
 HTTP/1.1 202 Accepted 
-Content-type: application/rdf+xml
+Content-type: text/rdf+n3
 
-<rdf:RDF 
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
-    xmlns:rdfs="http://http://www.w3.org/2000/01/rdf-schema#" 
-    xmlns:hello="http://sadiframework.org/examples/hello.owl#">
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/data/examples/hello-input.n3#> .
+@prefix rdfs: <http://http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
-    <hello:GreetedIndividual rdf:about="http://sadiframework.org/examples/hello- 
-input.rdf#1">
-        <rdfs:isDefinedBy rdf:resource="http://sadiframework.org/examples/hello?poll=1"/> 
-    </hello:GreetedIndividual>
+input:GuyIncognito
+   a hello:GreetedIndividual;
+   rdfs:isDefinedBy <http://sadiframework.org/examples/hello?poll=1> .
 
-</rdf:RDF>
+input:HomerSimpson
+   a hello:GreetedIndividual;
+   rdfs:isDefinedBy <http://sadiframework.org/examples/hello?poll=1> .
 }}}
-  # The client sends a GET request for each `rdfs:isDefinedBy` URL in the initial response.
+  # The client sends a GET request for each `rdfs:isDefinedBy` URL in the initial response.  The client may include an `Accept` header indicating the desired RDF serialization format response, which otherwise defaults to RDF/XML.  
 {{{
 GET /examples/hello?poll=1 
 Host: sadiframework.org
+Accept: text/rdf+n3
 }}}
   # If the output is not yet ready, the service sends an HTTP redirect with a `Retry-after` header that contains the number of seconds that the client should wait before trying again.
 {{{
@@ -53,20 +59,21 @@ Location: http://sadiframework.org/examples/hello?poll=1
 {{{
 GET /examples/hello?poll=1 
 Host: sadiframework.org
+Accept: text/rdf+n3
 }}}
-  # If the output is still not ready, the service sends another HTTP redirect as above. When the output is ready, the service sends a response with the output. The body of the response is an RDF document containing statements that should be combined with the original output document. The exact format of the RDF document will be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`).
+  # If the output is still not ready, the service sends another HTTP redirect as above. When the output is ready, the service sends a response with the output. The body of the response is an RDF document containing statements that should be combined with the original output document. The serialization format of the RDF document MUST be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`).
 {{{
 HTTP/1.1 200 OK 
-Content-type: application/rdf+xml
+Content-type: text/rdf+n3
 
-<rdf:RDF 
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
-    xmlns:hello="http://sadiframework.org/examples/hello.owl#">
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/data/examples/hello-input.n3#> .
 
-    <hello:GreetedIndividual rdf:about="http://sadiframework.org/examples/hello-input.rdf#1"> 
-        <hello:greeting>Hello, Guy Incognito!</hello:greeting> 
-    </hello:GreetedIndividual>
+input:GuyIncognito 
+    a hello:GreetedIndividual;
+    hello:greeting "Hello, Guy Incognito!" .
 
-</rdf:RDF>
+input:HomerSimpson
+    a hello:GreetedIndividual;
+    hello:greeting "Hello, Homer Simpson!" .
 }}}
-Compare with SynchronousServices.
