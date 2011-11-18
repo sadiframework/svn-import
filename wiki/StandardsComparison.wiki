@@ -7,7 +7,7 @@
 
 WSDL is an XML schema that is the current de facto standard for machine-readable description of web service interfaces. At the time of writing this document, the most recent version of WSDL is WSDL 2.0.  
 
-The most important difference between SADI services and WSDL services is that SADI uses RDF for message content, whereas WSDL services conventionally use XML. WSDL uses XML Schema as the default schema language for message structures, but is also extensible to use other schema languages. To date, there have been proposals for extensions that use of Document Type Definitions (DTDs) and RelaxNG schemas as alternative schema languages for WSDL. In principle, a similar extension could be created for the use of OWL as a schema language, although none has been put forward to date.
+The most important difference between SADI services and WSDL services is that SADI uses RDF for message content, whereas WSDL services conventionally use XML. WSDL uses XML Schema as the default schema language for message structures, but is also extensible to use other schema languages. To date, there have been proposals for extensions that use of Document Type Definition (DTD) and RelaxNG as alternative schema languages for WSDL. In principle, a similar extension could be created for the use of OWL as a schema language, although none has been put forward to date.
 
 SADI uses only a small, fixed subset of the behaviours that can described by WSDL. In the terminology of WSDL, SADI services have: 
 
