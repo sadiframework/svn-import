@@ -43,7 +43,7 @@ input:HomerSimpson
    a hello:GreetedIndividual;
    rdfs:isDefinedBy <http://sadiframework.org/examples/hello?poll=1> .
 }}}
-  # The client sends a GET request for each `rdfs:isDefinedBy` URL in the initial response.  The client may include an `Accept` header indicating the desired RDF serialization format response, which otherwise defaults to RDF/XML.  
+  # The client sends a GET request for each `rdfs:isDefinedBy` URL in the initial response.  The client may include an `Accept` header indicating the desired RDF serialization format for the response, which otherwise defaults to RDF/XML.  
 {{{
 GET /examples/hello?poll=1 
 Host: sadiframework.org
