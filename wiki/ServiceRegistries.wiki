@@ -1,0 +1,6 @@
+#summary Stub about service registries, for the SADI specification
+#sidebar SADITrail_Contents
+
+= Service Registries =
+
+A registry allows users to query metadata about a set of services in order to discover services that accomplish a task of interest. The implementation of service registries for SADI is beyond the current scope of the specification.  For the benefit of SADI users, the authors maintain a public registry of SADI services at http://sadiframework.org/registry. 
