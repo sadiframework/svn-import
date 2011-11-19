@@ -2,7 +2,7 @@
 
 = Introduction =
 
-Semantic Automated Discovery and Integration (SADI) is a set of best practices for implementing stateless web services that consume RDF data as input and generate RDF data as output. The schemas for the input and output RDF data for a service are defined the service's _input OWL class_ and _output OWL class_, respectively.  
+Semantic Automated Discovery and Integration (SADI) is a set of best practices for implementing stateless web services that consume RDF data as input and generate RDF data as output. The schemas for the input and output RDF data for a service are defined by the service's _input OWL class_ and _output OWL class_, respectively.  
 
 The RDF metadata for a SADI service, including the URIs of the input and output OWL class, is retrieved by issuing an HTTP GET request to the service URL.
 
