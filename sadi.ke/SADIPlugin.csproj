@@ -73,11 +73,11 @@
     <Compile Include="ServiceSelectionControl.Designer.cs">
       <DependentUpon>ServiceSelectionControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="ServiceSelectionDialog.cs">
+    <Compile Include="ServiceDiscoveryDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ServiceSelectionDialog.Designer.cs">
-      <DependentUpon>ServiceSelectionDialog.cs</DependentUpon>
+    <Compile Include="ServiceDiscoveryDialog.Designer.cs">
+      <DependentUpon>ServiceDiscoveryDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -109,8 +109,8 @@
     <EmbeddedResource Include="ServiceSelectionControl.resx">
       <DependentUpon>ServiceSelectionControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ServiceSelectionDialog.resx">
-      <DependentUpon>ServiceSelectionDialog.cs</DependentUpon>
+    <EmbeddedResource Include="ServiceDiscoveryDialog.resx">
+      <DependentUpon>ServiceDiscoveryDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

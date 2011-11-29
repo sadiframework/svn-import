@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using IOInformatics.KE.PluginAPI;
 using IOInformatics.KE.PluginAPI.Providers;
+using System.Text.RegularExpressions;
+using System.IO;
 
 namespace SADI.KEPlugin
 {
@@ -83,9 +85,51 @@ namespace SADI.KEPlugin
             return statements;
         }
 
+        public static readonly Regex VARIABLE_PATTERN = new Regex("[?$]([^\\s.])+");
+
         public bool SPARQLConstruct(SemWeb.Store store, IEntity inputRoot, string inputInstanceQuery)
         {
-            return false;
+            inputInstanceQuery.Replace("?input", String.Format("<{0}>", inputRoot.ToString()));
+            inputInstanceQuery.Replace("$input", String.Format("<{0}>", inputRoot.ToString()));
+            string query =
+                    "SELECT * WHERE {" + inputInstanceQuery + "}";
+            MatchCollection variableMatches = VARIABLE_PATTERN.Matches(inputInstanceQuery);
+            bool addedData = false;
+            foreach (ISPARQLResult result in Graph.Query(query).Results)
+            {
+                string rdf = inputInstanceQuery;
+                foreach (Match variableMatch in variableMatches)
+                {
+                    string variable = variableMatch.Captures[0].Value;
+                    if (result[variable] != null)
+                    {
+                        rdf.Replace(String.Format("?{0}", variable), getString(result[variable]));
+                        rdf.Replace(String.Format("${0}", variable), getString(result[variable]));
+                    }
+                }
+                try
+                {
+                    store.Import(new SemWeb.N3Reader(new StringReader(rdf)));
+                    addedData = true;
+                }
+                catch (Exception err)
+                {
+                    SADIHelper.error("KEStore", "error constructing RDF", rdf, err);
+                }
+            }
+            return addedData;
+        }
+
+        private string getString(IResource resource)
+        {
+            if (resource is IEntity && (resource as IEntity).Uri == null)
+            {
+                return String.Format("_:{0}", resource.ToString());
+            }
+            else
+            {
+                return resource.ToString();
+            }
         }
     }
 }

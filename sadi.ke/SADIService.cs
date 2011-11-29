@@ -150,6 +150,7 @@ namespace SADI.KEPlugin
             {
                 if (KE.SPARQLConstruct(store, inputRoot, inputInstanceQuery))
                 {
+                    store.Add(new Statement(root, SemWebVocab.rdf_type, new Entity(inputClass)));
                     return;
                 }
             }

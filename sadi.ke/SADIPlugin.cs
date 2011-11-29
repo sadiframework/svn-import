@@ -77,7 +77,7 @@ namespace SADI.KEPlugin
 
         void callServicesItem_Click(object sender, EventArgs e)
         {
-            ServiceSelectionDialog dialog = new ServiceSelectionDialog(KE, SelectionProvider.SelectedItems);
+            ServiceDiscoveryDialog dialog = new ServiceDiscoveryDialog(KE, SelectionProvider.SelectedItems);
             dialog.Show();
             dialog.FindServices();
         }
