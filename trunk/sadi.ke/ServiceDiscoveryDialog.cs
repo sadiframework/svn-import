@@ -9,12 +9,12 @@ using IOInformatics.KE.PluginAPI;
 
 namespace SADI.KEPlugin
 {
-    public partial class ServiceSelectionDialog : Form
+    public partial class ServiceDiscoveryDialog : Form
     {
         private KEStore KE;
         private IEnumerable<IResource> SelectedNodes;
 
-        public ServiceSelectionDialog(KEStore ke, IEnumerable<IResource> selectedNodes)
+        public ServiceDiscoveryDialog(KEStore ke, IEnumerable<IResource> selectedNodes)
         {
             KE = ke;
             SelectedNodes = selectedNodes;
@@ -163,10 +163,12 @@ namespace SADI.KEPlugin
                     }
                     else if (!KE.HasType(node))
                     {
+                        Uri uri = (node as IEntity).Uri;
+                        FindServicesWorker.ReportProgress(0, String.Format("Resolving {0}...", uri));
                         try
                         {
                             SADIHelper.debug("ServiceSelection", "resolving URI", node);
-                            KE.Import(SemWebHelper.resolveURI((node as IEntity).Uri));
+                            KE.Import(SemWebHelper.resolveURI(uri));
                         }
                         catch (Exception err)
                         {
@@ -175,7 +177,7 @@ namespace SADI.KEPlugin
                         try
                         {
                             SADIHelper.debug("ServiceSelection", "resolving against SADI resolver", node);
-                            KE.Import(SADIHelper.resolve((node as IEntity).Uri));
+                            KE.Import(SADIHelper.resolve(uri));
                         }
                         catch (Exception err)
                         {
@@ -243,6 +245,19 @@ namespace SADI.KEPlugin
 
         private bool checkForInputInstances(SADIService service, IEnumerable<IResource> selectedNodes)
         {
+            if (service.inputInstanceQuery != null)
+            {
+                string query =
+                    "SELECT DISTINCT ?input WHERE {" + service.inputInstanceQuery + "}";
+                foreach (ISPARQLResult result in KE.Graph.Query(query).Results) {
+                    foreach (IResource node in selectedNodes) {
+                        if (node.Equals(result["input"]))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
             return false;
         }
     }
