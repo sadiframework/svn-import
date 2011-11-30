@@ -43,7 +43,7 @@
     <owl:Class rdf:about="#BiopolymerRegion">
         <owl:equivalentClass>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&sio;SIO_000008"/>  <!-- 'has attribute' -->
+                <owl:onProperty rdf:resource="&range;position"/>  <!-- 'has attribute' -->
                 <!-- the genomic coordinates of the feature -->
                 <owl:someValuesFrom rdf:resource="&range;RangedSequencePosition"/> 
             </owl:Restriction>
