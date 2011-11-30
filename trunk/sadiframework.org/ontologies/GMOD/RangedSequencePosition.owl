@@ -109,7 +109,7 @@
         <!-- <rdfs:subClassOf rdf:resource="&sio;SIO_000030"/> --> <!-- 'sequence' -->
         <owl:equivalentClass>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&properties;hasSequence"/> 
+                <owl:onProperty rdf:resource="&sio;SIO_000210"/> <!-- 'represents' -->
                 <owl:someValuesFrom rdf:resource="#StrandOfFeature"/>
             </owl:Restriction>
         </owl:equivalentClass>
@@ -119,7 +119,7 @@
         <!-- <rdfs:subClassOf rdf:resource="&sio;SIO_000030"/> --> <!-- 'sequence' -->
         <owl:equivalentClass>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&properties;hasSequence"/>
+                <owl:onProperty rdf:resource="&sio;SIO_000210"/> <!-- 'represents' -->
                 <owl:someValuesFrom rdf:resource="&feature;Feature"/>
             </owl:Restriction>
         </owl:equivalentClass>
