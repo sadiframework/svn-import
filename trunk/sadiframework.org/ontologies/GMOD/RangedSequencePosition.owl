@@ -41,7 +41,15 @@
      -->
 
     <owl:ObjectProperty rdf:about="#in_relation_to"/>
+
+    <owl:ObjectProperty rdf:about="#position"> 
+        <rdfs:subPropertyOf rdf:resource="&sio;SIO_000008"/>
+    </owl:ObjectProperty>
     
+    <owl:ObjectProperty rdf:about="#coordinate"> 
+        <rdfs:subPropertyOf rdf:resource="&sio;SIO_000053"/>
+    </owl:ObjectProperty>
+
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
     //
@@ -60,11 +68,11 @@
                         <owl:someValuesFrom rdf:resource="#SequenceForStrandOrFeature"/> <!-- 'sequence' -->
                     </owl:Restriction>
                      <owl:Restriction>
-                        <owl:onProperty rdf:resource="&sio;SIO_000053"/> <!-- 'has proper part' -->
+                        <owl:onProperty rdf:resource="#coordinate"/> <!-- 'has proper part' -->
                         <owl:someValuesFrom rdf:resource="#StartPosition"/>
                     </owl:Restriction>
                     <owl:Restriction>
-                        <owl:onProperty rdf:resource="&sio;SIO_000053"/> <!-- 'has proper part' -->
+                        <owl:onProperty rdf:resource="#coordinate"/> <!-- 'has proper part' -->
                         <owl:someValuesFrom rdf:resource="#EndPosition"/>
                     </owl:Restriction>
                 </owl:intersectionOf>
@@ -101,7 +109,7 @@
         <!-- <rdfs:subClassOf rdf:resource="&sio;SIO_000030"/> --> <!-- 'sequence' -->
         <owl:equivalentClass>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&sio;SIO_000011"/> <!-- 'is attribute of' -->
+                <owl:onProperty rdf:resource="&properties;hasSequence"/> 
                 <owl:someValuesFrom rdf:resource="#StrandOfFeature"/>
             </owl:Restriction>
         </owl:equivalentClass>
@@ -111,7 +119,7 @@
         <!-- <rdfs:subClassOf rdf:resource="&sio;SIO_000030"/> --> <!-- 'sequence' -->
         <owl:equivalentClass>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&sio;SIO_000011"/> <!-- 'is attribute of' -->
+                <owl:onProperty rdf:resource="&properties;hasSequence"/>
                 <owl:someValuesFrom rdf:resource="&feature;Feature"/>
             </owl:Restriction>
         </owl:equivalentClass>
