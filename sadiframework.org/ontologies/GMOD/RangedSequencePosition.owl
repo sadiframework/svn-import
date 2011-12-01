@@ -42,10 +42,6 @@
 
     <owl:ObjectProperty rdf:about="#in_relation_to"/>
 
-    <owl:ObjectProperty rdf:about="#position"> 
-        <rdfs:subPropertyOf rdf:resource="&sio;SIO_000008"/>
-    </owl:ObjectProperty>
-    
     <owl:ObjectProperty rdf:about="#coordinate"> 
         <rdfs:subPropertyOf rdf:resource="&sio;SIO_000053"/>
     </owl:ObjectProperty>
