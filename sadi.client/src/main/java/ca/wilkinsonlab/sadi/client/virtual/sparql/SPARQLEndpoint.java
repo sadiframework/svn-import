@@ -22,6 +22,7 @@ import ca.wilkinsonlab.sadi.utils.JsonUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLResultsXMLUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
+import ca.wilkinsonlab.sadi.utils.http.HttpClient;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
@@ -37,17 +38,17 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 /**
  * <p>Encapsulates access to a SPARQL endpoint (via HTTP).</p>
- * 
+ *
  * <p>This is a generic base class which assumes that:
  *
  * => the GET/POST parameter for a SPARQL query is called "query"
  * => the default results format for SELECT queries is SPARQL Results XML
  * => the default results format for CONSTRUCT queries is RDF/XML
- * 
+ *
  * At the current time (May 29, 2010), these assumptions hold true for both
  * D2R and Virtuoso SPARQL endpoints, and there are no other types
  * of endpoints that we use.
- * 
+ *
  * @author Ben Vandervalk
  */
 public class SPARQLEndpoint
@@ -55,22 +56,25 @@ public class SPARQLEndpoint
 	public enum EndpointType { VIRTUOSO, D2R, UNKNOWN };
 	public enum SelectQueryResultsFormat  { SPARQL_RESULTS_XML, JSON };
 	public enum ConstructQueryResultsFormat { RDFXML, N3 };
-	
+
+	/** use a persistent HTTP client, in order to support efficient HTTP authentication. */
+	protected HttpClient httpClient;
+
 	public final static Logger log = Logger.getLogger(SPARQLEndpoint.class);
-	
+
 	String endpointURI;
-	
+
 	protected SelectQueryResultsFormat selectResultsFormat;
 	protected ConstructQueryResultsFormat constructResultsFormat;
 	protected EndpointType endpointType;
 	protected long resultsLimit;
-	
+
 	protected final static String RESULTS_LIMIT_KEY = "sadi.sparqlResultsLimit";
 	public final static long NO_RESULTS_LIMIT = -1;
-	
+
 	protected boolean writable;
 
-	public SPARQLEndpoint(String uri) 
+	public SPARQLEndpoint(String uri)
 	{
 		this(uri, EndpointType.UNKNOWN, SelectQueryResultsFormat.SPARQL_RESULTS_XML, ConstructQueryResultsFormat.RDFXML);
 	}
@@ -78,7 +82,7 @@ public class SPARQLEndpoint
 	public SPARQLEndpoint(String uri, EndpointType type) {
 		this(uri, type, SelectQueryResultsFormat.SPARQL_RESULTS_XML, ConstructQueryResultsFormat.RDFXML);
 	}
-	
+
 	public SPARQLEndpoint(String uri, EndpointType type, SelectQueryResultsFormat selectFormat,  ConstructQueryResultsFormat constructFormat)
 	{
 		endpointURI = uri;
@@ -87,12 +91,13 @@ public class SPARQLEndpoint
 		setConstructResultsFormat(constructFormat);
 		setWritable(false);
 		setResultsLimit(NO_RESULTS_LIMIT);
+		httpClient = new HttpClient();
 	}
-	
+
 	public int hashCode() {
 		return getURI().hashCode();
 	}
-	
+
 	public boolean equals(Object o) {
 		if(o instanceof SPARQLEndpoint) {
 			return getURI().equals(((SPARQLEndpoint) o).getURI());
@@ -100,28 +105,28 @@ public class SPARQLEndpoint
 		return false;
 	}
 
-	protected SelectQueryResultsFormat getSelectResultsFormat()	{ 
-		return selectResultsFormat; 
+	protected SelectQueryResultsFormat getSelectResultsFormat()	{
+		return selectResultsFormat;
 	}
-	protected void setSelectResultsFormat(SelectQueryResultsFormat selectResultsFormat) { 
-		this.selectResultsFormat = selectResultsFormat; 
-	}
-	
-	protected ConstructQueryResultsFormat getConstructResultsFormat() { 
-		return constructResultsFormat; 
-	}
-	protected void setConstructResultsFormat(ConstructQueryResultsFormat constructResultsFormat) { 
-		this.constructResultsFormat = constructResultsFormat; 
+	protected void setSelectResultsFormat(SelectQueryResultsFormat selectResultsFormat) {
+		this.selectResultsFormat = selectResultsFormat;
 	}
 
-	public String getURI()  { 
-		return endpointURI; 
+	protected ConstructQueryResultsFormat getConstructResultsFormat() {
+		return constructResultsFormat;
 	}
-	
-	public String toString() { 
-		return getURI(); 
+	protected void setConstructResultsFormat(ConstructQueryResultsFormat constructResultsFormat) {
+		this.constructResultsFormat = constructResultsFormat;
 	}
-	
+
+	public String getURI()  {
+		return endpointURI;
+	}
+
+	public String toString() {
+		return getURI();
+	}
+
 	public EndpointType getEndpointType() {
 		return endpointType;
 	}
@@ -141,30 +146,30 @@ public class SPARQLEndpoint
 	public long getResultsLimit() {
 		return resultsLimit;
 	}
-	
+
 	public void setResultsLimit(long resultsLimit) {
 		this.resultsLimit = resultsLimit;
 	}
-	
-	public boolean ping() 
+
+	public boolean ping()
 	{
 		try {
 			selectQuery("SELECT * WHERE { ?s ?p ?o } LIMIT 1");
 			return true;
 		} catch(IOException e) {
 			return false;
-		} 
+		}
 	}
 
-	
-	public Model getTriplesMatchingPattern(Triple pattern, long resultsLimit) throws IOException 
+
+	public Model getTriplesMatchingPattern(Triple pattern, long resultsLimit) throws IOException
 	{
 		Node s = pattern.getSubject();
 		Node o = pattern.getObject();
-		
-		if(s.isVariable() && o.isVariable()) 
+
+		if(s.isVariable() && o.isVariable())
 			throw new IllegalArgumentException("Not allowed to query {?s ?p ?o} or {?s <predicate> ?o} against a SPARQL endpoint");
-		
+
 		String patternStr = SPARQLStringUtils.getTriplePattern(pattern);
 		StringBuilder query = new StringBuilder();
 		query.append("CONSTRUCT { ");
@@ -172,80 +177,80 @@ public class SPARQLEndpoint
 		query.append(" } WHERE { ");
 		query.append(patternStr);
 		query.append(" }");
-		
+
 		if(resultsLimit != NO_RESULTS_LIMIT) {
 			query.append(" LIMIT ");
 			query.append(resultsLimit);
 		}
-		
+
 		Model triples = constructQuery(query.toString(), ModelFactory.createDefaultModel());
-		
+
 		if(resultsLimit != NO_RESULTS_LIMIT && triples.size() == resultsLimit)
 			log.warn("query results may have been truncated at " + resultsLimit + " triples");
-		
+
 		return triples;
 	}
-	
-	public List<Map<String,String>> selectQuery(String query) throws IOException 
+
+	public List<Map<String,String>> selectQuery(String query) throws IOException
 	{
 		/* We must use syntaxARQ here so that COUNT(*) queries are allowed. */
-		
+
 		Query jenaQuery = QueryFactory.create(query, Syntax.syntaxARQ);
 		long queryLimit = (jenaQuery.getLimit() == Query.NOLIMIT) ? NO_RESULTS_LIMIT : jenaQuery.getLimit();
-		
-		/* 
+
+		/*
 		 * If the result set for the query is larger than the endpoint
 		 * results limit, issue multiple queries to get the full
-		 * result set. 
+		 * result set.
 		 */
 
 		String origQuery = query;
 		List<Map<String, String>> aggregateResults = new ArrayList<Map<String, String>>();
-		
+
 		while(true) {
 
 			InputStream is = null;
 
 			try {
-				
+
 				// We should use GET here so that the HTTP client knows that it is okay to retry on failure
-				HttpResponse response = HttpUtils.GET(new URL(getURI()), getParamsForSelectQuery(query));
-				
+				HttpResponse response = httpClient.GET(new URL(getURI()), getParamsForSelectQuery(query));
+
 				int statusCode = response.getStatusLine().getStatusCode();
-				if (HttpUtils.isHttpError(statusCode)) 
+				if (HttpUtils.isHttpError(statusCode))
 					throw new HttpStatusException(statusCode);
-				
+
 				is = response.getEntity().getContent();
 				List<Map<String,String>> results = convertSelectResponseToBindings(is);
-				
+
 				aggregateResults.addAll(results);
-		
-				/* 
-				 * If we get a result set size that is exactly the size of the 
+
+				/*
+				 * If we get a result set size that is exactly the size of the
 				 * endpoint results limit, it probably means that the results
-				 * were truncated.  We can't be 100% sure, but we must issue another 
-				 * query to be safe. 
+				 * were truncated.  We can't be 100% sure, but we must issue another
+				 * query to be safe.
 				 */
 
 				if(aggregateResults.size() == queryLimit || getResultsLimit() == NO_RESULTS_LIMIT || results.size() < getResultsLimit()) {
 					break;
 				}
-				
+
 				query = getQueryForNextChunk(origQuery, aggregateResults.size());
 				log.trace(String.format("query results may have been truncated by endpoint limit, issuing additional query: %s", query));
-				
+
 			} catch(IOException e) {
-				
+
 				/*
 				 * TODO: If we get at least some results for the query,
 				 * we want to return them, and just issue a warning about
-				 * the IOException.  In the future, it may be useful for 
+				 * the IOException.  In the future, it may be useful for
 				 * the client to have a way of determining if only partial
-				 * results were retrieved.  We could achieve this by 
-				 * returning a SPARQLQueryResult object, instead of 
+				 * results were retrieved.  We could achieve this by
+				 * returning a SPARQLQueryResult object, instead of
 				 * List<Map<String,String>>.
 				 */
-				
+
 				if(aggregateResults.size() > 0) {
 					log.error(String.format("error occurred during query, returning only partial results for: %s", query), e);
 					break;
@@ -258,19 +263,19 @@ public class SPARQLEndpoint
 				if(is != null) {
 					FileUtils.simpleClose(is);
 				}
-			
+
 			}
-		
+
 		}
-		
+
 		return aggregateResults;
 	}
 
-	public List<Map<String,String>> selectQueryBestEffort(String query) throws IOException 
+	public List<Map<String,String>> selectQueryBestEffort(String query) throws IOException
 	{
 		try {
 			return selectQuery(query);
-			
+
 		} catch(HttpStatusException e) {
 			if(e.getStatusCode() != HttpURLConnection.HTTP_GATEWAY_TIMEOUT) {
 				throw e;
@@ -280,65 +285,65 @@ public class SPARQLEndpoint
 			return getPartialQueryResults(query);
 		}
 	}
-	
+
 	public Model constructQuery(String query, Model accum) throws IOException
 	{
 		/* We must use syntaxARQ here so that COUNT(*) queries are allowed. */
-		
+
 		Query jenaQuery = QueryFactory.create(query, Syntax.syntaxARQ);
 		long queryLimit = (jenaQuery.getLimit() == Query.NOLIMIT) ? NO_RESULTS_LIMIT : jenaQuery.getLimit();
-		
+
 		String origQuery = query;
 //		List<Triple> aggregateResults = new ArrayList<Triple>();
 		Model aggregateResults = accum;
-		
+
 		while(true) {
 
 			InputStream is = null;
 
 			try {
-				
+
 				// We must use GET here so that the HTTP client knows that it is okay to retry on failure
-				HttpResponse response = HttpUtils.GET(new URL(getURI()), getParamsForConstructQuery(query));
-				
+				HttpResponse response = httpClient.GET(new URL(getURI()), getParamsForConstructQuery(query));
+
 				int statusCode = response.getStatusLine().getStatusCode();
-				if (HttpUtils.isHttpError(statusCode)) 
+				if (HttpUtils.isHttpError(statusCode))
 					throw new HttpStatusException(statusCode);
-				
+
 				is = response.getEntity().getContent();
 				Model results = ModelFactory.createDefaultModel();
 				convertConstructResponseToTriples(is, results);
-				
+
 				aggregateResults.add(results);
-				
-				/* 
-				 * If we get a result set size that is exactly the size of the 
+
+				/*
+				 * If we get a result set size that is exactly the size of the
 				 * endpoint results limit, it probably means that the results
-				 * were truncated.  We can't be 100% sure, but we must issue another 
-				 * query to be safe. 
+				 * were truncated.  We can't be 100% sure, but we must issue another
+				 * query to be safe.
 				 */
 
 				if(aggregateResults.size() == queryLimit || getResultsLimit() == NO_RESULTS_LIMIT || results.size() < getResultsLimit()) {
 					break;
 				}
-				
+
 				query = getQueryForNextChunk(origQuery, aggregateResults.size());
 				log.trace(String.format("query results may have been truncated by endpoint limit, issuing additional query: %s", query));
-				
+
 				results.close();
-				
+
 			} catch(IOException e) {
-				
+
 				/*
 				 * TODO: If we get at least some results for the query,
 				 * we want to return them, and just issue a warning about
-				 * the IOException.  In the future, it may be useful for 
+				 * the IOException.  In the future, it may be useful for
 				 * the client to have a way of determining if only partial
-				 * results were retrieved.  We could achieve this by 
-				 * returning a SPARQLQueryResult object, instead of 
+				 * results were retrieved.  We could achieve this by
+				 * returning a SPARQLQueryResult object, instead of
 				 * Collection<Triple>.
 				 */
-				
+
 				if(aggregateResults.size() > 0) {
 					log.error(String.format("error occurred during query, returning only partial results for: %s", query), e);
 					break;
@@ -351,14 +356,14 @@ public class SPARQLEndpoint
 				if(is != null) {
 					FileUtils.simpleClose(is);
 				}
-			
+
 			}
-		
+
 		}
-		
+
 		return aggregateResults;
 	}
-	
+
 	protected String getQueryForNextChunk(String origQuery, long numResultsRetrieved)
 	{
 		Query jenaQuery = QueryFactory.create(origQuery);
@@ -368,16 +373,16 @@ public class SPARQLEndpoint
 		/* We must use syntaxARQ here so that COUNT(*) queries are allowed. */
 		long origLimit = QueryFactory.create(origQuery, Syntax.syntaxARQ).getLimit();
 		long newLimit = origLimit - numResultsRetrieved;
-		
+
 		if(origLimit == Query.NOLIMIT || (newLimit > getResultsLimit())) {
 			jenaQuery.setLimit(Query.NOLIMIT);
 		} else {
 			jenaQuery.setLimit(newLimit);
 		}
-		
+
 		return jenaQuery.serialize();
 	}
-	
+
 	protected static String getJenaRDFLangString(ConstructQueryResultsFormat format) {
 		switch(format) {
 		case N3:
@@ -388,7 +393,7 @@ public class SPARQLEndpoint
 			throw new RuntimeException("unrecognized value for ConstructQueryResultsFormat");
 		}
 	}
-	
+
 	/**
 	 * Issue a SPARQL update (SPARUL) query.  These queries are using for inserting triples,
 	 * updating triples, deleting triples, etc.
@@ -403,10 +408,10 @@ public class SPARQLEndpoint
 		if(!isWritable()) {
 			throw new IOException(String.format("unable to perform update query on %s, endpoint is not writable (check username/password)", getURI()));
 		}
-		
-		HttpResponse response = HttpUtils.POST(new URL(getURI()), getParamsForUpdateQuery(query));
+
+		HttpResponse response = httpClient.POST(new URL(getURI()), getParamsForUpdateQuery(query));
 		response.getEntity().getContent().close();
-		
+
 		int statusCode = response.getStatusLine().getStatusCode();
 		if (HttpUtils.isHttpError(statusCode))
 			throw new HttpStatusException(statusCode);
@@ -420,14 +425,14 @@ public class SPARQLEndpoint
 		for(Map<String,String> binding : results)
 			graphURIs.add(binding.get("g"));
 		return graphURIs;
-	}	
+	}
 
 	public Set<String> getPredicates() throws IOException
 	{
 		log.debug("querying predicate list from " + getURI());
 		Set<String> predicates = new HashSet<String>();
 		List<Map<String,String>> results = selectQuery("SELECT DISTINCT ?p WHERE { ?s ?p ?o }");
-		for(Map<String,String> binding : results) 
+		for(Map<String,String> binding : results)
 			predicates.add(binding.get("p"));
 		return predicates;
 	}
@@ -443,12 +448,12 @@ public class SPARQLEndpoint
 			predicates.add(binding.get("p"));
 		return predicates;
 	}
-	
+
 
 	public Set<String> getPredicatesPartial() throws IOException
 	{
 		log.debug("querying partial predicate list from " + getURI());
-		
+
 		Set<String> predicates = new HashSet<String>();
 		String query = "SELECT DISTINCT ?p WHERE { ?s ?p ?o }";
 		List<Map<String,String>> results = getPartialQueryResults(query);
@@ -458,72 +463,72 @@ public class SPARQLEndpoint
 	}
 
 	/**
-	 * Get the largest result set possible for the given query.  This method is a fallback 
+	 * Get the largest result set possible for the given query.  This method is a fallback
 	 * if we cannot get the complete answer to a query due to HTTP timeouts.
 	 */
-	public List<Map<String,String>> getPartialQueryResults(String query) throws IOException 
+	public List<Map<String,String>> getPartialQueryResults(String query) throws IOException
 	{
 		return getPartialQueryResults(query, 1);
 	}
-	
-	public List<Map<String,String>> getPartialQueryResults(String query, long startSize) throws IOException 
+
+	public List<Map<String,String>> getPartialQueryResults(String query, long startSize) throws IOException
 	{
 		long limit = getResultsCountLowerBound(query, startSize);
 		String partialQuery = query + " LIMIT " + limit;
 		return selectQuery(partialQuery);
 	}
-	
+
 	/**
 	 * <p>Get a lower bound for the number of results for the given query.  This method is a fallback
 	 * if we cannot do a full COUNT(*) query on the endpoint due to HTTP timeouts.</p>
-	 * 
-	 * <p>We do this by adjusting the limit and seeing where we start to fail (i.e. timeout).  If 
-	 * the current limit is good, we double it. If the current limit times out, we take the 
+	 *
+	 * <p>We do this by adjusting the limit and seeing where we start to fail (i.e. timeout).  If
+	 * the current limit is good, we double it. If the current limit times out, we take the
 	 * halfway point between the current limit and the last successful limit.  And so on.</p>
 	 *
-	 * <p>We don't actually need to download the results each time we try a new limit, because the 
+	 * <p>We don't actually need to download the results each time we try a new limit, because the
 	 * majority of the processing time is on the server side (finding and materializing the results).</p>
-	 * 
-	 * @param query 
+	 *
+	 * @param query
 	 * @param startSize Start with the lower bound at this number, and then adjust it by factors of
-	 * two to find the real limit. 
+	 * two to find the real limit.
 	 * @return A maximum lower bound for the number of results to the query
 	 */
-	public long getResultsCountLowerBound(String query, long startSize) throws IOException 
+	public long getResultsCountLowerBound(String query, long startSize) throws IOException
 	{
 		long curPoint = startSize;
 		long lastSuccessPoint = 0;
 		long lastFailurePoint = -1;
 		String curQuery;
-		boolean answerIsExact = false; 
-		
+		boolean answerIsExact = false;
+
 		while(true) {
 			if(curPoint == 0)
 				break;
 
 			List<Map<String,String>> results;
 			try {
-				curQuery = query + " OFFSET " + (curPoint - 1) + " LIMIT 1"; 
+				curQuery = query + " OFFSET " + (curPoint - 1) + " LIMIT 1";
 				results = selectQuery(curQuery);
 			}
 			catch(HttpStatusException e) {
 				if(e.getStatusCode() == HttpURLConnection.HTTP_GATEWAY_TIMEOUT) {
 					log.debug("query timed out for LIMIT = " + curPoint);
-					
+
 					if(curPoint == lastSuccessPoint) {
-						// The limit lastSuccessPoint succeeded last time but not 
+						// The limit lastSuccessPoint succeeded last time but not
 						// this time. To be a bit safer, subtract 10%
 						// from the limit value and call it good.
 						curPoint = (curPoint*90)/100;
 						break;
 					}
-						
+
 					lastFailurePoint = curPoint;
-					if(lastSuccessPoint > -1) 
+					if(lastSuccessPoint > -1)
 						curPoint = lastSuccessPoint + ((curPoint - lastSuccessPoint) / 2);
 					else
 						curPoint /= 2;
-					if(curPoint == 0) 
+					if(curPoint == 0)
 						throw e;
 					continue;
 				} else {
@@ -532,10 +537,10 @@ public class SPARQLEndpoint
 			}
 			if(results.size() == 0) {
 				// A successful query with no results means that we have
-				// gone beyond the total number of results for the given query.  
+				// gone beyond the total number of results for the given query.
 				// And that means that we could have done the full query in the
 				// first place. Nothing we can do about that, so carry on anyhow.
-				log.debug("query succeeded for LIMIT = " + curPoint + ", but " + String.valueOf(curPoint) + 
+				log.debug("query succeeded for LIMIT = " + curPoint + ", but " + String.valueOf(curPoint) +
 						" is greater than the full number of results for the query.");
 				answerIsExact = true;
 				lastFailurePoint = curPoint;
@@ -546,7 +551,7 @@ public class SPARQLEndpoint
 				// If we can't go any higher, we've found the limit.
 				break;
 			}
-			else if(lastFailurePoint > -1) { 
+			else if(lastFailurePoint > -1) {
 				log.debug("query succeeded for LIMIT = " + curPoint);
 				lastSuccessPoint = curPoint;
 				curPoint = curPoint + ((lastFailurePoint - curPoint) / 2);
@@ -557,14 +562,14 @@ public class SPARQLEndpoint
 				curPoint *= 2;
 			}
 		}
-		
-		if(answerIsExact) 
+
+		if(answerIsExact)
 			log.warn("LIMIT testing indicates that it was possible to do the full query.");
-		
+
 		return curPoint;
 	}
-	
-	public boolean isDatatypeProperty(String predicateURI, boolean checkForAmbiguousProperty) throws IOException, AmbiguousPropertyTypeException 
+
+	public boolean isDatatypeProperty(String predicateURI, boolean checkForAmbiguousProperty) throws IOException, AmbiguousPropertyTypeException
 	{
 		log.debug("checking if " + predicateURI + " is a datatype property or an object property");
 
@@ -583,8 +588,8 @@ public class SPARQLEndpoint
 			else
 				isDatatypeProperty = false;
 			i.close();
-			
-			// Sanity check: Make sure this is not an RDF predicate that has both URIs and literals as values.  
+
+			// Sanity check: Make sure this is not an RDF predicate that has both URIs and literals as values.
 			if(checkForAmbiguousProperty) {
 				String query;
 				if(isDatatypeProperty)
@@ -599,12 +604,12 @@ public class SPARQLEndpoint
 		}
 		return isDatatypeProperty;
 	}
-	
+
 	protected Map<String,String> getParamsForUpdateQuery(String query) {
 		throw new UnsupportedOperationException();
 	}
 
-	protected Model convertConstructResponseToTriples(InputStream response, Model model) 
+	protected Model convertConstructResponseToTriples(InputStream response, Model model)
 	{
 		switch(getConstructResultsFormat()) {
 		case N3:
@@ -617,10 +622,10 @@ public class SPARQLEndpoint
 		return model;
 	}
 
-	protected List<Map<String,String>> convertSelectResponseToBindings(InputStream response) throws IOException 
+	protected List<Map<String,String>> convertSelectResponseToBindings(InputStream response) throws IOException
 	{
 		switch(getSelectResultsFormat()) {
-		case JSON: 
+		case JSON:
 			String responseAsString = IOUtils.toString(response);
 			return JsonUtils.convertJSONToResults(JsonUtils.read(responseAsString));
 		default:
@@ -629,21 +634,21 @@ public class SPARQLEndpoint
 		}
 	}
 
-	protected Map<String,String> getParamsForConstructQuery(String query) 
+	protected Map<String,String> getParamsForConstructQuery(String query)
 	{
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("query", query);
 		return params;
 	}
 
-	protected Map<String,String> getParamsForSelectQuery(String query) 
+	protected Map<String,String> getParamsForSelectQuery(String query)
 	{
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("query", query);
 		return params;
 	}
-	
-	public TripleIterator iterator() 
+
+	public TripleIterator iterator()
 	{
 		return new TripleIterator(this);
 	}
@@ -652,7 +657,7 @@ public class SPARQLEndpoint
 	{
 		return new TripleIterator(this, blockSize);
 	}
-	
+
 	/**
 	 * This exception is thrown when a predicate has both literal and URIs values, and thus cannot
 	 * be typed as a datatype property or an object property.
@@ -662,12 +667,12 @@ public class SPARQLEndpoint
 	{
 		public AmbiguousPropertyTypeException(String message) { super(message); }
 	}
-	
+
 	/**
-	 * This class iterates over all the triples in a given endpoint.  I couldn't implement the real Iterator 
+	 * This class iterates over all the triples in a given endpoint.  I couldn't implement the real Iterator
 	 * interface here, because I need to be able to throw an IOException from next() and hasNext().
 	 */
-	public static class TripleIterator 
+	public static class TripleIterator
 	{
 		private final static long  DEFAULT_BLOCK_SIZE = 50000; // triples
 		private List<Triple> tripleCache = null;
@@ -676,18 +681,18 @@ public class SPARQLEndpoint
 		private SPARQLEndpoint endpoint;
 		private long blockSize;
 
-		public TripleIterator(SPARQLEndpoint endpoint) 
+		public TripleIterator(SPARQLEndpoint endpoint)
 		{
 			this(endpoint, DEFAULT_BLOCK_SIZE);
 		}
-		
-		public TripleIterator(SPARQLEndpoint endpoint, long blockSize) 
+
+		public TripleIterator(SPARQLEndpoint endpoint, long blockSize)
 		{
 			this.endpoint = endpoint;
 			this.blockSize = blockSize;
 		}
-		
-		public boolean hasNext() throws IOException 
+
+		public boolean hasNext() throws IOException
 		{
 			if(tripleCache == null) {
 				return retrieveNextBlock();
@@ -702,17 +707,17 @@ public class SPARQLEndpoint
 			}
 		}
 
-		public Triple next() throws IOException 
+		public Triple next() throws IOException
 		{
 			if(!hasNext())
 				throw new NoSuchElementException();
 			return tripleCache.get(cacheIndex++);
 		}
-		
-		private boolean retrieveNextBlock() throws IOException 
+
+		private boolean retrieveNextBlock() throws IOException
 		{
 			log.debug("retrieving triples " + cacheOffset + " through " + (cacheOffset + blockSize - 1) + " from " + endpoint.getURI());
-			
+
 			String query = "CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o } LIMIT " + blockSize + " OFFSET " + cacheOffset;
 			tripleCache = new ArrayList<Triple>();
 //			tripleCache.addAll(endpoint.constructQuery(query));
@@ -722,7 +727,7 @@ public class SPARQLEndpoint
 			cacheIndex = 0;
 			if(tripleCache.size() > 0)
 				return true;
-			else 
+			else
 				return false;
 		}
 	}

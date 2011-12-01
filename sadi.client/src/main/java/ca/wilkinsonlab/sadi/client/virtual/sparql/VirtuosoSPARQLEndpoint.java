@@ -12,9 +12,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.http.HttpClient;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
-
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 /**
@@ -24,36 +22,33 @@ public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 {
 	public final static Logger log = Logger.getLogger(VirtuosoSPARQLEndpoint.class);
 	public final static String VIRTUOSO_SPARQL_AUTH_REALM = "SPARQL";
-	/** Persistent HTTP client, in order to support efficient HTTP authentication. */
-	protected HttpClient httpClient;
-	
+
 	public VirtuosoSPARQLEndpoint(String endpointURI) throws MalformedURLException
 	{
 		this(endpointURI, null, null);
 	}
-	
+
 	public VirtuosoSPARQLEndpoint(String endpointURI, String username, String password) throws MalformedURLException
 	{
 		super(endpointURI, EndpointType.VIRTUOSO);
-		httpClient = new HttpClient();
 		if(username != null && password != null) {
 			String hostname = new URL(getURI()).getHost();
 			httpClient.setAuthCredentials(hostname, AuthScope.ANY_PORT, VIRTUOSO_SPARQL_AUTH_REALM, username, password);
 		}
 	}
-	
+
 	@Override
 	public void updateQuery(String query) throws IOException
 	{
-		HttpResponse response = HttpUtils.POST(new URL(getURI()), getParamsForUpdateQuery(query));
+		HttpResponse response = httpClient.POST(new URL(getURI()), getParamsForUpdateQuery(query));
 		response.getEntity().getContent().close();
-		
+
 		int statusCode = response.getStatusLine().getStatusCode();
 		if (HttpUtils.isHttpError(statusCode))
 			throw new HttpStatusException(statusCode);
 	}
 
-	protected Map<String,String> getParamsForUpdateQuery(String query) 
+	protected Map<String,String> getParamsForUpdateQuery(String query)
 	{
 		Map<String,String> params = new HashMap<String,String>();
 		params.put("query",query);
@@ -74,7 +69,7 @@ public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 			depthClause.append(i - 1);
 			depthClause.append(" .");
 		}
-		
+
 		for(int i = closureDepth; i > 0; i--) {
 			for(int j = 0; j < i; j++) {
 				StringBuilder deleteQuery = new StringBuilder("DELETE FROM GRAPH %u% {");
@@ -91,8 +86,8 @@ public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 			}
 		}
 	}
-	
-	private int getClosureDepth(String URI, String graphURI) throws IOException 
+
+	private int getClosureDepth(String URI, String graphURI) throws IOException
 	{
 		int closureDepth = 0;
 		StringBuilder depthClause = new StringBuilder(" %u% ?p0 ?o0 .");
@@ -101,7 +96,7 @@ public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 			depthQuery.append(depthClause);
 			depthQuery.append("} LIMIT 1");
 			String query = SPARQLStringUtils.strFromTemplate(depthQuery.toString(), graphURI, URI);
-			List<Map<String,String>> results = null; 
+			List<Map<String,String>> results = null;
 			results = selectQuery(query);
 			if(results.size() > 0) {
 				depthClause.append(" ?o");
@@ -126,26 +121,26 @@ public class VirtuosoSPARQLEndpoint extends SPARQLEndpoint
 	}
 
 	@Override
-	protected Map<String, String> getParamsForConstructQuery(String query) 
+	protected Map<String, String> getParamsForConstructQuery(String query)
 	{
 		Map<String, String> params = super.getParamsForConstructQuery(query);
 		String mimeType;
-		
+
 		switch(getConstructResultsFormat()) {
-			
+
 		case N3:
 			mimeType = "text/rdf+n3";
 			break;
-		
+
 		case RDFXML:
 		default:
 			mimeType = "application/rdf+xml";
 			break;
-		
+
 		}
-		
+
 		params.put("format", mimeType);
 		return params;
 	}
-	
+
 }
