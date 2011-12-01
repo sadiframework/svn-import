@@ -129,10 +129,13 @@
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Class rdf:about="&strand;Strand"/>
+                    <!--
                     <owl:Restriction>
-                        <owl:onProperty rdf:resource="&rdf;type"/> <!-- 'is proper part of' -->
+                        <owl:onProperty rdf:resource="&rdf;type"/>
                         <owl:someValuesFrom rdf:resource="&strand;Strand"/>
                     </owl:Restriction>
+                    -->
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="&sio;SIO_000093"/> <!-- 'is proper part of' -->
                         <owl:someValuesFrom rdf:resource="&feature;Feature"/>
