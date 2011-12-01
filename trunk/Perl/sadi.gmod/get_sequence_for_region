@@ -66,7 +66,7 @@ use constant OUTPUT_TTL_TEMPLATE => <<TTL;
 \@prefix sio: <http://semanticscience.org/resource/> .
 \@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 <[% input_uri %]> sadi:hasSequence
-    [ sio:SIO_000300 "[% sequence_string %]"^^xsd:string ] .
+    [ a sio:SIO_010018; sio:SIO_000300 "[% sequence_string %]"^^xsd:string ] .
 TTL
 
 =head2 new 
