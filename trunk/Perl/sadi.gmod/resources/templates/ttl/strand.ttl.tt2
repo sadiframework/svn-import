@@ -1,6 +1,10 @@
 @prefix sio: <http://semanticscience.org/resource/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix feature: <http://sadiframework.org/ontologies/GMOD/Feature.owl#> .
 
 [% strand_uri %] 
     a [% strand_type_uri %];
     sio:SIO_000093 [% feature_uri %] . # p = "is proper part of"
+
+[% feature_uri %] rdf:type feature:Feature .
 
