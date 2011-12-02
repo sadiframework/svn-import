@@ -206,6 +206,16 @@ public class RdfUtils
 	{
 		return resource.hasProperty(RDF.type);
 	}
+	
+	/**
+	 * Returns an iterator over the rdf:types of the specified resource.
+	 * @param resource the resource
+	 * @return an iterator over the rdf:types of the specified resource
+	 */
+	public static ExtendedIterator<Resource> getTypes(Resource resource)
+	{
+		return getPropertyValues(resource, RDF.type, null);
+	}
 
 	/** 
 	 * Extract a collection of triples from an RDF input stream.  The encoding
@@ -597,6 +607,12 @@ public class RdfUtils
 	public static final class StatementToResourceFilter implements MapFilter<Statement, Resource>
 	{
 		private Resource type;
+		
+		public StatementToResourceFilter()
+		{
+			this(null);
+		}
+		
 		public StatementToResourceFilter(Resource type)
 		{
 			this.type = type;
