@@ -68,4 +68,5 @@ public class SIO
 	public static final Property is_output_of = m_model.createProperty( NS, "SIO_000232" );
 	public static final Property has_input = m_model.createProperty( NS, "SIO_000230" );
 	public static final Property has_agent = m_model.createProperty( NS, "SIO_000139" );
+	public static final Property has_identifier = m_model.createProperty( NS, "SIO_000671" );
 }
