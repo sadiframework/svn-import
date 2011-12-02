@@ -140,7 +140,6 @@ namespace SADI.KEPlugin
                 ICollection<IStatement> statements = KE.Import(output);
                 showNewStatements(statements);
 
-
                 call.Status = "Done";
                 call.Data = service;
                 MasterWorker.ReportProgress(100, call);
@@ -149,7 +148,7 @@ namespace SADI.KEPlugin
             {
                 SADIHelper.error("ServiceCall", "error calling service", service, err);
                 call.Status = "Error";
-                call.Data = service;
+                call.Data = "Error:\r\n" + err.Message;
                 MasterWorker.ReportProgress(100, call);
             }
             finally
@@ -178,15 +177,10 @@ namespace SADI.KEPlugin
                 foreach (IResource input in SelectedNodes)
                 {
                     if (statement.Subject.Equals(input) &&
-                        !isBNode(statement.Object) &&
                         !isTypeStatement(statement))
                     {
                         KE.VisibilityManager.ShowStatement(statement);
                     }
-                }
-                if (statement.Object is ILiteral)
-                {
-                    KE.VisibilityManager.ShowResource(statement.Object);
                 }
             }
         }

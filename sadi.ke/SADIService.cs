@@ -48,6 +48,10 @@ namespace SADI.KEPlugin
             request.Method = "POST";
             Stream stream = request.GetRequestStream();
             StreamWriter writer = new StreamWriter(stream);
+            using (RdfWriter rdfWriter = new RdfXmlWriter("C:\\Users\\Luke\\Desktop\\input.rdf"))
+            {
+                rdfWriter.Write(input);
+            }
             using (RdfWriter rdfWriter = new RdfXmlWriter(writer))
             {
                 rdfWriter.Write(input);

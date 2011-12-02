@@ -30,6 +30,39 @@ namespace SADI.KEPlugin
             return instance;
         }
 
+        public SADIService getService(string serviceURI)
+        {
+            string query =
+                "PREFIX sadi: <http://sadiframework.org/ontologies/sadi.owl#> \r\n" +
+                "PREFIX mygrid: <http://www.mygrid.org.uk/mygrid-moby-service#> \r\n" +
+                "SELECT * \r\n" +
+                "WHERE {\r\n" +
+                "   ?serviceURI a sadi:Service . \r\n" +
+                "	?serviceURI mygrid:hasServiceNameText ?name . \r\n" +
+                "	?serviceURI mygrid:hasServiceDescriptionText ?description . \r\n" +
+                "	?serviceURI mygrid:hasOperation ?op . \r\n" +
+                "	?op mygrid:inputParameter ?input . \r\n" +
+                "	?input a mygrid:parameter . \r\n" +
+                "	?input mygrid:objectType ?inputClassURI . \r\n" +
+                // instanceQueryPattern is optional here because we're matching by
+                // direct type and there's no need for dynamic discovery...
+                "   OPTIONAL { ?inputClassURI sadi:instanceQuery ?query } . \r\n" +
+                "}";
+            query = query.Replace("?serviceURI", "<" + serviceURI + ">");
+
+            foreach (JsonData binding in executeQuery(query))
+            {
+                SADIService service = new SADIService(
+                    getSPARQLBindingAsString(binding, "serviceURI"),
+                    getSPARQLBindingAsString(binding, "name"),
+                    getSPARQLBindingAsString(binding, "description"),
+                    getSPARQLBindingAsString(binding, "inputClassURI"));
+                service.inputInstanceQuery = getSPARQLBindingAsString(binding, "query");
+                return service;
+            }
+            throw new ArgumentException(serviceURI + " is not a registered service");
+        }
+
         public int getServiceCount()
         {
             string query =
@@ -50,16 +83,16 @@ namespace SADI.KEPlugin
                 "PREFIX mygrid: <http://www.mygrid.org.uk/mygrid-moby-service#> \r\n" +
                 "SELECT * \r\n" +
                 "WHERE {\r\n" +
-                "   ?serviceURI a sadi:service . \r\n" +
+                "   ?serviceURI a sadi:Service . \r\n" +
                 "	?serviceURI mygrid:hasServiceNameText ?name . \r\n" +
                 "	?serviceURI mygrid:hasServiceDescriptionText ?description . \r\n" +
                 "	?serviceURI mygrid:hasOperation ?op . \r\n" +
                 "	?op mygrid:inputParameter ?input . \r\n" +
                 "	?input a mygrid:parameter . \r\n" +
                 "	?input mygrid:objectType ?inputClassURI . \r\n" +
-                // instanceQueryPattern is not optional here because we only want services
+                // instanceQuery is not optional here because we only want services
                 // whose input instances can be dynamically discovered...
-                "   ?inputClassURI sadi:instanceQueryPattern ?query . \r\n" + 
+                "   ?inputClassURI sadi:instanceQuery ?query . \r\n" +
                 "}";
 
             foreach (JsonData binding in executeQuery(query))
@@ -98,7 +131,7 @@ namespace SADI.KEPlugin
                 "	?input mygrid:objectType ?inputClassURI . \r\n" +
                 // instanceQueryPattern is optional here because we're matching by
                 // direct type and there's no need for dynamic discovery...
-                "   OPTIONAL { ?inputClassURI sadi:instanceQueryPattern ?query } . \r\n";
+                "   OPTIONAL { ?inputClassURI sadi:instanceQuery ?query } . \r\n";
 
             int n=0;
             foreach (string type in types)
@@ -129,6 +162,12 @@ namespace SADI.KEPlugin
 
         public void addPropertyRestrictions(SADIService service)
         {
+            if (service.properties.Count > 0)
+            {
+                SADIHelper.debug("SADIRegistry", "addPropertyRestrictions called twice on same service", service);
+                return;
+            }
+
             String query =
                 "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> \r\n" +
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> \r\n" +
@@ -188,9 +227,10 @@ namespace SADI.KEPlugin
 
         private static int getSPARQLBindingAsInteger(JsonData binding, String variable)
         {
+            JsonData value = binding[variable]["value"];
             try
             {
-                return (int)binding[variable]["value"];
+                return value.IsInt ? (int)value : Convert.ToInt32(value.ToString());
             }
             catch
             {

@@ -11,6 +11,7 @@ using System.Threading;
 using SemWeb;
 using System.Diagnostics;
 using System.Collections.Specialized;
+using System.Text.RegularExpressions;
 
 namespace SADI.KEPlugin
 {
@@ -121,7 +122,22 @@ namespace SADI.KEPlugin
         {
             Store input = new MemoryStore();
             input.Add(new Statement(entity, SemWebVocab.rdf_type, SemWebVocab.owl_thing));
-            return new SADIService("http://sadiframework.org/RESOURCES/resolver").invokeService(input);
+            return new SADIService("http://sadiframework.org/resolver").invokeService(input);
+        }
+
+        private static readonly Regex CONSTRUCT_QUERY_PATTERN = new Regex("CONSTRUCT\\s+\\{(.*)\\}\\s+WHERE\\s+\\{(.*)\\}", RegexOptions.Singleline);
+        
+        internal static string convertConstructQuery(string constructQuery)
+        {
+            Match match = CONSTRUCT_QUERY_PATTERN.Match(constructQuery);
+            if (match.Success)
+            {
+                return String.Format("SELECT * WHERE {{ {0} }}", match.Groups[2]);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }
