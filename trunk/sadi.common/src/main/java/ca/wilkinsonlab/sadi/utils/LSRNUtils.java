@@ -1,6 +1,5 @@
 package ca.wilkinsonlab.sadi.utils;
 
-import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,8 +76,7 @@ public class LSRNUtils
 			Matcher idMatcher = ID_PATTERN.matcher(lsrnNode.getURI());
 			if (idMatcher.find()) {
 				String id = idMatcher.group(1);
-				for (Iterator<Resource> i = RdfUtils.getTypes(lsrnNode); i.hasNext(); ) {
-					Resource type = i.next();
+				for (Resource type: RdfUtils.getTypes(lsrnNode).toList()) {
 					if (!type.isURIResource())
 						continue;
 					Matcher typeMatcher = NS_PATTERN.matcher(type.getURI());
