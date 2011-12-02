@@ -8,22 +8,20 @@ namespace SADI.KEPlugin
 {
     public class KEMapper
     {
-        private KEStore KE;
-        private Store Store;
-        private Dictionary<string, IEntity> map;
-        private Dictionary<string, Entity> FromKE;
+        private readonly KEStore _ke;
+        private readonly Dictionary<string, IEntity> _toKE;
+        private readonly Dictionary<string, Entity> _fromKE;
 
-        public KEMapper(KEStore ke, Store store)
+        public KEMapper(KEStore ke)
         {
-            KE = ke;
-            Store = store;
-            map = new Dictionary<string, IEntity>();
-            FromKE = new Dictionary<string, Entity>();
+            _ke = ke;
+            _toKE = new Dictionary<string, IEntity>();
+            _fromKE = new Dictionary<string, Entity>();
         }
 
         public IStatement toKE(Statement statement)
         {
-            return KE.Factory.CreateStatement(
+            return _ke.Factory.CreateStatement(
                         toKE(statement.Subject),
                         toKE(statement.Predicate),
                         toKE(statement.Object));
@@ -35,34 +33,62 @@ namespace SADI.KEPlugin
             if (from is BNode)
             {
                 key = (from as BNode).ToString();
-                if (!map.ContainsKey(key))
+                if (!_toKE.ContainsKey(key))
                 {
                     Guid guid = Guid.NewGuid();
                     Uri uri = new Uri(String.Format("urn:uuid:{0}", guid));
-                    // TODO add label to node to dodge meaningless URI in display?
-                    map.Add(key, KE.Factory.CreateEntity(uri));
+                    _toKE.Add(key, _ke.Factory.CreateEntity(uri));
                 }
             }
             else if (from is Literal)
             {
                 Literal l = from as Literal;
-                return KE.Factory.CreateLiteral(l.Value, l.Language, l.DataType);
+                return _ke.Factory.CreateLiteral(l.Value, l.Language, l.DataType);
             }
             else
             {
                 key = from.Uri;
-                if (!map.ContainsKey(key))
+                if (!_toKE.ContainsKey(key))
                 {
                     Uri uri = new Uri(from.Uri);
-                    map.Add(key, KE.Factory.CreateEntity(uri));
+                    _toKE.Add(key, _ke.Factory.CreateEntity(uri));
                 }
             }
-            return map[key];
+            return _toKE[key];
         }
 
-        public Resource fromKE(IResource from)
+        public Statement fromKE(IStatement statement)
         {
-            return null;
+            return new Statement(
+                        fromKE(statement.Subject) as Entity,
+                        fromKE(statement.Predicate) as Entity,
+                        fromKE(statement.Object));
+        }
+
+        public Resource fromKE(IResource to)
+        {
+            String key;
+            if (to is ILiteral)
+            {
+                ILiteral l = to as ILiteral;
+                return new Literal(l.Value, l.Language.Equals("") ? null : l.Language, l.DataType.Equals("") ? null : l.DataType);
+            }
+            else
+            {
+                key = to.ToString();
+                if (!_fromKE.ContainsKey(key))
+                {
+                    if (to is IEntity && (to as IEntity).Uri != null)
+                    {
+                        _fromKE.Add(key, new Entity((to as IEntity).Uri.ToString()));
+                    }
+                    else
+                    {
+                        _fromKE.Add(key, new BNode(key.StartsWith("_:") ? key.Substring(2) : key));
+                    }
+                }
+            }
+            return _fromKE[key];
         }
     }
 }

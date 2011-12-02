@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using IOInformatics.KE.PluginAPI;
+using System.Collections;
 
 namespace SADI.KEPlugin
 {
@@ -13,11 +14,13 @@ namespace SADI.KEPlugin
     {
         private KEStore KE;
         private IEnumerable<IResource> SelectedNodes;
+        private Hashtable Seen; 
 
         public ServiceDiscoveryDialog(KEStore ke, IEnumerable<IResource> selectedNodes)
         {
             KE = ke;
             SelectedNodes = selectedNodes;
+            Seen = new Hashtable();
             InitializeComponent();
         }
 
@@ -30,13 +33,20 @@ namespace SADI.KEPlugin
         private void FindServicesWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             progress.Value = e.ProgressPercentage;
-            if (e.UserState is SADIService)
+            if (e.UserState is SADIService && !Seen.Contains((e.UserState as SADIService).uri))
             {
+                Seen.Add((e.UserState as SADIService).uri, Seen);
                 ServiceSelectionControl control = new ServiceSelectionControl();
                 control.setService(e.UserState as SADIService);
                 ResizeLabels(control);
                 flowLayoutPanel1.SuspendLayout();
                 flowLayoutPanel1.Controls.Add(control);
+                int i = 0;
+                while ((i < flowLayoutPanel1.Controls.Count) && 
+                    ((flowLayoutPanel1.Controls[i] as ServiceSelectionControl).service.name.CompareTo(control.service.name) < 0)) {
+                        ++i;
+                }
+                flowLayoutPanel1.Controls.SetChildIndex(control, i);
                 flowLayoutPanel1.ResumeLayout(false);
                 flowLayoutPanel1.PerformLayout();
             }
@@ -132,7 +142,8 @@ namespace SADI.KEPlugin
 
         private void ResizeLabels(ServiceSelectionControl control)
         {
-            control.sizeLabels(this.Size.Width);
+            Padding padding = this.flowLayoutPanel1.Padding;
+            control.sizeLabels(this.flowLayoutPanel1.Size.Width - padding.Left - padding.Right);
         }
 
         private void ServiceSelectionDialog_FormClosing(object sender, FormClosingEventArgs e)
@@ -199,7 +210,8 @@ namespace SADI.KEPlugin
             // find services by exact input class; quick, but misses a lot...
             FindServicesWorker.ReportProgress(0, "Finding services by direct type...");
             ICollection<SADIService> services = SADIRegistry.Instance().findServicesByInputClass(types);
-            int i = 0, n = services.Count;
+            int i = 0;
+            int n = services.Count;
             foreach (SADIService service in services)
             {
                 if (FindServicesWorker.CancellationPending)
@@ -214,10 +226,11 @@ namespace SADI.KEPlugin
             }
 
             // reset progress bar
-            FindServicesWorker.ReportProgress(0, "Finding services by input instance query...");
+            FindServicesWorker.ReportProgress(1, "Finding services by input instance query...");
 
             // find service by input instance SPARQL query; slow, but is complete modulo reasoning...
-            i = 0; n = SADIRegistry.Instance().getServiceCount();
+            i = 0;
+            n = SADIRegistry.Instance().getServiceCount();
             do
             {
                 if (FindServicesWorker.CancellationPending)
@@ -247,13 +260,17 @@ namespace SADI.KEPlugin
         {
             if (service.inputInstanceQuery != null)
             {
-                string query =
-                    "SELECT DISTINCT ?input WHERE {" + service.inputInstanceQuery + "}";
-                foreach (ISPARQLResult result in KE.Graph.Query(query).Results) {
-                    foreach (IResource node in selectedNodes) {
-                        if (node.Equals(result["input"]))
+                string query = SADIHelper.convertConstructQuery(service.inputInstanceQuery);
+                if (query != null)
+                {
+                    foreach (ISPARQLResult result in KE.Graph.Query(query).Results)
+                    {
+                        foreach (IResource node in selectedNodes)
                         {
-                            return true;
+                            if (node.Equals(result["input"]))
+                            {
+                                return true;
+                            }
                         }
                     }
                 }

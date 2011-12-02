@@ -5,10 +5,12 @@ using IOInformatics.KE.PluginAPI;
 using IOInformatics.KE.PluginAPI.Providers;
 using System.Text.RegularExpressions;
 using System.IO;
+using SemWeb.Query;
+using SemWeb;
 
 namespace SADI.KEPlugin
 {
-    public class KEStore
+    public class KEStore : SelectableSource
     {
         public IPluginGraph Graph
         {
@@ -20,14 +22,18 @@ namespace SADI.KEPlugin
         public ITripleStoreProvider StoreProvider;
         public ITripleStoreFactory Factory;
         public IVisibilityManager VisibilityManager;
-        
-        private KEVocab Vocab;
+
+        private readonly Store MappedStore;
+        private readonly KEMapper Mapper;
+        private readonly KEVocab Vocab;
 
         public KEStore(ITripleStoreProvider storeProvider, ITripleStoreFactory factory, IVisibilityManager visibilityManager)
         {
             StoreProvider = storeProvider;
             Factory = factory;
             VisibilityManager = visibilityManager;
+            MappedStore = new MemoryStore();
+            Mapper = new KEMapper(this);
             Vocab = new KEVocab(factory);
         }
 
@@ -66,14 +72,10 @@ namespace SADI.KEPlugin
             return false;
         }
 
-        public KEMapper GetMapper(SemWeb.Store store)
+        public ICollection<IStatement> Import(Store store)
         {
-            return new KEMapper(this, store);
-        }
-
-        public ICollection<IStatement> Import(SemWeb.Store store)
-        {
-            KEMapper mapper = GetMapper(store);
+            cleanupBNodes(store);
+            KEMapper mapper = new KEMapper(this);
             ICollection<IStatement> statements = new List<IStatement>();
             foreach (SemWeb.Statement statement in store.Select(SemWeb.SelectFilter.All))
             {
@@ -85,50 +87,189 @@ namespace SADI.KEPlugin
             return statements;
         }
 
-        public static readonly Regex VARIABLE_PATTERN = new Regex("[?$]([^\\s.])+");
-
-        public bool SPARQLConstruct(SemWeb.Store store, IEntity inputRoot, string inputInstanceQuery)
+        private const int MAX_LABEL_LENGTH = 30;
+        private void cleanupBNodes(Store store)
         {
-            inputInstanceQuery.Replace("?input", String.Format("<{0}>", inputRoot.ToString()));
-            inputInstanceQuery.Replace("$input", String.Format("<{0}>", inputRoot.ToString()));
-            string query =
-                    "SELECT * WHERE {" + inputInstanceQuery + "}";
-            MatchCollection variableMatches = VARIABLE_PATTERN.Matches(inputInstanceQuery);
-            bool addedData = false;
-            foreach (ISPARQLResult result in Graph.Query(query).Results)
+            foreach (Entity entity in store.GetEntities())
             {
-                string rdf = inputInstanceQuery;
-                foreach (Match variableMatch in variableMatches)
+                if (entity is BNode && !store.Contains(new Statement(entity, SemWebVocab.rdfs_label, null)))
                 {
-                    string variable = variableMatch.Captures[0].Value;
-                    if (result[variable] != null)
+                    Resource label = getLabel(store, entity);
+                    if (label != null)
                     {
-                        rdf.Replace(String.Format("?{0}", variable), getString(result[variable]));
-                        rdf.Replace(String.Format("${0}", variable), getString(result[variable]));
+                        if (label is Literal)
+                        {
+                            Literal l = label as Literal;
+                            if (l.DataType == null || l.DataType.EndsWith("string"))
+                            {
+                                string value = l.Value;
+                                if (value.Length > MAX_LABEL_LENGTH)
+                                {
+                                    label = new Literal(value.Substring(0, MAX_LABEL_LENGTH) + "...", l.Language, l.DataType);
+                                }
+                            }
+                        }
+                        store.Add(new Statement(entity, SemWebVocab.rdfs_label, label));
                     }
                 }
-                try
-                {
-                    store.Import(new SemWeb.N3Reader(new StringReader(rdf)));
-                    addedData = true;
-                }
-                catch (Exception err)
-                {
-                    SADIHelper.error("KEStore", "error constructing RDF", rdf, err);
-                }
             }
-            return addedData;
         }
 
-        private string getString(IResource resource)
+        private Resource getLabel(Store store, Entity entity)
         {
-            if (resource is IEntity && (resource as IEntity).Uri == null)
+            Resource value;
+            value = getPropertyValue(store, entity, SemWebVocab.has_value);
+            if (value != null)
             {
-                return String.Format("_:{0}", resource.ToString());
+                return value;
+            }
+            value = getPropertyValue(store, entity, SemWebVocab.rdf_type);
+            if (value != null)
+            {
+                return new Literal(getLocalName(value));
+            }
+            return null;
+        }
+
+        private string getLocalName(Resource value)
+        {
+            if (value is Entity && (value as Entity).Uri != null)
+            {
+                string uri = (value as Entity).Uri;
+                return uri.Substring(uri.LastIndexOf(uri.Contains("#") ? "#" : "/"));
             }
             else
             {
-                return resource.ToString();
+                return value.ToString();
+            }
+        }
+
+        private Resource getPropertyValue(Store store, Entity entity, Entity property)
+        {
+            foreach (Statement statement in store.Select(new Statement(entity, property, null)))
+            {
+                return statement.Object;
+            }
+            return null;
+        }
+
+        public bool SPARQLConstruct(Store store, IEntity inputRoot, string inputInstanceQuery)
+        {
+            int incomingStatementCount = store.StatementCount;
+            SparqlEngine sparql = new SparqlEngine(inputInstanceQuery);
+            sparql.Construct(this, store);
+            return store.StatementCount != incomingStatementCount;
+        }
+
+        bool SelectableSource.Contains(Statement template)
+        {
+            foreach (IStatement statement in Graph.Select(Mapper.toKE(template.Subject), Mapper.toKE(template.Predicate), Mapper.toKE(template.Object)))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        bool SelectableSource.Contains(Resource resource)
+        {
+            IResource r = Mapper.toKE(resource);
+            if (r is IEntity)
+            {
+                foreach (IStatement statement in Graph.Select(r, null, null))
+                {
+                    return true;
+                }
+                foreach (IStatement statement in Graph.Select(null, r, null))
+                {
+                    return true;
+                }
+            }
+            foreach (IStatement statement in Graph.Select(null, null, r))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        void SelectableSource.Select(SelectFilter filter, StatementSink sink)
+        {
+            foreach (ISPARQLResult result in Graph.Query("SELECT DISTINCT * WHERE { ?s ?p ?o }").Results)
+            {
+                Resource s = Mapper.fromKE(result["s"]);
+                Resource p = Mapper.fromKE(result["p"]);
+                Resource o = Mapper.fromKE(result["o"]);
+                if (passesFilter(filter, s, p, o))
+                {
+                    sink.Add(new Statement(s as Entity, p as Entity, o));
+                }
+            }
+        }
+
+        private bool passesFilter(SelectFilter filter, Resource subject, Resource predicate, Resource obj)
+        {
+            bool subjectFilter = passesFilter(filter.Subjects, subject);
+            bool predicateFilter = passesFilter(filter.Predicates, predicate);
+            bool objectFilter = passesFilter(filter.Objects, obj);
+            bool literalFilter = passesFilter(filter.LiteralFilters, obj);
+            return subjectFilter && predicateFilter && objectFilter && literalFilter;
+        }
+
+        private bool passesFilter(Resource[] haystack, Resource needle)
+        {
+            if (haystack == null)
+            {
+                return true;
+            }
+            else
+            {
+                foreach (Resource resource in haystack)
+                {
+                    if (resource.Equals(needle))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        private bool passesFilter(LiteralFilter[] literalFilters, Resource obj)
+        {
+            if (literalFilters == null)
+            {
+                return true;
+            }
+            else
+            {
+                foreach (LiteralFilter lf in literalFilters)
+                {
+                    if (obj is Literal && lf.Filter(obj as Literal, MappedStore))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        void SelectableSource.Select(Statement template, StatementSink sink)
+        {
+            foreach (IStatement statement in Graph.Select(Mapper.toKE(template.Subject), Mapper.toKE(template.Predicate), Mapper.toKE(template.Object)))
+            {
+                sink.Add(Mapper.fromKE(statement));
+            }
+        }
+
+        bool StatementSource.Distinct
+        {
+            get { return false; }
+        }
+
+        void StatementSource.Select(StatementSink sink)
+        {
+            foreach (IStatement statement in Graph.Select(null, null, null))
+            {
+                sink.Add(Mapper.fromKE(statement));
             }
         }
     }
