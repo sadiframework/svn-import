@@ -35,7 +35,7 @@
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&properties;hasSequence"/> 
-                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                <owl:someValuesFrom rdf:resource="&sio;SIO_010018"/>
             </owl:Restriction>
         </rdfs:subClassOf>
     </owl:Class>
