@@ -28,7 +28,7 @@ public class ResourceTyper
 	{
 		patterns = new ArrayList<PatternSubstitution>();
 		for (Object compoundPattern: Config.getConfiguration().getList("share.typePattern")) {
-			String[] splitPattern = ((String)compoundPattern).split(" ");
+			String[] splitPattern = ((String)compoundPattern).split("\\s+");
 			patterns.add( new PatternSubstitution(splitPattern[0], splitPattern[1]) );
 		}
 	}
