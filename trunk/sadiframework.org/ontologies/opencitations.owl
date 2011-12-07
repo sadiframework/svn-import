@@ -38,121 +38,10 @@
     <owl:Ontology rdf:about="http://sadiframework.org/ontologies/opencitations.owl">
         <owl:imports rdf:resource="&LSRN;PMID"/>
         <owl:imports rdf:resource="http://purl.org/spar/fabio"/>
+        <owl:imports rdf:resource="http://purl.org/spar/pro"/>
         <owl:imports rdf:resource="http://purl.org/vocab/frbr/core"/>
         <owl:imports rdf:resource="http://xmlns.com/foaf/0.1/"/>
     </owl:Ontology>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Object Properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://purl.org/dc/terms/creator -->
-
-    <owl:ObjectProperty rdf:about="&terms;creator"/>
-    
-
-
-    <!-- http://purl.org/dc/terms/published -->
-
-    <owl:ObjectProperty rdf:about="&terms;published"/>
-    
-
-
-    <!-- http://purl.org/dc/terms/title -->
-
-    <owl:ObjectProperty rdf:about="&terms;title"/>
-    
-
-
-    <!-- http://purl.org/net/pingback/service -->
-
-    <owl:ObjectProperty rdf:about="&pingback;service"/>
-    
-
-
-    <!-- http://purl.org/net/pingback/to -->
-
-    <owl:ObjectProperty rdf:about="&pingback;to"/>
-    
-
-
-    <!-- http://purl.org/spar/fabio/hasPubMedCentralId -->
-
-    <owl:ObjectProperty rdf:about="&fabio;hasPubMedCentralId"/>
-    
-
-
-    <!-- http://purl.org/spar/fabio/hasPubMedId -->
-
-    <owl:ObjectProperty rdf:about="&fabio;hasPubMedId"/>
-    
-
-
-    <!-- http://purl.org/spar/pro/holdsRoleInTime -->
-
-    <owl:ObjectProperty rdf:about="&pro;holdsRoleInTime"/>
-    
-
-
-    <!-- http://purl.org/spar/pro/isRelatedToRoleInTime -->
-
-    <owl:ObjectProperty rdf:about="&pro;isRelatedToRoleInTime"/>
-    
-
-
-    <!-- http://purl.org/spar/pro/withRole -->
-
-    <owl:ObjectProperty rdf:about="&pro;withRole"/>
-    
-
-
-    <!-- http://purl.org/vocab/frbr/core#embodiment -->
-
-    <owl:ObjectProperty rdf:about="&core;embodiment"/>
-    
-
-
-    <!-- http://purl.org/vocab/frbr/core#part -->
-
-    <owl:ObjectProperty rdf:about="&core;part"/>
-    
-
-
-    <!-- http://xmlns.com/foaf/0.1/name -->
-
-    <owl:ObjectProperty rdf:about="&foaf;name"/>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Data properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://prismstandard.org/namespaces/basic/2.0/publicationDate -->
-
-    <owl:DatatypeProperty rdf:about="&basic;publicationDate"/>
-    
-
-
-    <!-- http://semanticscience.org/resource/SIO_000300 -->
-
-    <owl:DatatypeProperty rdf:about="&resource;SIO_000300"/>
     
 
 
@@ -163,27 +52,6 @@
     //
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
-
-    
-
-
-    <!-- http://purl.oclc.org/SADI/LSRN/PMID_Record -->
-
-    <owl:Class rdf:about="&LSRN;PMID_Record"/>
-    
-
-
-    <!-- http://purl.org/spar/fabio/Abstract -->
-
-    <owl:Class rdf:about="&fabio;Abstract"/>
-    
-
-
-    <!-- http://purl.org/spar/pro/RoleInTime -->
-
-    <owl:Class rdf:about="&pro;RoleInTime"/>
-    
-
 
     <!-- http://sadiframework.org/ontologies/opencitations.owl#DocumentInfoOutputClass -->
 
@@ -268,6 +136,7 @@
                 </owl:intersectionOf>
             </owl:Class>
         </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&LSRN;PMID_Record"/>
     </owl:Class>
     
 
@@ -294,23 +163,6 @@
         </rdfs:subClassOf>
     </owl:Class>
     
-
-
-    <!-- http://www.w3.org/2001/XMLSchema#date -->
-
-    <owl:Class rdf:about="&xsd;date"/>
-    
-
-
-    <!-- http://www.w3.org/2002/07/owl#Thing -->
-
-    <owl:Class rdf:about="&owl;Thing"/>
-    
-
-
-    <!-- http://xmlns.com/foaf/0.1/Person -->
-
-    <owl:Class rdf:about="&foaf;Person"/>
 </rdf:RDF>
 
 
