@@ -34,24 +34,28 @@ ns.register(protegedc="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl
 # sudo easy_install 'rdflib>=3.0' surf rdfextras surf.rdflib
 
 class DefaultSerializer:
-    def __init__(self,format):
-        self.format = format
+    def __init__(self,inputFormat,outputFormat=None):
+        self.inputFormat = inputFormat
+        if outputFormat == None:
+            self.outputFormat = inputFormat
+        else:
+            self.outputFormat = outputFormat
     def bindPrefixes(self, graph):
         for n in ns.all().items():
             graph.bind(n[0].lower(), URIRef(n[1]))
 
     def serialize(self,graph):
         self.bindPrefixes(graph)
-        return graph.serialize(format=self.format)
+        return graph.serialize(format=self.outputFormat)
     def deserialize(self,graph, content):
-        f = self.format
-        if f == 'turtle':
-            f = 'n3'
-        graph.parse(StringIO(content),format=f)
+        if type(content) == str:
+            graph.parse(StringIO(content),format=self.inputFormat)
+        else:
+            graph.parse(content,format=self.inputFormat)
 
 class JSONSerializer:
     def serialize(self,graph):
-        return to_json(modelGraph)
+        return to_json(graph)
     
     def getResource(self, r, bnodes):
         result = None
@@ -66,27 +70,53 @@ class JSONSerializer:
         return result
 
     def deserialize(self,graph, content):
-        if json.loads(content):
+        if type(content) != str:
+            graph.parse(StringIO(content),format=f)
+        else:
+            graph.parse(content,format=f)
+
+        data = content
+        if type(content) == str:
             data = json.load(StringIO(content))
-            bnodes = {}
-            for s in data.keys():
-                subject = self.getResource(s, bnodes)
-                for p in data[s].keys():
-                    predicate = self.getResource(p, bnodes)
-                    o = data[s][p]
-                    obj = None
-                    if o['type'] == 'literal':
-                        datatype = None
-                        if 'datatype' in o:
-                            datatype = URIRef(o['datatype'])
-                        lang = None
-                        if 'lang' in o:
-                            lang = o['lang']
-                        value = o['value']
-                        obj = Literal(value, lang, datatype)
-                    else:
-                        obj = self.getResource(o['value'])
-                    graph.add(subject, predicate, obj)
+        else:
+            data = json.load(content)
+        bnodes = {}
+        for s in data.keys():
+            subject = self.getResource(s, bnodes)
+            for p in data[s].keys():
+                predicate = self.getResource(p, bnodes)
+                o = data[s][p]
+                obj = None
+                if o['type'] == 'literal':
+                    datatype = None
+                    if 'datatype' in o:
+                        datatype = URIRef(o['datatype'])
+                    lang = None
+                    if 'lang' in o:
+                        lang = o['lang']
+                    value = o['value']
+                    obj = Literal(value, lang, datatype)
+                else:
+                    obj = self.getResource(o['value'])
+                graph.add(subject, predicate, obj)
+
+services = {}
+
+def wsgi_register(service):
+    services['/'+service.name] = service
+
+def application(environ, start_response):
+    requestMethod = environ['REQUEST_METHOD']
+    try:
+        service = services[environ['PATH_INFO']]
+	if requestMethod == 'GET':
+            return service.wsgi_get(environ, start_response)
+        elif requestMethod == 'POST':
+            return service.wsgi_post(environ, start_response)
+        else: # Method not supported
+            return wsgiMethodNotSupported(environ, start_response)
+    except:
+        return wsgi404(environ, start_response)
 
 class ServiceBase:
     serviceDescription = None
@@ -101,11 +131,11 @@ class ServiceBase:
         self.contentTypes = {
             None:DefaultSerializer('xml'),
             "application/rdf+xml":DefaultSerializer('xml'),
-            'text/turtle':DefaultSerializer('turtle'),
-            'application/x-turtle':DefaultSerializer('turtle'),
+            'text/turtle':DefaultSerializer('n3','turtle'),
+            'application/x-turtle':DefaultSerializer('n3','turtle'),
             'text/plain':DefaultSerializer('nt'),
             'text/n3':DefaultSerializer('n3'),
-            'text/rdf+n3':DefaultSerializer('n3'),
+            'text/html':DefaultSerializer('rdfa','xml'),
             'application/json':JSONSerializer(),
             }
 
@@ -213,6 +243,28 @@ class ServiceBase:
             self.process(i, o)
         return outputStore.reader.graph
 
+    def wsgi_get(self, environ, start_response):
+        modelGraph = self.getServiceDescription()
+        acceptType = self.getFormat(environ['HTTP_ACCEPT'])
+        response_headers = [
+            ('Content-type', acceptType[0]),
+            ('Access-Control-Allow-Origin','*')
+        ]
+        status = '200 OK'
+        start_response(status, response_headers)
+        return self.serialize(modelGraph,request.getHeader("Accept"))
+
+    def wsgi_post(self, environ, start_response):
+        status = '200 OK'
+        response_headers = [('Content-type', 'text/plain')]
+        start_response(status, response_headers)
+        content = request.content.read()
+        graph = self.processGraph(content, request.getHeader("Content-Type"))
+        acceptType = self.getFormat(request.getHeader("Accept"))
+        request.setHeader("Content-Type",acceptType[0])
+        request.setHeader('Access-Control-Allow-Origin','*')
+        return self.serialize(graph,request.getHeader("Accept"))
+    
 
 if googleAppEngine:
     class GAEService(ServiceBase, webapp.RequestHandler):
