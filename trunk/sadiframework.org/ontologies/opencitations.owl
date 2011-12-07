@@ -55,7 +55,7 @@
 
     <!-- http://sadiframework.org/ontologies/opencitations.owl#DocumentInfoOutputClass -->
 
-    <owl:Class rdf:about="&opencitations;DocumentInfoOutputClass">
+    <owl:Class rdf:about="&opencitations;GetDocumentInfoOutputClass">
         <owl:equivalentClass>
             <owl:Class>
                 <owl:intersectionOf rdf:parseType="Collection">
