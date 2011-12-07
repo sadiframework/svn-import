@@ -1,0 +1,319 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY pro "http://purl.org/spar/pro/" >
+    <!ENTITY terms "http://purl.org/dc/terms/" >
+    <!ENTITY foaf "http://xmlns.com/foaf/0.1/" >
+    <!ENTITY fabio "http://purl.org/spar/fabio/" >
+    <!ENTITY pingback "http://purl.org/net/pingback/" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY LSRN "http://purl.oclc.org/SADI/LSRN/" >
+    <!ENTITY core "http://purl.org/vocab/frbr/core#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY resource "http://semanticscience.org/resource/" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY basic "http://prismstandard.org/namespaces/basic/2.0/" >
+    <!ENTITY opencitations "http://sadiframework.org/ontologies/opencitations.owl#" >
+]>
+
+
+<rdf:RDF xmlns="http://sadiframework.org/ontologies/opencitations.owl#"
+     xml:base="http://sadiframework.org/ontologies/opencitations.owl"
+     xmlns:foaf="http://xmlns.com/foaf/0.1/"
+     xmlns:LSRN="http://purl.oclc.org/SADI/LSRN/"
+     xmlns:terms="http://purl.org/dc/terms/"
+     xmlns:resource="http://semanticscience.org/resource/"
+     xmlns:fabio="http://purl.org/spar/fabio/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:pingback="http://purl.org/net/pingback/"
+     xmlns:basic="http://prismstandard.org/namespaces/basic/2.0/"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:pro="http://purl.org/spar/pro/"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:core="http://purl.org/vocab/frbr/core#"
+     xmlns:opencitations="http://sadiframework.org/ontologies/opencitations.owl#">
+    <owl:Ontology rdf:about="http://sadiframework.org/ontologies/opencitations.owl">
+        <owl:imports rdf:resource="&LSRN;PMID"/>
+        <owl:imports rdf:resource="http://purl.org/spar/fabio"/>
+        <owl:imports rdf:resource="http://purl.org/vocab/frbr/core"/>
+        <owl:imports rdf:resource="http://xmlns.com/foaf/0.1/"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://purl.org/dc/terms/creator -->
+
+    <owl:ObjectProperty rdf:about="&terms;creator"/>
+    
+
+
+    <!-- http://purl.org/dc/terms/published -->
+
+    <owl:ObjectProperty rdf:about="&terms;published"/>
+    
+
+
+    <!-- http://purl.org/dc/terms/title -->
+
+    <owl:ObjectProperty rdf:about="&terms;title"/>
+    
+
+
+    <!-- http://purl.org/net/pingback/service -->
+
+    <owl:ObjectProperty rdf:about="&pingback;service"/>
+    
+
+
+    <!-- http://purl.org/net/pingback/to -->
+
+    <owl:ObjectProperty rdf:about="&pingback;to"/>
+    
+
+
+    <!-- http://purl.org/spar/fabio/hasPubMedCentralId -->
+
+    <owl:ObjectProperty rdf:about="&fabio;hasPubMedCentralId"/>
+    
+
+
+    <!-- http://purl.org/spar/fabio/hasPubMedId -->
+
+    <owl:ObjectProperty rdf:about="&fabio;hasPubMedId"/>
+    
+
+
+    <!-- http://purl.org/spar/pro/holdsRoleInTime -->
+
+    <owl:ObjectProperty rdf:about="&pro;holdsRoleInTime"/>
+    
+
+
+    <!-- http://purl.org/spar/pro/isRelatedToRoleInTime -->
+
+    <owl:ObjectProperty rdf:about="&pro;isRelatedToRoleInTime"/>
+    
+
+
+    <!-- http://purl.org/spar/pro/withRole -->
+
+    <owl:ObjectProperty rdf:about="&pro;withRole"/>
+    
+
+
+    <!-- http://purl.org/vocab/frbr/core#embodiment -->
+
+    <owl:ObjectProperty rdf:about="&core;embodiment"/>
+    
+
+
+    <!-- http://purl.org/vocab/frbr/core#part -->
+
+    <owl:ObjectProperty rdf:about="&core;part"/>
+    
+
+
+    <!-- http://xmlns.com/foaf/0.1/name -->
+
+    <owl:ObjectProperty rdf:about="&foaf;name"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://prismstandard.org/namespaces/basic/2.0/publicationDate -->
+
+    <owl:DatatypeProperty rdf:about="&basic;publicationDate"/>
+    
+
+
+    <!-- http://semanticscience.org/resource/SIO_000300 -->
+
+    <owl:DatatypeProperty rdf:about="&resource;SIO_000300"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://purl.oclc.org/SADI/LSRN/PMID_Record -->
+
+    <owl:Class rdf:about="&LSRN;PMID_Record"/>
+    
+
+
+    <!-- http://purl.org/spar/fabio/Abstract -->
+
+    <owl:Class rdf:about="&fabio;Abstract"/>
+    
+
+
+    <!-- http://purl.org/spar/pro/RoleInTime -->
+
+    <owl:Class rdf:about="&pro;RoleInTime"/>
+    
+
+
+    <!-- http://sadiframework.org/ontologies/opencitations.owl#DocumentInfoOutputClass -->
+
+    <owl:Class rdf:about="&opencitations;DocumentInfoOutputClass">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&terms;creator"/>
+                        <owl:someValuesFrom>
+                            <owl:Class>
+                                <owl:intersectionOf rdf:parseType="Collection">
+                                    <rdf:Description rdf:about="&foaf;Person"/>
+                                    <owl:Restriction>
+                                        <owl:onProperty rdf:resource="&pro;holdsRoleInTime"/>
+                                        <owl:someValuesFrom>
+                                            <owl:Class>
+                                                <owl:intersectionOf rdf:parseType="Collection">
+                                                    <rdf:Description rdf:about="&pro;RoleInTime"/>
+                                                    <owl:Restriction>
+                                                        <owl:onProperty rdf:resource="&pro;withRole"/>
+                                                        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                                                    </owl:Restriction>
+                                                </owl:intersectionOf>
+                                            </owl:Class>
+                                        </owl:someValuesFrom>
+                                    </owl:Restriction>
+                                    <owl:Restriction>
+                                        <owl:onProperty rdf:resource="&foaf;name"/>
+                                        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                                    </owl:Restriction>
+                                </owl:intersectionOf>
+                            </owl:Class>
+                        </owl:someValuesFrom>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&terms;published"/>
+                        <owl:someValuesFrom rdf:resource="&xsd;date"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&pro;isRelatedToRoleInTime"/>
+                        <owl:someValuesFrom>
+                            <owl:Class>
+                                <owl:intersectionOf rdf:parseType="Collection">
+                                    <rdf:Description rdf:about="&pro;RoleInTime"/>
+                                    <owl:Restriction>
+                                        <owl:onProperty rdf:resource="&pro;withRole"/>
+                                        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                                    </owl:Restriction>
+                                </owl:intersectionOf>
+                            </owl:Class>
+                        </owl:someValuesFrom>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&terms;title"/>
+                        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&pingback;service"/>
+                        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&pingback;to"/>
+                        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&fabio;hasPubMedCentralId"/>
+                        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&fabio;hasPubMedId"/>
+                        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&core;embodiment"/>
+                        <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&basic;publicationDate"/>
+                        <owl:someValuesFrom rdf:resource="&xsd;dateTime"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+    </owl:Class>
+    
+
+
+    <!-- http://sadiframework.org/ontologies/opencitations.owl#GetAbstractOutputClass -->
+
+    <owl:Class rdf:about="&opencitations;GetAbstractOutputClass">
+        <rdfs:subClassOf rdf:resource="&LSRN;PMID_Record"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&core;part"/>
+                <owl:someValuesFrom>
+                    <owl:Class>
+                        <owl:intersectionOf rdf:parseType="Collection">
+                            <rdf:Description rdf:about="&fabio;Abstract"/>
+                            <owl:Restriction>
+                                <owl:onProperty rdf:resource="&rdf;value"/>
+                                <owl:minCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:minCardinality>
+                            </owl:Restriction>
+                        </owl:intersectionOf>
+                    </owl:Class>
+                </owl:someValuesFrom>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://www.w3.org/2001/XMLSchema#date -->
+
+    <owl:Class rdf:about="&xsd;date"/>
+    
+
+
+    <!-- http://www.w3.org/2002/07/owl#Thing -->
+
+    <owl:Class rdf:about="&owl;Thing"/>
+    
+
+
+    <!-- http://xmlns.com/foaf/0.1/Person -->
+
+    <owl:Class rdf:about="&foaf;Person"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.1.0.20069) http://owlapi.sourceforge.net -->
+
