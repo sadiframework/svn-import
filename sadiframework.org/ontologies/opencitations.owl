@@ -163,6 +163,16 @@
         </rdfs:subClassOf>
     </owl:Class>
     
+    <owl:Class rdf:about="&opencitations;GetCitationsOutputClass">
+        <rdfs:subClassOf rdf:resource="&LSRN;PMID_Record"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&resource;cites"/>
+                <owl:someValuesFrom rdf:resource="&LSRN;PMID_Record"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
 </rdf:RDF>
 
 
