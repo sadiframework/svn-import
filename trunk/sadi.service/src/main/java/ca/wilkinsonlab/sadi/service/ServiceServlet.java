@@ -48,6 +48,7 @@ import ca.wilkinsonlab.sadi.service.ontology.ServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.ContentType;
 import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import ca.wilkinsonlab.sadi.utils.http.AcceptHeader;
 import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 import ca.wilkinsonlab.sadi.vocab.SADI;
 
@@ -237,15 +238,16 @@ public abstract class ServiceServlet extends HttpServlet
 
 	public static ContentType getContentType(HttpServletRequest request)
 	{
-		ContentType contentType = null;
+		AcceptHeader accept = new AcceptHeader();
 		for (Enumeration<?> headers = request.getHeaders("Accept"); headers.hasMoreElements(); ) {
-			String headerString = (String)headers.nextElement();
-			for (String header: headerString.split(",\\s*")) {
-				contentType = ContentType.getContentType(header);
-				if (contentType != null)
-					return contentType;
-			}
+			accept.merge((String)headers.nextElement());
 		}
+		for (AcceptHeader.ContentTypeQualityPair desiredType: accept.getContentTypes()) {
+			ContentType type = ContentType.getContentType(desiredType.getContentType());
+			if (type != null)
+				return type;
+		}
+		// we didn't find a type we recognized; default to RDF/XML
 		return ContentType.RDF_XML;
 	}
 
