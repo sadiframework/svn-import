@@ -122,6 +122,7 @@ public class APIServlet extends HttpServlet
 			buf.append("GET /services/attachedPropertyLabel/${propertyLabel\treturns services that attach property with label ${propertyLabel}\n");
 			buf.append("GET /services/connectedClass/${classURI}\treturns services that attach values from ${classURI}\n");
 			buf.append("GET /services/connectedClassLabel/${classLabel}\treturns services that attach values from class with label ${classLabel}\n");
+			buf.append("GET /services/inputClass/${classURI}\treturns services that consume instances of ${classURI}\n");
 			return buf.toString();
 		}
 		
@@ -138,25 +139,31 @@ public class APIServlet extends HttpServlet
 					throw new IllegalArgumentException("expected /services/attachedProperty/${propertyURI}");
 				else
 					return new RegistryImpl(QueryExecutorFactory.createJenaModelQueryExecutor(registry.getModel()))
-							.findServicesByAttachedProperty(ResourceFactory.createProperty(path));
+							.findServicesByAttachedProperty(ResourceFactory.createProperty(pathElements[1]));
 			} else if (pathElements[0].equals("attachedPropertyLabel")) {
 				if (pathElements.length < 2)
 					throw new IllegalArgumentException("expected /services/attachedPropertyLabel/${propertyLabel}");
 				else
 					return new RegistryImpl(QueryExecutorFactory.createJenaModelQueryExecutor(registry.getModel()))
-							.findServicesByAttachedPropertyLabel(path);
+							.findServicesByAttachedPropertyLabel(pathElements[1]);
 			} else if (pathElements[0].equals("connectedClass")) {
 				if (pathElements.length < 2)
 					throw new IllegalArgumentException("expected /services/connectedClass/${classURI}");
 				else
 					return new RegistryImpl(QueryExecutorFactory.createJenaModelQueryExecutor(registry.getModel()))
-							.findServicesByConnectedClass(ResourceFactory.createResource(path));
+							.findServicesByConnectedClass(ResourceFactory.createResource(pathElements[1]));
 			} else if (pathElements[0].equals("connectedClassLabel")) {
 				if (pathElements.length < 2)
 					throw new IllegalArgumentException("expected /services/connectedClassLabel/${classLabel}");
 				else
 					return new RegistryImpl(QueryExecutorFactory.createJenaModelQueryExecutor(registry.getModel()))
-							.findServicesByConnectedClassLabel(path);
+							.findServicesByConnectedClassLabel(pathElements[1]);
+			} else if (pathElements[0].equals("inputClass")) {
+				if (pathElements.length < 2)
+					throw new IllegalArgumentException("expected /services/inputClass/${classURI}");
+				else
+					return new RegistryImpl(QueryExecutorFactory.createJenaModelQueryExecutor(registry.getModel()))
+							.findServicesByInputClass(ResourceFactory.createResource(pathElements[1]));
 			} else {
 				throw new IllegalArgumentException(String.format("unknown method %s", path));
 			}
