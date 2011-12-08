@@ -1,5 +1,8 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,6 +12,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.rdf.model.Statement;
 
 /**
  * Utility class encapsulating methods useful for converting simple LSRN
@@ -20,6 +24,7 @@ public class LSRNUtils
 	public static final Pattern NS_PATTERN = Pattern.compile("http://purl.oclc.org/SADI/LSRN/(.+?)_Record");
 	public static final Pattern URI_PATTEN = Pattern.compile("http://lsrn.org/([^:]+):(.+)");
 	public static final String OUTPUT_URI_PATTERN = "http://lsrn.org/$NS:$ID";
+	public static final Pattern ID_TYPE_PATTERN = Pattern.compile("http://purl.oclc.org/SADI/LSRN/(.+?)_Identifier");
 	public static final String OUTPUT_ID_TYPE_PATTERN = "http://purl.oclc.org/SADI/LSRN/$NS_Identifier";
 	public static final Pattern ID_PATTERN = Pattern.compile(".*[/:#]([^\\s\\.]+)");
 	
@@ -31,6 +36,34 @@ public class LSRNUtils
 	public static boolean isLSRNType(String uri)
 	{
 		return NS_PATTERN.matcher(uri).matches(); 
+	}
+	
+	public static String getNamespaceFromLSRNTypeURI(String uri)
+	{
+		Matcher typeMatcher = NS_PATTERN.matcher(uri);
+		if (typeMatcher.matches())
+			return typeMatcher.group(1);
+		else
+			return null;
+	}
+	
+	public static boolean isLSRNIdentifierType(Resource type)
+	{
+		return type.isURIResource() && isLSRNIdentifierType(type.getURI());
+	}
+
+	public static boolean isLSRNIdentifierType(String uri)
+	{
+		return ID_TYPE_PATTERN.matcher(uri).matches(); 
+	}
+	
+	public static String getNamespaceFromLSRNIdentifierTypeURI(String uri)
+	{
+		Matcher typeMatcher = ID_TYPE_PATTERN.matcher(uri);
+		if (typeMatcher.matches())
+			return typeMatcher.group(1);
+		else
+			return null;
 	}
 	
 	/**
@@ -60,7 +93,9 @@ public class LSRNUtils
 		Matcher matcher = NS_PATTERN.matcher(type.getURI());
 		if (matcher.find()) {
 			String uri = OUTPUT_URI_PATTERN.replace("$NS", matcher.group(1)).replace("$ID", id);
-			return model.createResource(uri, type);
+			Resource lsrnNode = model.createResource(uri, type);
+			addIdentifier(lsrnNode);
+			return lsrnNode;
 		} else {
 			throw new IllegalArgumentException("at present this method only works with LSRN database record classes");
 		}
@@ -69,6 +104,7 @@ public class LSRNUtils
 	/**
 	 * Adds the LSRN SIO identifier structure to an LSRN-typed Resource.
 	 * Attempts to use the URL of the Resource to determine the ID.
+	 * @param lsrnNode
 	 */
 	public static void addIdentifier(Resource lsrnNode)
 	{
@@ -87,5 +123,44 @@ public class LSRNUtils
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Returns the identifier of an LSRN-typed Resource
+	 * @param lsrnNode
+	 * @return the identifier
+	 */
+	public static String getID(Resource lsrnNode)
+	{
+		Set<String> namespaces = new HashSet<String>();
+		for (Iterator<Resource> types = RdfUtils.getTypes(lsrnNode); types.hasNext(); ) {
+			Resource type = types.next();
+			if (type.isURIResource()) {
+				String ns = getNamespaceFromLSRNTypeURI(type.getURI());
+				if (ns != null)
+					namespaces.add(ns);
+			}
+		}
+		
+		Iterator<Resource> ids = RdfUtils.getPropertyValues(lsrnNode, SIO.has_identifier, null)
+		                .andThen(RdfUtils.getPropertyValues(lsrnNode, SIO.has_attribute, null));
+		while (ids.hasNext()) {
+			Resource identifier = ids.next();
+			for (Iterator<Resource> types = RdfUtils.getTypes(identifier); types.hasNext(); ) {
+				Resource type = types.next();
+				if (type.isURIResource()) {
+					String ns = getNamespaceFromLSRNIdentifierTypeURI(type.getURI());
+					if (ns != null && namespaces.contains(ns)) {
+						Statement s = identifier.getProperty(SIO.has_value);
+						if (s != null) {
+							return s.getString();
+						}
+					}
+				}
+				
+			}
+		}
+		
+		return null;
 	}
 }
