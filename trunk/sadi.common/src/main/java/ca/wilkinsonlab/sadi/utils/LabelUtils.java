@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.ontology.ConversionException;
+import com.hp.hpl.jena.ontology.DataRange;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntResource;
 import com.hp.hpl.jena.ontology.Restriction;
@@ -248,6 +249,11 @@ public class LabelUtils
 		else if (c.isDataRange())
 			s = String.format("one of %s", joinOperands(", ", c.asDataRange().getOneOf()));
 		return String.format("(%s)", s);
+	}
+	
+	public static String getDataRangeString(DataRange range)
+	{
+		return String.format("one of %s", joinOperands(", ", range.getOneOf()));
 	}
 	
 	static String joinOperands(String conjunction, RDFList operands)
