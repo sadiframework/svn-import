@@ -5,6 +5,15 @@ import java.io.Serializable;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import ca.wilkinsonlab.sadi.utils.LabelUtils;
+import ca.wilkinsonlab.sadi.utils.OwlUtils;
+
+import com.hp.hpl.jena.ontology.ConversionException;
+import com.hp.hpl.jena.ontology.DataRange;
+import com.hp.hpl.jena.ontology.OntResource;
+import com.hp.hpl.jena.ontology.Restriction;
+import com.hp.hpl.jena.vocabulary.OWL;
+
 /**
  * A simple class describing a property restriction.
  * @author LukeMcCarthy
@@ -25,6 +34,35 @@ public class RestrictionBean implements Serializable
 		onPropertyLabel = null;
 		valuesFromURI = null;
 		valuesFromLabel = null;
+	}
+	
+	public RestrictionBean(Restriction restriction)
+	{
+		OntResource p;
+		try {
+			p = restriction.getOnProperty();
+		} catch (ConversionException e) {
+			/* the property is not actually defined in the ontology, nor was
+			 * it resolved or created by OwlUtils.decompose (according to the
+			 * configured policy), so just do what we can...
+			 */
+			p = restriction.getOntModel().getOntResource(restriction.getProperty(OWL.onProperty).getResource());
+		}
+		onPropertyURI = p.getURI();
+		onPropertyLabel = LabelUtils.getLabel(p);
+		
+		OntResource valuesFrom = OwlUtils.getValuesFrom(restriction);
+		if (valuesFrom != null) {
+			if (valuesFrom.isURIResource()) {
+				valuesFromURI = valuesFrom.getURI();
+				valuesFromLabel = LabelUtils.getLabel(valuesFrom);
+			} else if (valuesFrom.isDataRange()) {
+				DataRange range = valuesFrom.asDataRange();
+				valuesFromLabel = LabelUtils.getDataRangeString(range);
+			} else if (valuesFrom.isClass()) {
+				valuesFromLabel = LabelUtils.getClassString(valuesFrom.asClass());
+			}
+		}
 	}
 	
 	/**
