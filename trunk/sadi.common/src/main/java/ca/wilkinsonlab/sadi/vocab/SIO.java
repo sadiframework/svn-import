@@ -47,6 +47,7 @@ public class SIO
     public static final Resource version_identifier = m_model.createResource( NS + "SIO_000653" );
     public static final Resource sequence_start_position = m_model.createResource( NS + "SIO_000791" );
     public static final Resource sequence_stop_position = m_model.createResource( NS + "SIO_000792" );
+    public static final Resource _abstract = m_model.createResource( NS + "SIO_000188" );
     
     public static final Property has_attribute = m_model.createProperty( NS, "SIO_000008" );
     public static final Property is_attribute_of = m_model.createProperty( NS, "SIO_000011" );
@@ -69,4 +70,6 @@ public class SIO
 	public static final Property has_input = m_model.createProperty( NS, "SIO_000230" );
 	public static final Property has_agent = m_model.createProperty( NS, "SIO_000139" );
 	public static final Property has_identifier = m_model.createProperty( NS, "SIO_000671" );
+	public static final Property cites = m_model.createProperty( NS, "SIO_000277" );
+	public static final Property is_cited_by = m_model.createProperty( NS, "SIO_000278" );
 }
