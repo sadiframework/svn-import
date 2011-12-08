@@ -1,0 +1,41 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:oc="http://sadiframework.org/ontologies/opencitations.owl#"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/">
+  <oc:GetCitingArticlesOutputClass rdf:about="http://dx.doi.org/10.1371/journal.pntd.0000868"/>
+  <oc:GetCitingArticlesOutputClass rdf:about="http://lsrn.org/PMID:17704127">
+    <sio:SIO_000278>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:18940861">
+        <sio:SIO_000671>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >18940861</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000671>
+      </lsrn:PMID_Record>
+    </sio:SIO_000278>
+  </oc:GetCitingArticlesOutputClass>
+  <oc:GetCitingArticlesOutputClass rdf:about="http://opencitations.net/id/expression:pmid/12682359">
+    <sio:SIO_000278>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:17933779">
+        <sio:SIO_000671>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >17933779</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000671>
+      </lsrn:PMID_Record>
+    </sio:SIO_000278>
+    <sio:SIO_000278>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:16513845">
+        <sio:SIO_000671>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >16513845</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000671>
+      </lsrn:PMID_Record>
+    </sio:SIO_000278>
+  </oc:GetCitingArticlesOutputClass>
+</rdf:RDF>
