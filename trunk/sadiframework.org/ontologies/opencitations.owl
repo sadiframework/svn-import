@@ -167,7 +167,17 @@
         <rdfs:subClassOf rdf:resource="&LSRN;PMID_Record"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&resource;cites"/>
+                <owl:onProperty rdf:resource="&resource;SIO_000277"/>
+                <owl:someValuesFrom rdf:resource="&LSRN;PMID_Record"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+    <owl:Class rdf:about="&opencitations;GetCitersOutputClass">
+        <rdfs:subClassOf rdf:resource="&LSRN;PMID_Record"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&resource;SIO_000278"/>
                 <owl:someValuesFrom rdf:resource="&LSRN;PMID_Record"/>
             </owl:Restriction>
         </rdfs:subClassOf>
