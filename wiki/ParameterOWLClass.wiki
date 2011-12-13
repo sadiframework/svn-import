@@ -28,9 +28,9 @@ When invoking a service, a client indicates the desired values of the execution 
 
 == The Default Parameter Graph ==
 
-The inclusion of a parameter graph in the input RDF document for a service invocation is not required. If no parameter graph is provided by the client, the service MUST use a suitable set of default values for the execution parameters.  Further, the service metadata graph MUST either include or reference exactly one _Default Parameter Graph_ that represents these default values for the service execution parameters. The output RDF produced by a service invocation that includes a copy of the Default Parameter Graph MUST be isomorphic to the output RDF produced by a service invocation that omits the parameter graph entirely.
+The inclusion of a parameter graph in the input RDF document for a service invocation is not required. If no parameter graph is provided by the client, the service MUST use a suitable set of default values for the execution parameters.  Further, the service metadata graph MUST either include or reference exactly one _default parameter graph_ that represents these default values for the service execution parameters. The output RDF produced by a service invocation that includes a copy of the Default Parameter Graph MUST be isomorphic to the output RDF produced by a service invocation that omits the parameter graph entirely.
 
-For illustrative purposes, the following N3 shows the Default Parameter Graph for the parameterized "Hello, World!" service described in the previous section:
+For illustrative purposes, the following N3 shows the default parameter graph for the parameterized "Hello, World!" service described in the previous section:
 
 {{{
 @prefix hello: <http://sadiframework.org/examples/hello.owl#> .
@@ -39,4 +39,4 @@ For illustrative purposes, the following N3 shows the Default Parameter Graph fo
    hello:lang "en" .
 }}}
 
-This Default Parameter Graph indicates that unless otherwise specified, greetings will be returned in English.
+This default parameter graph indicates that unless otherwise specified, greetings will be returned in English.
