@@ -33,4 +33,106 @@ The GET request MAY include an `Accept` header indicating the desired RDF serial
  
 == Representing Service Metadata in RDF ==
 
-The structure of the metadata graph is beyond the scope of the SADI specification. The service provider may use any graph structure deemed suitable, provided the root URI of the structure is the service URL. 
+The structure of the metadata graph is beyond the current scope of the SADI specification. 
+
+At the time of writing, all SADI services and SADI-related tools known to the authors use the myGrid/Moby service ontology (http://www.mygrid.org.uk/mygrid-moby-service/) to parse/encode the service metadata graph.  For illustrative purposes, the service metadata graph for a parameterized version of the "Hello, World!" service (http://sadiframework.org/examples/hello-param) is shown below in N3 format. Note that the empty URI ("<>") is a relative URI that represents the base URI for the metadata document. As the metadata document is ALWAYS retrieved by a GET request on the service URL, the empty URI is equivalent to the service URL. 
+
+{{{
+@prefix protege-dc: <http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#> .
+@prefix mygrid: <http://www.mygrid.org.uk/mygrid-moby-service#> .
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix test: <http://sadiframework.org/examples/t/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<>
+    a mygrid:serviceDescription ;
+    
+    #----------------------------------------
+    # Service Name 
+    #----------------------------------------
+ 
+    mygrid:hasServiceNameText
+        "ParamaterizedHelloWorld"^^xsd:string ;
+
+    #----------------------------------------
+    # Service Description
+    #----------------------------------------
+
+    mygrid:hasServiceDescriptionText
+        "A \"Hello, world!\" service where the output language is specified in a parameter"^^xsd:string ;
+
+    #----------------------------------------
+    # Contact E-mail Address, Authoritative Flag
+    #----------------------------------------
+
+    mygrid:providedBy
+        [ a mygrid:organisation ;
+          protege-dc:creator "person@organization.com"^^xsd:string ;
+          mygrid:authoritative "false"^^xsd:boolean
+        ] ;
+
+    mygrid:hasOperation
+        [ a mygrid:operation ;
+
+            #----------------------------------------
+            # Input OWL Class
+            #----------------------------------------
+
+            mygrid:inputParameter
+                [ a mygrid:parameter ;
+                  mygrid:objectType hello:NamedIndividual
+                ] ;
+
+            #----------------------------------------
+            # Parameter OWL Class, Default Parameter Graph
+            #----------------------------------------
+
+            mygrid:inputParameter
+                [ a mygrid:secondaryParameter ;
+                  mygrid:objectType hello:SecondaryParameters ;
+                  mygrid:hasDefaultValue 
+                    [ a hello:SecondaryParameters ;
+                      hello:lang "en"^^xsd:string
+                    ] 
+                ] ;
+
+            #----------------------------------------
+            # Output OWL Class
+            #----------------------------------------
+
+            mygrid:outputParameter
+                [ a mygrid:parameter ;
+                  mygrid:objectType hello:GreetedIndividual
+                ] ;
+
+            #----------------------------------------
+            # Unit Test 
+            # (test input/output RDF included directly)
+            #----------------------------------------
+
+            mygrid:hasUnitTest
+                [ a mygrid:testCase ;
+                  mygrid:exampleInput
+                    [ a hello:InputClass ;
+                      foaf:name "Guy Incognito"
+                    ] ;
+                  mygrid:exampleOutput
+                    [ a hello:OutputClass ;
+                      hello:greeting "Hello, Guy Incognito!"
+                    ] 
+                ] ;
+
+            #----------------------------------------
+            # Unit Test 
+            # (test input/output RDF in external documents)
+            #----------------------------------------
+
+            mygrid:hasUnitTest
+                [ a mygrid:testCase ;
+                  mygrid:exampleInput test:hello-param-input.rdf ;
+                  mygrid:exampleOutput test:hello-param-output.rdf
+                ] 
+
+        ] .
+}}}
