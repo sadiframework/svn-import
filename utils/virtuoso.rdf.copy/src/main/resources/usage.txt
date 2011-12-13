@@ -1,0 +1,25 @@
+USAGE: java -jar virtuoso.rdf.copy-x.x.x.jar [options] <src host:port> <dest host:port>
+
+*CAVEAT*: This program only works on Unix, due to the use of 'stty' for password prompts and the use of 'sh' for running external commands with the --precopy-cmd and --postcopy-cmd options.
+
+DESCRIPTION:
+
+This program copies RDF data from a source Virtuoso instance to a destination Virtuoso instance.  It also copies over the users and permissions associated with each named graph, unless the --data-only option is used. All named graphs are copied from src to dest unless the --include-graph and/or --exclude-graph options are used. If graph being copied already exists in the destination Virtuoso instance, that graph will *not* be erased prior loading the data from src.  The user can force existing graphs to be erased prior to copying with the --overwrite-graphs.  Regardless of whether --overwrite-graphs is used or not, graphs in the destination Virtuoso instance are always backed up to TURTLE files on disk prior to modification.  The directory for the backup files is named backup.HOSTNAME.PORT.TIMESTAMP by default and is created under the current working directory. However, an alternate backup directory can be specified with the --backup-dir option.
+
+COPYING GRAPH PERMISSIONS:
+
+In addition to transferring RDF data, the program will also copy any relevant Virtuoso users and access permissions.  This behaviour can be disabled by using the --data-only option. The goal of copying over the users/permissions is to make the destination identical to the source with respect to which users can read/write which particular named graphs.
+
+*CAVEAT*: Copying of users is only semi-automated. If a user exists in the source Virtuoso instance but not in the destination Virtuoso instance, the program must prompt for the desired password when creating the new user at the destination.
+
+LOCKING:
+
+The source and destination Virtuoso instances may be locked during the copy operation using the --lock-src and --lock-dest options, respectively. By default, neither is locked. Locking is accomplished by temporarily disabling the write permissions for all users on all named graphs. Locking does *not* prevent the 'dba' user from making changes to the data.
+
+SCRIPTING HOOKS:
+
+The user may run any number of shell commands prior to the copy (but after locking) with the --precopy-cmd switch. Surround a shell command with quotes if it contains spaces. Similary, commands can be run after the copy (but before unlocking) with the --postcopy-cmd switch.  For example, the --postcopy-cmd might be used to redirect the URL for the source Virtuoso SPARQL endpoint to the destination Virtuoso SPARQL endpoint in a safe manner, when moving a Virtuoso database between hosts.
+
+EFFICIENCY:
+
+This program has only been tested for copying RDF graphs with up to 100,000 triples.  It is unknown whether performance will scale well when copying larger graphs.
