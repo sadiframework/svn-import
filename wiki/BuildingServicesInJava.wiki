@@ -199,7 +199,7 @@ If you are working from the command line, execute the following Maven command to
 $ mvn ca.wilkinsonlab.sadi:sadi-tester:test-service 
   -DserviceURL=http://localhost:8080/sadi-services/hello 
   -Dinput=http://sadiframework.org/test/hello-input.rdf 
-  -Doutput=http://sadiframework.org/test/hello-output.rdf
+  -Dexpected=http://sadiframework.org/test/hello-output.rdf
 }}}
 
 _Note: if you are copying-and-pasting the above command, be sure that it all appears on one line._
