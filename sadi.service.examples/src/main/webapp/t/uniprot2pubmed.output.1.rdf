@@ -271,6 +271,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:10606744">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >10606744</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Dumaz N., Milne D.M. &amp; Meek D.W., Protein kinase CK1 is a p53-threonine 18 kinase which requires prior phosphorylation of serine 15.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/10606744"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:10644996">
         <j.1:SIO_000008>
           <j.2:PMID_Identifier>
@@ -1603,6 +1615,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:11551930">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >11551930</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Xie S. et al, Plk3 functionally links DNA damage to cell cycle arrest and apoptosis at least in part via the p53 pathway.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/11551930"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:1672732">
         <j.1:SIO_000008>
           <j.2:PMID_Identifier>
@@ -1648,6 +1672,18 @@
         </j.1:SIO_000008>
         <rdfs:label>Li M. et al, A dynamic role of HAUSP in the p53-Mdm2 pathway.</rdfs:label>
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/15053880"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:11447225">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >11447225</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Xie S. et al, Reactive oxygen species-induced phosphorylation of p53 on serine 20 is mediated in part by polo-like kinase-3.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/11447225"/>
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
@@ -1756,6 +1792,18 @@
         </j.1:SIO_000008>
         <rdfs:label>Boyle J.O. et al, The incidence of p53 mutations increases with progression of head and neck cancer.</rdfs:label>
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/8402617"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:20041275">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >20041275</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Venerando A. et al, Isoform specific phosphorylation of p53 by protein kinase CK1.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/20041275"/>
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
