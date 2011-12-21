@@ -6,11 +6,12 @@ The latest version of the Python service API can be downloaded from the [http://
 {{{
 $ easy_install -n sadi
 Searching for sadi
-Best match: sadi 0.1.2
-Processing sadi-0.1.2-py2.6.egg
-sadi 0.1.2 is already the active version in easy-install.pth
+Best match: sadi 0.1.4
+Processing sadi-0.1.4-py2.6.egg
+Removing sadi 0.1.4 from easy-install.pth file
+Adding sadi 0.1.4 to easy-install.pth file
 
-Using /Library/Python/2.6/site-packages/sadi-0.1.2-py2.6.egg
+Using /Library/Python/2.6/site-packages/sadi-0.1.4-py2.6.egg
 Processing dependencies for sadi
 Finished processing dependencies for sadi
 }}}
