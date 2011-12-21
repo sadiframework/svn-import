@@ -1,0 +1,16 @@
+#summary Collected documentation for the Python service API
+
+= Availability =
+
+The latest version of the Python service API can be downloaded from the [http://code.google.com/p/sadi/downloads/list Downloads section] of this site.  To see which version of the API you have installed, use the following command:
+{{{
+$ easy_install -n sadi
+Searching for sadi
+Best match: sadi 0.1.2
+Processing sadi-0.1.2-py2.6.egg
+sadi 0.1.2 is already the active version in easy-install.pth
+
+Using /Library/Python/2.6/site-packages/sadi-0.1.2-py2.6.egg
+Processing dependencies for sadi
+Finished processing dependencies for sadi
+}}}
