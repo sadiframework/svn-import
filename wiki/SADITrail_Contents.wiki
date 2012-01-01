@@ -13,7 +13,7 @@
   * [StandardsComparison Relationship to Other Web Service Standards]
     * [StandardsComparison#Web_Services_Description_Language_(WSDL) Web Services Description Language (WSDL)]
     * [StandardsComparison#Semantic_Annotations_for_WSDL_(SAWSDL) Semantic Annotations for WSDL (SAWSDL)]
-    * [StandardsComparison#OWL-S_and_the_Web_Service_Modeling_Ontology_(WMSO) OWL-S and the Web Service Modeling Ontology (WSMO)] 
+    * [StandardsComparison#OWL-S_and_the_Web_Service_Modeling_Ontology_(WSMO) OWL-S and the Web Service Modeling Ontology (WSMO)] 
   * [SADIHelloWorldService Running Example: The SADI "Hello, World!" Service]
   * [ServiceMetadata Service Metadata]
     * [ServiceMetadata#Retrieving_Service_Metadata Retrieving Service Metadata]
