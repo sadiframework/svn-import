@@ -5,7 +5,13 @@
 
 Asynchronous SADI services use client polling and HTTP redirects to accomodate services that may run for an arbitrarily long period of time. Communication with an asynchronous SADI service occurs according to the following steps:
 
-  # The client sends an HTTP POST request to the service URL. The body of the request is an RDF document containing one or more instances of the service’s input OWL class and, optionally, one instance of the service’s parameter OWL class. The serialization format of the RDF document SHOULD be specified in the Content-type header of the POST request (one of application/rdf+xml or text/rdf+n3). If no Content-type header is sent with the request, the service MUST assume that the input is in RDF/XML format. Similarly, the desired serialization format of the response RDF document MAY be indicated with an Accept header (also one of application/rdf+xml or text/rdf+xml). In the case that the client does not provide an Accept header, or the content type is unsupported, the service MUST return the response in RDF/XML.
+<wiki:comment>
+Note: The RFC formatting pipeline doesn't understand code blocks embedded in list items. (More specifically, it is the Markdent parser.)
+As a workaround, we manually number the list here.
+</wiki:comment>
+
+1. The client sends an HTTP POST request to the service URL. The body of the request is an RDF document containing one or more instances of the service’s input OWL class and, optionally, one instance of the service’s parameter OWL class. The serialization format of the RDF document SHOULD be specified in the Content-type header of the POST request (one of application/rdf+xml or text/rdf+n3). If no Content-type header is sent with the request, the service MUST assume that the input is in RDF/XML format. Similarly, the desired serialization format of the response RDF document MAY be indicated with an Accept header (also one of application/rdf+xml or text/rdf+xml). In the case that the client does not provide an Accept header, or the content type is unsupported, the service MUST return the response in RDF/XML.
+
 {{{
 POST /examples/hello HTTP/1.1
 Host: sadiframework.org
@@ -25,7 +31,9 @@ input:HomerSimpson
    a hello:NamedIndividual;
    foaf:name "Homer Simpson" .
 }}}
-  # The service sends a response with the HTTP response code 202 (accepted but incomplete). The body of the response is an RDF document containing statements about the input instances. The serialization format of the RDF document MUST be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`). The existence of additional data is indicated by `rdfs:isDefinedBy` statements where the object is a URL the client must fetch to receive the complete output. There MAY be multiple such URLs and the initial output MAY contain only `rdfs:isDefinedBy` statements.
+
+2. The service sends a response with the HTTP response code 202 (accepted but incomplete). The body of the response is an RDF document containing statements about the input instances. The serialization format of the RDF document MUST be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`). The existence of additional data is indicated by `rdfs:isDefinedBy` statements where the object is a URL the client must fetch to receive the complete output. There MAY be multiple such URLs and the initial output MAY contain only `rdfs:isDefinedBy` statements.
+
 {{{
 HTTP/1.1 202 Accepted 
 Content-type: text/rdf+n3
@@ -43,25 +51,33 @@ input:HomerSimpson
    a hello:GreetedIndividual;
    rdfs:isDefinedBy <http://sadiframework.org/examples/hello?poll=1> .
 }}}
-  # The client sends a GET request for each `rdfs:isDefinedBy` URL in the initial response.  The client may include an `Accept` header indicating the desired RDF serialization format for the response, which otherwise defaults to RDF/XML.  
+
+3. The client sends a GET request for each `rdfs:isDefinedBy` URL in the initial response.  The client may include an `Accept` header indicating the desired RDF serialization format for the response, which otherwise defaults to RDF/XML.  
+
 {{{
 GET /examples/hello?poll=1 
 Host: sadiframework.org
 Accept: text/rdf+n3
 }}}
-  # If the output is not yet ready, the service sends an HTTP redirect with a `Retry-after` header that contains the number of seconds that the client should wait before trying again.
+
+4. If the output is not yet ready, the service sends an HTTP redirect with a `Retry-after` header that contains the number of seconds that the client should wait before trying again.
+
 {{{
 HTTP/1.1 302 Moved Temporarily 
 Pragma: sadi-please-wait = 5000 
 Location: http://sadiframework.org/examples/hello?poll=1
 }}}
-  # The client waits as suggested, then follows the redirect.
+
+5. The client waits as suggested, then follows the redirect.
+
 {{{
 GET /examples/hello?poll=1 
 Host: sadiframework.org
 Accept: text/rdf+n3
 }}}
-  # If the output is still not ready, the service sends another HTTP redirect as above. When the output is ready, the service sends a response with the output. The body of the response is an RDF document containing statements that should be combined with the original output document. The serialization format of the RDF document MUST be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`).
+
+6. If the output is still not ready, the service sends another HTTP redirect as above. When the output is ready, the service sends a response with the output. The body of the response is an RDF document containing statements that should be combined with the original output document. The serialization format of the RDF document MUST be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`).
+
 {{{
 HTTP/1.1 200 OK 
 Content-type: text/rdf+n3
