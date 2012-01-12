@@ -31,6 +31,13 @@ Check out the SADI projects you want to build from the trunk/ directory of the S
 
 = Troubleshooting =
 
+== Build errors ==
 If a project has build errors, try the following:
   # Make sure it has been successfully identified as a Maven project (indicated by a tiny "M" on the project folder icon in the *Package Explorer* View).  If it has not, right-click the project folder and choose *Configure → Convert to Maven project* (Eclipse 3.7) or *Maven → Enable Dependency Management* (Eclipse 3.6 or earlier).
   # Make sure the required artifacts have finished downloading.  Eclipse can take a long time to update the Maven central indexes.  If there is nothing happening in the *Progress* View and there are still missing artifacts, right-click the project folder in the *Package Explorer* View and choose *Maven → Update Dependencies*.
+
+== Missing run configurations ==
+The Run configuration XML syntax changed between Eclipse 3.6 and Eclipse 3.7, so configurations created with one will not be usable by the other.  Fortunately, the syntax is easily corrected to work with the version of Eclipse you happen to be running.
+Run configurations for SADI are found in the `doc/eclipse` directory of each project.  If one of these files is not working in your version of Eclipse, open it and change the `<launchConfiguration>` element like so:
+  * for Eclipse 3.7, it should be: {{{<launchConfiguration type="org.eclipse.m2e.Maven2LaunchConfigurationType">}}}
+  * for Eclipse 3.6, it should be: {{{<launchConfiguration type="org.maven.ide.eclipse.Maven2LaunchConfigurationType">}}}
