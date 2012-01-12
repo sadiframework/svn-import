@@ -1,6 +1,7 @@
 #summary for internal use only; see SADITrail instead
 
-  * [SADITrail Introduction]
+  * [ExecutiveSummary Executive Summary]
+  * [RFCIntroduction Introduction]
   * [DesignGoals Motivation and Goals]
     * [DesignGoals#Motivation Motivation]
     * [DesignGoals#Design_Goals Design Goals]
