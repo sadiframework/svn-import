@@ -1,0 +1,29 @@
+#summary HOW TO build SADI from source.
+
+= Requirements =
+
+SVN is required to check code out of the Google Code source repository.
+
+Maven 2 (mvn) is required to build SADI.
+
+Some features of the SADI code base are optimized for use with the Eclipse Java IDE.  These features have been tested with Eclipse 3.5 and 3.6 (with the Maven Integration for Eclipse plugin), but the code base is being currently being updated to align with Eclipse 3.7 and its built-in Maven support.
+
+= Install required software =
+
+  # Download Eclipse 3.7.1 (Indigo SR1) from [http://www.eclipse.org/downloads/].
+  # Open Eclipse and install the Subversive SVN Team Provider
+    # *Help → Install new software...*
+    # Select the Indigo update site
+    # Select the Subversive SVN Team Provider from the list of available software
+    # Click Finish and restart Eclipse when asked
+
+= Configure SVN =
+  # Add the SADI Google Code repository 
+    # *Window → Open perspective → Other...* and choose SVN Repository exploring
+    # *File → New → Repository Location*
+    # Type `https://sadi.googlecode.svn/` in the *URL* field
+    # Type your Google Code User and Password (note that your Google Code password will not be the same as your regular Google account password; you can find it at [https://code.google.com/hosting/settings Google Project Hosting settings]
+    # Click Finish
+
+= Check out SADI =
+Check out the SADI projects you want to build from the trunk/ directory of the SADI Google Code repository.  Every SADI project should build independently, so you only need to check out the projects you directly intend to edit (code from projects you haven't checked out will still be available in Eclipse through the associated Maven source artifacts).
