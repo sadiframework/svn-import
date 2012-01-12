@@ -131,6 +131,7 @@ class ServiceBase:
         self.contentTypes = {
             None:DefaultSerializer('xml'),
             "application/rdf+xml":DefaultSerializer('xml'),
+            'application/x-www-form-urlencoded':DefaultSerializer('xml'),
             'text/turtle':DefaultSerializer('n3','turtle'),
             'application/x-turtle':DefaultSerializer('n3','turtle'),
             'text/plain':DefaultSerializer('nt'),
@@ -166,6 +167,9 @@ class ServiceBase:
 
     def getReference(self, uri):
         return URIRef(uri)
+
+    def annotateServiceDescription(self, desc):
+        pass
 
     def getServiceDescription(self):
         if self.serviceDescription == None:
@@ -216,6 +220,8 @@ class ServiceBase:
             desc.mygrid_hasOperation[0].mygrid_outputParameter = outputParameter
             desc.mygrid_hasOperation[0].mygrid_inputParameter = inputParameter
             desc.mygrid_hasOperation[0].save()
+
+            self.annotateServiceDescription(desc)
 
             desc.save()
 
