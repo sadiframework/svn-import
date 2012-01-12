@@ -11,21 +11,22 @@ SADI requires Java 1.6.
 
 SADI uses Maven 2 to handle dependency management, so Maven is the only base requirement. You can download Maven 2 (and obtain installation instructions) from [http://maven.apache.org/download.html].
 
-The SADI service skeleton project is optimised for the [http://www.eclipse.org/downloads/ Eclipse IDE], but Eclipse is not required. If you are using Eclipse, you don’t have to download Maven; you can use the [http://maven.apache.org/eclipse-plugin.html Maven plugin for Eclipse] instead.
+The SADI service skeleton project is optimised for the [http://www.eclipse.org/downloads/ Eclipse IDE], but Eclipse is not required. If you are using Eclipse, you don’t have to download Maven; the latest versions of Eclipse include Maven integration.  If you are using an older version of Eclipse that does not include Maven integration (i.e.: before version 3.7 Indigo), some of the instructions in this tutorial may not match exactly what you see and it is recommended that you either update Eclipse or follow [http://sadi.googlecode.com/svn-history/r1860/wiki/BuildingServicesInJava.wiki the previous version of this tutorial].
 
 The SADI service will be built as a Java WAR, so a servlet container is required to deploy the finished service. [http://tomcat.apache.org/ Apache Tomcat] and [http://www.mortbay.org/jetty/ Jetty] are popular alternatives. The skeleton project uses the Jetty Maven plugin, so you will not need to setup a servlet container to test your service during development.
 
 = The SADI service skeleton=
 
-Download the SADI service skeleton from [http://sadi.googlecode.com/files/sadi-service-skeleton-0.1.1.zip] and unzip the archive.
+Download the [http://sadi.googlecode.com/files/sadi-service-skeleton-0.1.1.e371.zip SADI service skeleton].
 
-If you are working from the command line, change into the unzipped sadi-service-skeleton directory.
+If you are working from the command line, unzip the archive and change into the unzipped sadi-service-skeleton directory.
 
 {{{
+$ unzip sadi-service-skeleton-0.1.1.e371.zip
 $ cd sadi-services
 }}}
 
-If you are working in Eclipse, create a new Java project from existing source (choose *File » New » Java Project* and then choose *Create project from existing source*) and point to the `sadi-services` directory.
+If you are working in Eclipse, import the sadi-services project into your workspace (choose *File → Import → General → Existing Projects into Workspace*, choose *Select archive file* and browse to `sadi-service-skeleton-0.1.1.e371.zip`, select the `sadi-services` project if it is not already selected, and click *Finish*).
 
 = Defining input and output OWL classes =
 
