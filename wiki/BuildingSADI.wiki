@@ -26,4 +26,11 @@ Some features of the SADI code base are optimized for use with the Eclipse Java 
     # Click Finish
 
 = Check out SADI =
+
 Check out the SADI projects you want to build from the trunk/ directory of the SADI Google Code repository.  Every SADI project should build independently, so you only need to check out the projects you directly intend to edit (code from projects you haven't checked out will still be available in Eclipse through the associated Maven source artifacts).
+
+= Troubleshooting =
+
+If a project has build errors, try the following:
+  # Make sure it has been successfully identified as a Maven project (indicated by a tiny "M" on the project folder icon in the *Package Explorer* View).  If it has not, right-click the project folder and choose *Configure → Convert to Maven project* (Eclipse 3.7) or *Maven → Enable Dependency Management* (Eclipse 3.6 or earlier).
+  # Make sure the required artifacts have finished downloading.  Eclipse can take a long time to update the Maven central indexes.  If there is nothing happening in the *Progress* View and there are still missing artifacts, right-click the project folder in the *Package Explorer* View and choose *Maven → Update Dependencies*.
