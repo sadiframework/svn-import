@@ -22,7 +22,7 @@ Download the [http://sadi.googlecode.com/files/sadi-service-skeleton-0.1.1-e3.7.
 If you are working from the command line, unzip the archive and change into the unzipped sadi-service-skeleton directory.
 
 {{{
-$ unzip sadi-service-skeleton-0.1.1.e371.zip
+$ unzip sadi-service-skeleton-0.1.1-e3.7.zip
 $ cd sadi-services
 }}}
 
@@ -87,7 +87,7 @@ If you are working in Eclipse, there will be a preset run configuration for the 
 
 Once *generate sadi service* is selected, you can set the parameters in the main panel of the dialog by double-clicking a parameter under *Parameter Name*. Set the parameters as in the command-line example above and click *Run*.
 
-_Note: although the parameters above are the only ones required to use the SADI service generator, there are others that can be set. You can execute the help goal of the service-generator plugin to see all of the available parameters._
+_Note: although the parameters above are the only ones required to use the SADI service generator, there are others that can be set. You can execute the help goal of the service-generator plugin (i.e.: _`mvn ca.wilkinsonlab.sadi:sadi-generator:help`_) to see all of the available parameters._
 
 = Adding business logic =
 
