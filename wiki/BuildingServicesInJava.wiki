@@ -91,7 +91,7 @@ _Note: although the parameters above are the only ones required to use the SADI 
 
 = Adding business logic =
 
-The service generator plugin should now have created a Java stub under `src/main/java`.
+The service generator plugin should now have created a Java stub under `src/main/java`.  If you are using Eclipse, you may have to refresh the `sadi-services` project directory to see the generated file.
 
 Your business logic should go in the `processInput(Resource input, Resource output)` method. This method will be called once for every instance of the input class received by the service. You should read the properties you need from the `input` `Resource` and attach the properties you provide to the `output` `Resource`. `Resource` is a class from the [http://jena.sourceforge.net/documentation.html Jena Semantic Web Framework] that represents any non-literal RDF node.) manipulate RDF. For more information, see the [http://jena.sourceforge.net/javadoc/index.html Jena Javadoc].
 
