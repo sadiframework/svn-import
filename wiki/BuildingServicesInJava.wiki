@@ -17,7 +17,7 @@ The SADI service will be built as a Java WAR, so a servlet container is required
 
 = The SADI service skeleton=
 
-Download the [http://sadi.googlecode.com/files/sadi-service-skeleton-0.1.1.e371.zip SADI service skeleton].
+Download the [http://sadi.googlecode.com/files/sadi-service-skeleton-0.1.1-e3.7.zip SADI service skeleton].
 
 If you are working from the command line, unzip the archive and change into the unzipped sadi-service-skeleton directory.
 
