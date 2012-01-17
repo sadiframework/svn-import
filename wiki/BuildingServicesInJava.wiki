@@ -26,7 +26,7 @@ $ unzip sadi-service-skeleton-0.1.1-e3.7.zip
 $ cd sadi-services
 }}}
 
-If you are working in Eclipse, import the sadi-services project into your workspace (choose *File → Import → General → Existing Projects into Workspace*, choose *Select archive file* and browse to `sadi-service-skeleton-0.1.1.e371.zip`, select the `sadi-services` project if it is not already selected, and click *Finish*).
+If you are working in Eclipse, import the sadi-services project into your workspace (choose *File → Import → General → Existing Projects into Workspace*, choose *Select archive file* and browse to `sadi-service-skeleton-0.1.1-e3.7.zip`, select the `sadi-services` project if it is not already selected, and click *Finish*).
 
 = Defining input and output OWL classes =
 
