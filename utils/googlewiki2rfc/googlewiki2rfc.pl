@@ -46,10 +46,12 @@ HEREDOC
 my $help_opt = FALSE;
 my $trace_opt = FALSE;
 my $rfc_xml_filename;
+my @reference_files = ();
 
 my $getopt_success = GetOptions(
     'trace' => \$trace_opt,
     'xml=s' => \$rfc_xml_filename,
+    'references=s' => \@reference_files,
     'help' => \$help_opt,
 );
 
@@ -107,12 +109,15 @@ $xml_writer->endTag('front');
 
 $xml_writer->startTag('middle');
 #wiki_toc_to_xml($xml_writer, $middle_file) if $middle_file;
-wiki_toc_to_xml($xml_writer, $middle_file) if $middle_file;
+wiki_toc_to_xml($xml_writer, $middle_file, \@reference_files) if $middle_file;
 $xml_writer->endTag('middle');
 
-$xml_writer->startTag('back');
-wiki_toc_to_xml($xml_writer, $back_file) if $back_file;
-$xml_writer->endTag('back');
+if ($back_file || @reference_files) {
+    $xml_writer->startTag('back');
+    wiki_references_to_xml($xml_writer, $_) foreach @reference_files;
+    wiki_toc_to_xml($xml_writer, $back_file) if $back_file;
+    $xml_writer->endTag('back');
+}
 
 $xml_writer->endTag('rfc');
 $xml_writer->end();
@@ -148,12 +153,15 @@ close($output_fh);
 
 sub wiki_toc_to_xml {
 
-    my ($xml_writer, $wiki_file) = @_;
+    my ($xml_writer, $wiki_file, $reference_files) = @_;
     
     my $working_dir = (splitpath($wiki_file))[1];
     my $input = read_file($wiki_file);
     my $page = filename_to_wiki_page($wiki_file);
 
+    my @reference_pages = ();
+    push(@reference_pages, (splitpath($_))[1]) foreach @$reference_files;
+   
     # create a class containing parser callbacks
     eval {
 
@@ -175,12 +183,13 @@ sub wiki_toc_to_xml {
         }
 
         sub new {
-            my ($class, $xml_writer, $working_dir, $page) = @_;
+            my ($class, $xml_writer, $working_dir, $page, $reference_pages) = @_;
             my $self = {
                 xml_writer => $xml_writer,
                 working_dir => $working_dir,
                 list_level => 0,
                 visited => {$page => 1},      # visited pages or sections of pages
+                reference_pages => $reference_pages,
                 skip_item => FALSE,
                 in_link => FALSE,
             };
@@ -249,6 +258,7 @@ sub wiki_toc_to_xml {
                     $self->{visited}, 
                     $self->{link_uri}->path, # page
                     ($self->{list_level} - 1),
+                    $self->{reference_pages},
                     $self->{link_uri}->fragment # section (optional)
                 );
             }
@@ -263,7 +273,163 @@ sub wiki_toc_to_xml {
 
     my $markdown = GoogleWiki2Markdown::convert($input);
 #    printf("markdown:\n%s\n", $markdown);
-    my $handler = Markdent::Handler::TOC->new($xml_writer, $working_dir, $page);
+    my $handler = Markdent::Handler::TOC->new($xml_writer, $working_dir, $page, \@reference_pages);
+    my $parser = Markdent::Parser->new(handler => $handler);
+    $parser->parse(markdown => $markdown);
+
+}
+
+sub wiki_references_to_xml {
+
+    my ($xml_writer, $wiki_file) = @_;
+    
+    my $working_dir = (splitpath($wiki_file))[1];
+    my $input = read_file($wiki_file);
+    my $page = filename_to_wiki_page($wiki_file);
+
+    # create a class containing parser callbacks
+    eval {
+
+        package Markdent::Handler::ReferencePage;
+
+        use strict; 
+        use warnings;
+
+        use URI;
+        use Moose;
+        use GoogleWiki2Markdown;
+        use constant::boolean;
+
+        with 'Markdent::Role::EventsAsMethods';
+
+        our $AUTOLOAD; 
+        sub AUTOLOAD { 
+#            ::trace(sprintf('unhandled event %s with args (%s)', $AUTOLOAD, join(', ', @_))); 
+        }
+
+        sub new {
+            my ($class, $xml_writer, $working_dir, $page) = @_;
+            my $self = {
+                xml_writer => $xml_writer,
+                working_dir => $working_dir,
+                page => $page,
+                current_header => undef,
+                in_header => FALSE,
+                first_header => TRUE,
+            };
+            return bless($self, $class);
+        }
+
+        sub end_document {
+            $_[0]->{xml_writer}->endTag('references');
+        }
+
+        sub start_header  {
+            ::trace('start_header');
+            $_[0]->{in_header} = TRUE;
+        }
+
+        sub end_header {
+            ::trace('end_header');
+            $_[0]->{in_header} = FALSE;
+            $_[0]->{first_header} = FALSE;
+        }
+
+        sub text {
+            my $self = $_[0];
+            my $text = main::trim($_[2]);
+            my $xml_writer = $self->{xml_writer};
+            if ($self->{in_header}) {
+                ::tracef('header text event (%d): %s', $self->{first_header}, $text);
+                $xml_writer->startTag('references', title => $text) if $self->{first_header};
+                $self->{current_header} = $text;
+            } else {
+                ::tracef('non-header text event: %s', $text);
+                unless ($self->{first_header}) {
+
+                    my $anchor = main::get_anchor($self->{page}, $self->{current_header});
+
+                    my @citation = split(/,\s*/, $text);
+                    my @authors = ();
+                    my $title;
+                    my @doc_ids;
+                    my $year;
+
+                    # parse authors list
+                    while ($citation[0] !~ /\s*"/) {
+                        my $last = shift(@citation);
+                        $last =~ s/^\s*and\s*//;
+                        last if ($last =~ /et al/);
+                        my $first = shift(@citation);
+                        push(@authors, $first, $last);
+                    }
+                    
+                    $title = shift(@citation);
+                    $title =~ s/^\s*"\s*//;
+                    $title =~ s/\s*"\s*$//;
+
+                    # parse list of document IDs (e.g. "RFC 1234")
+                    while (@citation > 1) {
+                        my $id = shift(@citation);
+                        $id =~ s/^\s*"\s*//;
+                        $id =~ s/\s*"\s*$//;
+                        my @parts = split(/\s+/, $id);
+                        if (grep($parts[0] =~ /$_/i, ('RFC', 'STD', 'BCP'))) {
+                            push(@doc_ids, $parts[0], $parts[1]);
+                        } else {
+                            push(@doc_ids, $id, "");
+                        }
+                    }
+
+                    $year = shift(@citation);
+                    $year =~ s/\.\s*$//;
+
+                    unless (@authors && (@authors % 2 == 0) && $title && @doc_ids && (@doc_ids % 2 == 0) && $year) {
+                        warn "failed to parse citation: $text\n";
+                        warn sprintf("\@authors: (%s)", join(', ', @authors));
+                        warn "title: $title\n";
+                        warn sprintf("\@doc_ids: (%s)", join(', ', @doc_ids));
+                        warn "year: $year\n"; 
+                        return;
+                    }
+
+                    $xml_writer->startTag('reference', anchor => $anchor);    
+                    $xml_writer->startTag('front');
+                    $xml_writer->startTag('title');
+                    $xml_writer->characters($title);
+                    $xml_writer->endTag('title');
+                    while (@authors) {
+                        my $first = shift(@authors);
+                        my $last = shift(@authors);
+                        $xml_writer->emptyTag(
+                                'author', 
+                                initials => $first,
+                                surname => $last,
+                                fullname => "$first $last"
+                            );
+                    }
+                    $xml_writer->emptyTag('date', year => $year);
+                    $xml_writer->endTag('front');
+                    while (@doc_ids) {
+                        my $series = shift(@doc_ids);
+                        my $id = shift(@doc_ids);
+                        $xml_writer->emptyTag('seriesInfo', name => $series, value => $id);
+                    }
+                    $xml_writer->endTag('reference');
+
+                }
+            }
+        }
+
+        package __PACKAGE__; 
+
+    };
+
+    die $@ if $@;
+
+    my $markdown = GoogleWiki2Markdown::convert($input);
+#    printf("markdown:\n%s\n", $markdown);
+    my $handler = Markdent::Handler::ReferencePage->new($xml_writer, $working_dir, $page);
     my $parser = Markdent::Parser->new(handler => $handler);
     $parser->parse(markdown => $markdown);
 
@@ -271,7 +437,7 @@ sub wiki_toc_to_xml {
 
 sub wiki_to_xml {
     
-    my ($xml_writer, $working_dir, $visited, $page, $section_level_offset, $section) = @_;
+    my ($xml_writer, $working_dir, $visited, $page, $section_level_offset, $reference_pages, $section) = @_;
 
     my $uri = $section ? get_anchor($page, $section) : $page;
 
@@ -304,18 +470,20 @@ sub wiki_to_xml {
         }
 
         sub new {
-            my ($class, $xml_writer, $visited, $page, $section_level_offset, $section) = @_;
+            my ($class, $xml_writer, $visited, $page, $section_level_offset, $reference_pages, $section) = @_;
             my $self = {
                 xml_writer => $xml_writer,
                 visited => $visited,
                 page => $page,
                 section_level_offset => $section_level_offset,
+                reference_pages => $reference_pages,
                 section => $section,
                 open_sections => [],
                 output_enabled => ($section ? 0 : 1),
                 header_level => 0,
                 first_section_on_page => TRUE,
                 in_inline_code => FALSE,
+                in_link => FALSE,
             };
             return bless($self, $class);
         }
@@ -341,9 +509,23 @@ sub wiki_to_xml {
             my $xml_writer = $self->{xml_writer};
             if ($self->{header_level}) {
                 $self->header($self->{header_level}, $text); 
+#            } elsif ($self->{in_link}) {
+#                # don't output anchor text for relative links, use
+#                # anchor text automatically generated by xml2rfc instead
             } else {
                 ::tracef('text event: \'%s\'', $text);
                 $xml_writer->characters($text);
+                if ($self->{in_link}) {
+                    my $uri = $self->{link_uri};
+                    unless (defined($uri->scheme)) {
+                        my $page = $uri->path;
+                        my $section = $uri->fragment;
+                        my $anchor = main::get_anchor($page, $section);
+                        $xml_writer->characters(' (');
+                        $xml_writer->emptyTag('xref', target => $anchor);
+                        $xml_writer->characters(')');
+                    }
+                }
             }
         } 
 
@@ -395,6 +577,35 @@ sub wiki_to_xml {
         sub end_paragraph {
             my $self = $_[0];
             $self->{xml_writer}->endTag('t') unless $self->{in_inline_code};
+        }
+
+        sub start_link { 
+            ::trace('start_link');
+
+            my $self = shift;
+            my $xml_writer = $self->{xml_writer};
+           
+            %_ = @_;
+#            my $uri = URI->new($_{uri});
+#            my $uri_is_absolute = defined($uri->scheme());
+
+            $self->{in_link} = TRUE;
+            $self->{link_uri} = URI->new($_{uri});
+
+#            if ($uri_is_absolute) {
+#            } else {
+#                my $reference_pages = $self->{reference_pages};
+#                my $page = $uri->path;
+#                my $section = $uri->fragment;
+#                my $anchor = main::get_anchor($page, $section);
+#                $xml_writer->emptyTag('xref', target => $anchor);
+#            }
+
+        }
+
+        sub end_link {
+            ::trace('end_link');
+            $_[0]->{in_link} = FALSE;
         }
 
         sub html_block {
@@ -498,7 +709,7 @@ sub wiki_to_xml {
 
     my $markdown = GoogleWiki2Markdown::convert($input);
 #    ::tracef('input markdown: \'%s\'', $markdown) if $page =~ /synch/i;
-    my $handler = Markdent::Handler::Page->new($xml_writer, $visited, $page, $section_level_offset, $section);
+    my $handler = Markdent::Handler::Page->new($xml_writer, $visited, $page, $section_level_offset, $reference_pages, $section);
     my $parser = Markdent::Parser->new(handler => $handler);
     $parser->parse(markdown => $markdown);
 
@@ -511,8 +722,7 @@ sub wiki_to_xml {
 sub get_anchor {
     my ($page, $section) = @_;
     $page ||= '';
-    $section ||= '';
-    my $anchor = "${page}#${section}";
+    my $anchor = $section ? "${page}#${section}" : $page;
     $anchor =~ s/ /_/g;
     return $anchor;
 }
