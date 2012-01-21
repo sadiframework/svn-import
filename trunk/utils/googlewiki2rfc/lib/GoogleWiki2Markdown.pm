@@ -15,16 +15,13 @@ sub convert {
     # strip pragmas
     s/^#(summary|sidebar).*?\n$//smg;
 
-#    warn "before extract: $_\n";
-
     # temporarily extract code blocks so their contents aren't modified
     my @code_blocks = ();
-    pos($_) = undef;
-    while(s/\G(.*)[ \t]*\Q{{{\E[ \t]*(\r?\n)(.*?(\r?\n))[ \t]*\Q}}}\E/$1<pre><code><\/code><\/pre>/msg) {
-        push(@code_blocks, $3);
-    }
+    s/\Q{{{\E[ \t]*(\r?\n)(.*?(\r?\n))[ \t]*\Q}}}\E/push(@code_blocks, $2); '<pre><code><\/code><\/pre>'/emsg;
 
-#    warn "after extract: $_\n";
+    # temporarily extract inline code spans so their contents aren't modified
+    my @code_spans = ();
+    s/`([^\n`]+?)`/push(@code_spans, $1);'``'/eg;
 
     # escape numbers at the beginnings of lines that look like numbered list markers
     s/^([ \t]*\d+)(\.)/$1\\./mg;
@@ -41,12 +38,14 @@ sub convert {
     # header markup
     s/^[ \t]*(=+)[ \t]*([^=]+)[ \t]*(=+)[ \t]*/sprintf('%s %s', '#'x(length($1)), $2)/meg;
 
-#    warn sprintf("code blocks:\n%s\n", join("\n----------\n", @code_blocks));
-
     # re-insert code blocks
-    s/(<pre><code>)/$1 . shift(@{code_blocks})/eg;
+    s/(<pre><code>)/$1 . shift(@code_blocks)/eg;
+    
+    # re-insert code spans
+    s/``/'`' . shift(@code_spans) . '`'/eg;
 
     return $_;
+
 }
 
 1;
