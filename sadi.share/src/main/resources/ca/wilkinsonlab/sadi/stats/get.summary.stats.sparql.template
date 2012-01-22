@@ -1,0 +1,14 @@
+PREFIX db: <http://sadiframework.org/ontologies/predicatestats.owl#>
+
+SELECT * FROM %u%
+WHERE 
+{
+	# estimatedBaseTime(Forward|Reverse)
+	%u% %u% ?baseTime .
+	
+	# estimatedTimePerInput(Forward|Reverse)
+	%u% %u% ?timePerInput .
+	
+	# numSamples(Forward|Reverse)
+	%u% %u% ?numSamples .
+}

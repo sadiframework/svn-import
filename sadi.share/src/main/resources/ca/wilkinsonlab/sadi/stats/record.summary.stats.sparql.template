@@ -1,0 +1,13 @@
+PREFIX db: <http://sadiframework.org/ontologies/predicatestats.owl#>
+
+INSERT INTO GRAPH %u%
+{
+	# estimatedBaseTime(Forward|Reverse)
+	%u% %u% %v% .
+	
+	# estimatedTimePerInput(Forward|Reverse)
+	%u% %u% %v% .
+	
+	# numSamples(Forward|Reverse)
+	%u% %u% %v% .
+}

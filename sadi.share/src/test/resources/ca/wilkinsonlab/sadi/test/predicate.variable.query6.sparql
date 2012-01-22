@@ -1,0 +1,10 @@
+# Test a triple pattern that has multiple bindings in the subject position.
+
+PREFIX pred: <http://sadiframework.org/ontologies/predicates.owl#>
+PREFIX uniprot: <http://lsrn.org/UniProt:>
+
+SELECT *
+WHERE {
+   uniprot:P04036 pred:has3DStructure ?structure .
+   ?structure ?p ?o .
+}

@@ -1,0 +1,22 @@
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX db: <http://sadiframework.org/ontologies/predicatestats.owl#>
+
+INSERT INTO GRAPH %u%
+{
+	_:blankNode rdf:type db:sample .
+
+	# predicate
+	_:blankNode %u% %u% .
+
+	# directionIsForward
+	_:blankNode %u% %s% .
+
+	# numInputs
+	_:blankNode %u% %v% .
+
+	# responseTime
+	_:blankNode %u% %v% .
+	
+	# timestamp
+	_:blankNode %u% %v% .
+}
