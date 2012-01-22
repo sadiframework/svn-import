@@ -2,8 +2,11 @@
 
 use strict;
 use warnings;
+use utf8;
 no warnings qw(once);
 use autodie qw(:all);
+use open ':encoding(utf8)';
+use open ':std';
 
 use lib 'lib';
 use constant::boolean;
@@ -295,8 +298,12 @@ sub wiki_references_to_xml {
 
         use strict; 
         use warnings;
-
+        use utf8;
+        use open ':encoding(utf8)';
+        use open ':std';
+            
         use URI;
+        use Encode;
         use Moose;
         use GoogleWiki2Markdown;
         use constant::boolean;
@@ -348,8 +355,12 @@ sub wiki_references_to_xml {
                 ::tracef('non-header text event: %s', $text);
                 unless ($self->{first_header}) {
 
-                    my $anchor = main::get_anchor($self->{page}, $self->{current_header});
+                    # Markdent assumes ISO-8859-1, but we need UTF-8 here 
+                    # (wiki citations contain Unicode quote chars)
+                    my $text = decode('utf8', encode('iso-8859-1', $text));
 
+                    my $anchor = main::get_anchor(undef, $self->{current_header});
+        
                     my @citation = split(/,\s*/, $text);
                     my @authors = ();
                     my $title;
@@ -357,23 +368,28 @@ sub wiki_references_to_xml {
                     my $year;
 
                     # parse authors list
-                    while ($citation[0] !~ /\s*"/) {
+                    while ($citation[0] !~ /\s*["'“”]/) {
                         my $last = shift(@citation);
+                        # last author might have "and" before last name
                         $last =~ s/^\s*and\s*//;
                         last if ($last =~ /et al/);
                         my $first = shift(@citation);
+                        # doc with exactly two authors might separate
+                        # author names with an "and" (and no comma)
+                        if ($first =~ /(.*)\s+and\s+(.*)/) {
+                            $first = $1;
+                            unshift(@citation, $2);
+                        }
                         push(@authors, $first, $last);
                     }
                     
                     $title = shift(@citation);
-                    $title =~ s/^\s*"\s*//;
-                    $title =~ s/\s*"\s*$//;
+                    $title = main::trim_quotes($title);
 
                     # parse list of document IDs (e.g. "RFC 1234")
                     while (@citation > 1) {
                         my $id = shift(@citation);
-                        $id =~ s/^\s*"\s*//;
-                        $id =~ s/\s*"\s*$//;
+                        $id = main::trim_quotes($id);
                         my @parts = split(/\s+/, $id);
                         if (grep($parts[0] =~ /$_/i, ('RFC', 'STD', 'BCP'))) {
                             push(@doc_ids, $parts[0], $parts[1]);
@@ -518,8 +534,8 @@ sub wiki_to_xml {
                         my $page = $uri->path;
                         my $section = $uri->fragment;
                         my $anchor = main::get_anchor($page, $section);
-                        if (grep($page, @$reference_pages)) {
-                            $xml_writer->emptyTag('xref', target => $anchor, format => 'title');
+                        if (grep(/$page/, @$reference_pages)) {
+                            $xml_writer->emptyTag('xref', target => main::get_anchor(undef, $section), format => 'title');
                         } else {
                             $xml_writer->characters($text);
                             $xml_writer->characters(' (');
@@ -725,10 +741,12 @@ sub wiki_to_xml {
 
 sub get_anchor {
     my ($page, $section) = @_;
-    $page ||= '';
-    my $anchor = $section ? "${page}#${section}" : $page;
-    $anchor =~ s/ /_/g;
-    return $anchor;
+    $page =~ s/ /_/g if $page;
+    $section =~ s/ /_/g if $section;
+    return "${page}#${section}" if ($page && $section);
+    return $page if $page;
+    return $section if $section;
+    return undef;
 }
 
 sub tracef {
@@ -759,3 +777,9 @@ sub trim {
     return $text;
 }
 
+sub trim_quotes {
+    my $text = shift;
+    $text =~ s/^\s*["'“”]\s*//;
+    $text =~ s/\s*["'“”]\s*$//;
+    return $text;
+}
