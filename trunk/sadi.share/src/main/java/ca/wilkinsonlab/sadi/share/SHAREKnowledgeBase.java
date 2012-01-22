@@ -80,7 +80,11 @@ public class SHAREKnowledgeBase
 	private Tracker tracker;
 	private Set<String> deadServices;
 	
+	public static final OntModelSpec DEFAULT_REASONER = OntModelSpec.OWL_MEM_MICRO_RULE_INF;
+        public static final String DEFAULT_REASONER_STRING = "com.hp.hpl.jena.ontology.OntModelSpec.OWL_MEM_MICRO_RULE_INF";
+	
 	public static final String ROOT_CONFIG_KEY = "share";
+	public static final String REASONER_SPEC_CONFIG_KEY = "reasoner";
 	public static final String ALLOW_ARQ_SYNTAX_CONFIG_KEY = "allowARQSyntax";
 	public static final String ALLOW_PREDICATE_VARIABLES_CONFIG_KEY = "allowPredicateVariables";
 	public static final String USE_ADAPTIVE_QUERY_PLANNING_CONFIG_KEY = "useAdaptiveQueryPlanning";
@@ -131,11 +135,11 @@ public class SHAREKnowledgeBase
 	
 	public SHAREKnowledgeBase()
 	{
-		this(ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF), false);
+		this(ModelFactory.createOntologyModel(DEFAULT_REASONER), false);
 	}
 
 	public SHAREKnowledgeBase(boolean allowARQSyntax) {
-		this(ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM_MICRO_RULE_INF), allowARQSyntax);
+		this(ModelFactory.createOntologyModel(DEFAULT_REASONER), allowARQSyntax);
 	}
 	
 	public SHAREKnowledgeBase(OntModel reasoningModel) {
@@ -147,6 +151,12 @@ public class SHAREKnowledgeBase
 		this(reasoningModel, ModelFactory.createDefaultModel(), allowARQSyntax);
 	}
 	
+	public SHAREKnowledgeBase(Configuration config)
+	{
+	    this(ModelFactory.createOntologyModel(getReasonerSpec(config.getString(REASONER_SPEC_CONFIG_KEY, DEFAULT_REASONER_STRING))),
+	            ModelFactory.createDefaultModel(), config.getBoolean(ALLOW_ARQ_SYNTAX_CONFIG_KEY, false));
+	}
+
 	public SHAREKnowledgeBase(OntModel reasoningModel, Model dataModel, boolean allowARQSyntax)
 	{
 		log.debug("new ca.wilkinsonlab.sadi.share.DynamicKnowledgeBase instantiated");
@@ -226,6 +236,16 @@ public class SHAREKnowledgeBase
 	public boolean recordQueryStats() {
 		return this.recordQueryStats;
 	}
+        
+        protected static OntModelSpec getReasonerSpec(String specString)
+        {
+            try {
+                return OwlUtils.getReasonerSpec(specString);
+            } catch (SADIException e) {
+                log.error(e.getMessage(), e);
+                return DEFAULT_REASONER;
+            }
+        }
 	
 	protected MultiRegistry getRegistry()
 	{

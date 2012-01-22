@@ -335,6 +335,14 @@ public class OwlUtilsTest
 				root2, r2, path2), root2.hasProperty(RDF.type, r2));
 	}
 	
+	@Test
+	public void testGetReasonerSpec() throws Exception
+	{
+	    assertEquals("failed for com.hp.hpl.jena.ontology.OntModelSpec.OWL_MEM_MICRO_RULE_INF",
+	            com.hp.hpl.jena.ontology.OntModelSpec.OWL_MEM_MICRO_RULE_INF,
+	            OwlUtils.getReasonerSpec("com.hp.hpl.jena.ontology.OntModelSpec.OWL_MEM_MICRO_RULE_INF"));
+	}
+	
 	private boolean propertyCollectionContains(Set<OntProperty> properties, String uri)
 	{
 		for (Property p: properties)
