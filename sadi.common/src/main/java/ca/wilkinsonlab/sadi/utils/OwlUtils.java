@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1125,6 +1126,43 @@ public class OwlUtils
 	{
 		return String.format("urn:uuid:%s", UUID.randomUUID());
 	}
+	
+	/**
+	 * Returns the OntModelSpec corresponding to the specified string.
+	 * This is a convenience method to easily allow reasoners to be 
+	 * instantiated based on strings in configuration files.
+	 * @param specString
+	 * @return the OntModelSpec
+	 * @throws SADIException if there is an error loading the OntModelSpec
+	 */
+	public static OntModelSpec getReasonerSpec(String specString) throws SADIException
+        {
+	    String specClassName = "";
+	    String specFieldName = "";
+            try {
+                int lastDot = specString.lastIndexOf('.');
+                specClassName = specString.substring(0, lastDot);
+                specFieldName = specString.substring(lastDot+1);
+                Class<?> specClass = Class.forName(specClassName);
+                Field specField = specClass.getField(specFieldName);
+                return (OntModelSpec)specField.get(null);
+            } catch (IndexOutOfBoundsException e) {
+                throw new SADIException(String.format("reasoner spec must be a fully qualified class.field", specString), e);
+            } catch (ClassNotFoundException e) {
+                throw new SADIException(String.format("no such class '%s'", specClassName));
+            } catch (NoSuchFieldException e) {
+                throw new SADIException(String.format("no such field '%s'", specFieldName));
+            } catch (SecurityException e) {
+                throw new SADIException(String.format("%s.%s is not visible", specClassName, specFieldName));
+            } catch (IllegalAccessException e) {
+                throw new SADIException(String.format("%s.%s is not visible", specClassName, specFieldName));
+            } catch (IllegalArgumentException e) {
+                // this shouldn't happen...
+                throw new SADIException("", e);
+            } catch (ClassCastException e) {
+                throw new SADIException(String.format("%s.%s is not an OntModelSpec", specClassName, specFieldName));
+            }
+        }
 	
 	/**
 	 * Visit each property restriction of the specified OWL class with the
