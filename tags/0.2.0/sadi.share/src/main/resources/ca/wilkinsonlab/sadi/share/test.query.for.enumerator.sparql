@@ -1,0 +1,8 @@
+PREFIX property: <http://test.property/>
+PREFIX node: <http://test.node/>
+SELECT *
+WHERE {
+	node:A property:A ?var .
+	?var property:B node:B .
+	FILTER (?var = "some.value")
+}
