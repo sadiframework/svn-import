@@ -2,6 +2,7 @@
 
   * [ExecutiveSummary Executive Summary]
   * [RFCIntroduction Introduction]
+  * [Terminology Terminology]
   * [DesignGoals Motivation and Goals]
     * [DesignGoals#Motivation Motivation]
     * [DesignGoals#Design_Goals Design Goals]

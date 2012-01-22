@@ -1,4 +1,5 @@
 #summary SADI in a nutshell
+#sidebar SADITrail_Contents
 
 = Executive Summary =
 

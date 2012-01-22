@@ -1,6 +1,8 @@
 #summary Table of Contents for the SADI trail.
 
+  * [ExecutiveSummary Executive Summary]
   * [SADITrail Introduction]
+  * [Terminology Terminology]
   * [DesignGoals Motivation and Goals]
     * [DesignGoals#Motivation Motivation]
     * [DesignGoals#Design_Goals Design Goals]
@@ -33,3 +35,4 @@
   * Tutorials
     * [BuildingServicesInJava Building Services in Java]
     * [BuildingServicesInPerl Building Services in Perl]
+  * [NormativeReferences Normative References]
