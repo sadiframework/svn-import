@@ -35,4 +35,6 @@
   * Tutorials
     * [BuildingServicesInJava Building Services in Java]
     * [BuildingServicesInPerl Building Services in Perl]
-  * [NormativeReferences Normative References]
+  * References
+    * [NormativeReferences Normative References]
+    * [InformativeReferences Informative References]
