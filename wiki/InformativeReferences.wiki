@@ -1,0 +1,8 @@
+#summary informative references for the SADI specification
+#sidebar SADITrail_Contents
+
+= Informative References =
+
+== myGrid/Moby ==
+
+Wolstencroft, K., Alper, P., Hull, D., and Wroe, C., “The myGrid Ontology: Bioinformatics Service Discovery,” International Journal of Bioinformatics Research and Applications, 2007.
