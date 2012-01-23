@@ -651,7 +651,7 @@ sub wiki_to_xml {
                 $code =~ s/^/' 'x6/emg;
 
                 # wrap lines at 72 chars
-#                $code =~ s/^(.{72})(.)/$1\n$2/mg;
+                $code =~ s/^(.{72})(.)/$1\n$2/mg;
 
                 $xml_writer->characters($code);
 
@@ -728,7 +728,7 @@ sub wiki_to_xml {
     die $@ if $@;
 
     my $markdown = GoogleWiki2Markdown::convert($input);
-#    ::tracef('input markdown: \'%s\'', $markdown) if $page =~ /synch/i;
+#    ::tracef('input markdown: \'%s\'', $markdown);
     my $handler = Markdent::Handler::Page->new($xml_writer, $visited, $page, $section_level_offset, $reference_pages, $section);
     my $parser = Markdent::Parser->new(handler => $handler);
     $parser->parse(markdown => $markdown);
