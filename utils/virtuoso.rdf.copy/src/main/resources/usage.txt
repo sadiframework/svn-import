@@ -8,13 +8,13 @@ This program copies RDF data from a source Virtuoso instance to a destination Vi
 
 COPYING GRAPH PERMISSIONS:
 
-In addition to transferring RDF data, the program will also copy any relevant Virtuoso users and access permissions.  This behaviour can be disabled by using the --data-only option. The goal of copying over the users/permissions is to make the destination identical to the source with respect to which users can read/write which particular named graphs.
+In addition to transferring RDF data, the program will also copy relevant Virtuoso users and access permissions.  This behaviour can be disabled by using the --data-only option. The goal of copying over the users/permissions is to make the destination Virtuoso instance identical to the source with respect to which users can read/write which particular named graphs.
 
 *CAVEAT*: Copying of users is only semi-automated. If a user exists in the source Virtuoso instance but not in the destination Virtuoso instance, the program must prompt for the desired password when creating the new user at the destination.
 
 LOCKING:
 
-The source and destination Virtuoso instances may be locked during the copy operation using the --lock-src and --lock-dest options, respectively. By default, neither is locked. Locking is accomplished by temporarily disabling the write permissions for all users on all named graphs. Locking does *not* prevent the 'dba' user from making changes to the data.
+The source and destination Virtuoso instances may be locked during the copy operation using the --lock-src and --lock-dest options, respectively. By default, neither is locked. Locking is accomplished by temporarily disabling the write permissions for all users on all named graphs. Locking does *not* prevent the 'dba' user from making changes to the data in either instance.
 
 SCRIPTING HOOKS:
 
