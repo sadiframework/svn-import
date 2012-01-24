@@ -3,6 +3,10 @@
 
 = Normative References =
 
+== RFC2119 ==
+
+Bradner, S., “Key words for use in RFCs to Indicate Requirement Levels,” BCP 14, RFC 2119, 1997.
+
 == WSDL ==
 
 Chinnici, R., Moreau, J. J., Ryman, A., and Weerawarana, S., “Web Services Description Language (WSDL) Version 2.0 Part 1: Core Language,” W3C Recommendation, 2007.

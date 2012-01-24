@@ -2,6 +2,8 @@
 
   * [ExecutiveSummary Executive Summary]
   * [RFCIntroduction Introduction]
+  * [SecurityConsiderations Security Considerations]
+  * [IANAConsiderations IANA Considerations]
   * [Terminology Terminology]
   * [DesignGoals Motivation and Goals]
     * [DesignGoals#Motivation Motivation]
