@@ -50,12 +50,14 @@ my $help_opt = FALSE;
 my $trace_opt = FALSE;
 my $rfc_xml_filename;
 my @reference_files = ();
+my $intended_status;
 
 my $getopt_success = GetOptions(
     'trace' => \$trace_opt,
     'xml=s' => \$rfc_xml_filename,
     'references=s' => \@reference_files,
     'help' => \$help_opt,
+    'status=s' => \$intended_status,
 );
 
 die USAGE."\n" unless $getopt_success;
@@ -92,7 +94,7 @@ my $temp_output_filename = catfile($tempdir, TEMP_OUTPUT_FILE);
 my $xml_writer = new XML::Writer(
     OUTPUT => $rfc_xml_file, 
     UNSAFE => 1,               # allows us to insert front.xml verbatim
-#    DATA_MODE => 1,            # newlines after tags
+    DATA_MODE => 1,            # newlines after tags
     DATA_INDENT => 2,          # proper indentation
 );
 
@@ -102,7 +104,7 @@ $xml_writer->pi('rfc', 'toc="yes"');       # automatically build a table of cont
 $xml_writer->pi('rfc', 'symrefs="yes"');   # use anchors instead of numbers for references
 $xml_writer->pi('rfc', 'compact="yes"');   # conserve vertical whitespace 
 $xml_writer->pi('rfc', 'subcompact="no"'); # but keep a blank line between list items 
-$xml_writer->startTag('rfc', ipr => 'full3978', docName => "$doc_name");
+$xml_writer->startTag('rfc', ipr => 'trust200902', docName => "$doc_name");
 
 $xml_writer->startTag('front');
 open(my $front_fh, '<', $front_file);
@@ -146,9 +148,13 @@ system(
 
 # send output to STDOUT
 
-open (my $output_fh, '<', $temp_output_filename);
-print while (<$output_fh>);
-close($output_fh);
+my $output = read_file($temp_output_filename);
+if ($intended_status) {
+    my $status_string = "Intended status: $intended_status";
+    my $length = length($status_string);
+    $output =~ s/^ {$length}/$status_string/m;
+}
+print $output;
 
 #----------------------------------------------------------------------
 # callbacks from wiki parser (generates RFC XML)
@@ -534,7 +540,7 @@ sub wiki_to_xml {
                         my $page = $uri->path;
                         my $section = $uri->fragment;
                         my $anchor = main::get_anchor($page, $section);
-                        if (grep(/$page/, @$reference_pages)) {
+                        if (grep(/$page/, @{$self->{reference_pages}})) {
                             $xml_writer->emptyTag('xref', target => main::get_anchor(undef, $section), format => 'title');
                         } else {
                             $xml_writer->characters($text);
@@ -566,19 +572,23 @@ sub wiki_to_xml {
         }
 
         sub start_unordered_list {
+            $_[0]->{xml_writer}->startTag('t');
             $_[0]->{xml_writer}->startTag('list', style => 'symbols');
         }
 
         sub end_unordered_list {
             $_[0]->{xml_writer}->endTag('list');
+            $_[0]->{xml_writer}->endTag('t');
         }
 
         sub start_ordered_list {
+            $_[0]->{xml_writer}->startTag('t');
             $_[0]->{xml_writer}->startTag('list', style => 'numbers');
         }
 
         sub end_ordered_list {
             $_[0]->{xml_writer}->endTag('list');
+            $_[0]->{xml_writer}->endTag('t');
         }
 
         sub start_list_item {
