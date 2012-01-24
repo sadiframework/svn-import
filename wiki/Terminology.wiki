@@ -3,7 +3,8 @@
 
 = Terminology =
 
-Readers of this document are expected to have a general familiarity with the HTTP protocol `[`[NormativeReferences#HTTP HTTP]`]`, RDF `[`[NormativeReferences#RDF RDF]`]`, and OWL `[`[NormativeReferences#OWL OWL]`]`.  In addition, this document uses the following SADI-specific terminology:
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED",  "MAY", and "OPTIONAL" in this document are to be interpreted as described in RFC 2119
+ `[`[NormativeReferences#RFC2119 RFC2119]`]`. Readers of this document are expected to have a general familiarity with the HTTP protocol `[`[NormativeReferences#HTTP HTTP]`]`, RDF `[`[NormativeReferences#RDF RDF]`]`, and OWL `[`[NormativeReferences#OWL OWL]`]`.  In addition, this document uses the following SADI-specific terminology:
 
  * _input OWL class_ -- an OWL class that defines the required structure (i.e. schema) of a single input to a SADI service. Each SADI service has exactly one input OWL class.  
  * _input instance_ -- an RDF node that is an instance of the input OWL class for a given SADI service, and thus is a valid input for that service.  In general, an RDF node is an instance of an OWL class if it satifisies the property restrictions of the OWL class. Membership of an RDF node in a given OWL class can be determined using an OWL reasoner or can be directly asserted by assigning an rdf:type value that is equal to the OWL class URI.
