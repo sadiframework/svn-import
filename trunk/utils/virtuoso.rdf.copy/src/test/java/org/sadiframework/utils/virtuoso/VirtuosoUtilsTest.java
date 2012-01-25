@@ -169,12 +169,10 @@ public class VirtuosoUtilsTest {
 
 			process = VirtuosoServerUtils.startVirtuosoInstance();
 
-			InputStream is = VirtuosoUtilsTest.class.getResourceAsStream("/relative.uris.rdf");
-
 			// insert some relative URIs into a graph
 
 			conn = VirtuosoUtils.getPersistentJDBCConnection(process.getHost(), process.getISQLPort(), "dba", "dba");
-			JDBCUtils.executeUpdateQuery(conn, String.format("SPARQL INSERT INTO GRAPH <%s> { <http://example.com> <http://example.com/> <http://example.com/> }", TEST_GRAPH));
+			JDBCUtils.executeUpdateQuery(conn, String.format("SPARQL INSERT INTO GRAPH <%s> { <a> <b> <c> }", TEST_GRAPH));
 
 			// check that relative URIs are written out unmodified from Virtuoso
 
@@ -196,7 +194,7 @@ public class VirtuosoUtilsTest {
 
 			os.close();
 
-			is = new FileInputStream(outputFile);
+			InputStream is = new FileInputStream(outputFile);
 			String ttl = IOUtils.toString(is);
 			is.close();
 
