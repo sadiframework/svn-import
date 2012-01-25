@@ -1,10 +1,11 @@
+package ca.wilkinsonlab.sadi.service.opencitations.test;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.query.ResultSetFormatter;
 
 
-public class SPARQLEndpointTest
+public class OpenCitationsEndpointTest
 {
 	public static void main(String[] args) 
 	{
