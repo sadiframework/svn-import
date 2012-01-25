@@ -27,24 +27,7 @@ public class VirtuosoServerUtils {
 	protected static final String VIRTUOSO_CONFIG_FILE = "virtuoso.properties";
 	protected static final String VIRTUOSO_BINARY_CONFIG_KEY = "virtuoso.bin";
 	protected static final String VIRTUOSO_HTTP_ROOT_CONFIG_KEY = "virtuoso.httproot";
-
-	/*
-	 * You may have to adjust these values to get the tests to work.
-	 */
-
-	protected static final String VIRTUOSO_BINARY = "/usr/bin/virtuoso-t";
-	protected static final String VIRTUOSO_HTTP_ROOT_DIR = "/usr/lib/virtuoso-opensource-6.0/hosting";
-	protected static final String VIRTUOSO_PLUGINS_DIR = "/usr/lib/virtuoso-opensource-6.0/hosting";
-
-
-	/*
-	protected static final String VIRTUOSO_BINARY = "/usr/local/virtuoso-opensource/bin/virtuoso-t";
-	protected static final String VIRTUOSO_HTTP_ROOT_DIR = "/usr/local/virtuoso-opensource/var/lib/virtuoso/vsp";
-	protected static final String VIRTUOSO_PLUGINS_DIR = "/usr/local/virtuoso-opensource/lib/virtuoso/hosting";
-	*/
-
 	protected static final String VIRTUOSO_INI_TEMPLATE = "virtuoso.ini.ftl";
-
 	protected static final String VIRTUOSO_INI_FILE = "virtuoso.ini";
 
 	protected static VirtuosoProcess startVirtuosoInstance() throws IOException {
