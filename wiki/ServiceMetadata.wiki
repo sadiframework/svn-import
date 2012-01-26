@@ -22,7 +22,7 @@ The following items are optional:
   * _contact e-mail address_ -- an e-mail address where the provider of the service may be contacted
   * _service type URI(s)_ -- one or more rdf:type URIs indicating the type of service.  These URIs may be used to categorize the service by a wide variety of criteria, such as the task performed, the algorithm utilized, or the intended users of the service. 
   * _unit test(s)_ -- one or more input RDF graph(s) that MUST constitute valid input(s) to the service. The expected output RDF graphs corresponding to these input graphs MAY also be provided. 
-  * _authoritative flag_ -- a boolean value that MUST be true if the person or organization hosting the service is also the author of the data or software underlying the service.  If a SADI service acts as an interface to third party data or software, the value of the authoritative flag MUST be false.    
+  * _authoritative flag_ -- a boolean value that MUST be true if the person or organization hosting the service is also the author or owner of the data underlying the service, or the author or curator of the software which will generate the service output.  If a SADI service acts as an interface to third party data or software, the value of the authoritative flag MUST be false.  This is to provide some Quality-of-Service information in cases where multiple services report to provide the same output data.    
 
 In addition, any other items deemed useful to clients of the service MAY be included in the metadata graph.
 
