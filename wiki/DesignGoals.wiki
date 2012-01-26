@@ -7,7 +7,7 @@
 
 The original motivation for the development of SADI was the complexity of discoverying, accessing, and integrating public data and software in the domain of bioinformatics.  While there are currently thousands of interrelated bioinformatics databases and software tools freely available on the web, they are published using a plethora of incompatible data models, schemas, and software interfaces that impedes their combined use. The authors sought to develop a set of best practices for publishing data and software resources that would simultaneously offer the benefits of Semantic Web standards and technologies, such as the ability to automatically merge data sets and to automatically compute logical inferences from data.
 
-While the development SADI has been motivated by bioinformatics, there is nothing that prevents its application to other domains. It is applicable in any scenario where integrating data and/or software across multiple sites is required.
+While the development of SADI has been motivated by bioinformatics, there is nothing that prevents its application to other domains. It is applicable in any scenario where integrating data and/or software across multiple sites is required.
 
 == Design Goals ==
 
