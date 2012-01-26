@@ -52,6 +52,8 @@ input:HomerSimpson
    rdfs:isDefinedBy <http://sadiframework.org/examples/hello?poll=1> .
 }}}
 
+<wiki:comment>Ben, I know that this isn't WRONG, but it may be more informative if the two polls were different... poll=1  poll=2... and then show that asynchronous service invocations don't have to ALL end before any one of them returns data.  I think it gets more information across to break them up.</wiki:comment>
+
 3. The client sends a GET request for each `rdfs:isDefinedBy` URL in the initial response.  The client may include an `Accept` header indicating the desired RDF serialization format for the response, which otherwise defaults to RDF/XML.  
 
 {{{
