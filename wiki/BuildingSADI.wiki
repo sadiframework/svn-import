@@ -21,7 +21,7 @@ Some features of the SADI code base are optimized for use with the Eclipse Java 
   # Add the SADI Google Code repository 
     # *Window → Open perspective → Other...* and choose SVN Repository exploring
     # *File → New → Repository Location*
-    # Type `https://sadi.googlecode.svn/` in the *URL* field
+    # Type `https://sadi.googlecode.com/svn/` in the *URL* field
     # Type your Google Code User and Password (note that your Google Code password will not be the same as your regular Google account password; you can find it at [https://code.google.com/hosting/settings Google Project Hosting settings]
     # Click Finish
 
