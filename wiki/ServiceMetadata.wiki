@@ -36,7 +36,7 @@ The GET request MAY include an `Accept` header indicating the desired RDF serial
 
 The schema for the metadata graph is beyond the current scope of the SADI specification. 
 
-At the time of writing, all SADI services and SADI-related tools known to the authors use the myGrid/Moby service ontology `[`[InformativeReferences#myGrid/Moby myGrid/Moby]`]` to encode the service metadata graph.  For illustrative purposes, the service metadata graph for a parameterized version of the "Hello, World!" service (http://sadiframework.org/examples/hello-param) is shown below in N3 format. Note that the empty URI ("<>") is a relative URI that represents the base URI of the metadata document. As the metadata document is ALWAYS retrieved by a GET request on the service URL, the empty URI resolves to the service URL. 
+At the time of writing, all SADI services and SADI-related tools known to the authors use the myGrid/Moby service ontology `[`[InformativeReferences#myGrid/Moby myGrid/Moby]`]` to encode the service metadata graph.  For illustrative purposes, the service metadata graph for a parameterized version of the "Hello, World!" service (http://sadiframework.org/examples/hello-param) is shown below in N3 format.
 
 {{{
 @prefix protege-dc: <http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#> .
@@ -46,7 +46,7 @@ At the time of writing, all SADI services and SADI-related tools known to the au
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<>
+<http://sadiframework.org/examples/hello-param>
   a mygrid:serviceDescription ;
   
   #----------------------------------------
