@@ -9,4 +9,4 @@ Wolstencroft, K., Alper, P., Hull, D., and Wroe, C., “The myGrid Ontology: Bio
 
 == SHARE ==
 
-B. Vandervalk, “The SHARE system : a semantic web based approach for evaluating queries across distributed bioinformatics databases and software.” University of British Columbia, 2011.
+B. Vandervalk, “The SHARE system : a semantic web based approach for evaluating queries across distributed bioinformatics databases and software,” University of British Columbia, 2011.
