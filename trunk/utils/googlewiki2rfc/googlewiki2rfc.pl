@@ -94,7 +94,7 @@ my $temp_output_filename = catfile($tempdir, TEMP_OUTPUT_FILE);
 my $xml_writer = new XML::Writer(
     OUTPUT => $rfc_xml_file, 
     UNSAFE => 1,               # allows us to insert front.xml verbatim
-    DATA_MODE => 1,            # newlines after tags
+#    DATA_MODE => 1,            # newlines after tags
     DATA_INDENT => 2,          # proper indentation
 );
 
