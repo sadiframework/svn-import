@@ -1,0 +1,53 @@
+#summary How are synchronous services implemented in SADI?
+#sidebar SADITrail_Contents
+
+= Synchronous Services =
+
+Communication with a synchronous SADI service occurs according to the following steps: 
+
+<wiki:comment>
+Note: The RFC formatting pipeline doesn't understand code blocks embedded in list items. (More specifically, it is the Markdent parser.)
+As a workaround, we manually number the list here.
+</wiki:comment>
+
+1. The client sends an HTTP POST request to the service URL. The body of the request is an RDF document containing one or more instances of the service’s input OWL class and, optionally, one instance of the service’s parameter OWL class. The serialization format of the RDF document SHOULD be specified in the `Content-type` header of the POST request (one of `application/rdf+xml` or `text/rdf+n3`). If no `Content-type` header is sent with the request, the service MUST assume that the input is in RDF/XML format.  Similarly, the desired serialization format of the response RDF document MAY be indicated with an `Accept` header (also one of `application/rdf+xml` or `text/rdf+n3`).  In the case that the client does not provide an `Accept` header, or the content type is unsupported, the service MUST return RDF/XML.
+
+{{{
+POST /examples/hello HTTP/1.1
+Host: sadiframework.org
+Accept: text/rdf+n3
+Content-type: text/rdf+n3
+
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/data/examples/hello-input.n3#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+input:GuyIncognito
+   a hello:NamedIndividual;
+   foaf:name "Guy Incognito" .
+ 
+input:HomerSimpson
+   a hello:NamedIndividual;
+   foaf:name "Homer Simpson" .
+}}}
+
+2. The service sends a response containing the output. The body of the response is an RDF document containing one or more instances of the service's output OWL class. Each instance of the output OWL class MUST have the same root URI as exactly one instance of the input OWL class from the input RDF document. The serialization format of the output RDF document MUST be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`).
+
+{{{
+HTTP/1.1 200 OK 
+Content-type: text/rdf+n3
+
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/data/examples/hello-input.n3#> .
+
+input:GuyIncognito 
+    a hello:GreetedIndividual;
+    hello:greeting "Hello, Guy Incognito!" .
+
+input:HomerSimpson
+    a hello:GreetedIndividual;
+    hello:greeting "Hello, Homer Simpson!" .
+}}}
+
+A synchronous service must finish processing its input before the TCP connection between the client and the service times out.  SADI services that must run for longer periods of time should be implemented as asynchronous services, as described in the next section.
