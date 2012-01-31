@@ -1,0 +1,98 @@
+#summary Proposal for modeling sequence features in RDF/OWL
+
+= Proposal for Modeling Sequence Features in RDF/OWL =
+
+The motivation for these RDF/OWL models is the development of [ServicesForGMOD SADI services for GMOD].  
+
+= Features =
+
+A *feature* is a contiguous chain of residues within a macromolecule (e.g. a chromosome, a protein).  Any macromolecule in its entirety is also considered a feature. Examples of features are chromosomes, protein domains, genes, and transcription factor binding sites. Everything is a feature. 
+
+Every feature has:
+
+  * an *rdf:type* (e.g. 'gene'), taken from the [http://purl.org/obo/owl/SO# OWL version of the Sequence Ontology]
+  * a *ranged sequence position*, as described below 
+  
+In addition, most features will have a public database identifier, which will be typed according to its corresponding namespace in the [http://lsrn.org LSRN registry].
+
+= Ranged Sequence Positions =
+
+A *ranged sequence position* consists of:
+
+  * a *start position*
+  * an *end position*
+  * a *reference sequence*
+
+The reference sequence is a string representation of either:
+ 
+  * the '+' or '-' strand of a feature, OR
+  * a feature (in cases where a feature has only one strand, such as an mRNA or a protein) 
+
+In the case of double-stranded features, the '+' strand corresponds to the sequence that is stored in the database. We use the same conventions as GMOD when we wish to describe the location of a genomic region on the '-' strand. That is to say, we give the start and end coordinates with respect to the '+' strand, but indicate that the region is on the '-' strand. To obtain the sequence for a region on the '-' strand, we must reverse the direction of the sequence on the '+' strand and take the genetic complement.
+
+For example, if we have a short chromosome 'chr1' represented by:
+
+AGCTAGCTAGCT
+
+then a region with coordinates (start,end) = (2,6) on the minus strand of 'chr1' has the sequence: 
+
+CTAGC
+
+== Example Feature in RDF/N3 ==
+
+Below, we give the RDF/N3 representation of a tRNA gene in the Drosophilia melanogaster (fruitfly) genome with identifier FlyBase:FBgn0011935.  This gene is located on the right arm of chromosome 2 ('2R'), which has the identifier GB:AE013599. (GB is the identifier namespace for the International Nucleotide Sequence Database Consortium, consisting of GenBank, ENA, and DDBJ.) 
+
+{{{
+@prefix feature: <http://sadiframework.org/ontologies/GMOD/Feature.owl#> .
+@prefix range: <http://sadiframework.org/ontologies/GMOD/RangedSequencePosition.owl#> .
+@prefix strand: <http://sadiframework.org/ontologies/GMOD/Strand.owl#> .
+
+@prefix FlyBase: <http://lsrn.org/FLYBASE:> .
+@prefix GB: <http://lsrn.org/GB:> .
+
+@prefix lsrn: <http://purl.oclc.org/SADI/LSRN/> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix so: <http://purl.org/obo/owl/SO#> .
+
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+FlyBase:FBgn0011935
+     a so:SO_0001272; # 'tRNA_gene'
+     sio:SIO_000008 # 'has attribute' 
+        [ a lsrn:FLYBASE_Identifier;
+          sio:SIO_000300 'FBgn0011935'^^xsd:string ]; # p = 'has value'
+     sio:SIO_000008 # 'has attribute'
+        [ a range:RangedSequencePosition;
+          range:in_relation_to _:minus_strand; 
+          sio:SIO_000053 [ a range:StartPosition; sio:SIO_000300 2077634 ]; # p = 'has proper part'
+          sio:SIO_000053 [ a range:EndPosition; sio:SIO_000300 2077707 ] # p = 'has proper part'
+        ] .
+       
+GB:AE013599 # chromosome arm '2R'
+     a so:SO_0000105; # 'chromosome_arm'
+     sio:SIO_000008 # 'has attribute' 
+        [ a lsrn:GB_Identifier;
+          sio:SIO_000300 'AE013599'^^xsd:string ] . # p = 'has value'
+ 
+_:plus_strand 
+    a sio:SIO_000030; # o = 'sequence'
+    sio:SIO_000210 # 'represents'
+        [ a strand:PlusStrand; 
+          sio:SIO_000093 GB:AE013599 ] . # p = 'is proper part of'
+    
+_:minus_strand 
+    a sio:SIO_000030; # o = 'sequence'
+    sio:SIO_000210 # 'represents'
+        [ a strand:MinusStrand; 
+          sio:SIO_000093 GB:AE013599 ] . # p = 'is proper part of'
+
+}}}
+
+Note that some statements are included at the end which relate a sequence to its strand, and which relate a strand to its chromosome. These connections are necessary for determining the identifier of the reference feature, which is needed for any useful processing of a RangedSequencePosition (e.g. retrieving the sequence from a GMOD database.)
+
+One unresolved issue regarding the example above is that the URIs for the plus/minus strand sequences do not  resolve to anything. 
+
+The OWL classes defining a Feature and a RangedSequencePosition are here: 
+
+  * [http://sadiframework.org/ontologies/GMOD/Feature.owl]
+  * [http://sadiframework.org/ontologies/GMOD/RangedSequencePosition.owl]
