@@ -6,8 +6,7 @@
 Asynchronous SADI services use client polling and HTTP redirects to accomodate services that may run for an arbitrarily long period of time. Communication with an asynchronous SADI service occurs according to the following steps:
 
 <wiki:comment>
-Note: The RFC formatting pipeline doesn't understand code blocks embedded in list items. (More specifically, it is the Markdent parser.)
-As a workaround, we manually number the list here.
+Note: The RFC formatting pipeline doesn't understand code blocks embedded in list items. (More specifically, it is the Markdent parser.) As a workaround, we manually number the list here.
 </wiki:comment>
 
 1. The client sends an HTTP POST request to the service URL. The body of the request is an RDF document containing one or more instances of the service’s input OWL class and, optionally, one instance of the service’s parameter OWL class. The serialization format of the RDF document SHOULD be specified in the Content-type header of the POST request (one of application/rdf+xml or text/rdf+n3). If no Content-type header is sent with the request, the service MUST assume that the input is in RDF/XML format. Similarly, the desired serialization format of the response RDF document MAY be indicated with an Accept header (also one of application/rdf+xml or text/rdf+xml). In the case that the client does not provide an Accept header, or the content type is unsupported, the service MUST return the response in RDF/XML.
@@ -49,12 +48,14 @@ input:GuyIncognito
 
 input:HomerSimpson
    a hello:GreetedIndividual;
-   rdfs:isDefinedBy <http://sadiframework.org/examples/hello?poll=1> .
+   rdfs:isDefinedBy <http://sadiframework.org/examples/hello?poll=2> .
 }}}
 
 <wiki:comment>Ben, I know that this isn't WRONG, but it may be more informative if the two polls were different... poll=1  poll=2... and then show that asynchronous service invocations don't have to ALL end before any one of them returns data.  I think it gets more information across to break them up.</wiki:comment>
 
-3. The client sends a GET request for each `rdfs:isDefinedBy` URL in the initial response.  The client may include an `Accept` header indicating the desired RDF serialization format for the response, which otherwise defaults to RDF/XML.  
+3. The client sends a GET request for each `rdfs:isDefinedBy` URL in the initial response.  The client SHOULD include an `Accept` header indicating the desired RDF serialization format for the response, which otherwise defaults to RDF/XML.  
+
+Request 1:
 
 {{{
 GET /examples/hello?poll=1 
@@ -62,7 +63,31 @@ Host: sadiframework.org
 Accept: text/rdf+n3
 }}}
 
-4. If the output is not yet ready, the service sends an HTTP redirect with a `Retry-after` header that contains the number of seconds that the client should wait before trying again.
+Request 2:
+
+{{{
+GET /examples/hello?poll=2 
+Host: sadiframework.org
+Accept: text/rdf+n3
+}}}
+
+4. If the output for a given polling URL is ready, the service sends a response with the output. The body of the response is an RDF document containing statements that should be combined with the initial output document. The serialization format of the RDF document MUST be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`). If the output is not yet ready, the service sends an HTTP redirect with a `Retry-after` header that contains the number of seconds that the client should wait before trying again. In the example responses below, the response for the first output is ready, but the response for the second output is not yet ready.
+
+Response for Request 1:
+
+{{{
+HTTP/1.1 200 OK 
+Content-type: text/rdf+n3
+
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/data/examples/hello-input.n3#> .
+
+input:GuyIncognito 
+    a hello:GreetedIndividual;
+    hello:greeting "Hello, Guy Incognito!" .
+}}}
+
+Response for Request 2:
 
 {{{
 HTTP/1.1 302 Moved Temporarily 
@@ -70,20 +95,31 @@ Pragma: sadi-please-wait = 5000
 Location: http://sadiframework.org/examples/hello?poll=1
 }}}
 
-5. The client waits as suggested, then follows the redirect.
+5. The client waits as suggested for the second output, then follows the redirect.
 
 {{{
-GET /examples/hello?poll=1 
+GET /examples/hello?poll=2 
 Host: sadiframework.org
 Accept: text/rdf+n3
 }}}
 
-6. If the output is still not ready, the service sends another HTTP redirect as above. When the output is ready, the service sends a response with the output. The body of the response is an RDF document containing statements that should be combined with the original output document. The serialization format of the RDF document MUST be specified in the `Content-type` header of the response (one of `application/rdf+xml` or `text/rdf+n3`).
+6. If the second output is still not ready, the service sends another HTTP redirect as above. When the second output is ready, the service returns another RDF document:
 
 {{{
 HTTP/1.1 200 OK 
 Content-type: text/rdf+n3
 
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/data/examples/hello-input.n3#> .
+
+input:HomerSimpson
+    a hello:GreetedIndividual;
+    hello:greeting "Hello, Homer Simpson!" .
+}}}
+
+7. The client may perform an RDF-merge on the initial output document and the output documents from each polling URL to create an RDF document that contains a complete representation of all output instances.  The client SHOULD remove the `rdfs:isDefinedBy` statements from the merged document, as the polling URLs MAY expire after returning data or after a fixed period of time, at the discretion of the service provider.
+
+{{{
 @prefix hello: <http://sadiframework.org/examples/hello.owl#> .
 @prefix input: <http://sadiframework.org/data/examples/hello-input.n3#> .
 
