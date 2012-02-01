@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
@@ -8,6 +9,7 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
+@ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/bmi-input.rdf", 

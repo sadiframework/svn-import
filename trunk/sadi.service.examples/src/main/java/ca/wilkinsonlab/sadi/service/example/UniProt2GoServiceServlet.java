@@ -6,6 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.go.Go;
 import uk.ac.ebi.kraken.interfaces.uniprot.dbx.go.OntologyType;
+import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
@@ -19,6 +20,7 @@ import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
+@ContactEmail("info@sadiframework.org")
 @TestCases( {
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/uniprot2go-input.1.rdf", 

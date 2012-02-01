@@ -52,7 +52,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @URI("http://sadiframework.org/examples/blastUniprot")
 @Name("UniProt BLAST")
 @Description("Issues a BLAST query against the UniProt database using BLASTP, similarity matrix BLOSUM_62, and an expect threshold of 10. A maximum 500 BLAST hits are returned, if the expectation cutoff is not reached. All organisms are included in the search.")
-@ContactEmail("mccarthy@elmonline.ca")
+@ContactEmail("info@sadiframework.org")
 @InputClass("http://semanticscience.org/resource/SIO_010015") // protein sequence
 @OutputClass("http://sadiframework.org/examples/blast-uniprot.owl#UniProtBLASTedSequence")
 @TestCases(

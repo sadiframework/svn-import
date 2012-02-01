@@ -10,6 +10,7 @@ import uk.ac.ebi.kraken.uuw.services.remoting.Query;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryBuilder;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
+import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
@@ -19,6 +20,7 @@ import ca.wilkinsonlab.sadi.vocab.Properties;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
+@ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/pdb2uniprot-input.rdf", 

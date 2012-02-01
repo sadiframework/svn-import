@@ -20,7 +20,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 @URI("http://sadiframework.org/examples/blastUniprotById")
 @Name("UniProt BLAST by UniProt ID")
 @Description("Issues a BLAST query against the UniProt database, using the \"canonical\" sequence of the input UniProt ID. Uses BLASTP, similarity matrix BLOSUM_62, and an expect threshold of 10. A maximum 500 BLAST hits are returned, if the expectation cutoff is not reached. All organisms are included in the search.")
-@ContactEmail("mccarthy@elmonline.ca")
+@ContactEmail("info@sadiframework.org")
 @InputClass("http://purl.oclc.org/SADI/LSRN/UniProt_Record")
 @OutputClass("http://sadiframework.org/examples/blast-uniprot.owl#BlastByIDOutputClass")
 @TestCases(

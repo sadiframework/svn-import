@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 
 import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
 import ca.wilkinsonlab.sadi.service.ServiceCall;
+import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
@@ -25,6 +26,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 
+@ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/entrezGene2Kegg-input.rdf", 

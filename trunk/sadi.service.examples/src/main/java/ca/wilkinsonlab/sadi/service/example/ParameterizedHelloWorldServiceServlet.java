@@ -29,7 +29,7 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
  */
 @Name("ParamaterizedHelloWorld")
 @Description("A \"Hello, world!\" service where the output language is specified in a parameter")
-@ContactEmail("elmccarthy@gmail.com")
+@ContactEmail("info@sadiframework.org")
 @InputClass("http://sadiframework.org/examples/hello.owl#NamedIndividual")
 @OutputClass("http://sadiframework.org/examples/hello.owl#GreetedIndividual")
 @ParameterClass("http://sadiframework.org/examples/hello.owl#SecondaryParameters")

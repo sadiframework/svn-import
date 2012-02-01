@@ -3,12 +3,14 @@ package ca.wilkinsonlab.sadi.service.example;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
+@ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/regression-input.rdf", 

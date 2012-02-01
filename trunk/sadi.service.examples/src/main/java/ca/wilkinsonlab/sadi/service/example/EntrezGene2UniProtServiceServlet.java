@@ -13,6 +13,7 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
+import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
@@ -38,6 +39,7 @@ import ca.wilkinsonlab.sadi.vocab.SIO;
  * Unfortunately, this did not work. (The effect is the same as
  * issuing the queries separately.)
  */
+@ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
 				input = "http://sadiframework.org/examples/t/entrezGene2Uniprot-input.rdf", 
