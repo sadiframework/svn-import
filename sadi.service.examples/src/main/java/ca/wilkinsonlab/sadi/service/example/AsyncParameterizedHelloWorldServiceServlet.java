@@ -30,7 +30,7 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 @URI("http://sadiframework.org/examples/hello-param-async")
 @Name("AsyncParamaterizedHelloWorld")
 @Description("An asynchronous \"Hello, world!\" service where the output language is specified in a parameter")
-@ContactEmail("elmccarthy@gmail.com")
+@ContactEmail("info@sadiframework.org")
 @InputClass("http://sadiframework.org/examples/hello.owl#NamedIndividual")
 @OutputClass("http://sadiframework.org/examples/hello.owl#GreetedIndividual")
 @ParameterClass("http://sadiframework.org/examples/hello.owl#SecondaryParameters")
