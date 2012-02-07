@@ -25,10 +25,18 @@ public class DefaultClassVisitor implements ClassVisitor
 	}
 
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visit(com.hp.hpl.jena.ontology.OntClass)
+	 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visitPreDecompose(com.hp.hpl.jena.ontology.OntClass)
 	 */
 	@Override
-	public void visit(OntClass c)
+	public void visitPreDecompose(OntClass c)
+	{
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visitPostDecompose(com.hp.hpl.jena.ontology.OntClass)
+	 */
+	@Override
+	public void visitPostDecompose(OntClass c)
 	{
 	}
 }

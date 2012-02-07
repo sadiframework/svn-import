@@ -6,14 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
+import org.reflections.Reflections;
 
 /**
  * Client configuration class, containing information about which service
  * registries are available.  The defaults can be overridden in
- * local.properties. 
+ * sadi.properties. 
  * (see {@link ca.wilkinsonlab.sadi.common.Config} for details)
  * 
  * Most users' interaction with this class will be limited to the
@@ -34,9 +37,52 @@ public class Config extends ca.wilkinsonlab.sadi.Config
 
 	private static final Config theInstance = new Config(DEFAULT_PROPERTIES_FILENAME, LOCAL_PROPERTIES_FILENAME);
 	
+	/**
+	 * Returns the default SADI client configuration.
+	 * @return the default SADI client configuration
+	 */
 	public static Config getConfiguration()
 	{
 		return theInstance;
+	}
+
+	private Map<String, Registry> registries;
+	private List<Registry> priorityList;
+	private MultiRegistry masterRegistry;
+
+	/**
+	 * Constructs a new configuration object from the specified properties
+	 * files.
+	 * @param defaultPropertiesFile name of the default properties file
+	 * @param localPropertiesFile name of the userspace properties file 
+	 */
+	protected Config(String defaultPropertiesFile, String localPropertiesFile)
+	{
+		super(defaultPropertiesFile, localPropertiesFile);
+		
+		/* scan the classpath for subclasses of this Config object and read
+		 * the properties files they reference; if you can come up with a
+		 * better way of automatically reading properties files included with
+		 * unknown-at-compile-time Maven artifacts, please change this...
+		 */
+		Reflections reflections = new Reflections("ca.wilkinsonlab.sadi.client");
+		for (Class<? extends Config> c: reflections.getSubTypesOf(Config.class)) {
+			try {
+				String props = (String)c.getField("DEFAULT_PROPERTIES_FILENAME").get(null);
+				addConfiguration(new PropertiesConfiguration(props));
+			} catch (SecurityException e) {
+				log.error(String.format("%s.DEFAULT_PROPERTIES_FILENAME is not accessible", c));
+			} catch (NoSuchFieldException e) {
+				log.error(String.format("%s.DEFAULT_PROPERTIES_FILENAME does not exist", c));
+			} catch (IllegalAccessException e) {
+				log.error(String.format("%s.DEFAULT_PROPERTIES_FILENAME is not accessible", c));
+			} catch (ConfigurationException e) {
+				log.error(e.getMessage()); // looks like "Cannot locate configuration source %s"
+			} catch (IllegalArgumentException e) {
+				// this shouldn't happen...
+				log.error(e.getMessage(), e);
+			}
+		}
 	}
 	
 	/**
@@ -47,40 +93,51 @@ public class Config extends ca.wilkinsonlab.sadi.Config
 	 */
 	public MultiRegistry getMasterRegistry()
 	{
-		return masterRegistry;
+		synchronized(this) {
+			if (masterRegistry == null) {
+				masterRegistry = new MultiRegistry(priorityList);
+			}
+			return masterRegistry;
+		}
 	}
 
 	/**
 	 * Return a list of configured registries.
 	 * @return the configured registries
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Registry> getRegistries()
 	{
-		return priorityList;
+		synchronized(this) {
+			if (priorityList == null) {
+				priorityList = buildPriorityList(getRegistryMap(), getList(REGISTRY_PRIORITY_KEY));
+			}
+			return priorityList;
+		}
 	}
 	
 	/**
-	 * 
+	 * Returns a specific registry by name.
 	 * @param key the configuration key associated with the registry
-	 * @return
+	 * @return the registry associated with the specified name
 	 */
 	public Registry getRegistry(String key)
 	{
-		return registries.get(key);
+		return getRegistryMap().get(key);
 	}
-
-	private Map<String, Registry> registries;
-	private List<Registry> priorityList;
-	private MultiRegistry masterRegistry;
-
-	@SuppressWarnings("unchecked")
-	private Config(String defaultPropertiesFile, String localPropertiesFile)
+	
+	/**
+	 * Returns a map of name to registry.
+	 * @return a map of name to registry
+	 */
+	public Map<String, Registry> getRegistryMap()
 	{
-		super(defaultPropertiesFile, localPropertiesFile);
-		
-		registries = configureRegistries();
-		priorityList = buildPriorityList(registries, getList(REGISTRY_PRIORITY_KEY));
-		masterRegistry = new MultiRegistry(priorityList);
+		synchronized(this) {
+			if (registries == null) {
+				registries = configureRegistries();
+			}
+			return registries;
+		}
 	}
 	
 	private Map<String, Registry> configureRegistries()
@@ -95,21 +152,23 @@ public class Config extends ca.wilkinsonlab.sadi.Config
 			Configuration registrySubset = registryConfig.subset(registryKey);
 			try {
 				if (registrySubset.getBoolean(REGISTRY_EXCLUDE_KEY, false)) {
-					log.info(String.format("excluding registry %s", registryKey));
+					if (log.isDebugEnabled())
+						log.debug(String.format("excluding registry %s", registryKey));
 					continue;
 				}
 			} catch (ConversionException e) {
 				// TODO better error message...
-				log.error(String.format("Error configuring registry %s", registryKey), e);
+				log.error(String.format("error configuring registry %s", registryKey), e);
 			}
 			try {
 				stopWatch.start();
 				registries.put(registryKey, (Registry)instantiate(registrySubset));
 			} catch (Exception e) {
-				log.error(String.format("Error configuring registry %s", registryKey), e);
+				log.error(String.format("error configuring registry %s", registryKey), e);
 			} finally {
 				stopWatch.stop();
-				log.info(String.format("instantiated registry %s in %dms", registryKey, stopWatch.getTime()));
+				if (log.isDebugEnabled())
+					log.debug(String.format("instantiated registry %s in %dms", registryKey, stopWatch.getTime()));
 				stopWatch.reset();
 			}
 		}

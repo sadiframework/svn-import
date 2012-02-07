@@ -25,6 +25,7 @@ public class Config extends CompositeConfiguration
 {
 	protected static final String DEFAULT_PROPERTIES_FILENAME = "sadi.common.properties";
 	protected static final String LOCAL_PROPERTIES_FILENAME = "sadi.properties";
+	
 	private static final Logger log = Logger.getLogger(Config.class);
 	private static final Class<?>[] CONSTRUCTOR_SIGNATURE = new Class<?>[]{ Configuration.class };
 	private static final Config theInstance = new Config(DEFAULT_PROPERTIES_FILENAME, LOCAL_PROPERTIES_FILENAME);
@@ -35,7 +36,7 @@ public class Config extends CompositeConfiguration
 	 * distribution; other developers will almost certainly be better
 	 * served by ca.wilkinsonlab.sadi.client.Config or
 	 * ca.wilkinsonlab.sadi.service.Config.
-	 * @return
+	 * @return the default SADI configuration
 	 */
 	public static Config getConfiguration()
 	{
@@ -45,7 +46,6 @@ public class Config extends CompositeConfiguration
 	/**
 	 * Constructs a new configuration object from the specified userspace
 	 * properties file.
-	 * @param defaultPropertiesFile name of the default properties file
 	 * @param localPropertiesFile name of the userspace properties file 
 	 */
 	public static Config getConfiguration(String localPropertiesFile)

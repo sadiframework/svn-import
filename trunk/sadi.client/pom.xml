@@ -6,7 +6,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>ca.wilkinsonlab.sadi</groupId>
   <artifactId>sadi-client</artifactId>
-  <version>0.2.1-SNAPSHOT</version>
+  <version>0.3.0-SNAPSHOT</version>
   <parent>
     <groupId>ca.wilkinsonlab.sadi</groupId>
     <artifactId>sadi-parent</artifactId>
@@ -30,43 +30,14 @@
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-common</artifactId>
-      <version>0.2.1-SNAPSHOT</version>
+      <version>0.3.0-SNAPSHOT</version>
     </dependency>
-    
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>1.4</version>
+	  <groupId>org.reflections</groupId>
+	  <artifactId>reflections</artifactId>
+	  <version>0.9.5</version>
     </dependency>
-    
-    <dependency>
-      <groupId>org.biomoby</groupId>
-      <artifactId>jmoby</artifactId>
-      <version>1.1.1</version>
-      <exclusions>
-      	<exclusion>
-      	  <artifactId>tools</artifactId>
-      	  <groupId>sun.jdk</groupId>
-      	</exclusion>
-      	<exclusion>
-          <groupId>com.hp.hpl.jena</groupId>
-          <artifactId>jena</artifactId>
-      	</exclusion>
-        <exclusion>
-          <groupId>org.jvnet.staxex</groupId>
-          <artifactId>stax-ex</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.xml</groupId>
-          <artifactId>jsr173</artifactId>	
-        </exclusion>
-        <exclusion>
-          <groupId>javax.servlet</groupId>
-          <artifactId>servlet-api</artifactId>	
-        </exclusion>
-      </exclusions>
-    </dependency>
-    
+        
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

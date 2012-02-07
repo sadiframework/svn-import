@@ -72,4 +72,6 @@ public class SIO
 	public static final Property has_identifier = m_model.createProperty( NS, "SIO_000671" );
 	public static final Property cites = m_model.createProperty( NS, "SIO_000277" );
 	public static final Property is_cited_by = m_model.createProperty( NS, "SIO_000278" );
+	public static final Property is_reference_for = m_model.createProperty( NS, "SIO_000252" );
+	public static final Property has_member = m_model.createProperty( NS, "SIO_000059" );
 }

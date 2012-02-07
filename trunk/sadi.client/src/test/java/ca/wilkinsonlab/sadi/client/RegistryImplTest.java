@@ -86,7 +86,7 @@ public class RegistryImplTest
 			offset += servicesReturned;
 			Collection<Service> services = ((RegistryImpl)registry).getAllServices(limit, offset);
 			servicesReturned = services.size();
-			log.info(String.format("found %d services", servicesReturned));
+			log.debug(String.format("found %d services", servicesReturned));
 			for (Service service: services) {
 				if (seen.contains(service.getURI()))
 					fail(String.format("saw %s twice", service));

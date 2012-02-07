@@ -1,6 +1,7 @@
 package ca.wilkinsonlab.sadi.service.example;
 
 import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
+import ca.wilkinsonlab.sadi.service.annotations.Authoritative;
 import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.Description;
 import ca.wilkinsonlab.sadi.service.annotations.InputClass;
@@ -35,6 +36,7 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 @OutputClass("http://sadiframework.org/examples/hello.owl#GreetedIndividual")
 @ParameterClass("http://sadiframework.org/examples/hello.owl#SecondaryParameters")
 @ParameterDefaults({"http://sadiframework.org/examples/hello.owl#lang, http://www.w3.org/2001/XMLSchema#string", "en"})
+@Authoritative(true)
 @TestCases({
 		@TestCase(
 				input = "/t/hello-param-input1.rdf", 

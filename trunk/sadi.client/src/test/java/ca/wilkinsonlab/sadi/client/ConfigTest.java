@@ -2,25 +2,32 @@ package ca.wilkinsonlab.sadi.client;
 
 import static org.junit.Assert.assertFalse;
 
-import org.junit.After;
-import org.junit.Before;
+import java.util.List;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ConfigTest
 {
-	@Before
-	public void setUp() throws Exception
+	private static Config config;
+	
+	@BeforeClass
+	public static void setUp() throws Exception
 	{
+		config = Config.getConfiguration();
 	}
 
-	@After
-	public void tearDown() throws Exception
+	@AfterClass
+	public static void tearDown() throws Exception
 	{
+		config = null;
 	}
 
 	@Test
 	public void testGetRegistries()
 	{
-		assertFalse("Client.config contains no registry entries", Config.getConfiguration().getRegistries().isEmpty());
+		List<Registry> registries = config.getRegistries();
+		assertFalse("Client.config contains no registry entries", registries.isEmpty());
 	}
 }

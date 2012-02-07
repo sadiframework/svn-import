@@ -32,11 +32,6 @@
   </servlet>
   
   <servlet>
-    <servlet-name>linearAsync</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.example.AsyncLinearRegressionServiceServlet</servlet-class>
-  </servlet>
-  
-  <servlet>
     <servlet-name>uniprotInfo</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.UniProtInfoServiceServlet</servlet-class>
   </servlet>
@@ -136,6 +131,16 @@
     <servlet-class>ca.wilkinsonlab.sadi.service.example.KeggGene2GeneXrefsServiceServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>pubmed2uniprot</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.PubMed2UniProtServiceServlet</servlet-class>
+  </servlet>
+
+  <servlet>
+    <servlet-name>y4x</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.YForLargestXServiceServlet</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>echo</servlet-name>
     <url-pattern>/echo</url-pattern>
@@ -159,11 +164,6 @@
   <servlet-mapping>
     <servlet-name>linear</servlet-name>
     <url-pattern>/linear</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>linearAsync</servlet-name>
-    <url-pattern>/linear-async</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
@@ -264,6 +264,16 @@
   <servlet-mapping>
     <servlet-name>keggGene2GeneXrefs</servlet-name>
     <url-pattern>/keggGene2GeneXrefs</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>pubmed2uniprot</servlet-name>
+    <url-pattern>/pubmed2uniprot</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>y4x</servlet-name>
+    <url-pattern>/y4x</url-pattern>
   </servlet-mapping>
 
 </web-app>

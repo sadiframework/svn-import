@@ -630,4 +630,21 @@ public class RdfUtils
 			return null;
 		}
 	}
+
+	/**
+	 * Remove anonymous nodes from a collection of RDF nodes.
+	 * @param subProperties
+	 * @return true if any nodes were removed from the collection; false otherwise
+	 */
+	public static boolean removeAnonymousNodes(Collection<? extends RDFNode> nodes)
+	{
+		boolean removedAny = false;
+		for (Iterator<? extends RDFNode> i = nodes.iterator(); i.hasNext(); ) {
+			if (i.next().isAnon()) {
+				i.remove();
+				removedAny = true;
+			}
+		}
+		return removedAny;
+	}
 }

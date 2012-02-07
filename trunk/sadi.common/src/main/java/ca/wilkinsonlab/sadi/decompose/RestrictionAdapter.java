@@ -38,7 +38,7 @@ public class RestrictionAdapter implements RestrictionVisitor
 					cardinality(onProperty, restriction.asCardinalityRestriction().getCardinality());
 				}
 			} else {
-				onProperty(onProperty);
+				onProperty(onProperty); // TODO is this even possible?
 			}
 		}
 	}

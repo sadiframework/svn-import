@@ -11,12 +11,14 @@ import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import ca.wilkinsonlab.sadi.Config;
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.decompose.ClassTracker;
 import ca.wilkinsonlab.sadi.decompose.ClassVisitor;
 import ca.wilkinsonlab.sadi.decompose.RestrictionAdapter;
 import ca.wilkinsonlab.sadi.decompose.RestrictionVisitor;
 import ca.wilkinsonlab.sadi.decompose.VisitingDecomposer;
+import ca.wilkinsonlab.sadi.owl2sparql.QueryGeneratingDecomposer;
 import ca.wilkinsonlab.sadi.rdfpath.RDFPath;
 import ca.wilkinsonlab.sadi.utils.graph.BreadthFirstIterator;
 import ca.wilkinsonlab.sadi.utils.graph.OpenGraphIterator;
@@ -39,7 +41,6 @@ import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.shared.DoesNotExistException;
 import com.hp.hpl.jena.shared.JenaException;
 import com.hp.hpl.jena.util.iterator.ExtendedIterator;
-import com.hp.hpl.jena.util.iterator.Map1;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
@@ -61,13 +62,33 @@ public class OwlUtils
 //	}
 	
 	/**
-	 * Return an OntModel view of the base OWL ontology.  This is useful
+	 * Returns an OntModel view of the base OWL ontology.  This is useful
 	 * for things like getting an OntClass view of OWL.Thing, etc.
 	 * @return
 	 */
 	public static OntModel getOWLModel()
 	{
 		return owlModel;
+	}
+	
+	/**
+	 * Returns the configured default OntModelSpec.
+	 * @return the configured default OntModelSpec
+	 * @throws SADIException if there is a problem with the configuration
+	 */
+	public static OntModelSpec getDefaultReasonerSpec() throws SADIException
+	{
+		return getReasonerSpec(Config.getConfiguration().getString("sadi.defaultReasoner"));
+	}
+	
+	/**
+	 * Returns an in-memory OntModel with the configured default OntModelSpec
+	 * @return an in-memory OntModel with the configured default OntModelSpec
+	 * @throws SADIException if there is a problem with the configuration
+	 */
+	public static OntModel createDefaultReasoningModel() throws SADIException
+	{
+		return ModelFactory.createOntologyModel(getDefaultReasonerSpec());
 	}
 	
 	/**
@@ -375,7 +396,7 @@ public class OwlUtils
 			if (e instanceof SADIException)
 				throw (SADIException)e;
 			else
-				throw new SADIException(e.toString(), e);			
+				throw new SADIException(String.format("error loading ontology for %s from %s", uri, ontologyUri), e);			
 		}
 	}
 	private static class OntologyUriPair 
@@ -664,11 +685,11 @@ public class OwlUtils
 	 * and processed.
 	 * @param classUri the URI of the OWL class
 	 * @return the set of properties the OWL class has restrictions on
+	 * @deprecated use {@link OwlUtils.listRestrictedPropertes(OntClass)} instead
 	 */
 	public static Set<OntProperty> listRestrictedProperties(String classUri) throws SADIException
 	{
-		// TODO do we need more reasoning here?
-		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		OntModel model = createDefaultReasoningModel();
 		OntClass clazz = getOntClassWithLoad( model, classUri );
 		return listRestrictedProperties( clazz );
 	}
@@ -792,8 +813,7 @@ public class OwlUtils
 [ERROR] /Users/luke/Code/eclipse-cocoa-64/sadi.common/src/main/java/ca/wilkinsonlab/sadi/utils/OwlUtils.java:[812,49] incompatible types; inferred type argument(s) com.hp.hpl.jena.rdf.model.Resource do not conform to bounds of type variable(s) T
 [ERROR] found   : <T>com.hp.hpl.jena.util.iterator.ExtendedIterator<T>
 [ERROR] required: com.hp.hpl.jena.util.iterator.ExtendedIterator<? extends com.hp.hpl.jena.rdf.model.Resource>
-[ERROR] -> [Help 1]
-		 * this change shouldn't affect functionality, btu it's annoying...
+		 * this change shouldn't affect functionality, but it's annoying...
 		 */
 //		if (individual instanceof Individual)
 //			return ((Individual)individual).listOntClasses(false);
@@ -801,11 +821,7 @@ public class OwlUtils
 		if (individual instanceof OntResource)
 			return ((OntResource)individual).listRDFTypes(false);
 		else
-			return individual.listProperties(RDF.type).mapWith(new Map1<Statement, Resource>() {
-				public Resource map1(Statement statement) {
-					return statement.getResource();
-				}
-			});
+			return RdfUtils.getPropertyValues(individual, RDF.type, null);
 	}
 	
 	/**
@@ -871,13 +887,20 @@ public class OwlUtils
 		}
 
 		/* (non-Javadoc)
-		 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visit(com.hp.hpl.jena.ontology.OntClass)
+		 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visitPreDecompose(com.hp.hpl.jena.ontology.OntClass)
 		 */
 		@Override
-		public void visit(OntClass c)
+		public void visitPreDecompose(OntClass c)
 		{
 			if (c.isURIResource())
 				model.add(individual, RDF.type, c);
+		}
+		
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visitPostDecompose(com.hp.hpl.jena.ontology.OntClass)
+		 */
+		public void visitPostDecompose(OntClass c)
+		{
 		}
 
 		/* (non-Javadoc)
@@ -1026,10 +1049,10 @@ public class OwlUtils
 		}
 
 		/* (non-Javadoc)
-		 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visit(com.hp.hpl.jena.ontology.OntClass)
+		 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visitPreDecompose(com.hp.hpl.jena.ontology.OntClass)
 		 */
 		@Override
-		public void visit(OntClass c)
+		public void visitPreDecompose(OntClass c)
 		{
 			log.trace(String.format("visiting %s as %s", subject, c));
 			
@@ -1038,6 +1061,13 @@ public class OwlUtils
 			 */
 			if (c.isURIResource() && subject.hasProperty(RDF.type, c))
 				model.add(subject, RDF.type, c);
+		}
+		
+		/* (non-Javadoc)
+		 * @see ca.wilkinsonlab.sadi.decompose.ClassVisitor#visitPostDecompose(com.hp.hpl.jena.ontology.OntClass)
+		 */
+		public void visitPostDecompose(OntClass c)
+		{
 		}
 
 		/* (non-Javadoc)
@@ -1122,6 +1152,11 @@ public class OwlUtils
 		return r;
 	}
 	
+	/**
+	 * Returns a UUID-based URI.
+	 * This URI will be a URN in the UUID namespace (RFC 4122).
+	 * @return a UUID-based URI
+	 */
 	public static String getUURI()
 	{
 		return String.format("urn:uuid:%s", UUID.randomUUID());
@@ -1165,70 +1200,35 @@ public class OwlUtils
         }
 	
 	/**
-	 * Visit each property restriction of the specified OWL class with the
-	 * specified RestrictionVisitor.
-	 * @param clazz the class
-	 * @param visitor the visitor
+	 * Returns all sub-properties of the specified property.
+	 * OntProperty.listSubProperties does different things in different
+	 * reasoners, so this method standardizes those behaviours.
+	 * @return
 	 */
-
-	/*
-	public static void decompose(OntClass clazz, RestrictionVisitor visitor)
+	public static Set<OntProperty> listSubProperties(OntProperty p, boolean withSelf)
 	{
-		if ( clazz == null )
-			throw new IllegalArgumentException("class to decompose cannot be null");
-		
-		new VisitingDecomposer(visitor).decompose(clazz);
-	}
-	
-	public static void decompose(OntClass clazz, PropertyRestrictionVisitor visitor, Tracker tracker, ClassFilter filter)
-	{
-		if ( clazz == null )
-			throw new IllegalArgumentException("class to decompose cannot be null");
-		
-		new VisitingDecomposer(visitor, tracker, filter).decompose(clazz);
-	}
-	
-	public static interface PropertyRestrictionVisitor
-	{
-		void hasRestriction(Restriction restriction);
-	}
-	
-	public static interface Tracker
-	{
-		public boolean beenThere(OntClass c);
-	}
-	
-	public static class DefaultTracker implements Tracker
-	{
-		private Set<OntClass> visited;
-		
-		public DefaultTracker()
-		{
-			this.visited = new HashSet<OntClass>();
+		Set<OntProperty> properties = new HashSet<OntProperty>();
+		// Java generics are dumb; some kind of .addAll should work here...
+		for (Iterator<? extends OntProperty> i = p.listSubProperties(false); i.hasNext(); ) {
+			properties.add(i.next());
 		}
-		
-		public boolean beenThere(OntClass c)
-		{
-			if ( visited.contains(c) ) {
-				return true;
-			} else {
-				visited.add(c);
-				return false;
-			}
-		}
+		if (withSelf)
+			properties.add(p);
+		else
+			properties.remove(p);
+		return properties;
 	}
 	
-	public static interface ClassFilter
+	/**
+	 * Returns a SPARQL CONSTRUCT query that will fetch instances of the
+	 * specified OWL class.
+	 * @param clazz the OWL class
+	 * @return the SPARQL CONSTRUCT query
+	 */
+	public static final String getConstructQuery(OntClass clazz)
 	{
-		public boolean ignoreClass(OntClass c);
+		QueryGeneratingDecomposer decomposer = new QueryGeneratingDecomposer();
+		decomposer.decompose(clazz);
+		return decomposer.getQuery();
 	}
-	
-	public static class DefaultClassFilter implements ClassFilter
-	{
-		public boolean ignoreClass(OntClass c)
-		{
-			return c.equals( OWL.Thing );
-		}
-	}
-	*/
 }

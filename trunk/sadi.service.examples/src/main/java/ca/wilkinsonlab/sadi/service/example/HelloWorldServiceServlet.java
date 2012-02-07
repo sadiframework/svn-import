@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.service.example;
 
+import ca.wilkinsonlab.sadi.service.annotations.Authoritative;
 import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
@@ -18,6 +19,7 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
  * @author Luke McCarthy
  */
 @ContactEmail("info@sadiframework.org")
+@Authoritative(true)
 @TestCases({
 	@TestCase(
 			input = "http://sadiframework.org/examples/t/hello-input.rdf", 

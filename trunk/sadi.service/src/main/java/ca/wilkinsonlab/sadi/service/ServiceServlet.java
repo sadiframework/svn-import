@@ -361,6 +361,7 @@ public abstract class ServiceServlet extends HttpServlet
 		Model model = modelMaker.createFreshModel();
 		model.getReader().setErrorHandler(errorHandler);
 		model.setNsPrefix("mygrid", "http://www.mygrid.org.uk/mygrid-moby-service#");
+		model.setNsPrefix("protege-dc", "http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#");
 		return model;
 	}
 	
