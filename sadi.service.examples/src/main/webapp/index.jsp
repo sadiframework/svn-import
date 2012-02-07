@@ -30,8 +30,7 @@
           <li><a href="echo">An example service that simply returns a copy of its input.</a></li>
           <li><a href="hello">A simple "Hello, World" service that reads a name and attaches a greeting.</a></li>
           <li><a href="hello-param">A parameterized "Hello, World" service that reads a name and attaches a greeting in a variety of languages.</a></li>
-          <li><a href="linear">Fits a least-squares regression line and returns results synchronously.</a></li>
-          <li><a href="linear-async">Fits a least-squares regression line and returns results asynchronously.</a></li>
+          <li><a href="linear">Fits a least-squares regression line and returns the slope and intercept.</a></li>
           <li><a href="uniprotInfo">Return basic information associated with a UniProt record.</a></li>
           <li><a href="uniprot2go">Returns GO terms associated with a UniProt record.</a></li>
           <li><a href="uniprot2pdb">Returns PDB ids associated with a UniProt record.</a></li>
@@ -49,9 +48,11 @@
           <li><a href="keggPathway2Compound">Retrieves the KEGG compounds that are involved in the given KEGG pathway(s)</a></li>
           <li><a href="keggCompound2PubChem">Maps KEGG compounds to PubChem substances</a></li>
           <li><a href="pdb2uniprot">Maps PDB structures to UniProt proteins</a></li>
+          <li><a href="pubmed2uniprot">Maps PubMed identifiers to UniProt proteins</a></li>
           <li><a href="entrezGene2Uniprot">Maps Entrez Gene IDs to UniProt proteins</a></li>
           <li><a href="entrezGene2Kegg">Maps Entrez Gene IDs to KEGG gene IDs</a></li>
           <li><a href="keggGene2EntrezGene">Maps KEGG gene IDs to Entrez Gene IDs</a></li>
+          <li><a href="y4x">Returns the y value corresponding to the largest x value in a collection</a></li>
         </ul>
         <p>updated Wed  4 May 2011 14:50:02 PDT</p>
         </div> <!-- content -->

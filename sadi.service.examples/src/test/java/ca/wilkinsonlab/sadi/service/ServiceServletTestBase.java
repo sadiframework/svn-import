@@ -17,11 +17,15 @@ import ca.wilkinsonlab.sadi.client.ServiceImpl;
 import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
 import ca.wilkinsonlab.sadi.client.testing.ServiceTester;
 import ca.wilkinsonlab.sadi.service.annotations.URI;
+import ca.wilkinsonlab.sadi.service.ontology.MyGridServiceOntologyHelper;
 import ca.wilkinsonlab.sadi.utils.ModelDiff;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.util.LocationMapper;
+import com.hp.hpl.jena.util.ResourceUtils;
 
 public abstract class ServiceServletTestBase extends TestCase
 {
@@ -44,6 +48,25 @@ public abstract class ServiceServletTestBase extends TestCase
 		LocationMapper.get().removeAltPrefix(PRODUCTION_URI_PREFIX);
 	}
 	
+	private Iterable<ca.wilkinsonlab.sadi.client.testing.TestCase> getTestCases(ServiceImpl service)
+	{
+		MyGridServiceOntologyHelper helper = new MyGridServiceOntologyHelper();
+		for (RDFNode testCaseNode: helper.getTestCasePath().getValuesRootedAt(service.getServiceModel().getResource(service.getURI()))) {
+			Resource testCaseResource = testCaseNode.asResource();
+			RDFNode input = helper.getTestInputPath().getValuesRootedAt(testCaseResource).iterator().next();
+			if (input.isURIResource() && input.asResource().getURI().startsWith(PRODUCTION_URI_PREFIX)) {
+				String newURI = input.asResource().getURI().replaceAll(PRODUCTION_URI_PREFIX, LOCAL_URI_PREFIX);
+				input = ResourceUtils.renameResource(input.asResource(), newURI);
+			}
+			RDFNode output = helper.getTestOutputPath().getValuesRootedAt(testCaseResource).iterator().next();
+			if (output.isURIResource() && output.asResource().getURI().startsWith(PRODUCTION_URI_PREFIX)) {
+				String newURI = output.asResource().getURI().replaceAll(PRODUCTION_URI_PREFIX, LOCAL_URI_PREFIX);
+				output = ResourceUtils.renameResource(output.asResource(), newURI);
+			}
+		}
+		return service.getTestCases();
+	}
+	
 	@Test
 	public void testLocalService() throws Exception
 	{
@@ -51,7 +74,7 @@ public abstract class ServiceServletTestBase extends TestCase
 		String serviceFileName = getServiceFileNameBase(service);
 		int i=0;
 		int fail=0;
-		for (ca.wilkinsonlab.sadi.client.testing.TestCase testCase: service.getTestCases()) {
+		for (ca.wilkinsonlab.sadi.client.testing.TestCase testCase: getTestCases(service)) {
 			++i;
 			log.info(String.format("testing case %d", i));
 			writeModel(testCase.getInputModel(), String.format("target/%s.input.%d", serviceFileName, i));
@@ -72,12 +95,11 @@ public abstract class ServiceServletTestBase extends TestCase
 				++fail;
 				continue;
 			}
-			log.debug("sanity checking output");
-			try {
-				sanityCheckOutput(service, outputModel);
-			} catch (SADIException e) {
-				log.warn(e.getMessage());
-			}
+//			try {
+//				sanityCheckOutput(service, outputModel);
+//			} catch (SADIException e) {
+//				log.warn(e.getMessage());
+//			}
 		}
 		if (i == 0)
 			fail("no test cases");
@@ -117,6 +139,7 @@ public abstract class ServiceServletTestBase extends TestCase
 	
 	protected void sanityCheckOutput(ServiceImpl service, Model output) throws SADIException
 	{
+		log.debug("sanity checking output");
 		ServiceTester.sanityCheckOutput(service, output);
 	}
 	

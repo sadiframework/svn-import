@@ -1,18 +1,23 @@
 package ca.wilkinsonlab.sadi.decompose;
 
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.Config;
 import ca.wilkinsonlab.sadi.SADIException;
+import ca.wilkinsonlab.sadi.utils.LabelUtils;
 import ca.wilkinsonlab.sadi.utils.OwlUtils;
 
+import com.hp.hpl.jena.ontology.ComplementClass;
 import com.hp.hpl.jena.ontology.ConversionException;
+import com.hp.hpl.jena.ontology.IntersectionClass;
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.Restriction;
+import com.hp.hpl.jena.ontology.UnionClass;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -21,9 +26,9 @@ public class VisitingDecomposer
 {
 	private static final Logger log = Logger.getLogger(VisitingDecomposer.class);
 	
-	private ClassTracker tracker;
-	private ClassVisitor classVisitor;
-	private RestrictionVisitor restrictionVisitor;
+	protected ClassTracker tracker;
+	protected ClassVisitor classVisitor;
+	protected RestrictionVisitor restrictionVisitor;
 	
 	private static final int IGNORE = 0x0;
 	private static final int CREATE = 0x1;
@@ -119,10 +124,11 @@ public class VisitingDecomposer
 		
 		if ( classVisitor.ignore(clazz) )
 			return;
-		else
-			classVisitor.visit(clazz);
 		
-		log.trace(String.format("decomposing %s", clazz));
+		classVisitor.visitPreDecompose(clazz);
+		
+		if (log.isTraceEnabled())
+			log.trace(String.format("decomposing %s", LabelUtils.getLabel(clazz)));
 		
 		/* base case: is this a property restriction?
 		 */
@@ -155,16 +161,13 @@ public class VisitingDecomposer
 		 */
 		if ( clazz.isUnionClass() ) {
 			log.trace("decomposing union classes");
-			for (Iterator<?> i = clazz.asUnionClass().listOperands(); i.hasNext(); )
-				decompose((OntClass)i.next());
+			decomposeUnionClass(clazz.asUnionClass());
 		} else if ( clazz.isIntersectionClass() ) {
 			log.trace("decomposing intersection classes");
-			for (Iterator<?> i = clazz.asIntersectionClass().listOperands(); i.hasNext(); )
-				decompose((OntClass)i.next());
+			decomposeIntersectionClass(clazz.asIntersectionClass());
 		} else if ( clazz.isComplementClass() ) {
 			log.trace("decomposing complement classes");
-			for (Iterator<?> i = clazz.asComplementClass().listOperands(); i.hasNext(); )
-				decompose((OntClass)i.next());
+			decomposeComplementClass(clazz.asComplementClass());
 		}
 		
 		/* recursive case: visit equivalent and super classes...
@@ -173,10 +176,40 @@ public class VisitingDecomposer
 		 * trigger a ConcurrentModificationException.
 		 */
 		log.trace("decomposing equivalent classes");
-		for (Object equivalentClass: clazz.listEquivalentClasses().toSet())
-			decompose((OntClass)equivalentClass);
+		decomposeEquivalentClasses(clazz.listEquivalentClasses().toSet());
 		log.trace("decomposing super classes");
-		for (Object superClass: clazz.listSuperClasses(true).toSet())
+		decomposeSuperClasses(clazz.listSuperClasses(true).toSet());
+		
+		classVisitor.visitPostDecompose(clazz);
+	}
+
+	protected void decomposeUnionClass(UnionClass clazz)
+	{
+		for (Iterator<?> i = clazz.listOperands(); i.hasNext(); )
+			decompose((OntClass)i.next());
+	}
+	
+	protected void decomposeIntersectionClass(IntersectionClass clazz)
+	{
+		for (Iterator<?> i = clazz.listOperands(); i.hasNext(); )
+			decompose((OntClass)i.next());
+	}
+
+	protected void decomposeComplementClass(ComplementClass clazz)
+	{
+		for (Iterator<?> i = clazz.listOperands(); i.hasNext(); )
+			decompose((OntClass)i.next());
+	}
+
+	protected void decomposeEquivalentClasses(Set<OntClass> set)
+	{
+		for (Object equivalentClass: set)
+			decompose((OntClass)equivalentClass);
+	}
+
+	protected void decomposeSuperClasses(Set<OntClass> set)
+	{
+		for (Object superClass: set)
 			decompose((OntClass)superClass);
 	}
 

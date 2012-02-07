@@ -91,6 +91,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:18206965">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >18206965</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Lim S.T. et al, Nuclear FAK promotes cell proliferation and survival through FERM-enhanced p53 degradation.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/18206965"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:11554766">
         <j.1:SIO_000008>
           <j.2:PMID_Identifier>
@@ -544,6 +556,18 @@
         </j.1:SIO_000008>
         <rdfs:label>Kim J.-E., Tannenbaum S.R. &amp; White F.M., Global phosphoproteome of HT-29 human colon adenocarcinoma cells.</rdfs:label>
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/16083285"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:19880522">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >19880522</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Lim S.T. et al, Pyk2 inhibition of p53 as an adaptive and intrinsic mechanism facilitating cell proliferation and survival.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/19880522"/>
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
@@ -1267,6 +1291,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:20959462">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >20959462</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Wu L. et al, Aurora B interacts with NIR-p53, leading to p53 phosphorylation in its DNA-binding domain and subsequent functional suppression.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/20959462"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:20660729">
         <j.1:SIO_000008>
           <j.2:PMID_Identifier>
@@ -1507,6 +1543,18 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:15855171">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >15855171</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Golubovskaya V.M., Finch R. &amp; Cance W.G., Direct interaction of the N-terminal domain of focal adhesion kinase with the N-terminal transactivation domain of p53.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/15855171"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:1915267">
         <j.1:SIO_000008>
           <j.2:PMID_Identifier>
@@ -1528,6 +1576,18 @@
         </j.1:SIO_000008>
         <rdfs:label>Abe Y. et al, Cloning and characterization of a p53-related protein kinase expressed in interleukin-2-activated cytotoxic T-cells, epithelial tumor cell lines, and the testes.</rdfs:label>
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/11546806"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:17254968">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >17254968</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Sun P. et al, PRAK is essential for ras-induced senescence and tumor suppression.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/17254968"/>
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
@@ -1771,18 +1831,6 @@
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>
-      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:11672523">
-        <j.1:SIO_000008>
-          <j.2:PMID_Identifier>
-            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >11672523</j.1:SIO_000300>
-          </j.2:PMID_Identifier>
-        </j.1:SIO_000008>
-        <rdfs:label>Vaziri H. et al, hSIR2(SIRT1) functions as an NAD-dependent p53 deacetylase.</rdfs:label>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/11672523"/>
-      </j.2:PMID_Record>
-    </j.1:SIO_000253>
-    <j.1:SIO_000253>
       <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:8402617">
         <j.1:SIO_000008>
           <j.2:PMID_Identifier>
@@ -1792,6 +1840,30 @@
         </j.1:SIO_000008>
         <rdfs:label>Boyle J.O. et al, The incidence of p53 mutations increases with progression of head and neck cancer.</rdfs:label>
         <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/8402617"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:16322561">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >16322561</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Hublitz P. et al, NIR is a novel INHAT repressor that modulates the transcriptional activity of p53.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/16322561"/>
+      </j.2:PMID_Record>
+    </j.1:SIO_000253>
+    <j.1:SIO_000253>
+      <j.2:PMID_Record rdf:about="http://lsrn.org/PMID:11672523">
+        <j.1:SIO_000008>
+          <j.2:PMID_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >11672523</j.1:SIO_000300>
+          </j.2:PMID_Identifier>
+        </j.1:SIO_000008>
+        <rdfs:label>Vaziri H. et al, hSIR2(SIRT1) functions as an NAD-dependent p53 deacetylase.</rdfs:label>
+        <owl:sameAs rdf:resource="http://biordf.net/moby/PMID/11672523"/>
       </j.2:PMID_Record>
     </j.1:SIO_000253>
     <j.1:SIO_000253>

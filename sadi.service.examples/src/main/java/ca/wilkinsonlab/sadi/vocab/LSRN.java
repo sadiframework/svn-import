@@ -25,6 +25,7 @@ public class LSRN
 	public static final LSRNRecordType MGI = new LSRNRecordType("MGI");
 	public static final LSRNRecordType OMIM = new LSRNRecordType("OMIM");
 	public static final LSRNRecordType PDB = new LSRNRecordType("PDB", "PDB");
+	public static final LSRNRecordType PMID = new LSRNRecordType("PMID");
 	public static final LSRNRecordType RGD = new LSRNRecordType("RGD");
 	public static final LSRNRecordType SGD = new LSRNRecordType("SGD");
 	public static final LSRNRecordType UniProt = new LSRNRecordType("UniProt", "UniProt", ADDITIONAL_UNIPROT_URI_PATTERNS);

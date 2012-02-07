@@ -1,20 +1,15 @@
 package ca.wilkinsonlab.sadi.utils;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
+import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.SADIException;
-import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
-import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 import com.hp.hpl.jena.db.DBConnection;
 import com.hp.hpl.jena.db.IDBConnection;
@@ -31,6 +26,8 @@ import com.hp.hpl.jena.rdf.model.ModelMaker;
  */
 public class QueryExecutorFactory
 {
+	private static final Logger log = Logger.getLogger(QueryExecutorFactory.class);
+	
 	public static QueryExecutor createJenaModelQueryExecutor(Model model)
 	{
 		return new JenaModelQueryExecutor(model);
@@ -38,6 +35,9 @@ public class QueryExecutorFactory
 
 	public static QueryExecutor createFileModelQueryExecutor(String file)
 	{
+		/* TODO this file isn't automatically reread when updated;
+		 * maybe reopen models for each query?
+		 */
 		return new JenaModelQueryExecutor(createFileModel(file));
 	}
 
@@ -55,16 +55,15 @@ public class QueryExecutorFactory
 	 * 
 	 * @param endpointURL the URL of the Virtuoso SPARQL endpoint
 	 * @return
-	 * @throws IOException if the URL is invalid
 	 */
-	public static QueryExecutor createVirtuosoSPARQLEndpointQueryExecutor(String endpointURL) throws IOException
+	public static QueryExecutor createVirtuosoSPARQLEndpointQueryExecutor(String endpointURL)
 	{
 		return createVirtuosoSPARQLEndpointQueryExecutor(endpointURL, null);
 	}
 	
-	public static QueryExecutor createVirtuosoSPARQLEndpointQueryExecutor(String endpointURL, String graphName) throws IOException
+	public static QueryExecutor createVirtuosoSPARQLEndpointQueryExecutor(String endpointURL, String graphName)
 	{
-		return new VirtuosoSPARQLEndpointQueryExecutor(new URL(endpointURL), graphName);
+		return new VirtuosoSPARQLEndpointQueryExecutor(endpointURL, graphName);
 	}
 	
 	private static Model createJDBCJenaModel(String driver, String dsn, String username, String password, String graphName)
@@ -107,6 +106,21 @@ public class QueryExecutorFactory
 		return maker.openModel(registryFile.getName());
 	}
 	
+	private static List<Map<String, String>> convertResults(ResultSet resultSet)
+	{
+		List<Map<String, String>> ourBindings = new ArrayList<Map<String, String>>();
+		while (resultSet.hasNext()) {
+			QuerySolution binding = resultSet.nextSolution();
+			Map<String, String> ourBinding = new HashMap<String, String>();
+			for (Iterator<String> i = binding.varNames(); i.hasNext(); ) {
+				String variable = i.next();
+				ourBinding.put(variable, RdfUtils.getPlainString(binding.get(variable).asNode()));
+			}
+			ourBindings.add(ourBinding);
+		}
+		return ourBindings;
+	}
+	
 	private static class JenaModelQueryExecutor implements QueryExecutor
 	{
 		private Model model;
@@ -122,20 +136,13 @@ public class QueryExecutorFactory
 		@Override
 		public List<Map<String, String>> executeQuery(String query)
 		{
-			List<Map<String, String>> localBindings = new ArrayList<Map<String, String>>();
 			QueryExecution qe = QueryExecutionFactory.create(query, model);
-			ResultSet resultSet = qe.execSelect();
-			while (resultSet.hasNext()) {
-				QuerySolution binding = resultSet.nextSolution();
-				Map<String, String> ourBinding = new HashMap<String, String>();
-				for (Iterator<String> i = binding.varNames(); i.hasNext(); ) {
-					String variable = i.next();
-					ourBinding.put(variable, RdfUtils.getPlainString(binding.get(variable).asNode()));
-				}
-				localBindings.add(ourBinding);
+			try {
+				ResultSet resultSet = qe.execSelect();
+				return convertResults(resultSet);
+			} finally {
+				qe.close();
 			}
-			qe.close();
-			return localBindings;
 		}
 
 		/* (non-Javadoc)
@@ -153,10 +160,10 @@ public class QueryExecutorFactory
 	
 	private static class VirtuosoSPARQLEndpointQueryExecutor implements QueryExecutor
 	{
-		protected URL endpointURL;
+		protected String endpointURL;
 		protected String graphName;
 		
-		public VirtuosoSPARQLEndpointQueryExecutor(URL endpointURL, String graphName)
+		public VirtuosoSPARQLEndpointQueryExecutor(String endpointURL, String graphName)
 		{
 			this.endpointURL = endpointURL;
 			this.graphName = graphName;
@@ -168,12 +175,24 @@ public class QueryExecutorFactory
 		@Override
 		public List<Map<String, String>> executeQuery(String query) throws SADIException
 		{
+			QueryExecution qe = graphName != null ?
+					QueryExecutionFactory.sparqlService(endpointURL, query, graphName) :
+					QueryExecutionFactory.sparqlService(endpointURL, query);
 			try {
-				Object result = HttpUtils.postAndFetchJson(endpointURL, getPostParameters(query));
-				return convertResults(result);
-			} catch (IOException e) {
-				throw new SADIException(e.toString());
+				ResultSet resultSet = qe.execSelect();
+				return convertResults(resultSet);
+			} catch (Exception e) {
+				log.error("error executing query", e);
+				throw new SADIException(e.getMessage(), e);
+			} finally {
+				qe.close();
 			}
+//			try {
+//				Object result = HttpUtils.postAndFetchJson(endpointURL, getPostParameters(query));
+//				return convertResults(result);
+//			} catch (IOException e) {
+//				throw new SADIException(e.toString());
+//			}
 		}
 
 		/* (non-Javadoc)
@@ -182,26 +201,37 @@ public class QueryExecutorFactory
 		@Override
 		public Model executeConstructQuery(String query) throws SADIException
 		{
-			Map<String, String> params = getPostParameters(query);
-			params.put("format", "application/rdf+xml");
-			InputStream is = null;
+			QueryExecution qe = graphName != null ?
+					QueryExecutionFactory.sparqlService(endpointURL, query, graphName) :
+					QueryExecutionFactory.sparqlService(endpointURL, query);
 			try {
-				HttpResponse response = HttpUtils.POST(endpointURL, params);
-				is = response.getEntity().getContent();
-				int statusCode = response.getStatusLine().getStatusCode();
-				if (HttpUtils.isHttpError(statusCode)) {
-					throw new HttpStatusException(statusCode);
-				}
-				Model model = ModelFactory.createDefaultModel();
-//				model.read(HttpUtils.POST(endpointURL, params), endpointURL.toString());
-				model.read(is, endpointURL.toString());
-				return model;
-			} catch (IOException e) {
-				throw new SADIException(e.toString());
+				return qe.execConstruct();
+			} catch (Exception e) {
+				log.error("error executing query", e);
+				throw new SADIException(e.getMessage(), e);
 			} finally {
-				if (is != null)
-					FileUtils.simpleClose(is);
+				qe.close();
 			}
+//			Map<String, String> params = getPostParameters(query);
+//			params.put("format", "application/rdf+xml");
+//			InputStream is = null;
+//			try {
+//				HttpResponse response = HttpUtils.POST(endpointURL, params);
+//				is = response.getEntity().getContent();
+//				int statusCode = response.getStatusLine().getStatusCode();
+//				if (HttpUtils.isHttpError(statusCode)) {
+//					throw new HttpStatusException(statusCode);
+//				}
+//				Model model = ModelFactory.createDefaultModel();
+////				model.read(HttpUtils.POST(endpointURL, params), endpointURL.toString());
+//				model.read(is, endpointURL.toString());
+//				return model;
+//			} catch (IOException e) {
+//				throw new SADIException(e.toString());
+//			} finally {
+//				if (is != null)
+//					FileUtils.simpleClose(is);
+//			}
 		}
 		
 		public String toString()
@@ -209,29 +239,29 @@ public class QueryExecutorFactory
 			return String.format("%s(%s)", endpointURL, graphName);
 		}
 
-		private Map<String, String> getPostParameters(String query)
-		{
-			Map<String, String> parameters = new HashMap<String, String>();
-			parameters.put("query", query);
-			parameters.put("format", "JSON");
-			if (graphName != null)
-				parameters.put("default-graph-uri", graphName);
-			return parameters;
-		}
-		
-		@SuppressWarnings("unchecked")
-		public static List<Map<String, String>> convertResults(Object result)
-		{
-			List<Map<String, Map<?, ?>>> virtuosoBindings = (List<Map<String, Map<?, ?>>>)((Map<?, ?>)((Map<?, ?>)result).get("results")).get("bindings");
-			List<Map<String, String>> localBindings = new ArrayList<Map<String, String>>(virtuosoBindings.size());
-			for (Map<String, Map<?, ?>> virtuosoBinding: virtuosoBindings) {
-				Map<String, String> ourBinding = new HashMap<String, String>();
-				for (String variable: virtuosoBinding.keySet()) {
-					ourBinding.put(variable, (String)virtuosoBinding.get(variable).get("value"));
-				}
-				localBindings.add(ourBinding);
-			}
-			return localBindings;
-		}
+//		private Map<String, String> getPostParameters(String query)
+//		{
+//			Map<String, String> parameters = new HashMap<String, String>();
+//			parameters.put("query", query);
+//			parameters.put("format", "JSON");
+//			if (graphName != null)
+//				parameters.put("default-graph-uri", graphName);
+//			return parameters;
+//		}
+//		
+//		@SuppressWarnings("unchecked")
+//		public static List<Map<String, String>> convertResults(Object result)
+//		{
+//			List<Map<String, Map<?, ?>>> virtuosoBindings = (List<Map<String, Map<?, ?>>>)((Map<?, ?>)((Map<?, ?>)result).get("results")).get("bindings");
+//			List<Map<String, String>> localBindings = new ArrayList<Map<String, String>>(virtuosoBindings.size());
+//			for (Map<String, Map<?, ?>> virtuosoBinding: virtuosoBindings) {
+//				Map<String, String> ourBinding = new HashMap<String, String>();
+//				for (String variable: virtuosoBinding.keySet()) {
+//					ourBinding.put(variable, (String)virtuosoBinding.get(variable).get("value"));
+//				}
+//				localBindings.add(ourBinding);
+//			}
+//			return localBindings;
+//		}
 	}
 }

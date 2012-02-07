@@ -17,6 +17,13 @@ public class DefaultClassTracker implements ClassTracker
 		seen = new HashSet<OntClass>();
 	}
 	
+	public DefaultClassTracker(ClassTracker base)
+	{
+		this();
+		if (base instanceof DefaultClassTracker)
+			seen.addAll(((DefaultClassTracker)base).seen);
+	}
+	
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.decompose.ClassTracker#seen(com.hp.hpl.jena.ontology.OntClass)
 	 */

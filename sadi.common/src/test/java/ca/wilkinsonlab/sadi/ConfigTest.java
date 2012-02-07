@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.common;
+package ca.wilkinsonlab.sadi;
 
 import static org.junit.Assert.*;
 

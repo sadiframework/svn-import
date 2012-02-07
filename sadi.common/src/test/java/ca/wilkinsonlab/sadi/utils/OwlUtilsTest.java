@@ -119,6 +119,7 @@ public class OwlUtilsTest
 				localModel.createClass(OWL.Thing.getURI()), OwlUtils.getDefaultRange(objectP));
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testListRestrictedPropertiesString() throws Exception
 	{

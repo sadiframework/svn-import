@@ -49,20 +49,22 @@ public abstract class RegistryBase implements Registry
 		String graphName = config.getString(SPARQL_GRAPH_KEY);
 		String dsn = config.getString(MYSQL_DSN_KEY);
 		String file = config.getString("file");
+		Logger log = getLog();
 		if (endpointURL != null) {
-			getLog().info(String.format("creating Virtuoso-backed registry model from %s(%s)", endpointURL, graphName));
+			if (log.isDebugEnabled())
+				log.debug(String.format("creating Virtuoso-backed registry model from %s(%s)", endpointURL, graphName));
 			backend = QueryExecutorFactory.createVirtuosoSPARQLEndpointQueryExecutor(endpointURL, graphName);
 		} else if (dsn != null) {
-			getLog().info(String.format("creating JDBC-backed registry model from %s", dsn));
+			if (log.isDebugEnabled())
+				log.debug(String.format("creating JDBC-backed registry model from %s", dsn));
 			backend = QueryExecutorFactory.createJDBCJenaModelQueryExecutor(config.getString(DRIVER_KEY), dsn, config.getString(MYSQL_USERNAME_KEY), config.getString(MYSQL_PASSWORD_KEY), graphName);
 		} else if (file != null) {
-			getLog().info(String.format("creating file-backed registry model from %s", file));
+			if (log.isDebugEnabled())
+				log.debug(String.format("creating file-backed registry model from %s", file));
 			backend = QueryExecutorFactory.createFileModelQueryExecutor(file);
 		} else {
-			getLog().warn("no configuration found; creating transient registry model");
-			/* TODO this file isn't automatically reread when updated;
-			 * maybe reopen models for each query?
-			 */
+			if (log.isDebugEnabled())
+				log.warn("no configuration found; creating transient registry model");
 			backend = QueryExecutorFactory.createJenaModelQueryExecutor(ModelFactory.createDefaultModel());
 		}
 		

@@ -31,7 +31,7 @@ public class SingleQueryTest
 		
 		String query;
 		
-		query = ExampleQueries.getQueryByHtmlListIndex(5);
+		query = ExampleQueries.getQueryByHtmlListIndex(6);
 		
 //		query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
 //				"PREFIX simple: <http://biordf.net/cardioSHARE/simple.owl#> " +
@@ -218,13 +218,59 @@ public class SingleQueryTest
 //			"  <http://bio2rdf.org/uniprot:P12345> <http://purl.uniprot.org/core/classifiedWith> ?term . " +
 //			"  ?term <http://semanticscience.org/resource/SIO_000226> ?protein " +
 //			"}";
-		
-		query = 
-			"SELECT ?gName\n" + 
-			"WHERE {\n" + 
-			"  ?drug drugbank:brandName \"Vasotec\" .\n" + 
-			"  ?drug drugbank:genericName ?gName\n" + 
-			"}";
+//		
+//		query = 
+//			"SELECT ?gName\n" + 
+//			"WHERE {\n" + 
+//			"  ?drug drugbank:brandName \"Vasotec\" .\n" + 
+//			"  ?drug drugbank:genericName ?gName\n" + 
+//			"}";
+//		
+//		query =
+//			"PREFIX sadi: <http://sadiframework.org/ontologies/properties.owl#> " +
+//			"PREFIX sio: <http://semanticscience.org/resource/> " +
+//			"PREFIX taxon: <http://lsrn.org/taxon:> " +
+//			"SELECT *" +
+//			"FROM <http://tomcat.dev.biordf.net/sadi-blast/t/dragon-input.rdf>" +
+//			"WHERE {" +
+//			"  ?qseq sio:SIO_000028 ?qsubseq . " +
+//			"  ?qsubseq sio:SIO_000068 ?blasthit . " +
+//			"  ?blasthit sio:SIO_000028 ?alignment . " +
+//			"  ?alignment sio:SIO_000028 ?hsubseq . " +
+//			"  ?hsubseq sio:SIO_000068 ?hseq . " +
+//			"  ?hseq sadi:fromOrganism taxon:4151 . " +
+//			"}";
+//		
+//		query =
+//			"PREFIX sadi: <http://sadiframework.org/ontologies/properties.owl#> \n" + 
+//			"PREFIX sio: <http://semanticscience.org/resource/> \n" + 
+//			"PREFIX taxon: <http://lsrn.org/taxon:> \n" + 
+//			"SELECT DISTINCT ?hseq\n" + 
+//			"FROM <http://tomcat.dev.biordf.net/sadi-blast/t/dragon-input.rdf>\n" + 
+//			"WHERE {  \n" + 
+//			"  ?qseq sio:SIO_000028 ?qsubseq . \n" + 
+//			"  ?qsubseq sio:SIO_000068 ?alignment . \n" + 
+//			"  ?alignment sio:SIO_000028 ?hsubseq . \n" + 
+//			"  ?hsubseq sio:SIO_000068 ?hseq . \n" + 
+//			"  ?hseq sadi:fromOrganism taxon:4151 . \n" + 
+//			"}";
+//		
+//		query =
+//			"PREFIX info: <http://sadiframework.org/ontologies/service_objects.owl#>\n" + 
+//			"PREFIX an: <http://sadiframework.org/ontologies/AntirrhinumServices.owl#>\n" + 
+//			"PREFIX genetics:  <http://sadiframework.org/ontologies/helper.owl#>\n" + 
+//			"PREFIX locus: <http://lsrn.org/DragonDB_Locus:>\n" + 
+//			"SELECT ?allele  \n" + 
+//			"where {\n" + 
+//			"      locus:DEF      an:has_allele        ?allele         \n" + 
+//			"}";
+//		
+//		query = 
+//			"PREFIX sio: <http://semanticscience.org/resource/> \n" + 
+//			"SELECT * \n" +
+//			"WHERE { \n" +
+//			"    <http://opencitations.net/id/expression:pmid/12682359> sio:SIO_000252 ?o .\n" +
+//			"}";
 		
 		log.info( String.format("executing query\n%s", query) );
 		
@@ -248,7 +294,7 @@ public class SingleQueryTest
 		log.info( buf.toString() );
 		
 		try {
-			client.getDataModel().write(new FileOutputStream(OUTPUT_FILENAME));
+			client.getDataModel().write(new FileOutputStream(OUTPUT_FILENAME), "N3");
 		} catch (Exception e) {
 			log.error( String.format("error writing to %s: %s", OUTPUT_FILENAME, e) );
 		}
