@@ -30,13 +30,11 @@ import ca.wilkinsonlab.sadi.client.RegistrySearchCriteria;
 import ca.wilkinsonlab.sadi.client.Service;
 import ca.wilkinsonlab.sadi.client.ServiceInputPair;
 import ca.wilkinsonlab.sadi.client.ServiceStatus;
-import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -56,7 +54,7 @@ public class BioMobyRegistry extends RegistryBase
 	
 	private static final String NAMESPACE_PROPERTIES = "namespace.properties";
 
-	private OntModel predicateOntology;
+//	private OntModel predicateOntology;
 	private OntModel typeOntology;
 	private Collection<Pattern> inputUriPatterns;
 	private Map<String, String> namespaceMap;
@@ -94,7 +92,7 @@ public class BioMobyRegistry extends RegistryBase
 			log.error("failed to load namespace map", e);
 		}
 		
-		predicateOntology = createPredicateOntology();
+//		predicateOntology = createPredicateOntology();
 		typeOntology = createTypeOntology();
 		
 		try {
@@ -122,12 +120,12 @@ public class BioMobyRegistry extends RegistryBase
 		return config;
 	}
 
-	private OntModel createPredicateOntology()
-	{
-		/* TODO remove this once we're passing around actual Jena properties...
-		 */
-		return ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
-	}
+//	private OntModel createPredicateOntology()
+//	{
+//		/* TODO remove this once we're passing around actual Jena properties...
+//		 */
+//		return ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM );
+//	}
 	
 	private OntModel createTypeOntology()
 	{
@@ -318,30 +316,30 @@ public class BioMobyRegistry extends RegistryBase
 		return central;
 	}
 	
-	OntModel getPredicateOntology()
-	{
-		return predicateOntology;
-	}
+//	OntModel getPredicateOntology()
+//	{
+//		return predicateOntology;
+//	}
 	
 	OntModel getTypeOntology()
 	{
 		return typeOntology;
 	}
 	
-	boolean isDatatypeProperty(String predicate)
-	{
-		try {
-			OntProperty p = OwlUtils.getOntPropertyWithLoad(getPredicateOntology(), predicate);
-			if (p == null) {
-				log.warn(String.format("creating undefined property %s", predicate));
-				p = getPredicateOntology().createOntProperty(predicate);
-			}
-			return p.isDatatypeProperty();
-		} catch (SADIException e) {
-			log.error(e.getMessage());
-			return false;
-		}
-	}
+//	boolean isDatatypeProperty(String predicate)
+//	{
+//		try {
+//			OntProperty p = OwlUtils.getOntPropertyWithLoad(getPredicateOntology(), predicate);
+//			if (p == null) {
+//				log.warn(String.format("creating undefined property %s", predicate));
+//				p = getPredicateOntology().createOntProperty(predicate);
+//			}
+//			return p.isDatatypeProperty();
+//		} catch (SADIException e) {
+//			log.error(e.getMessage());
+//			return false;
+//		}
+//	}
 	
 	OntClass getTypeByNamespace(MobyNamespace ns)
 	{
