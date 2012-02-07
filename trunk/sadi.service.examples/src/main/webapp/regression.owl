@@ -172,5 +172,5 @@
     
     <owl:ObjectProperty rdf:about="&sio;SIO_000008"/>
     <owl:ObjectProperty rdf:about="&sio;SIO_000059"/>
-    <owl:DataProperty rdf:about="&sio;SIO_000300"/>
+    <owl:DatatypeProperty rdf:about="&sio;SIO_000300"/>
 </rdf:RDF>
