@@ -30,6 +30,7 @@ import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
@@ -420,6 +421,8 @@ public class BioMobyService extends ServiceBase
 		try {
 			response = BioMobyHelper.callService(mobyService, contentInstance, secondaryParameters);
 		} catch (Exception e) {
+//		if (e instanceof org.biomoby.shared.SOAPException)
+//			service is dead...
 			throw new ServiceInvocationException(String.format("failed to invoke BioMoby service: %s", e.getMessage()), e);
 		}
 		
@@ -527,7 +530,8 @@ public class BioMobyService extends ServiceBase
 			 * and output objects.  (However, we're not allowed to do that if the property
 			 * is a datatype property).  -- B.V.
 			 */
-			if (sourceRegistry.isDatatypeProperty(predicate.getURI())) {
+			if (predicate instanceof OntProperty && ((OntProperty)predicate).isDatatypeProperty()) {
+//			if (sourceRegistry.isDatatypeProperty(predicate.getURI())) {
 				log.error(String.format("datatype property <%s> doesn't have a construct query", predicate));
 				return;
 			} else {
