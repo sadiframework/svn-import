@@ -55,6 +55,17 @@
 
   <owl:Class rdf:about="#StackTraceElement"/>
 
+  <owl:ObjectProperty rdf:about="#serviceStatus">
+    <rdfs:range rdf:resource="#ServiceStatus"/>
+  </owl:ObjectProperty>
+
+  <owl:Class rdf:about="#ServiceStatus"/>
+
+  <sadi:ServiceStatus rdf:about="#ok"/>
+  <sadi:ServiceStatus rdf:about="#slow"/>
+  <sadi:ServiceStatus rdf:about="#incorrect"/>
+  <sadi:ServiceStatus rdf:about="#dead"/>
+
 <!--
   <owl:Class rdf:about="StackTrace">
     <owl:equivalentClass>
