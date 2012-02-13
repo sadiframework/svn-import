@@ -50,6 +50,15 @@ public class VirtuosoServerUtils {
 		String virtuosoBinary = properties.getProperty(VIRTUOSO_BINARY_CONFIG_KEY);
 		String virtuosoHttpRoot = properties.getProperty(VIRTUOSO_HTTP_ROOT_CONFIG_KEY);
 
+		if (virtuosoBinary == null || virtuosoHttpRoot == null) {
+			throw new RuntimeException(
+					String.format("no values specified for required keys '%s' and/or '%s' in %s file",
+							VIRTUOSO_BINARY_CONFIG_KEY,
+							VIRTUOSO_HTTP_ROOT_CONFIG_KEY,
+							VIRTUOSO_CONFIG_FILE
+				));
+		}
+
 		/* make a virtuoso.ini */
 
 		File iniFile = new File(tempDir, VIRTUOSO_INI_FILE);
