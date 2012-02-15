@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.4"
+ xmlns="http://java.sun.com/xml/ns/j2ee"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+  
+  <servlet>
+    <servlet-name>proxy</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.proxy.ServiceProxyServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>get-proxy</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.proxy.GETProxyServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>er-proxy</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.proxy.EntityRecognitionProxyServlet</servlet-class>
+  </servlet>
+  
+  <servlet-mapping>
+    <servlet-name>proxy</servlet-name>
+    <url-pattern>/proxy</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>get-proxy</servlet-name>
+    <url-pattern>/get-proxy</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>er-proxy</servlet-name>
+    <url-pattern>/er-proxy</url-pattern>
+  </servlet-mapping>
+  
+</web-app>
