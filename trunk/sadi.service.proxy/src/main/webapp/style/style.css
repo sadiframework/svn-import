@@ -1,0 +1,65 @@
+#client-form {
+  margin-top: 2em;
+  margin-bottom: 2em;
+  margin-left: 6.25%;
+  padding: .25em;
+  background: #f4f8fc;
+  border: 1px solid #e6efef;
+}
+#client-form label {
+  color: #386eba;
+  display: block;
+}
+#client-form input, #client-form textarea {
+  display: block;
+  margin: 1em 5%;
+}
+#client-form input[type='text'], #client-form textarea {
+  width: 90%;
+}
+#client-form #format {
+  border: none;
+  margin: 1em 5%;
+  padding: 0;
+}
+#client-form #format input, #client-form #format label {
+  display: inline;
+  margin: 0 .25em;
+}
+#client-form #format input {
+  margin-left: 2em;
+}
+/* #client-form #serviceURL-label {
+  display: block;
+}
+#client-form #serviceURL {
+  display: block;
+  margin: 1em 5%;
+  width: 90%;
+}
+#client-form #input-label {
+  display: block;
+}
+#client-form #input {
+  display: block;
+  margin: 1em 5%;
+  width: 90%;
+} */
+/* #client-form #inputURL-label {
+  display: block;
+  padding-left: .25em;
+}
+#client-form #inputURL {
+  display: block;
+  margin: 1em 5%;
+  width: 90%;
+}
+#client-form #format-label {
+  display: block;
+}
+ */
+#client-form #submit {
+  /* display: block; */
+  margin-top: 1em;
+  margin-left: 45%;
+}
