@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import ca.elmonline.util.CountingMap;
 import ca.wilkinsonlab.sadi.vocab.Patients;
+import ca.wilkinsonlab.sadi.vocab.Regression;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
 import com.hp.hpl.jena.ontology.OntModel;
@@ -21,6 +22,7 @@ import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -30,15 +32,16 @@ public class MakePatientDataTest
 	
 	private static final String LONG_QUERY = 
 		"PREFIX patients: <http://sadiframework.org/ontologies/patients.owl#> \n" + 
+		"PREFIX regress: <http://sadiframework.org/examples/regression.owl#> \n" + 
 		"PREFIX sio: <http://semanticscience.org/resource/> \n" + 
 		"SELECT ?patient ?bun ?creat \n" + 
-//		"FROM <http://sadiframework.org/examples/patients.rdf>\n" + 
-//		"FROM <http://sadiframework.org/examples/patients.owl>\n" + 
+		"FROM <http://sadiframework.org/ontologies/patients.rdf>\n" + 
+		"FROM <http://sadiframework.org/ontologies/patients.owl>\n" + 
 		"WHERE {\n" + 
 		"	?patient patients:creatinineLevels ?creats . \n" + 
-//		"	?creats regress:hasRegressionModel ?model . \n" + 
-//		"	?model regress:slope ?slope\n" + 
-//		"		FILTER ( ?slope > 0 ) .\n" + 
+		"	?creats regress:hasRegressionModel ?model . \n" + 
+		"	?model regress:slope ?slope\n" + 
+		"		FILTER ( ?slope > 0 ) .\n" + 
 		"	?creats sio:SIO_000059 ?creatEvent . \n" +
 		"	?creatEvent sio:SIO_000008 ?creatMeasurementNode . \n" +
 		"	?creatMeasurementNode a patients:Measurement . \n" +
@@ -72,15 +75,15 @@ public class MakePatientDataTest
 
 	@SuppressWarnings("unused")
 	private static final String SHORT_QUERY = 
-		"PREFIX patients: <http://sadiframework.org/examples/patients.owl#> \n" + 
-		"PREFIX sadi: <http://sadiframework.org/ontologies/predicates.owl#> \n" + 
+		"PREFIX patients: <http://sadiframework.org/ontologies/patients.owl#> \n" + 
+		"PREFIX regress: <http://sadiframework.org/examples/regression.owl#> \n" + 
 		"SELECT ?patient ?bun ?creat \n" + 
-		"FROM <http://sadiframework.org/examples/patients.rdf>\n" + 
-		"FROM <http://sadiframework.org/examples/patients.owl>\n" + 
+		"FROM <http://sadiframework.org/ontologies/patients.rdf> \n" + 
+		"FROM <http://sadiframework.org/ontologies/patients.owl> \n" + 
 		"WHERE {\n" + 
 		"	?patient a patients:LikelyRejector . \n" + 
 		"	?patient patients:creatinineLevels ?creats . \n" + 
-		"	?creats regress:yForLargestX ?creat . \n" +  
+		"	?creats regress:yForLargestX ?creat . \n" + 
 		"	?patient patients:BUNLevels ?buns . \n" + 
 		"	?buns regress:yForLargestX ?bun . \n" + 
 		"}";
@@ -93,6 +96,14 @@ public class MakePatientDataTest
 		model = OwlUtils.createDefaultReasoningModel();
 		model.read("http://sadiframework.org/ontologies/patients.rdf");
 		model.read("http://sadiframework.org/ontologies/patients.owl");
+		
+		// add slopes...
+		for (RDFNode o: model.listObjectsOfProperty(Patients.creatinineLevels).toList()) {
+			Resource collection = o.asResource();
+			Resource regressionModel = model.createResource(Regression.LinearRegressionModel);
+			regressionModel.addLiteral(Regression.slope, 1.0);
+			collection.addProperty(Regression.hasRegressionModel, regressionModel);
+		}
 	}
 
 	@AfterClass
@@ -119,7 +130,7 @@ public class MakePatientDataTest
 	{
 		QueryExecution qe = QueryExecutionFactory.create(LONG_QUERY, model);
 		ResultSet resultSet = qe.execSelect();
-//		System.out.println(ResultSetFormatter.asText(resultSet));
+		System.out.println(ResultSetFormatter.asText(resultSet));
 		assertTrue("no results", resultSet.hasNext());
 		CountingMap<RDFNode> seen = new CountingMap<RDFNode>();
 		while (resultSet.hasNext()) {
