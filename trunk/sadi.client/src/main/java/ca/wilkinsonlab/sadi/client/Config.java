@@ -95,7 +95,7 @@ public class Config extends ca.wilkinsonlab.sadi.Config
 	{
 		synchronized(this) {
 			if (masterRegistry == null) {
-				masterRegistry = new MultiRegistry(priorityList);
+				masterRegistry = new MultiRegistry(getRegistries());
 			}
 			return masterRegistry;
 		}
