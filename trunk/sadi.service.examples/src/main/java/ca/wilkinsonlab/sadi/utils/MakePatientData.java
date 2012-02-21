@@ -131,7 +131,7 @@ public class MakePatientData
 	{
 		Resource collection = RdfUtils.getPropertyValue(patient, p, null);
 		if (collection == null) {
-			collection = patient.getModel().createResource();
+			collection = patient.getModel().createResource(RdfUtils.createUniqueURI());
 			patient.addProperty(p, collection);
 		}
 		return collection;
