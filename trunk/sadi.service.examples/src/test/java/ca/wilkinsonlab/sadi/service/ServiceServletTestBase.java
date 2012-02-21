@@ -44,7 +44,7 @@ public abstract class ServiceServletTestBase extends TestCase
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception
 	{
-		System.setProperty("sadi.service.ignoreForcedURL", null);
+		System.clearProperty("sadi.service.ignoreForcedURL");
 		LocationMapper.get().removeAltPrefix(PRODUCTION_URI_PREFIX);
 	}
 	
