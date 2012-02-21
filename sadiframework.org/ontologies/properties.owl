@@ -19,7 +19,6 @@
      xmlns:sadi="&sadi;">
 
     <owl:Ontology rdf:about="">
-    	<!-- 
         <owl:imports rdf:resource="&sio;SIO_000008"/>
         <owl:imports rdf:resource="&sio;SIO_000061"/>
         <owl:imports rdf:resource="&sio;SIO_000062"/>
@@ -34,7 +33,6 @@
         <owl:imports rdf:resource="&sio;SIO_000225"/>
         <owl:imports rdf:resource="&sio;SIO_010302"/>
         <owl:imports rdf:resource="&sio;SIO_000226"/>
-         -->
     </owl:Ontology>
     
     <owl:ObjectProperty rdf:about="#hasParticipant">
