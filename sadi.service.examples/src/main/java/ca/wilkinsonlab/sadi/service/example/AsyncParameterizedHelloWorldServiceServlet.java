@@ -56,6 +56,17 @@ public class AsyncParameterizedHelloWorldServiceServlet extends AsynchronousServ
 	private static final long serialVersionUID = 1L;
 
 	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#prepareOutputModel(com.hp.hpl.jena.rdf.model.Model)
+	 */
+	@Override
+	protected Model prepareOutputModel(Model inputModel)
+	{
+		Model model = super.prepareOutputModel(inputModel);
+		model.setNsPrefix("hello", Vocab.NS);
+		return model;
+	}
+
+	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet#processInput(com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource, com.hp.hpl.jena.rdf.model.Resource)
 	 */
 	@Override
