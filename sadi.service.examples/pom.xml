@@ -12,7 +12,7 @@
   <parent>
     <groupId>ca.wilkinsonlab.sadi</groupId>
     <artifactId>sadi-webapp</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1-SNAPSHOT</version>
   </parent>
   <build>
     <finalName>sadi-examples</finalName>
@@ -44,7 +44,6 @@
       	<artifactId>maven-jetty-plugin</artifactId>
       	<version>6.1.10</version>
       	<configuration>
-          <scanIntervalSeconds>5</scanIntervalSeconds>
       	  <connectors>
             <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
               <port>8180</port>
