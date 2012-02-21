@@ -24,6 +24,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.util.LocationMapper;
 
 public class RegistryImplTest
 {
@@ -45,6 +46,7 @@ public class RegistryImplTest
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
+		LocationMapper.get().addAltEntry("http://sadiframework.org/examples/regression.owl", "file:src/test/resources/regression.owl");
 		registry = new RegistryImpl(QueryExecutorFactory.createVirtuosoSPARQLEndpointQueryExecutor(TEST_REGISTRY_ENDPOINT, TEST_REGISTRY_GRAPH));
 		
 		inputModel = ModelFactory.createMemModelMaker().createFreshModel();
