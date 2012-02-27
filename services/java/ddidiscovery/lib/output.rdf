@@ -1,0 +1,183 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.1="http://sadi-ontology.semanticscience.org/ddiv2.owl#"
+    xmlns:j.0="http://semanticscience.org/resource/"
+    xmlns:j.2="http://purl.oclc.org/SADI/LSRN/">
+  <j.1:DDI_00005 rdf:about="http://example.org/anInput">
+    <j.0:SIO_000062>
+      <j.1:DDI_00000 rdf:about="urn:uuid:0a3b9dd6-bdf1-4265-94a4-70bd0dad1fe3">
+        <j.0:SIO_000554 rdf:resource="http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00054"/>
+        <j.0:SIO_000253>
+          <j.0:SIO_000087 rdf:about="urn:uuid:46dc41fe-1e07-439c-98cc-877c6714b375">
+            <j.0:SIO_000008>
+              <rdf:Description rdf:about="urn:uuid:c9bd4ab0-02d6-4b16-b58c-fdd137f63944">
+                <j.0:SIO_000300>22139684</j.0:SIO_000300>
+              </rdf:Description>
+            </j.0:SIO_000008>
+          </j.0:SIO_000087>
+        </j.0:SIO_000253>
+        <j.0:SIO_000132 rdf:resource="http://example.org/anInput"/>
+        <j.0:SIO_000132>
+          <j.0:SIO_010004 rdf:about="urn:uuid:e2d63899-07bd-4757-b2fc-36bb6dd36392">
+            <j.1:DDI_00055 rdf:resource="http://example.org/anInput"/>
+            <j.0:SIO_000008>
+              <j.2:DrugBank_Identifier rdf:about="urn:uuid:089c5d2a-39a4-4100-a5a0-814c5029f881">
+                <j.0:SIO_000300>DB00404</j.0:SIO_000300>
+              </j.2:DrugBank_Identifier>
+            </j.0:SIO_000008>
+          </j.0:SIO_010004>
+        </j.0:SIO_000132>
+      </j.1:DDI_00000>
+    </j.0:SIO_000062>
+    <j.0:SIO_000062>
+      <j.1:DDI_00000 rdf:about="urn:uuid:076268e8-4196-43b8-84ce-a271c05a40db">
+        <j.0:SIO_000554 rdf:resource="http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00054"/>
+        <j.0:SIO_000253>
+          <j.0:SIO_000087 rdf:about="urn:uuid:857e117a-ef2f-4f21-8e84-52399c882136">
+            <j.0:SIO_000008>
+              <rdf:Description rdf:about="urn:uuid:69786324-f041-4cdc-9d6b-09638a119fd9">
+                <j.0:SIO_000300>22139684</j.0:SIO_000300>
+              </rdf:Description>
+            </j.0:SIO_000008>
+          </j.0:SIO_000087>
+        </j.0:SIO_000253>
+        <j.0:SIO_000132 rdf:resource="http://example.org/anInput"/>
+        <j.0:SIO_000132>
+          <j.0:SIO_010004 rdf:about="urn:uuid:287e293c-66fb-49db-80c6-e68493a13075">
+            <j.1:DDI_00055 rdf:resource="http://example.org/anInput"/>
+            <j.0:SIO_000008>
+              <j.2:DrugBank_Identifier rdf:about="urn:uuid:6d10a02c-7d9e-4b7e-89e7-701d8f10eaf5">
+                <j.0:SIO_000300>DB00762</j.0:SIO_000300>
+              </j.2:DrugBank_Identifier>
+            </j.0:SIO_000008>
+          </j.0:SIO_010004>
+        </j.0:SIO_000132>
+      </j.1:DDI_00000>
+    </j.0:SIO_000062>
+    <j.0:SIO_000062>
+      <j.1:DDI_00000 rdf:about="urn:uuid:4840496f-6e2e-4eb6-b57b-786248ddb82c">
+        <j.0:SIO_000554 rdf:resource="http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00054"/>
+        <j.0:SIO_000253>
+          <j.0:SIO_000087 rdf:about="urn:uuid:bea7a997-9b94-4d1b-98d8-e4d8bb3ea5ca">
+            <j.0:SIO_000008>
+              <rdf:Description rdf:about="urn:uuid:969b74e0-aa56-4d76-96a0-8158f247f81c">
+                <j.0:SIO_000300>22139684</j.0:SIO_000300>
+              </rdf:Description>
+            </j.0:SIO_000008>
+          </j.0:SIO_000087>
+        </j.0:SIO_000253>
+        <j.0:SIO_000132 rdf:resource="http://example.org/anInput"/>
+        <j.0:SIO_000132>
+          <j.0:SIO_010004 rdf:about="urn:uuid:a4542561-a71d-46a1-baf3-f954c438e606">
+            <j.1:DDI_00055 rdf:resource="http://example.org/anInput"/>
+            <j.0:SIO_000008>
+              <j.2:DrugBank_Identifier rdf:about="urn:uuid:85c1fe12-5600-425b-8a53-e3995c51934e">
+                <j.0:SIO_000300>DB00238</j.0:SIO_000300>
+              </j.2:DrugBank_Identifier>
+            </j.0:SIO_000008>
+          </j.0:SIO_010004>
+        </j.0:SIO_000132>
+      </j.1:DDI_00000>
+    </j.0:SIO_000062>
+    <j.0:SIO_000062>
+      <j.1:DDI_00000 rdf:about="urn:uuid:0c7381af-74fc-4306-bad5-b767d366b921">
+        <j.0:SIO_000554 rdf:resource="http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00054"/>
+        <j.0:SIO_000253>
+          <j.0:SIO_000087 rdf:about="urn:uuid:6bf37df6-c331-4d4c-83b6-07eaf4dd751d">
+            <j.0:SIO_000008>
+              <rdf:Description rdf:about="urn:uuid:08d64186-7020-416f-a886-a9222563fd0f">
+                <j.0:SIO_000300>22139684</j.0:SIO_000300>
+              </rdf:Description>
+            </j.0:SIO_000008>
+          </j.0:SIO_000087>
+        </j.0:SIO_000253>
+        <j.0:SIO_000132 rdf:resource="http://example.org/anInput"/>
+        <j.0:SIO_000132>
+          <j.0:SIO_010004 rdf:about="urn:uuid:9d68c39d-9244-4e6f-aeb6-ef9a212b3076">
+            <j.1:DDI_00055 rdf:resource="http://example.org/anInput"/>
+            <j.0:SIO_000008>
+              <j.2:DrugBank_Identifier rdf:about="urn:uuid:d4eb0856-c46e-4731-abf9-96c275069e9d">
+                <j.0:SIO_000300>DB00224</j.0:SIO_000300>
+              </j.2:DrugBank_Identifier>
+            </j.0:SIO_000008>
+          </j.0:SIO_010004>
+        </j.0:SIO_000132>
+      </j.1:DDI_00000>
+    </j.0:SIO_000062>
+    <j.0:SIO_000062>
+      <j.1:DDI_00000 rdf:about="urn:uuid:4d0637ab-fd67-4621-a4fa-1dfb2146e1b1">
+        <j.0:SIO_000554 rdf:resource="http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00054"/>
+        <j.0:SIO_000253>
+          <j.0:SIO_000087 rdf:about="urn:uuid:2ce7744e-453c-46ea-8dd0-255a7a189f23">
+            <j.0:SIO_000008>
+              <rdf:Description rdf:about="urn:uuid:3a2dac2a-4e93-4dd0-aaff-eadb3f9fb103">
+                <j.0:SIO_000300>22139684</j.0:SIO_000300>
+              </rdf:Description>
+            </j.0:SIO_000008>
+          </j.0:SIO_000087>
+        </j.0:SIO_000253>
+        <j.0:SIO_000132 rdf:resource="http://example.org/anInput"/>
+        <j.0:SIO_000132>
+          <j.0:SIO_010004 rdf:about="urn:uuid:d8957987-e905-4002-ad04-2dedb4701849">
+            <j.1:DDI_00055 rdf:resource="http://example.org/anInput"/>
+            <j.0:SIO_000008>
+              <j.2:DrugBank_Identifier rdf:about="urn:uuid:5a38f291-8519-45ed-a45a-125464b9da31">
+                <j.0:SIO_000300>DB00864</j.0:SIO_000300>
+              </j.2:DrugBank_Identifier>
+            </j.0:SIO_000008>
+          </j.0:SIO_010004>
+        </j.0:SIO_000132>
+      </j.1:DDI_00000>
+    </j.0:SIO_000062>
+    <j.0:SIO_000062>
+      <j.1:DDI_00000 rdf:about="urn:uuid:ae973bcb-1a29-4ecc-a8f0-bf4eccff0b96">
+        <j.0:SIO_000554 rdf:resource="http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00054"/>
+        <j.0:SIO_000253>
+          <j.0:SIO_000087 rdf:about="urn:uuid:ad730590-cec1-4b37-b923-281503a529f5">
+            <j.0:SIO_000008>
+              <rdf:Description rdf:about="urn:uuid:617f713e-2201-4a18-a5a4-4e7e8e246a2b">
+                <j.0:SIO_000300>22139684</j.0:SIO_000300>
+              </rdf:Description>
+            </j.0:SIO_000008>
+          </j.0:SIO_000087>
+        </j.0:SIO_000253>
+        <j.0:SIO_000132 rdf:resource="http://example.org/anInput"/>
+        <j.0:SIO_000132>
+          <j.0:SIO_010004 rdf:about="urn:uuid:2b411f59-057e-492f-97c5-81dee162a3b6">
+            <j.1:DDI_00055 rdf:resource="http://example.org/anInput"/>
+            <j.0:SIO_000008>
+              <j.2:DrugBank_Identifier rdf:about="urn:uuid:892cc457-e212-4e4e-b2ba-e93fdb4ab75d">
+                <j.0:SIO_000300>DB00091</j.0:SIO_000300>
+              </j.2:DrugBank_Identifier>
+            </j.0:SIO_000008>
+          </j.0:SIO_010004>
+        </j.0:SIO_000132>
+      </j.1:DDI_00000>
+    </j.0:SIO_000062>
+    <j.0:SIO_000062>
+      <j.1:DDI_00000 rdf:about="urn:uuid:8f9ef28e-e9e8-43d4-81e2-567212b83438">
+        <j.0:SIO_000554 rdf:resource="http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00054"/>
+        <j.0:SIO_000253>
+          <j.0:SIO_000087 rdf:about="urn:uuid:e73e6e3a-3371-47bd-b920-092a20d47167">
+            <j.0:SIO_000008>
+              <rdf:Description rdf:about="urn:uuid:a8872113-ca93-4809-8f35-30d727df2078">
+                <j.0:SIO_000300>10981246</j.0:SIO_000300>
+              </rdf:Description>
+            </j.0:SIO_000008>
+          </j.0:SIO_000087>
+        </j.0:SIO_000253>
+        <j.0:SIO_000132 rdf:resource="http://example.org/anInput"/>
+        <j.0:SIO_000132>
+          <j.0:SIO_010004 rdf:about="urn:uuid:607aa5ce-e1a6-42df-bb01-b0b820537974">
+            <j.1:DDI_00055 rdf:resource="http://example.org/anInput"/>
+            <j.0:SIO_000008>
+              <j.2:DrugBank_Identifier rdf:about="urn:uuid:14132e4e-bd69-4f4a-aaa9-a54a968f53ec">
+                <j.0:SIO_000300>DB00091</j.0:SIO_000300>
+              </j.2:DrugBank_Identifier>
+            </j.0:SIO_000008>
+          </j.0:SIO_010004>
+        </j.0:SIO_000132>
+      </j.1:DDI_00000>
+    </j.0:SIO_000062>
+  </j.1:DDI_00005>
+</rdf:RDF>
