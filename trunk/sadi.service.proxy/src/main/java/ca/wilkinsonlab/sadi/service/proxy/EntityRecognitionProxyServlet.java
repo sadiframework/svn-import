@@ -6,6 +6,8 @@ import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.htmlparser.Parser;
@@ -25,10 +27,27 @@ public class EntityRecognitionProxyServlet extends GETProxyServlet
 	private static final long serialVersionUID = 1L;
 	
 	
+	
+	@Override
+	protected Model createOutputModel()
+	{
+		Model model = super.createOutputModel();
+		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
+		model.setNsPrefix("foaf", "http://xmlns.com/foaf/0.1/");
+		model.setNsPrefix("ie", "http://unbsj.biordf.net/information-extraction/ie-sadi-service-ontology.owl#");
+		return model;
+	}
+
 	@Override
 	protected String getProxiedServiceURL(HttpServletRequest request)
 	{
-		return "http://unbsj.biordf.net/ie-sadi/extractDrugNamesFromText";
+		// TODO cache ServiceImpl before starting task...
+		try {
+			return new PropertiesConfiguration("erproxy.properties").getString("proxiedServiceURL");
+		} catch (ConfigurationException e) {
+			log.error("error loading configuration from erproxy.properties", e);
+			return "http://unbsj.biordf.net/ie-sadi/extractDrugNamesFromText";
+		}
 	}
 
 	/* (non-Javadoc)
