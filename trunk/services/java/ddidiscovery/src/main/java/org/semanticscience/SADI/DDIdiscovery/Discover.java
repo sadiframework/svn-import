@@ -45,6 +45,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
 
 @Name("DrugDrugInteractionDiscovery")
 @Description("This service takes in as input a 'chemical entity' that 'has attribute' some 'chemical identifier' and outputs an 'Annotated chemical entity' that 'is participant in' some 'drug drug interaction'")
@@ -77,17 +78,22 @@ public class Discover extends SimpleSynchronousServiceServlet {
 			Resource drugB = addi.createResourceFromDrugBankId(outputModel,
 					addi.getDrugBId());
 
+			//directionality is ascribed in the predicate label
 			ddir.addProperty(Vocab.SIO_000132, drugB);
 			// connect drugA and drugB using the drugaeffectondrugB
 			if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase("DDI_00051")) {
 				drugB.addProperty(Vocab.DDI_00051, output);
-			} else if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase(
-					"DDI_00055")) {
+			} else if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase("DDI_00055")) {
 				drugB.addProperty(Vocab.DDI_00055, output);
 			} else if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase(
 					"DDI_00014")) {
 				drugB.addProperty(Vocab.DDI_00014, output);
 			}
+			
+			//directionality is ascribed by the use of special predicates has_actor & has_target
+			
+			//directionality is ascribed through other typed resources
+			
 
 			// add the input as a participant
 			ddir.addProperty(Vocab.SIO_000132, output);
@@ -106,11 +112,19 @@ public class Discover extends SimpleSynchronousServiceServlet {
 
 			// connect the ddi with the publication
 			ddir.addProperty(Vocab.SIO_000253, pub);
+			
 			// add the results in class
 			if (addi.getResultingCondition().equalsIgnoreCase("DDI_00054")) {
+				//add the label of the condition
+				Statement stm = outputModel.createStatement(Vocab.DDI_00054, Vocab.rdfslabel, "decreased efficacy of drug"); 
+				outputModel.add(stm);
 				ddir.addProperty(Vocab.SIO_000554, Vocab.DDI_00054);
+				
 			} else if (addi.getResultingCondition().equalsIgnoreCase(
 					"DDI_00007")) {
+				//add the label of the condition
+				 Statement stm = outputModel.createStatement(Vocab.DDI_00007, Vocab.rdfslabel, "gastrointestinal bleeding"); 
+					outputModel.add(stm);
 				ddir.addProperty(Vocab.SIO_000554, Vocab.DDI_00007);
 			}
 			// the annotated chemical entity is participant in some ddi
@@ -124,6 +138,8 @@ public class Discover extends SimpleSynchronousServiceServlet {
 		private static Model m_model = ModelFactory.createDefaultModel();
 		public static Property rdftype = m_model
 				.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
+		public static Property rdfslabel = m_model
+		.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
 		public static final Resource PMID_Identifier = m_model
 				.createResource("http://purl.oclc.org/SADI/LSRN/PMID_Identifier");
 		public static final Property SIO_000145 = m_model
@@ -166,6 +182,7 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createProperty("http://semanticscience.org/resource/SIO_000554");
 		public static final Resource DDI_00054 = m_model
 				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00054");
+		
 		public static final Property SIO_000008 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000008");
 		public static final Property SIO_000132 = m_model
@@ -178,8 +195,10 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createProperty("http://semanticscience.org/resource/SIO_000364");
 		public static final Property SIO_000338 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000338");
-		public static final Property DDI_00007 = m_model
-				.createProperty("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00007");
+		public static Resource DDI_00007 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00007");
+		
+		
 		public static final Property DDI_00051 = m_model
 				.createProperty("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00051");
 		public static final Property DDI_00055 = m_model
