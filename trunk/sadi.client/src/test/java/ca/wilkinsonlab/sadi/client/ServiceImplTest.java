@@ -16,7 +16,6 @@ import ca.wilkinsonlab.sadi.utils.OwlUtils;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -86,7 +85,7 @@ public class ServiceImplTest
 	@Test
 	public void testOntology() throws Exception
 	{
-		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		OntModel model = OwlUtils.createDefaultReasoningModel();
 //		model.read(DUMMY_NS);
 //		OntClass inputClass = model.getOntClass(DUMMY_INPUT_CLASS);
 		OntClass inputClass = OwlUtils.getOntClassWithLoad(model, DUMMY_INPUT_CLASS);

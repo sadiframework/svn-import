@@ -63,7 +63,8 @@ public class QueryGeneratingRestrictionVisitor extends RestrictionAdapter
 		construct.append(variable)
 	             .append(" <").append(onProperty.getURI()).append("> ")
 	             .append(nextVariable).append(" . \n");
-		Set<OntProperty> subProperties = OwlUtils.listSubProperties(onProperty, false);
+		Set<OntProperty> subProperties = OwlUtils.getEquivalentProperties(onProperty, true);
+		subProperties.remove(onProperty);
 		RdfUtils.removeAnonymousNodes(subProperties);
 		if (subProperties.isEmpty()) {
 			where.append(variable)

@@ -201,9 +201,9 @@ public class VisitingDecomposer
 			decompose((OntClass)i.next());
 	}
 
-	protected void decomposeEquivalentClasses(Set<OntClass> set)
+	protected void decomposeEquivalentClasses(Set<OntClass> clazz)
 	{
-		for (Object equivalentClass: set)
+		for (Object equivalentClass: clazz)
 			decompose((OntClass)equivalentClass);
 	}
 

@@ -13,9 +13,9 @@ import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.utils.ExceptionUtils;
 
-public class HttpClientTest extends TestCase {
+public class HttpClientIT extends TestCase {
 
-	protected static final Logger log = Logger.getLogger(HttpClientTest.class);
+	protected static final Logger log = Logger.getLogger(HttpClientIT.class);
 
 	protected static final String TEST_URL = "http://dev.biordf.net/sparql";
 	protected static final String TEST_QUERY = "SELECT * WHERE { ?s ?p ?o } LIMIT 1";
