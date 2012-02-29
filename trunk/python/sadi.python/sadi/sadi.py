@@ -17,6 +17,13 @@ except:
     from google.appengine.ext.webapp.util import run_wsgi_app
     sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                  'gae/lib/python2.5/site-packages/'))
+modPython = False
+try:
+    from mod_python import apache, publisher
+    modPython = True
+except:
+    modPython = False
+
 from surf import *
 
 from StringIO import StringIO
@@ -271,7 +278,6 @@ class ServiceBase:
         request.setHeader('Access-Control-Allow-Origin','*')
         return self.serialize(graph,request.getHeader("Accept"))
     
-
 if googleAppEngine:
     class GAEService(ServiceBase, webapp.RequestHandler):
         def __init__(self):
@@ -319,6 +325,134 @@ else:
             return self.serialize(graph,request.getHeader("Accept"))
 
     Service = TwistedService
+
+#handler = None
+#if modPython:
+def handler(req):
+        req.allow_methods(["GET", "POST"])
+        if req.method not in ["GET", "POST"]:
+            raise apache.SERVER_RETURN, apache.HTTP_METHOD_NOT_ALLOWED
+
+        # Derive the name of the actual module which will be
+        # loaded. In older version of mod_python.publisher
+        # you can't actually have a code file name which has
+        # an embedded '.' in it except for that used by the
+        # extension. This is because the standard Python
+        # module import system which is used will think that
+        # you are importing a submodule of a package. In
+        # this code, because the standard Python module
+        # import system isn't used and the actual file is
+        # opened directly by name, an embedded '.' besides
+        # that used for the extension will technically work.
+        
+        path,module_name =  os.path.split(req.filename)
+    
+        # If the request is against a directory, fallback to
+        # looking for the 'index' module. This is determined
+        # by virtue of the fact that Apache will always add
+        # a trailing slash to 'req.filename' when it matches
+        # a directory. This will mean that the calculated
+        # module name will be empty.
+
+        if not module_name:  
+            module_name = 'index'
+
+        # Now need to strip off any special extension which
+        # was used to trigger this handler in the first place.
+            
+        suffixes = ['py']
+        suffixes += req.get_addhandler_exts().split()
+        if req.extension:
+            suffixes.append(req.extension[1:])
+
+        exp = '\\.' + '$|\\.'.join(suffixes) + '$'
+        suff_matcher = re.compile(exp)
+        module_name = suff_matcher.sub('',module_name)
+
+        # Next need to determine the path for the function
+        # which will be called from 'req.path_info'. The
+        # leading slash and possibly any trailing slash are
+        # eliminated. There would normally be at most one
+        # trailing slash as Apache eliminates duplicates
+        # from the original URI.
+
+        func_path = ''
+
+        if req.path_info:
+            func_path = req.path_info[1:]
+            if func_path[-1:] == '/':
+                func_path = func_path[:-1]
+
+        # Now determine the actual Python module code file
+        # to load. This will first try looking for the file
+        # '/path/<module_name>.py'. If this doesn't exist,
+        # will try fallback of using the 'index' module,
+        # ie., look for '/path/index.py'. In doing this, the
+        # 'func_path' gets adjusted so the lead part is what
+        # 'module_name' was set to.
+
+        req.filename = path + '/' + module_name + '.py'
+
+        if not publisher.exists(req.filename):
+            if func_path:
+                func_path = module_name + '/' + func_path
+            else:
+                func_path = module_name
+
+            module_name = 'index' 
+            req.filename = path + '/' + module_name + '.py'
+
+            if not exists(req.filename):
+                raise apache.SERVER_RETURN, apache.HTTP_NOT_FOUND
+
+        # Default to looking for the 'index' function if no
+        # function path definition was supplied.
+
+        if not func_path:
+            func_path = 'resource'
+
+        # Turn slashes into dots.
+
+        func_path = func_path.replace('/', '.')
+
+        # Normalise req.filename to avoid Win32 issues.
+
+        req.filename = publisher.normpath(req.filename)
+
+
+        # We use the page cache to load the module
+        module = publisher.page_cache[req]
+
+        # does it have an __auth__?
+        realm, user, passwd = publisher.process_auth(req, module)
+
+        # resolve the object ('traverse')
+        resource = publisher.resolve_object(req, module, func_path, realm, user, passwd)
+
+        if req.method == 'GET':
+            modelGraph = resource.getServiceDescription()
+            acceptType = 'application/rdf+xml'
+            if 'Accept' in req.headers_in:
+                acceptType = req.headers_in["Accept"]
+            acceptType = resource.getFormat(acceptType)
+            req.content_type = acceptType[0]
+            req.headers_out['Access-Control-Allow-Origin'] = '*'
+            req.write(resource.serialize(modelGraph,req.headers_in['Accept']))
+        else:
+            content = req.read()
+            contentType = "application/rdf+xml"
+            if 'Content-Type' in req.headers_in:
+                contentType = req.headers_in["Content-Type"]
+            graph = resource.processGraph(content, contentType)
+            accept = "application/rdf+xml"
+            if 'Accept' in req.headers_in:
+                accept = req.headers_in["Accept"]
+            acceptType = resource.getFormat(accept)
+            req.headers_out["Content-Type"] = acceptType[0]
+            req.headers_out['Access-Control-Allow-Origin'] = '*'
+            req.write(resource.serialize(graph,accept))
+        return apache.OK
+#    handler = sadiHandler
 
 def publishTwistedService(service, port=8080):
     root = twisted.web.resource.Resource()
