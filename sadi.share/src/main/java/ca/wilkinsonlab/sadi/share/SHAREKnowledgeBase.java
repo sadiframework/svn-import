@@ -900,7 +900,10 @@ public class SHAREKnowledgeBase
 			if (subject.isURIResource() && !dataModel.contains(subject, (Property)null, (RDFNode)null)) {
 				log.info(String.format("resolving unknown subject %s", subject));
 				try {
-					OwlUtils.loadMinimalOntologyForUri(dataModel, subject.getURI());
+					Model model = ModelFactory.createDefaultModel();
+					model.read(subject.getURI());
+					OwlUtils.extractMinimalOntology(dataModel, model, subject.getURI());
+					model.close();
 				} catch (Exception e) {
 					log.error(String.format("error resolving %s: %s", subject, e.toString()), e);
 				}
@@ -1473,9 +1476,7 @@ public class SHAREKnowledgeBase
 			}
 
 			/* TODO this will cause a problem if different ontologies accessed in
-			 * the same query have conflicting definitions; it might be worth
-			 * changing OwlUtils.getOnt(Class|Property)WithLoad to only load the
-			 * reachable closure of each requested URI...  Also, we'll need a
+			 * the same query have conflicting definitions; we'll need a
 			 * really descriptive error message for when this happens...
 			 */
 			reasoningModel.addSubModel(inputClass.getOntModel());
