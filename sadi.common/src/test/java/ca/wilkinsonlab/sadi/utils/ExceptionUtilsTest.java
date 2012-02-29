@@ -2,10 +2,10 @@ package ca.wilkinsonlab.sadi.utils;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.vocab.SADI;
@@ -19,13 +19,15 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 
 public class ExceptionUtilsTest
 {
+	private static final Logger log = Logger.getLogger(ExceptionUtils.class);
+	
 	@Test
 	public void testCreateExceptionModel() throws Exception
 	{
 		String message = "this is the exception message";
 		Exception exception = new Exception(message);
 		Model model = ExceptionUtils.createExceptionModel(exception);
-		model.write(new FileOutputStream("/tmp/exception.rdf"));
+		log.debug(String.format("exception model:\n%s", RdfUtils.logModel(model)));
 	}
 
 	@Test

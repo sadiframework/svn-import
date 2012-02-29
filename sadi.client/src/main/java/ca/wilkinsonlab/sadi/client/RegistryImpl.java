@@ -12,10 +12,10 @@ import org.apache.log4j.Logger;
 
 import ca.wilkinsonlab.sadi.SADIException;
 import ca.wilkinsonlab.sadi.beans.RestrictionBean;
+import ca.wilkinsonlab.sadi.utils.OwlUtils;
 import ca.wilkinsonlab.sadi.utils.QueryExecutor;
 
 import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -325,7 +325,7 @@ public class RegistryImpl extends RegistryBase
 			/* TODO if this is too slow, we can create an ontology model that
 			 * contains only the direct properties of the input node...
 			 */
-			OntModel base = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF, input.getModel() );
+			OntModel base = ModelFactory.createOntologyModel( OwlUtils.getDefaultReasonerSpec(), input.getModel() );
 			for (Service service: services) {
 				try {
 					if (base.getIndividual(input.getURI()).hasRDFType(service.getInputClass(), true))

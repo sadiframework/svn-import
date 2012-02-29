@@ -50,6 +50,8 @@ import ca.wilkinsonlab.sadi.Config;
  * open connections, the next HTTP request will hang indefinitely.  You may
  * explicitly specify the connection limits in the constructor for
  * this class.</p>
+ * 
+ * @author Ben Vandervalk
  */
 public class HttpClient extends DefaultHttpClient
 {

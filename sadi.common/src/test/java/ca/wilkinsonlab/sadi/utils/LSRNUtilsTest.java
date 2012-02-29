@@ -1,6 +1,6 @@
 package ca.wilkinsonlab.sadi.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -10,7 +10,6 @@ import org.junit.Test;
 
 import ca.wilkinsonlab.sadi.SADIException;
 
-import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -61,7 +60,7 @@ public class LSRNUtilsTest
 	public void testCreateInstance() throws SADIException
 	{
 		OntModel model = ModelFactory.createOntologyModel(OntModelSpec.OWL_MEM);
-		OntClass c = OwlUtils.getOntClassWithLoad(model, "http://purl.oclc.org/SADI/LSRN/UniProt_Record");
+		Resource c = model.createResource("http://purl.oclc.org/SADI/LSRN/UniProt_Record");
 		Resource instance = LSRNUtils.createInstance(c, "P12345");
 		assertTrue(String.format("new instance has incorrect URI %s", instance.getURI()),
 				instance.getURI().equals("http://lsrn.org/UniProt:P12345"));

@@ -46,7 +46,7 @@ public class RegistryImplTest
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
-		LocationMapper.get().addAltEntry("http://sadiframework.org/examples/regression.owl", "file:src/test/resources/regression.owl");
+		LocationMapper.get().addAltEntry("http://sadiframework.org/examples/regression.owl", RegistryImplTest.class.getResource("/regression.owl").toExternalForm());
 		registry = new RegistryImpl(QueryExecutorFactory.createVirtuosoSPARQLEndpointQueryExecutor(TEST_REGISTRY_ENDPOINT, TEST_REGISTRY_GRAPH));
 		
 		inputModel = ModelFactory.createMemModelMaker().createFreshModel();

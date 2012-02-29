@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.http.Header;
+import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.log4j.Logger;
@@ -30,7 +31,6 @@ import ca.wilkinsonlab.sadi.utils.http.HttpUtils.HttpStatusException;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -68,7 +68,12 @@ public class ServiceImpl extends ServiceBase
 	ServiceImpl()
 	{
 		model = ModelFactory.createDefaultModel();
-		ontModel = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		try {
+			ontModel = OwlUtils.createDefaultReasoningModel();
+		} catch (SADIException e) {
+			log.error("error creating default reasoning model", e);
+			ontModel = ModelFactory.createOntologyModel();
+		}
 		errorHandler = new QueryableErrorHandler();
 		model.getReader().setErrorHandler(errorHandler);
 		ontModel.getReader().setErrorHandler(errorHandler);
@@ -123,7 +128,7 @@ public class ServiceImpl extends ServiceBase
 		synchronized (ontModel) {
 			try {
 				if (inputClass == null) {
-					inputClass = OwlUtils.getOntClassWithLoad(ontModel, getInputClassURI(), true);
+					inputClass = OwlUtils.getOntClassWithLoad(ontModel, getInputClassURI());
 					if (errorHandler.hasLastError())
 						throw errorHandler.getLastError();
 					if (inputClass == null)
@@ -149,7 +154,7 @@ public class ServiceImpl extends ServiceBase
 		synchronized (ontModel) {
 			try {
 				if (outputClass == null) {
-					outputClass = OwlUtils.getOntClassWithLoad(ontModel, getOutputClassURI(), true);
+					outputClass = OwlUtils.getOntClassWithLoad(ontModel, getOutputClassURI());
 					if (errorHandler.hasLastError())
 						throw errorHandler.getLastError();
 					if (outputClass == null)

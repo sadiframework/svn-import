@@ -13,7 +13,6 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 public class RdfUtilsTest
@@ -165,18 +164,8 @@ public class RdfUtilsTest
 		Model model = ModelFactory.createDefaultModel();
 		RdfUtils.addNamespacePrefixes(model);
 		assertEquals("http://sadiframework.org/ontologies/properties.owl#", model.getNsPrefixURI("sadi"));
-		assertEquals("http://sadiframework.org/ontologies/predicates.owl#", model.getNsPrefixURI("sadi.old"));
+//		assertEquals("http://sadiframework.org/ontologies/predicates.owl#", model.getNsPrefixURI("sadi.old"));
 		assertEquals("http://semanticscience.org/resource/", model.getNsPrefixURI("sio"));
-		model.close();
-	}
-	
-	@Test
-	public void testLoadModelFromRemoteURL() throws IOException
-	{
-		Model model = ModelFactory.createDefaultModel();
-		String ontology = "http://sadiframework.org/ontologies/sadi.owl";
-		RdfUtils.loadModelFromString(model, ontology);
-		assertTrue(model.contains(ResourceFactory.createResource(ontology), RDF.type, OWL.Ontology));
 		model.close();
 	}
 	

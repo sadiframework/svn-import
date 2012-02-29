@@ -485,6 +485,22 @@ public class RdfUtils
 	}
 	
 	/**
+	 * Load the specified model with RDF serialized in the specified format
+	 * from the specified string.
+	 * @param model the model
+	 * @param s the inline RDF
+	 * @param type the ContentType
+	 * @return the model
+	 * @throws IOException if the inline RDF isn't valid for the specified format
+	 */
+	public static Model loadModelFromInlineRDF(Model model, String s, ContentType type) throws IOException
+	{
+		ByteArrayInputStream stream = new ByteArrayInputStream(s.getBytes());
+		type.readModel(model, stream, "");
+		return model;
+	}
+	
+	/**
 	 * Adds common namespace prefixes to the specified model.
 	 * @param model the model
 	 */
@@ -518,7 +534,7 @@ public class RdfUtils
 	}
 	
 	/**
-	 * Returns a UUID-based URI.
+	 * Returns a UUID-based URI (as per RFC 4122).
 	 * @return a UUID-based URI
 	 */
 	public static String createUniqueURI()
