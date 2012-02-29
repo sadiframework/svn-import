@@ -271,6 +271,25 @@ public class SingleQueryTest
 //			"WHERE { \n" +
 //			"    <http://opencitations.net/id/expression:pmid/12682359> sio:SIO_000252 ?o .\n" +
 //			"}";
+//		
+//		query =
+//			"PREFIX cardio: <http://es-01.chibi.ubc.ca/~soroush/framingham/cardiorisk.owl#>\n" + 
+//			"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" + 
+//			"\n" + 
+//			"SELECT  ?originalvalue ?originalunit ?convertedvalue ?canonicalunit\n" + 
+//			"FROM <http://es-01.chibi.ubc.ca/~soroush/framingham/pressuredata.rdf>\n" + 
+//			"WHERE {\n" + 
+//			"    ?pressure rdf:type cardio:SystolicBloodPressure  .\n" + 
+//			"    ?pressure cardio:hasMeasurement ?measurement1  .\n" + 
+//			"    ?measurement1 rdf:type cardio:CanonicalPressureMeasurement . \n" + 
+//			"    ?measurement1 cardio:hasValue ?convertedvalue .\n" + 
+//			"    ?measurement1 cardio:hasUnit ?canonicalunit .\n" + 
+//			"    \n" + 
+//			"    ?pressure cardio:hasMeasurement ?measurement2  .\n" + 
+//			"    ?measurement2 cardio:hasValue ?originalvalue .\n" + 
+//			"    ?measurement2 cardio:hasUnit ?originalunit .\n" + 
+//			"    FILTER regex(str(?measurement2), \"http://es-01.chibi.ubc.ca/~soroush/framingham/\")\n" + 
+//			"}";
 		
 		log.info( String.format("executing query\n%s", query) );
 		
