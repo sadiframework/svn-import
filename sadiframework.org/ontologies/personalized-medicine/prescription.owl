@@ -21,7 +21,21 @@
     <owl:Ontology rdf:about=""/>
 
     <owl:ObjectProperty rdf:about="#prescription"/> 
+    <owl:ObjectProperty rdf:about="#dosage-form"/>
+
     <owl:Class rdf:about="#Prescription"/>
+    <owl:Class rdf:about="#PrescribedDrug"/>
+    <owl:Class rdf:about="#Dose"/>
+
+    <owl:Class rdf:about="#MeasurementUnit"/>
+    <owl:Class rdf:about="#Milligrams">
+       <rdfs:subClassOf rdf:resource="#MeasurementUnit"/>
+    </owl:Class> 
+
+    <owl:Class rdf:about="#DosageForm"/>
+    <owl:Class rdf:about="#Pill">
+        <rdfs:subClassOf rdf:resource="#DosageForm"/>
+    </owl:Class> 
 
 </rdf:RDF>
 
