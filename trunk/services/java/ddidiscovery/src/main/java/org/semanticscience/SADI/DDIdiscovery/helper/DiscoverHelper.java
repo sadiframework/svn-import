@@ -143,7 +143,7 @@ public class DiscoverHelper {
 	 * @param aQuery
 	 * @return
 	 */
-	public ArrayList<DrugDrugInteraction> findDDIs(File aCSVFile,
+	/*public ArrayList<DrugDrugInteraction> findDDIs(File aCSVFile,
 			Resource aQuery) {
 		CSVReader r;
 		ArrayList<DrugDrugInteraction> rM = new ArrayList<DrugDrugInteraction>();
@@ -200,7 +200,7 @@ public class DiscoverHelper {
 		}
 
 		return rM;
-	}
+	}*/
 
 	public ArrayList<DrugDrugInteraction> findDDIs(InputStream is,
 			Resource input) {
@@ -219,9 +219,13 @@ public class DiscoverHelper {
 				String resultngCondition = "";
 				String pmid = "";
 				String description = "";
+				String drugAlabel ="";
+				String drugBlabel= "";
 
 				while ((nextLine = r.readNext()) != null) {
 					if (nextLine[0].equalsIgnoreCase(inputId)) {
+						drugAlabel = nextLine[1];
+						drugBlabel = nextLine[3];
 						drugB = nextLine[2];
 						drugBEffectOnDrugA = nextLine[6];
 						resultngCondition = nextLine[8];
@@ -229,12 +233,14 @@ public class DiscoverHelper {
 						description = nextLine[7];
 						DrugDrugInteraction ddi = new DrugDrugInteraction(
 								input, drugB, drugBEffectOnDrugA,
-								resultngCondition, pmid, description);
+								resultngCondition, pmid, description, drugAlabel, drugBlabel);
 						if (!rM.contains(ddi)) {
 							rM.add(ddi);
 						}
 					}
 					if (nextLine[2].equalsIgnoreCase(inputId)) {
+						drugAlabel = nextLine[3];
+						drugBlabel = nextLine[1];
 						drugB = nextLine[0];
 						drugBEffectOnDrugA = nextLine[6];
 						resultngCondition = nextLine[8];
@@ -242,7 +248,7 @@ public class DiscoverHelper {
 						description = nextLine[7];
 						DrugDrugInteraction ddi = new DrugDrugInteraction(
 								input, drugB, drugBEffectOnDrugA,
-								resultngCondition, pmid, description);
+								resultngCondition, pmid, description, drugAlabel, drugBlabel);
 						if (!rM.contains(ddi)) {
 							rM.add(ddi);
 						}

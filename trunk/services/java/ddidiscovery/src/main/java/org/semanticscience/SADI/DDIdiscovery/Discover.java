@@ -77,7 +77,12 @@ public class Discover extends SimpleSynchronousServiceServlet {
 			// add the participants
 			Resource drugB = addi.createResourceFromDrugBankId(outputModel,
 					addi.getDrugBId());
-
+			//add the label of the drugs
+			Statement stm = outputModel.createStatement(drugB, Vocab.rdfslabel, addi.getDrugBLabel()); 
+			outputModel.add(stm);
+			Statement stm2 = outputModel.createStatement(output, Vocab.rdfslabel, addi.getDrugALabel());
+			outputModel.add(stm2);
+			
 			//directionality is ascribed in the predicate label
 			ddir.addProperty(Vocab.SIO_000132, drugB);
 			// connect drugA and drugB using the drugaeffectondrugB
@@ -107,6 +112,7 @@ public class Discover extends SimpleSynchronousServiceServlet {
 					.createUniqueURI());
 			// add the value of the pmid to the pmidres
 			pmidIdRes.addProperty(Vocab.SIO_000300, addi.getPmid());
+			pmidIdRes.addProperty(Vocab.rdftype, Vocab.PMID_Identifier);
 			// add the PMID_identifier attribute
 			pub.addProperty(Vocab.SIO_000008, pmidIdRes);
 
@@ -116,15 +122,15 @@ public class Discover extends SimpleSynchronousServiceServlet {
 			// add the results in class
 			if (addi.getResultingCondition().equalsIgnoreCase("DDI_00054")) {
 				//add the label of the condition
-				Statement stm = outputModel.createStatement(Vocab.DDI_00054, Vocab.rdfslabel, "decreased efficacy of drug"); 
-				outputModel.add(stm);
+				Statement stm3 = outputModel.createStatement(Vocab.DDI_00054, Vocab.rdfslabel, "decreased efficacy of drug"); 
+				outputModel.add(stm3);
 				ddir.addProperty(Vocab.SIO_000554, Vocab.DDI_00054);
 				
 			} else if (addi.getResultingCondition().equalsIgnoreCase(
 					"DDI_00007")) {
 				//add the label of the condition
-				 Statement stm = outputModel.createStatement(Vocab.DDI_00007, Vocab.rdfslabel, "gastrointestinal bleeding"); 
-					outputModel.add(stm);
+				 Statement stm4 = outputModel.createStatement(Vocab.DDI_00007, Vocab.rdfslabel, "gastrointestinal bleeding"); 
+					outputModel.add(stm4);
 				ddir.addProperty(Vocab.SIO_000554, Vocab.DDI_00007);
 			}
 			// the annotated chemical entity is participant in some ddi
@@ -292,21 +298,5 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createResource("http://semanticscience.org/resource/SIO_000002");
 	}
 
-	public String test(InputStream is, Resource input) {
-		String returnMe = "";
-		CSVReader r = new CSVReader(new InputStreamReader(is));
-		String[] nextLine;
-
-		try {
-			while ((nextLine = r.readNext()) != null) {
-				returnMe += nextLine[1] + nextLine[2];
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-
-			e.printStackTrace();
-		}
-
-		return returnMe;
-	}
+	
 }
