@@ -19,6 +19,8 @@ public class DrugDrugInteraction {
 	private String resultingCondition;
 	private String description;
 	private String pmid;
+	private String drugALabel;
+	private String drugBLabel;
 
 	private Resource drugARes;
 
@@ -35,7 +37,8 @@ public class DrugDrugInteraction {
 
 	public DrugDrugInteraction(Resource aDrugARes, String aDrugBId,
 			String aDrugAEffectOnDrugB, String aResultingCondition,
-			String aPmid, String aDescription) {
+			String aPmid, String aDescription, String aDrugALabel,
+			String aDrugBLabel) {
 		this();
 		drugARes = aDrugARes;
 		drugBId = aDrugBId;
@@ -43,6 +46,8 @@ public class DrugDrugInteraction {
 		resultingCondition = aResultingCondition;
 		description = aDescription;
 		pmid = aPmid;
+		drugALabel = aDrugALabel;
+		drugBLabel = aDrugBLabel;
 	}
 
 	/**
@@ -130,17 +135,30 @@ public class DrugDrugInteraction {
 		return drugBEffectOnDrugA;
 	}
 
+	public String getDrugALabel() {
+		return drugALabel;
+	}
+
+	public String getDrugBLabel() {
+		return drugBLabel;
+	}
+
 	public void setDrugBEffectOnDrugA(String drugBEffectOnDrugA) {
 		this.drugBEffectOnDrugA = drugBEffectOnDrugA;
 	}
+
+	
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((base == null) ? 0 : base.hashCode());
 		result = prime * result
 				+ ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((drugAId == null) ? 0 : drugAId.hashCode());
+		result = prime * result
+				+ ((drugALabel == null) ? 0 : drugALabel.hashCode());
 		result = prime * result
 				+ ((drugARes == null) ? 0 : drugARes.hashCode());
 		result = prime
@@ -148,7 +166,13 @@ public class DrugDrugInteraction {
 				+ ((drugBEffectOnDrugA == null) ? 0 : drugBEffectOnDrugA
 						.hashCode());
 		result = prime * result + ((drugBId == null) ? 0 : drugBId.hashCode());
+		result = prime * result
+				+ ((drugBLabel == null) ? 0 : drugBLabel.hashCode());
 		result = prime * result + ((pmid == null) ? 0 : pmid.hashCode());
+		result = prime
+				* result
+				+ ((resourceDescription == null) ? 0 : resourceDescription
+						.hashCode());
 		result = prime
 				* result
 				+ ((resultingCondition == null) ? 0 : resultingCondition
@@ -165,6 +189,11 @@ public class DrugDrugInteraction {
 		if (getClass() != obj.getClass())
 			return false;
 		DrugDrugInteraction other = (DrugDrugInteraction) obj;
+		if (base == null) {
+			if (other.base != null)
+				return false;
+		} else if (!base.equals(other.base))
+			return false;
 		if (description == null) {
 			if (other.description != null)
 				return false;
@@ -174,6 +203,11 @@ public class DrugDrugInteraction {
 			if (other.drugAId != null)
 				return false;
 		} else if (!drugAId.equals(other.drugAId))
+			return false;
+		if (drugALabel == null) {
+			if (other.drugALabel != null)
+				return false;
+		} else if (!drugALabel.equals(other.drugALabel))
 			return false;
 		if (drugARes == null) {
 			if (other.drugARes != null)
@@ -190,10 +224,20 @@ public class DrugDrugInteraction {
 				return false;
 		} else if (!drugBId.equals(other.drugBId))
 			return false;
+		if (drugBLabel == null) {
+			if (other.drugBLabel != null)
+				return false;
+		} else if (!drugBLabel.equals(other.drugBLabel))
+			return false;
 		if (pmid == null) {
 			if (other.pmid != null)
 				return false;
 		} else if (!pmid.equals(other.pmid))
+			return false;
+		if (resourceDescription == null) {
+			if (other.resourceDescription != null)
+				return false;
+		} else if (!resourceDescription.equals(other.resourceDescription))
 			return false;
 		if (resultingCondition == null) {
 			if (other.resultingCondition != null)
@@ -202,6 +246,8 @@ public class DrugDrugInteraction {
 			return false;
 		return true;
 	}
+
+
 
 	@SuppressWarnings("unused")
 	public static final class Vocabulary {
@@ -212,13 +258,12 @@ public class DrugDrugInteraction {
 				.createProperty("http://semanticscience.org/resource/SIO_000300");
 		public static final Property SIO_000008 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000008");
-	
+
 		public static final Resource SIO_010004 = m_model
 				.createResource("http://semanticscience.org/resource/SIO_010004");
-		
+
 		public static final Resource DrugBankIdentifier = m_model
 				.createResource("http://purl.oclc.org/SADI/LSRN/DrugBank_Identifier");
-		
 
 	}
 
