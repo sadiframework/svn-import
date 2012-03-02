@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2012 Jose Cruz-Toledo
+ * Copyright (c) 2012 Jose Cruz-Toledo, Ben Vandervalk
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -58,9 +58,9 @@ public class Discover extends SimpleSynchronousServiceServlet {
 		Model outputModel = output.getModel();
 		// get the drugbank id from the input
 		DiscoverHelper dh = new DiscoverHelper();
-
 		InputStream is = Discover.class.getClassLoader().getResourceAsStream(
 				"ddi.csv");
+		
 		ArrayList<DrugDrugInteraction> ddis = dh.findDDIs(is, input);
 		Iterator<DrugDrugInteraction> itr = ddis.iterator();
 		while (itr.hasNext()) {
