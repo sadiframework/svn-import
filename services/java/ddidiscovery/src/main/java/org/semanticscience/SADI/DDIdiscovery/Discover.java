@@ -20,10 +20,7 @@
  */
 package org.semanticscience.SADI.DDIdiscovery;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -32,7 +29,6 @@ import org.semanticscience.SADI.DDIdiscovery.helper.DiscoverHelper;
 import org.semanticscience.SADI.DDIdiscovery.helper.DiscoverHelper.Vocabulary;
 import org.semanticscience.SADI.DDIdiscovery.helper.DrugDrugInteraction;
 
-import au.com.bytecode.opencsv.CSVReader;
 import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.Description;
 import ca.wilkinsonlab.sadi.service.annotations.InputClass;
@@ -77,28 +73,31 @@ public class Discover extends SimpleSynchronousServiceServlet {
 			// add the participants
 			Resource drugB = addi.createResourceFromDrugBankId(outputModel,
 					addi.getDrugBId());
-			//add the label of the drugs
-			Statement stm = outputModel.createStatement(drugB, Vocab.rdfslabel, addi.getDrugBLabel()); 
+			// add the label of the drugs
+			Statement stm = outputModel.createStatement(drugB, Vocab.rdfslabel,
+					addi.getDrugBLabel());
 			outputModel.add(stm);
-			Statement stm2 = outputModel.createStatement(output, Vocab.rdfslabel, addi.getDrugALabel());
+			Statement stm2 = outputModel.createStatement(output,
+					Vocab.rdfslabel, addi.getDrugALabel());
 			outputModel.add(stm2);
-			
-			//directionality is ascribed in the predicate label
+
+			// directionality is ascribed in the predicate label
 			ddir.addProperty(Vocab.SIO_000132, drugB);
 			// connect drugA and drugB using the drugaeffectondrugB
 			if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase("DDI_00051")) {
 				drugB.addProperty(Vocab.DDI_00051, output);
-			} else if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase("DDI_00055")) {
+			} else if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase(
+					"DDI_00055")) {
 				drugB.addProperty(Vocab.DDI_00055, output);
 			} else if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase(
 					"DDI_00014")) {
 				drugB.addProperty(Vocab.DDI_00014, output);
 			}
-			
-			//directionality is ascribed by the use of special predicates has_actor & has_target
-			
-			//directionality is ascribed through other typed resources
-			
+
+			// directionality is ascribed by the use of special predicates
+			// has_actor & has_target
+
+			// directionality is ascribed through other typed resources
 
 			// add the input as a participant
 			ddir.addProperty(Vocab.SIO_000132, output);
@@ -118,25 +117,51 @@ public class Discover extends SimpleSynchronousServiceServlet {
 
 			// connect the ddi with the publication
 			ddir.addProperty(Vocab.SIO_000253, pub);
-			
-			// add the results in class
-			if (addi.getResultingCondition().equalsIgnoreCase("DDI_00054")) {
-				//add the label of the condition
-				Statement stm3 = outputModel.createStatement(Vocab.DDI_00054, Vocab.rdfslabel, "decreased efficacy of drug"); 
+
+			// add the 'results in' class and label
+			String resultingCondition = addi.getResultingCondition();
+			if (resultingCondition.equalsIgnoreCase("DDI_00054")) {
+				Statement stm3 = outputModel.createStatement(Vocab.DDI_00054,
+						Vocab.rdfslabel, "decreased efficacy of drug");
 				outputModel.add(stm3);
 				ddir.addProperty(Vocab.SIO_000554, Vocab.DDI_00054);
-				
-			} else if (addi.getResultingCondition().equalsIgnoreCase(
-					"DDI_00007")) {
-				//add the label of the condition
-				 Statement stm4 = outputModel.createStatement(Vocab.DDI_00007, Vocab.rdfslabel, "gastrointestinal bleeding"); 
-					outputModel.add(stm4);
+
+			} else if (resultingCondition.equalsIgnoreCase("DDI_00007")) {
+				Statement stm4 = outputModel.createStatement(Vocab.DDI_00007,
+						Vocab.rdfslabel, "gastrointestinal bleeding");
+				outputModel.add(stm4);
 				ddir.addProperty(Vocab.SIO_000554, Vocab.DDI_00007);
+			} else if (resultingCondition.equalsIgnoreCase("DDI_00061")) {
+				Statement stm5 = outputModel.createStatement(Vocab.DDI_00061,
+						Vocab.rdfslabel, "serotonin syndrome");
+				outputModel.add(stm5);
+			} else if (resultingCondition.equalsIgnoreCase("DDI_00050")) {
+				Statement stm5 = outputModel.createStatement(Vocab.DDI_00050,
+						Vocab.rdfslabel, "breakthrough bleeding");
+				outputModel.add(stm5);
+			} else if (resultingCondition.equalsIgnoreCase("DDI_00057")) {
+				Statement stm5 = outputModel.createStatement(Vocab.DDI_00057,
+						Vocab.rdfslabel, "decreased plasma levels of drug");
+				outputModel.add(stm5);
+			} else if (resultingCondition.equalsIgnoreCase("DDI_00059")) {
+				Statement stm5 = outputModel.createStatement(Vocab.DDI_00059,
+						Vocab.rdfslabel, "increased oral clearance");
+				outputModel.add(stm5);
+			} else if (resultingCondition.equalsIgnoreCase("DDI_00060")) {
+				Statement stm5 = outputModel.createStatement(Vocab.DDI_00060,
+						Vocab.rdfslabel,
+						"increased oral clearence of nevirapine");
+				outputModel.add(stm5);
+			} else if (resultingCondition.equalsIgnoreCase("DDI_00058")) {
+				Statement stm5 = outputModel.createStatement(Vocab.DDI_00058,
+						Vocab.rdfslabel, "mania");
+				outputModel.add(stm5);
 			}
+
 			// the annotated chemical entity is participant in some ddi
 			output.addProperty(Vocab.SIO_000062, ddir);
 		}
-		
+
 	}
 
 	@SuppressWarnings("unused")
@@ -145,7 +170,7 @@ public class Discover extends SimpleSynchronousServiceServlet {
 		public static Property rdftype = m_model
 				.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
 		public static Property rdfslabel = m_model
-		.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
+				.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
 		public static final Resource PMID_Identifier = m_model
 				.createResource("http://purl.oclc.org/SADI/LSRN/PMID_Identifier");
 		public static final Property SIO_000145 = m_model
@@ -188,7 +213,7 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createProperty("http://semanticscience.org/resource/SIO_000554");
 		public static final Resource DDI_00054 = m_model
 				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00054");
-		
+
 		public static final Property SIO_000008 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000008");
 		public static final Property SIO_000132 = m_model
@@ -203,8 +228,7 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createProperty("http://semanticscience.org/resource/SIO_000338");
 		public static Resource DDI_00007 = m_model
 				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00007");
-		
-		
+
 		public static final Property DDI_00051 = m_model
 				.createProperty("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00051");
 		public static final Property DDI_00055 = m_model
@@ -252,6 +276,19 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00003");
 		public static final Resource DDI_00009 = m_model
 				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00009");
+		public static final Resource DDI_00061 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00061");
+		public static final Resource DDI_00050 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00050");
+		public static final Resource DDI_00057 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00057");
+		public static final Resource DDI_00058 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00058");
+		public static final Resource DDI_00059 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00059");
+		public static final Resource DDI_00060 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00060");
+
 		public static final Resource SIO_000090 = m_model
 				.createResource("http://semanticscience.org/resource/SIO_000090");
 		public static final Resource SIO_000122 = m_model
@@ -298,5 +335,4 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createResource("http://semanticscience.org/resource/SIO_000002");
 	}
 
-	
 }
