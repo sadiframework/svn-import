@@ -1,0 +1,23 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sio="http://semanticscience.org/resource/">
+  
+  <sio:SIO_010018 rdf:about="http://lsrn.org/KEGG:hsa:9#seq">
+    <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">atggacattgaagcatatcttgaaagaattggctataagaagtctaggaacaaattggac
+ttggaaacattaactgacattcttcaacaccagatccgagctgttccctttgagaacctt
+aacatccattgtggggatgccatggacttaggcttagaggccatttttgatcaagttgtg
+agaagaaatcggggtggatggtgtctccaggtcaatcatcttctgtactgggctctgacc
+actattggttttgagaccacgatgttgggagggtatgtttacagcactccagccaaaaaa
+tacagcactggcatgattcaccttctcctgcaggtgaccattgatggcaggaactacatt
+gtcgatgctgggtttggacgctcataccagatgtggcagcctctggagttaatttctggg
+aaggatcagcctcaggtgccttgtgtcttccgtttgacggaagagaatggattctggtat
+ctagaccaaatcagaagggaacagtacattccaaatgaagaatttcttcattctgatctc
+ctagaagacagcaaataccgaaaaatctactcctttactcttaagcctcgaacaattgaa
+gattttgagtctatgaatacatacctgcagacatctccatcatctgtgtttactagtaaa
+tcattttgttccttgcagaccccagatggggttcactgtttggtgggcttcaccctcacc
+cataggagattcaattataaggacaatacagatctaatagagttcaagactctgagtgag
+gaagaaatagaaaaagtgctgaaaaatatatttaatatttccttgcagagaaagcttgtg
+cccaaacatggtgatagattttttactatttag</sio:SIO_000300>
+  </sio:SIO_010018>
+  
+</rdf:RDF>
