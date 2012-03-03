@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,6 +35,29 @@ public abstract class AbstractBLASTParser
 {
 	private static final Logger log = Logger.getLogger(AbstractBLASTParser.class);
 	
+	/**
+	 * Parses the specified BLAST XML stream into the specified RDF model.
+	 * @param model the destination RDF model
+	 * @param blastXML the input stream containing BLAST XML
+	 * @throws ParserConfigurationException 
+	 * @throws IOException if there is an error reading the input stream
+	 * @throws SAXException if there is an error parsing the BLAST XML
+	 */
+	public void parseBLAST(Model model, InputStream blastXML)
+			throws ParserConfigurationException, SAXException, IOException
+	{
+		// TODO should we not instantiate factory and builder every time?
+		DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+		Document doc = db.parse(blastXML, "http://www.ncbi.nlm.nih.gov/dtd/");
+		doc.getDocumentElement().normalize();
+		parseBLAST(model, doc);
+	}
+	
+	/**
+	 * Parses the specified BLAST XML document into the specified RDF model.
+	 * @param model the destination RDF model
+	 * @param blastXML the input stream containing BLAST XML
+	 */
 	public void parseBLAST(Model model, Document blastXML)
 	{
 		// TODO create blastProcessNode...
@@ -116,26 +138,12 @@ public abstract class AbstractBLASTParser
 	
 	protected abstract Resource getQuerySequence(Model model, Node iteration);
 	
-	protected abstract Resource getHitSequence(Model model, Node iteration);
-	
-	public void parseBLAST(Model model, InputStream blastXML)
-	{
-		Document doc = null;
-		try {
-			doc = parseInputStream(blastXML);
-		} catch (Exception e) {
-			log.error(e.toString(), e);
-		}
-		if (doc != null) {
-			doc.getDocumentElement().normalize();
-			parseBLAST(model, doc);
-		}
-	}
+	protected abstract Resource getHitSequence(Model model, Node hit);
 
 	public static Document parseInputStream(InputStream xmlStream) throws ParserConfigurationException, SAXException, IOException
 	{
 		DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-		Document doc = db.parse(xmlStream);
+		Document doc = db.parse(xmlStream, "http://www.ncbi.nlm.nih.gov/dtd/");
 		return doc;
 	}
 	
@@ -161,15 +169,6 @@ public abstract class AbstractBLASTParser
 			return null;
 		else
 			return nodes.get(1).getTextContent();
-	}
-	
-	/**
-	 * Returns a UUID-based URI.
-	 * @return a UUID-based URI
-	 */
-	public static String createUniqueURI()
-	{
-		return String.format("urn:uuid:%s", UUID.randomUUID());
 	}
 	
 	public static class Vocab

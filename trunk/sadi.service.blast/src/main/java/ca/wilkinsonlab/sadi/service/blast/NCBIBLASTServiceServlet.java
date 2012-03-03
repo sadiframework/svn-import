@@ -1,14 +1,21 @@
 package ca.wilkinsonlab.sadi.service.blast;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Node;
 
 import ca.wilkinsonlab.sadi.ServiceDescription;
 import ca.wilkinsonlab.sadi.beans.ServiceBean;
 import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
 import ca.wilkinsonlab.sadi.service.ServiceCall;
-import ca.wilkinsonlab.sadi.utils.blast.BLASTUtils;
+import ca.wilkinsonlab.sadi.service.annotations.URI;
+import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import ca.wilkinsonlab.sadi.utils.blast.AbstractBLASTParser;
 import ca.wilkinsonlab.sadi.utils.blast.NCBIBLASTClient;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
@@ -18,61 +25,23 @@ import com.hp.hpl.jena.rdf.model.Resource;
 /**
  * @author Luke McCarthy
  */
+@URI("http://sadiframework.org/services/blast/")
 public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 {
 	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(NCBIBLASTServiceServlet.class);
 	private static final long serialVersionUID = 1L;
 	
-	private Taxon taxon;
-	private NCBIBLASTClient client;
+	private static final NCBIBLASTClient client = new NCBIBLASTClient();
+	private static final BLASTParser parser = new BLASTParser();
 	
-	public NCBIBLASTServiceServlet(Taxon taxon, NCBIBLASTClient client)
+	private Taxon taxon;
+	
+	public NCBIBLASTServiceServlet(Taxon taxon)
 	{
 		super();
 		
 		this.taxon = taxon;
-		this.client = client;
-	}
-	
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#createServiceDescription()
-	 */
-	@Override
-	protected ServiceDescription createServiceDescription()
-	{
-		ServiceBean service = new ServiceBean();
-		if (System.getProperty(IGNORE_FORCED_URL_SYSTEM_PROPERTY) != null) {
-//			log.info("ignoring specified service URL");
-			service.setURI("");
-		} else {
-			service.setURI(String.format("http://sadiframework.org/examples/blast/%s", taxon.name));
-		}
-		service.setName(String.format("NCBI BLAST for %s genome", taxon.name.replace("+", " ")));
-		service.setDescription(String.format("Issues a BLAST query against the %s genome with the default NCBI options.", taxon.name.replace("+", " ")));
-		service.setContactEmail("info@sadiframework.org");
-		service.setAuthoritative(false);
-		service.setInputClassURI("http://semanticscience.org/resource/SIO_010018");
-//		if (System.getProperty(IGNORE_FORCED_URL_SYSTEM_PROPERTY) != null) {
-////			log.info("ignoring specified service URL");
-//			service.setOutputClassURI(String.format("/sadi-blast/%s.owl#BLASTedSequence", taxon.name));
-//		} else {
-			service.setOutputClassURI(String.format("http://sadiframework.org/examples/blast/%s.owl#BLASTedSequence", taxon.name));
-//		}
-		return service;
-	}
-	
-	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#createOutputModel()
-	 */
-	@Override
-	protected Model createOutputModel()
-	{
-		Model model = super.createOutputModel();
-		model.setNsPrefix("ncbi-blast", "http://sadiframework.org/examples/blast-uniprot.owl#");
-		model.setNsPrefix("blast", "http://sadiframework.org/ontologies/blast.owl#");
-		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
-		return model;
 	}
 
 	/**
@@ -94,17 +63,73 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 	}
 	
 	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#getServiceURL()
+	 */
+	@Override
+	protected String getServiceURL()
+	{
+		String url = super.getServiceURL();
+		return url == null ? null : url.concat(taxon.name);
+	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#createServiceDescription()
+	 */
+	@Override
+	protected ServiceDescription createServiceDescription()
+	{
+		ServiceBean service = new ServiceBean();
+		service.setURI(getServiceURL());
+		service.setName(String.format("NCBI BLAST for %s genome", taxon.name.replace("+", " ")));
+		service.setDescription(String.format("Issues a BLAST query against the %s genome with the default NCBI options.", taxon.name.replace("+", " ")));
+		service.setContactEmail("info@sadiframework.org");
+		service.setAuthoritative(false);
+		service.setInputClassURI("http://semanticscience.org/resource/SIO_010018");
+		service.setOutputClassURI(String.format("http://sadiframework.org/examples/blast/%s.owl#BLASTedSequence", taxon.name));
+		return service;
+	}
+	
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#createOutputModel()
+	 */
+	@Override
+	protected Model createOutputModel()
+	{
+		Model model = super.createOutputModel();
+		model.setNsPrefix("ncbi-blast", "http://sadiframework.org/examples/blast-uniprot.owl#");
+		model.setNsPrefix("blast", "http://sadiframework.org/ontologies/blast.owl#");
+		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
+		return model;
+	}
+	
+	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet#processInputBatch(ca.wilkinsonlab.sadi.service.ServiceCall)
 	 */
 	@Override
 	protected void processInputBatch(ServiceCall call) throws Exception
 	{
 		// TODO deal with parameters...
-//		Resource parameters = call.getParameters();
+		//Resource parameters = call.getParameters();
 		
+		InputStream result = client.doBLAST("blastn", getDB(), buildQuery(call.getInputNodes()));
+		parser.parseBLAST(call.getOutputModel(), result);
+	}
+
+	protected String buildQuery(Collection<Resource> inputNodes)
+	{
 		StringBuilder query = new StringBuilder();
-		for (Resource inputNode: call.getInputNodes()) {
-			String id = inputNode.getURI();
+		for (Resource inputNode: inputNodes) {
+			String id;
+			try {
+				/* URI has to be URL-encoded for some reason or the API request
+				 * never gets through...
+				 * (this is reversed in BLASTParser.getQuerySequence below)
+				 */
+				id = URLEncoder.encode(inputNode.getURI(), "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// UTF-8 is unsupported? really?
+				id = RdfUtils.createUniqueURI();
+			}
 			String sequence = inputNode.getRequiredProperty(SIO.has_value).getLiteral().getLexicalForm();
 			query.append(">");
 			query.append(id);
@@ -112,80 +137,39 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 			query.append(sequence);
 			query.append("\n");
 		}
-		
-		InputStream result = client.doBLAST("blastn", getDB(), query.toString());
-		BLASTUtils.parseBLAST(result, call.getOutputModel());
+		return query.toString();
 	}
 	
-//	public static void main(String[] args) {
-//	    try {
-//	      //get the Blast input as a Stream
-//	      InputStream is = new FileInputStream("ncbiblast-S20101115-151925-0569-78415478.xml.xml");
-////	      System.out.println(new BufferedReader(new InputStreamReader(is)).readLine());
-////	      System.exit(0);
-//	      //make a BlastLikeSAXParser
-//	      BlastLikeSAXParser parser = new BlastLikeSAXParser();
-//	 
-//	 
-//	      // try to parse, even if the blast version is not recognized.
-//	      parser.setModeLazy();
-//	 
-//	 
-//	      //make the SAX event adapter that will pass events to a Handler.
-//	      SeqSimilarityAdapter adapter = new SeqSimilarityAdapter();
-//	 
-//	      //set the parsers SAX event adapter
-//	      parser.setContentHandler(adapter);
-//	 
-//	      //The list to hold the SeqSimilaritySearchResults
-//	      List results = new ArrayList();
-//	 
-//	      //create the SearchContentHandler that will build SeqSimilaritySearchResults
-//	      //in the results List
-//	      SearchContentHandler builder = new BlastLikeSearchBuilder(results,
-//	          new DummySequenceDB("queries"), new DummySequenceDBInstallation());
-//	 
-//	      //register builder with adapter
-//	      adapter.setSearchContentHandler(builder);
-//	 
-//	      //parse the file, after this the result List will be populated with
-//	      //SeqSimilaritySearchResults
-//	      parser.parse(new InputSource(is));
-//	 
-//	      //output some blast details
-//	      for (Iterator i = results.iterator(); i.hasNext(); ) {
-//	        SeqSimilaritySearchResult result =
-//	            (SeqSimilaritySearchResult)i.next();
-//	 
-//	        Annotation anno = result.getAnnotation();
-//	 
-//	        for (Iterator j = anno.keys().iterator(); j.hasNext(); ) {
-//	          Object key = j.next();
-//	          Object property = anno.getProperty(key);
-//	          System.out.println(key+" : "+property);
-//	        }
-//	        System.out.println("Hits: ");
-//	 
-//	        //list the hits
-//	        for (Iterator k = result.getHits().iterator(); k.hasNext(); ) {
-//	          SeqSimilaritySearchHit hit =
-//	              (SeqSimilaritySearchHit)k.next();
-//	          System.out.print("\tmatch: "+hit.getSubjectID());
-//	          System.out.println("\te score: "+hit.getEValue());
-//	        }
-//	 
-//	        System.out.println("\n");
-//	      }
-//	 
-//	    }
-//	    catch (SAXException ex) {
-//	      //XML problem
-//	      ex.printStackTrace();
-//	    }catch (IOException ex) {
-//	      //IO problem, possibly file not found
-//	      ex.printStackTrace();
-//	    }
-//	  }
+	public static class BLASTParser extends AbstractBLASTParser
+	{
+		@Override
+		protected Resource getQuerySequence(Model model, Node iteration)
+		{
+			String query_def = getSingleValue(iteration, "Iteration_query-def");
+			if (query_def == null) {
+				query_def = getSingleValue(iteration.getParentNode().getParentNode(), "BlastOutput_query-def");
+			}
+			/* reverse the URI encoding performed above...
+			 */
+			String uri;
+			try {
+				uri = URLDecoder.decode(query_def, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// UTF-8 is unsupported? really?
+				uri = query_def;
+			}
+			return model.getResource(uri);
+		}
+
+		@Override
+		protected Resource getHitSequence(Model model, Node hit)
+		{
+			String acc = getSingleValue(hit, "Hit_accession");
+			// TODO find/create an appropriate LSRN type...
+			String uri = String.format("http://www.ncbi.nlm.nih.gov/nuccore/%s", acc);
+			return model.getResource(uri);
+		}
+	}
 	
 	public static class Taxon
 	{
