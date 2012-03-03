@@ -115,7 +115,7 @@ public abstract class ServiceServlet extends HttpServlet
 	protected Resource parameterClass;
 	protected Resource defaultParameters;
 	
-	private boolean ignoreForcedURL;
+	protected boolean ignoreForcedURL;
 	
 	@Override
 	public void init() throws ServletException
@@ -265,6 +265,7 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	protected Model readInput(HttpServletRequest request) throws IOException
 	{
+		// TODO update to use ContentType class...
 		Model inputModel = createInputModel();
 		String contentType = request.getContentType();
 		if (contentType.equals("application/rdf+xml")) {
