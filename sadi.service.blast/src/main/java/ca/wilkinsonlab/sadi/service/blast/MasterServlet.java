@@ -19,7 +19,6 @@ import org.stringtree.util.StreamUtils;
 
 import ca.wilkinsonlab.sadi.service.blast.NCBIBLASTServiceServlet.Taxon;
 import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.blast.NCBIBLASTClient;
 
 /**
  * @author Luke McCarthy
@@ -31,7 +30,6 @@ public class MasterServlet extends HttpServlet
 	private static final long serialVersionUID = 1L;
 	
 	private Map<Taxon, NCBIBLASTServiceServlet> servletMap;
-	private NCBIBLASTClient client;
 	
 	@Override
 	public void init() throws ServletException
@@ -39,7 +37,6 @@ public class MasterServlet extends HttpServlet
 		super.init();
 		
 		servletMap = new HashMap<Taxon, NCBIBLASTServiceServlet>();
-		client = new NCBIBLASTClient();
 	}
 	
 	@Override
@@ -124,7 +121,7 @@ public class MasterServlet extends HttpServlet
 	private NCBIBLASTServiceServlet getServlet(Taxon taxon) throws ServletException
 	{
 		if (!servletMap.containsKey(taxon)) {
-			NCBIBLASTServiceServlet servlet = new NCBIBLASTServiceServlet(taxon, client);
+			NCBIBLASTServiceServlet servlet = new NCBIBLASTServiceServlet(taxon);
 			servlet.init();
 			servletMap.put(taxon, servlet);
 		}
