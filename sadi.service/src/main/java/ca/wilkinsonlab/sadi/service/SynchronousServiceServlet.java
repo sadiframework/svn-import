@@ -35,7 +35,7 @@ public abstract class SynchronousServiceServlet extends ServiceServlet
 	 * @param input the input node
 	 * @param output the output node
 	 */
-	public void processInput(Resource input, Resource output)
+	public void processInput(Resource input, Resource output) throws Exception
 	{
 	}
 	
@@ -46,7 +46,7 @@ public abstract class SynchronousServiceServlet extends ServiceServlet
 	 * @param output the output node
 	 * @param parameters the populated parameters object
 	 */
-	public void processInput(Resource input, Resource output, Resource parameters)
+	public void processInput(Resource input, Resource output, Resource parameters) throws Exception
 	{
 	}
 }
