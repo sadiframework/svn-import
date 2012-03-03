@@ -3,6 +3,7 @@ package ca.wilkinsonlab.sadi.utils.blast;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,13 +34,16 @@ public abstract class NCBIClient
 	{
 		long timeToWait = lastRequest + 2000 - System.currentTimeMillis();
 		if (timeToWait > 0) {
-			log.debug(String.format("waiting %dms before hitting NCBI again", timeToWait));
+			if (log.isDebugEnabled())
+				log.debug(String.format("waiting %dms before hitting NCBI again", timeToWait));
 			try {
 				Thread.sleep(timeToWait);
 			} catch (InterruptedException e) {
 				log.error("interrupted", e);
 			}
 		}
+		if (log.isDebugEnabled())
+			log.debug(String.format("sending %s request to %s: %s", method, url, Arrays.toString(params)));
 		HttpResponse response = method.equalsIgnoreCase("POST") ?
 				HttpUtils.POST(new URL(url), params(params)) :
 				HttpUtils.GET(new URL(url), params(params));

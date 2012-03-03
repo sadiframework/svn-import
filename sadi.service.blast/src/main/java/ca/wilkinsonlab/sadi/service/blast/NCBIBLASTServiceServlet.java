@@ -1,10 +1,15 @@
 package ca.wilkinsonlab.sadi.service.blast;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collection;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
@@ -14,13 +19,19 @@ import ca.wilkinsonlab.sadi.beans.ServiceBean;
 import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
 import ca.wilkinsonlab.sadi.service.ServiceCall;
 import ca.wilkinsonlab.sadi.service.annotations.URI;
+import ca.wilkinsonlab.sadi.service.blast.MasterServlet.Taxon;
+import ca.wilkinsonlab.sadi.utils.LSRNUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 import ca.wilkinsonlab.sadi.utils.blast.AbstractBLASTParser;
 import ca.wilkinsonlab.sadi.utils.blast.NCBIBLASTClient;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.vocabulary.RDF;
 
 /**
  * @author Luke McCarthy
@@ -28,20 +39,36 @@ import com.hp.hpl.jena.rdf.model.Resource;
 @URI("http://sadiframework.org/services/blast/")
 public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 {
-	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(NCBIBLASTServiceServlet.class);
 	private static final long serialVersionUID = 1L;
 	
 	private static final NCBIBLASTClient client = new NCBIBLASTClient();
-	private static final BLASTParser parser = new BLASTParser();
 	
-	private Taxon taxon;
+	Taxon taxon;
+	BLASTParser parser;
 	
 	public NCBIBLASTServiceServlet(Taxon taxon)
 	{
 		super();
 		
 		this.taxon = taxon;
+		this.parser = new BLASTParser(taxon);
+	}
+	
+	@Override
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	{
+		if (request.getServletPath().endsWith(".owl")) {
+			try {
+				String owl = SPARQLStringUtils.strFromTemplate(MasterServlet.class.getResource("/template.owl"), taxon.name, taxon.id);
+				response.setContentType("application/rdf+xml");
+				response.getWriter().print(owl);
+			} catch (IOException e) {
+				log.error(String.format("error send owl for %s", taxon.name), e);
+			}
+		} else {
+			super.doGet(request, response);
+		}
 	}
 
 	/**
@@ -142,6 +169,13 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 	
 	public static class BLASTParser extends AbstractBLASTParser
 	{
+		protected Taxon taxon;
+		
+		public BLASTParser(Taxon taxon)
+		{
+			this.taxon = taxon;
+		}
+		
 		@Override
 		protected Resource getQuerySequence(Model model, Node iteration)
 		{
@@ -167,46 +201,24 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 			String acc = getSingleValue(hit, "Hit_accession");
 			// TODO find/create an appropriate LSRN type...
 			String uri = String.format("http://www.ncbi.nlm.nih.gov/nuccore/%s", acc);
-			return model.getResource(uri);
-		}
-	}
-	
-	public static class Taxon
-	{
-		public String id;
-		public String name;
-		
-		@Override
-		public int hashCode() 
-		{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((id == null) ? 0 : id.hashCode());
-			result = prime * result + ((name == null) ? 0 : name.hashCode());
-			return result;
+			Resource seq = model.getResource(uri);
+			if (!seq.hasProperty(RDF.type)) { // first time; create it...
+				seq.addProperty(RDF.type, SIO.nucleic_acid_sequence);
+				seq.addProperty(fromOrganism, getOrganism(model));
+			}
+			return seq;
 		}
 		
-		@Override
-		public boolean equals(Object obj)
+		private Resource getOrganism(Model model)
 		{
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Taxon other = (Taxon) obj;
-			if (id == null) {
-				if (other.id != null)
-					return false;
-			} else if (!id.equals(other.id))
-				return false;
-			if (name == null) {
-				if (other.name != null)
-					return false;
-			} else if (!name.equals(other.name))
-				return false;
-			return true;
+			Resource org = model.getResource(LSRNUtils.getURI("taxon", taxon.id));
+			if (!org.hasProperty(RDF.type)) { // first time; create it...
+				org = LSRNUtils.createInstance(model, 
+						model.getResource(LSRNUtils.getClassURI("taxon")), taxon.id);
+			}
+			return org;
 		}
+		
+		private static final Property fromOrganism = ResourceFactory.createProperty("http://sadiframework.org/ontologies/properties.owl#fromOrganism");
 	}
 }

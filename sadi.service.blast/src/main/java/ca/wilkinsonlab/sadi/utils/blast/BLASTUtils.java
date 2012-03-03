@@ -1,19 +1,25 @@
 package ca.wilkinsonlab.sadi.utils.blast;
 
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.net.URLDecoder;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.log4j.Logger;
 import org.biojava3.core.util.XMLHelper;
+import org.stringtree.util.StreamUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
@@ -21,9 +27,23 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 public class BLASTUtils 
 {
+	private static Logger log = Logger.getLogger(BLASTUtils.class);
+	
 	public static void parseBLAST(InputStream inputStream, Model model) throws Exception
 	{
-		Document blastDoc = XMLHelper.inputStreamToDocument(inputStream);
+		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
+		model.setNsPrefix("sadi", "http://sadiframework.org/ontologies/properties.owl#");
+		model.setNsPrefix("blast", "http://sadiframework.org/ontologies/blast.owl#");
+		if (log.isTraceEnabled()) {
+			String content = StreamUtils.readStream(inputStream);
+			log.trace(String.format("parsing BLAST report:\n%s", content));
+			inputStream = new ByteArrayInputStream(content.getBytes());
+		}
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        Document blastDoc = db.parse(inputStream, "http://www.ncbi.nlm.nih.gov/dtd/");
+        blastDoc.getDocumentElement().normalize();
+//		Document blastDoc = XMLHelper.inputStreamToDocument(inputStream);
 		
 		// TODO create blastProcessNode...
 		Resource blastProcessNode = model.createResource();
@@ -36,6 +56,8 @@ public class BLASTUtils
     			blastHitNode.addProperty(SIO.is_output_of, blastProcessNode);
             }
         }
+        if (log.isTraceEnabled())
+        	log.trace(String.format("BLAST model after parsing:\n%s", RdfUtils.logModel(model)));
 	}
 
 	public static Resource createBlastHit(Resource querySequenceNode, Element hit) throws Exception
@@ -177,7 +199,9 @@ public class BLASTUtils
 			query_def = XMLHelper.selectSingleElement(
 					(Element)iteration.getParentNode().getParentNode(), "BlastOutput_query-def");
 		}
-		String uri = query_def.getTextContent();
+		// TODO this is a bit specific to our use-case...
+		// see FIXME in NCBIBLASTClient for the alternative...
+		String uri = URLDecoder.decode(query_def.getTextContent(), "UTF-8");
 		return model.getResource(uri);
 	}
 	
@@ -201,19 +225,6 @@ public class BLASTUtils
 	public static String getHitURI(String acc)
 	{
 		return String.format("http://lsrn.org/DragonDB_DNA:%s", acc);
-	}
-
-	public static void main(String args[])
-	{
-		for (String arg: args) {
-			Model model = ModelFactory.createDefaultModel();
-			try {
-				parseBLAST(new FileInputStream(arg), model);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			model.write(System.out, "N3");
-		}
 	}
 	
 	public static class Vocab

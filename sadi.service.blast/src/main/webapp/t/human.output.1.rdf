@@ -1,0 +1,2381 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:ncbi-blast="http://sadiframework.org/examples/blast-uniprot.owl#"
+    xmlns:blast="http://sadiframework.org/ontologies/blast.owl#">
+  <rdf:Description rdf:about="http://lsrn.org/KEGG:hsa:9#seq">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A0">
+        <sio:SIO_000300>ATGAAGAATTTCTTCATTCTGATCTCCTAGAA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >546</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >515</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A1">
+        <sio:SIO_000300>ATGGACATTGAAGCATATCTTGAAAGAATTGGCTATAAGAAGTCTAGGAACAAATTGGACTTGGAAACATTAACTGACATTCTTCAACACCAGATCCGAGCTGTTCCCTTTGAGAACCTTAACATCCATTGTGGGGATGCCATGGACTTAGGCTTAGAGGCCATTTTTGATCAAGTTGTGAGAAGAAATCGGGGTGGATGGTGTCTCCAGGTCAATCATCTTCTGTACTGGGCTCTGACCACTATTGGTTTTGAGACCACGATGTTGGGAGGGTATGTTTACAGCACTCCAGCCAAAAAATACAGCACTGGCATGATTCACCTTCTCCTGCAGGTGACCATTGATGGCAGGAACTACATTGTCGATGCTGGGTTTGGACGCTCATACCAGATGTGGCAGCCTCTGGAGTTAATTTCTGGGAAGGATCAGCCTCAGGTGCCTTGTGTCTTCCGTTTGACGGAAGAGAATGGATTCTGGTATCTAGACCAAATCAGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTCATTCTGATCTCCTAGAAGACAGCAAATACCGAAAAATCTACTCCTTTACTCTTAAGCCTCGAACAATTGAAGATTTTGAGTCTATGAATACATACCTGCAGACATCTCCATCATCTGTGTTTACTAGTAAATCATTTTGTTCCTTGCAGACCCCAGATGGGGTTCACTGTTTGGTGGGCTTCACCCTCACCCATAGGAGATTCAATTATAAGGACAATACAGATCTAATAGAGTTCAAGACTCTGAGTGAGGAAGAAATAGAAAAAGTGCTGAAAAATATATTTAATATTTCCTTGCAGAGAAAGCTTGTGCCCAAACATGGTGATAGATTTTTTACTATTTAG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >873</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A2">
+        <sio:SIO_000300>ATAGAAAAAGTGCTGAAAAATATA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >810</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >787</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A3">
+        <sio:SIO_000300>AGACTCTGAGTGAGGAAGAAA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >787</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >767</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A4">
+        <sio:SIO_000300>TTGAAGATTTTGAGTCTATGAATACAT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >622</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >596</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A5">
+        <sio:SIO_000300>ACAAATTGGACTTGGAAACATTAACTGACATT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >81</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >50</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A6">
+        <sio:SIO_000300>GAGTTAATTTCTGGGAAGGATCAGCCTCAGGTGCCTTGTGTCTTCCGTTTGACGGAAGAGAATGGATTCTGGTATCTAGACCAAATCAGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTCATTCTGATCTCCTAGAAGACAGCAAATACCGAAAAATCTACTCCTTTACTCTTAAGCCTCGAACAATTGAAGATTTTGAGTCTATGAATACATACCTGCAGACA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >633</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >406</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A7">
+        <sio:SIO_000300>GTTCACTGTTTGGTGGGCTTCACCCTCACC--CATAG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >725</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >691</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A8">
+        <sio:SIO_000300>CAAATGAAGAATTTCTTCATTCTGAT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >537</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >512</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A9">
+        <sio:SIO_000300>TTCACCTTCTCCTGCAGGTGACCATT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >342</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >317</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A10">
+        <sio:SIO_000300>CATCTGTGTTTACTAGTAAAT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >661</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >641</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A11">
+        <sio:SIO_000300>GTGCTGAAAAATATATTTAATATT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >819</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >796</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A12">
+        <sio:SIO_000300>TATAAGAAGTCTAGGAACAAATTG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >57</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >34</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A13">
+        <sio:SIO_000300>ATGGACATTGAAGCATATCTTGAAAGAATTGGCTATAAGAAGTCTAGGAACAAATTGGACTTGGAAACATTAACTGACATTCTTCAACACCAGATCCGAGCTGTTCCCTTTGAGAACCTTAACATCCATTGTGGGGATGCCATGGACTTAGGCTTAGAGGCCATTTTTGATCAAGTTGTGAGAAGAAATCGGGGTGGATGGTGTCTCCAGGTCAATCATCTTCTGTACTGGGCTCTGACCACTATTGGTTTTGAGACCACGATGTTGGGAGGGTATGTTTACAGCACTCCAGCCAAAAAATACAGCACTGGCATGATTCACCTTCTCCTGCAGGTGACCATTGATGGCAGGAACTACATTGTCGATGCTGGGTTTGGACGCTCATACCAGATGTGGCAGCCTCTGGAGTTAATTTCTGGGAAGGATCAGCCTCAGGTGCCTTGTGTCTTCCGTTTGACGGAAGAGAATGGATTCTGGTATCTAGACCAAATCAGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTCATTCTGATCTCCTAGAAGACAGCAAATACCGAAAAATCTACTCCTTTACTCTTAAGCCTCGAACAATTGAAGATTTTGAGTCTATGAATACATACCTGCAGACATCTCCATCATCTGTGTTTACTAGTAAATCATTTTGTTCCTTGCAGACCCCAGATGGGGTTCACTGTTTGGTGGGCTTCACCCTCACCCATAGGAGATTCAATTATAAGGACAATACAGATCTAATAGAGTTCAAGACTCTGAGTGAGGAAGAAATAGAAAAAGTGCTGAAAAATATATTTAATATTTCCTTGCAGAGAAAGCTTGTGCCCAAACATGGTGATAGATTTTTTACTATTTAG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >873</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A14">
+        <sio:SIO_000300>ATGGACATTGAAGCATATCTTGAAAG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >26</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A15">
+        <sio:SIO_000300>TGAAGAATTTCTTCATTCTGATCT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >539</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >516</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A16">
+        <sio:SIO_000300>ATGAAGAATTTCTTCATTCTGATCTCCTAGAA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >546</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >515</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A17">
+        <sio:SIO_000300>TGAAAAATATATTTAATATTTCCTTGCAGAGA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >831</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >800</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A18">
+        <sio:SIO_000300>GTACATTCCAAATGAAGAATTTCTTCATTCT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >534</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >504</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A19">
+        <sio:SIO_000300>CCCAGATGGGGTTCACTGTTTGGTGG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >706</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >681</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A20">
+        <sio:SIO_000300>TGTTTACTAGTAAATCATTTTGTT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >670</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >647</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A21">
+        <sio:SIO_000300>GCTGAAAAATATATTTAATAT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >818</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >798</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A22">
+        <sio:SIO_000300>TGAGTGAGGAAGAAATAGAAAAAGTGCTGAAAAAT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >807</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >773</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A23">
+        <sio:SIO_000300>AGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTC</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >529</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >493</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A24">
+        <sio:SIO_000300>ATTCTGGTATCTAGACCAAATCAGAAGG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >498</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >471</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A25">
+        <sio:SIO_000300>ATGGACATTGAAGCATATCTTGAAAGAATTGGCTATAAGAAGTCTAGGAACAAATTGGACTTGGAAACATTAACTGACATTCTTCAACACCAGATCCGAGCTGTTCCCTTTGAGAACCTTAACATCCATTGTGGGGATGCCATGGACTTAGGCTTAGAGGCCATTTTTG---ATCAAGTTGTGAGAAGAAATCG-GGGTGGATGGTGTCTCCAGGTCAATCATCTTCTGTACTGGGCTCTGACCACTATTGGTTTTGAGACCACGATGTTGGGAGGGTATGTTTACAGCACTCCAGCCAAAAAATACAGCACTGGCATGATTCACCTTCTCCTGCAGGTGACCATTGATGGCAGGAACTACATTGTCGATGCTGGGTTTGGACGCTCATACCAGATGTGGCAGCCTCTGGAGTTAATTTCTGGGAAGGATCAGCCTCAGGTGCCTTGTGTCTTCCGTTTGACGGAAGAGAATGGATTCTGGTATCTAGACCAAATCAGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTCATTCTGATCTCCTAGAAGACAGCAAATACCGAAAA---ATCTACTCCTTTACT-CTTAAGCCTCGAACAATTGAAGATTTTGAGTCTATGAATACATACCTGCAGACATCTCCATCATCTGTGTTTACTAGTAAATCATTTTGTTCCTTGCAGACCCCAGATGGGGTTCACTGTTTGGTGGGCTTCACCCTCACCCATAGGAGATTCAATTATAAGGACAATACAGATCTAATAGAGTTCAAGACTCTGAGTGAGGAAGAAATAGAAAAAGTGCTGAAAAATATATTTAATATTTCCTTGCAGAGAAAGCTTGTGCCCAAACATGGTGATAGATTTTTTACTATTTAG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >873</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A26">
+        <sio:SIO_000300>AAAATATATTTAATATTTCCTTGC</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >826</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >803</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A27">
+        <sio:SIO_000300>CATCTTCTGTA-CTGGGCTCTGACCACTATTGG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >248</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >217</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A28">
+        <sio:SIO_000300>CTCCTAGAAGACAGCAAATACCGAAAAA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >565</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >538</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A29">
+        <sio:SIO_000300>AATATTTCCTTGCAGAGAAAGCTTGTGCCCAAACATGGT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >852</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >814</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A30">
+        <sio:SIO_000300>TGAGTGAGGAAGAAATAGAAAAAGTG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >798</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >773</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://lsrn.org/KEGG:hsa:9#seq"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_009714">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A31">
+        <sio:SIO_000300>CCCAGCTGGGGTTCACTGCTTGGTGG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >17804037</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >17804012</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_009714"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A32">
+        <sio:SIO_000300>CTCCTAGAAGACACCAAATACAGAAAAA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >23024371</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >23024398</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_009714"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_010718">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A33">
+        <sio:SIO_000300>ATGAAGAATTTCTTCTTTGTGATTTTCTAGAA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >15091168</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >15091137</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_010718"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A34">
+        <sio:SIO_000300>ATGAAGAATTTCTTCTTTGTGATTTTCTAGAA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >13694304</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >13694273</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_010718"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_034772">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A35">
+        <sio:SIO_000300>GTGCTGAAAAATATATTAAATATT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >8281637</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >8281614</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_034772"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A36">
+        <sio:SIO_000300>AAAATATATTTAATTTTTCCTTGC</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1212204</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1212227</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_034772"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_009775">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A37">
+        <sio:SIO_000300>ACAGATGGGACTTGGAAACATTAAATGACTTT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >3805379</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >3805348</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_009775"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A38">
+        <sio:SIO_000300>CATCTCCTGTTTCTGGGCTCTGACCACTATTGG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >346617</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >346649</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_009775"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_010498">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A39">
+        <sio:SIO_000300>TGACAAA-ATATTTAATACTTCCTTGCAGAGA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >4517845</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >4517875</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_010498"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A40">
+        <sio:SIO_000300>GAGTTAATTTCTGGGAAGAAACCACCTCAACTGCCTCGCGCCTTCTGCGTGTTAGAAGGGAATCGAGTCTGGTGCCAGGATTCAACGAGAAGGGAGCGGTACATCCCAAACCATGAATTTCATAACGCTGGTCTCCGGG------GAAAATACTG-ACATTCTACTCCATTACTCTTGAGCCTTGAGCAACTGAAGAGGTTGAGTTTGTGAATACATGCTGTCAGACA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >35782975</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >35782755</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_010498"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_010194">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A41">
+        <sio:SIO_000300>TGAGAGAGGAAAAAATAGAAAAAGGCCAGAAAAAT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >4466105</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >4466071</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_010194"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A42">
+        <sio:SIO_000300>GTTCTCTGTTTGAAGGGCTTCACCCTCACCAGCATAG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >52438209</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >52438173</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_010194"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_167187">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A43">
+        <sio:SIO_000300>ATGGACATTACAGTATATTTTGAAAGAACTGGTTATAAGAACTCTAGGAACAAATTAAACTTGGAAATATTAACTGCTAT-CTTCAGCAACAGGTCTGAGCTGTTCCCTCTGAGAACTTTAGCATGCATTGTGGGGAACACATGGAGTAGGGCTTAAAGTCCATTTTTTTTTATCACGTTATAAGAAGACCCCCAGGGTGGGTGGTGTCTCTGGGTTGATCGATTTCTGTAAAGGGCTCTGACCACAACTGGCTTTGAGACCACGATATTGGCAGGGAATGTTTATATCCCTCTGGCCAAAAAATATAGCGCTGACATGGTTCACCTTCTTCTGCAGGTGACCGTTAACGGCAAGTACCACATCACTGATGGTCAGTTTGGAAGCTCCTTCCAGATGTGGCAGCCTCTGGGGTTTATTTCTGGGAAGGATCAGCCTCAGGTGTCACTCATTTTCTGCTTGAGAGA-GAGAGTGGATTCTGCTACCTGGATCACCTTAGAAGATGTCAGCACATTTCAAACTAAGATTTTCTTAATTCTGATCTCCGGGAAGAAAAGAAATAACAAAAAAAAATCTACTCCTTTACTCCTGAATCCT-GAACAATTGAAGATTTTGAGTCTGTGAGTACATACCTGTAGACATCTCCAACATCTCCATTTACAAGCACATTATTTTGTTCTGTGCAAACCCCAGAAGGTATGCACTGCTTGGTGGGCTTCACTCTCAACTGTAGGAGATTCTGCTATAAGGACAATATGGATCTCGTAGAGTTTTAAATTCTGAAATAGGAAGAAGTTGAAGAATGACTGAAGAATATGTTTAATATATCCTTAGAGGGAAAACTCATGCCCAAACATGGTGATTCATCTTTTACTATTTAG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >6087139</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >6086262</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_167187"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A44">
+        <sio:SIO_000300>ATGGACATTGAAGCATATTTTGAAAGAATTGGCTATAAGAACTCTAGGAACAAATTGGACTTGGAAACATTAACTGACATTCTTGAGCACCAGATCCGGGCTGTTCCCTTTGAGAACCTTAACATGCATTGTGGGCAAGCCATGGAGTTGGGCTTAGAGGCTATTTTTGATCACATTGTAAGAAGAAACCGGGGTGGGTGGTGTCTCCAGGTCAATCAACTTCTGTACTGGGCTCTGACCACAATCGGTTTTCAGACCACAATGTTAGGAGGGTATTTTTACATCCCTCCAGTTAACAAATACAGCACTGGCATGGTTCACCTTCTCCTGCAGGTGACCATTGACGGCAGGAATTACATTGTCGATGCTGGGTCTGGAAGCTCCTCCCAGATGTGGCAGCCTCTAGAATTAATTTCTGGGAAGGATCAGCCTCAGGTGCCTTGCATTTTCTGCTTGACAGAAGAGAGAGGAATCTGGTACCTGGACCAAATCAGGAGAGAGCAGTATATTACAAACAAAGAATTTCTTAATTCTCATCTCCTGCCAAAGAAGAAACACCAAAAAATATACTTATTTACGCTTGAACCTCGAACAATTGAAGATTTTGAGTCTATGAATACATACCTGCAGACGTCTCCAACATCTTCATTTATAACCACATCATTTTGTTCCTTGCAGACCCCAGAAGGGGTTTACTGTTTGGTGGGCTTCATCCTCACCTATAGAAAATTCAATTATAAAGACAATACAGATCTGGTCGAGTTTAAAACTCTCACTGAGGAAGAGGTTGAAGAAGTGCTGAGAAATATATTTAAGATTTCCTTGGGGAGAAATCTCGTGCCCAAACCTGGTGATGGATCCCTTACTATTTAG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >6116532</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >6115660</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_167187"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A45">
+        <sio:SIO_000300>ATGGACATTGAAGCATATCTTGAAAGAATTGGCTATAAGAAGTCTAGGAACAAATTGGACTTGGAAACATTAACTGACATTCTTCAACACCAGATCCGAGCTGTTCCCTTTGAGAACCTTAACATCCATTGTGGGGATGCCATGGACTTAGGCTTAGAGGCCATTTTTGATCAAGTTGTGAGAAGAAATCGGGGTGGATGGTGTCTCCAGGTCAATCATCTTCTGTACTGGGCTCTGACCACTATTGGTTTTGAGACCACGATGTTGGGAGGGTATGTTTACAGCACTCCAGCCAAAAAATACAGCACTGGCATGATTCACCTTCTCCTGCAGGTGACCATTGATGGCAGGAACTACATTGTCGATGCTGGGTTTGGACGCTCATACCAGATGTGGCAGCCTCTGGAGTTAATTTCTGGGAAGGATCAGCCTCAGGTGCCTTGTGTCTTCCGTTTGACGGAAGAGAATGGATTCTGGTATCTAGACCAAATCAGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTCATTCTGATCTCCTAGAAGACAGCAAATACCGAAAAATCTACTCCTTTACTCTTAAGCCTCGAACAATTGAAGATTTTGAGTCTATGAATACATACCTGCAGACATCTCCATCATCTGTGTTTACTAGTAAATCATTTTGTTCCTTGCAGACCCCAGATGGGGTTCACTGTTTGGTGGGCTTCACCCTCACCCATAGGAGATTCAATTATAAGGACAATACAGATCTAATAGAGTTCAAGACTCTGAGTGAGGAAGAAATAGAAAAAGTGCTGAAAAATATATTTAATATTTCCTTGCAGAGAAAGCTTGTGCCCAAACATGGTGATAGATTTTTTACTATTTAG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >5938575</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >5937703</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_167187"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_008046">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A46">
+        <sio:SIO_000300>TGAGTCAGGAAGAAATAGAAAATGTG</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >51400379</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >51400404</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_008046"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A47">
+        <sio:SIO_000300>TGTTTACTAGTAAATAATTTTGTT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >23760345</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >23760368</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_008046"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_033899">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A48">
+        <sio:SIO_000300>CAAAAGAAGAATTTCTTCATTCTTAT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >32595657</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >32595632</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_033899"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <sio:SIO_000030 rdf:nodeID="A49">
+    <sio:SIO_000300>TATAAGAAGTCTAGCAACAAATTG</sio:SIO_000300>
+    <sio:SIO_000008>
+      <sio:SIO_000792>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >13464661</sio:SIO_000300>
+      </sio:SIO_000792>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <sio:SIO_000791>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >13464684</sio:SIO_000300>
+      </sio:SIO_000791>
+    </sio:SIO_000008>
+    <sio:SIO_000068>
+      <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_029289">
+        <sio:SIO_000028 rdf:nodeID="A49"/>
+      </rdf:Description>
+    </sio:SIO_000068>
+  </sio:SIO_000030>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_024524">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A50">
+        <sio:SIO_000300>TTGAAGAGTTTGAGTCTATGGATACAT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >55670969</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >55670995</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_024524"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_008470">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A51">
+        <sio:SIO_000300>AGACTCTGAGTGAGGAAGAAA</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >44311243</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >44311223</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_008470"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <sio:SIO_000030 rdf:nodeID="A52">
+    <sio:SIO_000300>ATGGACATTGAAGGAAATCTTGAAAG</sio:SIO_000300>
+    <sio:SIO_000008>
+      <sio:SIO_000792>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >34483973</sio:SIO_000300>
+      </sio:SIO_000792>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <sio:SIO_000791>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >34483948</sio:SIO_000300>
+      </sio:SIO_000791>
+    </sio:SIO_000008>
+    <sio:SIO_000068>
+      <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_007933">
+        <sio:SIO_000028 rdf:nodeID="A52"/>
+      </rdf:Description>
+    </sio:SIO_000068>
+  </sio:SIO_000030>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_032977">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A53">
+        <sio:SIO_000300>TTCTCCTTCTCCTCCAGGTGACCATT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1223937</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1223962</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_032977"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_016297">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A54">
+        <sio:SIO_000300>CATCTGTGTTTACTAGTAAAT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1435338</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1435358</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_016297"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_022135">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A55">
+        <sio:SIO_000300>GTACATTCCAAATGGAGACTGTGTTCATTCT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >12873166</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >12873196</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_022135"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <sio:SIO_000030 rdf:nodeID="A56">
+    <sio:SIO_000300>AGAAAAGAACTGTTCATGCCAAATGAAGATTTTCTTC</sio:SIO_000300>
+    <sio:SIO_000008>
+      <sio:SIO_000792>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >60203199</sio:SIO_000300>
+      </sio:SIO_000792>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <sio:SIO_000791>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >60203235</sio:SIO_000300>
+      </sio:SIO_000791>
+    </sio:SIO_000008>
+    <sio:SIO_000068>
+      <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_029419">
+        <sio:SIO_000028 rdf:nodeID="A56"/>
+      </rdf:Description>
+    </sio:SIO_000068>
+  </sio:SIO_000030>
+  <blast:BlastHit rdf:nodeID="A57">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A57"/>
+        <sio:SIO_000028 rdf:nodeID="A41"/>
+        <sio:SIO_000028 rdf:nodeID="A22"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >|||| |||||| ||||||||||||  | |||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >44</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >40.9604</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.8571428571428571</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >1.15374</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A57"/>
+        <sio:SIO_000028 rdf:nodeID="A42"/>
+        <sio:SIO_000028 rdf:nodeID="A7"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >|||| |||||||  ||||||||||||||||  |||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >46</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >42.7638</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.8648648648648649</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >0.330552</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <sio:SIO_000030 rdf:nodeID="A59">
+    <sio:SIO_000300>ATTCTAGTATCTAGACCAAATAAGAAGG</sio:SIO_000300>
+    <sio:SIO_000008>
+      <sio:SIO_000792>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >69924933</sio:SIO_000300>
+      </sio:SIO_000792>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <sio:SIO_000791>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >69924906</sio:SIO_000300>
+      </sio:SIO_000791>
+    </sio:SIO_000008>
+    <sio:SIO_000068>
+      <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_005612">
+        <sio:SIO_000028 rdf:nodeID="A59"/>
+      </rdf:Description>
+    </sio:SIO_000068>
+  </sio:SIO_000030>
+  <blast:BlastHit rdf:nodeID="A60">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A60"/>
+        <sio:SIO_000028 rdf:nodeID="A39"/>
+        <sio:SIO_000028 rdf:nodeID="A17"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||| ||| |||||||||| |||||||||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >44</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >40.9604</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.90625</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >1.15374</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A60"/>
+        <sio:SIO_000028 rdf:nodeID="A40"/>
+        <sio:SIO_000028 rdf:nodeID="A6"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >|||||||||||||||||| | |  |||||  ||||| | | |||| |  ||   |||| |||| || ||||||  |  ||   ||  |||||||| | |||||| |||||  | ||||||| | |  ||| |||||  |      | |||||| | | | |||||||| |||||||| ||||| || ||| ||||||  |||||| | ||||||||| |   ||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >132</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >120.309</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.7192982456140351</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >1.49938e-24</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <blast:BlastHit rdf:nodeID="A61">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A61"/>
+        <sio:SIO_000028 rdf:nodeID="A43"/>
+        <sio:SIO_000028 rdf:nodeID="A25"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >|||||||||  || |||| ||||||||| ||| |||||||| ||||||||||||||  ||||||||| ||||||||  || ||||| || ||| || |||||||||||| ||||||| ||| ||| |||||||||||   |||||| |  |||||| || ||||||||    |||| ||| | ||||||   |  |||||| |||||||||  |||  |||   |||||||  ||||||||||||| | ||| |||||||||||||| |||| |||| ||||||| | | |||  ||||||||||| ||| ||| |||| |||||||||| |||||||||||| || | |||| | || ||||    |||| |  ||||||| |||| | |||||||||||||||||||| ||| ||||||||||||||||||||||||||| |     | ||| | ||||  || |||| ||||||||| || || || ||  | |||||    ||| ||||| ||||  |||| |||||| ||||||||||||  ||||| |  ||||| | ||||   ||||||||||||||| || || ||| ||||||||||||||||||||||| ||| |||||||||| ||||||||||| |||||   ||||| || | || |||||||||  |||| |||||||| ||  | ||||| |||||||||||||| |||| |  ||||||||||   |||||||||||||  |||||  |||||||  | | |||||   |||||||| | ||| ||   ||||| ||||| |||||||| |||||  || |||| ||  |||||||||||||||||  || |||||||||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >818</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >738.864</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.7911464245175936</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >0</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A61"/>
+        <sio:SIO_000028 rdf:nodeID="A44"/>
+        <sio:SIO_000028 rdf:nodeID="A13"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >|||||||||||||||||| |||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||| | ||||||||||| |||||||||||||||||||||||||| ||||||||| | |||||||| || ||||||||||| |||||||||||  |||| |||||||| |||||||| |||||||||||||||||||| ||||||||||||||||||||||| || |||||| ||||||| ||||| ||||||||| |||||| | ||||||  || |||||||||||||||||| |||||||||||||||||||||||||||| |||||||| ||||||||||||||||||| |||| |||| | |||||||||||||||||| || |||||||||||||||||||||||||||||||||||  | ||| | ||||| |||||||  ||| ||||||| || ||||||||||| || || ||||| ||| ||||  ||||||||||| ||||| |||||||   | | |  ||| ||| |||||| ||||  ||||| ||| | ||||||||||||||||||||||||||||||||||||||||||||||| |||||| |||||   ||||  |  | ||||||||||||||||||||||||||| |||||| |||||||||||||||||| ||||||| |||| | |||||||||||| ||||||||||||||  | ||||| || ||||| | |||||||||  | ||| ||||||||| |||||||||||| |||||||||  |||||| || |||||||||| ||||||| |||   |||||||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1190</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >1074.29</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.872852233676976</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >0</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A61"/>
+        <sio:SIO_000028 rdf:nodeID="A45"/>
+        <sio:SIO_000028 rdf:nodeID="A1"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >1746</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >1575.63</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >1.0</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >0</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <blast:BlastHit rdf:nodeID="A62">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A62"/>
+        <sio:SIO_000028 rdf:nodeID="A37"/>
+        <sio:SIO_000028 rdf:nodeID="A5"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||| || ||||||||||||||||| |||| ||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >44</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >40.9604</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.875</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >1.15374</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A62"/>
+        <sio:SIO_000028 rdf:nodeID="A38"/>
+        <sio:SIO_000028 rdf:nodeID="A27"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||| ||||  |||||||||||||||||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >46</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >42.7638</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9090909090909091</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >0.330552</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <blast:BlastHit rdf:nodeID="A63">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A63"/>
+        <sio:SIO_000028 rdf:nodeID="A46"/>
+        <sio:SIO_000028 rdf:nodeID="A30"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||| |||||||||||||||| |||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >42</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >39.157</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9230769230769231</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >4.02694</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A63"/>
+        <sio:SIO_000028 rdf:nodeID="A47"/>
+        <sio:SIO_000028 rdf:nodeID="A20"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||||||||||||| ||||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >42</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >39.157</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9583333333333334</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >4.02694</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_023133">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A64">
+        <sio:SIO_000300>GCTGAAAAATATATTTAATAT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >9872307</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >9872287</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_023133"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <blast:BlastHit rdf:nodeID="A65">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A65"/>
+        <sio:SIO_000028 rdf:nodeID="A35"/>
+        <sio:SIO_000028 rdf:nodeID="A11"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||||||||||||||| ||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >42</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >39.157</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9583333333333334</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >4.02694</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A65"/>
+        <sio:SIO_000028 rdf:nodeID="A36"/>
+        <sio:SIO_000028 rdf:nodeID="A26"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >|||||||||||||| |||||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >42</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >39.157</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9583333333333334</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >4.02694</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <sio:SIO_000030 rdf:nodeID="A66">
+    <sio:SIO_000300>AACATTTCTTTGAAGAGAAAGCTTGTGCTTGACCATGGT</sio:SIO_000300>
+    <sio:SIO_000008>
+      <sio:SIO_000792>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >48669432</sio:SIO_000300>
+      </sio:SIO_000792>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <sio:SIO_000791>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >48669394</sio:SIO_000300>
+      </sio:SIO_000791>
+    </sio:SIO_000008>
+    <sio:SIO_000068>
+      <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_016354">
+        <sio:SIO_000028 rdf:nodeID="A66"/>
+      </rdf:Description>
+    </sio:SIO_000068>
+  </sio:SIO_000030>
+  <blast:BlastHit rdf:nodeID="A67">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A67"/>
+        <sio:SIO_000028 rdf:nodeID="A33"/>
+        <sio:SIO_000028 rdf:nodeID="A0"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||||||||||||| || |||| | ||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >44</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >40.9604</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.875</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >1.15374</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A67"/>
+        <sio:SIO_000028 rdf:nodeID="A34"/>
+        <sio:SIO_000028 rdf:nodeID="A16"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||||||||||||| || |||| | ||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >44</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >40.9604</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.875</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >1.15374</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <sio:SIO_000030 rdf:nodeID="A68">
+    <sio:SIO_000300>ATAGAAAAAGTGCAGAAAAATATA</sio:SIO_000300>
+    <sio:SIO_000008>
+      <sio:SIO_000792>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >9483965</sio:SIO_000300>
+      </sio:SIO_000792>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <sio:SIO_000791>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >9483988</sio:SIO_000300>
+      </sio:SIO_000791>
+    </sio:SIO_000008>
+    <sio:SIO_000068>
+      <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_008705">
+        <sio:SIO_000028 rdf:nodeID="A68"/>
+      </rdf:Description>
+    </sio:SIO_000068>
+  </sio:SIO_000030>
+  <rdf:Description rdf:about="http://www.ncbi.nlm.nih.gov/nuccore/NT_004487">
+    <sio:SIO_000028>
+      <sio:SIO_000030 rdf:nodeID="A69">
+        <sio:SIO_000300>TGAAGAATTTCTTCATTTTGATCT</sio:SIO_000300>
+        <sio:SIO_000008>
+          <sio:SIO_000792>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >53295437</sio:SIO_000300>
+          </sio:SIO_000792>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <sio:SIO_000791>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >53295414</sio:SIO_000300>
+          </sio:SIO_000791>
+        </sio:SIO_000008>
+        <sio:SIO_000068 rdf:resource="http://www.ncbi.nlm.nih.gov/nuccore/NT_004487"/>
+      </sio:SIO_000030>
+    </sio:SIO_000028>
+  </rdf:Description>
+  <blast:BlastHit rdf:nodeID="A70">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A70"/>
+        <sio:SIO_000028 rdf:nodeID="A31"/>
+        <sio:SIO_000028 rdf:nodeID="A19"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||| |||||||||||| |||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >42</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >39.157</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9230769230769231</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >4.02694</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A70"/>
+        <sio:SIO_000028 rdf:nodeID="A32"/>
+        <sio:SIO_000028 rdf:nodeID="A28"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||||||||||| ||||||| ||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >46</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >42.7638</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9285714285714286</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >0.330552</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <blast:BlastHit rdf:nodeID="A71">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A71"/>
+        <sio:SIO_000028 rdf:nodeID="A56"/>
+        <sio:SIO_000028 rdf:nodeID="A23"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||  |||| || ||| ||||||||||| |||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >44</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >40.9604</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.8378378378378378</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >1.15374</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <blast:SequenceAlignment rdf:nodeID="A72">
+    <sio:SIO_000068>
+      <blast:BlastHit>
+        <sio:SIO_000232 rdf:nodeID="A58"/>
+        <sio:SIO_000028 rdf:nodeID="A72"/>
+      </blast:BlastHit>
+    </sio:SIO_000068>
+    <sio:SIO_000028 rdf:nodeID="A68"/>
+    <sio:SIO_000028 rdf:nodeID="A2"/>
+    <sio:SIO_000008>
+      <blast:Consensus>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >||||||||||||| ||||||||||</sio:SIO_000300>
+      </blast:Consensus>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:score>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >42</sio:SIO_000300>
+      </blast:score>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:bits>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >39.157</sio:SIO_000300>
+      </blast:bits>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:identity>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >0.9583333333333334</sio:SIO_000300>
+      </blast:identity>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:expectation>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+        >4.02694</sio:SIO_000300>
+      </blast:expectation>
+    </sio:SIO_000008>
+  </blast:SequenceAlignment>
+  <blast:SequenceAlignment rdf:nodeID="A73">
+    <sio:SIO_000068>
+      <blast:BlastHit>
+        <sio:SIO_000232 rdf:nodeID="A58"/>
+        <sio:SIO_000028 rdf:nodeID="A73"/>
+      </blast:BlastHit>
+    </sio:SIO_000068>
+    <sio:SIO_000028 rdf:nodeID="A64"/>
+    <sio:SIO_000028 rdf:nodeID="A21"/>
+    <sio:SIO_000008>
+      <blast:Consensus>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >|||||||||||||||||||||</sio:SIO_000300>
+      </blast:Consensus>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:score>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >42</sio:SIO_000300>
+      </blast:score>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:bits>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >39.157</sio:SIO_000300>
+      </blast:bits>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:identity>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >1.0</sio:SIO_000300>
+      </blast:identity>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:expectation>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+        >4.02694</sio:SIO_000300>
+      </blast:expectation>
+    </sio:SIO_000008>
+  </blast:SequenceAlignment>
+  <blast:SequenceAlignment rdf:nodeID="A74">
+    <sio:SIO_000068>
+      <blast:BlastHit>
+        <sio:SIO_000232 rdf:nodeID="A58"/>
+        <sio:SIO_000028 rdf:nodeID="A74"/>
+      </blast:BlastHit>
+    </sio:SIO_000068>
+    <sio:SIO_000028 rdf:nodeID="A66"/>
+    <sio:SIO_000028 rdf:nodeID="A29"/>
+    <sio:SIO_000008>
+      <blast:Consensus>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >|| ||||| ||| |||||||||||||||   | ||||||</sio:SIO_000300>
+      </blast:Consensus>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:score>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >42</sio:SIO_000300>
+      </blast:score>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:bits>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >39.157</sio:SIO_000300>
+      </blast:bits>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:identity>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >0.8205128205128205</sio:SIO_000300>
+      </blast:identity>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:expectation>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+        >4.02694</sio:SIO_000300>
+      </blast:expectation>
+    </sio:SIO_000008>
+  </blast:SequenceAlignment>
+  <blast:SequenceAlignment rdf:nodeID="A75">
+    <sio:SIO_000068>
+      <blast:BlastHit>
+        <sio:SIO_000232 rdf:nodeID="A58"/>
+        <sio:SIO_000028 rdf:nodeID="A75"/>
+      </blast:BlastHit>
+    </sio:SIO_000068>
+    <sio:SIO_000028 rdf:nodeID="A69"/>
+    <sio:SIO_000028 rdf:nodeID="A15"/>
+    <sio:SIO_000008>
+      <blast:Consensus>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >||||||||||||||||| ||||||</sio:SIO_000300>
+      </blast:Consensus>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:score>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >42</sio:SIO_000300>
+      </blast:score>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:bits>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >39.157</sio:SIO_000300>
+      </blast:bits>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:identity>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >0.9583333333333334</sio:SIO_000300>
+      </blast:identity>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:expectation>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+        >4.02694</sio:SIO_000300>
+      </blast:expectation>
+    </sio:SIO_000008>
+  </blast:SequenceAlignment>
+  <blast:SequenceAlignment rdf:nodeID="A76">
+    <sio:SIO_000068>
+      <blast:BlastHit>
+        <sio:SIO_000232 rdf:nodeID="A58"/>
+        <sio:SIO_000028 rdf:nodeID="A76"/>
+      </blast:BlastHit>
+    </sio:SIO_000068>
+    <sio:SIO_000028 rdf:nodeID="A49"/>
+    <sio:SIO_000028 rdf:nodeID="A12"/>
+    <sio:SIO_000008>
+      <blast:Consensus>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >|||||||||||||| |||||||||</sio:SIO_000300>
+      </blast:Consensus>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:score>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >42</sio:SIO_000300>
+      </blast:score>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:bits>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >39.157</sio:SIO_000300>
+      </blast:bits>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:identity>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >0.9583333333333334</sio:SIO_000300>
+      </blast:identity>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:expectation>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+        >4.02694</sio:SIO_000300>
+      </blast:expectation>
+    </sio:SIO_000008>
+  </blast:SequenceAlignment>
+  <blast:BlastHit rdf:nodeID="A77">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A77"/>
+        <sio:SIO_000028 rdf:nodeID="A53"/>
+        <sio:SIO_000028 rdf:nodeID="A9"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||| ||||||||| ||||||||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >42</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >39.157</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9230769230769231</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >4.02694</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <blast:SequenceAlignment rdf:nodeID="A78">
+    <sio:SIO_000068>
+      <blast:BlastHit>
+        <sio:SIO_000232 rdf:nodeID="A58"/>
+        <sio:SIO_000028 rdf:nodeID="A78"/>
+      </blast:BlastHit>
+    </sio:SIO_000068>
+    <sio:SIO_000028 rdf:nodeID="A54"/>
+    <sio:SIO_000028 rdf:nodeID="A10"/>
+    <sio:SIO_000008>
+      <blast:Consensus>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >|||||||||||||||||||||</sio:SIO_000300>
+      </blast:Consensus>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:score>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >42</sio:SIO_000300>
+      </blast:score>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:bits>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >39.157</sio:SIO_000300>
+      </blast:bits>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:identity>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >1.0</sio:SIO_000300>
+      </blast:identity>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:expectation>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+        >4.02694</sio:SIO_000300>
+      </blast:expectation>
+    </sio:SIO_000008>
+  </blast:SequenceAlignment>
+  <blast:BlastHit rdf:nodeID="A79">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A79"/>
+        <sio:SIO_000028 rdf:nodeID="A52"/>
+        <sio:SIO_000028 rdf:nodeID="A14"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||||||||||| | ||||||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >42</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >39.157</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9230769230769231</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >4.02694</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <blast:SequenceAlignment rdf:nodeID="A80">
+    <sio:SIO_000068>
+      <blast:BlastHit>
+        <sio:SIO_000232 rdf:nodeID="A58"/>
+        <sio:SIO_000028 rdf:nodeID="A80"/>
+      </blast:BlastHit>
+    </sio:SIO_000068>
+    <sio:SIO_000028 rdf:nodeID="A51"/>
+    <sio:SIO_000028 rdf:nodeID="A3"/>
+    <sio:SIO_000008>
+      <blast:Consensus>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >|||||||||||||||||||||</sio:SIO_000300>
+      </blast:Consensus>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:score>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+        >42</sio:SIO_000300>
+      </blast:score>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:bits>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >39.157</sio:SIO_000300>
+      </blast:bits>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:identity>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >1.0</sio:SIO_000300>
+      </blast:identity>
+    </sio:SIO_000008>
+    <sio:SIO_000008>
+      <blast:expectation>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+        >4.02694</sio:SIO_000300>
+      </blast:expectation>
+    </sio:SIO_000008>
+  </blast:SequenceAlignment>
+  <blast:BlastHit rdf:nodeID="A81">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A81"/>
+        <sio:SIO_000028 rdf:nodeID="A48"/>
+        <sio:SIO_000028 rdf:nodeID="A8"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >|||| |||||||||||||||||| ||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >42</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >39.157</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9230769230769231</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >4.02694</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <blast:BlastHit rdf:nodeID="A82">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A82"/>
+        <sio:SIO_000028 rdf:nodeID="A50"/>
+        <sio:SIO_000028 rdf:nodeID="A4"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||||| |||||||||||| ||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >44</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >40.9604</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9259259259259259</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >1.15374</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <blast:BlastHit rdf:nodeID="A83">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A83"/>
+        <sio:SIO_000028 rdf:nodeID="A59"/>
+        <sio:SIO_000028 rdf:nodeID="A24"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >||||| ||||||||||||||| ||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >46</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >42.7638</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.9285714285714286</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >0.330552</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+  <blast:BlastHit rdf:nodeID="A84">
+    <sio:SIO_000232 rdf:nodeID="A58"/>
+    <sio:SIO_000028>
+      <blast:SequenceAlignment>
+        <sio:SIO_000068 rdf:nodeID="A84"/>
+        <sio:SIO_000028 rdf:nodeID="A55"/>
+        <sio:SIO_000028 rdf:nodeID="A18"/>
+        <sio:SIO_000008>
+          <blast:Consensus>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >|||||||||||||| ||| | | ||||||||</sio:SIO_000300>
+          </blast:Consensus>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:score>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#int"
+            >42</sio:SIO_000300>
+          </blast:score>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:bits>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >39.157</sio:SIO_000300>
+          </blast:bits>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:identity>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+            >0.8709677419354839</sio:SIO_000300>
+          </blast:identity>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <blast:expectation>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal"
+            >4.02694</sio:SIO_000300>
+          </blast:expectation>
+        </sio:SIO_000008>
+      </blast:SequenceAlignment>
+    </sio:SIO_000028>
+  </blast:BlastHit>
+</rdf:RDF>

@@ -1,3 +1,8 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%
+	Iterator<String> i = new PropertiesConfiguration("blast.properties").getKeys("blast.taxon");
+	request.setAttribute("taxons", i);
+%>
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
@@ -20,10 +25,10 @@
         <div id='content'>
           <h2>SADI Services</h2>
 	      <ul>
-            <li><a href="./human">NCBI human genome BLAST</a></li>
-            <li><a href="./mouse">NCBI mouse genome BLAST</a></li>
-            <li><a href="./rat">NCBI rat genome BLAST</a></li>
             <li><a href="./snapdragon">antirrhinum.net BLAST</a></li>
+	       <c:forEach var="taxon" items="${taxons}">
+	        <li><a href="./${taxon}">NCBI ${taxon} genome BLAST</a></li>
+           </c:forEach>
 	      </ul>
         </div> <!-- content -->
         <div id='footer'>
