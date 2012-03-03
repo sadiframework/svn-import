@@ -54,7 +54,6 @@ import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.OntProperty;
 import com.hp.hpl.jena.ontology.Restriction;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -240,7 +239,13 @@ public class GenerateService extends AbstractMojo
 		
 		/* load the input and output classes...
 		 */
-		OntModel model = ModelFactory.createOntologyModel( OntModelSpec.OWL_MEM_MICRO_RULE_INF );
+		OntModel model = null;
+		try {
+			model = OwlUtils.getDefaultReasoningModel();
+		} catch (SADIException e) {
+			getLog().warn(String.format("error configuring reasoner: %s", e.getMessage()));
+			model = ModelFactory.createOntologyModel();
+		}
 		
 		OntClass inputClass = null;
 		try {
