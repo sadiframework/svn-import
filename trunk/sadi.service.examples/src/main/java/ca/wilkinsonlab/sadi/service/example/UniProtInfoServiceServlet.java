@@ -5,6 +5,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ebi.kraken.interfaces.common.Sequence;
+import uk.ac.ebi.kraken.interfaces.uniprot.Gene;
 import uk.ac.ebi.kraken.interfaces.uniprot.NcbiTaxonomyId;
 import uk.ac.ebi.kraken.interfaces.uniprot.ProteinDescription;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
@@ -18,6 +19,7 @@ import ca.wilkinsonlab.sadi.utils.UniProtUtils;
 import ca.wilkinsonlab.sadi.vocab.Properties;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 
@@ -36,6 +38,14 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 
 	private static final Resource Taxon_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/taxon_Record");
 	private static final Resource Taxon_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/taxon_Identifier");
+
+	@Override
+	protected Model createOutputModel()
+	{
+		Model model = super.createOutputModel();
+		model.setNsPrefix("uniprotInfo", "http://sadiframework.org/examples/uniprotInfo.owl#");
+		return model;
+	}
 	
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
@@ -53,6 +63,8 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 		}
 		
 		attachOrganism(output, input);
+		
+		attachGeneSymbol(output, input);
 		
 		Sequence sequence = input.getSequence();
 		if (sequence != null) {
@@ -102,6 +114,14 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 		}
 	}
 	
+	private void attachGeneSymbol(Resource uniprotNode, UniProtEntry input)
+	{
+		for (Gene gene: input.getGenes()) {
+			String geneSymbol = gene.getGeneName().getValue();
+			SIOUtils.createAttribute(uniprotNode, LocalSIO.symbol, geneSymbol);
+		}
+	}
+	
 	private String getScientificName(UniProtEntry input)
 	{
 		try {
@@ -110,5 +130,11 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 			// probably NPE...
 			return null;
 		}
+	}
+	
+	// FIXME delete this when a new sadi.common is deployed.
+	private static class LocalSIO extends SIO
+	{
+		public static Resource symbol = ResourceFactory.createResource( NS + "SIO_000105" );	
 	}
 }
