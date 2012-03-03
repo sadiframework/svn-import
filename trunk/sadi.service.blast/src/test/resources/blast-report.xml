@@ -1,0 +1,819 @@
+<?xml version="1.0"?>
+<!DOCTYPE BlastOutput PUBLIC "-//NCBI//NCBI BlastOutput/EN" "NCBI_BlastOutput.dtd">
+<BlastOutput>
+  <BlastOutput_program>blastn</BlastOutput_program>
+  <BlastOutput_version>BLASTN 2.2.26+</BlastOutput_version>
+  <BlastOutput_reference>Stephen F. Altschul, Thomas L. Madden, Alejandro A. Sch&amp;auml;ffer, Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), &quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search programs&quot;, Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>
+  <BlastOutput_db>GPIPE/9606/current/ref_contig</BlastOutput_db>
+  <BlastOutput_query-ID>35455</BlastOutput_query-ID>
+  <BlastOutput_query-def>No definition line</BlastOutput_query-def>
+  <BlastOutput_query-len>916</BlastOutput_query-len>
+  <BlastOutput_param>
+    <Parameters>
+      <Parameters_expect>10</Parameters_expect>
+      <Parameters_sc-match>2</Parameters_sc-match>
+      <Parameters_sc-mismatch>-3</Parameters_sc-mismatch>
+      <Parameters_gap-open>5</Parameters_gap-open>
+      <Parameters_gap-extend>2</Parameters_gap-extend>
+      <Parameters_filter>L;m;</Parameters_filter>
+    </Parameters>
+  </BlastOutput_param>
+<BlastOutput_iterations>
+<Iteration>
+  <Iteration_iter-num>1</Iteration_iter-num>
+  <Iteration_query-ID>35455</Iteration_query-ID>
+  <Iteration_query-def>http%3A%2F%2Flsrn.org%2FKEGG%3Ahsa%3A9%23seq</Iteration_query-def>
+  <Iteration_query-len>916</Iteration_query-len>
+<Iteration_hits>
+<Hit>
+  <Hit_num>1</Hit_num>
+  <Hit_id>gi|224514765|ref|NT_167187.1|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 8 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_167187</Hit_accession>
+  <Hit_len>31697033</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>1487.26</Hsp_bit-score>
+      <Hsp_score>1648</Hsp_score>
+      <Hsp_evalue>0</Hsp_evalue>
+      <Hsp_query-from>30</Hsp_query-from>
+      <Hsp_query-to>916</Hsp_query-to>
+      <Hsp_hit-from>5937703</Hsp_hit-from>
+      <Hsp_hit-to>5938575</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>873</Hsp_identity>
+      <Hsp_positive>873</Hsp_positive>
+      <Hsp_gaps>14</Hsp_gaps>
+      <Hsp_align-len>887</Hsp_align-len>
+      <Hsp_qseq>ATGGACATTGAAGCATATCTTGAAAGAATTGGCTATAAGAAGTCTAGGAACAAATTGGACATTGGAAACATTAACTGACATTCTTCAACACCAGATCCGAGCTGTTCCCTTTGAGAACCTTAAACATCCATTGTGGGGATGCCATGGACTTAGGCTTAGAGGCCATTTTTGATCAAGTTGTGAAGAAGAAATCGGGGTGGATGGTGTCTCCAGGTCAATCATCTTCTGTACTGGGCTCTGACCAACTATTGGTTTTGAGACCACGATGTTGGGAGGGTATGTTTACAGCACTCCAGCCAAAAAAATACAGCACTGGCATGATTCACCTTCTCCTGCAGGTGACCATTGATGGCAGGAACTACATTAGTCGATGCTGGGTTTGGACGCTCATACCAGATGTGGCAGCCTCTGGAGTTAATTTCTGGGAAAGGATCAGCCTCAGGTGCCTTGTGTCTTCCGTTTGACGGAAGAGAATGGATTCTGGTATACTAGACCAAATCAGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTCATTCTGATCTCACTAGAAGACAGCAAATACCGAAAAATCTACTCCTTTACTCTTAAGCCTCGAACAATTGAAAGATTTTGAGTCTATGAATACATACCTGCAGACATCTCCATCATCTGTGTTTACTAGTAAAATCATTTTGTTCCTTGCAGACCCCAGATGGGGTTCACTGTTTGGTGGGCTTCACCCTCACCACATAGGAGATTCAATTATAAGGACAATACAGATCTAATAGAGTTCAAGACTCTGAGTGAGAGAAGAAATAGAAAAAGTGCTGAAAAATATATTTAATATTTCCTTGCAGAGAAAGCTTGTGACCCAAACATGGTGATAGATTTTTTACTATTTAG</Hsp_qseq>
+      <Hsp_hseq>ATGGACATTGAAGCATATCTTGAAAGAATTGGCTATAAGAAGTCTAGGAACAAATTGGAC-TTGGAAACATTAACTGACATTCTTCAACACCAGATCCGAGCTGTTCCCTTTGAGAACCTTAA-CATCCATTGTGGGGATGCCATGGACTTAGGCTTAGAGGCCATTTTTGATCAAGTTGTGA-GAAGAAATCGGGGTGGATGGTGTCTCCAGGTCAATCATCTTCTGTACTGGGCTCTGACCA-CTATTGGTTTTGAGACCACGATGTTGGGAGGGTATGTTTACAGCACTCCAGCCAAAAAA-TACAGCACTGGCATGATTCACCTTCTCCTGCAGGTGACCATTGATGGCAGGAACTACATT-GTCGATGCTGGGTTTGGACGCTCATACCAGATGTGGCAGCCTCTGGAGTTAATTTCTGGG-AAGGATCAGCCTCAGGTGCCTTGTGTCTTCCGTTTGACGGAAGAGAATGGATTCTGGTAT-CTAGACCAAATCAGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTCATTCTGATCTC-CTAGAAGACAGCAAATACCGAAAAATCTACTCCTTTACTCTTAAGCCTCGAACAATTG-AAGATTTTGAGTCTATGAATACATACCTGCAGACATCTCCATCATCTGTGTTTACTAGT-AAATCATTTTGTTCCTTGCAGACCCCAGATGGGGTTCACTGTTTGGTGGGCTTCACCCTCACC-CATAGGAGATTCAATTATAAGGACAATACAGATCTAATAGAGTTCAAGACTCTGAGTGAG-GAAGAAATAGAAAAAGTGCTGAAAAATATATTTAATATTTCCTTGCAGAGAAAGCTTGTG-CCCAAACATGGTGATAGATTTTTTACTATTTAG</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||| |||||||||||||||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+    <Hsp>
+      <Hsp_num>2</Hsp_num>
+      <Hsp_bit-score>994.943</Hsp_bit-score>
+      <Hsp_score>1102</Hsp_score>
+      <Hsp_evalue>0</Hsp_evalue>
+      <Hsp_query-from>30</Hsp_query-from>
+      <Hsp_query-to>916</Hsp_query-to>
+      <Hsp_hit-from>6115660</Hsp_hit-from>
+      <Hsp_hit-to>6116532</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>764</Hsp_identity>
+      <Hsp_positive>764</Hsp_positive>
+      <Hsp_gaps>14</Hsp_gaps>
+      <Hsp_align-len>887</Hsp_align-len>
+      <Hsp_qseq>ATGGACATTGAAGCATATCTTGAAAGAATTGGCTATAAGAAGTCTAGGAACAAATTGGACATTGGAAACATTAACTGACATTCTTCAACACCAGATCCGAGCTGTTCCCTTTGAGAACCTTAAACATCCATTGTGGGGATGCCATGGACTTAGGCTTAGAGGCCATTTTTGATCAAGTTGTGAAGAAGAAATCGGGGTGGATGGTGTCTCCAGGTCAATCATCTTCTGTACTGGGCTCTGACCAACTATTGGTTTTGAGACCACGATGTTGGGAGGGTATGTTTACAGCACTCCAGCCAAAAAAATACAGCACTGGCATGATTCACCTTCTCCTGCAGGTGACCATTGATGGCAGGAACTACATTAGTCGATGCTGGGTTTGGACGCTCATACCAGATGTGGCAGCCTCTGGAGTTAATTTCTGGGAAAGGATCAGCCTCAGGTGCCTTGTGTCTTCCGTTTGACGGAAGAGAATGGATTCTGGTATACTAGACCAAATCAGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTCATTCTGATCTCACTAGAAGACAGCAAATACCGAAAAATCTACTCCTTTACTCTTAAGCCTCGAACAATTGAAAGATTTTGAGTCTATGAATACATACCTGCAGACATCTCCATCATCTGTGTTTACTAGTAAAATCATTTTGTTCCTTGCAGACCCCAGATGGGGTTCACTGTTTGGTGGGCTTCACCCTCACCACATAGGAGATTCAATTATAAGGACAATACAGATCTAATAGAGTTCAAGACTCTGAGTGAGAGAAGAAATAGAAAAAGTGCTGAAAAATATATTTAATATTTCCTTGCAGAGAAAGCTTGTGACCCAAACATGGTGATAGATTTTTTACTATTTAG</Hsp_qseq>
+      <Hsp_hseq>ATGGACATTGAAGCATATTTTGAAAGAATTGGCTATAAGAACTCTAGGAACAAATTGGAC-TTGGAAACATTAACTGACATTCTTGAGCACCAGATCCGGGCTGTTCCCTTTGAGAACCTTAA-CATGCATTGTGGGCAAGCCATGGAGTTGGGCTTAGAGGCTATTTTTGATCACATTGT-AAGAAGAAACCGGGGTGGGTGGTGTCTCCAGGTCAATCAACTTCTGTACTGGGCTCTGACCA-CAATCGGTTTTCAGACCACAATGTTAGGAGGGTATTTTTACATCCCTCCAGTTAACAAA-TACAGCACTGGCATGGTTCACCTTCTCCTGCAGGTGACCATTGACGGCAGGAATTACATT-GTCGATGCTGGGTCTGGAAGCTCCTCCCAGATGTGGCAGCCTCTAGAATTAATTTCTGGG-AAGGATCAGCCTCAGGTGCCTTGCATTTTCTGCTTGACAGAAGAGAGAGGAATCTGGTA-CCTGGACCAAATCAGGAGAGAGCAGTATATTACAAACAAAGAATTTCTTAATTCTCATCTC-CTGCCAAAGAAGAAACACCAAAAAATATACTTATTTACGCTTGAACCTCGAACAATTG-AAGATTTTGAGTCTATGAATACATACCTGCAGACGTCTCCAACATCTTCATTTA-TAACCACATCATTTTGTTCCTTGCAGACCCCAGAAGGGGTTTACTGTTTGGTGGGCTTCATCCTCACC-TATAGAAAATTCAATTATAAAGACAATACAGATCTGGTCGAGTTTAAAACTCTCACTGAG-GAAGAGGTTGAAGAAGTGCTGAGAAATATATTTAAGATTTCCTTGGGGAGAAATCTCGTG-CCCAAACCTGGTGATGGATCCCTTACTATTTAG</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||| |||||||||||||||||||||| |||||||||||||||||| |||||||||||||||||||||||| | ||||||||||| ||||||||||||||||||||||| ||| ||||||||| | |||||||| || ||||||||||| |||||||||||  |||| ||||||||| |||||||| |||||||||||||||||||| |||||||||||||||||||||| | || |||||| ||||||| ||||| ||||||||| |||||| | ||||||  || ||| ||||||||||||||| |||||||||||||||||||||||||||| |||||||| |||||| ||||||||||||| |||| |||| | |||||||||||||||||| || |||||||||||| |||||||||||||||||||||||  | ||| | ||||| |||||||  ||| |||||||  || ||||||||||| || || ||||| ||| ||||  ||||||||||| ||||| ||||| ||   | | |  ||| ||| |||||| ||||  ||||| ||| | ||||||||||||| |||||||||||||||||||||||||||||||||| |||||| |||||   |||| ||   | ||||||||||||||||||||||||||| |||||| |||||||||||||||||| |||||||  |||| | |||||||||||| ||||||||||||||  | ||||| || ||||| | |||| |||||  | ||| ||||||||| |||||||||||| |||||||||  |||||| || ||| ||||||| ||||||| |||   |||||||||||</Hsp_midline>
+    </Hsp>
+    <Hsp>
+      <Hsp_num>3</Hsp_num>
+      <Hsp_bit-score>663.123</Hsp_bit-score>
+      <Hsp_score>734</Hsp_score>
+      <Hsp_evalue>0</Hsp_evalue>
+      <Hsp_query-from>30</Hsp_query-from>
+      <Hsp_query-to>916</Hsp_query-to>
+      <Hsp_hit-from>6086262</Hsp_hit-from>
+      <Hsp_hit-to>6087139</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>700</Hsp_identity>
+      <Hsp_positive>700</Hsp_positive>
+      <Hsp_gaps>25</Hsp_gaps>
+      <Hsp_align-len>895</Hsp_align-len>
+      <Hsp_qseq>ATGGACATTGAAGCATATCTTGAAAGAATTGGCTATAAGAAGTCTAGGAACAAATTGGACATTGGAAACATTAACTGACATTCTTCAACACCAGATCCGAGCTGTTCCCTTTGAGAACCTTAAACATCCATTGTGGGGATGCCATGGACTTAGGCTTAGAGGCCATTTTTG---ATCAAGTTGTGAAGAAGAAATCG-GGGTGGATGGTGTCTCCAGGTCAATCATCTTCTGTACTGGGCTCTGACCAACTATTGGTTTTGAGACCACGATGTTGGGAGGGTATGTTTACAGCACTCCAGCCAAAAAAATACAGCACTGGCATGATTCACCTTCTCCTGCAGGTGACCATTGATGGCAGGAACTACATTAGTCGATGCTGGGTTTGGACGCTCATACCAGATGTGGCAGCCTCTGGAGTTAATTTCTGGGAAAGGATCAGCCTCAGGTGCCTTGTGTCTTCCGTTTGACGGAAGAGAATGGATTCTGGTATACTAGACCAAATCAGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTCATTCTGATCTCACTAGAAGACAGCAAATACC---GAAAAATCTACTCCTTTACT-CTTAAGCCTCGAACAATTGAAAGATTTTGAGTCTATGAATACATACCTGCAGACATCTCCATCATCTGTGTTTACTAGTAAAATCATTTTGTTCCTTGCAGACCCCAGATGGGGTTCACTGTTTGGTGGGCTTCACCCTCACCACATAGGAGATTCAATTATAAGGACAATACAGATCTAATAGAGTTCAAGACTCTGAGTGAGAGAAGAAATAGAAAAAGTGCTGAAAAATATATTTAATATTTCCTTGCAGAGAAAGCTTGTGACCCAAACATGGTGATAGATTTTTTACTATTTAG</Hsp_qseq>
+      <Hsp_hseq>ATGGACATTACAGTATATTTTGAAAGAACTGGTTATAAGAACTCTAGGAACAAATTAAAC-TTGGAAATATTAACTGCTAT-CTTCAGCAACAGGTCTGAGCTGTTCCCTCTGAGAACTTTAG-CATGCATTGTGGGGAACACATGGAGTAGGGCTTAAAGTCCATTTTTTTTTATCACGTTAT-AAGAAGACCCCCAGGGTGGGTGGTGTCTCTGGGTTGATCGATTTCTGTAAAGGGCTCTGACCA-CAACTGGCTTTGAGACCACGATATTGGCAGGGAATGTTTATATCCCTCTGGCCAAAAAA-TATAGCGCTGACATGGTTCACCTTCTTCTGCAGGTGACCGTTAACGGCAAGTACCACATCACT-GATGGTCAGTTTGGAAGCTCCTTCCAGATGTGGCAGCCTCTGGGGTTTATTTCTGGG-AAGGATCAGCCTCAGGTGTCACTCATTTTCTGCTTGA-GAGAGAGAGTGGATTCTGCTA-CCTGGATCACCTTAGAAGATGTCAGCACATTTCAAACTAAGATTTTCTTAATTCTGATCTC-CGGGAAGAAAAGAAATAACAAAAAAAAATCTACTCCTTTACTCCTGAATCCT-GAACAATTG-AAGATTTTGAGTCTGTGAGTACATACCTGTAGACATCTCCAACATCTCCATTTACAAG-CACATTATTTTGTTCTGTGCAAACCCCAGAAGGTATGCACTGCTTGGTGGGCTTCACTCTCAAC-TGTAGGAGATTCTGCTATAAGGACAATATGGATCTCGTAGAGTTTTAAATTCTGAAATAG-GAAGAAGTTGAAGAATGACTGAAGAATATGTTTAATATATCCTTAGAGGGAAAACTCATG-CCCAAACATGGTGATTCATCTTTTACTATTTAG</Hsp_hseq>
+      <Hsp_midline>|||||||||  || |||| ||||||||| ||| |||||||| ||||||||||||||  || ||||||| ||||||||  || ||||| || ||| || |||||||||||| ||||||| |||  ||| |||||||||||   |||||| |  |||||| || ||||||||    |||| ||| | |||||||   |  |||||| |||||||||  |||  |||   |||||||  |||||||||||| | | ||| |||||||||||||| |||| |||| ||||||| | | |||  ||||||||| || ||| ||| |||| |||||||||| |||||||||||| || | |||| | || |||| | | |||| |  ||||||| |||| | |||||||||||||||||||| ||| ||||||||| |||||||||||||||||| |     | ||| | |||| |  ||||| ||||||||| ||  || || ||  | |||||    ||| ||||| ||||  |||| |||||| ||||||||||| |  ||||| |  ||||| |    ||||||||||||||||||| || || ||| ||||||||| |||||||||||||| ||| |||||||||| ||||||||||| |||||   ||||| ||  | || |||||||||  |||| |||||||| ||  | ||||| |||||||||||||| |||| |   ||||||||||   |||||||||||||  |||||  |||||||  | | |||||   || |||||| | ||| ||   ||||| ||||| |||||||| |||||  || |||| ||  || |||||||||||||||  || |||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>2</Hit_num>
+  <Hit_id>gi|224514848|ref|NT_010194.17|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 15 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_010194</Hit_accession>
+  <Hit_len>53620202</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>46.3705</Hsp_bit-score>
+      <Hsp_score>50</Hsp_score>
+      <Hsp_evalue>0.0285223</Hsp_evalue>
+      <Hsp_query-from>731</Hsp_query-from>
+      <Hsp_query-to>766</Hsp_query-to>
+      <Hsp_hit-from>52438173</Hsp_hit-from>
+      <Hsp_hit-to>52438209</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>33</Hsp_identity>
+      <Hsp_positive>33</Hsp_positive>
+      <Hsp_gaps>1</Hsp_gaps>
+      <Hsp_align-len>37</Hsp_align-len>
+      <Hsp_qseq>GTTCACTGTTTGGTGGGCTTCACCCTCACCA-CATAG</Hsp_qseq>
+      <Hsp_hseq>GTTCTCTGTTTGAAGGGCTTCACCCTCACCAGCATAG</Hsp_hseq>
+      <Hsp_midline>|||| |||||||  ||||||||||||||||| |||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>3</Hit_num>
+  <Hit_id>gi|224514994|ref|NT_005612.16|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 3 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_005612</Hit_accession>
+  <Hit_len>100537107</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>42.7638</Hsp_bit-score>
+      <Hsp_score>46</Hsp_score>
+      <Hsp_evalue>0.347473</Hsp_evalue>
+      <Hsp_query-from>806</Hsp_query-from>
+      <Hsp_query-to>838</Hsp_query-to>
+      <Hsp_hit-from>81372804</Hsp_hit-from>
+      <Hsp_hit-to>81372772</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>29</Hsp_identity>
+      <Hsp_positive>29</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>33</Hsp_align-len>
+      <Hsp_qseq>CAAGACTCTGAGTGAGAGAAGAAATAGAAAAAG</Hsp_qseq>
+      <Hsp_hseq>CAAGACTCTGAGAAAGAAAAGAAAAAGAAAAAG</Hsp_hseq>
+      <Hsp_midline>||||||||||||  ||| |||||| ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>4</Hit_num>
+  <Hit_id>gi|224514786|ref|NT_167197.1|</Hit_id>
+  <Hit_def>Homo sapiens chromosome X genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_167197</Hit_accession>
+  <Hit_len>34980018</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>40.9604</Hsp_bit-score>
+      <Hsp_score>44</Hsp_score>
+      <Hsp_evalue>1.2128</Hsp_evalue>
+      <Hsp_query-from>189</Hsp_query-from>
+      <Hsp_query-to>215</Hsp_query-to>
+      <Hsp_hit-from>11885662</Hsp_hit-from>
+      <Hsp_hit-to>11885636</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>25</Hsp_identity>
+      <Hsp_positive>25</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>27</Hsp_align-len>
+      <Hsp_qseq>AGGCCATTTTTGATCAAGTTGTGAAGA</Hsp_qseq>
+      <Hsp_hseq>AGGCCATTGTTGATCAAGTTATGAAGA</Hsp_hseq>
+      <Hsp_midline>|||||||| ||||||||||| ||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>5</Hit_num>
+  <Hit_id>gi|51473102|ref|NT_010498.15|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 16 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_010498</Hit_accession>
+  <Hit_len>42003582</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>40.9604</Hsp_bit-score>
+      <Hsp_score>44</Hsp_score>
+      <Hsp_evalue>1.2128</Hsp_evalue>
+      <Hsp_query-from>842</Hsp_query-from>
+      <Hsp_query-to>873</Hsp_query-to>
+      <Hsp_hit-from>4517875</Hsp_hit-from>
+      <Hsp_hit-to>4517845</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>29</Hsp_identity>
+      <Hsp_positive>29</Hsp_positive>
+      <Hsp_gaps>1</Hsp_gaps>
+      <Hsp_align-len>32</Hsp_align-len>
+      <Hsp_qseq>TGAAAAATATATTTAATATTTCCTTGCAGAGA</Hsp_qseq>
+      <Hsp_hseq>TGACAAA-ATATTTAATACTTCCTTGCAGAGA</Hsp_hseq>
+      <Hsp_midline>||| ||| |||||||||| |||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>6</Hit_num>
+  <Hit_id>gi|224514900|ref|NT_029419.12|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 12 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_029419</Hit_accession>
+  <Hit_len>71516776</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>40.9604</Hsp_bit-score>
+      <Hsp_score>44</Hsp_score>
+      <Hsp_evalue>1.2128</Hsp_evalue>
+      <Hsp_query-from>820</Hsp_query-from>
+      <Hsp_query-to>846</Hsp_query-to>
+      <Hsp_hit-from>18795948</Hsp_hit-from>
+      <Hsp_hit-to>18795974</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>25</Hsp_identity>
+      <Hsp_positive>25</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>27</Hsp_align-len>
+      <Hsp_qseq>AGAGAAGAAATAGAAAAAGTGCTGAAA</Hsp_qseq>
+      <Hsp_hseq>AGAGAAGAAATAGCAAAAGTGCTCAAA</Hsp_hseq>
+      <Hsp_midline>||||||||||||| ||||||||| |||</Hsp_midline>
+    </Hsp>
+    <Hsp>
+      <Hsp_num>2</Hsp_num>
+      <Hsp_bit-score>40.9604</Hsp_bit-score>
+      <Hsp_score>44</Hsp_score>
+      <Hsp_evalue>1.2128</Hsp_evalue>
+      <Hsp_query-from>530</Hsp_query-from>
+      <Hsp_query-to>566</Hsp_query-to>
+      <Hsp_hit-from>60203235</Hsp_hit-from>
+      <Hsp_hit-to>60203199</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>31</Hsp_identity>
+      <Hsp_positive>31</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>37</Hsp_align-len>
+      <Hsp_qseq>AGAAGGGAACAGTACATTCCAAATGAAGAATTTCTTC</Hsp_qseq>
+      <Hsp_hseq>AGAAAAGAACTGTTCATGCCAAATGAAGATTTTCTTC</Hsp_hseq>
+      <Hsp_midline>||||  |||| || ||| ||||||||||| |||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>7</Hit_num>
+  <Hit_id>gi|224514917|ref|NT_030059.13|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 10 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_030059</Hit_accession>
+  <Hit_len>79420533</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>40.9604</Hsp_bit-score>
+      <Hsp_score>44</Hsp_score>
+      <Hsp_evalue>1.2128</Hsp_evalue>
+      <Hsp_query-from>679</Hsp_query-from>
+      <Hsp_query-to>710</Hsp_query-to>
+      <Hsp_hit-from>35856718</Hsp_hit-from>
+      <Hsp_hit-to>35856687</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>28</Hsp_identity>
+      <Hsp_positive>28</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>32</Hsp_align-len>
+      <Hsp_qseq>TCATCTGTGTTTACTAGTAAAATCATTTTGTT</Hsp_qseq>
+      <Hsp_hseq>TCATCCATGTTTATAAGTAAAATCATTTTGTT</Hsp_hseq>
+      <Hsp_midline>|||||  ||||||  |||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>8</Hit_num>
+  <Hit_id>gi|224514692|ref|NT_007933.15|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 7 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_007933</Hit_accession>
+  <Hit_len>77412220</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>40.9604</Hsp_bit-score>
+      <Hsp_score>44</Hsp_score>
+      <Hsp_evalue>1.2128</Hsp_evalue>
+      <Hsp_query-from>29</Hsp_query-from>
+      <Hsp_query-to>55</Hsp_query-to>
+      <Hsp_hit-from>34483947</Hsp_hit-from>
+      <Hsp_hit-to>34483973</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>25</Hsp_identity>
+      <Hsp_positive>25</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>27</Hsp_align-len>
+      <Hsp_qseq>AATGGACATTGAAGCATATCTTGAAAG</Hsp_qseq>
+      <Hsp_hseq>AATGGACATTGAAGGAAATCTTGAAAG</Hsp_hseq>
+      <Hsp_midline>|||||||||||||| | ||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>9</Hit_num>
+  <Hit_id>gi|224514665|ref|NT_016354.19|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 4 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_016354</Hit_accession>
+  <Hit_len>115591997</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>40.9604</Hsp_bit-score>
+      <Hsp_score>44</Hsp_score>
+      <Hsp_evalue>1.2128</Hsp_evalue>
+      <Hsp_query-from>503</Hsp_query-from>
+      <Hsp_query-to>527</Hsp_query-to>
+      <Hsp_hit-from>6528474</Hsp_hit-from>
+      <Hsp_hit-to>6528450</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>24</Hsp_identity>
+      <Hsp_positive>24</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>25</Hsp_align-len>
+      <Hsp_qseq>ATGGATTCTGGTATACTAGACCAAA</Hsp_qseq>
+      <Hsp_hseq>ATGGATTCTGGTATACTAGAGCAAA</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||| ||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>10</Hit_num>
+  <Hit_id>gi|224514980|ref|NT_004487.19|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 1 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_004487</Hit_accession>
+  <Hit_len>57411349</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>40.9604</Hsp_bit-score>
+      <Hsp_score>44</Hsp_score>
+      <Hsp_evalue>1.2128</Hsp_evalue>
+      <Hsp_query-from>819</Hsp_query-from>
+      <Hsp_query-to>855</Hsp_query-to>
+      <Hsp_hit-from>43454931</Hsp_hit-from>
+      <Hsp_hit-to>43454967</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>31</Hsp_identity>
+      <Hsp_positive>31</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>37</Hsp_align-len>
+      <Hsp_qseq>GAGAGAAGAAATAGAAAAAGTGCTGAAAAATATATTT</Hsp_qseq>
+      <Hsp_hseq>GAGAGGAGAAAGAGTTCAAGAGCTGAAAAATATATTT</Hsp_hseq>
+      <Hsp_midline>||||| ||||| ||   ||| ||||||||||||||||</Hsp_midline>
+    </Hsp>
+    <Hsp>
+      <Hsp_num>2</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>553</Hsp_query-from>
+      <Hsp_query-to>576</Hsp_query-to>
+      <Hsp_hit-from>53295414</Hsp_hit-from>
+      <Hsp_hit-to>53295437</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>23</Hsp_identity>
+      <Hsp_positive>23</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>24</Hsp_align-len>
+      <Hsp_qseq>TGAAGAATTTCTTCATTCTGATCT</Hsp_qseq>
+      <Hsp_hseq>TGAAGAATTTCTTCATTTTGATCT</Hsp_hseq>
+      <Hsp_midline>||||||||||||||||| ||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>11</Hit_num>
+  <Hit_id>gi|224514867|ref|NT_009714.17|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 12 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_009714</Hit_accession>
+  <Hit_len>27616818</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>721</Hsp_query-from>
+      <Hsp_query-to>746</Hsp_query-to>
+      <Hsp_hit-from>17804012</Hsp_hit-from>
+      <Hsp_hit-to>17804037</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>24</Hsp_identity>
+      <Hsp_positive>24</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>26</Hsp_align-len>
+      <Hsp_qseq>CCCAGATGGGGTTCACTGTTTGGTGG</Hsp_qseq>
+      <Hsp_hseq>CCCAGCTGGGGTTCACTGCTTGGTGG</Hsp_hseq>
+      <Hsp_midline>||||| |||||||||||| |||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>12</Hit_num>
+  <Hit_id>gi|224514928|ref|NT_033899.8|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 11 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_033899</Hit_accession>
+  <Hit_len>38508932</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>549</Hsp_query-from>
+      <Hsp_query-to>574</Hsp_query-to>
+      <Hsp_hit-from>32595632</Hsp_hit-from>
+      <Hsp_hit-to>32595657</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>24</Hsp_identity>
+      <Hsp_positive>24</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>26</Hsp_align-len>
+      <Hsp_qseq>CAAATGAAGAATTTCTTCATTCTGAT</Hsp_qseq>
+      <Hsp_hseq>CAAAAGAAGAATTTCTTCATTCTTAT</Hsp_hseq>
+      <Hsp_midline>|||| |||||||||||||||||| ||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>13</Hit_num>
+  <Hit_id>gi|224514932|ref|NT_008705.16|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 10 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_008705</Hit_accession>
+  <Hit_len>39094935</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>829</Hsp_query-from>
+      <Hsp_query-to>852</Hsp_query-to>
+      <Hsp_hit-from>9483988</Hsp_hit-from>
+      <Hsp_hit-to>9483965</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>23</Hsp_identity>
+      <Hsp_positive>23</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>24</Hsp_align-len>
+      <Hsp_qseq>ATAGAAAAAGTGCTGAAAAATATA</Hsp_qseq>
+      <Hsp_hseq>ATAGAAAAAGTGCAGAAAAATATA</Hsp_hseq>
+      <Hsp_midline>||||||||||||| ||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>14</Hit_num>
+  <Hit_id>gi|224514751|ref|NT_008470.19|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 9 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_008470</Hit_accession>
+  <Hit_len>62237592</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>820</Hsp_query-from>
+      <Hsp_query-to>845</Hsp_query-to>
+      <Hsp_hit-from>4162600</Hsp_hit-from>
+      <Hsp_hit-to>4162575</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>24</Hsp_identity>
+      <Hsp_positive>24</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>26</Hsp_align-len>
+      <Hsp_qseq>AGAGAAGAAATAGAAAAAGTGCTGAA</Hsp_qseq>
+      <Hsp_hseq>AGAAAAGAAAAAGAAAAAGTGCTGAA</Hsp_hseq>
+      <Hsp_midline>||| |||||| |||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>15</Hit_num>
+  <Hit_id>gi|224514668|ref|NT_007592.15|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 6 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_007592</Hit_accession>
+  <Hit_len>58720166</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>675</Hsp_query-from>
+      <Hsp_query-to>700</Hsp_query-to>
+      <Hsp_hit-from>16520818</Hsp_hit-from>
+      <Hsp_hit-to>16520793</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>24</Hsp_identity>
+      <Hsp_positive>24</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>26</Hsp_align-len>
+      <Hsp_qseq>TCCATCATCTGTGTTTACTAGTAAAA</Hsp_qseq>
+      <Hsp_hseq>TCCATCATCTGTGTTTACTCTTAAAA</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||  |||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>16</Hit_num>
+  <Hit_id>gi|224515001|ref|NT_023133.13|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 5 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_023133</Hit_accession>
+  <Hit_len>25716533</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>840</Hsp_query-from>
+      <Hsp_query-to>860</Hsp_query-to>
+      <Hsp_hit-from>9872287</Hsp_hit-from>
+      <Hsp_hit-to>9872307</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>21</Hsp_identity>
+      <Hsp_positive>21</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>21</Hsp_align-len>
+      <Hsp_qseq>GCTGAAAAATATATTTAATAT</Hsp_qseq>
+      <Hsp_hseq>GCTGAAAAATATATTTAATAT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>17</Hit_num>
+  <Hit_id>gi|224514609|ref|NT_029289.11|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 5 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_029289</Hit_accession>
+  <Hit_len>16301654</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>63</Hsp_query-from>
+      <Hsp_query-to>86</Hsp_query-to>
+      <Hsp_hit-from>13464684</Hsp_hit-from>
+      <Hsp_hit-to>13464661</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>23</Hsp_identity>
+      <Hsp_positive>23</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>24</Hsp_align-len>
+      <Hsp_qseq>TATAAGAAGTCTAGGAACAAATTG</Hsp_qseq>
+      <Hsp_hseq>TATAAGAAGTCTAGCAACAAATTG</Hsp_hseq>
+      <Hsp_midline>|||||||||||||| |||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>18</Hit_num>
+  <Hit_id>gi|224514970|ref|NT_034772.6|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 5 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_034772</Hit_accession>
+  <Hit_len>47100945</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>845</Hsp_query-from>
+      <Hsp_query-to>868</Hsp_query-to>
+      <Hsp_hit-from>1212227</Hsp_hit-from>
+      <Hsp_hit-to>1212204</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>23</Hsp_identity>
+      <Hsp_positive>23</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>24</Hsp_align-len>
+      <Hsp_qseq>AAAATATATTTAATATTTCCTTGC</Hsp_qseq>
+      <Hsp_hseq>AAAATATATTTAATTTTTCCTTGC</Hsp_hseq>
+      <Hsp_midline>|||||||||||||| |||||||||</Hsp_midline>
+    </Hsp>
+    <Hsp>
+      <Hsp_num>2</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>838</Hsp_query-from>
+      <Hsp_query-to>861</Hsp_query-to>
+      <Hsp_hit-from>8281614</Hsp_hit-from>
+      <Hsp_hit-to>8281637</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>23</Hsp_identity>
+      <Hsp_positive>23</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>24</Hsp_align-len>
+      <Hsp_qseq>GTGCTGAAAAATATATTTAATATT</Hsp_qseq>
+      <Hsp_hseq>GTGCTGAAAAATATATTAAATATT</Hsp_hseq>
+      <Hsp_midline>||||||||||||||||| ||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>19</Hit_num>
+  <Hit_id>gi|224514670|ref|NT_006576.16|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 5 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_006576</Hit_accession>
+  <Hit_len>46395641</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>629</Hsp_query-from>
+      <Hsp_query-to>654</Hsp_query-to>
+      <Hsp_hit-from>21213802</Hsp_hit-from>
+      <Hsp_hit-to>21213777</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>24</Hsp_identity>
+      <Hsp_positive>24</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>26</Hsp_align-len>
+      <Hsp_qseq>AACAATTGAAAGATTTTGAGTCTATG</Hsp_qseq>
+      <Hsp_hseq>AACAATTTAAAAATTTTGAGTCTATG</Hsp_hseq>
+      <Hsp_midline>||||||| ||| ||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>20</Hit_num>
+  <Hit_id>gi|224514625|ref|NT_005403.17|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 2 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_005403</Hit_accession>
+  <Hit_len>84213159</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>314</Hsp_query-from>
+      <Hsp_query-to>344</Hsp_query-to>
+      <Hsp_hit-from>70218301</Hsp_hit-from>
+      <Hsp_hit-to>70218331</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>27</Hsp_identity>
+      <Hsp_positive>27</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>31</Hsp_align-len>
+      <Hsp_qseq>ACAGCACTCCAGCCAAAAAAATACAGCACTG</Hsp_qseq>
+      <Hsp_hseq>ACTGCACTCCAGCCAAAAAAAAGCAACACTG</Hsp_hseq>
+      <Hsp_midline>|| ||||||||||||||||||  || |||||</Hsp_midline>
+    </Hsp>
+    <Hsp>
+      <Hsp_num>2</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>814</Hsp_query-from>
+      <Hsp_query-to>839</Hsp_query-to>
+      <Hsp_hit-from>78045413</Hsp_hit-from>
+      <Hsp_hit-to>78045438</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>1</Hsp_hit-frame>
+      <Hsp_identity>24</Hsp_identity>
+      <Hsp_positive>24</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>26</Hsp_align-len>
+      <Hsp_qseq>TGAGTGAGAGAAGAAATAGAAAAAGT</Hsp_qseq>
+      <Hsp_hseq>TGAGTGAGAGAAGGAATAGAAGAAGT</Hsp_hseq>
+      <Hsp_midline>||||||||||||| ||||||| ||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>21</Hit_num>
+  <Hit_id>gi|224514673|ref|NT_022135.16|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 2 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_022135</Hit_accession>
+  <Hit_len>39439245</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>541</Hsp_query-from>
+      <Hsp_query-to>571</Hsp_query-to>
+      <Hsp_hit-from>12873196</Hsp_hit-from>
+      <Hsp_hit-to>12873166</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>27</Hsp_identity>
+      <Hsp_positive>27</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>31</Hsp_align-len>
+      <Hsp_qseq>GTACATTCCAAATGAAGAATTTCTTCATTCT</Hsp_qseq>
+      <Hsp_hseq>GTACATTCCAAATGGAGACTGTGTTCATTCT</Hsp_hseq>
+      <Hsp_midline>|||||||||||||| ||| | | ||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>22</Hit_num>
+  <Hit_id>gi|224515010|ref|NT_022184.15|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 2 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_022184</Hit_accession>
+  <Hit_len>68452323</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>815</Hsp_query-from>
+      <Hsp_query-to>838</Hsp_query-to>
+      <Hsp_hit-from>35945015</Hsp_hit-from>
+      <Hsp_hit-to>35944992</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>23</Hsp_identity>
+      <Hsp_positive>23</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>24</Hsp_align-len>
+      <Hsp_qseq>GAGTGAGAGAAGAAATAGAAAAAG</Hsp_qseq>
+      <Hsp_hseq>GAGGGAGAGAAGAAATAGAAAAAG</Hsp_hseq>
+      <Hsp_midline>||| ||||||||||||||||||||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+<Hit>
+  <Hit_num>23</Hit_num>
+  <Hit_id>gi|224514623|ref|NT_032977.9|</Hit_id>
+  <Hit_def>Homo sapiens chromosome 1 genomic contig, GRCh37.p5 Primary Assembly</Hit_def>
+  <Hit_accession>NT_032977</Hit_accession>
+  <Hit_len>90908613</Hit_len>
+  <Hit_hsps>
+    <Hsp>
+      <Hsp_num>1</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>351</Hsp_query-from>
+      <Hsp_query-to>376</Hsp_query-to>
+      <Hsp_hit-from>1223962</Hsp_hit-from>
+      <Hsp_hit-to>1223937</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>24</Hsp_identity>
+      <Hsp_positive>24</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>26</Hsp_align-len>
+      <Hsp_qseq>TTCACCTTCTCCTGCAGGTGACCATT</Hsp_qseq>
+      <Hsp_hseq>TTCTCCTTCTCCTCCAGGTGACCATT</Hsp_hseq>
+      <Hsp_midline>||| ||||||||| ||||||||||||</Hsp_midline>
+    </Hsp>
+    <Hsp>
+      <Hsp_num>2</Hsp_num>
+      <Hsp_bit-score>39.157</Hsp_bit-score>
+      <Hsp_score>42</Hsp_score>
+      <Hsp_evalue>4.23309</Hsp_evalue>
+      <Hsp_query-from>820</Hsp_query-from>
+      <Hsp_query-to>845</Hsp_query-to>
+      <Hsp_hit-from>60300037</Hsp_hit-from>
+      <Hsp_hit-to>60300012</Hsp_hit-to>
+      <Hsp_query-frame>1</Hsp_query-frame>
+      <Hsp_hit-frame>-1</Hsp_hit-frame>
+      <Hsp_identity>24</Hsp_identity>
+      <Hsp_positive>24</Hsp_positive>
+      <Hsp_gaps>0</Hsp_gaps>
+      <Hsp_align-len>26</Hsp_align-len>
+      <Hsp_qseq>AGAGAAGAAATAGAAAAAGTGCTGAA</Hsp_qseq>
+      <Hsp_hseq>AGAGAAGAAATACAAAAAGTGCTAAA</Hsp_hseq>
+      <Hsp_midline>|||||||||||| |||||||||| ||</Hsp_midline>
+    </Hsp>
+  </Hit_hsps>
+</Hit>
+</Iteration_hits>
+  <Iteration_stat>
+    <Statistics>
+      <Statistics_db-num>364</Statistics_db-num>
+      <Statistics_db-len>2938626560</Statistics_db-len>
+      <Statistics_hsp-len>0</Statistics_hsp-len>
+      <Statistics_eff-space>0</Statistics_eff-space>
+      <Statistics_kappa>0.41</Statistics_kappa>
+      <Statistics_lambda>0.625</Statistics_lambda>
+      <Statistics_entropy>0.78</Statistics_entropy>
+    </Statistics>
+  </Iteration_stat>
+</Iteration>
+</BlastOutput_iterations>
+</BlastOutput>

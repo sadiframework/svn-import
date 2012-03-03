@@ -60,8 +60,8 @@ public abstract class AbstractBLASTParser
 	 */
 	public void parseBLAST(Model model, Document blastXML)
 	{
-		// TODO create blastProcessNode...
-		Resource blastProcess = model.createResource("#process");
+		// TODO add metadata to BLAST process node...
+		Resource blastProcess = model.createResource();
 		
         for (Node iteration: evaluateXPath(blastXML.getDocumentElement(), "BlastOutput_iterations/Iteration")) {
         	parseIteration(blastProcess, iteration);
@@ -71,9 +71,8 @@ public abstract class AbstractBLASTParser
 	protected void parseIteration(Resource blastProcess, Node iteration)
 	{
 		Resource querySequence = getQuerySequence(blastProcess.getModel(), iteration);
-		int i=0;
 		for (Node hit: evaluateXPath(iteration, "Iteration_hits/Hit")) {
-			String blastHitURI = String.format("#%06d", ++i);
+			String blastHitURI = getBLASTHitURI(hit);
 			Resource blastHit = createBlastHit(blastHitURI, querySequence, hit);
 			blastHit.addProperty(Vocab.is_output_of, blastProcess);
 		}
@@ -84,9 +83,8 @@ public abstract class AbstractBLASTParser
 		Model model = querySequence.getModel();
 		Resource hitSequence = getHitSequence(model, hit);
 		Resource blastHit = model.createResource(blastHitURI, Vocab.blast_hit);
-		int i=0;
 		for (Node hsp: evaluateXPath(hit, "Hit_hsps/Hsp")) {
-			String alignmentURI = String.format("%s-%02d", blastHitURI, ++i);
+			String alignmentURI = getAlignmentURI(blastHitURI, hsp);
 			Resource alignment = createAlignment(alignmentURI, querySequence, hitSequence, hsp);
 			blastHit.addProperty(Vocab.has_part, alignment);
 			alignment.addProperty(Vocab.is_part_of, blastHit);
@@ -130,7 +128,17 @@ public abstract class AbstractBLASTParser
 		subsequence.addProperty(Vocab.has_value, subsequenceString);
 		return subsequence;
 	}
+	
+	protected String getBLASTHitURI(Node hit)
+	{
+		return null;
+	}
 
+	protected String getAlignmentURI(String hitURI, Node alignment)
+	{
+		return null;
+	}
+	
 	protected String getSubsequenceURI(String sequenceURI)
 	{
 		return null;
@@ -168,7 +176,7 @@ public abstract class AbstractBLASTParser
 		if (nodes.isEmpty())
 			return null;
 		else
-			return nodes.get(1).getTextContent();
+			return nodes.get(0).getTextContent();
 	}
 	
 	public static class Vocab
@@ -183,7 +191,7 @@ public abstract class AbstractBLASTParser
 	    public static final Resource sequence_start_position = m_model.createResource( SIO_NS + "SIO_000791" );
 	    public static final Resource sequence_stop_position = m_model.createResource( SIO_NS + "SIO_000792" );
 		
-		public static final String BLAST_NS = "http://sadiframework.org/ontologies/blast.owl";
+		public static final String BLAST_NS = "http://sadiframework.org/ontologies/blast.owl#";
 		public static final Resource blast_hit = m_model.createResource(BLAST_NS + "BlastHit");
 		public static final Resource sequence_alignment = m_model.createResource(BLAST_NS + "SequenceAlignment");
 		public static final Resource consensus_sequence = m_model.createResource(BLAST_NS + "Consensus");

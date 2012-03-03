@@ -2,6 +2,8 @@ package ca.wilkinsonlab.sadi.utils.blast;
 
 import static org.junit.Assert.*;
 
+import java.net.URLEncoder;
+
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -39,8 +41,9 @@ public class NCBIBLASTClientTest
 	{
 		String program = "blastn";
 		String database = "GPIPE/9606/current/ref_contig";
+		String escapedURI = URLEncoder.encode("http://lsrn.org/KEGG:hsa:9#seq", "UTF-8");
 		String query =
-			">http://lsrn.org/KEGG:hsa:9#seq\n" + 
+			">" + escapedURI + "\n" + 
 			"atggacattgaagcatatcttgaaagaattggctataagaagtctaggaacaaattggac\n" +
 			"ttggaaacattaactgacattcttcaacaccagatccgagctgttccctttgagaacctt\n" +
 			"aacatccattgtggggatgccatggacttaggcttagaggccatttttgatcaagttgtg\n" +
@@ -58,7 +61,9 @@ public class NCBIBLASTClientTest
 			"cccaaacatggtgatagattttttactatttag";
 		String result = StreamUtils.readStream(
 				new NCBIBLASTClient().doBLAST(program, database, query));
-		assertFalse(result.isEmpty());
 		log.debug(String.format("BLAST result:\n%s", result));
+		assertFalse("no results", result.isEmpty());
+		assertTrue("result lost sequence ID", result.contains(escapedURI));
+		assertFalse(result.matches("No definition line"));
 	}
 }

@@ -89,6 +89,19 @@
     	<artifactId>biojava3-genome</artifactId>
     	<version>3.0</version>
     </dependency>
+    
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.1.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>taglibs</groupId>
+      <artifactId>standard</artifactId>
+      <version>1.1.2</version>
+      <scope>provided</scope>
+    </dependency>
 
   	<dependency>
       <groupId>junit</groupId>
