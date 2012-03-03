@@ -23,6 +23,16 @@ public abstract class UniProtServiceServlet extends AsynchronousServiceServlet
 	private static final Log log = LogFactory.getLog(UniProtServiceServlet.class);
 	
 	@Override
+	protected Model createOutputModel()
+	{
+		Model model = super.createOutputModel();
+		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
+		model.setNsPrefix("lsrn", "http://purl.oclc.org/SADI/LSRN/");
+		model.setNsPrefix("sadi", "http://sadiframework.org/ontologies/properties.owl#");
+		return model;
+	}
+
+	@Override
 	public int getInputBatchSize()
 	{
 		// override input batch size to 1024, the maximum for the UniProt API...
