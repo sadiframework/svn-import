@@ -187,7 +187,7 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	 * creating corresponding output nodes.
 	 * @param call a ServiceCall representing the input batch
 	 */
-	protected void processInputBatch(ServiceCall call)
+	protected void processInputBatch(ServiceCall call) throws Exception
 	{
 		Resource parameters = call.getParameters();
 		boolean needsParameters = !parameters.hasProperty(RDF.type, OWL.Nothing);
@@ -206,7 +206,7 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	 * @param input the input node
 	 * @param output the output node
 	 */
-	public void processInput(Resource input, Resource output)
+	public void processInput(Resource input, Resource output) throws Exception
 	{
 	}
 	
@@ -217,7 +217,7 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 	 * @param output the output node
 	 * @param parameters the populated parameters object
 	 */
-	public void processInput(Resource input, Resource output, Resource parameters)
+	public void processInput(Resource input, Resource output, Resource parameters) throws Exception
 	{
 	}
 	
@@ -259,8 +259,12 @@ public abstract class AsynchronousServiceServlet extends ServiceServlet
 		@Override
 		public void run()
 		{
-			processInputBatch(call);
-			success();
+			try {
+				processInputBatch(call);
+				success();
+			} catch (Exception e) {
+				fatalError(e);
+			}
 		}
 	}
 }
