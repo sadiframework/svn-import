@@ -41,53 +41,12 @@
   		<name>dev.biordf.net</name>
   		<url>http://dev.biordf.net/maven</url>
   	</repository>
-	<repository>
-		<id>biojava-maven-repo</id>
-		<name>BioJava repository</name>
-		<url>http://www.biojava.org/download/maven/</url>
-		<snapshots>
-			<enabled>true</enabled>
-		</snapshots>
-		<releases>
-			<enabled>true</enabled>
-		</releases>
-	</repository>
   </repositories>
   <dependencies>
     <dependency>
       <groupId>ca.wilkinsonlab.sadi</groupId>
       <artifactId>sadi-service</artifactId>
       <version>0.3.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-        <groupId>commons-cli</groupId>
-        <artifactId>commons-cli</artifactId>
-        <version>1.1</version>
-    </dependency>
-    <dependency>
-        <groupId>uk.ac.ebi</groupId>
-        <artifactId>ncbiblast-stubs</artifactId>
-        <version>1</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.apache.axis</groupId>
-    	<artifactId>axis-jaxrpc</artifactId>
-    	<version>1.4</version>
-    </dependency>
-    <dependency>
-    	<groupId>axis</groupId>
-    	<artifactId>axis</artifactId>
-    	<version>1.4</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.biojava</groupId>
-    	<artifactId>biojava3-alignment</artifactId>
-    	<version>3.0</version>
-    </dependency>
-    <dependency>
-    	<groupId>org.biojava</groupId>
-    	<artifactId>biojava3-genome</artifactId>
-    	<version>3.0</version>
     </dependency>
     
     <dependency>
