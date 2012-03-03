@@ -48,6 +48,7 @@ public class SIO
     public static final Resource sequence_start_position = m_model.createResource( NS + "SIO_000791" );
     public static final Resource sequence_stop_position = m_model.createResource( NS + "SIO_000792" );
     public static final Resource _abstract = m_model.createResource( NS + "SIO_000188" );
+	public static final Resource symbol = m_model.createResource( NS + "SIO_000105" );
     
     public static final Property has_attribute = m_model.createProperty( NS, "SIO_000008" );
     public static final Property is_attribute_of = m_model.createProperty( NS, "SIO_000011" );
