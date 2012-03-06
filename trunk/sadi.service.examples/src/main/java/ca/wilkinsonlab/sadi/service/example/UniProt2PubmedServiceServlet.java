@@ -7,10 +7,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import uk.ac.ebi.kraken.interfaces.uniprot.citationsNew.Citation;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
 import uk.ac.ebi.kraken.interfaces.uniprot.citationsNew.Author;
 import uk.ac.ebi.kraken.interfaces.uniprot.citationsNew.AuthoringGroup;
+import uk.ac.ebi.kraken.interfaces.uniprot.citationsNew.Citation;
 import uk.ac.ebi.kraken.interfaces.uniprot.citationsNew.JournalArticle;
 import uk.ac.ebi.kraken.interfaces.uniprot.citationsNew.PubMedId;
 import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
@@ -22,7 +22,6 @@ import ca.wilkinsonlab.sadi.vocab.SIO;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 @ContactEmail("info@sadiframework.org")
@@ -39,9 +38,7 @@ public class UniProt2PubmedServiceServlet extends UniProtServiceServlet
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2PubmedServiceServlet.class);
 
-	private static final String OLD_PUBMED_PREFIX = "http://biordf.net/moby/PMID/";
 	private static final String PUBMED_PREFIX = "http://lsrn.org/PMID:";
-
 	private final Resource PubMed_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PMID_Record");
 	private final Resource PubMed_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PMID_Identifier");
 
@@ -71,9 +68,6 @@ public class UniProt2PubmedServiceServlet extends UniProtServiceServlet
 		// add label...
 		pubmedNode.addProperty(RDFS.label, getLabel(article));
 
-		// add relationship to old URI scheme...
-		pubmedNode.addProperty(OWL.sameAs, model.createResource(getOldPubMedUri(pmId)));
-
 		return pubmedNode;
 	}
 
@@ -81,12 +75,6 @@ public class UniProt2PubmedServiceServlet extends UniProtServiceServlet
 	{
 		String pdbId = pmId.getValue();
 		return String.format("%s%s", PUBMED_PREFIX, pdbId);
-	}
-
-	private String getOldPubMedUri(PubMedId pmId)
-	{
-		String pdbId = pmId.getValue();
-		return String.format("%s%s", OLD_PUBMED_PREFIX, pdbId);
 	}
 
 	private static String getLabel(JournalArticle article)

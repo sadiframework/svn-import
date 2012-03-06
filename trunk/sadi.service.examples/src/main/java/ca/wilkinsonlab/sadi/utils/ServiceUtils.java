@@ -12,7 +12,6 @@ import ca.wilkinsonlab.sadi.vocab.LSRN.LSRNRecordType;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.OWL;
 
 public class ServiceUtils 
 {
@@ -82,12 +81,6 @@ public class ServiceUtils
 
 		// add SIO identifier structure 
 		SIOUtils.createAttribute(recordNode, recordType.getIdentifierTypeURI(), id);
-
-		// add link to old URI scheme
-		if(recordType.getOldUriPrefix() != null) {
-			String oldURI = String.format("%s%s", recordType.getOldUriPrefix(), id);
-			recordNode.addProperty(OWL.sameAs, model.createResource(oldURI));
-		}
 		
 		return recordNode;
 	}
