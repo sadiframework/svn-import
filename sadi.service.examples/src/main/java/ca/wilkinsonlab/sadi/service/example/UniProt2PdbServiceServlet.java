@@ -16,7 +16,6 @@ import ca.wilkinsonlab.sadi.vocab.Properties;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 @ContactEmail("info@sadiframework.org")
@@ -32,9 +31,7 @@ public class UniProt2PdbServiceServlet extends UniProtServiceServlet
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2PdbServiceServlet.class);
 	
-	private static final String OLD_PDB_PREFIX = "http://biordf.net/moby/PDB/";
 	private static final String PDB_PREFIX = "http://lsrn.org/PDB:";
-	
 	private static final Resource PDB_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PDB_Record");
 	private static final Resource PDB_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PDB_Identifier");
 	
@@ -58,9 +55,6 @@ public class UniProt2PdbServiceServlet extends UniProtServiceServlet
 		// add label...
 		pdbNode.addProperty(RDFS.label, getLabel(pdb));
 		
-		// add relationship to old URI scheme...
-		pdbNode.addProperty(OWL.sameAs, model.createResource(getOldPdbUri(pdb)));
-		
 		return pdbNode;
 	}
 	
@@ -68,12 +62,6 @@ public class UniProt2PdbServiceServlet extends UniProtServiceServlet
 	{
 		String pdbId = pdb.getPdbAccessionNumber().getValue();
 		return String.format("%s%s", PDB_PREFIX, pdbId);
-	}
-	
-	private static String getOldPdbUri(Pdb pdb)
-	{
-		String pdbId = pdb.getPdbAccessionNumber().getValue();
-		return String.format("%s%s", OLD_PDB_PREFIX, pdbId);
 	}
 
 	private static String getLabel(Pdb pdb)

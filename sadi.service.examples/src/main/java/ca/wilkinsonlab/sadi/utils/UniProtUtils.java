@@ -43,7 +43,6 @@ public class UniProtUtils
 	public static Pattern[] URI_PATTERNS = new Pattern[] {
 		Pattern.compile("http://purl.uniprot.org/uniprot/([^\\s\\.\\?]*)"),
 		Pattern.compile("http://www.uniprot.org/uniprot/([^\\s\\.\\?]*)"),
-		Pattern.compile("http://biordf.net/moby/UniProt/(\\S*)"),
 		Pattern.compile("http://lsrn.org/UniProt:(\\S*)"),
 		Pattern.compile(".*[/:#]([^\\s\\.]*)") // failsafe best-guess pattern; don't remove this...
 	};

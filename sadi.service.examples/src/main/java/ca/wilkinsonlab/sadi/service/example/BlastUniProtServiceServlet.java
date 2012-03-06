@@ -23,8 +23,11 @@ import ca.wilkinsonlab.sadi.service.annotations.TestCase;
 import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.service.annotations.URI;
 import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
+import ca.wilkinsonlab.sadi.utils.LSRNUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.SIOUtils;
+import ca.wilkinsonlab.sadi.vocab.LSRN;
+import ca.wilkinsonlab.sadi.vocab.Properties;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
@@ -32,6 +35,7 @@ import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 /**
@@ -141,7 +145,7 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 	private static Resource createBlastHit(Resource querySequenceNode, Hit hit)
 	{
 		Model model = querySequenceNode.getModel();
-		Resource uniprotSequenceNode = getUniProtSequenceNode(model, hit.getAc());
+		Resource uniprotSequenceNode = getUniProtSequenceNode(model, hit);
 		Resource blastHitNode = model.createResource(null, Vocab.blast_hit);
 		for (LocalAlignment alignment: hit.getAlignments()) {
 			Resource alignmentNode = createAlignmentNode(querySequenceNode, uniprotSequenceNode, alignment);
@@ -150,10 +154,22 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		return blastHitNode;
 	}
 	
-	private static Resource getUniProtSequenceNode(Model model, String accession)
+	private static Resource getUniProtSequenceNode(Model model, Hit hit)
 	{
-		String uri = getUniProtUri(accession);
+		String uri = getUniProtUri(hit.getAc());
 		Resource uniprotNode = model.getResource(uri);
+		if (!uniprotNode.hasProperty(RDF.type)) {
+			// first time here, so create the id structure...
+			uniprotNode = LSRNUtils.createInstance(model, LSRN.UniProt.getRecordTypeURI(), hit.getAc());
+			for (String taxonID: hit.getOrganisms()) {
+				Resource taxon = model.getResource(LSRNUtils.getURI("taxon", taxonID));
+				if (!taxon.hasProperty(RDF.type)) {
+					// first time here, so create the id structure...
+					taxon = LSRNUtils.createInstance(model.getResource(LSRNUtils.getClassURI("taxon")), taxonID);
+					uniprotNode.addProperty(Properties.fromOrganism, taxon);
+				}
+			}
+		}
 		Resource uniprotSequenceNode = RdfUtils.getPropertyValue(uniprotNode, SIO.has_attribute, SIO.protein_sequence);
 		if (uniprotSequenceNode == null) {
 			uniprotSequenceNode = model.createResource(null, SIO.protein_sequence);

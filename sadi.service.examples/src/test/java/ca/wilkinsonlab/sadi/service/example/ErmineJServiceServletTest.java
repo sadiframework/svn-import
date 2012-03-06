@@ -84,6 +84,6 @@ public class ErmineJServiceServletTest
 	{
 		if (goId.startsWith("GO:"))
 			goId = goId.substring(3);
-		return String.format("%s%s", "http://biordf.net/moby/GO/", goId);
+		return String.format("http://lsrn.org/GO:%s", goId);
 	}
 }

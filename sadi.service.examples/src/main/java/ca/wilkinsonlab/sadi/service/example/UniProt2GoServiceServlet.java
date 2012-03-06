@@ -16,7 +16,6 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
@@ -37,7 +36,6 @@ public class UniProt2GoServiceServlet extends UniProtServiceServlet
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2GoServiceServlet.class);
 	
-	private static final String OLD_GO_PREFIX = "http://biordf.net/moby/GO/";
 	private static final String GO_PREFIX = "http://lsrn.org/GO:";
 	private static final Resource GO_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/GO_Record");
 	private static final Resource GO_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/GO_Identifier");
@@ -67,9 +65,6 @@ public class UniProt2GoServiceServlet extends UniProtServiceServlet
 		// add label...
 		goNode.addProperty(RDFS.label, getLabel(goTerm));
 		
-		// add relationship to old URI scheme...
-		goNode.addProperty(OWL.sameAs, model.createResource(getOldGoUri(goTerm)));
-		
 		return goNode;
 	}
 	
@@ -93,14 +88,6 @@ public class UniProt2GoServiceServlet extends UniProtServiceServlet
 		if (goId.startsWith("GO:"))
 			goId = goId.substring(3);
 		return String.format("%s%s", GO_PREFIX, goId);
-	}
-	
-	private static String getOldGoUri(Go goTerm)
-	{
-		String goId = goTerm.getGoId().getValue();
-		if (goId.startsWith("GO:"))
-			goId = goId.substring(3);
-		return String.format("%s%s", OLD_GO_PREFIX, goId);
 	}
 
 	private static String getLabel(Go goTerm)

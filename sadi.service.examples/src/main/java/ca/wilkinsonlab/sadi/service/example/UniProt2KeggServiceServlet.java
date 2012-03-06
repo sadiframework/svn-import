@@ -16,7 +16,6 @@ import ca.wilkinsonlab.sadi.vocab.SIO;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 @ContactEmail("info@sadiframework.org")
@@ -32,9 +31,7 @@ public class UniProt2KeggServiceServlet extends UniProtServiceServlet
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2KeggServiceServlet.class);
 	
-	private static final String OLD_KEGG_PREFIX = "http://biordf.net/moby/KEGG/";
 	private static final String KEGG_PREFIX = "http://lsrn.org/KEGG:";
-	
 	private static final Resource KEGG_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/KEGG_Record");
 	private static final Resource KEGG_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/KEGG_Identifier");
 	
@@ -57,9 +54,6 @@ public class UniProt2KeggServiceServlet extends UniProtServiceServlet
 		// add label...
 		keggNode.addProperty(RDFS.label, getLabel(kegg));
 		
-		// add relationship to old URI scheme...
-		keggNode.addProperty(OWL.sameAs, model.createResource(getOldKeggUri(kegg)));
-		
 		return keggNode;
 	}
 	
@@ -67,12 +61,6 @@ public class UniProt2KeggServiceServlet extends UniProtServiceServlet
 	{
 		String keggId = prosite.getKeggAccessionNumber().getValue();
 		return String.format("%s%s", KEGG_PREFIX, keggId);
-	}
-	
-	private static String getOldKeggUri(Kegg prosite)
-	{
-		String keggId = prosite.getKeggAccessionNumber().getValue();
-		return String.format("%s%s", OLD_KEGG_PREFIX, keggId);
 	}
 
 	private static String getLabel(Kegg kegg)

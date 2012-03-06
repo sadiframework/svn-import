@@ -16,7 +16,6 @@ import ca.wilkinsonlab.sadi.vocab.Properties;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
-import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDFS;
 
 @ContactEmail("info@sadiframework.org")
@@ -32,9 +31,7 @@ public class UniProt2PrositeServiceServlet extends UniProtServiceServlet
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2PrositeServiceServlet.class);
 	
-	private static final String OLD_PROSITE_PREFIX = "http://biordf.net/moby/Prosite/";
 	private static final String PROSITE_PREFIX = "http://lsrn.org/Prosite:";
-	
 	private static final Resource PROSITE_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/Prosite_Record");
 	private static final Resource PROSITE_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/Prosite_Identifier");
 	
@@ -57,9 +54,6 @@ public class UniProt2PrositeServiceServlet extends UniProtServiceServlet
 		// add label...
 		prositeNode.addProperty(RDFS.label, getLabel(prosite));
 		
-		// add relationship to old URI scheme...
-		prositeNode.addProperty(OWL.sameAs, model.createResource(getOldPrositeUri(prosite)));
-		
 		return prositeNode;
 	}
 	
@@ -68,17 +62,9 @@ public class UniProt2PrositeServiceServlet extends UniProtServiceServlet
 		String prositeId = prosite.getPrositeAccessionNumber().getValue();
 		return String.format("%s%s", PROSITE_PREFIX, prositeId);
 	}
-	
-	private static String getOldPrositeUri(Prosite prosite)
-	{
-		String prositeId = prosite.getPrositeAccessionNumber().getValue();
-		return String.format("%s%s", OLD_PROSITE_PREFIX, prositeId);
-	}
 
 	private static String getLabel(Prosite prosite)
 	{
 		return prosite.toString();
 	}
-
-
 }
