@@ -392,6 +392,7 @@ public class RdfUtils
 	/**
 	 * Load the specified model according to the argument,
 	 * which can be a remote URL, a local path, or inline RDF.
+	 * FIXME use ContextClassLoader to check classpath.
 	 * @param s a remote URL, a local path, or inline RDF
 	 * @return the new model
 	 * @throws IOException if the argument is invalid
