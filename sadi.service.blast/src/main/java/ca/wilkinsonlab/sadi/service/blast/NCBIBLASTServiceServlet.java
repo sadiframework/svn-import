@@ -41,20 +41,20 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 {
 	private static final Logger log = Logger.getLogger(NCBIBLASTServiceServlet.class);
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final NCBIBLASTClient client = new NCBIBLASTClient();
-	
+
 	Taxon taxon;
 	BLASTParser parser;
-	
+
 	public NCBIBLASTServiceServlet(Taxon taxon)
 	{
 		super();
-		
+
 		this.taxon = taxon;
 		this.parser = new BLASTParser(taxon);
 	}
-	
+
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
@@ -79,7 +79,7 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 	{
 		return String.format("GPIPE/%s/current/ref_contig", taxon.id);
 	}
-	
+
 	/**
 	 * Returns the NCBI taxon ID of records in the database.
 	 * @return the NCBI taxon ID of records in the database
@@ -88,7 +88,7 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 	{
 		return taxon.id;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#getServiceURL()
 	 */
@@ -115,7 +115,7 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 		service.setOutputClassURI(String.format("http://sadiframework.org/examples/blast/%s.owl#BLASTedSequence", taxon.name));
 		return service;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#createOutputModel()
 	 */
@@ -128,18 +128,22 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
 		return model;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet#processInputBatch(ca.wilkinsonlab.sadi.service.ServiceCall)
 	 */
 	@Override
-	protected void processInputBatch(ServiceCall call) throws Exception
+	protected void processInputBatch(ServiceCall call)
 	{
 		// TODO deal with parameters...
 		//Resource parameters = call.getParameters();
-		
-		InputStream result = client.doBLAST("blastn", getDB(), buildQuery(call.getInputNodes()));
-		parser.parseBLAST(call.getOutputModel(), result);
+
+		try {
+			InputStream result = client.doBLAST("blastn", getDB(), buildQuery(call.getInputNodes()));
+			parser.parseBLAST(call.getOutputModel(), result);
+		} catch(Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	protected String buildQuery(Collection<Resource> inputNodes)
@@ -166,16 +170,16 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 		}
 		return query.toString();
 	}
-	
+
 	public static class BLASTParser extends AbstractBLASTParser
 	{
 		protected Taxon taxon;
-		
+
 		public BLASTParser(Taxon taxon)
 		{
 			this.taxon = taxon;
 		}
-		
+
 		@Override
 		protected Resource getQuerySequence(Model model, Node iteration)
 		{
@@ -208,17 +212,17 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 			}
 			return seq;
 		}
-		
+
 		private Resource getOrganism(Model model)
 		{
 			Resource org = model.getResource(LSRNUtils.getURI("taxon", taxon.id));
 			if (!org.hasProperty(RDF.type)) { // first time; create it...
-				org = LSRNUtils.createInstance(model, 
+				org = LSRNUtils.createInstance(model,
 						model.getResource(LSRNUtils.getClassURI("taxon")), taxon.id);
 			}
 			return org;
 		}
-		
+
 		private static final Property fromOrganism = ResourceFactory.createProperty("http://sadiframework.org/ontologies/properties.owl#fromOrganism");
 	}
 }
