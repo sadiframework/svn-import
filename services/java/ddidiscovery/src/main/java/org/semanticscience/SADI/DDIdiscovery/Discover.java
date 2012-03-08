@@ -26,7 +26,6 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.semanticscience.SADI.DDIdiscovery.helper.DiscoverHelper;
-import org.semanticscience.SADI.DDIdiscovery.helper.DiscoverHelper.Vocabulary;
 import org.semanticscience.SADI.DDIdiscovery.helper.DrugDrugInteraction;
 
 import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
@@ -43,7 +42,6 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
-//TODO: please assert the 'has role' relationship between chemical entity and role in both directions.  I assume that there is a 'is role of' property in SIO, but if not you can define one.   It will make it easier to query the actor/target drugs in the scenario where the client does not have a OWL reasoner.  (e.g. a straight SPARQL query)
 //TODO: #2) I think you should remove the 'decreases efficacy of' and 'has adverse symptoms in conjunction with' triples from the output.  (Just comment it out in your code.)  We're not using those, and I think they are ill-modelled because you can't relate those to the interactions they describe.
 @Name("DrugDrugInteractionDiscovery")
 @Description("This service takes in as input a 'chemical entity' that 'has attribute' some 'chemical identifier' and outputs an 'Annotated chemical entity' that 'is participant in' some 'drug drug interaction'")
@@ -61,20 +59,16 @@ public class Discover extends SimpleSynchronousServiceServlet {
 		// get the drugbank id from the input
 		DiscoverHelper dh = new DiscoverHelper();
 		InputStream is = Discover.class.getClassLoader().getResourceAsStream(
-				"ddi.csv");
+				"ddi-0.0.3.csv");
 
 		ArrayList<DrugDrugInteraction> ddis = dh.findDDIs(is, input);
 		Iterator<DrugDrugInteraction> itr = ddis.iterator();
 		while (itr.hasNext()) {
 			DrugDrugInteraction addi = itr.next();
-			//first check if the interaction is directed or not
-			
-			// create a ddi resource
 			Resource ddir = outputModel.createResource(RdfUtils
 					.createUniqueURI());
-			ddir.addProperty(Vocabulary.rdftype, Vocabulary.DDI_00000);
 
-			// add the participants
+			// add the participating chemical entities
 			Resource drugB = addi.createResourceFromDrugBankId(outputModel,
 					addi.getDrugBId());
 			// add the label of the drugs
@@ -85,8 +79,8 @@ public class Discover extends SimpleSynchronousServiceServlet {
 					Vocab.rdfslabel, addi.getDrugALabel());
 			outputModel.add(stm2);
 
-			// directionality is ascribed in the predicate label
 			ddir.addProperty(Vocab.SIO_000132, drugB);
+
 			// connect drugA and drugB using the drugaeffectondrugB
 			if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase("DDI_00051")) {
 				drugB.addProperty(Vocab.DDI_00051, output);
@@ -98,18 +92,13 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				drugB.addProperty(Vocab.DDI_00014, output);
 			}
 
-			// directionality is ascribed by the use of special predicates
-			// has_actor & has_target
-
-			// directionality is ascribed through other typed resources
-
 			// add the input as a participant
 			ddir.addProperty(Vocab.SIO_000132, output);
 
 			// create a publication resourcce
 			Resource pub = outputModel.createResource(RdfUtils
 					.createUniqueURI());
-			pub.addProperty(Vocabulary.rdftype, Vocab.SIO_000087);
+			pub.addProperty(Vocab.rdftype, Vocab.SIO_000087);
 			// create a PMID_identifier resource
 			Resource pmidIdRes = outputModel.createResource(RdfUtils
 					.createUniqueURI());
@@ -162,9 +151,53 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				outputModel.add(stm5);
 			}
 
+			// check if the interaction is directed or not
+			// create a ddi resource
+			if (addi.getIsDirected()) {
+				ddir.addProperty(Vocab.rdftype, Vocab.DDI_00062);
+				// create the interactants
+				Resource actor = outputModel.createResource(RdfUtils
+						.createUniqueURI());
+				actor.addProperty(Vocab.rdftype, Vocab.DDI_00008);
+				output.addProperty(Vocab.SIO_000228, actor);
+				actor.addProperty(Vocab.SIO_000227, output);
+
+				Resource target = outputModel.createResource(RdfUtils
+						.createUniqueURI());
+				target.addProperty(Vocab.rdftype, Vocab.DDI_00010);
+				drugB.addProperty(Vocab.SIO_000228, target);
+				target.addProperty(Vocab.SIO_000227, drugB);
+
+				ddir.addProperty(Vocab.SIO_000228, actor);
+				actor.addProperty(Vocab.SIO_000227, ddir);
+				ddir.addProperty(Vocab.SIO_000228, target);
+				target.addProperty(Vocab.SIO_000227, ddir);
+			} else {
+				ddir.addProperty(Vocab.rdftype, Vocab.DDI_00000);
+				// create the interactants
+				Resource int1 = outputModel.createResource(RdfUtils
+						.createUniqueURI());
+				int1.addProperty(Vocab.rdftype, Vocab.DDI_00063);
+				output.addProperty(Vocab.SIO_000228, int1);
+				int1.addProperty(Vocab.SIO_000227, output);
+
+				Resource int2 = outputModel.createResource(RdfUtils
+						.createUniqueURI());
+				int2.addProperty(Vocab.rdftype, Vocab.DDI_00063);
+				drugB.addProperty(Vocab.SIO_000228, int2);
+				int2.addProperty(Vocab.SIO_000227, drugB);
+
+				// connect them to the ddi
+				ddir.addProperty(Vocab.SIO_000228, int1);
+				int1.addProperty(Vocab.SIO_000227, ddir);
+
+				ddir.addProperty(Vocab.SIO_000228, int2);
+				int2.addProperty(Vocab.SIO_000227, ddir);
+			}
+
 			// the annotated chemical entity is participant in some ddi
 			output.addProperty(Vocab.SIO_000062, ddir);
-		}
+		}// while
 
 	}
 
@@ -179,8 +212,8 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createResource("http://purl.oclc.org/SADI/LSRN/PMID_Identifier");
 		public static final Property SIO_000145 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000145");
-		public static final Property DDI_00008 = m_model
-				.createProperty("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00008");
+		public static final Resource DDI_00008 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00008");
 		public static final Property SIO_000053 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000053");
 		public static final Property SIO_000355 = m_model
@@ -215,6 +248,10 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createProperty("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00019");
 		public static final Property SIO_000554 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000554");
+		public static final Property SIO_000228 = m_model
+				.createProperty("http://semanticscience.org/resource/SIO_000228");
+		public static final Property SIO_000227 = m_model
+				.createProperty("http://semanticscience.org/resource/SIO_000227");
 		public static final Resource DDI_00054 = m_model
 				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00054");
 
@@ -292,6 +329,12 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00059");
 		public static final Resource DDI_00060 = m_model
 				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00060");
+		public static final Resource DDI_00062 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00062");
+		public static final Resource DDI_00063 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00063");
+		public static final Resource DDI_00010 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00010");
 
 		public static final Resource SIO_000090 = m_model
 				.createResource("http://semanticscience.org/resource/SIO_000090");
