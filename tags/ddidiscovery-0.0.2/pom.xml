@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.semanticscience.SADI</groupId>
+	<artifactId>DDIdiscovery</artifactId>
+	<version>0.0.2</version>
+	<packaging>war</packaging>
+
+	<name>DDIdiscovery</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>ca.wilkinsonlab.sadi</groupId>
+			<artifactId>sadi-service</artifactId>
+			<version>0.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>ca.wilkinsonlab.sadi</groupId>
+			<artifactId>sadi-common</artifactId>
+			<version>0.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+	</dependencies>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>dev.biordf.net</id>
+			<name>dev.biordf.net</name>
+			<url>http://dev.biordf.net/maven</url>
+		</pluginRepository>
+	</pluginRepositories>
+	<repositories>
+		<repository>
+			<id>dev.biordf.net</id>
+			<name>dev.biordf.net</name>
+			<url>http://dev.biordf.net/maven</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>dev-repository</id>
+			<name>dev.biordf.net Repository</name>
+			<url>scpexe://dev.biordf.net/var/www/maven/</url>
+		</repository>
+		<snapshotRepository>
+			<id>dev-snapshot-repository</id>
+			<name>dev.biordf.net Snapshot Repository</name>
+			<url>scpexe://dev.biordf.net/var/www/maven/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<build>
+		<finalName>Drug Drug Interaction Discovery</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>${build.sourceDirectory}</directory>
+							<targetPath>sources</targetPath>
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>maven-jetty-plugin</artifactId>
+				<version>6.1.24</version>
+				<configuration>
+					<contextPath>/sadi-services</contextPath>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>ca.wilkinsonlab.sadi</groupId>
+				<artifactId>sadi-generator</artifactId>
+				<version>0.1.1</version>
+			</plugin>
+			<plugin>
+				<groupId>ca.wilkinsonlab.sadi</groupId>
+				<artifactId>sadi-tester</artifactId>
+				<version>0.1.1</version>
+			</plugin>
+		</plugins>
+	</build>
+</project>
