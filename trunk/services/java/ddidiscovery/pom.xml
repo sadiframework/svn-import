@@ -4,7 +4,7 @@
 
 	<groupId>org.semanticscience.SADI</groupId>
 	<artifactId>DDIdiscovery</artifactId>
-	<version>0.0.2-SNAPSHOT</version>
+	<version>0.0.2</version>
 	<packaging>war</packaging>
 
 	<name>DDIdiscovery</name>
