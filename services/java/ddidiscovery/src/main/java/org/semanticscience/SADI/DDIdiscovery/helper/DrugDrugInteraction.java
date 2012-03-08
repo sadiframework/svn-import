@@ -21,6 +21,7 @@ public class DrugDrugInteraction {
 	private String pmid;
 	private String drugALabel;
 	private String drugBLabel;
+	private boolean isDirected;
 
 	private Resource drugARes;
 
@@ -33,12 +34,13 @@ public class DrugDrugInteraction {
 		aModel = ModelFactory.createDefaultModel();
 		base = RdfUtils.createUniqueURI();
 		drugBEffectOnDrugA = "pico";
+		isDirected = false;
 	}
 
 	public DrugDrugInteraction(Resource aDrugARes, String aDrugBId,
 			String aDrugAEffectOnDrugB, String aResultingCondition,
 			String aPmid, String aDescription, String aDrugALabel,
-			String aDrugBLabel) {
+			String aDrugBLabel, boolean aIsDirected) {
 		this();
 		drugARes = aDrugARes;
 		drugBId = aDrugBId;
@@ -48,6 +50,7 @@ public class DrugDrugInteraction {
 		pmid = aPmid;
 		drugALabel = aDrugALabel;
 		drugBLabel = aDrugBLabel;
+		isDirected = aIsDirected;
 	}
 
 	/**
@@ -147,6 +150,13 @@ public class DrugDrugInteraction {
 		this.drugBEffectOnDrugA = drugBEffectOnDrugA;
 	}
 
+	public boolean getIsDirected(){
+		return isDirected;
+	}
+	
+	private void setIsDirected(boolean b){
+		isDirected = b;
+	}
 	
 
 	@Override

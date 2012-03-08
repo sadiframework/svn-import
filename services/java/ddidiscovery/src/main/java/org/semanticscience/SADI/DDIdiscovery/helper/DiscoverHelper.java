@@ -221,6 +221,7 @@ public class DiscoverHelper {
 				String description = "";
 				String drugAlabel ="";
 				String drugBlabel= "";
+				boolean isDirected = false;
 
 				while ((nextLine = r.readNext()) != null) {
 					if (nextLine[0].equalsIgnoreCase(inputId)) {
@@ -231,9 +232,12 @@ public class DiscoverHelper {
 						resultngCondition = nextLine[8];
 						pmid = nextLine[9];
 						description = nextLine[7];
+						if(nextLine[4].equalsIgnoreCase("Y")){
+							isDirected = true;
+						}
 						DrugDrugInteraction ddi = new DrugDrugInteraction(
 								input, drugB, drugBEffectOnDrugA,
-								resultngCondition, pmid, description, drugAlabel, drugBlabel);
+								resultngCondition, pmid, description, drugAlabel, drugBlabel, isDirected);
 						if (!rM.contains(ddi)) {
 							rM.add(ddi);
 						}
@@ -246,9 +250,12 @@ public class DiscoverHelper {
 						resultngCondition = nextLine[8];
 						pmid = nextLine[9];
 						description = nextLine[7];
+						if(nextLine[4].equalsIgnoreCase("Y")){
+							isDirected = true;
+						}
 						DrugDrugInteraction ddi = new DrugDrugInteraction(
 								input, drugB, drugBEffectOnDrugA,
-								resultngCondition, pmid, description, drugAlabel, drugBlabel);
+								resultngCondition, pmid, description, drugAlabel, drugBlabel, isDirected);
 						if (!rM.contains(ddi)) {
 							rM.add(ddi);
 						}
