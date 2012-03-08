@@ -43,6 +43,8 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
+//TODO: please assert the 'has role' relationship between chemical entity and role in both directions.  I assume that there is a 'is role of' property in SIO, but if not you can define one.   It will make it easier to query the actor/target drugs in the scenario where the client does not have a OWL reasoner.  (e.g. a straight SPARQL query)
+//TODO: #2) I think you should remove the 'decreases efficacy of' and 'has adverse symptoms in conjunction with' triples from the output.  (Just comment it out in your code.)  We're not using those, and I think they are ill-modelled because you can't relate those to the interactions they describe.
 @Name("DrugDrugInteractionDiscovery")
 @Description("This service takes in as input a 'chemical entity' that 'has attribute' some 'chemical identifier' and outputs an 'Annotated chemical entity' that 'is participant in' some 'drug drug interaction'")
 @ContactEmail("josemiguelcruztoledo@gmail.com")
@@ -60,11 +62,13 @@ public class Discover extends SimpleSynchronousServiceServlet {
 		DiscoverHelper dh = new DiscoverHelper();
 		InputStream is = Discover.class.getClassLoader().getResourceAsStream(
 				"ddi.csv");
-		
+
 		ArrayList<DrugDrugInteraction> ddis = dh.findDDIs(is, input);
 		Iterator<DrugDrugInteraction> itr = ddis.iterator();
 		while (itr.hasNext()) {
 			DrugDrugInteraction addi = itr.next();
+			//first check if the interaction is directed or not
+			
 			// create a ddi resource
 			Resource ddir = outputModel.createResource(RdfUtils
 					.createUniqueURI());
