@@ -83,126 +83,7 @@ public class DiscoverHelper {
 		return chemicalEntity;
 	}
 
-	/**
-	 * This method will parse the DDI CSV file in search for all interacting
-	 * ids. It will return an array of chemical entities that have a pharmgkb
-	 * identifier that interact with the input id
-	 * 
-	 * @param aCSVFile
-	 * @param aQuery
-	 * @return
-	 */
-	public ArrayList<Resource> findInteractingIDs(File aCSVFile, String aQuery) {
-		CSVReader r;
-		ArrayList<Resource> returnMe = new ArrayList<Resource>();
-		ArrayList<String> ids = new ArrayList<String>();
-		if (this.validatePharmgkbIdentifier(aQuery)) {
-			try {
-				r = new CSVReader(new FileReader(aCSVFile));
-				String[] nextLine;
-				try {
-					while ((nextLine = r.readNext()) != null) {
-						if (nextLine[0].equalsIgnoreCase(aQuery)) {
-							// check if the Id was already in returnMe
-							if (!ids.contains(nextLine[2])) {
-								ids.add(nextLine[2]);
-							}
-						}
-						if (nextLine[2].equalsIgnoreCase(aQuery)) {
-							// check if the Id was already in returnMe
-							if (!ids.contains(nextLine[0])) {
-								ids.add(nextLine[0]);
-							}
-						}
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			}
-			// now convert the interacting ids to chemical entities that have
-			// some pharmgkb identifier
-			Iterator<String> itr = ids.iterator();
-			while (itr.hasNext()) {
-				String anId = itr.next();
-				if (validatePharmgkbIdentifier(anId)) {
-					returnMe.add(this.createResourceFromPharmGKBId(anId));
-				}
-			}
-		}
-		return returnMe;
-	}
-
-	/**
-	 * This method will parse the DDI CSV file in search for all interacting
-	 * ids. It will return an array of chemical entities that have a pharmgkb
-	 * identifier that interact with the input id
-	 * 
-	 * @param aCSVFile
-	 * @param aQuery
-	 * @return
-	 */
-	/*public ArrayList<DrugDrugInteraction> findDDIs(File aCSVFile,
-			Resource aQuery) {
-		CSVReader r;
-		ArrayList<DrugDrugInteraction> rM = new ArrayList<DrugDrugInteraction>();
-		String inputId = getChemicalIdentifier(aQuery,
-				Vocabulary.SIO_000008.toString(),
-				Vocabulary.SIO_000300.toString());
-
-		if (this.validatePharmgkbIdentifier(inputId)) {
-			try {
-				r = new CSVReader(new FileReader(aCSVFile));
-				String[] nextLine;
-				try {
-					String drugB = "";
-					String drugAEffectOnDrugB = "";
-					String resultngCondition = "";
-					String pmid = "";
-					String description = "";
-
-					while ((nextLine = r.readNext()) != null) {
-						if (nextLine[0].equalsIgnoreCase(inputId)) {
-							drugB = nextLine[2];
-							drugAEffectOnDrugB = nextLine[5];
-							resultngCondition = nextLine[8];
-							pmid = nextLine[9];
-							description = nextLine[7];
-							DrugDrugInteraction ddi = new DrugDrugInteraction(
-									aQuery, drugB, drugAEffectOnDrugB,
-									resultngCondition, pmid, description);
-							if (!rM.contains(ddi)) {
-								rM.add(ddi);
-							}
-						}
-						if (nextLine[2].equalsIgnoreCase(inputId)) {
-							drugB = nextLine[0];
-							drugAEffectOnDrugB = nextLine[6];
-							resultngCondition = nextLine[8];
-							pmid = nextLine[9];
-							description = nextLine[7];
-							DrugDrugInteraction ddi = new DrugDrugInteraction(
-									aQuery, drugB, drugAEffectOnDrugB,
-									resultngCondition, pmid, description);
-							if (!rM.contains(ddi)) {
-								rM.add(ddi);
-							}
-						}
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			}
-
-		}
-
-		return rM;
-	}*/
-
-	public ArrayList<DrugDrugInteraction> findDDIs(InputStream is,
+	public static ArrayList<DrugDrugInteraction> findDDIs(InputStream is,
 			Resource input) {
 		CSVReader r;
 		ArrayList<DrugDrugInteraction> rM = new ArrayList<DrugDrugInteraction>();
@@ -210,7 +91,7 @@ public class DiscoverHelper {
 				Vocabulary.SIO_000008.toString(),
 				Vocabulary.SIO_000300.toString());
 
-		if (this.validatePharmgkbIdentifier(inputId)) {
+		if (validatePharmgkbIdentifier(inputId)) {
 			r = new CSVReader(new InputStreamReader(is));
 			String[] nextLine;
 			try {
@@ -221,7 +102,10 @@ public class DiscoverHelper {
 				String description = "";
 				String drugAlabel ="";
 				String drugBlabel= "";
-				boolean isDirected = false;
+				// if true this ddi is directed between drug A and drug B
+				boolean drugADirectedB = false;
+				//if true this ddi is directed between drug B and drug A
+				boolean drugBDirectedA = false;
 
 				while ((nextLine = r.readNext()) != null) {
 					if (nextLine[0].equalsIgnoreCase(inputId)) {
@@ -232,12 +116,18 @@ public class DiscoverHelper {
 						resultngCondition = nextLine[8];
 						pmid = nextLine[9];
 						description = nextLine[7];
-						if(nextLine[4].equalsIgnoreCase("Y")){
-							isDirected = true;
+						//if ddi direction is AtoB
+						if(nextLine[12].equalsIgnoreCase("Y") && nextLine[13].equalsIgnoreCase("N")){
+							drugADirectedB = true;
+							drugBDirectedA = false;
+						}else if(nextLine[12].equalsIgnoreCase("N") && nextLine[13].equalsIgnoreCase("Y")){
+							//if ddi direction is BtoA
+							drugADirectedB = false;
+							drugBDirectedA = true;
 						}
 						DrugDrugInteraction ddi = new DrugDrugInteraction(
 								input, drugB, drugBEffectOnDrugA,
-								resultngCondition, pmid, description, drugAlabel, drugBlabel, isDirected);
+								resultngCondition, pmid, description, drugAlabel, drugBlabel, drugADirectedB, drugBDirectedA);
 						if (!rM.contains(ddi)) {
 							rM.add(ddi);
 						}
@@ -250,12 +140,18 @@ public class DiscoverHelper {
 						resultngCondition = nextLine[8];
 						pmid = nextLine[9];
 						description = nextLine[7];
-						if(nextLine[4].equalsIgnoreCase("Y")){
-							isDirected = true;
+						//if ddi direction is AtoB
+						if(nextLine[12].equalsIgnoreCase("Y") && nextLine[13].equalsIgnoreCase("N")){
+							drugADirectedB = true;
+							drugBDirectedA = false;
+						}else if(nextLine[12].equalsIgnoreCase("N") && nextLine[13].equalsIgnoreCase("Y")){
+							//if ddi direction is BtoA
+							drugADirectedB = false;
+							drugBDirectedA = true;
 						}
 						DrugDrugInteraction ddi = new DrugDrugInteraction(
 								input, drugB, drugBEffectOnDrugA,
-								resultngCondition, pmid, description, drugAlabel, drugBlabel, isDirected);
+								resultngCondition, pmid, description, drugAlabel, drugBlabel, drugADirectedB, drugBDirectedA );
 						if (!rM.contains(ddi)) {
 							rM.add(ddi);
 						}
@@ -281,7 +177,7 @@ public class DiscoverHelper {
 	 *            a string representation of the has value property
 	 * @return the name of the input resource
 	 */
-	public String getChemicalIdentifier(Resource someResource,
+	public static String getChemicalIdentifier(Resource someResource,
 			String hasAttribute, String hasValue) {
 		Model m = someResource.getModel();
 		Property hasAttr = m.getProperty(hasAttribute);
@@ -301,7 +197,7 @@ public class DiscoverHelper {
 	 * @param anId
 	 * @return
 	 */
-	public boolean validatePharmgkbIdentifier(String anId) {
+	public static boolean validatePharmgkbIdentifier(String anId) {
 		return anId.matches("DB\\d+");
 	}
 

@@ -22,6 +22,18 @@ public class DrugDrugInteraction {
 	private String drugALabel;
 	private String drugBLabel;
 	private boolean isDirected;
+	/**
+	 * These next two instance variables are to be used to describe the
+	 * directionality of the ddi if drug A interacts with drug B =>
+	 * drugAdirectedB == true && drugBdirectedA == false
+	 * 
+	 * if drug B interacts with drug A => drugBdirectedA == true &&
+	 * drugAdirectedB = false
+	 * 
+	 * if the interaction is undirected then they are both false;
+	 */
+	private boolean drugAdirectedB = false;
+	private boolean drugBdirectedA = false;
 
 	private Resource drugARes;
 
@@ -40,7 +52,7 @@ public class DrugDrugInteraction {
 	public DrugDrugInteraction(Resource aDrugARes, String aDrugBId,
 			String aDrugAEffectOnDrugB, String aResultingCondition,
 			String aPmid, String aDescription, String aDrugALabel,
-			String aDrugBLabel, boolean aIsDirected) {
+			String aDrugBLabel, boolean aDrugAdirectedB, boolean aDrugBdirectedA) {
 		this();
 		drugARes = aDrugARes;
 		drugBId = aDrugBId;
@@ -50,7 +62,8 @@ public class DrugDrugInteraction {
 		pmid = aPmid;
 		drugALabel = aDrugALabel;
 		drugBLabel = aDrugBLabel;
-		isDirected = aIsDirected;
+		drugAdirectedB = aDrugAdirectedB;
+		drugBdirectedA = aDrugBdirectedA;
 	}
 
 	/**
@@ -150,15 +163,16 @@ public class DrugDrugInteraction {
 		this.drugBEffectOnDrugA = drugBEffectOnDrugA;
 	}
 
-	public boolean getIsDirected(){
-		return isDirected;
-	}
-	
-	private void setIsDirected(boolean b){
-		isDirected = b;
-	}
 	
 
+	public boolean getDrugADirectedB(){
+		return  drugAdirectedB;
+	}
+	public boolean getDrugBDirectedA(){
+		return drugBdirectedA;
+	}
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -171,6 +185,7 @@ public class DrugDrugInteraction {
 				+ ((drugALabel == null) ? 0 : drugALabel.hashCode());
 		result = prime * result
 				+ ((drugARes == null) ? 0 : drugARes.hashCode());
+		result = prime * result + (drugAdirectedB ? 1231 : 1237);
 		result = prime
 				* result
 				+ ((drugBEffectOnDrugA == null) ? 0 : drugBEffectOnDrugA
@@ -178,11 +193,9 @@ public class DrugDrugInteraction {
 		result = prime * result + ((drugBId == null) ? 0 : drugBId.hashCode());
 		result = prime * result
 				+ ((drugBLabel == null) ? 0 : drugBLabel.hashCode());
+		result = prime * result + (drugBdirectedA ? 1231 : 1237);
+		result = prime * result + (isDirected ? 1231 : 1237);
 		result = prime * result + ((pmid == null) ? 0 : pmid.hashCode());
-		result = prime
-				* result
-				+ ((resourceDescription == null) ? 0 : resourceDescription
-						.hashCode());
 		result = prime
 				* result
 				+ ((resultingCondition == null) ? 0 : resultingCondition
@@ -224,6 +237,8 @@ public class DrugDrugInteraction {
 				return false;
 		} else if (!drugARes.equals(other.drugARes))
 			return false;
+		if (drugAdirectedB != other.drugAdirectedB)
+			return false;
 		if (drugBEffectOnDrugA == null) {
 			if (other.drugBEffectOnDrugA != null)
 				return false;
@@ -239,15 +254,14 @@ public class DrugDrugInteraction {
 				return false;
 		} else if (!drugBLabel.equals(other.drugBLabel))
 			return false;
+		if (drugBdirectedA != other.drugBdirectedA)
+			return false;
+		if (isDirected != other.isDirected)
+			return false;
 		if (pmid == null) {
 			if (other.pmid != null)
 				return false;
 		} else if (!pmid.equals(other.pmid))
-			return false;
-		if (resourceDescription == null) {
-			if (other.resourceDescription != null)
-				return false;
-		} else if (!resourceDescription.equals(other.resourceDescription))
 			return false;
 		if (resultingCondition == null) {
 			if (other.resultingCondition != null)
@@ -256,7 +270,6 @@ public class DrugDrugInteraction {
 			return false;
 		return true;
 	}
-
 
 
 	@SuppressWarnings("unused")

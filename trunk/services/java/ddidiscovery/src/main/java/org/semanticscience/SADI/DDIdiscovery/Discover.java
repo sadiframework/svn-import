@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
 import org.semanticscience.SADI.DDIdiscovery.helper.DiscoverHelper;
 import org.semanticscience.SADI.DDIdiscovery.helper.DrugDrugInteraction;
 
@@ -49,26 +48,27 @@ import com.hp.hpl.jena.rdf.model.Statement;
 @InputClass("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_10000")
 @OutputClass("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00005")
 public class Discover extends SimpleSynchronousServiceServlet {
-	private static final Logger log = Logger.getLogger(Discover.class);
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void processInput(Resource input, Resource output) {
+		final String ddiFilename = "ddi-0.0.3.csv";
 
 		Model outputModel = output.getModel();
-		// get the drugbank id from the input
-		DiscoverHelper dh = new DiscoverHelper();
-		InputStream is = Discover.class.getClassLoader().getResourceAsStream(
-				"ddi-0.0.3.csv");
 
-		ArrayList<DrugDrugInteraction> ddis = dh.findDDIs(is, input);
+		InputStream is = Discover.class.getClassLoader().getResourceAsStream(
+				ddiFilename);
+		
+		// find the ddis
+		ArrayList<DrugDrugInteraction> ddis = DiscoverHelper
+				.findDDIs(is, input);
 		Iterator<DrugDrugInteraction> itr = ddis.iterator();
 		while (itr.hasNext()) {
 			DrugDrugInteraction addi = itr.next();
+			//create a ddi resource 
 			Resource ddir = outputModel.createResource(RdfUtils
 					.createUniqueURI());
-
-			// add the participating chemical entities
+			// create a resource for drug B
 			Resource drugB = addi.createResourceFromDrugBankId(outputModel,
 					addi.getDrugBId());
 			// add the label of the drugs
@@ -153,7 +153,7 @@ public class Discover extends SimpleSynchronousServiceServlet {
 
 			// check if the interaction is directed or not
 			// create a ddi resource
-			if (addi.getIsDirected()) {
+			if((addi.getDrugADirectedB() == true && addi.getDrugBDirectedA() ==false) || (addi.getDrugBDirectedA() ==true &&addi.getDrugADirectedB()==false)) {
 				ddir.addProperty(Vocab.rdftype, Vocab.DDI_00062);
 				// create the interactants
 				Resource actor = outputModel.createResource(RdfUtils
@@ -168,10 +168,10 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				drugB.addProperty(Vocab.SIO_000228, target);
 				target.addProperty(Vocab.SIO_000227, drugB);
 
-				ddir.addProperty(Vocab.SIO_000228, actor);
-				actor.addProperty(Vocab.SIO_000227, ddir);
-				ddir.addProperty(Vocab.SIO_000228, target);
-				target.addProperty(Vocab.SIO_000227, ddir);
+				ddir.addProperty(Vocab.SIO_000001, actor);
+				actor.addProperty(Vocab.SIO_000001, ddir);
+				ddir.addProperty(Vocab.SIO_000001, target);
+				target.addProperty(Vocab.SIO_000001, ddir);
 			} else {
 				ddir.addProperty(Vocab.rdftype, Vocab.DDI_00000);
 				// create the interactants
@@ -188,15 +188,15 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				int2.addProperty(Vocab.SIO_000227, drugB);
 
 				// connect them to the ddi
-				ddir.addProperty(Vocab.SIO_000228, int1);
-				int1.addProperty(Vocab.SIO_000227, ddir);
-
-				ddir.addProperty(Vocab.SIO_000228, int2);
-				int2.addProperty(Vocab.SIO_000227, ddir);
+				ddir.addProperty(Vocab.SIO_000001, int1);
+				int1.addProperty(Vocab.SIO_000001, ddir);
+				ddir.addProperty(Vocab.SIO_000001, int2);
+				int2.addProperty(Vocab.SIO_000001, ddir);
 			}
 
 			// the annotated chemical entity is participant in some ddi
 			output.addProperty(Vocab.SIO_000062, ddir);
+			
 		}// while
 
 	}
@@ -244,6 +244,8 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createProperty("http://semanticscience.org/resource/SIO_000272");
 		public static final Property SIO_000300 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000300");
+		public static final Property SIO_000001 = m_model
+		.createProperty("http://semanticscience.org/resource/SIO_000001");
 		public static final Property DDI_00019 = m_model
 				.createProperty("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00019");
 		public static final Property SIO_000554 = m_model
