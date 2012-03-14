@@ -70,11 +70,8 @@ public class Discover extends SimpleSynchronousServiceServlet {
 					.createUniqueURI());
 			// create a resource for drug B
 			Resource drugB = addi.createResourceFromDrugBankId(outputModel,
-					addi.getDrugBId());
+					addi.getDrugBId(), addi.getDrugBLabel());
 			// add the label of the drugs
-			Statement stm = outputModel.createStatement(drugB, Vocab.rdfslabel,
-					addi.getDrugBLabel());
-			outputModel.add(stm);
 			Statement stm2 = outputModel.createStatement(output,
 					Vocab.rdfslabel, addi.getDrugALabel());
 			outputModel.add(stm2);
@@ -168,10 +165,10 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				drugB.addProperty(Vocab.SIO_000228, target);
 				target.addProperty(Vocab.SIO_000227, drugB);
 
-				ddir.addProperty(Vocab.SIO_000001, actor);
-				actor.addProperty(Vocab.SIO_000001, ddir);
-				ddir.addProperty(Vocab.SIO_000001, target);
-				target.addProperty(Vocab.SIO_000001, ddir);
+				ddir.addProperty(Vocab.SIO_000355, actor);
+				actor.addProperty(Vocab.SIO_000356, ddir);
+				ddir.addProperty(Vocab.SIO_000355, target);
+				target.addProperty(Vocab.SIO_000356, ddir);
 			} else {
 				ddir.addProperty(Vocab.rdftype, Vocab.DDI_00000);
 				// create the interactants
@@ -188,10 +185,10 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				int2.addProperty(Vocab.SIO_000227, drugB);
 
 				// connect them to the ddi
-				ddir.addProperty(Vocab.SIO_000001, int1);
-				int1.addProperty(Vocab.SIO_000001, ddir);
-				ddir.addProperty(Vocab.SIO_000001, int2);
-				int2.addProperty(Vocab.SIO_000001, ddir);
+				ddir.addProperty(Vocab.SIO_000355, int1);
+				int1.addProperty(Vocab.SIO_000356, ddir);
+				ddir.addProperty(Vocab.SIO_000355, int2);
+				int2.addProperty(Vocab.SIO_000356, ddir);
 			}
 
 			// the annotated chemical entity is participant in some ddi

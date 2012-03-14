@@ -111,6 +111,21 @@ public class DrugDrugInteraction {
 		return chemicalEntity;
 	}
 
+	public Resource createResourceFromDrugBankId(Model aM, String anId, String aLabel){
+		Resource chemicalEntity = aM.createResource(RdfUtils.createUniqueURI());
+		chemicalEntity.addProperty(Vocabulary.rdftype, Vocabulary.SIO_010004);
+		//add the label
+		if(aLabel !=null && aLabel.length()>0){
+			chemicalEntity.addProperty(Vocabulary.rdfslabel, aLabel);
+		}
+		Resource drugbankIdentifier = aM.createResource(RdfUtils
+				.createUniqueURI());
+		drugbankIdentifier.addProperty(Vocabulary.rdftype,
+				Vocabulary.DrugBankIdentifier);
+		drugbankIdentifier.addProperty(Vocabulary.SIO_000300, anId);
+		chemicalEntity.addProperty(Vocabulary.SIO_000008, drugbankIdentifier);
+		return chemicalEntity;
+	}
 	public String getBase() {
 		return base;
 	}
@@ -298,6 +313,8 @@ public class DrugDrugInteraction {
 				.createProperty("http://semanticscience.org/resource/SIO_000300");
 		public static final Property SIO_000008 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000008");
+		public static Property rdfslabel = m_model
+		.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
 
 		public static final Resource SIO_010004 = m_model
 				.createResource("http://semanticscience.org/resource/SIO_010004");
