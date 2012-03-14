@@ -89,7 +89,7 @@ public class DiscoverHelper {
 	 * @param anId
 	 * @return
 	 */
-	public Resource createResourceFromPharmGKBId(String anId) {
+	/*public Resource createResourceFromPharmGKBId(String anId) {
 		Resource chemicalEntity = outputModel.createResource(RdfUtils
 				.createUniqueURI());
 		chemicalEntity.addProperty(Vocabulary.rdftype, Vocabulary.SIO_010004);
@@ -100,7 +100,7 @@ public class DiscoverHelper {
 		chemicalIdentifier.addProperty(Vocabulary.SIO_000300, anId);
 		chemicalEntity.addProperty(Vocabulary.SIO_000008, chemicalIdentifier);
 		return chemicalEntity;
-	}
+	}*/
 
 	public static ArrayList<DrugDrugInteraction> findDDIs(InputStream is,
 			Resource input) {
