@@ -29,5 +29,9 @@
     <servlet-name>er-proxy</servlet-name>
     <url-pattern>/er-proxy</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>er-proxy</servlet-name>
+    <url-pattern>/er-proxy/ping</url-pattern>
+  </servlet-mapping>
   
 </web-app>

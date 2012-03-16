@@ -33,7 +33,12 @@
       	<version>6.1.10</version>
       	<configuration>
           <scanIntervalSeconds>2</scanIntervalSeconds>
-      	  <stopPort>8081</stopPort>
+      	  <connectors>
+            <connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+              <port>8480</port>
+            </connector>
+          </connectors>
+      	  <stopPort>8481</stopPort>
       	  <stopKey>stop</stopKey>
       	</configuration>
       	<executions>
