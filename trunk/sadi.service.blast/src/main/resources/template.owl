@@ -6,7 +6,7 @@
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
     <!ENTITY LSRN "http://purl.oclc.org/SADI/LSRN/" >
     <!ENTITY blast "http://sadiframework.org/ontologies/blast.owl#" >
-    <!ENTITY ncbiblast "http://sadiframework.org/examples/blast/ncbi-blast.owl#" >
+    <!ENTITY ncbiblast "http://sadiframework.org/services/blast/ncbi-blast.owl#" >
     <!ENTITY resource "http://semanticscience.org/resource/" >
     <!ENTITY properties "http://sadiframework.org/ontologies/properties.owl#" >
     <!ENTITY taxon "%v%" >

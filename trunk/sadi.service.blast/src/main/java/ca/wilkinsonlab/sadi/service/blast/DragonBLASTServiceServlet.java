@@ -29,12 +29,12 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-@URI("http://tomcat.dev.biordf.net/sadi-blast/snapdragon")
+@URI("http://sadiframework.org/services/blast/snapdragon")
 @Name("antirrhinum.net BLAST")
 @Description("Issues a BLAST query against antirrhinum.net.")
 @ContactEmail("mccarthy@elmonline.ca")
 @InputClass("http://semanticscience.org/resource/SIO_010018") // DNA sequence
-@OutputClass("http://sadiframework.org/examples/blast/ncbi-blast.owl#SnapdragonBLASTedSequence")
+@OutputClass("http://sadiframework.org/services/blast/ncbi-blast.owl#SnapdragonBLASTedSequence")
 //@TestCases({
 //		@TestCase(
 //				input = "http://sadiframework.org/examples/blast/t/dragon.input.1.rdf", 
@@ -65,7 +65,7 @@ public class DragonBLASTServiceServlet extends AsynchronousServiceServlet
 	protected Model createOutputModel()
 	{
 		Model model = super.createOutputModel();
-		model.setNsPrefix("ncbi-blast", "http://sadiframework.org/examples/blast-uniprot.owl#");
+		model.setNsPrefix("ncbi-blast", "http://sadiframework.org/services/blast/ncbi-blast.owl#");
 		model.setNsPrefix("blast", "http://sadiframework.org/ontologies/blast.owl#");
 		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
 		return model;
