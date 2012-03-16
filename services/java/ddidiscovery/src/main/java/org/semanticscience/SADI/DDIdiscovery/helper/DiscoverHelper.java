@@ -41,7 +41,7 @@ import com.hp.hpl.jena.rdf.model.Statement;
 
 public class DiscoverHelper {
 	private Model inputModel;
-	private Model outputModel;
+	private static Model outputModel;
 	private String base;
 
 	public DiscoverHelper(Model anInputModel, Model anOutputModel) {
@@ -83,24 +83,40 @@ public class DiscoverHelper {
 		return null;
 	}
 
+	
+	public static Resource createPublicationResource(Model aM, String aPmid){
+		Resource pub = aM.createResource(RdfUtils.createUniqueURI());
+		pub.addProperty(Vocabulary.rdftype, Vocabulary.SIO_000087);
+		// create a PMID_identifier resource
+		Resource pmidIdRes = aM.createResource(RdfUtils
+				.createUniqueURI());
+		// add the value of the pmid to the pmidres
+		pmidIdRes.addProperty(Vocabulary.SIO_000300, aPmid);
+		pmidIdRes.addProperty(Vocabulary.rdftype, Vocabulary.PMID_Identifier);
+		// add the PMID_identifier attribute
+		pub.addProperty(Vocabulary.SIO_000008, pmidIdRes);
+		return pub;
+	}
+	
 	/**
-	 * Create a chemical entity that has some pharmgkb identifier resource
-	 * 
-	 * @param anId
-	 * @return
-	 */
-	/*public Resource createResourceFromPharmGKBId(String anId) {
-		Resource chemicalEntity = outputModel.createResource(RdfUtils
-				.createUniqueURI());
-		chemicalEntity.addProperty(Vocabulary.rdftype, Vocabulary.SIO_010004);
-		Resource chemicalIdentifier = outputModel.createResource(RdfUtils
-				.createUniqueURI());
-		chemicalIdentifier
-				.addProperty(Vocabulary.rdftype, Vocabulary.DDI_00011);
-		chemicalIdentifier.addProperty(Vocabulary.SIO_000300, anId);
-		chemicalEntity.addProperty(Vocabulary.SIO_000008, chemicalIdentifier);
-		return chemicalEntity;
-	}*/
+     * Create a chemical entity that has some pharmgkb identifier resource
+     * 
+     * @param anId
+     * @return
+     */
+    public static Resource createResourceFromPharmGKBId(Model aM, String anId) {
+            Resource chemicalEntity = aM.createResource(RdfUtils
+                            .createUniqueURI());
+            chemicalEntity.addProperty(Vocabulary.rdftype, Vocabulary.SIO_010004);
+            Resource chemicalIdentifier = aM.createResource(RdfUtils
+                            .createUniqueURI());
+            chemicalIdentifier
+                            .addProperty(Vocabulary.rdftype, Vocabulary.DDI_00011);
+            chemicalIdentifier.addProperty(Vocabulary.SIO_000300, anId);
+            chemicalEntity.addProperty(Vocabulary.SIO_000008, chemicalIdentifier);
+            return chemicalEntity;
+    }
+
 
 	public static ArrayList<DrugDrugInteraction> findDDIs(InputStream is,
 			Resource input) {
@@ -109,68 +125,39 @@ public class DiscoverHelper {
 		String inputId = getChemicalIdentifier(input,
 				Vocabulary.SIO_000008.toString(),
 				Vocabulary.SIO_000300.toString());
-
 		if (validatePharmgkbIdentifier(inputId)) {
 			r = new CSVReader(new InputStreamReader(is));
 			String[] nextLine;
 			try {
-				String drugB = "";
-				String drugBEffectOnDrugA = "";
-				String resultngCondition = "";
+				String actorId = "";
+				String actorLabel = "";
+				String targetId ="";
+				String targetLabel ="";
+				String actorEffectOnTarget = "";
+				String targetEffectOnActor = "";
+				String resultingCondition = "";
+				boolean isDirected = false;
 				String pmid = "";
 				String description = "";
-				String drugAlabel ="";
-				String drugBlabel= "";
-				// if true this ddi is directed between drug A and drug B
-				boolean drugADirectedB = false;
-				//if true this ddi is directed between drug B and drug A
-				boolean drugBDirectedA = false;
 
 				while ((nextLine = r.readNext()) != null) {
-					if (nextLine[0].equalsIgnoreCase(inputId)) {
-						drugAlabel = nextLine[1];
-						drugBlabel = nextLine[3];
-						drugB = nextLine[2];
-						drugBEffectOnDrugA = nextLine[6];
-						resultngCondition = nextLine[8];
+					if (nextLine[0].equalsIgnoreCase(inputId) || nextLine[2].equalsIgnoreCase(inputId)) {
+						actorId = nextLine[0];
+						actorLabel = nextLine[1];
+						targetLabel = nextLine[3];
+						targetId = nextLine[2];
+						actorEffectOnTarget = nextLine[5];
+						targetEffectOnActor = nextLine[6];
+						resultingCondition = nextLine[8];
 						pmid = nextLine[9];
 						description = nextLine[7];
-						//if ddi direction is AtoB
-						if(nextLine[12].equalsIgnoreCase("Y") && nextLine[13].equalsIgnoreCase("N")){
-							drugADirectedB = true;
-							drugBDirectedA = false;
-						}else if(nextLine[12].equalsIgnoreCase("N") && nextLine[13].equalsIgnoreCase("Y")){
-							//if ddi direction is BtoA
-							drugADirectedB = false;
-							drugBDirectedA = true;
+						//check if the ddi is directed
+						if(nextLine[12].equalsIgnoreCase("TRUE")){
+							isDirected = true;
 						}
-						DrugDrugInteraction ddi = new DrugDrugInteraction(
-								input, drugB, drugBEffectOnDrugA,
-								resultngCondition, pmid, description, drugAlabel, drugBlabel, drugADirectedB, drugBDirectedA);
-						if (!rM.contains(ddi)) {
-							rM.add(ddi);
-						}
-					}
-					if (nextLine[2].equalsIgnoreCase(inputId)) {
-						drugAlabel = nextLine[3];
-						drugBlabel = nextLine[1];
-						drugB = nextLine[0];
-						drugBEffectOnDrugA = nextLine[6];
-						resultngCondition = nextLine[8];
-						pmid = nextLine[9];
-						description = nextLine[7];
-						//if ddi direction is AtoB
-						if(nextLine[12].equalsIgnoreCase("Y") && nextLine[13].equalsIgnoreCase("N")){
-							drugADirectedB = true;
-							drugBDirectedA = false;
-						}else if(nextLine[12].equalsIgnoreCase("N") && nextLine[13].equalsIgnoreCase("Y")){
-							//if ddi direction is BtoA
-							drugADirectedB = false;
-							drugBDirectedA = true;
-						}
-						DrugDrugInteraction ddi = new DrugDrugInteraction(
-								input, drugB, drugBEffectOnDrugA,
-								resultngCondition, pmid, description, drugAlabel, drugBlabel, drugADirectedB, drugBDirectedA );
+						//DrugDrugInteraction
+						DrugDrugInteraction ddi = new DrugDrugInteraction(actorId, targetId, actorEffectOnTarget, targetEffectOnActor, resultingCondition, pmid, description, actorLabel, targetLabel, isDirected);
+						
 						if (!rM.contains(ddi)) {
 							rM.add(ddi);
 						}
@@ -182,6 +169,8 @@ public class DiscoverHelper {
 		}
 		return rM;
 	}
+	
+	
 
 	/**
 	 * Get the string representation of the input chebi id. First find the
@@ -260,6 +249,11 @@ public class DiscoverHelper {
 				.createProperty("http://semanticscience.org/resource/SIO_000300");
 		public static final Property SIO_000008 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000008");
+		public static final Resource SIO_000087 = m_model
+		.createResource("http://semanticscience.org/resource/SIO_000087");
+		public static final Resource PMID_Identifier = m_model
+		.createResource("http://purl.oclc.org/SADI/LSRN/PMID_Identifier");
+		
 		public static final Resource SIO_000728 = m_model
 				.createResource("http://semanticscience.org/resource/SIO_000728");
 		public static final Resource SIO_010004 = m_model
