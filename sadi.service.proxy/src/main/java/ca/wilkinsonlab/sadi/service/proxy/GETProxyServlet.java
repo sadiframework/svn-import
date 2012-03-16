@@ -76,10 +76,12 @@ public class GETProxyServlet extends ServiceServlet
 			String callback = request.getParameter("callback");
 			task = new ServiceProxyTask(serviceURL, assembleInput(request), callback);
 			taskID = TaskManager.getInstance().startTask(task);
+			if (log.isTraceEnabled())
+				log.trace(String.format("started new task with taskID %s", taskID));
 		} else {
 			task = (ServiceProxyTask)TaskManager.getInstance().getTask(taskID);
 			if (task == null) {
-				response.sendError(HttpServletResponse.SC_NOT_FOUND, "no such task");
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, String.format("task %s", taskID));
 				return;
 			}
 		}

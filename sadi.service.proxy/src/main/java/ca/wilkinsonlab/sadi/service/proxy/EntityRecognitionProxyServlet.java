@@ -3,8 +3,11 @@ package ca.wilkinsonlab.sadi.service.proxy;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -12,8 +15,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.htmlparser.Parser;
 import org.htmlparser.visitors.TextExtractingVisitor;
+import org.stringtree.json.JSONWriter;
 
+import ca.wilkinsonlab.sadi.client.ServiceFactory;
 import ca.wilkinsonlab.sadi.service.annotations.URI;
+import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -25,8 +31,6 @@ public class EntityRecognitionProxyServlet extends GETProxyServlet
 {
 	private static final Logger log = Logger.getLogger(EntityRecognitionProxyServlet.class);
 	private static final long serialVersionUID = 1L;
-	
-	
 	
 	@Override
 	protected Model createOutputModel()
@@ -50,6 +54,29 @@ public class EntityRecognitionProxyServlet extends GETProxyServlet
 		}
 	}
 
+	@Override
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws IOException
+	{
+		if (request.getServletPath().endsWith("/ping")) {
+			if (log.isDebugEnabled())
+				log.debug(String.format("pinging service %s", getProxiedServiceURL(request)));
+			Map<String, Object> output = new HashMap<String, Object>();
+			try {
+				ServiceFactory.createService(getProxiedServiceURL(request));
+				output.put("alive", true);
+			} catch (Exception e) {
+				output.put("alive", false);
+				output.put("error", e.toString());
+			}
+			JSONWriter jsonWriter = new JSONWriter();
+			response.setContentType("text/javascript");
+			response.getWriter().format("%s", jsonWriter.write(output));
+		} else {
+			super.doGet(request, response);
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see ca.wilkinsonlab.sadi.service.proxy.GETProxyServlet#assembleInput(javax.servlet.http.HttpServletRequest)
 	 */
@@ -68,6 +95,12 @@ public class EntityRecognitionProxyServlet extends GETProxyServlet
 				}
 			}
 		}
+		for (String text: getParameterValues(request, "inputText")) {
+			if (!StringUtils.isEmpty(text)) {
+				Resource inputNode = inputModel.createResource(RdfUtils.createUniqueURI(), Artjom.InputClass);
+				inputNode.addLiteral(Bibo.content, text);
+			}
+		}
 		return inputModel;
 	}
 
@@ -75,6 +108,8 @@ public class EntityRecognitionProxyServlet extends GETProxyServlet
 	{
 		URL cached = EntityRecognitionProxyServlet.class.getResource(
 				String.format("/cache/%s", URLEncoder.encode(url, "UTF-8")));
+		if (log.isDebugEnabled())
+			log.debug(String.format("reading %s from %s", url, cached != null ? "cache" : "source"));
 		Parser parser = new Parser(cached != null ? cached.toExternalForm() : url);
 		TextExtractingVisitor visitor = new TextExtractingVisitor();
 		parser.visitAllNodesWith(visitor);
