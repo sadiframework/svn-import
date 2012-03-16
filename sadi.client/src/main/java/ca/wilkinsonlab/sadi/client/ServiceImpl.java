@@ -92,6 +92,8 @@ public class ServiceImpl extends ServiceBase
 				throw new ServiceConnectionException("does not exist");//String.format("no such service %s", getURI()));
 			} else if (e.getMessage().endsWith("Connection refused")) {
 				throw new ServiceConnectionException("connection refused");//String.format("connection refused to service %s", getURI()));
+			} else if (e.getCause() instanceof IOException) {
+				throw new ServiceConnectionException(e.getCause().getMessage());
 			}
 		}
 		if (errorHandler.hasLastError()) {
