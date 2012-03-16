@@ -112,7 +112,7 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 		service.setContactEmail("info@sadiframework.org");
 		service.setAuthoritative(false);
 		service.setInputClassURI("http://semanticscience.org/resource/SIO_010018");
-		service.setOutputClassURI(String.format("http://sadiframework.org/examples/blast/%s.owl#BLASTedSequence", taxon.name));
+		service.setOutputClassURI(String.format("http://sadiframework.org/services/blast/%s.owl#BLASTedSequence", taxon.name));
 		return service;
 	}
 

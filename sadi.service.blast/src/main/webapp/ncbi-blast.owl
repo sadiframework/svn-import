@@ -10,11 +10,12 @@
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY blast "http://sadiframework.org/ontologies/blast.owl#" >
     <!ENTITY properties "http://sadiframework.org/ontologies/properties.owl#" >
+    <!ENTITY local "http://sadiframework.org/services/blast/ncbi-blast.owl" >
 ]>
 
 
-<rdf:RDF xmlns="http://sadiframework.org/examples/blast/ncbi-blast.owl#"
-     xml:base="http://sadiframework.org/examples/blast/ncbi-blast.owl"
+<rdf:RDF xmlns="&local;#"
+     xml:base="&local;"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:blast="http://sadiframework.org/ontologies/blast.owl#"
      xmlns:LSRN="http://purl.oclc.org/SADI/LSRN/"
@@ -23,7 +24,7 @@
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:properties="http://sadiframework.org/ontologies/properties.owl#">
-    <owl:Ontology rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl">
+    <owl:Ontology rdf:about="&local;">
         <owl:imports rdf:resource="&LSRN;taxon"/>
         <owl:imports rdf:resource="http://sadiframework.org/ontologies/blast.owl"/>
         <owl:imports rdf:resource="http://sadiframework.org/ontologies/properties.owl"/>
@@ -125,9 +126,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#Human -->
+    <!-- &local;#Human -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#Human">
+    <owl:Class rdf:about="&local;#Human">
         <owl:equivalentClass>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&resource;SIO_000671"/>
@@ -148,9 +149,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#HumanBLASTAlignment -->
+    <!-- &local;#HumanBLASTAlignment -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#HumanBLASTAlignment">
+    <owl:Class rdf:about="&local;#HumanBLASTAlignment">
         <rdfs:label xml:lang="en">human BLAST alignment</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -173,7 +174,7 @@
                                                         <owl:someValuesFrom>
                                                             <owl:Restriction>
                                                                 <owl:onProperty rdf:resource="&properties;fromOrganism"/>
-                                                                <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#Human"/>
+                                                                <owl:someValuesFrom rdf:resource="&local;#Human"/>
                                                             </owl:Restriction>
                                                         </owl:someValuesFrom>
                                                     </owl:Restriction>
@@ -192,9 +193,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#HumanBLASTHit -->
+    <!-- &local;#HumanBLASTHit -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#HumanBLASTHit">
+    <owl:Class rdf:about="&local;#HumanBLASTHit">
         <rdfs:label xml:lang="en">human BLAST hit</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -202,7 +203,7 @@
                     <rdf:Description rdf:about="&blast;BLASTHit"/>
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="&resource;SIO_000028"/>
-                        <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#HumanBLASTAlignment"/>
+                        <owl:someValuesFrom rdf:resource="&local;#HumanBLASTAlignment"/>
                     </owl:Restriction>
                 </owl:intersectionOf>
             </owl:Class>
@@ -211,9 +212,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#HumanBLASTedSequence -->
+    <!-- &local;#HumanBLASTedSequence -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#HumanBLASTedSequence">
+    <owl:Class rdf:about="&local;#HumanBLASTedSequence">
         <rdfs:label xml:lang="en">human-BLASTed sequence</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -227,7 +228,7 @@
                                     <rdf:Description rdf:about="&blast;Subsequence"/>
                                     <owl:Restriction>
                                         <owl:onProperty rdf:resource="&resource;SIO_000068"/>
-                                        <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#HumanBLASTHit"/>
+                                        <owl:someValuesFrom rdf:resource="&local;#HumanBLASTHit"/>
                                     </owl:Restriction>
                                 </owl:intersectionOf>
                             </owl:Class>
@@ -241,9 +242,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#Mouse -->
+    <!-- &local;#Mouse -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#Mouse">
+    <owl:Class rdf:about="&local;#Mouse">
         <owl:equivalentClass>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&resource;SIO_000671"/>
@@ -264,9 +265,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#MouseBLASTAlignment -->
+    <!-- &local;#MouseBLASTAlignment -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#MouseBLASTAlignment">
+    <owl:Class rdf:about="&local;#MouseBLASTAlignment">
         <rdfs:label xml:lang="en">mouse BLAST alignment</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -289,7 +290,7 @@
                                                         <owl:someValuesFrom>
                                                             <owl:Restriction>
                                                                 <owl:onProperty rdf:resource="&properties;fromOrganism"/>
-                                                                <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#Mouse"/>
+                                                                <owl:someValuesFrom rdf:resource="&local;#Mouse"/>
                                                             </owl:Restriction>
                                                         </owl:someValuesFrom>
                                                     </owl:Restriction>
@@ -308,9 +309,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#MouseBLASTHit -->
+    <!-- &local;#MouseBLASTHit -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#MouseBLASTHit">
+    <owl:Class rdf:about="&local;#MouseBLASTHit">
         <rdfs:label xml:lang="en">mouse BLAST hit</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -318,7 +319,7 @@
                     <rdf:Description rdf:about="&blast;BLASTHit"/>
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="&resource;SIO_000028"/>
-                        <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#MouseBLASTAlignment"/>
+                        <owl:someValuesFrom rdf:resource="&local;#MouseBLASTAlignment"/>
                     </owl:Restriction>
                 </owl:intersectionOf>
             </owl:Class>
@@ -327,9 +328,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#MouseBLASTedSequence -->
+    <!-- &local;#MouseBLASTedSequence -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#MouseBLASTedSequence">
+    <owl:Class rdf:about="&local;#MouseBLASTedSequence">
         <rdfs:label xml:lang="en">mouse-BLASTed sequence</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -343,7 +344,7 @@
                                     <rdf:Description rdf:about="&blast;Subsequence"/>
                                     <owl:Restriction>
                                         <owl:onProperty rdf:resource="&resource;SIO_000068"/>
-                                        <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#MouseBLASTHit"/>
+                                        <owl:someValuesFrom rdf:resource="&local;#MouseBLASTHit"/>
                                     </owl:Restriction>
                                 </owl:intersectionOf>
                             </owl:Class>
@@ -357,9 +358,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#Rat -->
+    <!-- &local;#Rat -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#Rat">
+    <owl:Class rdf:about="&local;#Rat">
         <owl:equivalentClass>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&resource;SIO_000671"/>
@@ -380,9 +381,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#RatBLASTAlignment -->
+    <!-- &local;#RatBLASTAlignment -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#RatBLASTAlignment">
+    <owl:Class rdf:about="&local;#RatBLASTAlignment">
         <rdfs:label xml:lang="en">rat BLAST alignment</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -405,7 +406,7 @@
                                                         <owl:someValuesFrom>
                                                             <owl:Restriction>
                                                                 <owl:onProperty rdf:resource="&properties;fromOrganism"/>
-                                                                <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#Rat"/>
+                                                                <owl:someValuesFrom rdf:resource="&local;#Rat"/>
                                                             </owl:Restriction>
                                                         </owl:someValuesFrom>
                                                     </owl:Restriction>
@@ -424,9 +425,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#RatBLASTHit -->
+    <!-- &local;#RatBLASTHit -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#RatBLASTHit">
+    <owl:Class rdf:about="&local;#RatBLASTHit">
         <rdfs:label xml:lang="en">rat BLAST hit</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -434,7 +435,7 @@
                     <rdf:Description rdf:about="&blast;BLASTHit"/>
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="&resource;SIO_000028"/>
-                        <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#RatBLASTAlignment"/>
+                        <owl:someValuesFrom rdf:resource="&local;#RatBLASTAlignment"/>
                     </owl:Restriction>
                 </owl:intersectionOf>
             </owl:Class>
@@ -443,9 +444,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#RatBLASTedSequence -->
+    <!-- &local;#RatBLASTedSequence -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#RatBLASTedSequence">
+    <owl:Class rdf:about="&local;#RatBLASTedSequence">
         <rdfs:label xml:lang="en">rat-BLASTed sequence</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -459,7 +460,7 @@
                                     <rdf:Description rdf:about="&blast;Subsequence"/>
                                     <owl:Restriction>
                                         <owl:onProperty rdf:resource="&resource;SIO_000068"/>
-                                        <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#RatBLASTHit"/>
+                                        <owl:someValuesFrom rdf:resource="&local;#RatBLASTHit"/>
                                     </owl:Restriction>
                                 </owl:intersectionOf>
                             </owl:Class>
@@ -473,9 +474,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#SnapdragonBLASTAlignment -->
+    <!-- &local;#SnapdragonBLASTAlignment -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#SnapdragonBLASTAlignment">
+    <owl:Class rdf:about="&local;#SnapdragonBLASTAlignment">
         <rdfs:label xml:lang="en">snapdragon BLAST alignment</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -517,9 +518,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#SnapdragonBLASTHit -->
+    <!-- &local;#SnapdragonBLASTHit -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#SnapdragonBLASTHit">
+    <owl:Class rdf:about="&local;#SnapdragonBLASTHit">
         <rdfs:label xml:lang="en">snapdragon BLAST hit</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -527,7 +528,7 @@
                     <rdf:Description rdf:about="&blast;BLASTHit"/>
                     <owl:Restriction>
                         <owl:onProperty rdf:resource="&resource;SIO_000028"/>
-                        <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#SnapdragonBLASTAlignment"/>
+                        <owl:someValuesFrom rdf:resource="&local;#SnapdragonBLASTAlignment"/>
                     </owl:Restriction>
                 </owl:intersectionOf>
             </owl:Class>
@@ -536,9 +537,9 @@
     
 
 
-    <!-- http://sadiframework.org/examples/blast/ncbi-blast.owl#SnapdragonBLASTedSequence -->
+    <!-- &local;#SnapdragonBLASTedSequence -->
 
-    <owl:Class rdf:about="http://sadiframework.org/examples/blast/ncbi-blast.owl#SnapdragonBLASTedSequence">
+    <owl:Class rdf:about="&local;#SnapdragonBLASTedSequence">
         <rdfs:label xml:lang="en">snapdragon-BLASTed sequence</rdfs:label>
         <rdfs:subClassOf>
             <owl:Class>
@@ -552,7 +553,7 @@
                                     <rdf:Description rdf:about="&blast;Subsequence"/>
                                     <owl:Restriction>
                                         <owl:onProperty rdf:resource="&resource;SIO_000068"/>
-                                        <owl:someValuesFrom rdf:resource="http://sadiframework.org/examples/blast/ncbi-blast.owl#SnapdragonBLASTHit"/>
+                                        <owl:someValuesFrom rdf:resource="&local;#SnapdragonBLASTHit"/>
                                     </owl:Restriction>
                                 </owl:intersectionOf>
                             </owl:Class>

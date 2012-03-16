@@ -49,7 +49,7 @@ public class NCBIBLASTServiceServletTest
 	public void testParseBLAST() throws Exception
 	{
 		Model model = ModelFactory.createDefaultModel();
-		model.setNsPrefix("ncbi-blast", "http://sadiframework.org/examples/blast-uniprot.owl#");
+		model.setNsPrefix("ncbi-blast", "http://sadiframework.org/services/blast/ncbi-blast.owl#");
 		model.setNsPrefix("blast", "http://sadiframework.org/ontologies/blast.owl#");
 		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
 		Taxon human = new Taxon();
