@@ -20,8 +20,6 @@
  */
 package org.semanticscience.SADI.DDIdiscovery.helper;
 
-import java.net.URL;
-
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -33,29 +31,17 @@ public class DrugDrugInteraction {
 
 	private Model aModel;
 	private String base;
-	private String drugAId;
-	private String drugBId;
-	private String drugBEffectOnDrugA;
+	private String actorId;
+	private String actorLabel;
+	private String targetId;
+	private String targetLabel;
+	private String targetEffectOnActor;
+	private String actorEffectOnTarget;
+	private boolean isDirected;
 	private String resultingCondition;
 	private String description;
 	private String pmid;
-	private String drugALabel;
-	private String drugBLabel;
-	private boolean isDirected;
-	/**
-	 * These next two instance variables are to be used to describe the
-	 * directionality of the ddi if drug A interacts with drug B =>
-	 * drugAdirectedB == true && drugBdirectedA == false
-	 * 
-	 * if drug B interacts with drug A => drugBdirectedA == true &&
-	 * drugAdirectedB = false
-	 * 
-	 * if the interaction is undirected then they are both false;
-	 */
-	private boolean drugAdirectedB = false;
-	private boolean drugBdirectedA = false;
 
-	private Resource drugARes;
 
 	/**
 	 * A jena resource description of this ddi
@@ -65,57 +51,65 @@ public class DrugDrugInteraction {
 	public DrugDrugInteraction() {
 		aModel = ModelFactory.createDefaultModel();
 		base = RdfUtils.createUniqueURI();
-		drugBEffectOnDrugA = "pico";
 		isDirected = false;
 	}
 
-	public DrugDrugInteraction(Resource aDrugARes, String aDrugBId,
-			String aDrugAEffectOnDrugB, String aResultingCondition,
-			String aPmid, String aDescription, String aDrugALabel,
-			String aDrugBLabel, boolean aDrugAdirectedB, boolean aDrugBdirectedA) {
+	public DrugDrugInteraction(String anActorId, String aTargetId,
+			String anActorEffectOnTarget, String aTargetEffectOnActor, String aResultingCondition,
+			String aPmid, String aDescription, String anActorLabel,
+			String aTargetLabel, boolean aIsDirected) {
 		this();
-		drugARes = aDrugARes;
-		drugBId = aDrugBId;
-		drugBEffectOnDrugA = aDrugAEffectOnDrugB;
+		actorId = anActorId;
+		targetId = aTargetId;
+		actorEffectOnTarget = anActorEffectOnTarget;
 		resultingCondition = aResultingCondition;
-		description = aDescription;
 		pmid = aPmid;
-		drugALabel = aDrugALabel;
-		drugBLabel = aDrugBLabel;
-		drugAdirectedB = aDrugAdirectedB;
-		drugBdirectedA = aDrugBdirectedA;
+		targetEffectOnActor = aTargetEffectOnActor;
+		description = aDescription;
+		actorLabel = anActorLabel;
+		targetLabel = aTargetLabel;
+		isDirected = aIsDirected;
+	}
+
+	public static Resource createTargetResource(Model aM) {
+		Resource target = aM.createResource(RdfUtils.createUniqueURI());
+		target.addProperty(Vocabulary.rdftype, Vocabulary.DDI_00010);
+		return target;
+
 	}
 
 	/**
-	 * Get the base of a URL
+	 * Check if the passed in DBid is a target or an actor
 	 * 
-	 * @param aUrl
-	 *            some URL
-	 * @return the base of aUrl
+	 * @param anId
+	 * @return true if the input id belongs to the target
 	 */
-	public String getBaseURL(URL aUrl) {
-		String returnMe = "";
-		returnMe += "http://" + aUrl.getHost() + "/";
-		return returnMe;
+	public boolean hasTarget(String anId) {
+		if (anId.equalsIgnoreCase(this.getTargetId())) {
+			return true;
+		}
+		return false;
+
 	}
 
-	public Resource createResourceFromDrugBankId(Model aM, String anId) {
-		Resource chemicalEntity = aM.createResource(RdfUtils.createUniqueURI());
-		chemicalEntity.addProperty(Vocabulary.rdftype, Vocabulary.SIO_010004);
-		Resource drugbankIdentifier = aM.createResource(RdfUtils
-				.createUniqueURI());
-		drugbankIdentifier.addProperty(Vocabulary.rdftype,
-				Vocabulary.DrugBankIdentifier);
-		drugbankIdentifier.addProperty(Vocabulary.SIO_000300, anId);
-		chemicalEntity.addProperty(Vocabulary.SIO_000008, drugbankIdentifier);
-		return chemicalEntity;
+	public static Resource createActorResource(Model aM) {
+		Resource actor = aM.createResource(RdfUtils.createUniqueURI());
+		actor.addProperty(Vocabulary.rdftype, Vocabulary.DDI_00008);
+		return actor;
 	}
 
-	public Resource createResourceFromDrugBankId(Model aM, String anId, String aLabel){
+	public static Resource createInteractantResource(Model aM) {
+		Resource interactant = aM.createResource(RdfUtils.createUniqueURI());
+		interactant.addProperty(Vocabulary.rdftype, Vocabulary.DDI_00063);
+		return interactant;
+	}
+
+	public static Resource createResourceFromDrugBankId(Model aM, String anId,
+			String aLabel) {
 		Resource chemicalEntity = aM.createResource(RdfUtils.createUniqueURI());
 		chemicalEntity.addProperty(Vocabulary.rdftype, Vocabulary.SIO_010004);
-		//add the label
-		if(aLabel !=null && aLabel.length()>0){
+		// add the label
+		if (aLabel != null && aLabel.length() > 0) {
 			chemicalEntity.addProperty(Vocabulary.rdfslabel, aLabel);
 		}
 		Resource drugbankIdentifier = aM.createResource(RdfUtils
@@ -126,28 +120,13 @@ public class DrugDrugInteraction {
 		chemicalEntity.addProperty(Vocabulary.SIO_000008, drugbankIdentifier);
 		return chemicalEntity;
 	}
+
 	public String getBase() {
 		return base;
 	}
 
 	public void setBase(String base) {
 		this.base = base;
-	}
-
-	public String getDrugAId() {
-		return drugAId;
-	}
-
-	public void setDrugAId(String drugAId) {
-		this.drugAId = drugAId;
-	}
-
-	public String getDrugBId() {
-		return drugBId;
-	}
-
-	public void setDrugBId(String drugBId) {
-		this.drugBId = drugBId;
 	}
 
 	public String getResultingCondition() {
@@ -182,126 +161,32 @@ public class DrugDrugInteraction {
 		this.resourceDescription = resourceDescription;
 	}
 
-	public String getDrugBEffectOnDrugA() {
-		return drugBEffectOnDrugA;
+	public String getActorId() {
+		return actorId;
 	}
 
-	public String getDrugALabel() {
-		return drugALabel;
+	public String getActorLabel() {
+		return actorLabel;
 	}
 
-	public String getDrugBLabel() {
-		return drugBLabel;
+	public String getTargetId() {
+		return targetId;
 	}
 
-	public void setDrugBEffectOnDrugA(String drugBEffectOnDrugA) {
-		this.drugBEffectOnDrugA = drugBEffectOnDrugA;
+	public String getTargetLabel() {
+		return targetLabel;
 	}
 
-	public boolean getDrugADirectedB() {
-		return drugAdirectedB;
+	public String getTargetEffectOnActor() {
+		return targetEffectOnActor;
 	}
 
-	public boolean getDrugBDirectedA() {
-		return drugBdirectedA;
+	public String getActorEffectOnTarget() {
+		return actorEffectOnTarget;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((base == null) ? 0 : base.hashCode());
-		result = prime * result
-				+ ((description == null) ? 0 : description.hashCode());
-		result = prime * result + ((drugAId == null) ? 0 : drugAId.hashCode());
-		result = prime * result
-				+ ((drugALabel == null) ? 0 : drugALabel.hashCode());
-		result = prime * result
-				+ ((drugARes == null) ? 0 : drugARes.hashCode());
-		result = prime * result + (drugAdirectedB ? 1231 : 1237);
-		result = prime
-				* result
-				+ ((drugBEffectOnDrugA == null) ? 0 : drugBEffectOnDrugA
-						.hashCode());
-		result = prime * result + ((drugBId == null) ? 0 : drugBId.hashCode());
-		result = prime * result
-				+ ((drugBLabel == null) ? 0 : drugBLabel.hashCode());
-		result = prime * result + (drugBdirectedA ? 1231 : 1237);
-		result = prime * result + (isDirected ? 1231 : 1237);
-		result = prime * result + ((pmid == null) ? 0 : pmid.hashCode());
-		result = prime
-				* result
-				+ ((resultingCondition == null) ? 0 : resultingCondition
-						.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DrugDrugInteraction other = (DrugDrugInteraction) obj;
-		if (base == null) {
-			if (other.base != null)
-				return false;
-		} else if (!base.equals(other.base))
-			return false;
-		if (description == null) {
-			if (other.description != null)
-				return false;
-		} else if (!description.equals(other.description))
-			return false;
-		if (drugAId == null) {
-			if (other.drugAId != null)
-				return false;
-		} else if (!drugAId.equals(other.drugAId))
-			return false;
-		if (drugALabel == null) {
-			if (other.drugALabel != null)
-				return false;
-		} else if (!drugALabel.equals(other.drugALabel))
-			return false;
-		if (drugARes == null) {
-			if (other.drugARes != null)
-				return false;
-		} else if (!drugARes.equals(other.drugARes))
-			return false;
-		if (drugAdirectedB != other.drugAdirectedB)
-			return false;
-		if (drugBEffectOnDrugA == null) {
-			if (other.drugBEffectOnDrugA != null)
-				return false;
-		} else if (!drugBEffectOnDrugA.equals(other.drugBEffectOnDrugA))
-			return false;
-		if (drugBId == null) {
-			if (other.drugBId != null)
-				return false;
-		} else if (!drugBId.equals(other.drugBId))
-			return false;
-		if (drugBLabel == null) {
-			if (other.drugBLabel != null)
-				return false;
-		} else if (!drugBLabel.equals(other.drugBLabel))
-			return false;
-		if (drugBdirectedA != other.drugBdirectedA)
-			return false;
-		if (isDirected != other.isDirected)
-			return false;
-		if (pmid == null) {
-			if (other.pmid != null)
-				return false;
-		} else if (!pmid.equals(other.pmid))
-			return false;
-		if (resultingCondition == null) {
-			if (other.resultingCondition != null)
-				return false;
-		} else if (!resultingCondition.equals(other.resultingCondition))
-			return false;
-		return true;
+	public boolean isDirected() {
+		return isDirected;
 	}
 
 	@SuppressWarnings("unused")
@@ -314,10 +199,16 @@ public class DrugDrugInteraction {
 		public static final Property SIO_000008 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000008");
 		public static Property rdfslabel = m_model
-		.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
+				.createProperty("http://www.w3.org/2000/01/rdf-schema#label");
 
 		public static final Resource SIO_010004 = m_model
 				.createResource("http://semanticscience.org/resource/SIO_010004");
+		public static final Resource DDI_00010 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00010");
+		public static final Resource DDI_00008 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00008");
+		public static final Resource DDI_00063 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00063");
 
 		public static final Resource DrugBankIdentifier = m_model
 				.createResource("http://purl.oclc.org/SADI/LSRN/DrugBank_Identifier");

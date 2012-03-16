@@ -26,6 +26,7 @@ import java.util.Iterator;
 
 import org.semanticscience.SADI.DDIdiscovery.helper.DiscoverHelper;
 import org.semanticscience.SADI.DDIdiscovery.helper.DrugDrugInteraction;
+import org.semanticscience.SADI.DDIdiscovery.helper.DiscoverHelper.Vocabulary;
 
 import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
 import ca.wilkinsonlab.sadi.service.annotations.Description;
@@ -41,7 +42,6 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 
-//TODO: #2) I think you should remove the 'decreases efficacy of' and 'has adverse symptoms in conjunction with' triples from the output.  (Just comment it out in your code.)  We're not using those, and I think they are ill-modelled because you can't relate those to the interactions they describe.
 @Name("DrugDrugInteractionDiscovery")
 @Description("This service takes in as input a 'chemical entity' that 'has attribute' some 'chemical identifier' and outputs an 'Annotated chemical entity' that 'is participant in' some 'drug drug interaction'")
 @ContactEmail("josemiguelcruztoledo@gmail.com")
@@ -53,58 +53,28 @@ public class Discover extends SimpleSynchronousServiceServlet {
 	@Override
 	public void processInput(Resource input, Resource output) {
 		final String ddiFilename = "ddi-0.0.3.csv";
-
 		Model outputModel = output.getModel();
-
+		//read in the ddi.csv file
 		InputStream is = Discover.class.getClassLoader().getResourceAsStream(
 				ddiFilename);
+		//get the input id
+		String inputId = DiscoverHelper.getChemicalIdentifier(input,
+				Vocabulary.SIO_000008.toString(),
+				Vocabulary.SIO_000300.toString());
 		
 		// find the ddis
 		ArrayList<DrugDrugInteraction> ddis = DiscoverHelper
 				.findDDIs(is, input);
+		
 		Iterator<DrugDrugInteraction> itr = ddis.iterator();
 		while (itr.hasNext()) {
 			DrugDrugInteraction addi = itr.next();
 			//create a ddi resource 
 			Resource ddir = outputModel.createResource(RdfUtils
 					.createUniqueURI());
-			// create a resource for drug B
-			Resource drugB = addi.createResourceFromDrugBankId(outputModel,
-					addi.getDrugBId(), addi.getDrugBLabel());
-			// add the label of the drugs
-			Statement stm2 = outputModel.createStatement(output,
-					Vocab.rdfslabel, addi.getDrugALabel());
-			outputModel.add(stm2);
-
-			ddir.addProperty(Vocab.SIO_000132, drugB);
-
-			// connect drugA and drugB using the drugaeffectondrugB
-			if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase("DDI_00051")) {
-				drugB.addProperty(Vocab.DDI_00051, output);
-			} else if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase(
-					"DDI_00055")) {
-				drugB.addProperty(Vocab.DDI_00055, output);
-			} else if (addi.getDrugBEffectOnDrugA().equalsIgnoreCase(
-					"DDI_00014")) {
-				drugB.addProperty(Vocab.DDI_00014, output);
-			}
-
-			// add the input as a participant
-			ddir.addProperty(Vocab.SIO_000132, output);
-
+		
 			// create a publication resourcce
-			Resource pub = outputModel.createResource(RdfUtils
-					.createUniqueURI());
-			pub.addProperty(Vocab.rdftype, Vocab.SIO_000087);
-			// create a PMID_identifier resource
-			Resource pmidIdRes = outputModel.createResource(RdfUtils
-					.createUniqueURI());
-			// add the value of the pmid to the pmidres
-			pmidIdRes.addProperty(Vocab.SIO_000300, addi.getPmid());
-			pmidIdRes.addProperty(Vocab.rdftype, Vocab.PMID_Identifier);
-			// add the PMID_identifier attribute
-			pub.addProperty(Vocab.SIO_000008, pmidIdRes);
-
+			Resource pub = DiscoverHelper.createPublicationResource(outputModel, addi.getPmid());
 			// connect the ddi with the publication
 			ddir.addProperty(Vocab.SIO_000253, pub);
 
@@ -115,7 +85,6 @@ public class Discover extends SimpleSynchronousServiceServlet {
 						Vocab.rdfslabel, "decreased efficacy of drug");
 				outputModel.add(stm3);
 				ddir.addProperty(Vocab.SIO_000554, Vocab.DDI_00054);
-
 			} else if (resultingCondition.equalsIgnoreCase("DDI_00007")) {
 				Statement stm4 = outputModel.createStatement(Vocab.DDI_00007,
 						Vocab.rdfslabel, "gastrointestinal bleeding");
@@ -147,54 +116,159 @@ public class Discover extends SimpleSynchronousServiceServlet {
 						Vocab.rdfslabel, "mania");
 				outputModel.add(stm5);
 			}
-
-			// check if the interaction is directed or not
-			// create a ddi resource
-			if((addi.getDrugADirectedB() == true && addi.getDrugBDirectedA() ==false) || (addi.getDrugBDirectedA() ==true &&addi.getDrugADirectedB()==false)) {
-				ddir.addProperty(Vocab.rdftype, Vocab.DDI_00062);
-				// create the interactants
-				Resource actor = outputModel.createResource(RdfUtils
-						.createUniqueURI());
-				actor.addProperty(Vocab.rdftype, Vocab.DDI_00008);
-				output.addProperty(Vocab.SIO_000228, actor);
-				actor.addProperty(Vocab.SIO_000227, output);
-
-				Resource target = outputModel.createResource(RdfUtils
-						.createUniqueURI());
-				target.addProperty(Vocab.rdftype, Vocab.DDI_00010);
-				drugB.addProperty(Vocab.SIO_000228, target);
-				target.addProperty(Vocab.SIO_000227, drugB);
-
-				ddir.addProperty(Vocab.SIO_000355, actor);
-				actor.addProperty(Vocab.SIO_000356, ddir);
-				ddir.addProperty(Vocab.SIO_000355, target);
-				target.addProperty(Vocab.SIO_000356, ddir);
-			} else {
+			
+			//check if the interaction is directed or not
+			if(addi.isDirected()){
+				//type ddir as a directed interaction
+				ddir.addProperty(Vocab.rdftype, Vocab.DDI_00062);				
+				//find out if the output has the target role
+				if(addi.hasTarget(inputId)){
+					//create a target resource
+					Resource target = DrugDrugInteraction.createTargetResource(outputModel);
+					//connect the target to the ddir
+					//realizes / is realized in
+					target.addProperty(Vocab.SIO_000356, ddir);
+					ddir.addProperty(Vocab.SIO_000355, target);
+					//is role of/ has role
+					target.addProperty(Vocab.SIO_000227, output);
+					output.addProperty(Vocab.SIO_000228, target);					
+					//create the chemical entity with which the input was found to interact with
+					Resource chemEnt = DrugDrugInteraction.createResourceFromDrugBankId(outputModel, addi.getActorId(), addi.getActorLabel());
+					//create an actor resource
+					Resource actor = DrugDrugInteraction.createActorResource(outputModel);
+					//connect the target to the ddir
+					//is role of/ has role
+					chemEnt.addProperty(Vocab.SIO_000228, actor);
+					actor.addProperty(Vocab.SIO_000227, chemEnt);	
+					//connect chemEnt to the ddir
+					chemEnt.addProperty(Vocab.SIO_000062, ddir);
+					ddir.addProperty(Vocab.SIO_000132, chemEnt);
+					
+					//realizes / is realized in
+					actor.addProperty(Vocab.SIO_000356, ddir);
+					ddir.addProperty(Vocab.SIO_000355, actor);
+					Statement stm2 = outputModel.createStatement(output,
+                            Vocab.rdfslabel, addi.getTargetLabel());
+					
+					ddir.addProperty(Vocab.SIO_000132, output);
+					output.addProperty(Vocab.SIO_000062, ddir);
+				}else {
+					//the input drug has the actor role
+					//create the chemical entity with which the input was found to interact with
+					Resource chemEnt = DrugDrugInteraction.createResourceFromDrugBankId(outputModel, addi.getTargetId(), addi.getTargetLabel());					
+					//create a target resource
+					Resource actor = DrugDrugInteraction.createActorResource(outputModel);
+					//connect the target to the ddir
+					//is role of/ has role
+					actor.addProperty(Vocab.SIO_000227, output);
+					output.addProperty(Vocab.SIO_000228, actor);	
+					//realizes / is realized in
+					actor.addProperty(Vocab.SIO_000356, ddir);
+					ddir.addProperty(Vocab.SIO_000355, actor);		
+					//connect chemEnt to the ddir
+					output.addProperty(Vocab.SIO_000062, ddir);
+					ddir.addProperty(Vocab.SIO_000132, output);
+					//create an actor resource
+					Resource target = DrugDrugInteraction.createTargetResource(outputModel);
+					//connect the target to the ddir				
+					//realizes / is realized in
+					target.addProperty(Vocab.SIO_000356, ddir);
+					ddir.addProperty(Vocab.SIO_000355, target);				
+					//is role of/ has role
+					target.addProperty(Vocab.SIO_000227, chemEnt);
+					chemEnt.addProperty(Vocab.SIO_000228, target);
+					
+					chemEnt.addProperty(Vocab.SIO_000062, ddir);
+					ddir.addProperty(Vocab.SIO_000132, chemEnt);
+					
+					Statement stm2 = outputModel.createStatement(output,
+                            Vocab.rdfslabel, addi.getActorLabel());
+					
+					ddir.addProperty(Vocab.SIO_000132, output);
+					output.addProperty(Vocab.SIO_000062, ddir);
+					
+				}
+				
+			}else{
+				//type ddir as an undirected interaction
 				ddir.addProperty(Vocab.rdftype, Vocab.DDI_00000);
-				// create the interactants
-				Resource int1 = outputModel.createResource(RdfUtils
-						.createUniqueURI());
-				int1.addProperty(Vocab.rdftype, Vocab.DDI_00063);
-				output.addProperty(Vocab.SIO_000228, int1);
-				int1.addProperty(Vocab.SIO_000227, output);
-
-				Resource int2 = outputModel.createResource(RdfUtils
-						.createUniqueURI());
-				int2.addProperty(Vocab.rdftype, Vocab.DDI_00063);
-				drugB.addProperty(Vocab.SIO_000228, int2);
-				int2.addProperty(Vocab.SIO_000227, drugB);
-
-				// connect them to the ddi
-				ddir.addProperty(Vocab.SIO_000355, int1);
-				int1.addProperty(Vocab.SIO_000356, ddir);
-				ddir.addProperty(Vocab.SIO_000355, int2);
-				int2.addProperty(Vocab.SIO_000356, ddir);
+				//find out if the output has the "target" role
+				if(addi.hasTarget(inputId)){
+					
+					//create a target resource
+					Resource interactant1 = DrugDrugInteraction.createInteractantResource(outputModel);
+					//connect the target to the ddir
+					//realizes / is realized in
+					interactant1.addProperty(Vocab.SIO_000356, ddir);
+					ddir.addProperty(Vocab.SIO_000355, interactant1);
+					//is role of/ has role
+					interactant1.addProperty(Vocab.SIO_000227, output);
+					output.addProperty(Vocab.SIO_000228, interactant1);					
+					//create the chemical entity with which the input was found to interact with
+					Resource chemEnt = DrugDrugInteraction.createResourceFromDrugBankId(outputModel, addi.getActorId(), addi.getActorLabel());
+					//create an actor resource
+					Resource interactant2 = DrugDrugInteraction.createInteractantResource(outputModel);
+					//connect the target to the ddir
+					//is role of/ has role
+					chemEnt.addProperty(Vocab.SIO_000228, interactant2);
+					interactant2.addProperty(Vocab.SIO_000227, chemEnt);	
+					//connect chemEnt to the ddir
+					chemEnt.addProperty(Vocab.SIO_000062, ddir);
+					ddir.addProperty(Vocab.SIO_000132, chemEnt);
+					
+					//realizes / is realized in
+					interactant2.addProperty(Vocab.SIO_000356, ddir);
+					ddir.addProperty(Vocab.SIO_000355, interactant2);
+					Statement stm2 = outputModel.createStatement(output,
+                            Vocab.rdfslabel, addi.getTargetLabel());
+					
+					ddir.addProperty(Vocab.SIO_000132, output);
+					output.addProperty(Vocab.SIO_000062, ddir);
+					
+				}else{
+					
+					//the input drug has the actor role
+					//create the chemical entity with which the input was found to interact with
+					Resource chemEnt = DrugDrugInteraction.createResourceFromDrugBankId(outputModel, addi.getTargetId(), addi.getTargetLabel());					
+					//create a target resource
+					Resource interactant1 = DrugDrugInteraction.createInteractantResource(outputModel);
+					//connect the target to the ddir
+					//is role of/ has role
+					interactant1.addProperty(Vocab.SIO_000227, output);
+					output.addProperty(Vocab.SIO_000228, interactant1);	
+					//realizes / is realized in
+					interactant1.addProperty(Vocab.SIO_000356, ddir);
+					ddir.addProperty(Vocab.SIO_000355, interactant1);		
+					//connect chemEnt to the ddir
+					output.addProperty(Vocab.SIO_000062, ddir);
+					ddir.addProperty(Vocab.SIO_000132, output);
+					//create an actor resource
+					Resource interactant2 = DrugDrugInteraction.createInteractantResource(outputModel);
+					//connect the target to the ddir				
+					//realizes / is realized in
+					interactant2.addProperty(Vocab.SIO_000356, ddir);
+					ddir.addProperty(Vocab.SIO_000355, interactant2);				
+					//is role of/ has role
+					interactant2.addProperty(Vocab.SIO_000227, chemEnt);
+					chemEnt.addProperty(Vocab.SIO_000228, interactant2);
+					
+					chemEnt.addProperty(Vocab.SIO_000062, ddir);
+					ddir.addProperty(Vocab.SIO_000132, chemEnt);
+					
+					Statement stm2 = outputModel.createStatement(output,
+                            Vocab.rdfslabel, addi.getActorLabel());
+					
+					ddir.addProperty(Vocab.SIO_000132, output);
+					output.addProperty(Vocab.SIO_000062, ddir);
+					
+				}
 			}
-
+		
 			// the annotated chemical entity is participant in some ddi
 			output.addProperty(Vocab.SIO_000062, ddir);
 			
 		}// while
+		
 
 	}
 
@@ -294,6 +368,7 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createProperty("http://semanticscience.org/resource/SIO_000061");
 		public static final Property SIO_000356 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000356");
+		
 		public static final Property SIO_000339 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000339");
 		public static final Resource Double = m_model
