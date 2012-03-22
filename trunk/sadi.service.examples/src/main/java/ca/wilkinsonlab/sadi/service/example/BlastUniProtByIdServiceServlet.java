@@ -25,11 +25,11 @@ import com.hp.hpl.jena.rdf.model.Resource;
 @OutputClass("http://sadiframework.org/examples/blast-uniprot.owl#BlastByIDOutputClass")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/blastUniprotById-input.rdf", 
+				input = "http://sadiframework.org/examples/t/blastUniprotById.input.1.rdf",
 				output = "http://sadiframework.org/examples/t/blastUniprotById.output.1.rdf"
 		)
 )
-public class BlastUniProtByIdServiceServlet extends BlastUniProtServiceServlet 
+public class BlastUniProtByIdServiceServlet extends BlastUniProtServiceServlet
 {
 	private static final long serialVersionUID = 1L;
 
@@ -42,7 +42,7 @@ public class BlastUniProtByIdServiceServlet extends BlastUniProtServiceServlet
 		// retrieving the UniProt entries for all of the inputs
 		// in batch, as is done in UniProtServiceServlet.
 		UniProtEntry uniprotEntry = UniProtUtils.getUniProtEntries(Collections.singleton(uniprotId)).get(uniprotId);
-		
+
 		String sequence = uniprotEntry.getSequence().getValue();
 		Resource sequenceNode = SIOUtils.createAttribute(output, SIO.protein_sequence, sequence);
 		super.processInput(sequenceNode, sequenceNode);

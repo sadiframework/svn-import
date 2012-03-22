@@ -15,15 +15,15 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 
 /**
  * A simple "Hello, World" service that reads a name and attaches a greeting.
- * 
+ *
  * @author Luke McCarthy
  */
 @ContactEmail("info@sadiframework.org")
 @Authoritative(true)
 @TestCases({
 	@TestCase(
-			input = "http://sadiframework.org/examples/t/hello-input.rdf", 
-			output = "http://sadiframework.org/examples/t/hello-output.rdf"
+			input = "http://sadiframework.org/examples/t/hello.input.1.rdf",
+			output = "http://sadiframework.org/examples/t/hello.output.1.rdf"
 	)
 })
 public class HelloWorldServiceServlet extends SimpleSynchronousServiceServlet
@@ -36,13 +36,13 @@ public class HelloWorldServiceServlet extends SimpleSynchronousServiceServlet
 		model.setNsPrefix("hello", Vocab.NS);
 		return model;
 	}
-	
+
 	public void processInput(Resource input, Resource output)
 	{
 		String name = input.getProperty(FOAF.name).getString();
 		output.addProperty(Vocab.greeting, String.format("Hello, %s!", name), XSDDatatype.XSDstring);
 	}
-	
+
 	private static class Vocab
 	{
 		private static String NS = "http://sadiframework.org/examples/hello.owl#";

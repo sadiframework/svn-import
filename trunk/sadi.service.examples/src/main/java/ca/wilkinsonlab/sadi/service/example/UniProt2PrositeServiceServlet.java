@@ -21,20 +21,20 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/uniprot2prosite-input.rdf", 
-				output = "http://sadiframework.org/examples/t/uniprot2prosite-output.rdf"
+				input = "http://sadiframework.org/examples/t/uniprot2prosite.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/uniprot2prosite.output.1.rdf"
 		)
 )
-public class UniProt2PrositeServiceServlet extends UniProtServiceServlet 
+public class UniProt2PrositeServiceServlet extends UniProtServiceServlet
 {
 	private static final long serialVersionUID = 1L;
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2PrositeServiceServlet.class);
-	
+
 	private static final String PROSITE_PREFIX = "http://lsrn.org/Prosite:";
 	private static final Resource PROSITE_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/Prosite_Record");
 	private static final Resource PROSITE_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/Prosite_Identifier");
-	
+
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
 	{
@@ -47,16 +47,16 @@ public class UniProt2PrositeServiceServlet extends UniProtServiceServlet
 	private Resource createPrositeNode(Model model, Prosite prosite)
 	{
 		Resource prositeNode = model.createResource(getPrositeUri(prosite), PROSITE_Type);
-		
+
 		// add identifier structure...
 		SIOUtils.createAttribute(prositeNode, PROSITE_Identifier, prosite.getPrositeAccessionNumber().getValue());
 
 		// add label...
 		prositeNode.addProperty(RDFS.label, getLabel(prosite));
-		
+
 		return prositeNode;
 	}
-	
+
 	private static String getPrositeUri(Prosite prosite)
 	{
 		String prositeId = prosite.getPrositeAccessionNumber().getValue();

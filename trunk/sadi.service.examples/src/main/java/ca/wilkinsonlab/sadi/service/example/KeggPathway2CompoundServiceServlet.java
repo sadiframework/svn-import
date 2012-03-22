@@ -20,34 +20,34 @@ import com.hp.hpl.jena.rdf.model.Resource;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/keggPathway2Compound-input.rdf", 
-				output = "http://sadiframework.org/examples/t/keggPathway2Compound-output.rdf"
+				input = "http://sadiframework.org/examples/t/keggPathway2Compound.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/keggPathway2Compound.output.1.rdf"
 		)
 )
 public class KeggPathway2CompoundServiceServlet extends KeggServiceServlet
 {
 	private static final long serialVersionUID = 1L;
-	
+
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(KeggPathway2CompoundServiceServlet.class);
 	private static final String COMPOUND_RECORD_SECTION = "COMPOUND";
-	
+
 	@Override
 	protected LSRNRecordType getInputRecordType() {
 		return LSRN.KEGG.Pathway;
 	}
-	
-	@Override 
+
+	@Override
 	protected String getInputIdPrefix() {
 		return KeggUtils.PATHWAY_ID_PREFIX;
 	}
-	
+
 	@Override
 	protected void processInput(String keggPathwayId, String keggPathwayRecord, Resource output)
 	{
 		Map<String,String> recordSections = KeggUtils.getSectionsFromKeggRecord(keggPathwayRecord);
 		StrTokenizer tokenizer = new StrTokenizer();
-		
+
 		if(recordSections.containsKey(COMPOUND_RECORD_SECTION)) {
 			for(String line : recordSections.get(COMPOUND_RECORD_SECTION).split("\\r?\\n")) {
 				String keggCompoundId = String.format("%s%s", KeggUtils.COMPOUND_ID_PREFIX, tokenizer.reset(line).nextToken());
@@ -56,5 +56,5 @@ public class KeggPathway2CompoundServiceServlet extends KeggServiceServlet
 			}
 		}
 	}
-	
+
 }

@@ -14,7 +14,6 @@
             >8624197</j.0:SIO_000300>
           </j.1:GeneID_Identifier>
         </j.0:SIO_000008>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/8624197"/>
       </j.1:GeneID_Record>
     </owl:sameAs>
     <owl:sameAs>
@@ -37,7 +36,6 @@
             >246094</j.0:SIO_000300>
           </j.1:GeneID_Identifier>
         </j.0:SIO_000008>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/246094"/>
       </j.1:GeneID_Record>
     </owl:sameAs>
     <owl:sameAs>
@@ -70,7 +68,6 @@
             >946230</j.0:SIO_000300>
           </j.1:GeneID_Identifier>
         </j.0:SIO_000008>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/946230"/>
       </j.1:GeneID_Record>
     </owl:sameAs>
     <owl:sameAs>
@@ -93,7 +90,6 @@
             >174578</j.0:SIO_000300>
           </j.1:GeneID_Identifier>
         </j.0:SIO_000008>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/174578"/>
       </j.1:GeneID_Record>
     </owl:sameAs>
   </j.2:OutputClass>
@@ -106,7 +102,6 @@
             >12183</j.0:SIO_000300>
           </j.1:GeneID_Identifier>
         </j.0:SIO_000008>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/12183"/>
       </j.1:GeneID_Record>
     </owl:sameAs>
     <owl:sameAs>
@@ -139,7 +134,6 @@
             >855125</j.0:SIO_000300>
           </j.1:GeneID_Identifier>
         </j.0:SIO_000008>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/855125"/>
       </j.1:GeneID_Record>
     </owl:sameAs>
     <owl:sameAs>
@@ -162,7 +156,6 @@
             >35265</j.0:SIO_000300>
           </j.1:GeneID_Identifier>
         </j.0:SIO_000008>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/35265"/>
       </j.1:GeneID_Record>
     </owl:sameAs>
     <owl:sameAs>
@@ -185,7 +178,6 @@
             >7157</j.0:SIO_000300>
           </j.1:GeneID_Identifier>
         </j.0:SIO_000008>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/7157"/>
       </j.1:GeneID_Record>
     </owl:sameAs>
     <owl:sameAs>
@@ -238,7 +230,6 @@
             >24385</j.0:SIO_000300>
           </j.1:GeneID_Identifier>
         </j.0:SIO_000008>
-        <owl:sameAs rdf:resource="http://biordf.net/moby/EntrezGene_ID/24385"/>
       </j.1:GeneID_Record>
     </owl:sameAs>
     <owl:sameAs>
@@ -253,4 +244,3 @@
     </owl:sameAs>
   </j.2:OutputClass>
 </rdf:RDF>
-

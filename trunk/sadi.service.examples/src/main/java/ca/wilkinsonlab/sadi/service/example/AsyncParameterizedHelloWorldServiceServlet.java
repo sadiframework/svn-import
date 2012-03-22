@@ -20,12 +20,12 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 
 /**
- * A slightly less simple "Hello, World" service that reads a name and 
+ * A slightly less simple "Hello, World" service that reads a name and
  * attaches a greeting. The language of the greeting is read from a
  * secondary parameter.
- * 
+ *
  * This also demonstrates the use of annotations for service configuration.
- * 
+ *
  * @author Luke McCarthy
  */
 @URI("http://sadiframework.org/examples/hello-param-async")
@@ -39,16 +39,16 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 @Authoritative(true)
 @TestCases({
 		@TestCase(
-				input = "/t/hello-param-input1.rdf", 
-				output = "/t/hello-param-output1.rdf"
+				input = "/t/hello-param.input.1.rdf",
+				output = "/t/hello-param.output.1.rdf"
 		)
 		, @TestCase(
-				input = "/t/hello-param-input2.rdf", 
-				output = "/t/hello-param-output2.rdf"
+				input = "/t/hello-param.input.2.rdf",
+				output = "/t/hello-param.output.2.rdf"
 		)
 		, @TestCase(
-				input = "/t/hello-param-input3.rdf", 
-				output = "/t/hello-param-output3.rdf"
+				input = "/t/hello-param.input.3.rdf",
+				output = "/t/hello-param.output.3.rdf"
 		)
 })
 public class AsyncParameterizedHelloWorldServiceServlet extends AsynchronousServiceServlet
@@ -85,7 +85,7 @@ public class AsyncParameterizedHelloWorldServiceServlet extends AsynchronousServ
 			greeting = "Hello";
 		output.addProperty(Vocab.greeting, String.format("%s, %s!", greeting, name));
 	}
-	
+
 	private static class Vocab
 	{
 		private static String NS = "http://sadiframework.org/examples/hello.owl#";

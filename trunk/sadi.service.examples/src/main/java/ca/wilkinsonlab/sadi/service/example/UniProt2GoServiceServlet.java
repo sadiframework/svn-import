@@ -22,11 +22,11 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @ContactEmail("info@sadiframework.org")
 @TestCases( {
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/uniprot2go-input.1.rdf", 
+				input = "http://sadiframework.org/examples/t/uniprot2go.input.1.rdf",
 				output = "http://sadiframework.org/examples/t/uniprot2go.output.1.rdf"
 		),
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/uniprot2go-input.2.rdf", 
+				input = "http://sadiframework.org/examples/t/uniprot2go.input.2.rdf",
 				output = "http://sadiframework.org/examples/t/uniprot2go.output.2.rdf"
 		)
 } )
@@ -35,11 +35,11 @@ public class UniProt2GoServiceServlet extends UniProtServiceServlet
 	private static final long serialVersionUID = 1L;
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2GoServiceServlet.class);
-	
+
 	private static final String GO_PREFIX = "http://lsrn.org/GO:";
 	private static final Resource GO_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/GO_Record");
 	private static final Resource GO_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/GO_Identifier");
-	
+
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
 	{
@@ -49,25 +49,25 @@ public class UniProt2GoServiceServlet extends UniProtServiceServlet
 			output.addProperty(p, goNode);
 		}
 	}
-	
+
 	private Resource getGoNode(Model model, Go goTerm)
 	{
 		Resource goNode = model.getResource(getGoUri(goTerm));
 		if (goNode.hasProperty(RDF.type, GO_Type))
 			return goNode;
-		
+
 		// add type...
 		goNode.addProperty(RDF.type, GO_Type);
-		
+
 		// add identifier structure...
 		SIOUtils.createAttribute(goNode, GO_Identifier, goTerm.getGoId().getValue());
-		
+
 		// add label...
 		goNode.addProperty(RDFS.label, getLabel(goTerm));
-		
+
 		return goNode;
 	}
-	
+
 	private Property getRelationalProperty(Go goTerm)
 	{
 		OntologyType goOntology = goTerm.getOntologyType();
@@ -81,7 +81,7 @@ public class UniProt2GoServiceServlet extends UniProtServiceServlet
 			return SIO.is_related_to;
 		}
 	}
-	
+
 	private static String getGoUri(Go goTerm)
 	{
 		String goId = goTerm.getGoId().getValue();

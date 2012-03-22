@@ -1,113 +1,125 @@
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:j.0="http://sadiframework.org/examples/uniprotInfo.owl#"
-    xmlns:j.1="http://semanticscience.org/resource/"
-    xmlns:j.2="http://purl.oclc.org/SADI/LSRN/"
-    xmlns:j.3="http://sadiframework.org/ontologies/properties.owl#"
+    xmlns:uniprotInfo="http://sadiframework.org/examples/uniprotInfo.owl#"
+    xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:sadi="http://sadiframework.org/ontologies/properties.owl#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-  <j.0:AnnotatedUniProtRecord rdf:about="http://example.com/not-a-uniprot-id">
-    <j.3:hasName>
-      <j.1:SIO_000117>
-        <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >AT-hook-containing transcription factor</j.1:SIO_000300>
-      </j.1:SIO_000117>
-    </j.3:hasName>
-    <j.3:fromOrganism>
-      <j.2:taxon_Record> <!-- FIXME add URIs here... -->
-        <j.1:SIO_000008>
-          <j.2:taxon_Identifier>
-            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >9606</j.1:SIO_000300>
-          </j.2:taxon_Identifier>
-        </j.1:SIO_000008>
-        <j.3:hasName>
-          <j.1:SIO_000120>
-            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Homo sapiens</j.1:SIO_000300>
-          </j.1:SIO_000120>
-        </j.3:hasName>
-      </j.2:taxon_Record>
-    </j.3:fromOrganism>
-    <j.3:hasSequence>
-      <j.1:SIO_010015>
-        <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >MASSETEIRWAEPGLGKGPQRRRWAWAEDKRDVDRSSSQSWEEERLFPNATSPELLEDFRLAQQHLPPLEWDPHPQPDGHQDSESGETSGEEAEAEDVDSPASSHEPLAWLPQQGRQLDMTEEEPDGTLGSLEVEEAGESSSRLGYEAGLSLEGHGNTSPMALGHGQARGWVASGEQASGDKLSEHSEVNPSVELSPARSWSSGTVSLDHPSDSLDSTWEGETDGPQPTALAETLPEGPSHHLLSPDGRTGGSVARATPMEFQDSSAPPAQSPQHATDRWRRETTRFFCPQPKEHIWKQTKTSPKPLPSRFIGSISPLNPQPRPTRQGRPLPRQGATLAGRSSSNAPKYGRGQLNYPLPDFSKVGPRVRFPKDESYRPPKSRSHNRKPQAPARPLIFKSPAEIVQEVLLSSGEAALAKDTPPAHPITRVPQEFQTPEQATELVHQLQEDYHRLLTKYAEAENTIDQLRLGAKVNLFSDPPQPNHSIHTGMVPQGTKVLSFTIPQPRSAEWWPGPAEDPQASAASGWPSARGDLSPSSLTSMPTLGWLPENRDISEDQSSAEQTQALASQASQFLAKVESFERLIQAGRLMPQDQVKGFQRLKAAHAALEEEYLKACREQHPAQPLAGSKGTPGRFDPRRELEAEIYRLGSCLEELKEHIDQTQQEPEPPGSDSALDSTPALPCLHQPTHLPAPSGQAPMPAIKTSCPEPATTTAAASTGPCPLHVNVEVSSGNSEVEDRPQDPLARLRHKELQMEQVYHGLMERYLSVKSLPEAMRMEEEEEGEEEEEEEGGGDSLEVDGVAATPGKAEATRVLPRQCPVQAEKSHGAPLEEATEKMVSMKPPGFQASLARDGHMSGLGKAEAAPPGPGVPPHPPGTKSAASHQSSMTSLEGSGISERLPQKPLHRGGGPHLEETWMASPETDSGFVGSETSRVSPLTQTPEHRLSHISTAGTLAQPFAASVPRDGASYPKARGSLIPRRATEPSTPRSQAQRYLSSPSGPLRQRAPNFSLERTLAAEMAVPGSEFEGHKRISEQPLPNKTISPPPAPAPAAAPLPCGPTETIPSFLLTRAGRDQAICELQEEVSRLRLRLEDSLHQPLQGSPTRPASAFDRPARTRGRPADSPATWGSHYGSKSTERLPGEPRGEEQIVPPGRQRARSSSVPREVLRLSLSSESELPSLPLFSEKSKTTKDSPQAARDGKRGVGSAGWPDRVTFRGQYTGHEYHVLSPKAVPKGNGTVSCPHCRPIRTQDAGGAVTGDPLGPPPADTLQCPLCGQVGSPPEADGPGSATSGAEKATTRRKASSTPSPKQRSKQAGSSPRPPPGLWYLATAPPAPAPPAFAYISSVPIMPYPPAAVYYAPAGPTSAQPAAKWPPTASPPPARRHRHSIQLDLGDLEELNKALSRAVQAAESVRSTTRQMRSSLSADLRQAHSLRGSCLF</j.1:SIO_000300>
-      </j.1:SIO_010015>
-    </j.3:hasSequence>
-  </j.0:AnnotatedUniProtRecord>
-  <j.0:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P12345">
-    <j.3:hasName>
-      <j.1:SIO_000116>
-        <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >FABPpm</j.1:SIO_000300>
-        <j.1:SIO_000272>
-          <j.1:SIO_000116 rdf:nodeID="A0">
-            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Plasma membrane-associated fatty acid-binding protein</j.1:SIO_000300>
-          </j.1:SIO_000116>
-        </j.1:SIO_000272>
-      </j.1:SIO_000116>
-    </j.3:hasName>
-    <j.3:hasName>
-      <j.1:SIO_000116>
-        <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >FABP-1</j.1:SIO_000300>
-        <j.1:SIO_000272>
-          <j.1:SIO_000116 rdf:nodeID="A1">
-            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Fatty acid-binding protein</j.1:SIO_000300>
-          </j.1:SIO_000116>
-        </j.1:SIO_000272>
-      </j.1:SIO_000116>
-    </j.3:hasName>
-    <j.3:hasName>
-      <j.1:SIO_000116>
-        <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >Transaminase A</j.1:SIO_000300>
-      </j.1:SIO_000116>
-    </j.3:hasName>
-    <j.3:hasName>
-      <j.1:SIO_000116>
-        <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >Glutamate oxaloacetate transaminase 2</j.1:SIO_000300>
-      </j.1:SIO_000116>
-    </j.3:hasName>
-    <j.3:hasName>
-      <j.1:SIO_000117 rdf:nodeID="A2">
-        <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >Aspartate aminotransferase, mitochondrial</j.1:SIO_000300>
-      </j.1:SIO_000117>
-    </j.3:hasName>
-    <j.3:hasSequence>
-      <j.1:SIO_010015>
-        <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >SSWWAHVEMGPPDPILGVTEAYKRDTNSKK</j.1:SIO_000300>
-      </j.1:SIO_010015>
-    </j.3:hasSequence>
-    <j.3:hasName rdf:nodeID="A0"/>
-    <j.3:hasName rdf:nodeID="A1"/>
-    <j.3:hasName>
-      <j.1:SIO_000116>
-        <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >mAspAT</j.1:SIO_000300>
-        <j.1:SIO_000272 rdf:nodeID="A2"/>
-      </j.1:SIO_000116>
-    </j.3:hasName>
-    <j.3:fromOrganism>
-      <j.2:taxon_Record>
-        <j.1:SIO_000008>
-          <j.2:taxon_Identifier>
-            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >9986</j.1:SIO_000300>
-          </j.2:taxon_Identifier>
-        </j.1:SIO_000008>
-        <j.3:hasName>
-          <j.1:SIO_000120>
-            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Oryctolagus cuniculus</j.1:SIO_000300>
-          </j.1:SIO_000120>
-        </j.3:hasName>
-      </j.2:taxon_Record>
-    </j.3:fromOrganism>
-  </j.0:AnnotatedUniProtRecord>
+  <uniprotInfo:AnnotatedUniProtRecord rdf:about="http://example.com/not-a-uniprot-id">
+    <sadi:hasName>
+      <sio:SIO_000117>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >AT-hook-containing transcription factor</sio:SIO_000300>
+      </sio:SIO_000117>
+    </sadi:hasName>
+    <sadi:fromOrganism>
+      <lsrn:taxon_Record>
+        <sio:SIO_000008>
+          <lsrn:taxon_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >9606</sio:SIO_000300>
+          </lsrn:taxon_Identifier>
+        </sio:SIO_000008>
+        <sadi:hasName>
+          <sio:SIO_000120>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Homo sapiens</sio:SIO_000300>
+          </sio:SIO_000120>
+        </sadi:hasName>
+      </lsrn:taxon_Record>
+    </sadi:fromOrganism>
+    <sio:SIO_000008>
+      <sio:SIO_000105>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >AKNA</sio:SIO_000300>
+      </sio:SIO_000105>
+    </sio:SIO_000008>
+    <sadi:hasSequence>
+      <sio:SIO_010015>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >MASSETEIRWAEPGLGKGPQRRRWAWAEDKRDVDRSSSQSWEEERLFPNATSPELLEDFRLAQQHLPPLEWDPHPQPDGHQDSESGETSGEEAEAEDVDSPASSHEPLAWLPQQGRQLDMTEEEPDGTLGSLEVEEAGESSSRLGYEAGLSLEGHGNTSPMALGHGQARGWVASGEQASGDKLSEHSEVNPSVELSPARSWSSGTVSLDHPSDSLDSTWEGETDGPQPTALAETLPEGPSHHLLSPDGRTGGSVARATPMEFQDSSAPPAQSPQHATDRWRRETTRFFCPQPKEHIWKQTKTSPKPLPSRFIGSISPLNPQPRPTRQGRPLPRQGATLAGRSSSNAPKYGRGQLNYPLPDFSKVGPRVRFPKDESYRPPKSRSHNRKPQAPARPLIFKSPAEIVQEVLLSSGEAALAKDTPPAHPITRVPQEFQTPEQATELVHQLQEDYHRLLTKYAEAENTIDQLRLGAKVNLFSDPPQPNHSIHTGMVPQGTKVLSFTIPQPRSAEWWPGPAEDPQASAASGWPSARGDLSPSSLTSMPTLGWLPENRDISEDQSSAEQTQALASQASQFLAKVESFERLIQAGRLMPQDQVKGFQRLKAAHAALEEEYLKACREQHPAQPLAGSKGTPGRFDPRRELEAEIYRLGSCLEELKEHIDQTQQEPEPPGSDSALDSTPALPCLHQPTHLPAPSGQAPMPAIKTSCPEPATTTAAASTGPCPLHVNVEVSSGNSEVEDRPQDPLARLRHKELQMEQVYHGLMERYLSVKSLPEAMRMEEEEEGEEEEEEEGGGDSLEVDGVAATPGKAEATRVLPRQCPVQAEKSHGAPLEEATEKMVSMKPPGFQASLARDGHMSGLGKAEAAPPGPGVPPHPPGTKSAASHQSSMTSLEGSGISERLPQKPLHRGGGPHLEETWMASPETDSGFVGSETSRVSPLTQTPEHRLSHISTAGTLAQPFAASVPRDGASYPKARGSLIPRRATEPSTPRSQAQRYLSSPSGPLRQRAPNFSLERTLAAEMAVPGSEFEGHKRISEQPLPNKTISPPPAPAPAAAPLPCGPTETIPSFLLTRAGRDQAICELQEEVSRLRLRLEDSLHQPLQGSPTRPASAFDRPARTRGRPADSPATWGSHYGSKSTERLPGEPRGEEQIVPPGRQRARSSSVPREVLRLSLSSESELPSLPLFSEKSKTTKDSPQAARDGKRGVGSAGWPDRVTFRGQYTGHEYHVLSPKAVPKGNGTVSCPHCRPIRTQDAGGAVTGDPLGPPPADTLQCPLCGQVGSPPEADGPGSATSGAEKATTRRKASSTPSPKQRSKQAGSSPRPPPGLWYLATAPPAPAPPAFAYISSVPIMPYPPAAVYYAPAGPTSAQPAAKWPPTASPPPARRHRHSIQLDLGDLEELNKALSRAVQAAESVRSTTRQMRSSLSADLRQAHSLRGSCLF</sio:SIO_000300>
+      </sio:SIO_010015>
+    </sadi:hasSequence>
+  </uniprotInfo:AnnotatedUniProtRecord>
+  <uniprotInfo:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P12345">
+    <sadi:fromOrganism>
+      <lsrn:taxon_Record>
+        <sio:SIO_000008>
+          <lsrn:taxon_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >9986</sio:SIO_000300>
+          </lsrn:taxon_Identifier>
+        </sio:SIO_000008>
+        <sadi:hasName>
+          <sio:SIO_000120>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Oryctolagus cuniculus</sio:SIO_000300>
+          </sio:SIO_000120>
+        </sadi:hasName>
+      </lsrn:taxon_Record>
+    </sadi:fromOrganism>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >FABPpm</sio:SIO_000300>
+        <sio:SIO_000272>
+          <sio:SIO_000116 rdf:nodeID="A0">
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Plasma membrane-associated fatty acid-binding protein</sio:SIO_000300>
+          </sio:SIO_000116>
+        </sio:SIO_000272>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sadi:hasName rdf:nodeID="A0"/>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >mAspAT</sio:SIO_000300>
+        <sio:SIO_000272>
+          <sio:SIO_000117 rdf:nodeID="A1">
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Aspartate aminotransferase, mitochondrial</sio:SIO_000300>
+          </sio:SIO_000117>
+        </sio:SIO_000272>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sio:SIO_000008>
+      <sio:SIO_000105>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >GOT2</sio:SIO_000300>
+      </sio:SIO_000105>
+    </sio:SIO_000008>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >Transaminase A</sio:SIO_000300>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sadi:hasSequence>
+      <sio:SIO_010015>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >SSWWAHVEMGPPDPILGVTEAYKRDTNSKK</sio:SIO_000300>
+      </sio:SIO_010015>
+    </sadi:hasSequence>
+    <sadi:hasName>
+      <sio:SIO_000116 rdf:nodeID="A2">
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >Fatty acid-binding protein</sio:SIO_000300>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sadi:hasName rdf:nodeID="A1"/>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >Glutamate oxaloacetate transaminase 2</sio:SIO_000300>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >FABP-1</sio:SIO_000300>
+        <sio:SIO_000272 rdf:nodeID="A2"/>
+      </sio:SIO_000116>
+    </sadi:hasName>
+  </uniprotInfo:AnnotatedUniProtRecord>
 </rdf:RDF>

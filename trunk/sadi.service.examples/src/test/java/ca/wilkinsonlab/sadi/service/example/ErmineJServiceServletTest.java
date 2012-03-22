@@ -26,7 +26,7 @@ public class ErmineJServiceServletTest
 	public void testConvertInputToRdf() throws Exception
 	{
 		Model expectedInputModel = ModelFactory.createDefaultModel();
-		RdfUtils.loadModelFromString(expectedInputModel, "/t/ermineJ-input.rdf", getClass());
+		RdfUtils.loadModelFromString(expectedInputModel, "/t/ermineJ.input.1.rdf", getClass());
 		
 		Model convertedInputModel = convertInputToRdf(ErmineJServiceServletTest.class.getResourceAsStream("/HG-U133_Plus_2.na26.annot_test.ErmineJ"));
 		

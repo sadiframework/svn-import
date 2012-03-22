@@ -1,0 +1,20 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.1="http://semanticscience.org/resource/"
+    xmlns:j.0="http://sadiframework.org/examples/pdb2uniprot.owl#"
+    xmlns:j.2="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:j.3="http://sadiframework.org/ontologies/properties.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <j.0:OutputClass rdf:about="http://lsrn.org/PDB:3IWT">
+    <j.3:is3DStructureOf>
+      <j.2:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q96Y52">
+        <j.1:SIO_000008>
+          <j.2:UniProt_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Q96Y52</j.1:SIO_000300>
+          </j.2:UniProt_Identifier>
+        </j.1:SIO_000008>
+      </j.2:UniProt_Record>
+    </j.3:is3DStructureOf>
+  </j.0:OutputClass>
+</rdf:RDF>

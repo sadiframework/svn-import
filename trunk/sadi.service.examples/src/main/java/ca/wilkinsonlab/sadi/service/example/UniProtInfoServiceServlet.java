@@ -26,7 +26,7 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/uniprotInfo-input.rdf", 
+				input = "http://sadiframework.org/examples/t/uniprotInfo.input.1.rdf",
 				output = "http://sadiframework.org/examples/t/uniprotInfo.output.1.rdf"
 		)
 )
@@ -46,7 +46,7 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 		model.setNsPrefix("uniprotInfo", "http://sadiframework.org/examples/uniprotInfo.owl#");
 		return model;
 	}
-	
+
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
 	{
@@ -61,11 +61,11 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 				}
 			}
 		}
-		
+
 		attachOrganism(output, input);
-		
+
 		attachGeneSymbol(output, input);
-		
+
 		Sequence sequence = input.getSequence();
 		if (sequence != null) {
 			attachSequence(output, sequence);
@@ -83,17 +83,17 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 			shortNameNode.addProperty(SIO.is_variant_of, nameNode);
 		}
 	}
-	
+
 	private String getFullName(Name name)
 	{
 		return UniProtUtils.getFieldString(name.getFieldsByType(FieldType.FULL));
 	}
-	
+
 	private String getShortName(Name name)
 	{
 		return UniProtUtils.getFieldString(name.getFieldsByType(FieldType.SHORT));
 	}
-	
+
 	private void attachSequence(Resource uniprotNode, Sequence sequence)
 	{
 		String value = sequence.getValue();
@@ -102,7 +102,7 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 			SIOUtils.createAttribute(uniprotNode, Properties.hasSequence, SIO.amino_acid_sequence, value);
 		}
 	}
-	
+
 	private void attachOrganism(Resource uniprotNode, UniProtEntry input)
 	{
 		for (NcbiTaxonomyId taxonId: input.getNcbiTaxonomyIds()) {
@@ -113,7 +113,7 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 			uniprotNode.addProperty(Properties.fromOrganism, taxonNode);
 		}
 	}
-	
+
 	private void attachGeneSymbol(Resource uniprotNode, UniProtEntry input)
 	{
 		for (Gene gene: input.getGenes()) {
@@ -121,7 +121,7 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 			SIOUtils.createAttribute(uniprotNode, LocalSIO.symbol, geneSymbol);
 		}
 	}
-	
+
 	private String getScientificName(UniProtEntry input)
 	{
 		try {
@@ -131,10 +131,10 @@ public class UniProtInfoServiceServlet extends UniProtServiceServlet
 			return null;
 		}
 	}
-	
+
 	// FIXME delete this when a new sadi.common is deployed.
 	private static class LocalSIO extends SIO
 	{
-		public static Resource symbol = ResourceFactory.createResource( NS + "SIO_000105" );	
+		public static Resource symbol = ResourceFactory.createResource( NS + "SIO_000105" );
 	}
 }

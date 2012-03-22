@@ -23,17 +23,17 @@ import com.hp.hpl.jena.rdf.model.Resource;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/pdb2uniprot-input.rdf", 
-				output = "http://sadiframework.org/examples/t/pdb2uniprot-output.rdf"
+				input = "http://sadiframework.org/examples/t/pdb2uniprot.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/pdb2uniprot.output.1.rdf"
 		)
 )
-public class Pdb2UniProtServiceServlet extends SimpleAsynchronousServiceServlet 
+public class Pdb2UniProtServiceServlet extends SimpleAsynchronousServiceServlet
 {
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(Pdb2UniProtServiceServlet.class);
-	
+
 	@Override
-	public void processInput(Resource input, Resource output) 
+	public void processInput(Resource input, Resource output)
 	{
 		String pdbId = ServiceUtils.getDatabaseId(input, LSRN.PDB);
 
@@ -41,10 +41,10 @@ public class Pdb2UniProtServiceServlet extends SimpleAsynchronousServiceServlet
 			log.error(String.format("unable to determine PDB ID for %s", input));
 			return;
 		}
-		
+
 		UniProtQueryService uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
 	    Query query = UniProtQueryBuilder.buildDatabaseCrossReferenceQuery(DatabaseType.PDB, pdbId.toUpperCase());
-	    
+
 	    EntryIterator<UniProtEntry> entryIterator = uniProtQueryService.getEntryIterator(query);
 
 	    for (UniProtEntry uniprotEntry : entryIterator) {

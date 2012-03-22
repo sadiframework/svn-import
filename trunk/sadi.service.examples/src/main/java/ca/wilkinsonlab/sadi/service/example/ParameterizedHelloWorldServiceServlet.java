@@ -19,12 +19,12 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 
 /**
- * A slightly less simple "Hello, World" service that reads a name and 
+ * A slightly less simple "Hello, World" service that reads a name and
  * attaches a greeting. The language of the greeting is read from a
  * secondary parameter.
- * 
+ *
  * This also demonstrates the use of annotations for service configuration.
- * 
+ *
  * @author Luke McCarthy
  */
 @Name("ParamaterizedHelloWorld")
@@ -36,41 +36,41 @@ import com.hp.hpl.jena.sparql.vocabulary.FOAF;
 @ParameterDefaults({"http://sadiframework.org/examples/hello.owl#lang, http://www.w3.org/2001/XMLSchema#string", "en"})
 @TestCases({
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/hello-input.rdf", 
-				output = "http://sadiframework.org/examples/t/hello-output.rdf"
+				input = "http://sadiframework.org/examples/t/hello.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/hello.output.1.rdf"
 		)
 		, @TestCase(
-				input = "/t/hello-param-input1.rdf", 
-				output = "/t/hello-param-output1.rdf"
+				input = "/t/hello-param.input.1.rdf",
+				output = "/t/hello-param.output.1.rdf"
 		)
 		, @TestCase(
-				input = "/t/hello-param-input2.rdf", 
-				output = "/t/hello-param-output2.rdf"
+				input = "/t/hello-param.input.2.rdf",
+				output = "/t/hello-param.output.2.rdf"
 		)
 		, @TestCase(
-				input = "/t/hello-param-input3.rdf", 
-				output = "/t/hello-param-output3.rdf"
+				input = "/t/hello-param.input.3.rdf",
+				output = "/t/hello-param.output.3.rdf"
 		)
 		, @TestCase(
-				input = 
-					"<rdf:RDF\n" + 
-					"    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" + 
-					"    xmlns:foaf=\"http://xmlns.com/foaf/0.1/\"\n" + 
-					"    xmlns:hello=\"http://sadiframework.org/examples/hello.owl#\">\n" + 
-					"	<hello:NamedIndividual rdf:about=\"http://sadiframework.org/examples/hello-input.rdf#1\">\n" + 
-					"		<foaf:name>Guy Incognito</foaf:name>\n" + 
-					"	</hello:NamedIndividual>\n" + 
-					"	<hello:SecondaryParameters>\n" + 
-					"		<hello:lang rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">es</hello:lang>\n" + 
-					"	</hello:SecondaryParameters>\n" + 
+				input =
+					"<rdf:RDF\n" +
+					"    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" +
+					"    xmlns:foaf=\"http://xmlns.com/foaf/0.1/\"\n" +
+					"    xmlns:hello=\"http://sadiframework.org/examples/hello.owl#\">\n" +
+					"	<hello:NamedIndividual rdf:about=\"http://sadiframework.org/examples/hello-input.rdf#1\">\n" +
+					"		<foaf:name>Guy Incognito</foaf:name>\n" +
+					"	</hello:NamedIndividual>\n" +
+					"	<hello:SecondaryParameters>\n" +
+					"		<hello:lang rdf:datatype=\"http://www.w3.org/2001/XMLSchema#string\">es</hello:lang>\n" +
+					"	</hello:SecondaryParameters>\n" +
 					"</rdf:RDF>",
-				output = 
-					"<rdf:RDF\n" + 
-					"    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" + 
-					"    xmlns:hello=\"http://sadiframework.org/examples/hello.owl#\">\n" + 
-					"	<hello:GreetedIndividual rdf:about=\"http://sadiframework.org/examples/hello-input.rdf#1\">\n" + 
-					"		<hello:greeting>Hola, Guy Incognito!</hello:greeting>\n" + 
-					"	</hello:GreetedIndividual>\n" + 
+				output =
+					"<rdf:RDF\n" +
+					"    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" +
+					"    xmlns:hello=\"http://sadiframework.org/examples/hello.owl#\">\n" +
+					"	<hello:GreetedIndividual rdf:about=\"http://sadiframework.org/examples/hello-input.rdf#1\">\n" +
+					"		<hello:greeting>Hola, Guy Incognito!</hello:greeting>\n" +
+					"	</hello:GreetedIndividual>\n" +
 					"</rdf:RDF>"
 		)
 })
@@ -97,7 +97,7 @@ public class ParameterizedHelloWorldServiceServlet extends SynchronousServiceSer
 			greeting = "Hello";
 		output.addProperty(Vocab.greeting, String.format("%s, %s!", greeting, name), XSDDatatype.XSDstring);
 	}
-	
+
 	private static class Vocab
 	{
 		private static String NS = "http://sadiframework.org/examples/hello.owl#";

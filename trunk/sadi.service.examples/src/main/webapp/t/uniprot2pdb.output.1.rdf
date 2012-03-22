@@ -1,0 +1,32 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.0="http://sadiframework.org/examples/uniprot2pdb.owl#"
+    xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:sadi="http://sadiframework.org/ontologies/properties.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <j.0:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P47989">
+    <sadi:has3DStructure>
+      <lsrn:PDB_Record rdf:about="http://lsrn.org/PDB:2CKJ">
+        <sio:SIO_000008>
+          <lsrn:PDB_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >2CKJ</sio:SIO_000300>
+          </lsrn:PDB_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>2CKJ:X-ray:3.59 A:A/B/C/D=2-1332;</rdfs:label>
+      </lsrn:PDB_Record>
+    </sadi:has3DStructure>
+    <sadi:has3DStructure>
+      <lsrn:PDB_Record rdf:about="http://lsrn.org/PDB:2E1Q">
+        <sio:SIO_000008>
+          <lsrn:PDB_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >2E1Q</sio:SIO_000300>
+          </lsrn:PDB_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>2E1Q:X-ray:2.60 A:A/B/C/D=2-1332;</rdfs:label>
+      </lsrn:PDB_Record>
+    </sadi:has3DStructure>
+  </j.0:AnnotatedUniProtRecord>
+</rdf:RDF>

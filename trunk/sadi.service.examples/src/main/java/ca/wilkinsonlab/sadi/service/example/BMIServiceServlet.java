@@ -12,20 +12,20 @@ import com.hp.hpl.jena.rdf.model.ResourceFactory;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/bmi-input.rdf", 
-				output = "http://sadiframework.org/examples/t/bmi-output.rdf"
+				input = "http://sadiframework.org/examples/t/bmi.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/bmi.output.1.rdf"
 		)
 )
 public class BMIServiceServlet extends SimpleSynchronousServiceServlet
 {
 	private static final long serialVersionUID = 1L;
 //	private static final Log log = LogFactory.getLog(BMIServiceServlet.class);
-	
+
 	public void processInput(Resource input, Resource output)
 	{
 		output.addLiteral(Vocab.BMI, getWeightInKg(input)/Math.pow(getHeightInM(input), 2));
 	}
-	
+
 	/**
 	 * Return the height in centimeters, assuming the input resource conforms
 	 * to the MGED ontology for measurements.
@@ -58,7 +58,7 @@ public class BMIServiceServlet extends SimpleSynchronousServiceServlet
 		else
 			throw new IllegalArgumentException("height measurement in unknown units");
 	}
-	
+
 	@SuppressWarnings("unused")
 	private static class Vocab
 	{
