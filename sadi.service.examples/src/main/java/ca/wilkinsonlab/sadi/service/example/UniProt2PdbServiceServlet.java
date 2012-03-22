@@ -21,8 +21,8 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/uniprot2pdb-input.rdf", 
-				output = "http://sadiframework.org/examples/t/uniprot2pdb-output.rdf"
+				input = "http://sadiframework.org/examples/t/uniprot2pdb.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/uniprot2pdb.output.1.rdf"
 		)
 )
 public class UniProt2PdbServiceServlet extends UniProtServiceServlet
@@ -30,11 +30,11 @@ public class UniProt2PdbServiceServlet extends UniProtServiceServlet
 	private static final long serialVersionUID = 1L;
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2PdbServiceServlet.class);
-	
+
 	private static final String PDB_PREFIX = "http://lsrn.org/PDB:";
 	private static final Resource PDB_Type = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PDB_Record");
 	private static final Resource PDB_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/PDB_Identifier");
-	
+
 	@Override
 	public void processInput(UniProtEntry input, Resource output)
 	{
@@ -48,16 +48,16 @@ public class UniProt2PdbServiceServlet extends UniProtServiceServlet
 	private Resource createPdbNode(Model model, Pdb pdb)
 	{
 		Resource pdbNode = model.createResource(getPdbUri(pdb), PDB_Type);
-		
+
 		// add identifier structure...
 		SIOUtils.createAttribute(pdbNode, PDB_Identifier, pdb.getPdbAccessionNumber().getValue());
 
 		// add label...
 		pdbNode.addProperty(RDFS.label, getLabel(pdb));
-		
+
 		return pdbNode;
 	}
-	
+
 	private static String getPdbUri(Pdb pdb)
 	{
 		String pdbId = pdb.getPdbAccessionNumber().getValue();

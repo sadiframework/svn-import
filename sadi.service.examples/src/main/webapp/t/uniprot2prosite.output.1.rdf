@@ -1,0 +1,32 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:sadi="http://sadiframework.org/ontologies/properties.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:j.0="http://sadiframework.org/examples/uniprot2prosite.owl#">
+  <j.0:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P86277">
+    <sadi:hasMotif>
+      <lsrn:Prosite_Record rdf:about="http://lsrn.org/Prosite:PS00162">
+        <sio:SIO_000008>
+          <lsrn:Prosite_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >PS00162</sio:SIO_000300>
+          </lsrn:Prosite_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>PS00162:ALPHA_CA_1:FALSE_NEG;</rdfs:label>
+      </lsrn:Prosite_Record>
+    </sadi:hasMotif>
+    <sadi:hasMotif>
+      <lsrn:Prosite_Record rdf:about="http://lsrn.org/Prosite:PS51144">
+        <sio:SIO_000008>
+          <lsrn:Prosite_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >PS51144</sio:SIO_000300>
+          </lsrn:Prosite_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>PS51144:ALPHA_CA_2:1;</rdfs:label>
+      </lsrn:Prosite_Record>
+    </sadi:hasMotif>
+  </j.0:AnnotatedUniProtRecord>
+</rdf:RDF>

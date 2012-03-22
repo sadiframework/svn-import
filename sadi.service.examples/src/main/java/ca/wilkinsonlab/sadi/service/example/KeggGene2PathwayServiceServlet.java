@@ -20,8 +20,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/keggGene2Pathway-input.rdf", 
-				output = "http://sadiframework.org/examples/t/keggGene2Pathway-output.rdf"
+				input = "http://sadiframework.org/examples/t/keggGene2Pathway.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/keggGene2Pathway.output.1.rdf"
 		)
 )
 public class KeggGene2PathwayServiceServlet extends KeggServiceServlet
@@ -35,20 +35,20 @@ public class KeggGene2PathwayServiceServlet extends KeggServiceServlet
 	protected LSRNRecordType getInputRecordType() {
 		return LSRN.KEGG.Gene;
 	}
-	
+
 	@Override
 	protected void processInput(String keggGeneId, String keggGeneRecord, Resource output)
 	{
 		Map<String,String> recordSections = KeggUtils.getSectionsFromKeggRecord(keggGeneRecord);
 		StrTokenizer tokenizer = new StrTokenizer();
-		
+
 		if(recordSections.containsKey(PATHWAY_RECORD_SECTION)) {
 			for(String line : recordSections.get(PATHWAY_RECORD_SECTION).split("\\r?\\n")) {
-				String keggPathwayId = tokenizer.reset(line).nextToken(); 
+				String keggPathwayId = tokenizer.reset(line).nextToken();
 				Resource keggPathwayNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.KEGG.Pathway, keggPathwayId);
 				output.addProperty(SIO.is_participant_in, keggPathwayNode);
 			}
 		}
 	}
-	
+
 }

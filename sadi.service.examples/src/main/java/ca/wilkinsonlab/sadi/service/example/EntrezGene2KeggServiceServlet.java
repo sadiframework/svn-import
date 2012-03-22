@@ -29,22 +29,22 @@ import com.hp.hpl.jena.vocabulary.OWL;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/entrezGene2Kegg-input.rdf", 
-				output = "http://sadiframework.org/examples/t/entrezGene2Kegg-output.rdf"
+				input = "http://sadiframework.org/examples/t/entrezGene2Kegg.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/entrezGene2Kegg.output.1.rdf"
 		)
 )
 public class EntrezGene2KeggServiceServlet extends AsynchronousServiceServlet
 {
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(EntrezGene2KeggServiceServlet.class);
-	
+
 	@Override
 	public int getInputBatchSize()
 	{
 		// override input batch size to 100, the maximum for the KEGG API...
 		return 100;
 	}
-	
+
 	@Override
 	protected void processInputBatch(ServiceCall call)
 	{

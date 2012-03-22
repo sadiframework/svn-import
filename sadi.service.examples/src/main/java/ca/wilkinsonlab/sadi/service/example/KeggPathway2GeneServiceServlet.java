@@ -20,8 +20,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/keggPathway2Gene-input.rdf", 
-				output = "http://sadiframework.org/examples/t/keggPathway2Gene-output.rdf"
+				input = "http://sadiframework.org/examples/t/keggPathway2Gene.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/keggPathway2Gene.output.1.rdf"
 		)
 )
 public class KeggPathway2GeneServiceServlet extends KeggServiceServlet
@@ -29,27 +29,27 @@ public class KeggPathway2GeneServiceServlet extends KeggServiceServlet
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(KeggPathway2GeneServiceServlet.class);
 	private static final String GENE_RECORD_SECTION = "GENE";
-	
+
 	@Override
 	protected LSRNRecordType getInputRecordType() {
 		return LSRN.KEGG.Pathway;
 	}
-	
-	@Override 
+
+	@Override
 	protected String getInputIdPrefix() {
 		return KeggUtils.PATHWAY_ID_PREFIX;
 	}
-	
+
 	@Override
 	protected void processInput(String keggPathwayId, String keggPathwayRecord, Resource output)
 	{
 		// organism-independent meta-pathways have identifiers starting with "ko"
-		
+
 		if(keggPathwayId.startsWith("ko")) {
 			log.warn(String.format("skipping input pathway id %s, this service only works for organism specific pathways (e.g. hsa00010)", keggPathwayId));
 		}
-		
-		String organismCode = KeggUtils.getOrganismCodeFromPathwayId(keggPathwayId); 
+
+		String organismCode = KeggUtils.getOrganismCodeFromPathwayId(keggPathwayId);
 		if(organismCode == null) {
 			log.warn(String.format("skipping input pathway id %s, unable to determine organism code for pathway", keggPathwayId));
 			return;
@@ -57,7 +57,7 @@ public class KeggPathway2GeneServiceServlet extends KeggServiceServlet
 
 		Map<String,String> recordSections = KeggUtils.getSectionsFromKeggRecord(keggPathwayRecord);
 		StrTokenizer tokenizer = new StrTokenizer();
-		
+
 		if(recordSections.containsKey(GENE_RECORD_SECTION)) {
 			for(String line : recordSections.get(GENE_RECORD_SECTION).split("\\r?\\n")) {
 				String keggGeneId = String.format("%s:%s", organismCode, tokenizer.reset(line).nextToken());

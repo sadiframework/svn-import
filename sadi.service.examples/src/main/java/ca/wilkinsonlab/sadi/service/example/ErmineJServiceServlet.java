@@ -27,8 +27,8 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "/t/ermineJ-input.rdf", 
-				output = "/t/ermineJ-output.rdf"
+				input = "/t/ermineJ.input.1.rdf",
+				output = "/t/ermineJ.output.1.rdf"
 		)
 )
 public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
@@ -70,7 +70,7 @@ public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 				log.error(e);
 			}
 		}
-		
+
 		ClassScoreSimple scores = runORA(probeIds, expressionLevels, geneIds, termCollections);
 		for (String term: allTerms) {
 			double p = scores.getGeneSetPvalue(term);
@@ -122,38 +122,38 @@ public class ErmineJServiceServlet extends SimpleSynchronousServiceServlet
 		boolean isBigGeneScoreBetter = true;
 		boolean logTransformGeneScore = false;
 		int geneReplicateTreatment = ClassScoreSimple.BEST_GENE_SCORE;
-		
+
 		ClassScoreSimple scores = new ClassScoreSimple( probeIds, geneIds, termCollections );
-	
+
 	    // in our raw data, smaller values are better (like pvalues, unlike fold
 	    // change)
 		scores.setBigGeneScoreIsBetter( isBigGeneScoreBetter );
 		scores.setLogTransformGeneScores( logTransformGeneScore );
-	
+
 	    // set range of sizes of gene sets to consider.
 		scores.setMaxGeneSetSize( maxGeneSetSize );
 		scores.setMinGeneSetSize( minGeneSetSize );
 		scores.setGeneReplicateTreatment(geneReplicateTreatment);
-	    
+
 	    // css.setGeneScoreSummaryMethod(val)
-	    
+
 	    // use this pvalue threshold for selecting genes. (before taking logs)
 		scores.setGeneScoreThreshold(geneScoreThreshold);
-	    
+
 	    // use over-representation analysis.
 		scores.setClassScoreMethod( Settings.ORA );
 
 		// scores.setGodata(goNames);
-	
+
 		scores.run( expressionLevels ); // might want to run in a separate thread.
-		
+
 	    return scores;
 	}
-	
+
 	private static class Vocab
 	{
 		private static Model m_model = ModelFactory.createDefaultModel();
-		
+
 		public static final Property element = m_model.getProperty("http://sadiframework.org/examples/common.owl#element");
 		public static final Property expressionLevel = m_model.getProperty("http://sadiframework.org/examples/ermineJ.owl#expressionLevel");
 		public static final Property mappedTo = m_model.getProperty("http://sadiframework.org/examples/ermineJ.owl#mappedTo");

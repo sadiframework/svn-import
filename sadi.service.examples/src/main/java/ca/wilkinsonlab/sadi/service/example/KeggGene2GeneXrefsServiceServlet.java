@@ -22,8 +22,8 @@ import com.hp.hpl.jena.vocabulary.OWL;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/keggGene2GeneXrefs-input.rdf", 
-				output = "http://sadiframework.org/examples/t/keggGene2GeneXrefs-output.rdf"
+				input = "http://sadiframework.org/examples/t/keggGene2GeneXrefs.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/keggGene2GeneXrefs.output.1.rdf"
 		)
 )
 public class KeggGene2GeneXrefsServiceServlet extends KeggServiceServlet
@@ -32,9 +32,9 @@ public class KeggGene2GeneXrefsServiceServlet extends KeggServiceServlet
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(KeggGene2GeneXrefsServiceServlet.class);
 
-	// Note: This list is not comprehensive. KEGG has a separate record for a gene 
+	// Note: This list is not comprehensive. KEGG has a separate record for a gene
 	// in each species, and it covers hundreds of different species.
-	
+
 	protected static final Map<String, LSRNRecordType> KEGG_XREF_TO_LSRN;
 	static {
 		Map<String, LSRNRecordType> map = new HashMap<String, LSRNRecordType>();
@@ -53,20 +53,20 @@ public class KeggGene2GeneXrefsServiceServlet extends KeggServiceServlet
 		//
 		// => In LSRN: IDs for WormBase prefix are like WormBase:R13H7
 		// => In KEGG: IDs for WormBase prefix are like WormBase:WBGene00001686
-		// 
+		//
 		// To fix, add a new LSRN namespace called WormBase_GeneID and map to that instead.
 		//
 		//map.put("WormBase", LSRN.WormBase);
-		
+
 		map.put("ZFIN", LSRN.ZFIN);
 		KEGG_XREF_TO_LSRN = Collections.unmodifiableMap(map);
 	}
-	
+
 	@Override
 	protected LSRNRecordType getInputRecordType() {
 		return LSRN.KEGG.Gene;
 	}
-	
+
 	@Override
 	protected void processInput(String keggGeneId, String keggGeneRecord, Resource output)
 	{
@@ -76,20 +76,20 @@ public class KeggGene2GeneXrefsServiceServlet extends KeggServiceServlet
 			if (xrefs.containsKey(xref)) {
 				for(String id : xrefs.get(xref)) {
 					LSRNRecordType lsrnRecordType = KEGG_XREF_TO_LSRN.get(xref);
-					Resource geneRecordNode = ServiceUtils.createLSRNRecordNode(output.getModel(), lsrnRecordType, id); 
+					Resource geneRecordNode = ServiceUtils.createLSRNRecordNode(output.getModel(), lsrnRecordType, id);
 					output.addProperty(OWL.sameAs, geneRecordNode);
 				}
 			}
 		}
-			
-/*			
+
+/*
 		if(crossRefs.containsKey(ENTREZ_GENE_CROSSREFS_LABEL)) {
 			for(String entrezGeneId : crossRefs.get(ENTREZ_GENE_CROSSREFS_LABEL)) {
 				Resource entrezGeneNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.Entrez.Gene, entrezGeneId);
 				output.addProperty(OWL.sameAs, entrezGeneNode);
 			}
 		}
-		
+
 */
 	}
 

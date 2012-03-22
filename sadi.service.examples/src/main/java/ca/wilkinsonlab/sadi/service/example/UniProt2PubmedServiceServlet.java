@@ -27,7 +27,7 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/uniprot2pubmed-input.rdf",
+				input = "http://sadiframework.org/examples/t/uniprot2pubmed.input.1.rdf",
 				output = "http://sadiframework.org/examples/t/uniprot2pubmed.output.1.rdf"
 		)
 )

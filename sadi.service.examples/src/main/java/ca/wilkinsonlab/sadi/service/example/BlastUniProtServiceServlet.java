@@ -42,15 +42,15 @@ import com.hp.hpl.jena.vocabulary.RDFS;
  * BLAST an amino acid sequence against the UniProt database,
  * including proteins from all organisms in the search.
  *
- * TODO: Currently, this service submits one BLAST query at a time, and 
- * waits for the results before submitting the next BLAST query. 
- * However, the UniProt BLAST API is asynchronous, and so we could 
+ * TODO: Currently, this service submits one BLAST query at a time, and
+ * waits for the results before submitting the next BLAST query.
+ * However, the UniProt BLAST API is asynchronous, and so we could
  * potentially speed things up by issuing multiple requests simultaneously
  * (so long as we don't push our luck).
- * 
- * TODO: Currently there is no way for the caller to specify 
+ *
+ * TODO: Currently there is no way for the caller to specify
  * parameters for the BLAST invocation(s).
- * 
+ *
  * @author Ben Vandervalk
  */
 @URI("http://sadiframework.org/examples/blastUniprot")
@@ -61,11 +61,11 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 @OutputClass("http://sadiframework.org/examples/blast-uniprot.owl#UniProtBLASTedSequence")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/blastUniprot-input.rdf", 
+				input = "http://sadiframework.org/examples/t/blastUniprot.input.1.rdf",
 				output = "http://sadiframework.org/examples/t/blastUniprot.output.1.rdf"
 		)
 )
-public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet 
+public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 {
 	private static final Logger log = Logger.getLogger(BlastUniProtServiceServlet.class);
 	private static final long serialVersionUID = 1L;
@@ -98,7 +98,7 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 	{
 		UniProtQueryService service = UniProtJAPI.factory.getUniProtQueryService();
 		BlastInput input = new BlastInput(DatabaseOptions.UNIPROTKB, sequence, MaxNumberResultsOptions.FIVE_HUNDRED);
-		
+
 		log.debug("submitting job to UniProt BLAST service");
 		String jobid = service.submitBlast(input);
 		log.debug(String.format("submitted job id %s", jobid));
@@ -114,10 +114,10 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		log.debug(String.format("finished job id %s", jobid));
 		return service.getResults(jobid);
 	}
-	
+
 	private Resource createBlastProcessNode(Model model, BlastData<?> blastResults)
 	{
-		Resource blastProcessNode = model.createResource(null, SIO.software_execution);	
+		Resource blastProcessNode = model.createResource(null, SIO.software_execution);
 		Resource blastProgramNode = model.createResource(null, SIO.software_application);
 		blastProcessNode.addProperty(SIO.has_agent, blastProgramNode);
 		JobInformation info = blastResults.getJobInformation();
@@ -141,7 +141,7 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		SIOUtils.createAttribute(blastProcessNode, SIO.end_time, stopTime);
 		return blastProcessNode;
 	}
-	
+
 	private static Resource createBlastHit(Resource querySequenceNode, Hit hit)
 	{
 		Model model = querySequenceNode.getModel();
@@ -153,7 +153,7 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		}
 		return blastHitNode;
 	}
-	
+
 	private static Resource getUniProtSequenceNode(Model model, Hit hit)
 	{
 		String uri = getUniProtUri(hit.getAc());
@@ -181,16 +181,16 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 
 	private static Resource createAlignmentNode(Resource querySequence, Resource matchSequence, LocalAlignment alignment)
 	{
-		Resource querySubsequence = createSubsequence(querySequence, 
-				alignment.getStartQuerySeq(), 
-				alignment.getEndQuerySeq(), 
+		Resource querySubsequence = createSubsequence(querySequence,
+				alignment.getStartQuerySeq(),
+				alignment.getEndQuerySeq(),
 				alignment.getQuerySeq());
-		
+
 		Resource matchSubsequence = createSubsequence(matchSequence,
 				alignment.getStartMatchSeq(),
 				alignment.getEndMatchSeq(),
 				alignment.getMatchSeq());
-		
+
 		Resource alignmentNode = querySequence.getModel().createResource(null, Vocab.sequence_alignment);
 		/* e value has to be decimal because doubles aren't precise enough;
 		 * the fact that the API returns a double is a bug...
@@ -205,7 +205,7 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		alignmentNode.addProperty(SIO.has_part, matchSubsequence);
 		return alignmentNode;
 	}
-	
+
 	private static Resource createSubsequence(Resource sequenceNode, int start, int stop, String subsequence)
 	{
 		Resource subsequenceNode = sequenceNode.getModel().createResource(null, SIO.protein_sequence);
@@ -216,16 +216,16 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		subsequenceNode.addProperty(SIO.has_value, subsequence);
 		return subsequenceNode;
 	}
-	
+
 	private static String getUniProtUri(String uniprotId)
 	{
 		return String.format("%s%s", Vocab.UNIPROT_PREFIX, uniprotId);
 	}
-	
+
 	private static class Vocab
 	{
 		public static final String UNIPROT_PREFIX = "http://lsrn.org/UniProt:";
-		
+
 		public static final Resource blast_hit = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#BlastHit");
 		public static final Resource sequence_alignment = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#SequenceAlignment");
 		public static final Resource expectation = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#expectation");
@@ -234,7 +234,7 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		public static final Resource score = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#score");
 //		public static final Resource subsequence = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#SubSequence");
 		public static final Resource consensus_sequence = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#Consensus");
-		
+
 //		// these will be replaced by SIO types soon...
 //		public static final Resource start_position = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#startPosition");
 //		public static final Resource stop_position = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#stopPosition");
