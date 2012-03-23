@@ -1,0 +1,3 @@
+([^\t]+)\t([^\t]+)\t([^\t]+)\t([^\t]+)\t\t
+with
+\1@dbid=\2@originalName=\3@cat=\4
