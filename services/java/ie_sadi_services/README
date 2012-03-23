@@ -1,0 +1,56 @@
+============================================================================
+
+Publish the service ontology (do this after every update to the ontology):
+
+cp ./ie-sadi-service-ontology.owl ~/sadi2/var/lib/tomcat6/webapps/ROOT/information-extraction/
+
+============================================================================
+
+
+Running the services in Jetty:
+
+export MAVEN_OPTS="-Xms1500m -Xmx2048m -ea"
+mvn -Djetty.port=9999 org.mortbay.jetty:maven-jetty-plugin:run
+
+
+
+Testing the services on sample input:
+
+curl --data @./sample_input_ednft.rdf http://localhost:9999/ie-sadi/extractDrugNamesFromTextV4
+
+
+
+============================================================================
+
+To deploy all services with Tomcat 6:
+
+sudo rm -rf ~/sadi2/var/lib/tomcat6/webapps/{ie-sadi,ie-sadi.war}
+
+mvn package 
+
+cp target/ie-sadi.war  ~/sadi2/var/lib/tomcat6/webapps/
+
+
+
+Test it with:
+
+curl --data @./sample_input_ednft.rdf http://unbsj.biordf.net/ie-sadi/extractDrugNamesFromTextV4
+
+
+============================================================================
+
+Publish sample data:
+
+sudo cp sample_*.rdf /var/lib/tomcat6/webapps/ROOT/information-extraction/
+
+===========================================================================
+
+Generate sample output with Jetty:
+
+export MAVEN_OPTS="-Xms1500m -Xmx2048m -ea"
+mvn -Djetty.port=9999 org.mortbay.jetty:maven-jetty-plugin:run
+
+curl --data @./sample_input_ednft.rdf http://localhost:9999/ie-sadi/extractDrugNamesFromTextV4 > sample_output_ednft.rdf
+
+
+
