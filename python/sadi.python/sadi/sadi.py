@@ -4,19 +4,25 @@ import rdflib
 import mimeparse
 from surf.serializer import to_json
 import simplejson as json
+import collections
 
 googleAppEngine = False
+useTwisted = False
 try:
     from twisted.internet import reactor
     from twisted.web import server
     import twisted.web.resource
     from twisted.web.static import File
+    useTwisted = True
 except:
-    googleAppEngine = True
-    from google.appengine.ext import webapp
-    from google.appengine.ext.webapp.util import run_wsgi_app
-    sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                 'gae/lib/python2.5/site-packages/'))
+    try:
+        from google.appengine.ext import webapp
+        from google.appengine.ext.webapp.util import run_wsgi_app
+        sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                      'gae/lib/python2.5/site-packages/'))
+        googleAppEngine = True
+    except:
+        pass
 modPython = False
 try:
     from mod_python import apache, publisher
@@ -26,7 +32,7 @@ except:
 
 from surf import *
 
-from StringIO import StringIO
+from io import StringIO
 
 rdflib.plugin.register('sparql', rdflib.query.Processor,
                        'rdfextras.sparql.processor', 'Processor')
@@ -55,14 +61,41 @@ class DefaultSerializer:
         self.bindPrefixes(graph)
         return graph.serialize(format=self.outputFormat)
     def deserialize(self,graph, content):
-        if type(content) == str:
-            graph.parse(StringIO(content),format=self.inputFormat)
+        if type(content) == str or type(content) == unicode:
+            graph.parse(StringIO(content,newline=None),format=self.inputFormat)
         else:
             graph.parse(content,format=self.inputFormat)
 
 class JSONSerializer:
     def serialize(self,graph):
-        return to_json(graph)
+
+        def getValue(node):
+            if type(node) == BNode:
+                return "_:"+str(node)
+            else:
+                return node.encode('utf-8','ignore')
+        def makeObject(o):
+            result = {}
+            result['value'] = getValue(o)
+            if type(o) == URIRef:
+                result['type'] = 'uri'
+            elif type(o) == BNode:
+                result['type'] = 'bnode'
+            else:
+                result['type'] = 'literal'
+                if o.language != None:
+                    result['language'] = o.language
+                if o.datatype != None:
+                    result['datatype'] = str(o.datatype)
+            print json.dumps(result)
+            return result
+
+        def makeResource():
+            return collections.defaultdict(list)
+        result = collections.defaultdict(makeResource)
+        for stmt in graph:
+            result[getValue(stmt[0])][getValue(stmt[1])].append(makeObject(stmt[2]))
+        return json.dumps(result)
     
     def getResource(self, r, bnodes):
         result = None
@@ -78,13 +111,13 @@ class JSONSerializer:
 
     def deserialize(self,graph, content):
         if type(content) != str:
-            graph.parse(StringIO(content),format=f)
+            graph.parse(StringIO(content,newline=None),format=f)
         else:
             graph.parse(content,format=f)
 
         data = content
         if type(content) == str:
-            data = json.load(StringIO(content))
+            data = json.load(StringIO(content,newline=None))
         else:
             data = json.load(content)
         bnodes = {}
@@ -299,7 +332,7 @@ if googleAppEngine:
                 return to_json(modelGraph)
             else: return graph.serialize(format=acceptType[1])
     Service = GAEService
-else:
+elif useTwisted:
     class TwistedService(ServiceBase, twisted.web.resource.Resource):
         isLeaf=True
         
@@ -325,6 +358,8 @@ else:
             return self.serialize(graph,request.getHeader("Accept"))
 
     Service = TwistedService
+else:
+    Service = ServiceBase
 
 #handler = None
 #if modPython:
@@ -402,7 +437,7 @@ def handler(req):
             module_name = 'index' 
             req.filename = path + '/' + module_name + '.py'
 
-            if not exists(req.filename):
+            if not publisher.exists(req.filename):
                 raise apache.SERVER_RETURN, apache.HTTP_NOT_FOUND
 
         # Default to looking for the 'index' function if no
