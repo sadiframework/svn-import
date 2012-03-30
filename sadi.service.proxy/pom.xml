@@ -28,6 +28,14 @@
         </executions>
       </plugin>
       <plugin>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>${maven-war-plugin.version}</version>
+        <configuration>
+          <attachClasses>true</attachClasses>
+          <classesClassifier>classes</classesClassifier>
+        </configuration>
+      </plugin>
+      <plugin>
       	<groupId>org.mortbay.jetty</groupId>
       	<artifactId>maven-jetty-plugin</artifactId>
       	<version>6.1.10</version>

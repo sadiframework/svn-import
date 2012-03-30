@@ -115,6 +115,18 @@ public class EntityRecognitionProxyServlet extends GETProxyServlet
 		parser.visitAllNodesWith(visitor);
 		return visitor.getExtractedText();
 	}
+
+	/* (non-Javadoc)
+	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#outputSuccessResponse(javax.servlet.http.HttpServletResponse, com.hp.hpl.jena.rdf.model.Model)
+	 */
+	@Override
+	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException
+	{
+		outputModel.setNsPrefix("sio", "http://semanticscience.org/resource/");
+		outputModel.setNsPrefix("foaf", "http://xmlns.com/foaf/0.1/");
+		outputModel.setNsPrefix("ie", "http://unbsj.biordf.net/information-extraction/ie-sadi-service-ontology.owl#");
+		super.outputSuccessResponse(response, outputModel);
+	}
 	
 	private static class Artjom
 	{
