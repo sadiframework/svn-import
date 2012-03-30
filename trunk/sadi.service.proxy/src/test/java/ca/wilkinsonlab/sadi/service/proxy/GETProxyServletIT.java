@@ -30,7 +30,7 @@ public class GETProxyServletIT
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(GETProxyServletIT.class);
 	
-	private static final String LOCAL_SERVICE_URL = "http://localhost:8080/sadi-proxy/get-proxy";
+	private static final String LOCAL_SERVICE_URL = "http://localhost:8480/sadi-proxy/get-proxy";
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
@@ -49,12 +49,12 @@ public class GETProxyServletIT
 	{
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("serviceURL", "http://sadiframework.org/examples/hello");
-		params.put("inputURL", "http://sadiframework.org/examples/t/hello-input.rdf");
+		params.put("inputURL", "http://sadiframework.org/examples/t/hello.input.1.rdf");
 		params.put("callback", "foo");
 		HttpResponse response = HttpUtils.GET(new URL(LOCAL_SERVICE_URL), params);
 		String jsonp = StreamUtils.readStream(response.getEntity().getContent());
-		assertTrue(jsonp.startsWith("foo("));
-		assertTrue(jsonp.endsWith(");"));
+		assertTrue(String.format("incorrect response %s", jsonp), jsonp.startsWith("foo("));
+		assertTrue(String.format("incorrect response %s", jsonp), jsonp.endsWith(");"));
 		Object rdf = null;
 		try {
 			rdf = new JSONReader().read(StringUtils.substring(jsonp, 4, -2));
@@ -68,7 +68,7 @@ public class GETProxyServletIT
 			fail("argument to callback isn't serialized RDF/XML");
 		}
 		Model expectedOutput = ModelFactory.createDefaultModel();
-		expectedOutput.read("http://sadiframework.org/examples/t/hello-output.rdf");
+		expectedOutput.read("http://sadiframework.org/examples/t/hello.output.1.rdf");
 		ModelDiff diff = ModelDiff.diff(expectedOutput, output);
 		assertTrue("argument doesn't match expected output", 
 				diff.inXnotY.isEmpty() && diff.inYnotX.isEmpty());

@@ -101,7 +101,7 @@ public class GETProxyServlet extends ServiceServlet
 						new JSONWriter().write(buf.toString()));
 			} else {
 				response.setContentType(super.getContentType(request).getHTTPHeader());
-				super.outputSuccessResponse(response, task.getModel());
+				outputSuccessResponse(response, task.getModel());
 			}
 			TaskManager.getInstance().disposeTask(taskID);
 		} else {
