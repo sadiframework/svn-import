@@ -3,9 +3,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
     version="2.4">
-    
+
   <display-name>SADI Example Services</display-name>
-  
+
   <servlet>
     <servlet-name>echo</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.EchoServiceServlet</servlet-class>
@@ -113,6 +113,10 @@
   <servlet>
     <servlet-name>pubmed2uniprot</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.PubMed2UniProtServiceServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>gene2uniprot</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.Gene2UniProtServiceServlet</servlet-class>
   </servlet>
 
   <servlet-mapping>
@@ -222,6 +226,10 @@
   <servlet-mapping>
     <servlet-name>pubmed2uniprot</servlet-name>
     <url-pattern>/pubmed2uniprot</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>gene2uniprot</servlet-name>
+    <url-pattern>/gene2uniprot</url-pattern>
   </servlet-mapping>
 
 </web-app>
