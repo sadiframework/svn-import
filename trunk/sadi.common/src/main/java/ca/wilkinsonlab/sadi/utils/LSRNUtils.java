@@ -23,12 +23,12 @@ public class LSRNUtils
 {
 	public static final Pattern TYPE_PATTERN = Pattern.compile("http://purl.oclc.org/SADI/LSRN/(.+?)_Record");
 	public static final String OUTPUT_TYPE_PATTERN = "http://purl.oclc.org/SADI/LSRN/$NS_Record";
-	public static final Pattern URI_PATTEN = Pattern.compile("http://lsrn.org/([^:]+):(.+)");
+	public static final Pattern URI_PATTERN = Pattern.compile("http://lsrn.org/([^:]+):(.+)");
 	public static final String OUTPUT_URI_PATTERN = "http://lsrn.org/$NS:$ID";
 	public static final Pattern ID_TYPE_PATTERN = Pattern.compile("http://purl.oclc.org/SADI/LSRN/(.+?)_Identifier");
 	public static final String OUTPUT_ID_TYPE_PATTERN = "http://purl.oclc.org/SADI/LSRN/$NS_Identifier";
 	public static final Pattern ID_PATTERN = Pattern.compile(".*[/:#]([^\\s\\.]+)");
-	
+
 	public static boolean isLSRNType(Resource type)
 	{
 		return type.isURIResource() && isLSRNType(type.getURI());
@@ -36,9 +36,14 @@ public class LSRNUtils
 
 	public static boolean isLSRNType(String uri)
 	{
-		return TYPE_PATTERN.matcher(uri).matches(); 
+		return TYPE_PATTERN.matcher(uri).matches();
 	}
-	
+
+	public static boolean isLSRNURI(String uri)
+	{
+		return URI_PATTERN.matcher(uri).matches();
+	}
+
 	public static String getNamespaceFromLSRNTypeURI(String uri)
 	{
 		Matcher typeMatcher = TYPE_PATTERN.matcher(uri);
@@ -47,7 +52,25 @@ public class LSRNUtils
 		else
 			return null;
 	}
-	
+
+	public static String getNamespaceFromLSRNURI(String uri)
+	{
+		Matcher matcher = URI_PATTERN.matcher(uri);
+		if (matcher.matches())
+			return matcher.group(1);
+		else
+			return null;
+	}
+
+	public static String getIDFromLSRNURI(String uri)
+	{
+		Matcher matcher = URI_PATTERN.matcher(uri);
+		if (matcher.matches())
+			return matcher.group(2);
+		else
+			return null;
+	}
+
 	public static boolean isLSRNIdentifierType(Resource type)
 	{
 		return type.isURIResource() && isLSRNIdentifierType(type.getURI());
@@ -55,9 +78,9 @@ public class LSRNUtils
 
 	public static boolean isLSRNIdentifierType(String uri)
 	{
-		return ID_TYPE_PATTERN.matcher(uri).matches(); 
+		return ID_TYPE_PATTERN.matcher(uri).matches();
 	}
-	
+
 	public static String getNamespaceFromLSRNIdentifierTypeURI(String uri)
 	{
 		Matcher typeMatcher = ID_TYPE_PATTERN.matcher(uri);
@@ -66,9 +89,9 @@ public class LSRNUtils
 		else
 			return null;
 	}
-	
+
 	/**
-	 * Returns a Resource that is an instance of the specified type with the 
+	 * Returns a Resource that is an instance of the specified type with the
 	 * specified ID.  The Resource will be created with an appropriate URI
 	 * (@link {@link #OUTPUT_URI_PATTERN}).
 	 * @param type the type (class) of the new instance
@@ -79,10 +102,10 @@ public class LSRNUtils
 	{
 		return createInstance(ModelFactory.createDefaultModel(), type, id);
 	}
-	
+
 	/**
-	 * Returns a Resource in the specified model that is an instance of the 
-	 * specified type with the specified ID.  The Resource will be created 
+	 * Returns a Resource in the specified model that is an instance of the
+	 * specified type with the specified ID.  The Resource will be created
 	 * with an appropriate URI (@link {@link #OUTPUT_URI_PATTERN}).
 	 * @param model the model in which to create the new Resource
 	 * @param type the type (class) of the new instance
@@ -102,7 +125,7 @@ public class LSRNUtils
 			throw new IllegalArgumentException("at present this method only works with LSRN database record classes");
 		}
 	}
-	
+
 	/**
 	 * Adds the LSRN SIO identifier structure to an LSRN-typed Resource.
 	 * Attempts to use the URL of the Resource to determine the ID.
@@ -126,7 +149,7 @@ public class LSRNUtils
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns the identifier of an LSRN-typed Resource
 	 * @param lsrnNode
@@ -143,7 +166,7 @@ public class LSRNUtils
 					namespaces.add(ns);
 			}
 		}
-		
+
 		Iterator<Resource> ids = RdfUtils.getPropertyValues(lsrnNode, SIO.has_identifier, null)
 		                .andThen(RdfUtils.getPropertyValues(lsrnNode, SIO.has_attribute, null));
 		while (ids.hasNext()) {
@@ -159,10 +182,10 @@ public class LSRNUtils
 						}
 					}
 				}
-				
+
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -180,7 +203,7 @@ public class LSRNUtils
 		Matcher typeMatcher = TYPE_PATTERN.matcher(lsrnTypeURI);
 		if (!typeMatcher.matches())
 			throw new IllegalArgumentException("not an LSRN type");
-		
+
 		return constructQueryPattern.replaceAll("\\$NS", typeMatcher.group(1));
 	}
 
@@ -188,12 +211,12 @@ public class LSRNUtils
 	{
 		return OUTPUT_URI_PATTERN.replace("$NS", namespace).replace("$ID", id);
 	}
-	
+
 	public static String getClassURI(String namespace)
 	{
 		return OUTPUT_TYPE_PATTERN.replace("$NS", namespace);
 	}
-	
+
 	public static String getIdentifierClassURI(String namespace)
 	{
 		return OUTPUT_ID_TYPE_PATTERN.replace("$NS", namespace);

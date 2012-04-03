@@ -1,5 +1,6 @@
 package ca.wilkinsonlab.sadi.utils;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
@@ -67,4 +68,28 @@ public class LSRNUtilsTest
 		assertTrue("new instance does not have the correct type",
 				instance.hasProperty(RDF.type, c));
 	}
+
+	@Test
+	public void testIsLSRNURI()
+	{
+		assertTrue(LSRNUtils.isLSRNURI("http://lsrn.org/KEGG:hsa:1234"));
+		assertFalse(LSRNUtils.isLSRNURI("http://sadiframework.org"));
+	}
+
+	@Test
+	public void testGetNamespaceFromLSRNURI()
+	{
+		assertTrue(LSRNUtils.getNamespaceFromLSRNURI("http://lsrn.org/KEGG:hsa:1234").equals("KEGG"));
+		assertTrue(LSRNUtils.getNamespaceFromLSRNURI("http://lsrn.org/UniProt:P12345").equals("UniProt"));
+		assertTrue(LSRNUtils.getNamespaceFromLSRNURI("http://sadiframework.org") == null);
+	}
+
+	@Test
+	public void testGetIDFromLSRNURI()
+	{
+		assertTrue(LSRNUtils.getIDFromLSRNURI("http://lsrn.org/KEGG:hsa:1234").equals("hsa:1234"));
+		assertTrue(LSRNUtils.getIDFromLSRNURI("http://lsrn.org/UniProt:P12345").equals("P12345"));
+		assertTrue(LSRNUtils.getIDFromLSRNURI("http://sadiframework.org") == null);
+	}
+
 }
