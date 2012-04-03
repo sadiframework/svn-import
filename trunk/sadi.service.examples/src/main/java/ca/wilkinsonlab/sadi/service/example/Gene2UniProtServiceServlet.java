@@ -9,25 +9,12 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections.BidiMap;
-import org.apache.commons.collections.bidimap.DualHashBidiMap;
-import org.apache.commons.collections.bidimap.UnmodifiableBidiMap;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ensembl.Ensembl;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.flybase.FlyBase;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.geneid.GeneId;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.hgnc.Hgnc;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.kegg.Kegg;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.mgi.Mgi;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.rgd.Rgd;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.sgd.Sgd;
-import uk.ac.ebi.kraken.interfaces.uniprot.dbx.zfin.Zfin;
 import uk.ac.ebi.kraken.uuw.services.remoting.EntryIterator;
 import uk.ac.ebi.kraken.uuw.services.remoting.Query;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
@@ -41,6 +28,7 @@ import ca.wilkinsonlab.sadi.service.annotations.TestCases;
 import ca.wilkinsonlab.sadi.utils.LSRNUtils;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 import ca.wilkinsonlab.sadi.utils.ServiceUtils;
+import ca.wilkinsonlab.sadi.utils.UniProtUtils;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
 import ca.wilkinsonlab.sadi.vocab.SIO;
 import ca.wilkinsonlab.sadi.vocab.LSRN.LSRNRecordType;
@@ -61,24 +49,19 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(Gene2UniProtServiceServlet.class);
 
-	/*
-	 * The list of mappings here is not exhaustive; more gene xref types may be
-	 * added as necessary.
-	 */
-
-	private static final BidiMap databaseTypeToLSRN;
+	private static final Set<LSRNRecordType> inputLSRNTypes;
 	static {
-		BidiMap map = new DualHashBidiMap();
-		map.put(DatabaseType.ENSEMBL, LSRN.Ensembl);
-		map.put(DatabaseType.FLYBASE, LSRN.FlyBase);
-		map.put(DatabaseType.GENEID, LSRN.Entrez.Gene);
-		map.put(DatabaseType.HGNC, LSRN.HGNC);
-		map.put(DatabaseType.KEGG, LSRN.KEGG.Gene);
-		map.put(DatabaseType.MGI, LSRN.MGI);
-		map.put(DatabaseType.RGD, LSRN.RGD);
-		map.put(DatabaseType.SGD, LSRN.SGD);
-		map.put(DatabaseType.ZFIN, LSRN.ZFIN);
-		databaseTypeToLSRN = UnmodifiableBidiMap.decorate(map);
+		Set<LSRNRecordType> set = new HashSet<LSRNRecordType>();
+		set.add(LSRN.Ensembl);
+		set.add(LSRN.FlyBase);
+		set.add(LSRN.Entrez.Gene);
+		set.add(LSRN.HGNC);
+		set.add(LSRN.KEGG.Gene);
+		set.add(LSRN.MGI);
+		set.add(LSRN.RGD);
+		set.add(LSRN.SGD);
+		set.add(LSRN.ZFIN);
+		inputLSRNTypes = Collections.synchronizedSet(Collections.unmodifiableSet(set));
 	}
 
 	private static final Map<DatabaseType, String> databaseTypeToQueryOp;
@@ -110,9 +93,10 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 	public int getInputBatchSize()
 	{
 		/*
-		 * There doesn't seem to be any official limit, although
-		 * querying with 1000 genes simultaneously causes a
-		 * server side exception, while 200 at a time seems to
+		 * There doesn't seem to be any official limit.
+		 * However there's seems to be a practical limit on
+		 * Lucene query size.  Querying with 1000 terms simultaneously
+		 * causes server side exception, while 200 at a time seems to
 		 * work fine.
 		 */
 
@@ -137,9 +121,9 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 		for (Resource inputNode : inputNodes) {
 			for (Resource type : RdfUtils.getTypes(inputNode).toList()) {
 				LSRNRecordType lsrnRecordType = getLSRNRecordType(type);
-				if (lsrnRecordType == null)
+				if (lsrnRecordType == null || !inputLSRNTypes.contains(lsrnRecordType))
 					continue;
-				DatabaseType databaseType = (DatabaseType)databaseTypeToLSRN.inverseBidiMap().get(lsrnRecordType);
+				DatabaseType databaseType = UniProtUtils.getDatabaseType(lsrnRecordType);
 				if (databaseType == null)
 					continue;
 				String queryOp = databaseTypeToQueryOp.get(databaseType);
@@ -163,15 +147,18 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 
 		/*
 		 * Build a structure that will allow us to map the returned UniProt records
-		 * to the correct output nodes. We use the canonical LSRN URIs (e.g.
-		 * http://lsrn.org/GeneID:4567) as the keys of the map.  In theory, each
-		 * input gene may have multiple LSRN identifier attributes attached, and
-		 * so an output node may have multiple keys in the map.
+		 * to the correct input nodes. We use the canonical LSRN URIs (e.g.
+		 * http://lsrn.org/GeneID:4567) as the keys of the map. An input gene may
+		 * have multiple LSRN identifier attributes attached to it, and
+		 * so an input node may have multiple keys in the map.
 		 */
 
 		Map<String, Resource> lsrnToOutputNode = new HashMap<String, Resource>();
 		for (Resource inputNode : inputNodes) {
 			for (String uri : getLSRNURIs(inputNode)) {
+				LSRNRecordType lsrnRecordType = getLSRNRecordTypeForEntityURI(uri);
+				if (lsrnRecordType == null || !inputLSRNTypes.contains(lsrnRecordType))
+					continue;
 				Resource outputNode = outputModel.getResource(inputNode.getURI());
 				lsrnToOutputNode.put(uri, outputNode);
 			}
@@ -211,11 +198,24 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 
 	protected static LSRNRecordType getLSRNRecordType(Resource lsrnRecordTypeURI)
 	{
-		for (Object i : databaseTypeToLSRN.values()) {
-			LSRNRecordType lsrnRecordType = (LSRNRecordType)i;
+		for (LSRNRecordType lsrnRecordType : inputLSRNTypes) {
 			if(lsrnRecordType.getRecordTypeURI().equals(lsrnRecordTypeURI))
 				return lsrnRecordType;
 		}
+		return null;
+	}
+
+	protected static LSRNRecordType getLSRNRecordTypeForEntityURI(String lsrnEntityURI)
+	{
+		String namespace = LSRNUtils.getNamespaceFromLSRNURI(lsrnEntityURI);
+		if (namespace == null)
+			return null;
+
+		for (LSRNRecordType lsrnRecordType : inputLSRNTypes) {
+			if (lsrnRecordType.getNamespace().equals(namespace))
+				return lsrnRecordType;
+		}
+
 		return null;
 	}
 
@@ -223,7 +223,7 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 	{
 		DatabaseType databaseType = xref.getDatabase();
 
-		LSRNRecordType lsrnRecordType = (LSRNRecordType)databaseTypeToLSRN.get(databaseType);
+		LSRNRecordType lsrnRecordType = UniProtUtils.getLSRNType(databaseType);
 		if (lsrnRecordType == null)
 			return null;
 
@@ -231,42 +231,7 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 		if (namespace == null)
 			return null;
 
-		String id;
-		switch (databaseType) {
-		case ENSEMBL:
-			id = ((Ensembl)xref).getEnsemblGeneIdentifier().getValue();
-			break;
-		case FLYBASE:
-			id = ((FlyBase)xref).getFlyBaseAccessionNumber().getValue();
-			break;
-		case GENEID:
-			id = ((GeneId)xref).getGeneIdAccessionNumber().getValue();
-			break;
-		case HGNC:
-			id = ((Hgnc)xref).getHgncAccessionNumber().getValue();
-			id = StringUtils.removeStart(id, "HGNC:");
-			break;
-		case KEGG:
-			id = ((Kegg)xref).getKeggAccessionNumber().getValue();
-			break;
-		case MGI:
-			id = ((Mgi)xref).getMgiAccessionNumber().getValue();
-			id = StringUtils.removeStart(id, "MGI:");
-			break;
-		case RGD:
-			id = ((Rgd)xref).getRgdAccessionNumber().getValue();
-			break;
-		case SGD:
-			id = ((Sgd)xref).getSgdAccessionNumber().getValue();
-			break;
-		case ZFIN:
-			id = ((Zfin)xref).getZfinAccessionNumber().getValue();
-			break;
-		default:
-			id = null;
-			break;
-		}
-
+		String id = UniProtUtils.getDatabaseId(xref);
 		if (id == null)
 			return null;
 
@@ -285,10 +250,10 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 		 *
 		 * This makes the service forgiving in the case where the client
 		 * provides only a bare LSRN URI as input, instead of a properly
-		 * formed LSRN record structure with attached identifier attribute(s).
+		 * formed SIO/LSRN graph structure with attached identifier attribute(s).
 		 */
 
-		if (LSRNUtils.URI_PATTEN.matcher(lsrnNode.getURI()).matches())
+		if (LSRNUtils.isLSRNURI(lsrnNode.getURI()))
 			uris.add(lsrnNode.getURI());
 
 		Collection<Resource> attribs = new ArrayList<Resource>();

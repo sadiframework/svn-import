@@ -11,12 +11,26 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 
+import org.apache.commons.collections.BidiMap;
+import org.apache.commons.collections.bidimap.DualHashBidiMap;
+import org.apache.commons.collections.bidimap.UnmodifiableBidiMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
+import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtAccession;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.ensembl.Ensembl;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.flybase.FlyBase;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.geneid.GeneId;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.hgnc.Hgnc;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.kegg.Kegg;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.mgi.Mgi;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.rgd.Rgd;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.sgd.Sgd;
+import uk.ac.ebi.kraken.interfaces.uniprot.dbx.zfin.Zfin;
 import uk.ac.ebi.kraken.interfaces.uniprot.description.Field;
 import uk.ac.ebi.kraken.uuw.services.remoting.Query;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtJAPI;
@@ -24,6 +38,7 @@ import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryBuilder;
 import uk.ac.ebi.kraken.uuw.services.remoting.UniProtQueryService;
 import ca.elmonline.util.BatchIterator;
 import ca.wilkinsonlab.sadi.vocab.LSRN;
+import ca.wilkinsonlab.sadi.vocab.LSRN.LSRNRecordType;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ResourceFactory;
@@ -32,23 +47,43 @@ public class UniProtUtils
 {
 	private static final Log log = LogFactory.getLog(UniProtUtils.class);
 	private static final Cache cache = getCache();
-	
+
 	public static final Resource UniProt_Identifier = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/UniProt_Identifier");
-	
+
 	/**
 	 * The maximum number of IDs per request to the UniProt API.
-	 */ 
+	 */
 	public static int MAX_IDS_PER_REQUEST = 1024;
-	
+
 	public static Pattern[] URI_PATTERNS = new Pattern[] {
 		Pattern.compile("http://purl.uniprot.org/uniprot/([^\\s\\.\\?]*)"),
 		Pattern.compile("http://www.uniprot.org/uniprot/([^\\s\\.\\?]*)"),
 		Pattern.compile("http://lsrn.org/UniProt:(\\S*)"),
 		Pattern.compile(".*[/:#]([^\\s\\.]*)") // failsafe best-guess pattern; don't remove this...
 	};
-	
+
 	/**
-	 * 
+	 * Mappings between UniProt crossreferences and LSRN record types.
+	 * This list of mappings is not exhaustive; more database types may be
+	 * added as necessary.
+	 */
+	private static final BidiMap databaseTypeToLSRNType;
+	static {
+		BidiMap map = new DualHashBidiMap();
+		map.put(DatabaseType.ENSEMBL, LSRN.Ensembl);
+		map.put(DatabaseType.FLYBASE, LSRN.FlyBase);
+		map.put(DatabaseType.GENEID, LSRN.Entrez.Gene);
+		map.put(DatabaseType.HGNC, LSRN.HGNC);
+		map.put(DatabaseType.KEGG, LSRN.KEGG.Gene);
+		map.put(DatabaseType.MGI, LSRN.MGI);
+		map.put(DatabaseType.RGD, LSRN.RGD);
+		map.put(DatabaseType.SGD, LSRN.SGD);
+		map.put(DatabaseType.ZFIN, LSRN.ZFIN);
+		databaseTypeToLSRNType = UnmodifiableBidiMap.decorate(map);
+	}
+
+	/**
+	 *
 	 * @param fields
 	 * @return
 	 */
@@ -61,7 +96,7 @@ public class UniProtUtils
 		else
 			return StringUtils.join(fields, ", ");
 	}
-	
+
 	/**
 	 * Returns the UniProt ID corresponding to the specified RDF
 	 * node.  The node must have a URI.
@@ -72,12 +107,12 @@ public class UniProtUtils
 	public static String getUniProtId(Resource uniprotNode)
 	{
 		String id = ServiceUtils.getDatabaseId(uniprotNode, LSRN.UniProt);
-		
+
 		if(id == null) {
 			log.warn("failsafe URI pattern failed to match");
 			id = "";
-		} 
-			
+		}
+
 		return id;
 	}
 
@@ -102,7 +137,7 @@ public class UniProtUtils
 				entries.put(id, (UniProtEntry)element.getObjectValue());
 			}
 		}
-		
+
 		if (!uncachedIds.isEmpty()) {
 			log.debug(String.format("calling UniProt query service on %d uncached UniProt records", uncachedIds.size()));
 			UniProtQueryService uniProtQueryService = UniProtJAPI.factory.getUniProtQueryService();
@@ -125,10 +160,66 @@ public class UniProtUtils
 				log.trace("finished executing UniProt query");
 			}
 		}
-		
+
 		return entries;
 	}
-	
+
+	public static LSRNRecordType getLSRNType(DatabaseType databaseType)
+	{
+		return (LSRNRecordType)databaseTypeToLSRNType.get(databaseType);
+	}
+
+	public static DatabaseType getDatabaseType(LSRNRecordType lsrnType)
+	{
+		return (DatabaseType)databaseTypeToLSRNType.inverseBidiMap().get(lsrnType);
+	}
+
+	public static String getDatabaseId(DatabaseCrossReference xref)
+	{
+		DatabaseType databaseType = xref.getDatabase();
+		String id;
+
+		switch (databaseType) {
+		case ENSEMBL:
+			id = ((Ensembl)xref).getEnsemblGeneIdentifier().getValue();
+			break;
+		case FLYBASE:
+			id = ((FlyBase)xref).getFlyBaseAccessionNumber().getValue();
+			break;
+		case GENEID:
+			id = ((GeneId)xref).getGeneIdAccessionNumber().getValue();
+			break;
+		case HGNC:
+			id = ((Hgnc)xref).getHgncAccessionNumber().getValue();
+			id = StringUtils.removeStart(id, "HGNC:");
+			break;
+		case KEGG:
+			id = ((Kegg)xref).getKeggAccessionNumber().getValue();
+			break;
+		case MGI:
+			id = ((Mgi)xref).getMgiAccessionNumber().getValue();
+			id = StringUtils.removeStart(id, "MGI:");
+			break;
+		case RGD:
+			id = ((Rgd)xref).getRgdAccessionNumber().getValue();
+			break;
+		case SGD:
+			id = ((Sgd)xref).getSgdAccessionNumber().getValue();
+			break;
+		case ZFIN:
+			id = ((Zfin)xref).getZfinAccessionNumber().getValue();
+			break;
+		default:
+			id = null;
+			break;
+		}
+
+		if (id == null)
+			return null;
+
+		return id;
+	}
+
 	private static Cache getCache()
 	{
 		String cacheName = "UniProtCache";
@@ -146,4 +237,5 @@ public class UniProtUtils
 		manager.addCache(cache);
 		return manager.getCache(cacheName);
 	}
+
 }

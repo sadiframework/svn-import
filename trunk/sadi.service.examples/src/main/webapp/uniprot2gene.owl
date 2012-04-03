@@ -9,8 +9,8 @@
   <!ENTITY lsrn "http://purl.oclc.org/SADI/LSRN/">
 ]>
 <rdf:RDF
-    xml:base="http://sadiframework.org/examples/gene2uniprot.owl#"
-    xmlns="http://sadiframework.org/examples/gene2uniprot.owl#"
+    xml:base="http://sadiframework.org/examples/uniprot2gene.owl#"
+    xmlns="http://sadiframework.org/examples/uniprot2gene.owl#"
     xmlns:rdf="&rdf;"
     xmlns:rdfs="&rdfs;"
     xmlns:owl="&owl;"
@@ -30,28 +30,28 @@
       <owl:imports rdf:resource="&lsrn;SGD_Record"/>
       <owl:imports rdf:resource="&lsrn;ZFIN_Record"/>
       <owl:imports rdf:resource="&lsrn;UniProt_Record"/>
-      <owl:imports rdf:resource="&sio;SIO_010078"/>
+      <owl:imports rdf:resource="&sio;SIO_010079"/>
   </owl:Ontology>
-
-  <owl:Class rdf:ID="InputClass">
-    <owl:unionOf rdf:parseType="Collection">
-      <owl:Class rdf:resource="&lsrn;ENSEMBL_Record"/>
-      <owl:Class rdf:resource="&lsrn;FLYBASE_Record"/>
-      <owl:Class rdf:resource="&lsrn;GeneId_Record"/>
-      <owl:Class rdf:resource="&lsrn;HGNC_Record"/>
-      <owl:Class rdf:resource="&lsrn;KEGG_Record"/>
-      <owl:Class rdf:resource="&lsrn;MGI_Record"/>
-      <owl:Class rdf:resource="&lsrn;RGD_Record"/>
-      <owl:Class rdf:resource="&lsrn;SGD_Record"/>
-      <owl:Class rdf:resource="&lsrn;ZFIN_Record"/>
-    </owl:unionOf>
-  </owl:Class>
 
   <owl:Class rdf:ID="OutputClass">
     <rdfs:subClassOf>
       <owl:Restriction>
-        <owl:onProperty rdf:resource="&sio;SIO_010078"/>
-        <owl:someValuesFrom rdf:resource="&lsrn;UniProt_Record"/>
+        <owl:onProperty rdf:resource="&sio;SIO_010079"/>  <!-- SIO_010079 = 'is encoded by' -->
+        <owl:someValuesFrom>
+            <owl:Class>
+               <owl:unionOf rdf:parseType="Collection">
+                 <owl:Class rdf:resource="&lsrn;ENSEMBL_Record"/>
+                 <owl:Class rdf:resource="&lsrn;FLYBASE_Record"/>
+                 <owl:Class rdf:resource="&lsrn;GeneId_Record"/>
+                 <owl:Class rdf:resource="&lsrn;HGNC_Record"/>
+                 <owl:Class rdf:resource="&lsrn;KEGG_Record"/>
+                 <owl:Class rdf:resource="&lsrn;MGI_Record"/>
+                 <owl:Class rdf:resource="&lsrn;RGD_Record"/>
+                 <owl:Class rdf:resource="&lsrn;SGD_Record"/>
+                 <owl:Class rdf:resource="&lsrn;ZFIN_Record"/>
+               </owl:unionOf>
+            </owl:Class>
+        </owl:someValuesFrom>
       </owl:Restriction>
     </rdfs:subClassOf>
   </owl:Class>
