@@ -118,6 +118,10 @@
     <servlet-name>gene2uniprot</servlet-name>
     <servlet-class>ca.wilkinsonlab.sadi.service.example.Gene2UniProtServiceServlet</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>uniprot2gene</servlet-name>
+    <servlet-class>ca.wilkinsonlab.sadi.service.example.UniProt2GeneServiceServlet</servlet-class>
+  </servlet>
 
   <servlet-mapping>
     <servlet-name>echo</servlet-name>
@@ -230,6 +234,10 @@
   <servlet-mapping>
     <servlet-name>gene2uniprot</servlet-name>
     <url-pattern>/gene2uniprot</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>uniprot2gene</servlet-name>
+    <url-pattern>/uniprot2gene</url-pattern>
   </servlet-mapping>
 
 </web-app>
