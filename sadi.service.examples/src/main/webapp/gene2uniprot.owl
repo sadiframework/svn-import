@@ -35,15 +35,15 @@
 
   <owl:Class rdf:ID="InputClass">
     <owl:unionOf rdf:parseType="Collection">
-      <owl:Class rdf:resource="&lsrn;ENSEMBL_Record"/>
-      <owl:Class rdf:resource="&lsrn;FLYBASE_Record"/>
-      <owl:Class rdf:resource="&lsrn;GeneId_Record"/>
-      <owl:Class rdf:resource="&lsrn;HGNC_Record"/>
-      <owl:Class rdf:resource="&lsrn;KEGG_Record"/>
-      <owl:Class rdf:resource="&lsrn;MGI_Record"/>
-      <owl:Class rdf:resource="&lsrn;RGD_Record"/>
-      <owl:Class rdf:resource="&lsrn;SGD_Record"/>
-      <owl:Class rdf:resource="&lsrn;ZFIN_Record"/>
+      <owl:Class rdf:about="&lsrn;ENSEMBL_Record"/>
+      <owl:Class rdf:about="&lsrn;FLYBASE_Record"/>
+      <owl:Class rdf:about="&lsrn;GeneId_Record"/>
+      <owl:Class rdf:about="&lsrn;HGNC_Record"/>
+      <owl:Class rdf:about="&lsrn;KEGG_Record"/>
+      <owl:Class rdf:about="&lsrn;MGI_Record"/>
+      <owl:Class rdf:about="&lsrn;RGD_Record"/>
+      <owl:Class rdf:about="&lsrn;SGD_Record"/>
+      <owl:Class rdf:about="&lsrn;ZFIN_Record"/>
     </owl:unionOf>
   </owl:Class>
 
