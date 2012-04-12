@@ -62,7 +62,7 @@ use constant ALIGNMENT_N3_TEMPLATE => <<'HEREDOC';
             ] ;
         sio:SIO_000008
             [ a     blast:expectation ;
-              sio:SIO_000300 "[% evalue %]"^^<http://www.w3.org/2001/XMLSchema#float>
+              sio:SIO_000300 "[% evalue %]"^^<http://www.w3.org/2001/XMLSchema#double>
             ] ;
         sio:SIO_000008
             [ a     blast:score ;
