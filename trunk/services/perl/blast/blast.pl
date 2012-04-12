@@ -62,7 +62,7 @@ use constant ALIGNMENT_N3_TEMPLATE => <<'HEREDOC';
             ] ;
         sio:SIO_000008
             [ a     blast:expectation ;
-              sio:SIO_000300 "[% evalue %]"^^<http://www.w3.org/2001/XMLSchema#decimal>
+              sio:SIO_000300 "[% evalue %]"^^<http://www.w3.org/2001/XMLSchema#float>
             ] ;
         sio:SIO_000008
             [ a     blast:score ;
@@ -377,7 +377,7 @@ sub process_it {
                         blast_invocation_uri => $blast_invocation_uri,
                         blast_hit_uri => $hit_uri,
                         bitscore => $hsp->bits,
-                        evalue => $hsp->evalue,
+                        evalue => sprintf('%.3e', $hsp->evalue),  
                         score => $hsp->score,
                         consensus_seq => $hsp->homology_string,
                         percent_identity => $hsp->percent_identity,
