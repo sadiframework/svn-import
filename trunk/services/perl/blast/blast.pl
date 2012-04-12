@@ -19,11 +19,12 @@ my $service_config = {
 };
 
 my $blast_config = {
+    BlastVersion => 'BLAST+ 2.2.26',
     Database => '/home/ben/temp/swissprot',
     DatabaseName => 'swissprot',
     BinaryDir => '/home/ben/temp/ncbi-blast-2.2.26+/bin/',
-    BlastVersion => 'BLAST+ 2.2.26',
-    NumIterations => 1,
+    Binary => 'blastp',
+    CommandLineArgs => [ -evalue => 10 ],  
 };
 
 #-----------------------------------------------------------------
@@ -262,11 +263,11 @@ sub process_it {
 
     my $templater = Template->new();
     my $parser = RDF::Trine::Parser->new('turtle');
+    my $blast_program = $blast_config->{Binary}; 
     my $blast_runner = Bio::Tools::Run::StandAloneBlastPlus->new(
         -db_name => $blast_config->{Database},
         -prog_dir => $blast_config->{BinaryDir},
     );
-    
 
     foreach my $input (@$inputs) {
         
@@ -282,11 +283,13 @@ sub process_it {
         my $bioseq = Bio::Seq->new(-seq => $seq->value);
 
         my $start_time = DateTime->now;
-
-        my $result = $blast_runner->psiblast(
+       
+        my $result = $blast_runner->$blast_program(
             -query => $bioseq, 
-            -method_args => [-num_iterations => $blast_config->{NumIterations}],
+            -method_args => $blast_config->{CommandLineArgs},
         );
+
+        # only relevant for psi-blast, but does no harm for other flavors (e.g. blastp)
 
         my $last_iteration = $result;
         while(my $iteration = $blast_runner->next_result) { $last_iteration = $iteration };
