@@ -27,6 +27,11 @@ my $blast_config = {
     CommandLineArgs => [ -evalue => 10 ],  
 };
 
+my $lsrn_config = {
+    NamespaceForBlastHits => 'UniProt',
+    BlastAccessionToLSRNID => sub { $_[0] =~ m/^([^\|]+)\|([^\|]+)/; return ($2 || $_[0]); },  # may be undef
+};
+
 #-----------------------------------------------------------------
 # CGI HANDLER
 #-----------------------------------------------------------------
@@ -162,10 +167,25 @@ _:hitSeq
 
 # this is the entity that the match sequence is from
 <[% hit_protein_uri %]>
-
+    
      # "has attribute"
      sio:SIO_000008 _:hitSeq .    
       
+HEREDOC
+
+use constant LSRN_RECORD_TEMPLATE => <<'HEREDOC';
+
+@prefix sio:  <http://semanticscience.org/resource/> .
+@prefix lsrn: <http://purl.oclc.org/SADI/LSRN/> .
+
+<[% root_uri %]>
+   a lsrn:[% lsrn_namespace %]_Record;
+   sio:SIO_000671  # 'has identifier'
+     [
+        a lsrn:[% lsrn_namespace %]_Identifier;
+        sio:SIO_000300 "[% lsrn_id %]"  # 'has value'
+     ] .
+          
 HEREDOC
 
 use constant BLAST_INVOCATION_N3_TEMPLATE => <<'HEREDOC';
@@ -284,10 +304,12 @@ sub process_it {
 
         my $start_time = DateTime->now;
        
-        my $result = $blast_runner->$blast_program(
-            -query => $bioseq, 
-            -method_args => $blast_config->{CommandLineArgs},
-        );
+        my @args = (-query => $bioseq);
+        if ($blast_config->{CommandLineArgs}) {
+            push(@args, -method_args => $blast_config->{CommandLineArgs});
+        }
+
+        my $result = $blast_runner->$blast_program(@args);
 
         # only relevant for psi-blast, but does no harm for other flavors (e.g. blastp)
 
@@ -322,6 +344,28 @@ sub process_it {
             my $hit_node = RDF::Trine::Node::Resource->new($hit_uri);
             $output_model->add_statement(RDF::Trine::Statement->new($hit_node, $rdf->type, $blast->BlastHit));
 
+            my $lsrn_id = $hit->accession;
+            if ($lsrn_config->{BlastAccessionToLSRNID}) {
+                $lsrn_id = $lsrn_config->{BlastAccessionToLSRNID}->($hit->accession);
+            }
+
+            my $hit_protein_uri = sprintf("http://lsrn.org/%s:%s", $lsrn_config->{NamespaceForBlastHits}, $lsrn_id);
+
+            my $n3;
+            my $template = LSRN_RECORD_TEMPLATE;
+
+            $templater->process(
+                \$template, 
+                {
+                    root_uri => $hit_protein_uri,
+                    lsrn_namespace => $lsrn_config->{NamespaceForBlastHits},
+                    lsrn_id => $lsrn_id,
+                },
+                \$n3,
+            );
+            
+            load_n3($n3, $output_model);
+
             while (my $hsp = $hit->next_hsp) {
 
                 my $n3;
@@ -344,7 +388,7 @@ sub process_it {
                         hit_subseq => $hsp->hit_string,
                         hit_start_pos => $hsp->start('hit'),
                         hit_stop_pos => $hsp->end('hit'),
-                        hit_protein_uri => sprintf("http://lsrn.org/UniProt:%s", $hit->accession)
+                        hit_protein_uri => $hit_protein_uri,
                     },
                     \$n3,
                 );
@@ -353,6 +397,7 @@ sub process_it {
                 
             }
  
+            
         }
 
         $blast_runner->cleanup; # remove temp files
