@@ -22,7 +22,6 @@ import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.QuerySolution;
 import com.hp.hpl.jena.query.ResultSet;
-import com.hp.hpl.jena.query.ResultSetFormatter;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -130,7 +129,6 @@ public class MakePatientDataTest
 	{
 		QueryExecution qe = QueryExecutionFactory.create(LONG_QUERY, model);
 		ResultSet resultSet = qe.execSelect();
-		System.out.println(ResultSetFormatter.asText(resultSet));
 		assertTrue("no results", resultSet.hasNext());
 		CountingMap<RDFNode> seen = new CountingMap<RDFNode>();
 		while (resultSet.hasNext()) {
