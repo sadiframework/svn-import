@@ -86,6 +86,7 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
 		model.setNsPrefix("lsrn", "http://purl.oclc.org/SADI/LSRN/");
 		model.setNsPrefix("sadi", "http://sadiframework.org/ontologies/properties.owl#");
+		model.setNsPrefix("gene2uniprot", "http://sadiframework.org/examples/gene2uniprot.owl#");
 		return model;
 	}
 
