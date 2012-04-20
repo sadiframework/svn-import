@@ -25,9 +25,9 @@
       </div> <!-- content -->
       <div id='footer'>
         <p style="margin-top: 10px;">
-          <img class="sponsor" src="/style/2011-03-14/images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
-          <img class="sponsor" src="/style/2011-03-14/images/CANARIE.png" alt="CANARIE logo" height="62" width="242"/>
-          <img class="sponsor" src="/style/2011-03-14/images/CIHR.png" alt="CIHR logo" height="62" width="91"/>
+          <img class="sponsor" src="http://sadiframework.org/style/2011-03-14/images/HSFBCY.gif" alt="HSFBCY logo" height="62" width="134"/>
+          <img class="sponsor" src="http://sadiframework.org/style/2011-03-14/images/CANARIE.png" alt="CANARIE logo" height="62" width="242"/>
+          <img class="sponsor" src="http://sadiframework.org/style/2011-03-14/images/CIHR.png" alt="CIHR logo" height="62" width="91"/>
         </p>
         <p>Development of SADI is generously supported by 
           <span class="nobreak">CANARIE</span>,
@@ -44,8 +44,8 @@
           <span class="nobreak">Genome Alberta</span>.
         </p>
         <p style="margin-top: 20px;">
-          <img class="sponsor" src="<?php get_theme_root_uri() ?><?php echo get_template_directory_uri() ?>/images/GenomeCanada.png" alt="Genome Canada logo" height="116" width="191"/>
-          <img class="sponsor" src="<?php get_theme_root_uri() ?><?php echo get_template_directory_uri() ?>/images/GenomeAlberta.png" alt="Genome Alberta logo" height="116" width="185"/>
+          <img class="sponsor" src="http://sadiframework.org/style/2011-03-14/images/GenomeCanada.png" alt="Genome Canada logo" height="116" width="191"/>
+          <img class="sponsor" src="http://sadiframework.org/style/2011-03-14/images/GenomeAlberta.png" alt="Genome Alberta logo" height="116" width="185"/>
         </p>
         -->
       </div> <!-- footer -->
