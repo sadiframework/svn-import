@@ -17,6 +17,7 @@ mvn -Djetty.port=9999 org.mortbay.jetty:maven-jetty-plugin:run
 Testing the services on sample input:
 
 curl --data @./sample_input_ednft.rdf http://localhost:9999/ie-sadi/extractDrugNamesFromTextV4
+curl --data @./sample_input_ednft2.rdf http://localhost:9999/ie-sadi/extractDrugNamesFromTextV4
 
 
 
@@ -35,6 +36,7 @@ cp target/ie-sadi.war  ~/sadi2/var/lib/tomcat6/webapps/
 Test it with:
 
 curl --data @./sample_input_ednft.rdf http://unbsj.biordf.net/ie-sadi/extractDrugNamesFromTextV4
+curl --data @./sample_input_ednft2.rdf http://unbsj.biordf.net/ie-sadi/extractDrugNamesFromTextV4
 
 
 ============================================================================
