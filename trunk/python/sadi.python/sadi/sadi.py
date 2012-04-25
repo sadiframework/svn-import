@@ -429,13 +429,16 @@ def handler(req):
         req.filename = path + '/' + module_name + '.py'
 
         if not publisher.exists(req.filename):
-            if func_path:
-                func_path = module_name + '/' + func_path
+            if publisher.exists(path + '/' + module_name + '.rpy'):
+                req.filename = path + '/' + module_name + '.rpy'
             else:
-                func_path = module_name
+                if func_path:
+                    func_path = module_name + '/' + func_path
+                else:
+                    func_path = module_name
 
-            module_name = 'index' 
-            req.filename = path + '/' + module_name + '.py'
+                module_name = 'index' 
+                req.filename = path + '/' + module_name + '.py'
 
             if not publisher.exists(req.filename):
                 raise apache.SERVER_RETURN, apache.HTTP_NOT_FOUND
