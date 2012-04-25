@@ -225,7 +225,7 @@ class ServiceBase:
             self.inputClass = self.getInputClass()
             self.outputClass = self.getOutputClass()
             
-            desc = self.Description("")
+            desc = self.Description("#")
 
             if self.label is not None:
                 desc.rdfs_label = self.label
