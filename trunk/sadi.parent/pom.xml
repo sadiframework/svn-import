@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sadiframework</groupId>
   <artifactId>sadi-parent</artifactId>
-  <version>0.3.0</version>
+  <version>0.3.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>SADI parent POM</name>
   <url>http://sadiframework.org/</url>
@@ -24,9 +24,9 @@
     </license>
   </licenses>
   <scm>
-    <url>http://code.google.com/p/sadi/source/browse/#svn%2Ftrunk%2F${sadi.svnName}/tags/sadi-parent-0.3.0</url>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/tags/sadi-parent-0.3.0</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/tags/sadi-parent-0.3.0</developerConnection>
+    <url>http://code.google.com/p/sadi/source/browse/#svn%2Ftrunk%2Fsadi.parent</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/sadi.parent</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/sadi.parent</developerConnection>
   </scm>
   <issueManagement>
   	<system>Google Code</system>
