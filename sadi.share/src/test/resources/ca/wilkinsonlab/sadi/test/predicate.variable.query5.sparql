@@ -1,5 +1,0 @@
-# Test with a literal in the object position.
-SELECT * 
-WHERE {
-	?s ?p "Varenicline" .
-}
