@@ -24,9 +24,9 @@
     </license>
   </licenses>
   <scm>
-    <url>http://code.google.com/p/sadi/source/browse/#svn%2Ftrunk%2Fsadi.parent</url>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/sadi.parent</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/sadi.parent</developerConnection>
+    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/${sadi.svnName}</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/${sadi.svnName}</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/${sadi.svnName}</developerConnection>
   </scm>
   <issueManagement>
   	<system>Google Code</system>
