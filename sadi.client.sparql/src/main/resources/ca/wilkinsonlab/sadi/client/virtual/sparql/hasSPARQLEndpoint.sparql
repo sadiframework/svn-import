@@ -1,6 +1,0 @@
-PREFIX darq: <http://darq.sf.net/dose/0.1#>
-
-SELECT ?indexRoot 
-WHERE {
-	?indexRoot a darq:Service; darq:url %u% . 
-}
