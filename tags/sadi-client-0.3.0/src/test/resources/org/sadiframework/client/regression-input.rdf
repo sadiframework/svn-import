@@ -1,0 +1,35 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:regress="http://sadiframework.org/examples/regression.owl#">
+
+	<regress:PairedValueCollection rdf:about="http://sadiframework.org/examples/input/regressionDirect">
+	  <regress:element>
+	    <regress:PairedValue>
+	      <regress:x rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1</regress:x>
+	      <regress:y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2</regress:y>
+	    </regress:PairedValue>
+	  </regress:element>
+	  <regress:element>
+	    <regress:PairedValue>
+	      <regress:x rdf:datatype="http://www.w3.org/2001/XMLSchema#double">3</regress:x>
+	      <regress:y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">5</regress:y>
+	    </regress:PairedValue>
+	  </regress:element>
+	</regress:PairedValueCollection>
+	
+	<regress:Collection rdf:about="http://sadiframework.org/examples/input/regressionInferred">
+	  <regress:element>
+	    <regress:PairedValue>
+	      <regress:x rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1</regress:x>
+	      <regress:y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2</regress:y>
+	    </regress:PairedValue>
+	  </regress:element>
+	  <regress:element>
+	    <regress:PairedValue>
+	      <regress:x rdf:datatype="http://www.w3.org/2001/XMLSchema#double">3</regress:x>
+	      <regress:y rdf:datatype="http://www.w3.org/2001/XMLSchema#double">5</regress:y>
+	    </regress:PairedValue>
+	  </regress:element>
+	</regress:Collection>
+
+</rdf:RDF>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sadiframework</groupId>
+    <artifactId>sadi-parent</artifactId>
+    <version>0.3.0</version>
+  </parent>
+  <artifactId>sadi-client</artifactId>
+  <version>0.3.0</version>
+  <name>SADI client classes</name>
+  <description>Classes used by SADI clients</description>
+  <url>http://sadiframework.org/</url>
+  <properties>
+    <sadi.svnName>sadi.client</sadi.svnName>
+  </properties>
+  <scm>
+    <url>http://code.google.com/p/sadi/source/browse/#svn/tags/sadi-client-0.3.0</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/tags/sadi-client-0.3.0</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/tags/sadi-client-0.3.0</developerConnection>
+  </scm>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.sadiframework</groupId>
+      <artifactId>sadi-common</artifactId>
+      <version>0.3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.reflections</groupId>
+      <artifactId>reflections</artifactId>
+      <version>0.9.5</version>
+    </dependency>
+    <!-- test-only dependencies -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
