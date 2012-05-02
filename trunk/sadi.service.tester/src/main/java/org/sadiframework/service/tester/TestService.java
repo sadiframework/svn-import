@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.service.tester;
+package org.sadiframework.service.tester;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -6,20 +6,19 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
 
-import org.apache.axis.utils.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-
-import ca.wilkinsonlab.sadi.SADIException;
-import ca.wilkinsonlab.sadi.client.Service;
-import ca.wilkinsonlab.sadi.client.ServiceFactory;
-import ca.wilkinsonlab.sadi.client.ServiceImpl;
-import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
-import ca.wilkinsonlab.sadi.client.testing.ServiceTester;
-import ca.wilkinsonlab.sadi.client.testing.TestCase;
-import ca.wilkinsonlab.sadi.utils.ModelDiff;
-import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import org.sadiframework.SADIException;
+import org.sadiframework.client.Service;
+import org.sadiframework.client.ServiceFactory;
+import org.sadiframework.client.ServiceImpl;
+import org.sadiframework.client.ServiceInvocationException;
+import org.sadiframework.client.testing.ServiceTester;
+import org.sadiframework.client.testing.TestCase;
+import org.sadiframework.utils.ModelDiff;
+import org.sadiframework.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
