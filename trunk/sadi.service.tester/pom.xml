@@ -7,7 +7,7 @@
     <version>0.3.0</version>
   </parent>
   <artifactId>sadi-tester</artifactId>
-  <version>0.3.0</version>
+  <version>0.3.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <name>SADI service tester</name>
   <url>http://sadiframework.org/</url>
@@ -15,9 +15,9 @@
     <sadi.svnName>sadi.service.tester</sadi.svnName>
   </properties>
   <scm>
-    <url>http://code.google.com/p/sadi/source/browse/#svn/tags/sadi-tester-0.3.0</url>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/tags/sadi-tester-0.3.0</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/tags/sadi-tester-0.3.0</developerConnection>
+    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/sadi.service.tester</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/sadi.service.tester</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/sadi.service.tester</developerConnection>
   </scm>
   <dependencies>
     <dependency>
