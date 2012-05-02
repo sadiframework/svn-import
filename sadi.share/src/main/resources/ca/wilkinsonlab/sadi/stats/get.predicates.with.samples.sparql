@@ -1,7 +1,0 @@
-PREFIX db: <http://sadiframework.org/ontologies/predicatestats.owl#>
-
-SELECT DISTINCT ?predicate
-FROM %u%
-WHERE {
-	?s db:predicate ?predicate .
-}
