@@ -1,9 +1,0 @@
-<rdf:RDF
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
-    xmlns:uniprot2pdb="http://sadiframework.org/examples/uniprot2pdb.owl#">
-
-	<lsrn:UniProt_Record rdf:about="http://purl.uniprot.org/uniprot/Q8J016">
-	</lsrn:UniProt_Record>
-	
-</rdf:RDF>
