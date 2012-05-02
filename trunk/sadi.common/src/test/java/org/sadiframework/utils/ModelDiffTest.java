@@ -1,8 +1,9 @@
 package org.sadiframework.utils;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import org.sadiframework.utils.ModelDiff;
-import org.sadiframework.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -39,8 +40,18 @@ public class ModelDiffTest
 		model1.add(anon1, property, objectResource);
 		model2.add(anon2, property, objectResource);
 		ModelDiff diff = ModelDiff.diff(model1, model2);
-		System.out.println("In model1, not model2:" + RdfUtils.logStatements(diff.inXnotY));
-		System.out.println("In model2, not model1:" + RdfUtils.logStatements(diff.inYnotX));
+		assertTrue(diff.inXnotY.contains(subject, property, object1));
+		assertTrue(diff.inXnotY.contains(subject, property, literal1));
+		assertTrue(diff.inXnotY.contains(anon1, property, objectResource));
+		assertEquals(3l, diff.inXnotY.size());
+		assertTrue(diff.inYnotX.contains(subject, property, object2));
+		assertTrue(diff.inYnotX.contains(subject, property, literal2));
+		assertTrue(diff.inYnotX.contains(anon2, property, objectResource));
+		assertEquals(3l, diff.inYnotX.size());
+		assertTrue(diff.inBoth.contains(subject, property, objectResource));
+		assertTrue(diff.inBoth.contains(subject, property, objectLiteral));
+		assertEquals(2l, diff.inBoth.size());
+//		System.out.println("In model1, not model2:" + RdfUtils.logStatements(diff.inXnotY));
+//		System.out.println("In model2, not model1:" + RdfUtils.logStatements(diff.inYnotX));
 	}
-
 }

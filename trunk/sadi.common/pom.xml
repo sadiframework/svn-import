@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.sadiframework</groupId>
     <artifactId>sadi-parent</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.3.0</version>
   </parent>
   <artifactId>sadi-common</artifactId>
   <version>0.3.0-SNAPSHOT</version>
@@ -59,7 +59,8 @@
       <artifactId>commons-validator</artifactId>
       <version>1.3.1</version>
     </dependency>
-	    <dependency><!-- oro is declared optional in commons-validator, but we need it here -->
+        <!-- oro is declared optional in commons-validator, but we need it here -->
+	    <dependency>
 	      <groupId>oro</groupId>
 	      <artifactId>oro</artifactId>
 	      <version>2.0.8</version>
