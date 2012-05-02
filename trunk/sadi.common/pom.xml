@@ -15,9 +15,9 @@
     <sadi.svnName>sadi.common</sadi.svnName>
   </properties>
   <scm>
-    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/sadi.common</url>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/sadi.common</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/sadi.common</developerConnection>
+    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/${sadi.svnName}</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/${sadi.svnName}</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/${sadi.svnName}</developerConnection>
   </scm>
   <build>
     <plugins>
