@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.service.tester;
+package org.sadiframework.service.tester;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -19,7 +19,7 @@ public class Help extends AbstractMojo
 	public void execute() throws MojoExecutionException, MojoFailureException
 	{
 		try {
-			InputStream is = getClass().getResourceAsStream("help/help.txt");
+			InputStream is = getClass().getResourceAsStream("help.txt");
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			String line;
 			while ((line = reader.readLine()) != null) {

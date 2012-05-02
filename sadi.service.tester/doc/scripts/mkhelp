@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 our $SRC_DIR = "src/main/java";
-our $PKG_DIR = "ca/wilkinsonlab/sadi/service/tester";
+our $PKG_DIR = "org/sadiframework/service/tester";
 
 [ -d "$SRC_DIR/$PKG_DIR" ] or die "run from project root directory\n";
 
