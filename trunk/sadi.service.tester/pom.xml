@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project
- xmlns="http://maven.apache.org/POM/4.0.0"
- xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.sadiframework</groupId>
@@ -10,7 +7,7 @@
     <version>0.3.0</version>
   </parent>
   <artifactId>sadi-tester</artifactId>
-  <version>0.3.0-SNAPSHOT</version>
+  <version>0.3.0</version>
   <packaging>maven-plugin</packaging>
   <name>SADI service tester</name>
   <url>http://sadiframework.org/</url>
@@ -18,9 +15,9 @@
     <sadi.svnName>sadi.service.tester</sadi.svnName>
   </properties>
   <scm>
-    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/${sadi.svnName}</url>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/${sadi.svnName}</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/${sadi.svnName}</developerConnection>
+    <url>http://code.google.com/p/sadi/source/browse/#svn/tags/sadi-tester-0.3.0</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/tags/sadi-tester-0.3.0</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/tags/sadi-tester-0.3.0</developerConnection>
   </scm>
   <dependencies>
     <dependency>
