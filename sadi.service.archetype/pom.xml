@@ -12,7 +12,7 @@
   <name>SADI service archetype</name>
   <url>http://sadiframework.org</url>
   <properties>
-    <sadi.svnName>sadi.service.webapp</sadi.svnName>
+    <sadi.svnName>sadi.service.archetype</sadi.svnName>
   </properties>
   <scm>
     <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/${sadi.svnName}</url>
