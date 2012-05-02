@@ -7,7 +7,7 @@
     <version>0.3.0</version>
   </parent>
   <artifactId>sadi-common</artifactId>
-  <version>0.3.0</version>
+  <version>0.3.1-SNAPSHOT</version>
   <name>Common SADI classes</name>
   <description>Classes used by both SADI clients and SADI services</description>
   <url>http://sadiframework.org/</url>
@@ -15,9 +15,9 @@
     <sadi.svnName>sadi.common</sadi.svnName>
   </properties>
   <scm>
-    <url>http://code.google.com/p/sadi/source/browse/#svn/tags/sadi-common-0.3.0</url>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/tags/sadi-common-0.3.0</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/tags/sadi-common-0.3.0</developerConnection>
+    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/sadi.common</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/sadi.common</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/sadi.common</developerConnection>
   </scm>
   <build>
     <plugins>
