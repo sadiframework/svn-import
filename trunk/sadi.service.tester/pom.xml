@@ -15,9 +15,9 @@
     <sadi.svnName>sadi.service.tester</sadi.svnName>
   </properties>
   <scm>
-    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/sadi.service.tester</url>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/sadi.service.tester</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/sadi.service.tester</developerConnection>
+    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/${sadi.svnName}</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/${sadi.svnName}</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/${sadi.svnName}</developerConnection>
   </scm>
   <dependencies>
     <dependency>
