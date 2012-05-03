@@ -500,7 +500,7 @@ public class GenerateService extends AbstractMojo
 			String.format("%s%d", prefix, Integer.valueOf(suffix) + 1);
 	}
 	
-	private void writeClassFile(File classFile, String serviceClass, OntClass inputClass, OntClass outputClass, ServiceDescription serviceDescription, boolean async) throws Exception
+	protected void writeClassFile(File classFile, String serviceClass, OntClass inputClass, OntClass outputClass, ServiceDescription serviceDescription, boolean async) throws Exception
 	{
 		/* create a copy of the service description where we can escape stuff...
 		 */
