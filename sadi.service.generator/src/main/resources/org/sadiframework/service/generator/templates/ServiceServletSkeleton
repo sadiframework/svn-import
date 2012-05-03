@@ -1,32 +1,31 @@
 package $package;
 
 import org.apache.log4j.Logger;
-
 #if ($description.getName())
-import ca.wilkinsonlab.sadi.service.annotations.Name;
+import org.sadiframework.service.annotations.Name;
 #end
 #if ($description.getDescription())
-import ca.wilkinsonlab.sadi.service.annotations.Description;
+import org.sadiframework.service.annotations.Description;
 #end
 #if ($description.getServiceProvider())
-import ca.wilkinsonlab.sadi.service.annotations.ServiceProvider;
+import org.sadiframework.service.annotations.ServiceProvider;
 #end
 #if ($description.getContactEmail())
-import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
+import org.sadiframework.service.annotations.ContactEmail;
 #end
 #if ($description.getAuthoritative())
-import ca.wilkinsonlab.sadi.service.annotations.Authoritative;
+import org.sadiframework.service.annotations.Authoritative;
 #end
-import ca.wilkinsonlab.sadi.service.annotations.InputClass;
-import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
+import org.sadiframework.service.annotations.InputClass;
+import org.sadiframework.service.annotations.OutputClass;
 #if ($description.getParameterClassURI())
-import ca.wilkinsonlab.sadi.service.annotations.ParameterClass;
-import ca.wilkinsonlab.sadi.service.annotations.ParameterDefaults;
+import org.sadiframework.service.annotations.ParameterClass;
+import org.sadiframework.service.annotations.ParameterDefaults;
 #end
 #if ($async)
-import ca.wilkinsonlab.sadi.service.simple.SimpleAsynchronousServiceServlet;
+import org.sadiframework.service.simple.SimpleAsynchronousServiceServlet;
 #else
-import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
+import org.sadiframework.service.simple.SimpleSynchronousServiceServlet;
 #end
 
 import com.hp.hpl.jena.rdf.model.Model;
