@@ -7,7 +7,6 @@
   <packaging>war</packaging>
   <name>SADI services webapp</name>
   <build>
-    <finalName>sadi-services</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -23,7 +22,6 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <version>8.1.3.v20120416</version>
         <configuration>
-          <contextPath>/sadi-services</contextPath>
           <stopPort>8081</stopPort>
           <stopKey>stop</stopKey>
         </configuration>
