@@ -1,3 +1,5 @@
 #summary Landing page for the SWAT4LS 2012 school in Aveiro
 
 [http://sadi.googlecode.com/svn/wiki/images/sadi-header.png http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png]
+
+http://elmonline.ca/sw/bmi.owl
