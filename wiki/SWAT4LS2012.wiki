@@ -2,8 +2,8 @@
 
 [http://sadi.googlecode.com/svn/wiki/images/sadi-header.png http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png]
 
-Ontology URL: http://elmonline.ca/sw/bmi.owl
-Input Class URL: http://elmonline.ca/sw/bmi.owl#InputClass
-Output Class URL: http://elmonline.ca/sw/bmi.owl#OutputClass
-Test input: http://elmonline.ca/sw/bmi-input.rdf
-Test output: http://elmonline.ca/sw/bmi-output.rdf
+  * Ontology URL: http://elmonline.ca/sw/bmi.owl
+  * Input Class URL: http://elmonline.ca/sw/bmi.owl#InputClass
+  * Output Class URL: http://elmonline.ca/sw/bmi.owl#OutputClass
+  * Test input: http://elmonline.ca/sw/bmi-input.rdf
+  * Test output: http://elmonline.ca/sw/bmi-output.rdf
