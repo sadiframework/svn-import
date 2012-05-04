@@ -7,3 +7,4 @@
   * Output Class URL: http://elmonline.ca/sw/bmi.owl#OutputClass
   * Test input: http://elmonline.ca/sw/bmi-input.rdf
   * Test output: http://elmonline.ca/sw/bmi-output.rdf
+  * completed source code: http://elmonline.ca/sw/BMIService.java
