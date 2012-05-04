@@ -62,7 +62,7 @@ class DefaultSerializer:
         return graph.serialize(format=self.outputFormat)
     def deserialize(self,graph, content):
         if type(content) == str or type(content) == unicode:
-            graph.parse(StringIO(content,newline=None),format=self.inputFormat)
+            graph.parse(StringIO(unicode(content),newline=None),format=self.inputFormat)
         else:
             graph.parse(content,format=self.inputFormat)
 
