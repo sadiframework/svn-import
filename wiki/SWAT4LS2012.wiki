@@ -2,4 +2,4 @@
 
 [http://sadi.googlecode.com/svn/wiki/images/sadi-header.png http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png]
 
-http://elmonline.ca/sw/bmi.owl
+Ontology URL: http://elmonline.ca/sw/bmi.owl
