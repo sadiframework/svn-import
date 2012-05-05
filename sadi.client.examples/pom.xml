@@ -1,11 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project 
  xmlns="http://maven.apache.org/POM/4.0.0" 
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ca.wilkinsonlab.sadi</groupId>
+  <groupId>org.sadiframework</groupId>
   <artifactId>sadi-client-examples</artifactId>
-  <version>0.2.0-SNAPSHOT</version>
+  <version>0.3.0</version>
   <name>SADI client examples</name>
   <build>
     <plugins>
@@ -21,20 +22,12 @@
       </plugin>
     </plugins>
   </build>
-  <repositories>
-    <!-- SADI Maven artifacts are deployed to this repository -->
-    <repository>
-      <id>dev.biordf.net</id>
-      <name>dev.biordf.net</name>
-      <url>http://dev.biordf.net/maven</url>
-    </repository>
-  </repositories>
   <dependencies>
     <!-- the sadi-client artifact pulls in the rest of the dependencies -->
   	<dependency>
-  		<groupId>ca.wilkinsonlab.sadi</groupId>
+  		<groupId>org.sadiframework</groupId>
   		<artifactId>sadi-client</artifactId>
-  		<version>0.2.0</version>
+  		<version>0.3.0</version>
   	</dependency>
   </dependencies>
 </project>
