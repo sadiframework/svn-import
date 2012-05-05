@@ -1,15 +1,15 @@
-package ca.wilkinsonlab.sadi.client.example;
+package org.sadiframework.client.example;
 
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.SADIException;
-import ca.wilkinsonlab.sadi.client.Config;
-import ca.wilkinsonlab.sadi.client.Registry;
-import ca.wilkinsonlab.sadi.client.Service;
-import ca.wilkinsonlab.sadi.client.ServiceFactory;
-import ca.wilkinsonlab.sadi.client.ServiceInvocationException;
+import org.sadiframework.SADIException;
+import org.sadiframework.client.Config;
+import org.sadiframework.client.Registry;
+import org.sadiframework.client.Service;
+import org.sadiframework.client.ServiceFactory;
+import org.sadiframework.client.ServiceInvocationException;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;

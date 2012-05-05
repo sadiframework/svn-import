@@ -1,12 +1,12 @@
-package ca.wilkinsonlab.sadi.client.example;
+package org.sadiframework.client.example;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import ca.wilkinsonlab.sadi.rdfpath.RDFPath;
-import ca.wilkinsonlab.sadi.rdfpath.RDFPathUtils;
-import ca.wilkinsonlab.sadi.utils.OwlUtils;
+import org.sadiframework.rdfpath.RDFPath;
+import org.sadiframework.rdfpath.RDFPathUtils;
+import org.sadiframework.utils.OwlUtils;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
