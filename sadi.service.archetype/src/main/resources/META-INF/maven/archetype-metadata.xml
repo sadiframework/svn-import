@@ -4,6 +4,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <fileSets>
     <fileSet filtered="true" encoding="UTF-8">
+      <directory>src/main/java</directory>
+    </fileSet>
+    <fileSet filtered="true" encoding="UTF-8">
       <directory>src/main/resources</directory>
       <includes>
         <include>**/*.properties</include>
