@@ -36,11 +36,6 @@ use constant TEMP_OUTPUT_FILE => 'temp.txt';
 use constant USAGE => <<'HEREDOC';
 Usage: gcw2rfc.pl [options] [middle.wiki] [back.wiki] > rfc.txt
 
-<docname> is a document identifier used in the RFC submission / editing process of the 
-IETF.  It can be anything, but a typical example is: 'draft-bvandervalk-sadi-01'. 
-
-"front.xml" contains metadata about the document (e.g. authors, abstract).
-
 "middle.wiki" is a Google Wiki file containing the Table of Contents (in the form of a
 bulleted list, possibly nested) for the main part of the document.
 
@@ -182,8 +177,8 @@ $templater->process(
         doc_title => 'Semantic Automated Discovery and Integration (SADI)',
         authors => 
             [
-                'Ben Vandervalk, University of British Columbia',
                 'E. Luke McCarthy, University of British Columbia',
+                'Ben Vandervalk, University of British Columbia',
                 'Mark D. Wilkinson, Universidad Politécnica de Madrid', 
             ],
         submission_date => sprintf('%02d %s %d', $now->day, $now->month_name, $now->year),
@@ -228,6 +223,55 @@ print $output_html;
 #}
 #print $output;
 
+# Inner class to track section numbers
+
+eval {
+    package SectionNumber;
+
+    sub new {
+        my ($class, $first_section) = @_;
+        my @parts = ();
+        @parts = split(/\./, $first_section) if defined($first_section);
+        my $self = {
+            parts => \@parts,
+        };
+        return bless($self, $class);
+    }
+
+    sub get_section {
+        return join('.', @{$_[0]->{parts}});
+    }
+
+    sub inc {
+        ($_[0]->{parts}->[-1])++;
+    }
+
+    sub add_level {
+        push(@{$_[0]->{parts}}, 0);
+    }
+
+    sub remove_level {
+        pop(@{$_[0]->{parts}});
+    }
+
+    sub num_levels {
+        my ($self, $new_val) = @_;
+        if (defined($new_val)) {
+            while ($self->num_levels() < $new_val) {
+                $self->add_level();
+            }
+            while ($self->num_levels() > $new_val) {
+                $self->remove_level();
+            }
+        }
+        return scalar(@{$self->{parts}});
+    }
+
+    package __PACKAGE__;
+};
+
+die $@ if $@;
+
 #----------------------------------------------------------------------
 # callbacks from wiki parser (generates RFC XML)
 #----------------------------------------------------------------------
@@ -236,7 +280,6 @@ sub wiki_toc_to_html {
 
 #    my ($xml_writer, $wiki_file, $reference_files) = @_;
     my ($wiki_file, $reference_files) = @_;
-   
 
     my $toc_html;
     my $body_html;
@@ -275,12 +318,13 @@ sub wiki_toc_to_html {
         use Moose;
         use GoogleWiki2Markdown;
         use constant::boolean;
+        use Clone qw(clone);
 
         with 'Markdent::Role::EventsAsMethods';
 
         our $AUTOLOAD; 
         sub AUTOLOAD { 
-#            ::trace(sprintf('unhandled event %s with args (%s)', $AUTOLOAD, join(', ', @_))); 
+            ::trace(sprintf('unhandled event %s with args (%s)', $AUTOLOAD, join(', ', @_))); 
         }
 
         sub new {
@@ -291,10 +335,11 @@ sub wiki_toc_to_html {
                 xml_writer => $xml_writer,
                 working_dir => $working_dir,
                 list_level => 0,
-                visited => {$page => 1},      # visited pages or sections of pages
+                visited => {$page => 1},   # visited pages or sections of pages
                 reference_pages => $reference_pages,
                 skip_item => FALSE,
                 in_link => FALSE,
+                section_number => SectionNumber->new(),
             };
             return bless($self, $class);
         }
@@ -309,12 +354,16 @@ sub wiki_toc_to_html {
         sub start_unordered_list { 
             my $self = shift;
             $self->{list_level}++; 
+            printf("open list: %d\n", $self->{list_level});
+            $self->{section_number}->add_level();
             $self->{toc_xml_writer}->startTag('ul');
         }
 
         sub end_unordered_list { 
             my $self = shift;
             $self->{list_level}--; 
+            printf("close list: %d\n", $self->{list_level});
+            $self->{section_number}->remove_level();
             $self->{toc_xml_writer}->endTag('ul');
         }
 
@@ -352,9 +401,16 @@ sub wiki_toc_to_html {
             my $toc_xml_writer = $self->{toc_xml_writer};
             my $visited = $self->{visited};
             my $text = ::trim($_[1]);
+            my $section_number = $self->{section_number};
             
             # ignore whitespace text events (e.g. newlines at end of list items)
             return unless $text; 
+
+            print "item: $text\n";
+
+#            $self->inc_section_number();
+            $section_number->inc();
+ 
 
             my $in_link = $self->{in_link};
 #            my $anchor = $in_link ? $self->{link_uri}->as_string : main::get_anchor('',$text);
@@ -365,7 +421,7 @@ sub wiki_toc_to_html {
 #            ::tracef('visited: (%s)', join(',', %$visited));
 
             $toc_xml_writer->startTag('a', href => '#'.$anchor);
-                $toc_xml_writer->characters($text);
+                $toc_xml_writer->characters($section_number->get_section() . ' ' . $text);
             $toc_xml_writer->endTag('a');
 
             if ($visited->{$anchor}) {
@@ -377,23 +433,40 @@ sub wiki_toc_to_html {
 #            $xml_writer->startTag('section', anchor => $anchor, title => $text);
             my $header_tag = sprintf('h%d', $self->{list_level} + 1);
             $xml_writer->startTag($header_tag, id => $anchor);
-                $xml_writer->characters($text);
+                $xml_writer->characters($section_number->get_section() . ' ' . $text);
             $xml_writer->endTag($header_tag);
            
-            if ($in_link) {
-                ::trace("following TOC link: $_{uri}");
-                ::wiki_to_xml(
-                    $xml_writer, 
-                    $self->{working_dir},
-                    $self->{visited}, 
-                    $self->{link_uri}->path, # page
-                    ($self->{list_level} - 1),
-                    $self->{reference_pages},
-                    $self->{link_uri}->fragment # section (optional)
-                );
-            }
-
+#            if ($in_link) {
+#                ::trace("following TOC link: $_{uri}");
+#                ::wiki_to_xml(
+#                    $xml_writer, 
+#                    $self->{working_dir},
+#                    $self->{visited}, 
+#                    $self->{link_uri}->path, # page
+#                    ($self->{list_level} - 1),
+#                    clone($section_number),
+#                    $self->{reference_pages},
+#                    $self->{link_uri}->fragment # section (optional)
+#                );
+#            }
+           
         }
+
+#        sub get_section_number {
+#            return join('.', @{$_[0]->{section_number}});
+#        }
+#        
+#        sub inc_section_number {
+#            ($_[0]->{section_number}->[-1])++;
+#        }
+#        
+#        sub add_section_number_level {
+#            push(@{$_[0]->{section_number}}, 0);
+#        }
+#       
+#        sub remove_section_number_level {
+#            pop(@{$_[0]->{section_number}});
+#        }
 
         package __PACKAGE__; 
 
@@ -402,11 +475,11 @@ sub wiki_toc_to_html {
     die $@ if $@;
 
     my $markdown = GoogleWiki2Markdown::convert($input);
+    write_file('markdown', $markdown);
 #    printf("markdown:\n%s\n", $markdown);
     my $handler = Markdent::Handler::TOC->new($toc_xml_writer, $xml_writer, $working_dir, $page, \@reference_pages);
     my $parser = Markdent::Parser->new(handler => $handler);
     $parser->parse(markdown => $markdown);
-    
 
     $toc_xml_writer->end();
     $xml_writer->end();
@@ -414,6 +487,7 @@ sub wiki_toc_to_html {
     return $toc_html . "\n" . $body_html;
     
 }
+
 
 sub wiki_references_to_xml {
 
@@ -586,7 +660,7 @@ sub wiki_references_to_xml {
 
 sub wiki_to_xml {
     
-    my ($xml_writer, $working_dir, $visited, $page, $section_level_offset, $reference_pages, $section) = @_;
+    my ($xml_writer, $working_dir, $visited, $page, $section_level_offset, $section_number, $reference_pages, $section) = @_;
 
     my $uri = $section ? get_anchor($page, $section) : $page;
 
@@ -619,7 +693,7 @@ sub wiki_to_xml {
         }
 
         sub new {
-            my ($class, $xml_writer, $visited, $page, $section_level_offset, $reference_pages, $section) = @_;
+            my ($class, $xml_writer, $visited, $page, $section_level_offset, $section_number, $reference_pages, $section) = @_;
             my $self = {
                 xml_writer => $xml_writer,
                 visited => $visited,
@@ -630,6 +704,7 @@ sub wiki_to_xml {
                 open_sections => [],
                 output_enabled => ($section ? 0 : 1),
                 header_level => 0,
+                section_number => $section_number,
                 first_section_on_page => TRUE,
                 in_inline_code => FALSE,
                 in_link => FALSE,
@@ -821,6 +896,7 @@ sub wiki_to_xml {
             my $page = $self->{page};
             my $anchor = ::get_anchor($page, $header);
             my $open_sections = $self->{open_sections};
+            my $section_number = $self->{section_number};
             my $section = $self->{section};
            
             if ($section && ($anchor eq ::get_anchor($page, $section))) {
@@ -852,16 +928,17 @@ sub wiki_to_xml {
             
             unless ($omit_section_tag) {
 #                $xml_writer->startTag('section', anchor => $anchor, title => $header);
+                $section_number->num_levels($level);
+                $section_number->inc();
                 my $header_tag = sprintf('h%d', $level + 1);
                 $xml_writer->startTag($header_tag, id => $anchor);
-                    $xml_writer->characters($header);
+                    $xml_writer->characters($section_number->get_section() . ' ' . $header);
                 $xml_writer->endTag($header_tag);
                 push(@$open_sections, $level);
             }
             
             $visited->{$anchor} = 1;
             $self->{first_section_on_page} = FALSE;
-
 
         }
 
@@ -881,7 +958,7 @@ sub wiki_to_xml {
 
     my $markdown = GoogleWiki2Markdown::convert($input);
 #    ::tracef('input markdown: \'%s\'', $markdown);
-    my $handler = Markdent::Handler::Page->new($xml_writer, $visited, $page, $section_level_offset, $reference_pages, $section);
+    my $handler = Markdent::Handler::Page->new($xml_writer, $visited, $page, $section_level_offset, $section_number, $reference_pages, $section);
     my $parser = Markdent::Parser->new(handler => $handler);
     $parser->parse(markdown => $markdown);
 
