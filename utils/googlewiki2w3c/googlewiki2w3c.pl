@@ -354,7 +354,6 @@ sub wiki_toc_to_html {
         sub start_unordered_list { 
             my $self = shift;
             $self->{list_level}++; 
-            printf("open list: %d\n", $self->{list_level});
             $self->{section_number}->add_level();
             $self->{toc_xml_writer}->startTag('ul');
         }
@@ -362,7 +361,6 @@ sub wiki_toc_to_html {
         sub end_unordered_list { 
             my $self = shift;
             $self->{list_level}--; 
-            printf("close list: %d\n", $self->{list_level});
             $self->{section_number}->remove_level();
             $self->{toc_xml_writer}->endTag('ul');
         }
@@ -406,8 +404,6 @@ sub wiki_toc_to_html {
             # ignore whitespace text events (e.g. newlines at end of list items)
             return unless $text; 
 
-            print "item: $text\n";
-
 #            $self->inc_section_number();
             $section_number->inc();
  
@@ -436,19 +432,19 @@ sub wiki_toc_to_html {
                 $xml_writer->characters($section_number->get_section() . ' ' . $text);
             $xml_writer->endTag($header_tag);
            
-#            if ($in_link) {
-#                ::trace("following TOC link: $_{uri}");
-#                ::wiki_to_xml(
-#                    $xml_writer, 
-#                    $self->{working_dir},
-#                    $self->{visited}, 
-#                    $self->{link_uri}->path, # page
-#                    ($self->{list_level} - 1),
-#                    clone($section_number),
-#                    $self->{reference_pages},
-#                    $self->{link_uri}->fragment # section (optional)
-#                );
-#            }
+            if ($in_link) {
+                ::trace("following TOC link: $_{uri}");
+                ::wiki_to_xml(
+                    $xml_writer, 
+                    $self->{working_dir},
+                    $self->{visited}, 
+                    $self->{link_uri}->path, # page
+                    ($self->{list_level} - 1),
+                    clone($section_number),
+                    $self->{reference_pages},
+                    $self->{link_uri}->fragment # section (optional)
+                );
+            }
            
         }
 
