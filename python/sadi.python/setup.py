@@ -11,7 +11,7 @@ setup(
 
     # metadata for upload to PyPI
     author = "James McCusker",
-    author_email = "mccusker@gmail.gom",
+    author_email = "mccusker@gmail.com",
     description = "SADI for python.",
     license = "New BSD License",
     keywords = "Webservices SemanticWeb, RDF, Python, REST",
