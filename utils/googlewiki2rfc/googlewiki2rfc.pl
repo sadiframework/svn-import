@@ -32,18 +32,20 @@ use constant TEMP_OUTPUT_FILE => 'temp.txt';
 #----------------------------------------------------------------------
 
 use constant USAGE => <<'HEREDOC';
-Usage: gcw2rfc.pl [options] <docname> front.xml [middle.wiki] [back.wiki] > rfc.txt
+Usage: googlewiki2rfc.pl [options] <docname> front.xml middle.wiki [back.wiki] > rfc.txt
 
 <docname> is a document identifier used in the RFC submission / editing process of the 
 IETF.  It can be anything, but a typical example is: 'draft-bvandervalk-sadi-01'. 
 
-"front.xml" contains metadata about the document (e.g. authors, abstract).
+"front.xml" contains metadata about the document (e.g. authors, abstract) in the format 
+used by RFC XML.  front.xml is not a complete XML document on its own.  The XML should not
+be surrounded by <front></front> tags as this is added by the script.
 
 "middle.wiki" is a Google Wiki file containing the Table of Contents (in the form of a
 bulleted list, possibly nested) for the main part of the document.
 
-"back.wiki" is a Google Wiki file containing the Table of Contents for the end matter 
-of the document (e.g. References).
+"back.wiki" is optional and is a Google Wiki file containing the Table of Contents for 
+the end matter of the document (e.g. References).
 HEREDOC
 
 my $help_opt = FALSE;
@@ -67,7 +69,8 @@ if ($help_opt) {
     exit 0;
 }
 
-die USAGE."\n" unless @ARGV >= 1;
+
+die USAGE."\n" unless @ARGV >= 3;
 
 my $doc_name = $ARGV[0];
 my $front_file = $ARGV[1];
@@ -114,7 +117,7 @@ $xml_writer->endTag('front');
 
 $xml_writer->startTag('middle');
 #wiki_toc_to_xml($xml_writer, $middle_file) if $middle_file;
-wiki_toc_to_xml($xml_writer, $middle_file, \@reference_files) if $middle_file;
+wiki_toc_to_xml($xml_writer, $middle_file, \@reference_files);
 $xml_writer->endTag('middle');
 
 if ($back_file || @reference_files) {
