@@ -1,0 +1,41 @@
+<title abbrev="SADI">SADI: Semantic Automated Discovery and Integration</title>
+
+<author initials='B.' surname='Vandervalk' fullname='Ben Vandervalk' role='editor'>
+    <organization>James Hogg Research Centre, Institute for Heart + Lung Health, University of British Columbia</organization>
+    <address>
+        <!--
+        <postal>
+            <street>Meander 501</street>
+            <street></street>
+            <city>Arnhem</city> 
+            <region></region>
+            <code>6825 MD</code>
+            <country>NL</country>
+        </postal>
+        -->
+        <!-- <phone></phone> -->
+        <email>ben dot vvalk at gmail</email>
+        <!-- <uri></uri> -->
+    </address>
+</author>
+<author initials='E.L.' surname='McCarthy' fullname='E. Luke McCarthy'>
+    <organization>James Hogg Research Centre, Institute for Heart + Lung Health, University of British Columbia</organization>
+</author>
+<author initials='M.D.' surname='Wilkinson' fullname='Mark D. Wilkinson'>
+    <organization>James Hogg Research Centre, Institute for Heart + Lung Health, University of British Columbia</organization>
+</author>
+
+<date month='January' year='2012' />
+
+<area>General</area>
+<workgroup>Submission by Individual</workgroup>
+<keyword>Semantic Web</keyword>
+<keyword>Web Services</keyword>
+<keyword>RDF</keyword>
+<keyword>OWL</keyword>
+<keyword>SADI</keyword>
+<abstract>
+    <t>
+This document describes Semantic Automated Discovery and Integration (SADI), a set of best practices for implementing stateless web services that consume RDF data as input and generate RDF data as output.  The goal of SADI is to establish conventions that will enable a much higher level of interoperability between web services from independent providers than is currently possible under the widespread use of WSDL/XML and RESTful services.  Under SADI, interoperability depends on the shared use of predicate vocabularies, rather than the shared use of particular XML schemas, JSON structures, or ad hoc data formats. Through the use of OWL to describe service input and output datatypes, SADI enables: i) automated discovery of services that provide data or computations of interest, and ii) automated matchmaking between local data and available services. By iterative application of the former two capabilities, SADI enables semi-automated construction of arbitrarily complex workflows across independent service providers.
+    </t>
+</abstract>
