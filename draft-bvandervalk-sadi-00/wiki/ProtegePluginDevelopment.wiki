@@ -1,0 +1,9 @@
+#summary Hints for developers working with the Protégé plugin.
+
+=  Workspace setup =
+
+  # Check out https://sadi.googlecode.com/svn/trunk/sadi.protege
+  # Follow the instructions at http://protegewiki.stanford.edu/wiki/CompileProtege4InEclipse (there are saved runnables you can use as a base in the workspace you checked out above)
+  # If you want to use the included OS X runnable, you must define the `${protege_app}` variable in Eclipse (it should point to the Protege.app bundle; set it in *Preferences » Run/Debug » String Substitution*)
+
+= Testing local plugin version =

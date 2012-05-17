@@ -1,7 +1,0 @@
-# This is a SADI service unit test file
-# uncomment the applicable lines to specify
-# your unit test
-
-# unit test for 'getGOTermAssociationsPDB'
-[unittest]
-input = /home/kawas/Perl-SADI/unittest/../xml/getGOTermAssociationsPDB.xml

@@ -1,0 +1,331 @@
+#summary Tutorial: building a SADI service in Perl
+
+== Table of Contents ==
+<wiki:toc max_depth="1" />
+
+= Introduction =
+
+This tutorial describes how to create, test, debug, and deploy a Perl version of the 'Hello, World!' SADI service described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?].
+
+= Software requirements =
+
+This tutorial requires:
+
+  * [http://www.perl.org Perl]
+  * [http://search.cpan.org/dist/SADI-Simple/ SADI::Simple] (install via CPAN)
+  * [http://www.apache.org/ Apache] 
+  * [http://curl.haxx.se/ cURL] (a command-line HTTP client)
+
+= Service template =
+
+Using SADI::Simple, a complete SADI service can be implemented in a single Perl script. The following code ([http://sadi.googlecode.com/files/sadi-service-skeleton-0.0.1.pl sadi-service-skeleton-0.0.1.pl]) shows a template for the 'Hello, World!' service, without the business logic.
+
+{{{
+#!/usr/bin/perl
+
+package HelloWorld;
+
+use strict;
+use warnings;
+
+#-----------------------------------------------------------------
+# CGI HANDLER PART
+#-----------------------------------------------------------------
+
+use Log::Log4perl qw(:easy);
+use base 'SADI::Simple::AsyncService'; # or 'SADI::Simple::SyncService'
+
+# send log messages at level WARN or above to STDERR
+Log::Log4perl->easy_init($WARN);
+
+my $config = {
+    ServiceName => 'HelloWorld', # any name you like  
+    Description => 'A \'Hello, World!\' service', 
+    InputClass => 'http://sadiframework.org/examples/hello.owl#NamedIndividual', # defines a single service input
+    OutputClass => 'http://sadiframework.org/examples/hello.owl#GreetedIndividual', # defines a single service output
+    Authority => 'sadiframework.org', # domain of organization providing service
+    Provider => 'myaddress@organization.org', # contact e-mail address of service provider
+};
+
+my $service = HelloWorld->new(%$config);
+$service->handle_cgi_request;
+
+#-----------------------------------------------------------------
+# SERVICE IMPLEMENTATION PART
+#-----------------------------------------------------------------
+
+use RDF::Trine::Node::Resource;
+use RDF::Trine::Node::Literal;
+use RDF::Trine::Statement;
+
+=head2 process_it
+
+ Function: implements the business logic of a SADI service
+ Args    : $inputs - ref to an array of RDF::Trine::Node::Resource
+           $input_model - an RDF::Trine::Model containing the input RDF data
+           $output_model - an RDF::Trine::Model containing the output RDF data
+ Returns : nothing (service output is stored in $output_model)
+
+=cut
+
+sub process_it {
+
+    my ($self, $inputs, $input_model, $output_model) = @_;
+
+    foreach my $input (@$inputs) {
+       
+        # Log4perl 'easy mode' routines: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, ALWAYS
+        INFO(sprintf('processing input %s', $input->uri));
+
+        # Add business logic here.
+        #
+        # Perform the desired computation on $input, then add
+        # new statements about $input to $output_model.
+
+    }
+
+}
+}}}
+_[http://sadi.googlecode.com/files/sadi-service-skeleton-0.0.1.pl sadi-service-skeleton-0.0.1.pl]: template for a Perl SADI service, without business logic._
+
+To configure the service template, you must choose to subclass one of the following two classes:
+
+  * `SADI::Simple::SyncService` -- A service that subclasses SADI::Simple::SyncService is a synchronous service, which means that the service completes its computation before returning any response to the caller.
+  * `SADI::Simple::AsyncService` -- A service that subclasses SADI::Simple::AsyncService is an asynchronous service, which means that the service returns an immediate "ask me later" response to a request, and must be polled for the results.
+
+In general, asynchronous services are a better choice as they can run for an arbitarily long time. The main advantage of synchronous services is that there is less back-and-forth messaging and so they are potentially more efficient for services that perform trivial operations.
+
+Next, you must fill in appropriate values for the `$config` hash:
+
+  * `ServiceName` -- A human-readable name for the service
+  * `Description` -- A human-readable description of the service
+  * `InputClass` -- The URI of the service's _input OWL class_. The input OWL class describes the required properties (i.e. predicates) of each input RDF node. A further discussion of the input and output OWL classes will be given in the following section.
+  * `OutputClass` -- The URI of the service's _output OWL class_. The output OWL class describes the properties (i.e. predicates) that are attached each input RDF node, as a result of the service's computation. A further discussion of the input and output OWL classes will be given in the following section.
+  * `Authority` -- The hostname of the organization providing the service (e.g. sadiframework.org)
+  * `Provider` -- The contact email address of the service provider, in case of questions / problems.
+
+In addition, you may add the following optional parameters to the `$config` hash:
+
+  * `URL` -- The URL used to access your service. It is necessary to provide this parameter if the service is asynchronous and sits behind proxies/redirects, to ensure that the polling URLs returned by the service are publicly accessible.
+  * `ServiceType` -- A URI indicating the type of service. Ideally, this URI should come from a public ontology of service types, such as the [http://www.mygrid.org.uk/tools/service-management/mygrid-ontology/ myGrid ontology] for bioinformatics services.
+
+= Defining input and output OWL classes =
+
+Your service’s input and output OWL classes describe its interface to the world. The property restrictions on the input class define the properties your service needs to operate and the property restrictions on the output class define the properties your service will attach.
+
+As described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?], your input and output classes must each be identified by an URL that resolves to the class definition. To correctly implement a SADI service, you must create an OWL ontology describing the service input and output and publish it on the web. Ontology design is beyond the scope of this document, but we provide an example here to help get you started.
+
+For our 'Hello, World!' example, the input class is http://sadiframework.org/examples/hello.owl#NamedIndividual. The class definition is reproduced below:
+
+{{{
+<owl:Class rdf:ID="NamedIndividual">
+  <owl:equivalentClass>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="http://xmlns.com/foaf/0.1/name"/>
+      <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+    </owl:Restriction>
+  </owl:equivalentClass>
+</owl:Class>
+}}}
+
+This class specifies a single property restriction: that there is at least one value of the [http://xmlns.com/foaf/0.1/name] property. This is a necessary and sufficient condition for class membership (indicated by the `owl:equivalentClass` construct), allowing any individual with a `foaf:name` to be dynamically identified as a `NamedIndividual`.
+
+The output class for the 'Hello, World!' service is [http://sadiframework.org/examples/hello.owl#GreetedIndividual]:
+
+{{{
+<owl:Class rdf:ID="GreetedIndividual">
+  <owl:equivalentClass>
+    <owl:Restriction>
+      <owl:onProperty rdf:resource="#greeting"/>
+      <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+    </owl:Restriction>
+  </owl:equivalentClass>
+</owl:Class>
+}}}
+
+This class also specifies a single property restriction, indicating that the service will attach at least one value of the [http://sadiframework.org/examples/hello.owl#greeting] property.
+
+Note that the [http://sadiframework.org/examples/hello.owl hello.owl] ontology completely specifies the properties it uses: it defines the greeting property and imports the foaf:name property.
+
+= Adding business logic =
+
+Your business logic should be added to the `process_it` routine of [http://sadi.googlecode.com/files/sadi-service-skeleton-0.0.1.pl sadi-service-skeleton-0.0.1.pl]; this method will be called once for each time the service is invoked.  In `process_it`, you read statements about each input URI from the input model and add new statements about each input URI to the output model. (A 
+_model_ is a set of RDF triples.)  `SADI::Simple` uses the `RDF::Trine` module for creating and manipulating the input/output RDF models.
+
+For our 'Hello, World!' example, implementing the business logic requires reading the name attached to each input URI and then attaching a corresponding greeting to that URI in the output model.  The completed service ([http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl]) is shown below:
+
+{{{
+#!/usr/bin/perl
+
+package HelloWorld;
+
+use strict;
+use warnings;
+
+#-----------------------------------------------------------------
+# CGI HANDLER PART
+#-----------------------------------------------------------------
+
+use Log::Log4perl qw(:easy);
+use base 'SADI::Simple::AsyncService'; # or 'SADI::Simple::SyncService'
+
+# send log messages at level WARN or above to STDERR
+Log::Log4perl->easy_init($WARN);
+
+my $config = {
+    ServiceName => 'HelloWorld', # any name you like  
+    Description => 'A \'Hello, World!\' service', 
+    InputClass => 'http://sadiframework.org/examples/hello.owl#NamedIndividual', # defines a single service input
+    OutputClass => 'http://sadiframework.org/examples/hello.owl#GreetedIndividual', # defines a single service output
+    Authority => 'sadiframework.org', # domain of organization providing service
+    Provider => 'myaddress@organization.org', # contact e-mail address of service provider
+};
+
+my $service = HelloWorld->new(%$config);
+$service->handle_cgi_request;
+
+#-----------------------------------------------------------------
+# SERVICE IMPLEMENTATION PART
+#-----------------------------------------------------------------
+
+use RDF::Trine::Node::Resource;
+use RDF::Trine::Node::Literal;
+use RDF::Trine::Statement;
+
+=head2 process_it
+
+ Function: implements the business logic of a SADI service
+ Args    : $inputs - ref to an array of RDF::Trine::Node::Resource
+           $input_model - an RDF::Trine::Model containing the input RDF data
+           $output_model - an RDF::Trine::Model containing the output RDF data
+ Returns : nothing (service output is stored in $output_model)
+
+=cut
+
+sub process_it {
+
+    my ($self, $inputs, $input_model, $output_model) = @_;
+
+    my $name_property = RDF::Trine::Node::Resource->new('http://xmlns.com/foaf/0.1/name');
+    my $greeting_property = RDF::Trine::Node::Resource->new('http://sadiframework.org/examples/hello.owl#greeting');
+
+    foreach my $input (@$inputs) {
+       
+        # Log4perl 'easy mode' routines: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, ALWAYS
+        INFO(sprintf('processing input %s', $input->uri));
+
+        my ($name) = $input_model->objects($input, $name_property);
+
+        if (!$name || !$name->is_literal) {
+            WARN(sprintf('skipping input %s, doesn\'t have a <%s> property with a literal value', $input->uri, $name_property->uri));
+            next;
+        }
+
+        my $greeting = sprintf("Hello, '%s'!", $name->value);
+        my $greeting_literal = RDF::Trine::Node::Literal->new($greeting);
+
+        my $statement = RDF::Trine::Statement->new($input, $greeting_property, $greeting_literal);
+        $output_model->add_statement($statement);
+
+    }
+
+}
+}}}
+_[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl]: complete implementation of a SADI 'Hello, World!' service in Perl_
+
+= Testing your service =
+
+[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] is a [http://en.wikipedia.org/wiki/Common_Gateway_Interface CGI script].  You may test the service on your local machine by installing [http://www.apache.org/ Apache] and configuring a directory on your machine to act as a `cgi-bin` directory.  Here is a HOWTO for configuring CGI in Apache: http://httpd.apache.org/docs/current/howto/cgi.html.
+
+Once you have set up your web server and have copied [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello.pl hello.pl] to the cgi-bin directory, ensure that the web server has permission to run the script by making it world-executable:
+
+{{{
+$ chmod a+x $PATH_TO_CGI_BIN/hello.pl
+}}}
+
+Replace $PATH_TO_CGI_BIN with the path to your local `cgi-bin` directory.
+
+Next, you will want to test the service by invoking it with some input. The following text ([http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3 hello-input.n3]) shows a sample input RDF file in N3 format:
+
+{{{
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix hello: <http://sadiframework.org/examples/hello.owl#> .
+@prefix input: <http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#> .
+
+input:a 
+    a hello:NamedIndividual;
+    foaf:name "Guy Incognito" .
+
+input:b
+    a hello:NamedIndividual;
+    foaf:name "Homer Simpson" .
+}}}
+_[http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3 hello-input.n3]: a sample input RDF file for our 'Hello, World!' service, in N3 format_
+
+To invoke the service, you need to issue an HTTP POST request to the service with [http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3 hello-input.n3] as the content of the request.  Here, we will use the `curl` command-line HTTP client to do this:
+
+{{{
+$ curl -H 'Content-Type: text/rdf+n3' -H 'Accept: text/rdf+n3' -i --data-binary  @hello-input.n3  'http://localhost/cgi-bin/hello.pl'
+}}} 
+
+By default, the service assumes that the input format will be RDF/XML and that the desired output format is RDF/XML.  We supply the `Content-Type` header to indicate that the input format is N3 and the `Accept` header to indicate that the desired output format is N3.  Please note that you should you the `--data-binary` option instead of just `--data`  because in the latter case curl strips newlines from the input.  Finally, we include the `-i` switch to display the HTTP headers of the response (for illustrative purposes).
+
+As this is an asynchronous service, we receive an immediate response that looks like:
+
+{{{
+HTTP/1.1 202 Accepted
+Date: Sun, 21 Aug 2011 04:27:04 GMT
+Server: Apache/2.2.14 (Ubuntu)
+Retry-after: 30
+Transfer-Encoding: chunked
+Content-Type: text/rdf+n3; charset=ISO-8859-1
+
+<http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#a> a <http://sadiframework.org/examples/hello.owl#GreetedIndividual> ;
+	<http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://localhost/cgi-bin/hello.pl?poll=K7CRRwEV7H> .
+<http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#b> a <http://sadiframework.org/examples/hello.owl#GreetedIndividual> ;
+	<http://www.w3.org/2000/01/rdf-schema#isDefinedBy> <http://localhost/cgi-bin/hello.pl?poll=K7CRRwEV7H> .
+
+}}}
+
+This HTTP 202 response tells us that service has accepted the request and that we should wait 30 seconds before retrieving the results from `http://localhost/cgi-bin/hello.pl?poll=cE_5RTzFiN`. Again, we specify that we want the output in N3:
+
+{{{
+$ curl -H 'Accept: text/rdf+n3' 'http://localhost/cgi-bin/hello.pl?poll=K7CRRwEV7H'
+}}}
+
+We then receive the expected output data:
+
+{{{
+<http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#a> <http://sadiframework.org/examples/hello.owl#greeting> "Hello, 'Guy Incognito'!" .
+<http://sadiframework.org/documentation/building-a-sadi-service-in-perl/hello-input.n3#b> <http://sadiframework.org/examples/hello.owl#greeting> "Hello, 'Homer Simpson'!" .
+}}} 
+
+= Debugging your service =
+
+The above scenario assumes that you have made no errors in coding the business logic of your service.  However, generally that is not how life works.
+
+If you need to run your service in the [http://perldoc.perl.org/perldebtut.html Perl debugger], you can use the following command:
+
+{{{
+$ REQUEST_METHOD=POST CONTENT_TYPE='text/rdf+n3' HTTP_ACCEPT='text/rdf+n3' perl -d hello.pl < hello-input.n3 
+}}} 
+
+The environment variable values at the beginning of the command create a CGI-like environment for the script. (Note: This command assumes you are using a bash shell under some flavor of Unix.  You will probably have to use other methods to set environment variable values under other operating systems or shells.)  
+
+Note that asynchronous services are more difficult to debug than synchronous services because they spawn a child thread to run the `process_it` method.  To make life easier, you can temporarily change the parent class of your service to `SADI::Simple::SyncService` while debugging.
+
+= Deploying your service =
+
+Once you have tested your service, you can deploy it by uploading it to the `cgi-bin` directory on the target server. 
+
+SADI::Simple and any other Perl modules that your service requires must installed on the target server. If you cannot install Perl modules on the target server because you do not have root access, it is possible to install the Perl modules in your home directory instead. Please see [http://perldoc.perl.org/perlfaq8.html#How-do-I-keep-my-own-module%2Flibrary-directory%3F "How do I keep my own module/library directory?"] in Section 8 of the Perl FAQ. You can add your personal modules directory (e.g. `/home/joe/lib/perl5`) to the `@INC` path for your SADI services by adding the following line to the [http://httpd.apache.org/docs/current/howto/htaccess.html .htaccess] file in the `cgi-bin` directory:
+
+{{{
+SetEnv PERL5LIB /home/joe/lib/perl5
+}}}
+
+= Registering your service =
+
+If you think your service might be useful to others, please register it in the public SADI registry! Simply submit the service URL to the form at http://sadiframework.org/registry. 
+
+Happy hacking!
