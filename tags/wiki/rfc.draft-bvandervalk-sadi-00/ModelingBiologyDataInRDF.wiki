@@ -1,8 +1,0 @@
-#summary How do I model biological datatype X in RDF/OWL?
-
-=Modeling Biology Data in RDF/OWL=
-
-How do I model...
-
-  * [ModelingSequenceFeaturesInRDF Sequence Features]?
-  * ...
