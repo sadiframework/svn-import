@@ -1,0 +1,218 @@
+#summary Tutorial: building a SADI service in Java.
+
+== Table of Contents ==
+<wiki:toc max_depth="1" />
+
+In order to make it easier to develop SADI services, we have provided a skeleton Java project. Instructions for using the skeleton are provided here, exemplified by the same Hello, World! service we used in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?].
+
+= Requirements =
+
+SADI requires Java 1.6.
+
+SADI uses Maven 2 to handle dependency management, so Maven is the only base requirement. You can download Maven 2 (and obtain installation instructions) from [http://maven.apache.org/download.html].
+
+The SADI service skeleton project is optimised for the [http://www.eclipse.org/downloads/ Eclipse IDE], but Eclipse is not required. If you are using Eclipse, you don’t have to download Maven; the latest versions of Eclipse include Maven integration.  If you are using an older version of Eclipse that does not include Maven integration (i.e.: before version 3.7 Indigo), some of the instructions in this tutorial may not match exactly what you see and it is recommended that you either update Eclipse or follow [http://sadi.googlecode.com/svn-history/r1860/wiki/BuildingServicesInJava.wiki the previous version of this tutorial].
+
+The SADI service will be built as a Java WAR, so a servlet container is required to deploy the finished service. [http://tomcat.apache.org/ Apache Tomcat] and [http://www.mortbay.org/jetty/ Jetty] are popular alternatives. The skeleton project uses the Jetty Maven plugin, so you will not need to setup a servlet container to test your service during development.
+
+= The SADI service skeleton=
+
+Download the [http://sadi.googlecode.com/files/sadi-service-skeleton-0.1.1-e3.7.zip SADI service skeleton].
+
+If you are working from the command line, unzip the archive and change into the unzipped sadi-service-skeleton directory.
+
+{{{
+$ unzip sadi-service-skeleton-0.1.1-e3.7.zip
+$ cd sadi-services
+}}}
+
+If you are working in Eclipse, import the sadi-services project into your workspace (choose *File → Import → General → Existing Projects into Workspace*, choose *Select archive file* and browse to `sadi-service-skeleton-0.1.1-e3.7.zip`, select the `sadi-services` project if it is not already selected, and click *Finish*).
+
+= Defining input and output OWL classes =
+
+Your service’s input and output OWL classes describe its interface to the world. The property restrictions on the input class define the properties your service needs to operate and the property restrictions on the output class define the properties your service will attach.
+
+As described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?], your input and output classes must each be identified by a URL that resolves to the class definition. Before you can proceed, you must have created the ontology describing your input and output and hosted it such that this is the case. Ontology design is beyond the scope of this document, but see DefiningInputAndOutputOWLClasses for some SADI-specific tips.
+
+For our example, our input class will be [http://sadiframework.org/examples/hello.owl#NamedIndividual]. The class definition is reproduced below:
+
+{{{
+<owl:Class rdf:ID="NamedIndividual"> 
+  <owl:equivalentClass> 
+    <owl:Restriction> 
+      <owl:onProperty rdf:resource="http://xmlns.com/foaf/0.1/name"/> 
+      <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality> 
+    </owl:Restriction> 
+  </owl:equivalentClass> 
+</owl:Class>
+}}}
+
+This class specifies a single property restriction: that there is at least one value of the [http://xmlns.com/foaf/0.1/name] property. As suggested in DefiningInputAndOutputOWLClasses, this is a necessary and sufficient condition for class membership (indicated by the `owl:equivalentClass` construct), allowing any individual with a `foaf:name` to be dynamically identified as a `NamedIndividual`.
+
+For our example, our output class will be [http://sadiframework.org/examples/hello.owl#GreetedIndividual]. The class definition is reproduced below:
+
+{{{
+<owl:Class rdf:ID="GreetedIndividual"> 
+  <owl:equivalentClass> 
+    <owl:Restriction> 
+      <owl:onProperty rdf:resource="#greeting"/> 
+      <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/> 
+    </owl:Restriction> 
+  </owl:equivalentClass> 
+</owl:Class>
+}}}
+
+This class also specifies a single property restriction, indicating that the service will attach a value of the [http://sadiframework.org/examples/hello.owl#greeting] property that is an `xsd:string`.
+
+Note that, as mentioned in DefiningInputAndOutputOWLClasses, the [hello.owl http://sadiframework.org/examples/hello.owl] ontology completely specifies the properties it uses: it defines the `greeting` property and imports the `foaf:name` property.
+
+= Generating the SADI service code =
+
+Now you’ll use the SADI service generator Maven plugin to generate a Java class stub and other supporting files.
+
+If you are working from the command line, execute the following Maven command:
+
+{{{
+$ mvn ca.wilkinsonlab.sadi:sadi-generator:generate-service 
+  -DserviceName=hello 
+  -DserviceClass=com.example.HelloWorldService 
+  -DinputClass=http://sadiframework.org/examples/hello.owl#NamedIndividual 
+  -DoutputClass=http://sadiframework.org/examples/hello.owl#GreetedIndividual 
+  -DcontactEmail=your-email-address
+}}}
+
+_Note: if you are copying-and-pasting the above command, be sure that it all appears on one line and substitute your own email address._
+
+If you are working in Eclipse, there will be a preset run configuration for the service generator. Choose *Run » Run configurations…* and find *generate sadi service* under *Maven Build* in the left side panel of the dialog.
+
+Once *generate sadi service* is selected, you can set the parameters in the main panel of the dialog by double-clicking a parameter under *Parameter Name*. Set the parameters as in the command-line example above and click *Run*.
+
+_Note: although the parameters above are the only ones required to use the SADI service generator, there are others that can be set. You can execute the help goal of the service-generator plugin (i.e.: _`mvn ca.wilkinsonlab.sadi:sadi-generator:help`_) to see all of the available parameters._
+
+= Adding business logic =
+
+The service generator plugin should now have created a Java stub under `src/main/java`.  If you are using Eclipse, you may have to refresh the `sadi-services` project directory to see the generated file.
+
+Your business logic should go in the `processInput(Resource input, Resource output)` method. This method will be called once for every instance of the input class received by the service. You should read the properties you need from the `input` `Resource` and attach the properties you provide to the `output` `Resource`. `Resource` is a class from the [http://jena.sourceforge.net/documentation.html Jena Semantic Web Framework] that represents any non-literal RDF node.) manipulate RDF. For more information, see the [http://jena.sourceforge.net/javadoc/index.html Jena Javadoc].
+
+For our example, open `src/main/java/com/example/HelloWorldService.java` and edit it as shown below (new code is in the `processInput(Resource input, Resource output)` method):
+
+{{{
+package com.example;
+
+import org.apache.log4j.Logger;
+
+import ca.wilkinsonlab.sadi.service.annotations.Name; 
+import ca.wilkinsonlab.sadi.service.annotations.Description; 
+import ca.wilkinsonlab.sadi.service.annotations.ContactEmail; 
+import ca.wilkinsonlab.sadi.service.annotations.InputClass; 
+import ca.wilkinsonlab.sadi.service.annotations.OutputClass; 
+import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
+
+import com.hp.hpl.jena.rdf.model.Model; 
+import com.hp.hpl.jena.rdf.model.ModelFactory; 
+import com.hp.hpl.jena.rdf.model.Property; 
+import com.hp.hpl.jena.rdf.model.Resource; 
+//import com.hp.hpl.jena.rdf.model.Statement; 
+//import com.hp.hpl.jena.rdf.model.StmtIterator;
+
+@Name("hello") 
+@ContactEmail("your-email-address") 
+@InputClass("http://sadiframework.org/examples/hello.owl#NamedIndividual") 
+@OutputClass("http://sadiframework.org/examples/hello.owl#GreetedIndividual") 
+public class HelloWorld extends SimpleSynchronousServiceServlet 
+{ 
+    private static final Logger log = Logger.getLogger(HelloWorldService.class);
+
+    public HelloWorldService() 
+    { 
+        super(); 
+    } 
+     
+    public void processInput(Resource input, Resource output) 
+    { 
+        /* your code goes here 
+         * (add properties to output node based on properties of input node…) 
+         */ 
+        String name = input.getProperty(Vocab.name).getString(); 
+        output.addProperty(Vocab.greeting, String.format("Hello, %s!", name)); 
+    }
+
+    private static final class Vocab 
+    { 
+        private static Model m_model = ModelFactory.createDefaultModel(); 
+         
+        public static final Property name = m_model.createProperty("http://xmlns.com/foaf/0.1/name"); 
+        public static final Property greeting = m_model.createProperty("http://sadiframework.org/examples/hello.owl#greeting"); 
+        public static final Resource Literal = m_model.createResource("http://www.w3.org/2000/01/rdf-schema#Literal"); 
+        public static final Resource NamedIndividual = m_model.createResource("http://sadiframework.org/examples/hello.owl#NamedIndividual"); 
+        public static final Resource GreetedIndividual = m_model.createResource("http://sadiframework.org/examples/hello.owl#GreetedIndividual"); 
+    } 
+}
+}}}
+
+Note the inner class `Vocab` that’s been generated to provide easy access to the properties and classes you might need. This is the part of the generator that’s the most fragile and it may have compile errors (for example, it may attempt to define a variable with the name of a Java reserved word). These should, however, be easy to fix.
+
+= Running your service in Jetty =
+
+In order to test your service, it must first be running in a servlet container. Fortunately, the Maven Jetty plugin makes this easy.
+
+If you are working from the command line, execute the following Maven command:
+
+{{{
+$ mvn org.mortbay.jetty:jetty-maven-plugin:run
+}}}
+
+Note: while Jetty is running, you will not be able to execute further commands in that terminal window.
+
+If you are are working from Eclipse, there will be another preset run configuration to run your service. Choose *Run » Run configurations…* and find *run sadi services in Jetty* under *Maven Build* in the left side panel of the dialog. Once *run sadi services in Jetty* is selected click *Run*.
+
+= Testing your service =
+
+In order to test your service, you need an input RDF document and the corresponding expected output. For our example, we will use the following RDF input, available at [http://sadiframework.org/test/hello-input.rdf].
+
+{{{
+<rdf:RDF 
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+  xmlns:foaf="http://xmlns.com/foaf/0.1/" 
+  xmlns:hello="http://sadiframework.org/examples/hello.owl#"> 
+    <hello:NamedIndividual rdf:about="http://sadiframework.org/examples/hello-input.rdf#1"> 
+      <foaf:name>Guy Incognito</foaf:name> 
+    </hello:NamedIndividual> 
+</rdf:RDF>
+}}}
+
+And here is the corresponding expected output, available at [http://sadiframework.org/test/hello-output.rdf].
+
+{{{
+<rdf:RDF 
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+  xmlns:hello="http://sadiframework.org/examples/hello.owl#"> 
+    <hello:GreetedIndividual rdf:about="http://sadiframework.org/examples/hello-input.rdf#1"> 
+      <hello:greeting>Hello, Guy Incognito!</hello:greeting> 
+    </hello:GreetedIndividual> 
+</rdf:RDF>
+}}}
+
+If you are working from the command line, execute the following Maven command to test the service (remember that Jetty is running in your original terminal, so you will have to open a new terminal and change to the sadi.service.skeleton directory):
+
+{{{
+$ mvn ca.wilkinsonlab.sadi:sadi-tester:test-service 
+  -DserviceURL=http://localhost:8080/sadi-services/hello 
+  -Dinput=http://sadiframework.org/test/hello-input.rdf 
+  -Dexpected=http://sadiframework.org/test/hello-output.rdf
+}}}
+
+_Note: if you are copying-and-pasting the above command, be sure that it all appears on one line._
+
+If you are working in Eclipse, there will be another preset run configuration for the service tester. Choose *Run » Run configurations…* and find *test sadi service* under *Maven Build* in the left side panel of the dialog.
+
+Once *test sadi service is selected*, you can set the parameters in the main panel of the dialog by double-clicking a parameter under *Parameter Name*. Set the parameters as in the command-line example above and click *Run*.
+
+If you see `BUILD SUCCESSFUL`, the service produced the expected output.
+
+= Deploying and registering your service =
+
+The WAR file generated by `mvn package` (which will be found in the `target` directory) is suitable for immediate deployment to the servlet container of your choice. It will contain all of the required jars, so it might be quite large.
+
+Once your service has been deployed, you can register it by visiting [http://sadiframework.org/registry/] and submitting the URL of your service in the form on that page. If you wish to unregister your service later, simply undeploy it and resubmit the now invalid URL.
