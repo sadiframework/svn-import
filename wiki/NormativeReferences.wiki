@@ -3,46 +3,160 @@
 
 = Normative References =
 
+<wiki:comment>
+Note: These references are formatted according to common practices for W3C documents. The marking up with <span> elements is 
+needed so that the googlewiki2rfc tool (in svn/trunk/utils) can parse the references and rearrange them into the form 
+required by RFCs.
+</wiki:comment>
+
 == RFC2119 ==
 
-Bradner, S., “Key words for use in RFCs to Indicate Requirement Levels,” BCP 14, RFC 2119, 1997.
+<a class="title" href="http://www.ietf.org/rfc/rfc2119.txt">Key words for use in RFCs to Indicate Requirement Levels</a>, 
+<span class="docid"><span class="docseries">BCP</span> <span class="docnumber">14</span></span>, 
+<span class="docid"><span class="docseries">RFC</span> <span class="docnumber">2119</span>, 
+<span class="author"><span class="firstname">S.</span> <span class="lastname">Bradner</span></span>, 
+<span class="date"><span class="month">March</span> <span class="year">1997</span></span>.
 
 == WSDL ==
 
-Chinnici, R., Moreau, J. J., Ryman, A., and Weerawarana, S., “Web Services Description Language (WSDL) Version 2.0 Part 1: Core Language,” W3C Recommendation, 2007.
+<a class="title" href="http://www.w3.org/TR/2007/REC-wsdl20-20070626">Web Services Description Language (WSDL) Version 2.0 Part 1: Core Language</a>, 
+<span class="author"><span class="firstname">R.</span> <span class="lastname">Chinnici</span></span>, 
+<span class="author"><span class="firstname">J. J.</span> <span class="lastname">Moreau</span></span>, 
+<span class="author"><span class="firstname">A.</span> <span class="lastname">Ryman</span></span>, 
+<span class="author"><span class="firstname">S.</span> <span class="lastname">Weerawarana</span></span>, 
+Editors, 
+<span class="docid"><span class="docseries">W3C</span> <span class="docnumber">Recommendation</span></span>, 
+<span class="date"><span class="day">26</span> <span class="month">June</span> <span class="year">1997</span></span>,
+http://www.w3.org/TR/2007/REC-wsdl20-20070626. 
+<a href="http://www.w3.org/TR/wsdl20/">Latest version</a> available at http://www.w3.org/TR/wsdl20/.
 
 == XML ==
 
-Bray, T., Paoli, J., Sperberg-McQueen, C. M., Maler, E., and Yergeau, F., “Extensible Markup Language (XML) 1.0 (Fifth Edition),” W3C Recommendation, 2008.
- 
+<a class="title" href="http://www.w3.org/TR/2008/REC-xml-20081126/">Extensible Markup Language (XML) 1.0 (Fifth Edition)</a>, 
+<span class="author"><span class="firstname">T.</span> <span class="lastname">Bray</span></span>, 
+<span class="author"><span class="firstname">J.</span> <span class="lastname">Paoli</span></span>, 
+<span class="author"><span class="firstname">C. M.</span> <span class="lastname">Sperberg-McQueen</span></span>, 
+<span class="author"><span class="firstname">E.</span> <span class="lastname">Maler</span></span>, 
+<span class="author"><span class="firstname">F.</span> <span class="lastname">Yergeau</span></span>, 
+Editors,
+<span class="docid"><span class="docseries">W3C</span> <span class="docnumber">Recommendation</span></span>, 
+<span class="date"><span class="day">26</span> <span class="month">November</span> <span class="year">2008</span></span>,
+http://www.w3.org/TR/2008/REC-xml-20081126/. 
+<a href="http://www.w3.org/TR/xml/">Latest version</a> available at http://www.w3.org/TR/xml/.
+
 == REST ==
 
-Fielding, R. T., “Architectural styles and the design of network-based software architectures,” University of California, 2000.
+<a class="title" href="http://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm">Architectural styles and the design of network-based software architectures</a>,
+<span class="author"><span class="firstname">R. T.</span> <span class="lastname">Fielding</span>, <span class="organization">University of California</span></span>, 
+<span class="date"><span class="year">2000</span></span>.
 
 == RDF ==
 
-Klyne, G. and Carroll, J. J., “Resource Description Framework (RDF): Concepts and Abstract Syntax,” W3C Recommendation, 2004.
+<a class="title" href="http://www.w3.org/TR/2004/REC-rdf-concepts-20040210/">Resource Description Framework (RDF): Concepts and Abstract Syntax</a>, 
+<span class="author"><span class="firstname">G.</span> <span class="lastname">Klyne</span></span>, 
+<span class="author"><span class="firstname">J. J.</span> <span class="lastname">Carroll</span></span>, 
+Editors,
+<span class="docid"><span class="docseries">W3C</span> <span class="docnumber">Recommendation</span></span>, 
+<span class="date"><span class="day">10</span> <span class="month">February</span> <span class="year">2004</span></span>,
+http://www.w3.org/TR/2004/REC-rdf-concepts-20040210/. 
+<a href="http://www.w3.org/TR/rdf-concepts/">Latest version</a> available at http://www.w3.org/TR/rdf-concepts/.
 
 == OWL ==
 
-Motik, B. et al., “OWL 2 Web Ontology Language: Structural Specification and Functional-Style Syntax,” W3C Recommendation, 2009.
+<a class="title" href="http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/">OWL 2 Web Ontology Language: Structural Specification and Functional-Style Syntax</a>, 
+<span class="author"><span class="firstname">B.</span> <span class="lastname">Motik</span></span>, 
+<span class="author"><span class="firstname">P. F.</span> <span class="lastname">Patel-Schneider</span></span>, 
+<span class="author"><span class="firstname">B.</span> <span class="lastname">Parsia</span></span>, 
+Editors,
+<span class="docid"><span class="docseries">W3C</span> <span class="docnumber">Recommendation</span></span>, 
+<span class="date"><span class="day">27</span> <span class="month">October</span> <span class="year">2009</span></span>,
+http://www.w3.org/TR/2009/REC-owl2-syntax-20091027/. 
+<a href="http://www.w3.org/TR/owl2-syntax/">Latest version</a> available at http://www.w3.org/TR/owl2-syntax/.
 
 == HTTP ==
 
-Fielding, R. et al., “Hypertext Transfer Protocol -- HTTP/1.1,” RFC 2616, 1999.
+<a class="title" href="http://www.ietf.org/rfc/rfc2616.txt">Hypertext Transfer Protocol -- HTTP/1.1</a>, 
+<span class="docid"><span class="docseries">RFC</span> <span class="docnumber">2616</span>, 
+<span class="author"><span class="firstname">R. T.</span> <span class="lastname">Fielding</span></span>, 
+<span class="author"><span class="firstname">J.</span> <span class="lastname">Gettys</span></span>, 
+<span class="author"><span class="firstname">J.</span> <span class="lastname">Mogul</span></span>, 
+<span class="author"><span class="firstname">H.</span> <span class="lastname">Frystyk</span></span>, 
+<span class="author"><span class="firstname">L.</span> <span class="lastname">Mastinter</span></span>, 
+<span class="author"><span class="firstname">P.</span> <span class="lastname">Leach</span></span>, 
+<span class="author"><span class="firstname">T.</span> <span class="lastname">Berners-Lee</span></span>, 
+<span class="date"><span class="month">June</span> <span class="year">1999</span></span>.
 
 == XML Schema ==
 
-Thompson, H. S., Beech, D., Maloney, M., and Mendelsohn, N., “XML Schema Part 1: Structures Second Edition,” W3C Recommendation, 2004.
+<a class="title" href="http://www.w3.org/TR/2004/REC-xmlschema-1-20041028/">XML Schema Part 1: Structures Second Edition</a>, 
+<span class="author"><span class="firstname">H. S.</span> <span class="lastname">Thompson</span></span>, 
+<span class="author"><span class="firstname">D.</span> <span class="lastname">Beech</span></span>, 
+<span class="author"><span class="firstname">M.</span> <span class="lastname">Maloney</span></span>, 
+<span class="author"><span class="firstname">N.</span> <span class="lastname">Mendelsohn</span></span>, 
+Editors,
+<span class="docid"><span class="docseries">W3C</span> <span class="docnumber">Recommendation</span></span>, 
+<span class="date"><span class="day">28</span> <span class="month">October</span> <span class="year">2004</span></span>,
+http://www.w3.org/TR/2004/REC-xmlschema-1-20041028/. 
+<a href="http://www.w3.org/TR/xmlschema-1/">Latest version</a> available at http://www.w3.org/TR/xmlschema-1/.
 
 == SAWSDL ==
 
-Farrell, J. and Lausen, H., “Semantic Annotations for WSDL and XML Schema,” W3C Recommendation, 2007.
+<a class="title" href="http://www.w3.org/TR/2007/REC-sawsdl-20070828/">Semantic Annotations for WSDL and XML Schema</a>, 
+<span class="author"><span class="firstname">J.</span> <span class="lastname">Farrell</span></span>, 
+<span class="author"><span class="firstname">H.</span> <span class="lastname">Lausen</span></span>, 
+Editors,
+<span class="docid"><span class="docseries">W3C</span> <span class="docnumber">Recommendation</span></span>, 
+<span class="date"><span class="day">28</span> <span class="month">August</span> <span class="year">2007</span></span>,
+http://www.w3.org/TR/2007/REC-sawsdl-20070828/. 
+<a href="http://www.w3.org/TR/sawsdl/">Latest version</a> available at http://www.w3.org/TR/sawsdl/.
 
 == OWL-S ==
 
-Martin, D. et al., “OWL-S: Semantic markup for web services,” W3C Member Submission, 2004.
+<a class="title" href="http://www.w3.org/Submission/2004/SUBM-OWL-S-20041122/">OWL-S: Semantic Markup for Web Services</a>, 
+<span class="author"><span class="firstname">J.</span> <span class="lastname">Farrell</span></span>, 
+<span class="author"><span class="firstname">H.</span> <span class="lastname">Lausen</span></span>, 
+<span class="author"><span class="firstname">D.</span> <span class="lastname">Martin</span></span>, 
+<span class="author"><span class="firstname">M.</span> <span class="lastname">Burstein</span></span>, 
+<span class="author"><span class="firstname">J.</span> <span class="lastname">Hobbs</span></span>, 
+<span class="author"><span class="firstname">O.</span> <span class="lastname">Lassila</span></span>, 
+<span class="author"><span class="firstname">D.</span> <span class="lastname">McDermott</span></span>, 
+<span class="author"><span class="firstname">S.</span> <span class="lastname">McIlraith</span></span>, 
+<span class="author"><span class="firstname">S.</span> <span class="lastname">Narayanan</span></span>, 
+<span class="author"><span class="firstname">M.</span> <span class="lastname">Paolucci</span></span>, 
+<span class="author"><span class="firstname">B.</span> <span class="lastname">Parsia</span></span>, 
+<span class="author"><span class="firstname">T.</span> <span class="lastname">Payne</span></span>, 
+<span class="author"><span class="firstname">E.</span> <span class="lastname">Sirin</span></span>, 
+<span class="author"><span class="firstname">N.</span> <span class="lastname">Srinivasan</span></span>, 
+<span class="author"><span class="firstname">K.</span> <span class="lastname">Sycara</span></span>, 
+<span class="docid"><span class="docseries">W3C</span> <span class="docnumber">Member Submission</span></span>, 
+<span class="date"><span class="day">22</span> <span class="month">November</span> <span class="year">2004</span></span>,
+http://www.w3.org/Submission/2004/SUBM-OWL-S-20041122/. 
+<a href="http://www.w3.org/Submission/OWL-S">Latest version</a> available at http://www.w3.org/Submission/OWL-S.
 
 == WSMO ==
 
-De Bruijn, J. et al., “Web Service Modeling Ontology (WSMO),” W3C Member Submission, 2005.
+<a class="title" href="http://www.w3.org/Submission/2005/SUBM-WSMO-20050603/">Web Service Modeling Ontology (WSMO)</a>, 
+<span class="author"><span class="firstname">H.</span> <span class="lastname">Lausen</span></span>, 
+<span class="author"><span class="firstname">A.</span> <span class="lastname">Polleres</span></span>, 
+<span class="author"><span class="firstname">D.</span> <span class="lastname">Roman</span></span>, 
+Editors,
+<span class="author"><span class="firstname">J.</span> <span class="lastname">de Bruijn</span></span>, 
+<span class="author"><span class="firstname">C.</span> <span class="lastname">Bussler</span></span>, 
+<span class="author"><span class="firstname">J.</span> <span class="lastname">Domingue</span></span>, 
+<span class="author"><span class="firstname">D.</span> <span class="lastname">Fensel</span></span>, 
+<span class="author"><span class="firstname">M.</span> <span class="lastname">Hepp</span></span>,
+<span class="author"><span class="firstname">U.</span> <span class="lastname">Keller</span></span>,
+<span class="author"><span class="firstname">M.</span> <span class="lastname">Kifer</span></span>, 
+<span class="author"><span class="firstname">B.</span> <span class="lastname">König-Reis</span></span>, 
+<span class="author"><span class="firstname">J.</span> <span class="lastname">Kopecky</span></span>,
+<span class="author"><span class="firstname">R.</span> <span class="lastname">Lara</span></span>,
+<span class="author"><span class="firstname">H.</span> <span class="lastname">Lausen</span></span>,
+<span class="author"><span class="firstname">E.</span> <span class="lastname">Oren</span></span>,
+<span class="author"><span class="firstname">A.</span> <span class="lastname">Polleres</span></span>,
+<span class="author"><span class="firstname">D.</span> <span class="lastname">Roman</span></span>,
+<span class="author"><span class="firstname">J.</span> <span class="lastname">Scicluna</span></span>,
+<span class="author"><span class="firstname">M.</span> <span class="lastname">Stollberg</span></span>,
+<span class="docid"><span class="docseries">W3C</span> <span class="docnumber">Member Submission</span></span>, 
+<span class="date"><span class="day">03</span> <span class="month">June</span> <span class="year">2005</span></span>,
+http://www.w3.org/Submission/2005/SUBM-WSMO-20050603/. 
+<a href="http://www.w3.org/Submission/WSMO/">Latest version</a> available at http://www.w3.org/Submission/WSMO/.

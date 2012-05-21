@@ -5,8 +5,20 @@
 
 == myGrid/Moby ==
 
-Wolstencroft, K., Alper, P., Hull, D., and Wroe, C., “The myGrid Ontology: Bioinformatics Service Discovery,” International Journal of Bioinformatics Research and Applications, 2007.
+<span class="title">The myGrid Ontology: Bioinformatics Service Discovery</span>, 
+<span class="author"><span class="firstname">K.</span> <span class="lastname">Wolstencroft</span></span>, 
+<span class="author"><span class="firstname">P.</span> <span class="lastname">Alper</span></span>, 
+<span class="author"><span class="firstname">D.</span> <span class="lastname">Hull</span></span>, 
+<span class="author"><span class="firstname">C.</span> <span class="lastname">Wroe</span></span>, 
+<span class="author"><span class="firstname">P. W.</span> <span class="lastname">Lord</span></span>, 
+<span class="author"><span class="firstname">R. D.</span> <span class="lastname">Stevens</span></span>, 
+<span class="author"><span class="firstname">C. A.</span> <span class="lastname">Goble</span></span>, 
+International Journal of Bioinformatics Research and Applications, 
+<span class="date"><span class="day">05</span> <span class="month">September</span> <span class="year">2007</span></span>.
 
 == SHARE ==
 
-Vandervalk, B., “The SHARE system : a semantic web based approach for evaluating queries across distributed bioinformatics databases and software,” University of British Columbia, 2011.
+<a class="title" href="https://circle.ubc.ca/handle/2429/34088">The SHARE System : a Semantic Web Based Approach for Evaluating Queries Across Distributed Bioinformatics Databases and Software</a>,
+<span class="author"><span class="firstname">B.</span> <span class="lastname">Vandervalk</span>, <span class="organization">University of British Columbia</span></span>, 
+<span class="date"><span class="year">2011</span></span>.
+
