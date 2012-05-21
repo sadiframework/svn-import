@@ -2,8 +2,6 @@
 
   * [ExecutiveSummary Executive Summary]
   * [RFCIntroduction Introduction]
-  * [SecurityConsiderations Security Considerations]
-  * [IANAConsiderations IANA Considerations]
   * [Terminology Terminology]
   * [DesignGoals Motivation and Goals]
       * [DesignGoals#Motivation Motivation]
@@ -33,3 +31,6 @@
       * [AsynchronousServices Asynchronous Services]
       * [InvokingServicesWithParameters Invoking Services with Execution Parameters]
   * [ServiceRegistries Service Registries]
+  * References
+      * [NormativeReferences Normative References]
+      * [InformativeReferences Informative References]
