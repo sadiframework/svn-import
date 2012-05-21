@@ -316,12 +316,13 @@ sub wiki_references_to_xml {
         use Moose;
         use GoogleWiki2Markdown;
         use constant::boolean;
+        use Data::Dumper;
 
         with 'Markdent::Role::EventsAsMethods';
 
         our $AUTOLOAD; 
         sub AUTOLOAD { 
-#            ::trace(sprintf('unhandled event %s with args (%s)', $AUTOLOAD, join(', ', @_))); 
+            ::trace(sprintf('unhandled event %s with args (%s)', $AUTOLOAD, join(', ', @_))); 
         }
 
         sub new {
@@ -330,121 +331,211 @@ sub wiki_references_to_xml {
                 xml_writer => $xml_writer,
                 working_dir => $working_dir,
                 page => $page,
-                current_header => undef,
                 in_header => FALSE,
-                first_header => TRUE,
+                header_count => 0,
+                # Indicates which part of a reference a piece of text belongs to (e.g. an author string, document title, etc.)
+                # Item types are indicated in the GoogleWiki source by span tags with an appropriate
+                # class attribute, e.g. <span class="title">Key words for use in RFCs to Indicate Requirement Levels</span>
+                current_item_type => [],  
+                current_citation  => {},
             };
             return bless($self, $class);
         }
 
+        sub start_html_tag {
+            my ($self, %args) = @_;
+            if (%args && $args{attributes}) {
+                push(@{$self->{current_item_type}}, $args{attributes}->{class});
+            }
+        }
+        
+        sub end_html_tag {
+            pop(@{$_[0]->{current_item_type}});  # note: popping on empty array returns undef
+        }
+
         sub end_document {
-            $_[0]->{xml_writer}->endTag('references');
+            my $self = shift;
+            $self->output_citation();  # output the last citation
+            $self->{xml_writer}->endTag('references');
         }
 
         sub start_header  {
             ::trace('start_header');
-            $_[0]->{in_header} = TRUE;
+            my $self = shift; 
+            $self->{in_header} = TRUE;
+            $self->{header_count}++;
         }
 
         sub end_header {
             ::trace('end_header');
             $_[0]->{in_header} = FALSE;
-            $_[0]->{first_header} = FALSE;
         }
 
         sub text {
             my $self = $_[0];
             my $text = main::trim($_[2]);
             my $xml_writer = $self->{xml_writer};
+            my $header_count = $self->{header_count};
             if ($self->{in_header}) {
-                ::tracef('header text event (%d): %s', $self->{first_header}, $text);
-                $xml_writer->startTag('references', title => $text) if $self->{first_header};
-                $self->{current_header} = $text;
+                ::tracef('header text event (%d): %s', $header_count, $text);
+                $xml_writer->startTag('references', title => $text) if ($header_count == 1);
+                if ($header_count >= 2) {
+                    $self->output_citation() if $header_count >= 3;  # output RFC XML for previous citation
+                    $self->{current_citation} = {};
+                    $self->{current_citation}->{anchor} = main::get_anchor(undef, $text);
+                }
             } else {
                 ::tracef('non-header text event: %s', $text);
-                unless ($self->{first_header}) {
+                unless ($header_count == 1) {
 
                     # Markdent assumes ISO-8859-1, but we need UTF-8 here 
                     # (wiki citations contain Unicode quote chars)
                     my $text = decode('utf8', encode('iso-8859-1', $text));
-
-                    my $anchor = main::get_anchor(undef, $self->{current_header});
-        
-                    my @citation = split(/,\s*/, $text);
-                    my @authors = ();
-                    my $title;
-                    my @doc_ids;
-                    my $year;
-
-                    # parse authors list
-                    while ($citation[0] !~ /\s*["'“”]/) {
-                        my $last = shift(@citation);
-                        # last author might have "and" before last name
-                        $last =~ s/^\s*and\s*//;
-                        last if ($last =~ /et al/);
-                        my $first = shift(@citation);
-                        # doc with exactly two authors might separate
-                        # author names with an "and" (and no comma)
-                        if ($first =~ /(.*)\s+and\s+(.*)/) {
-                            $first = $1;
-                            unshift(@citation, $2);
-                        }
-                        push(@authors, $first, $last);
-                    }
                     
-                    $title = shift(@citation);
-                    $title = main::trim_quotes($title);
+                    my $citation = $self->{current_citation};
+                    my $item_type = $self->{current_item_type}->[-1];
+                    if ($item_type) {
 
-                    # parse list of document IDs (e.g. "RFC 1234")
-                    while (@citation > 1) {
-                        my $id = shift(@citation);
-                        $id = main::trim_quotes($id);
-                        my @parts = split(/\s+/, $id);
-                        if (grep($parts[0] =~ /$_/i, ('RFC', 'STD', 'BCP'))) {
-                            push(@doc_ids, $parts[0], $parts[1]);
-                        } else {
-                            push(@doc_ids, $id, "");
+                        # NOTE: Markdent visits nested HTML tags in a very strange
+                        # order (I don't know why).  For example the following HTML
+                        #
+                        #    <span class="outer">
+                        #       <span class="inner1">A</span>
+                        #       <span class="inner2">B</span>
+                        #       <span class="inner3">C</span>
+                        #    </span>
+                        #
+                        # generates start_html_tag events in the order: inner1, inner2, outer, inner3
+                        #
+                        # It seems that the inner tags are always visited in the correct order, 
+                        # so I've based my code on that, and I avoid relying on the outer level tags. 
+                        # I am not sure what would happen with a third level of nesting.
+
+                        ::tracef("item_type: '%s'\n", $item_type);
+
+                        my %child_key = (
+                            'author' => ['firstname', 'lastname', 'organization'],
+                            'docid'   => ['docseries', 'docnumber'],
+                            'date'    => ['day', 'month', 'year'],
+                        );
+
+                        # invert child_key to make parent_key
+                        my %parent_key = (); 
+                        while (my ($k, $v) = each(%child_key)) {
+                            foreach my $i (@$v) {
+                                $parent_key{$i} = $k;
+                            }
                         }
-                    }
 
-                    $year = shift(@citation);
-                    $year =~ s/\.\s*$//;
+                        my $parent = $parent_key{$item_type};
 
-                    unless (@authors && (@authors % 2 == 0) && $title && @doc_ids && (@doc_ids % 2 == 0) && $year) {
-                        warn "failed to parse citation: $text\n";
-                        warn sprintf("\@authors: (%s)", join(', ', @authors));
-                        warn "title: $title\n";
-                        warn sprintf("\@doc_ids: (%s)", join(', ', @doc_ids));
-                        warn "year: $year\n"; 
-                        return;
-                    }
+                        if ($parent) {
+                            # 'date' is treated differently than 'author' and 'docid' because
+                            # there can only be one instance of date per citation.
+                            if ($parent eq 'date') {
+                                $citation->{$parent} = {} unless defined($citation->{date});
+                                $citation->{$parent}->{$item_type} = $text;
+                            } else {  # 'author' or 'docid'
+                                $citation->{$parent} = [ {} ] unless $citation->{$parent};
+                                push(@{$citation->{$parent}}, {}) if defined($citation->{$parent}->[-1]->{$item_type});
+                                $citation->{$parent}->[-1]->{$item_type} = $text;
+                            }
+                        } elsif (!grep($item_type eq $_, values(%parent_key))) {  # simple field, no parent tags
+                            $citation->{$item_type} = $text;
+                        }
 
-                    $xml_writer->startTag('reference', anchor => $anchor, title => $self->{current_header});    
-                    $xml_writer->startTag('front');
-                    $xml_writer->startTag('title');
-                    $xml_writer->characters($title);
-                    $xml_writer->endTag('title');
-                    while (@authors) {
-                        my $first = shift(@authors);
-                        my $last = shift(@authors);
-                        $xml_writer->emptyTag(
-                                'author', 
-                                initials => $first,
-                                surname => $last,
-                                fullname => "$first $last"
-                            );
                     }
-                    $xml_writer->emptyTag('date', year => $year);
-                    $xml_writer->endTag('front');
-                    while (@doc_ids) {
-                        my $series = shift(@doc_ids);
-                        my $id = shift(@doc_ids);
-                        $xml_writer->emptyTag('seriesInfo', name => $series, value => $id);
-                    }
-                    $xml_writer->endTag('reference');
-
                 }
             }
+        }
+
+        sub output_citation {
+
+            my ($self) = @_; 
+            my $xml_writer = $self->{xml_writer};
+            my $citation = $self->{current_citation};
+
+            # make sure required parts of the citation are present. 
+            
+            unless ($citation->{anchor}) {
+                warn "ERROR: skipping citation, no anchor found\n";
+                return;
+            }
+            
+            unless ($citation->{title}) {
+                warn sprintf("ERROR: skipping citation [%s], no title found\n", $citation->{anchor});
+                return;
+            }
+            
+            unless ($citation->{author} && @{$citation->{author}}) {
+                warn sprintf("ERROR: skipping citation [%s], no authors found\n", $citation->{anchor});
+                return;
+            }
+
+            # output the RFC XML
+            
+            $xml_writer->startTag('reference', anchor => $citation->{anchor}, title => $citation->{anchor});    
+            $xml_writer->startTag('front');
+            $xml_writer->startTag('title');
+            $xml_writer->characters($citation->{title});
+            $xml_writer->endTag('title');
+            my @authors = @{$citation->{author}};
+            while (@authors) {
+                my $author = shift(@authors);
+                my $first = $author->{firstname};
+                my $last = $author->{lastname};
+                my $organization = $author->{organization};
+                if (!$first || !$last) {
+                    warn "WARNING: omitting author, missing firstname or lastname\n";
+                    next;
+                }
+                $xml_writer->startTag(
+                    'author', 
+                    initials => $first,
+                    surname => $last,
+                    fullname => "$first $last"
+                );
+                if ($organization) {
+                    $xml_writer->startTag('organization');
+                    $xml_writer->characters($organization);
+                    $xml_writer->endTag('organization');
+                }
+                $xml_writer->endTag('author');
+            }
+            
+            my $date = $citation->{date};
+            if ($date) {
+                # require at least a year to be specified
+                if (!$date->{year}) {
+                    warn "WARN: omitting date from citation, no year found\n";
+                } else {
+                    my @date_attribs = ();
+                    push(@date_attribs, day => $date->{day}) if $date->{day};
+                    push(@date_attribs, month => $date->{month}) if $date->{month};
+                    $xml_writer->emptyTag('date', year => $date->{year}, @date_attribs);
+                }
+            }
+            my $area = $citation->{area};
+            if ($area) {
+                $xml_writer->startTag('area');
+                $xml_writer->characters($area);
+                $xml_writer->endTag('area');
+            }
+            $xml_writer->endTag('front');
+            if ($citation->{docid}) {
+                my @docids = @{$citation->{docid}};
+                while (@docids) {
+                    my $docid = shift(@docids);
+                    my $docseries = $docid->{docseries};
+                    my $docnumber = $docid->{docnumber};
+                    unless ($docseries && $docnumber) {
+                        warn "WARN: omitting document ID (e.g. 'RFC 1234') from citation, missing doc series  or doc number\n";
+                        next;
+                    }
+                    $xml_writer->emptyTag('seriesInfo', name => $docseries, value => $docnumber);
+                }
+            }
+            $xml_writer->endTag('reference');
         }
 
         package __PACKAGE__; 
