@@ -1,0 +1,29 @@
+Test if explicit anchors work: <a href="#test">link</a>.
+
+one
+
+two
+
+three
+
+four
+
+five
+
+six
+
+seven
+
+eight
+
+nine
+
+ten
+
+eleven
+
+twelve
+
+thirteen
+
+<div id="test">anchor here</a>
