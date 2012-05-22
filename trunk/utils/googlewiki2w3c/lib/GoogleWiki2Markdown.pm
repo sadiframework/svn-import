@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use constant::boolean;
+use HTML::Entities;
 
 sub convert {
 
@@ -39,10 +40,10 @@ sub convert {
     s/^[ \t]*(=+)[ \t]*([^=]+)[ \t]*(=+)[ \t]*/sprintf('%s %s', '#'x(length($1)), $2)/meg;
 
     # re-insert code blocks
-    s/(<pre><code>)/$1 . shift(@code_blocks)/eg;
+    s/(<pre><code>)/$1 . encode_entities(shift(@code_blocks))/eg;
     
     # re-insert code spans
-    s/``/'`' . shift(@code_spans) . '`'/eg;
+    s/``/'`' . encode_entities(shift(@code_spans)) . '`'/eg;
 
     return $_;
 
