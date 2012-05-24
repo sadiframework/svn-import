@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>SADI: Semantic Automated Discovery and Integration</title>
+    <link rel="stylesheet" type="text/css" href="http://www.w3.org/StyleSheets/TR/W3C-Member-SUBM" /> 
+</head>
+
+<body>
+    <div class="head">
+        <p>
+            <a href="http://www.w3.org/"><img alt="W3C" height="48" src="http://www.w3.org/Icons/w3c_home" width="72"/></a>
+            <a href="http://www.w3.org/Submission/"><img height="48" width="211" src="http://www.w3.org/Icons/member_subm" alt="W3C Member Submission"/></a>
+        </p>
+        
+        <h1 style="clear:both" id="title">$title$</h1>
+        
+        <h2 id="W3C-doctype">W3C Member Submission May 24, 2011</h2>  <!-- example: '07 June 2011' -->
+        
+        <dl>
+            <dt>This version:</dt>
+            <dd><a href=""></a>TODO: Add link here</dd> <!-- example: http://www.w3.org/Submission/2011/SUBM-SVGTL-20110607/ -->
+            <dt>Latest version:</dt>
+            <dd><a href=""></a>TODO: Add link here</dd>
+        </dl>
+        
+        <dl>
+            <dt>Authors:</dt>
+            <dd>
+                <div>E. Luke McCarthy, University of British Columbia</div>
+                <div>Ben Vandervalk, University of British Columbia</div>
+                <div>Mark D. Wilkinson, Universidad Politécnica de Madrid</div>
+            </dd>
+        </dl>
+        
+        <p class="copyright">
+            This document is available under the <a href="http://www.w3.org/Consortium/Legal/copyright-documents">W3C Document License</a>. See the 
+            <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">W3C Intellectual Rights Notice and Legal Disclaimers</a> 
+            for additional information.
+        </p>
+        
+        <hr/>
+    </div> 
+
+    <h1>Table Of Contents</h1>
+
+    $toc$
+    
+    $body$
+
+</body>
