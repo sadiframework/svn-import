@@ -26,6 +26,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -52,6 +53,7 @@ public class DiscoverHelper {
 	private Model inputModel;
 	private static Model outputModel;
 	private String base;
+	private static final String service = "http://cu.pharmgkb.bio2rdf.org/sparql";
 
 	public DiscoverHelper(Model anInputModel, Model anOutputModel) {
 		this();
@@ -111,18 +113,58 @@ public class DiscoverHelper {
 			QuerySolution qs = rs.next();
 			rm.add(qs.get("ddi").toString());
 		}
-		System.out.println("Done getting DDIs!!");
 		return rm;
 	}
 
-	public static void writeDDICSV(List<String> ddiURIs) {
+	public static List<DrugDrugInteraction> findDDIInEndpoint(Resource aR) {
+		// get the input id
+		String inputId = DiscoverHelper.getChemicalIdentifier(aR,
+				Vocabulary.SIO_000008.toString(),
+				Vocabulary.SIO_000300.toString());
+		return findDDIInEndpoint(inputId);
+	}
 
-		String service = "http://cu.pharmgkb.bio2rdf.org/sparql";
+	public static List<DrugDrugInteraction> findDDIInEndpoint(String dbId) {
+		ArrayList<DrugDrugInteraction> rm = new ArrayList<DrugDrugInteraction>();
+		String uri = "<http://bio2rdf.org/drugbank:" + dbId + ">";
+		String query = "select DISTINCT ?inputLabel ?dbc2 ?dbc2Label ?umlsEvent ?umlsLabel where {"
+				+ uri
+				+ "<http://bio2rdf.org/drugbank_vocabulary:xref> ?pcc."
+				+ "?taut <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?pcc."
+				+ "?taut <http://www.w3.org/2000/01/rdf-schema#label> ?inputLabel."
+				+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?taut."
+				+ "?ddi a <http://bio2rdf.org/pharmgkb_vocabulary:DDI>."
+				+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc2."
+				+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:event> ?umlsEvent."
+				+ "?umlsEvent <http://www.w3.org/2000/01/rdf-schema#label> ?umlsLabel."
+				+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2."
+				+ "?dbc2 <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2."
+				+ "?taut2 <http://www.w3.org/2000/01/rdf-schema#label> ?dbc2Label.}";
+		QueryExecution qe = QueryExecutionFactory.sparqlService(service, query);
+		ResultSet rs = qe.execSelect();
+		while (rs.hasNext()) {
+			QuerySolution qs = rs.next();
+			try {
+				DrugDrugInteraction ddi = new DrugDrugInteraction(dbId, qs.get(
+						"dbc2").toString(), new URL(qs.get("umlsEvent")
+						.toString()), qs.get("umlsLabel").toString(), qs.get(
+						"inputLabel").toString(), qs.get("dbc2Label")
+						.toString(), false);
+				rm.add(ddi);
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		}
 
+		return rm;
+	}
+
+	public static List<String> queryGenerator(List<String> ddiURIs) {
+		ArrayList<String> rm = new ArrayList<String>();
 		Iterator<String> itr = ddiURIs.iterator();
 		while (itr.hasNext()) {
 			String ddi = itr.next();
-			String query = "select ?dbc ?drugLabel ?dbc2 ?drug2Label ?umlsEvent ?umlsEventLabel where {"
+			String query = "select DISTINCT ?dbc ?drugLabel ?dbc2 ?drug2Label ?umlsEvent ?umlsEventLabel where {"
 					+ "<"
 					+ ddi
 					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc ."
@@ -138,20 +180,86 @@ public class DiscoverHelper {
 					+ "?pcc <http://www.w3.org/2000/01/rdf-schema#label> ?drugLabel ."
 					+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2 ."
 					+ "?dbc2 <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2 ."
-					+ "?pcc <http://www.w3.org/2000/01/rdf-schema#label> ?drug2Label ."
+					+ "?pcc2 <http://www.w3.org/2000/01/rdf-schema#label> ?drug2Label ."
+					+ "FILTER(?pcc != ?pcc2) ." + "FILTER(?dbc != ?dbc2) .}";
+			rm.add(query);
+		}
+
+		return rm;
+	}
+
+	public static void writeDDICSV(List<String> ddiURIs) {
+
+		String service = "http://cu.pharmgkb.bio2rdf.org/sparql";
+
+		Iterator<String> itr = ddiURIs.iterator();
+		while (itr.hasNext()) {
+			String ddi = itr.next();
+			String query = "select DISTINCT ?dbc ?drugLabel ?dbc2 ?drug2Label ?umlsEvent ?umlsEventLabel where {"
+					+ "<"
+					+ ddi
+					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc ."
+					+ "<"
+					+ ddi
+					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc2 ."
+					+ "<"
+					+ ddi
+					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:event> ?umlsEvent ."
+					+ "?umlsEvent <http://www.w3.org/2000/01/rdf-schema#label> ?umlsEventLabel ."
+					+ "?pcc <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut ."
+					+ "?dbc <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut ."
+					+ "?pcc <http://www.w3.org/2000/01/rdf-schema#label> ?drugLabel ."
+					+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2 ."
+					+ "?dbc2 <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2 ."
+					+ "?pcc2 <http://www.w3.org/2000/01/rdf-schema#label> ?drug2Label ."
 					+ "FILTER(?pcc != ?pcc2) ." + "FILTER(?dbc != ?dbc2) .}";
 
 			QueryExecution qe = QueryExecutionFactory.sparqlService(service,
 					query);
-			System.out.println("Executing select!");
 			ResultSet rs = qe.execSelect();
+
 			while (rs.hasNext()) {
 				QuerySolution qs = rs.next();
 				System.out.println(qs.get("dbc") + "," + qs.get("drugLabel")
-						+ "," + qs.get("dbc2"));
+						+ "," + qs.get("dbc2") + "," + qs.get("drug2Label")
+						+ "," + qs.get("umlsEvent") + ","
+						+ qs.get("umlsEventLabel"));
 			}
 		}
+	}
 
+	public static DrugDrugInteraction getDDIsFromEndpoint(String serviceUrl,
+			String query) {
+		DrugDrugInteraction rm = new DrugDrugInteraction();
+		QueryExecution qe = QueryExecutionFactory.sparqlService(serviceUrl,
+				query);
+		ResultSet rs = qe.execSelect();
+		// get only the first result and create a DDI object from it and add it
+		// to rm
+		while (rs.hasNext()) {
+			QuerySolution qs = rs.next();
+
+			String actorLabel = qs.get("drugLabel").toString();
+			String[] actorIdtmp = qs.get("dbc").toString().split(":");
+			String actorDBId = actorIdtmp[1];
+			String targetLabel = qs.get("drug2Label").toString();
+			String[] targetDbtmp = qs.get("dbc2").toString().split(":");
+			String targetDBId = targetDbtmp[1];
+			String resultingConditionLabel = qs.get("umlsEventLabel")
+					.toString();
+			URL resultingConditionURL = null;
+			try {
+				resultingConditionURL = new URL(qs.get("umlsEvent").toString());
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+			DrugDrugInteraction aDDI = new DrugDrugInteraction(actorDBId,
+					targetDBId, resultingConditionURL, resultingConditionLabel,
+					actorLabel, targetLabel, false);
+			rm = aDDI;
+			break;
+		}
+		return rm;
 	}
 
 	public static Resource createPublicationResource(Model aM, String aPmid) {
@@ -194,8 +302,8 @@ public class DiscoverHelper {
 		return chemicalEntity;
 	}
 
-	public static ArrayList<DrugDrugInteraction> findDDIs(InputStream is,
-			Resource input) {
+	public static ArrayList<DrugDrugInteraction> findDDISInCSVFile(
+			InputStream is, Resource input) {
 		CSVReader r;
 		ArrayList<DrugDrugInteraction> rM = new ArrayList<DrugDrugInteraction>();
 		String inputId = getChemicalIdentifier(input,
