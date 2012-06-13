@@ -23,6 +23,7 @@ package org.semanticscience.SADI.DDIdiscovery;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.semanticscience.SADI.DDIdiscovery.helper.DiscoverHelper;
 import org.semanticscience.SADI.DDIdiscovery.helper.DrugDrugInteraction;
@@ -62,10 +63,9 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				Vocabulary.SIO_000008.toString(),
 				Vocabulary.SIO_000300.toString());
 		
-		// find the ddis
+		// find the ddis from CSVFile
 		ArrayList<DrugDrugInteraction> ddis = DiscoverHelper
-				.findDDIs(is, input);
-		
+				.findDDISInCSVFile(is, input);
 		Iterator<DrugDrugInteraction> itr = ddis.iterator();
 		while (itr.hasNext()) {
 			DrugDrugInteraction addi = itr.next();
@@ -73,7 +73,7 @@ public class Discover extends SimpleSynchronousServiceServlet {
 			Resource ddir = outputModel.createResource(RdfUtils
 					.createUniqueURI());
 			
-			// create a publication resourcce
+			// create a publication resource
 			//check if there is a publication associated with this ddi
 			if(addi.getPmid() == "" || addi.getPmid() == null){
 				Resource pub = DiscoverHelper.createPublicationResource(outputModel, addi.getPmid());
@@ -190,11 +190,9 @@ public class Discover extends SimpleSynchronousServiceServlet {
 					ddir.addProperty(Vocab.SIO_000132, chemEnt);
 					
 					Statement stm2 = outputModel.createStatement(output,
-                            Vocab.rdfslabel, addi.getActorLabel());
-					
+                            Vocab.rdfslabel, addi.getActorLabel());					
 					ddir.addProperty(Vocab.SIO_000132, output);
 					output.addProperty(Vocab.SIO_000062, ddir);
-					
 				}
 				
 			}else{
@@ -273,6 +271,12 @@ public class Discover extends SimpleSynchronousServiceServlet {
 			// the annotated chemical entity is participant in some ddi
 			output.addProperty(Vocab.SIO_000062, ddir);
 		}// while
+		
+		
+		//now query the endpoint to find more DDIs
+		List<DrugDrugInteraction> endpointInteractions = DiscoverHelper.findDDIInEndpoint(input);
+		
+		
 	}
 
 	@SuppressWarnings("unused")

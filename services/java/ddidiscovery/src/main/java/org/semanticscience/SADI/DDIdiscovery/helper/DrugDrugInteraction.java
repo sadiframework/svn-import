@@ -20,6 +20,8 @@
  */
 package org.semanticscience.SADI.DDIdiscovery.helper;
 
+import java.net.URL;
+
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -30,7 +32,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
 public class DrugDrugInteraction {
 
 	private Model aModel;
-	private String base;
 	private String actorId;
 	private String actorLabel;
 	private String targetId;
@@ -41,7 +42,8 @@ public class DrugDrugInteraction {
 	private String resultingCondition;
 	private String description;
 	private String pmid;
-
+	private URL resultingConditionURL;
+	private String resultingConditionLabel;
 
 	/**
 	 * A jena resource description of this ddi
@@ -50,14 +52,13 @@ public class DrugDrugInteraction {
 
 	public DrugDrugInteraction() {
 		aModel = ModelFactory.createDefaultModel();
-		base = RdfUtils.createUniqueURI();
 		isDirected = false;
 	}
 
 	public DrugDrugInteraction(String anActorId, String aTargetId,
-			String anActorEffectOnTarget, String aTargetEffectOnActor, String aResultingCondition,
-			String aPmid, String aDescription, String anActorLabel,
-			String aTargetLabel, boolean aIsDirected) {
+			String anActorEffectOnTarget, String aTargetEffectOnActor,
+			String aResultingCondition, String aPmid, String aDescription,
+			String anActorLabel, String aTargetLabel, boolean aIsDirected) {
 		this();
 		actorId = anActorId;
 		targetId = aTargetId;
@@ -69,6 +70,15 @@ public class DrugDrugInteraction {
 		actorLabel = anActorLabel;
 		targetLabel = aTargetLabel;
 		isDirected = aIsDirected;
+	}
+
+	public DrugDrugInteraction(String anActorId, String aTargetId,
+			URL aResultingConditionURL, String aResultingConditionLabel,
+			String anActorLabel, String aTargetLabel, boolean isDirected) {
+		this(anActorId, aTargetId, "", "", "", "", "", anActorLabel,
+				aTargetLabel, isDirected);
+		resultingConditionLabel = aResultingConditionLabel;
+		resultingConditionURL = aResultingConditionURL;
 	}
 
 	public static Resource createTargetResource(Model aM) {
@@ -121,13 +131,6 @@ public class DrugDrugInteraction {
 		return chemicalEntity;
 	}
 
-	public String getBase() {
-		return base;
-	}
-
-	public void setBase(String base) {
-		this.base = base;
-	}
 
 	public String getResultingCondition() {
 		return resultingCondition;
@@ -160,9 +163,16 @@ public class DrugDrugInteraction {
 	public void setResourceDescription(Resource resourceDescription) {
 		this.resourceDescription = resourceDescription;
 	}
+	public String getResultingConditionLabel(){
+		return resultingConditionLabel;
+	}
 
 	public String getActorId() {
 		return actorId;
+	}
+
+	public URL getResultingConditionURL() {
+		return resultingConditionURL;
 	}
 
 	public String getActorLabel() {
@@ -188,6 +198,149 @@ public class DrugDrugInteraction {
 	public boolean isDirected() {
 		return isDirected;
 	}
+	
+	
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime
+				* result
+				+ ((actorEffectOnTarget == null) ? 0 : actorEffectOnTarget
+						.hashCode());
+		result = prime * result + ((actorId == null) ? 0 : actorId.hashCode());
+		result = prime * result
+				+ ((actorLabel == null) ? 0 : actorLabel.hashCode());
+		result = prime * result
+				+ ((description == null) ? 0 : description.hashCode());
+		result = prime * result + (isDirected ? 1231 : 1237);
+		result = prime * result + ((pmid == null) ? 0 : pmid.hashCode());
+		result = prime
+				* result
+				+ ((resourceDescription == null) ? 0 : resourceDescription
+						.hashCode());
+		result = prime
+				* result
+				+ ((resultingCondition == null) ? 0 : resultingCondition
+						.hashCode());
+		result = prime
+				* result
+				+ ((resultingConditionLabel == null) ? 0
+						: resultingConditionLabel.hashCode());
+		result = prime
+				* result
+				+ ((resultingConditionURL == null) ? 0 : resultingConditionURL
+						.hashCode());
+		result = prime
+				* result
+				+ ((targetEffectOnActor == null) ? 0 : targetEffectOnActor
+						.hashCode());
+		result = prime * result
+				+ ((targetId == null) ? 0 : targetId.hashCode());
+		result = prime * result
+				+ ((targetLabel == null) ? 0 : targetLabel.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "DrugDrugInteraction [actorId=" + actorId + ", actorLabel="
+				+ actorLabel + ", targetId=" + targetId + ", targetLabel="
+				+ targetLabel + ", targetEffectOnActor=" + targetEffectOnActor
+				+ ", actorEffectOnTarget=" + actorEffectOnTarget
+				+ ", isDirected=" + isDirected + ", resultingCondition="
+				+ resultingCondition + ", description=" + description
+				+ ", pmid=" + pmid + ", resultingConditionURL="
+				+ resultingConditionURL + ", resultingConditionLabel="
+				+ resultingConditionLabel + "]\n\n";
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DrugDrugInteraction other = (DrugDrugInteraction) obj;
+		if (actorEffectOnTarget == null) {
+			if (other.actorEffectOnTarget != null)
+				return false;
+		} else if (!actorEffectOnTarget.equals(other.actorEffectOnTarget))
+			return false;
+		if (actorId == null) {
+			if (other.actorId != null)
+				return false;
+		} else if (!actorId.equals(other.actorId))
+			return false;
+		if (actorLabel == null) {
+			if (other.actorLabel != null)
+				return false;
+		} else if (!actorLabel.equals(other.actorLabel))
+			return false;
+		if (description == null) {
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+		if (isDirected != other.isDirected)
+			return false;
+		if (pmid == null) {
+			if (other.pmid != null)
+				return false;
+		} else if (!pmid.equals(other.pmid))
+			return false;
+		if (resourceDescription == null) {
+			if (other.resourceDescription != null)
+				return false;
+		} else if (!resourceDescription.equals(other.resourceDescription))
+			return false;
+		if (resultingCondition == null) {
+			if (other.resultingCondition != null)
+				return false;
+		} else if (!resultingCondition.equals(other.resultingCondition))
+			return false;
+		if (resultingConditionLabel == null) {
+			if (other.resultingConditionLabel != null)
+				return false;
+		} else if (!resultingConditionLabel
+				.equals(other.resultingConditionLabel))
+			return false;
+		if (resultingConditionURL == null) {
+			if (other.resultingConditionURL != null)
+				return false;
+		} else if (!resultingConditionURL.equals(other.resultingConditionURL))
+			return false;
+		if (targetEffectOnActor == null) {
+			if (other.targetEffectOnActor != null)
+				return false;
+		} else if (!targetEffectOnActor.equals(other.targetEffectOnActor))
+			return false;
+		if (targetId == null) {
+			if (other.targetId != null)
+				return false;
+		} else if (!targetId.equals(other.targetId))
+			return false;
+		if (targetLabel == null) {
+			if (other.targetLabel != null)
+				return false;
+		} else if (!targetLabel.equals(other.targetLabel))
+			return false;
+		return true;
+	}
+
+
 
 	@SuppressWarnings("unused")
 	public static final class Vocabulary {
