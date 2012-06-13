@@ -28,10 +28,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import au.com.bytecode.opencsv.CSVReader;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
+import com.hp.hpl.jena.query.Query;
+import com.hp.hpl.jena.query.QueryExecException;
+import com.hp.hpl.jena.query.QueryExecution;
+import com.hp.hpl.jena.query.QueryExecutionFactory;
+import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.QuerySolution;
+import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -83,13 +92,73 @@ public class DiscoverHelper {
 		return null;
 	}
 
-	
-	public static Resource createPublicationResource(Model aM, String aPmid){
+	public static List<String> getDDIUris() {
+		List<String> rm = new ArrayList<String>();
+		String service = "http://cu.pharmgkb.bio2rdf.org/sparql";
+
+		String query = "select DISTINCT ?ddi where {"
+				+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc ."
+				+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc2 ."
+				+ "?pcc <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut ."
+				+ "?dbc <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut ."
+				+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2 ."
+				+ "?dbc2 <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2 ."
+				+ "FILTER(?pcc != ?pcc2) ." + "FILTER(?dbc != ?dbc2) .}";
+
+		QueryExecution qe = QueryExecutionFactory.sparqlService(service, query);
+		ResultSet rs = qe.execSelect();
+		while (rs.hasNext()) {
+			QuerySolution qs = rs.next();
+			rm.add(qs.get("ddi").toString());
+		}
+		System.out.println("Done getting DDIs!!");
+		return rm;
+	}
+
+	public static void writeDDICSV(List<String> ddiURIs) {
+
+		String service = "http://cu.pharmgkb.bio2rdf.org/sparql";
+
+		Iterator<String> itr = ddiURIs.iterator();
+		while (itr.hasNext()) {
+			String ddi = itr.next();
+			String query = "select ?dbc ?drugLabel ?dbc2 ?drug2Label ?umlsEvent ?umlsEventLabel where {"
+					+ "<"
+					+ ddi
+					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc ."
+					+ "<"
+					+ ddi
+					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc2 ."
+					+ "<"
+					+ ddi
+					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:event> ?umlsEvent ."
+					+ "?umlsEvent <http://www.w3.org/2000/01/rdf-schema#label> ?umlsEventLabel ."
+					+ "?pcc <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut ."
+					+ "?dbc <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut ."
+					+ "?pcc <http://www.w3.org/2000/01/rdf-schema#label> ?drugLabel ."
+					+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2 ."
+					+ "?dbc2 <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2 ."
+					+ "?pcc <http://www.w3.org/2000/01/rdf-schema#label> ?drug2Label ."
+					+ "FILTER(?pcc != ?pcc2) ." + "FILTER(?dbc != ?dbc2) .}";
+
+			QueryExecution qe = QueryExecutionFactory.sparqlService(service,
+					query);
+			System.out.println("Executing select!");
+			ResultSet rs = qe.execSelect();
+			while (rs.hasNext()) {
+				QuerySolution qs = rs.next();
+				System.out.println(qs.get("dbc") + "," + qs.get("drugLabel")
+						+ "," + qs.get("dbc2"));
+			}
+		}
+
+	}
+
+	public static Resource createPublicationResource(Model aM, String aPmid) {
 		Resource pub = aM.createResource(RdfUtils.createUniqueURI());
 		pub.addProperty(Vocabulary.rdftype, Vocabulary.SIO_000087);
 		// create a PMID_identifier resource
-		Resource pmidIdRes = aM.createResource(RdfUtils
-				.createUniqueURI());
+		Resource pmidIdRes = aM.createResource(RdfUtils.createUniqueURI());
 		// add the value of the pmid to the pmidres
 		pmidIdRes.addProperty(Vocabulary.SIO_000300, aPmid);
 		pmidIdRes.addProperty(Vocabulary.rdftype, Vocabulary.PMID_Identifier);
@@ -97,26 +166,33 @@ public class DiscoverHelper {
 		pub.addProperty(Vocabulary.SIO_000008, pmidIdRes);
 		return pub;
 	}
-	
-	/**
-     * Create a chemical entity that has some pharmgkb identifier resource
-     * 
-     * @param anId
-     * @return
-     */
-    public static Resource createResourceFromPharmGKBId(Model aM, String anId) {
-            Resource chemicalEntity = aM.createResource(RdfUtils
-                            .createUniqueURI());
-            chemicalEntity.addProperty(Vocabulary.rdftype, Vocabulary.SIO_010004);
-            Resource chemicalIdentifier = aM.createResource(RdfUtils
-                            .createUniqueURI());
-            chemicalIdentifier
-                            .addProperty(Vocabulary.rdftype, Vocabulary.DDI_00011);
-            chemicalIdentifier.addProperty(Vocabulary.SIO_000300, anId);
-            chemicalEntity.addProperty(Vocabulary.SIO_000008, chemicalIdentifier);
-            return chemicalEntity;
-    }
 
+	public static ResultSet executeQuery(String aTwoSidesId) {
+
+		Query q = QueryFactory.create(aTwoSidesId);
+		// QueryExecution qe = QueryExecutionFactory.create(q, )
+		ResultSet results;
+		return null;
+
+	}
+
+	/**
+	 * Create a chemical entity that has some pharmgkb identifier resource
+	 * 
+	 * @param anId
+	 * @return
+	 */
+	public static Resource createResourceFromPharmGKBId(Model aM, String anId) {
+		Resource chemicalEntity = aM.createResource(RdfUtils.createUniqueURI());
+		chemicalEntity.addProperty(Vocabulary.rdftype, Vocabulary.SIO_010004);
+		Resource chemicalIdentifier = aM.createResource(RdfUtils
+				.createUniqueURI());
+		chemicalIdentifier
+				.addProperty(Vocabulary.rdftype, Vocabulary.DDI_00011);
+		chemicalIdentifier.addProperty(Vocabulary.SIO_000300, anId);
+		chemicalEntity.addProperty(Vocabulary.SIO_000008, chemicalIdentifier);
+		return chemicalEntity;
+	}
 
 	public static ArrayList<DrugDrugInteraction> findDDIs(InputStream is,
 			Resource input) {
@@ -131,8 +207,8 @@ public class DiscoverHelper {
 			try {
 				String actorId = "";
 				String actorLabel = "";
-				String targetId ="";
-				String targetLabel ="";
+				String targetId = "";
+				String targetLabel = "";
 				String actorEffectOnTarget = "";
 				String targetEffectOnActor = "";
 				String resultingCondition = "";
@@ -141,7 +217,8 @@ public class DiscoverHelper {
 				String description = "";
 
 				while ((nextLine = r.readNext()) != null) {
-					if (nextLine[0].equalsIgnoreCase(inputId) || nextLine[2].equalsIgnoreCase(inputId)) {
+					if (nextLine[0].equalsIgnoreCase(inputId)
+							|| nextLine[2].equalsIgnoreCase(inputId)) {
 						actorId = nextLine[0];
 						actorLabel = nextLine[1];
 						targetLabel = nextLine[3];
@@ -151,13 +228,17 @@ public class DiscoverHelper {
 						resultingCondition = nextLine[8];
 						pmid = nextLine[9];
 						description = nextLine[7];
-						//check if the ddi is directed
-						if(nextLine[12].equalsIgnoreCase("TRUE")){
+						// check if the ddi is directed
+						if (nextLine[12].equalsIgnoreCase("TRUE")) {
 							isDirected = true;
 						}
-						//DrugDrugInteraction
-						DrugDrugInteraction ddi = new DrugDrugInteraction(actorId, targetId, actorEffectOnTarget, targetEffectOnActor, resultingCondition, pmid, description, actorLabel, targetLabel, isDirected);
-						
+						// DrugDrugInteraction
+						DrugDrugInteraction ddi = new DrugDrugInteraction(
+								actorId, targetId, actorEffectOnTarget,
+								targetEffectOnActor, resultingCondition, pmid,
+								description, actorLabel, targetLabel,
+								isDirected);
+
 						if (!rM.contains(ddi)) {
 							rM.add(ddi);
 						}
@@ -169,8 +250,6 @@ public class DiscoverHelper {
 		}
 		return rM;
 	}
-	
-	
 
 	/**
 	 * Get the string representation of the input chebi id. First find the
@@ -250,10 +329,10 @@ public class DiscoverHelper {
 		public static final Property SIO_000008 = m_model
 				.createProperty("http://semanticscience.org/resource/SIO_000008");
 		public static final Resource SIO_000087 = m_model
-		.createResource("http://semanticscience.org/resource/SIO_000087");
+				.createResource("http://semanticscience.org/resource/SIO_000087");
 		public static final Resource PMID_Identifier = m_model
-		.createResource("http://purl.oclc.org/SADI/LSRN/PMID_Identifier");
-		
+				.createResource("http://purl.oclc.org/SADI/LSRN/PMID_Identifier");
+
 		public static final Resource SIO_000728 = m_model
 				.createResource("http://semanticscience.org/resource/SIO_000728");
 		public static final Resource SIO_010004 = m_model

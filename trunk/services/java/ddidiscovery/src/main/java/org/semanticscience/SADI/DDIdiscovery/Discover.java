@@ -72,14 +72,18 @@ public class Discover extends SimpleSynchronousServiceServlet {
 			//create a ddi resource 
 			Resource ddir = outputModel.createResource(RdfUtils
 					.createUniqueURI());
-		
+			
 			// create a publication resourcce
-			Resource pub = DiscoverHelper.createPublicationResource(outputModel, addi.getPmid());
-			// connect the ddi with the publication
-			ddir.addProperty(Vocab.SIO_000253, pub);
+			//check if there is a publication associated with this ddi
+			if(addi.getPmid() == "" || addi.getPmid() == null){
+				Resource pub = DiscoverHelper.createPublicationResource(outputModel, addi.getPmid());
+				// connect the ddi with the publication
+				ddir.addProperty(Vocab.SIO_000253, pub);
+			}
 
 			// add the 'results in' class and label
 			String resultingCondition = addi.getResultingCondition();
+			//
 			if (resultingCondition.equalsIgnoreCase("DDI_00054")) {
 				Statement stm3 = outputModel.createStatement(Vocab.DDI_00054,
 						Vocab.rdfslabel, "decreased efficacy of drug");
@@ -114,6 +118,10 @@ public class Discover extends SimpleSynchronousServiceServlet {
 			} else if (resultingCondition.equalsIgnoreCase("DDI_00058")) {
 				Statement stm5 = outputModel.createStatement(Vocab.DDI_00058,
 						Vocab.rdfslabel, "mania");
+				outputModel.add(stm5);
+			} else if(resultingCondition.equalsIgnoreCase("DDI_00031")){
+				Statement stm5 = outputModel.createStatement(Vocab.DDI_00031,
+						Vocab.rdfslabel, "adverse drug interaction induced phenotype");
 				outputModel.add(stm5);
 			}
 			
@@ -259,17 +267,12 @@ public class Discover extends SimpleSynchronousServiceServlet {
                             Vocab.rdfslabel, addi.getActorLabel());
 					
 					ddir.addProperty(Vocab.SIO_000132, output);
-					output.addProperty(Vocab.SIO_000062, ddir);
-					
+					output.addProperty(Vocab.SIO_000062, ddir);		
 				}
 			}
-		
 			// the annotated chemical entity is participant in some ddi
 			output.addProperty(Vocab.SIO_000062, ddir);
-			
 		}// while
-		
-
 	}
 
 	@SuppressWarnings("unused")
@@ -409,6 +412,8 @@ public class Discover extends SimpleSynchronousServiceServlet {
 				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00063");
 		public static final Resource DDI_00010 = m_model
 				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00010");
+		public static final Resource DDI_00031 = m_model
+				.createResource("http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00031");
 
 		public static final Resource SIO_000090 = m_model
 				.createResource("http://semanticscience.org/resource/SIO_000090");
