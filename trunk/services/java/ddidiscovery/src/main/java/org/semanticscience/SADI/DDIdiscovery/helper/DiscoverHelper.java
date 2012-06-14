@@ -139,7 +139,7 @@ public class DiscoverHelper {
 				+ "?umlsEvent <http://www.w3.org/2000/01/rdf-schema#label> ?umlsLabel."
 				+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2."
 				+ "?dbc2 <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2."
-				+ "?taut2 <http://www.w3.org/2000/01/rdf-schema#label> ?dbc2Label.}";
+				+ "?taut2 <http://www.w3.org/2000/01/rdf-schema#label> ?dbc2Label.} LIMIT 100";
 		QueryExecution qe = QueryExecutionFactory.sparqlService(service, query);
 		ResultSet rs = qe.execSelect();
 		while (rs.hasNext()) {
@@ -159,6 +159,7 @@ public class DiscoverHelper {
 		return rm;
 	}
 
+	
 	public static List<String> queryGenerator(List<String> ddiURIs) {
 		ArrayList<String> rm = new ArrayList<String>();
 		Iterator<String> itr = ddiURIs.iterator();
@@ -319,7 +320,7 @@ public class DiscoverHelper {
 				String targetLabel = "";
 				String actorEffectOnTarget = "";
 				String targetEffectOnActor = "";
-				String resultingCondition = "";
+				String rConditonDDIID = "";
 				boolean isDirected = false;
 				String pmid = "";
 				String description = "";
@@ -333,7 +334,7 @@ public class DiscoverHelper {
 						targetId = nextLine[2];
 						actorEffectOnTarget = nextLine[5];
 						targetEffectOnActor = nextLine[6];
-						resultingCondition = nextLine[8];
+						rConditonDDIID = nextLine[8];
 						pmid = nextLine[9];
 						description = nextLine[7];
 						// check if the ddi is directed
@@ -343,7 +344,7 @@ public class DiscoverHelper {
 						// DrugDrugInteraction
 						DrugDrugInteraction ddi = new DrugDrugInteraction(
 								actorId, targetId, actorEffectOnTarget,
-								targetEffectOnActor, resultingCondition, pmid,
+								targetEffectOnActor, rConditonDDIID, pmid,
 								description, actorLabel, targetLabel,
 								isDirected);
 

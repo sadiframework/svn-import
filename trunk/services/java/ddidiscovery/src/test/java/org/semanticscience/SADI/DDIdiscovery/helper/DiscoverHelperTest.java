@@ -26,8 +26,10 @@ public class DiscoverHelperTest  {
 
 	@Test
 	public void getDDIsFromEnd2pointTest(){
-		List<DrugDrugInteraction> ddil = DiscoverHelper.findDDIInEndpoint("DB02648");
+		List<DrugDrugInteraction> ddil = DiscoverHelper.findDDIInEndpoint("DB01156");
+		
 		System.out.println(ddil);
+		System.out.println(ddil.size());
 	}
 	/*
 	@Test
