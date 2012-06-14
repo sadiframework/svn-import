@@ -361,9 +361,9 @@ elif useTwisted:
 else:
     Service = ServiceBase
 
-#handler = None
-#if modPython:
-def handler(req):
+handler = None
+if modPython:
+    def handler(req):
         req.allow_methods(["GET", "POST"])
         if req.method not in ["GET", "POST"]:
             raise apache.SERVER_RETURN, apache.HTTP_METHOD_NOT_ALLOWED
@@ -484,8 +484,10 @@ def handler(req):
             graph = resource.processGraph(content, contentType)
             accept = "application/rdf+xml"
             if 'Accept' in req.headers_in:
+                print "Accept:", accept
                 accept = req.headers_in["Accept"]
             acceptType = resource.getFormat(accept)
+            print "AcceptType:", acceptType
             req.headers_out["Content-Type"] = acceptType[0]
             req.headers_out['Access-Control-Allow-Origin'] = '*'
             req.write(resource.serialize(graph,accept))
