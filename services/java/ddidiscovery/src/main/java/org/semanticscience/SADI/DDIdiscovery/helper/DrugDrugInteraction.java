@@ -39,7 +39,7 @@ public class DrugDrugInteraction {
 	private String targetEffectOnActor;
 	private String actorEffectOnTarget;
 	private boolean isDirected;
-	private String resultingCondition;
+	private String rConditonDDIID;
 	private String description;
 	private String pmid;
 	private URL resultingConditionURL;
@@ -63,7 +63,7 @@ public class DrugDrugInteraction {
 		actorId = anActorId;
 		targetId = aTargetId;
 		actorEffectOnTarget = anActorEffectOnTarget;
-		resultingCondition = aResultingCondition;
+		rConditonDDIID = aResultingCondition;
 		pmid = aPmid;
 		targetEffectOnActor = aTargetEffectOnActor;
 		description = aDescription;
@@ -132,13 +132,11 @@ public class DrugDrugInteraction {
 	}
 
 
-	public String getResultingCondition() {
-		return resultingCondition;
+	public String getRCDDIId() {
+		return rConditonDDIID;
 	}
 
-	public void setResultingCondition(String resultingCondition) {
-		this.resultingCondition = resultingCondition;
-	}
+	
 
 	public String getDescription() {
 		return description;
@@ -225,7 +223,7 @@ public class DrugDrugInteraction {
 						.hashCode());
 		result = prime
 				* result
-				+ ((resultingCondition == null) ? 0 : resultingCondition
+				+ ((rConditonDDIID == null) ? 0 : rConditonDDIID
 						.hashCode());
 		result = prime
 				* result
@@ -256,7 +254,7 @@ public class DrugDrugInteraction {
 				+ targetLabel + ", targetEffectOnActor=" + targetEffectOnActor
 				+ ", actorEffectOnTarget=" + actorEffectOnTarget
 				+ ", isDirected=" + isDirected + ", resultingCondition="
-				+ resultingCondition + ", description=" + description
+				+ rConditonDDIID + ", description=" + description
 				+ ", pmid=" + pmid + ", resultingConditionURL="
 				+ resultingConditionURL + ", resultingConditionLabel="
 				+ resultingConditionLabel + "]\n\n";
@@ -306,10 +304,10 @@ public class DrugDrugInteraction {
 				return false;
 		} else if (!resourceDescription.equals(other.resourceDescription))
 			return false;
-		if (resultingCondition == null) {
-			if (other.resultingCondition != null)
+		if (rConditonDDIID == null) {
+			if (other.rConditonDDIID != null)
 				return false;
-		} else if (!resultingCondition.equals(other.resultingCondition))
+		} else if (!rConditonDDIID.equals(other.rConditonDDIID))
 			return false;
 		if (resultingConditionLabel == null) {
 			if (other.resultingConditionLabel != null)
