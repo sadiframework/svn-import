@@ -471,8 +471,10 @@ if modPython:
             modelGraph = resource.getServiceDescription()
             acceptType = 'application/rdf+xml'
             if 'Accept' in req.headers_in:
-                acceptType = req.headers_in["Accept"]
-            acceptType = resource.getFormat(acceptType)
+                sys.stderr.write("Accept: "+accept)
+                accept = req.headers_in["Accept"]
+            acceptType = resource.getFormat(accept)
+            sys.stderr.write("AcceptType: "+acceptType)
             req.content_type = acceptType[0]
             req.headers_out['Access-Control-Allow-Origin'] = '*'
             req.write(resource.serialize(modelGraph,req.headers_in['Accept']))
