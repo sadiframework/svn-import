@@ -171,6 +171,7 @@ class ServiceBase:
         self.contentTypes = {
             None:DefaultSerializer('xml'),
             "application/rdf+xml":DefaultSerializer('xml'),
+            "text/rdf":DefaultSerializer('xml'),
             'application/x-www-form-urlencoded':DefaultSerializer('xml'),
             'text/turtle':DefaultSerializer('n3','turtle'),
             'application/x-turtle':DefaultSerializer('n3','turtle'),
