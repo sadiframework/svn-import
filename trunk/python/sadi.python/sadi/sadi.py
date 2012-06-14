@@ -484,10 +484,10 @@ if modPython:
             graph = resource.processGraph(content, contentType)
             accept = "application/rdf+xml"
             if 'Accept' in req.headers_in:
-                print "Accept:", accept
+                sys.stderr.write("Accept: "+accept)
                 accept = req.headers_in["Accept"]
             acceptType = resource.getFormat(accept)
-            print "AcceptType:", acceptType
+            sys.stderr.write("AcceptType: "+acceptType)
             req.headers_out["Content-Type"] = acceptType[0]
             req.headers_out['Access-Control-Allow-Origin'] = '*'
             req.write(resource.serialize(graph,accept))
