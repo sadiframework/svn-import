@@ -494,6 +494,8 @@ if modPython:
 #    handler = sadiHandler
 
 def publishTwistedService(service, port=8080):
+    if not useTwisted:
+        throw Exception("Twisted isn't installed in this Python environment, and is needed to run a SADI service through twisted.")
     root = twisted.web.resource.Resource()
     root.putChild(service.name, service)
     site = server.Site(root)
