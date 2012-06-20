@@ -29,8 +29,10 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import au.com.bytecode.opencsv.CSVReader;
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
@@ -59,7 +61,6 @@ public class DiscoverHelper {
 		this();
 		inputModel = anInputModel;
 		outputModel = anOutputModel;
-
 	}
 
 	public DiscoverHelper() {
@@ -94,171 +95,76 @@ public class DiscoverHelper {
 		return null;
 	}
 
-	public static List<String> getDDIUris() {
-		List<String> rm = new ArrayList<String>();
-		String service = "http://cu.pharmgkb.bio2rdf.org/sparql";
-
-		String query = "select DISTINCT ?ddi where {"
-				+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc ."
-				+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc2 ."
-				+ "?pcc <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut ."
-				+ "?dbc <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut ."
-				+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2 ."
-				+ "?dbc2 <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2 ."
-				+ "FILTER(?pcc != ?pcc2) ." + "FILTER(?dbc != ?dbc2) .}";
-
-		QueryExecution qe = QueryExecutionFactory.sparqlService(service, query);
-		ResultSet rs = qe.execSelect();
-		while (rs.hasNext()) {
-			QuerySolution qs = rs.next();
-			rm.add(qs.get("ddi").toString());
-		}
-		return rm;
-	}
-
-	public static List<DrugDrugInteraction> findDDIInEndpoint(Resource aR) {
-		// get the input id
-		String inputId = DiscoverHelper.getChemicalIdentifier(aR,
-				Vocabulary.SIO_000008.toString(),
-				Vocabulary.SIO_000300.toString());
-		return findDDIInEndpoint(inputId);
-	}
-
-	public static List<DrugDrugInteraction> findDDIInEndpoint(String dbId) {
+	public static List<DrugDrugInteraction> getInteractingDrugBankIdentifiersFromPharmGKB(
+			String aDrugBankIdentifier) {
 		ArrayList<DrugDrugInteraction> rm = new ArrayList<DrugDrugInteraction>();
-		String uri = "<http://bio2rdf.org/drugbank:" + dbId + ">";
-		String query = "select DISTINCT ?inputLabel ?dbc2 ?dbc2Label ?umlsEvent ?umlsLabel where {"
-				+ uri
-				+ "<http://bio2rdf.org/drugbank_vocabulary:xref> ?pcc."
-				+ "?taut <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?pcc."
-				+ "?taut <http://www.w3.org/2000/01/rdf-schema#label> ?inputLabel."
-				+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?taut."
-				+ "?ddi a <http://bio2rdf.org/pharmgkb_vocabulary:DDI>."
-				+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc2."
-				+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:event> ?umlsEvent."
-				+ "?umlsEvent <http://www.w3.org/2000/01/rdf-schema#label> ?umlsLabel."
-				+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2."
-				+ "?dbc2 <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2."
-				+ "?taut2 <http://www.w3.org/2000/01/rdf-schema#label> ?dbc2Label.} LIMIT 100";
-		QueryExecution qe = QueryExecutionFactory.sparqlService(service, query);
-		ResultSet rs = qe.execSelect();
-		while (rs.hasNext()) {
-			QuerySolution qs = rs.next();
-			try {
-				DrugDrugInteraction ddi = new DrugDrugInteraction(dbId, qs.get(
-						"dbc2").toString(), new URL(qs.get("umlsEvent")
-						.toString()), qs.get("umlsLabel").toString(), qs.get(
-						"inputLabel").toString(), qs.get("dbc2Label")
-						.toString(), false);
-				rm.add(ddi);
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
-		}
+		if (validateDrugBankIdentifier(aDrugBankIdentifier)) {
 
-		return rm;
-	}
-
-	
-	public static List<String> queryGenerator(List<String> ddiURIs) {
-		ArrayList<String> rm = new ArrayList<String>();
-		Iterator<String> itr = ddiURIs.iterator();
-		while (itr.hasNext()) {
-			String ddi = itr.next();
-			String query = "select DISTINCT ?dbc ?drugLabel ?dbc2 ?drug2Label ?umlsEvent ?umlsEventLabel where {"
-					+ "<"
-					+ ddi
-					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc ."
-					+ "<"
-					+ ddi
-					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc2 ."
-					+ "<"
-					+ ddi
-					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:event> ?umlsEvent ."
-					+ "?umlsEvent <http://www.w3.org/2000/01/rdf-schema#label> ?umlsEventLabel ."
+			String dbidUri = "<http://bio2rdf.org/drugbank:"
+					+ aDrugBankIdentifier + ">";
+			String query = "select DISTINCT ?dbcLabel ?dbc2 ?dbc2Label where {"
+					+ dbidUri
+					+ " <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut ."
+					+ "?pcc <http://www.w3.org/2000/01/rdf-schema#label> ?dbcLabel."
 					+ "?pcc <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut ."
-					+ "?dbc <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut ."
-					+ "?pcc <http://www.w3.org/2000/01/rdf-schema#label> ?drugLabel ."
+					+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc ."
+					+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc2 ."
+					+ "?pcc2 <http://www.w3.org/2000/01/rdf-schema#label> ?dbc2Label."
 					+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2 ."
 					+ "?dbc2 <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2 ."
-					+ "?pcc2 <http://www.w3.org/2000/01/rdf-schema#label> ?drug2Label ."
-					+ "FILTER(?pcc != ?pcc2) ." + "FILTER(?dbc != ?dbc2) .}";
-			rm.add(query);
-		}
-
-		return rm;
-	}
-
-	public static void writeDDICSV(List<String> ddiURIs) {
-
-		String service = "http://cu.pharmgkb.bio2rdf.org/sparql";
-
-		Iterator<String> itr = ddiURIs.iterator();
-		while (itr.hasNext()) {
-			String ddi = itr.next();
-			String query = "select DISTINCT ?dbc ?drugLabel ?dbc2 ?drug2Label ?umlsEvent ?umlsEventLabel where {"
-					+ "<"
-					+ ddi
-					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc ."
-					+ "<"
-					+ ddi
-					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc2 ."
-					+ "<"
-					+ ddi
-					+ "> <http://bio2rdf.org/pharmgkb_vocabulary:event> ?umlsEvent ."
-					+ "?umlsEvent <http://www.w3.org/2000/01/rdf-schema#label> ?umlsEventLabel ."
-					+ "?pcc <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut ."
-					+ "?dbc <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut ."
-					+ "?pcc <http://www.w3.org/2000/01/rdf-schema#label> ?drugLabel ."
-					+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2 ."
-					+ "?dbc2 <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2 ."
-					+ "?pcc2 <http://www.w3.org/2000/01/rdf-schema#label> ?drug2Label ."
-					+ "FILTER(?pcc != ?pcc2) ." + "FILTER(?dbc != ?dbc2) .}";
-
+					+ "FILTER(?pcc != ?pcc2) .}  LIMIT 100";
 			QueryExecution qe = QueryExecutionFactory.sparqlService(service,
 					query);
 			ResultSet rs = qe.execSelect();
-
 			while (rs.hasNext()) {
 				QuerySolution qs = rs.next();
-				System.out.println(qs.get("dbc") + "," + qs.get("drugLabel")
-						+ "," + qs.get("dbc2") + "," + qs.get("drug2Label")
-						+ "," + qs.get("umlsEvent") + ","
-						+ qs.get("umlsEventLabel"));
+				String [] tmpId = qs.get("dbc2").toString().split("drugbank:");
+				String targetId = tmpId[1];
+				DrugDrugInteraction aDDI = new DrugDrugInteraction(
+						aDrugBankIdentifier, targetId, "", "",
+						"", "", "", qs.get("dbcLabel").toString(), qs.get(
+								"dbc2Label").toString(), false);
+				rm.add(aDDI);
 			}
+			return rm;
 		}
+		return rm;
 	}
 
-	public static DrugDrugInteraction getDDIsFromEndpoint(String serviceUrl,
-			String query) {
-		DrugDrugInteraction rm = new DrugDrugInteraction();
-		QueryExecution qe = QueryExecutionFactory.sparqlService(serviceUrl,
-				query);
-		ResultSet rs = qe.execSelect();
-		// get only the first result and create a DDI object from it and add it
-		// to rm
-		while (rs.hasNext()) {
-			QuerySolution qs = rs.next();
+	public static Map<URL, String> retrieveSideEffectMapFromPharmGKB(DrugDrugInteraction aDDI) {
+		return retrieveSideEffectMapFromPharmGKB(aDDI.getActorId(), aDDI.getTargetId());
+	}
 
-			String actorLabel = qs.get("drugLabel").toString();
-			String[] actorIdtmp = qs.get("dbc").toString().split(":");
-			String actorDBId = actorIdtmp[1];
-			String targetLabel = qs.get("drug2Label").toString();
-			String[] targetDbtmp = qs.get("dbc2").toString().split(":");
-			String targetDBId = targetDbtmp[1];
-			String resultingConditionLabel = qs.get("umlsEventLabel")
-					.toString();
-			URL resultingConditionURL = null;
-			try {
-				resultingConditionURL = new URL(qs.get("umlsEvent").toString());
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
+	public static Map<URL, String> retrieveSideEffectMapFromPharmGKB(String aDbId, String aDbId2) {
+		HashMap<URL, String> rm = new HashMap<URL, String>();
+		if (validateDrugBankIdentifier(aDbId)) {
+			if (validateDrugBankIdentifier(aDbId2)) {
+				String dbUri1 = "<http://bio2rdf.org/drugbank:" + aDbId + ">";
+				String dbUri2 = "<http://bio2rdf.org/drugbank:" + aDbId2 + ">";
+				String query = "select DISTINCT ?sideEffect ?sideEffectLabel where {"
+						+ dbUri1
+						+ " <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut ."
+						+ dbUri2
+						+ " <http://bio2rdf.org/drugbank_vocabulary:xref> ?taut2. "
+						+ "?pcc <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut ."
+						+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc ."
+						+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:chemical> ?pcc2 ."
+						+ "?pcc2 <http://bio2rdf.org/pubchemcompound_vocabulary:has_tautomer> ?taut2 ."
+						+ "?ddi <http://bio2rdf.org/pharmgkb_vocabulary:event> ?sideEffect ."
+						+ "?sideEffect <http://www.w3.org/2000/01/rdf-schema#label> ?sideEffectLabel .} LIMIT 5";
+				QueryExecution qe = QueryExecutionFactory.sparqlService(
+						service, query);
+				ResultSet rs = qe.execSelect();
+				while (rs.hasNext()) {
+					QuerySolution qs = rs.next();
+					try {
+						rm.put(new URL(qs.get("sideEffect").toString()), qs
+								.get("sideEffectLabel").toString());
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+				}// while
 			}
-			DrugDrugInteraction aDDI = new DrugDrugInteraction(actorDBId,
-					targetDBId, resultingConditionURL, resultingConditionLabel,
-					actorLabel, targetLabel, false);
-			rm = aDDI;
-			break;
 		}
 		return rm;
 	}
@@ -274,15 +180,6 @@ public class DiscoverHelper {
 		// add the PMID_identifier attribute
 		pub.addProperty(Vocabulary.SIO_000008, pmidIdRes);
 		return pub;
-	}
-
-	public static ResultSet executeQuery(String aTwoSidesId) {
-
-		Query q = QueryFactory.create(aTwoSidesId);
-		// QueryExecution qe = QueryExecutionFactory.create(q, )
-		ResultSet results;
-		return null;
-
 	}
 
 	/**
@@ -310,7 +207,7 @@ public class DiscoverHelper {
 		String inputId = getChemicalIdentifier(input,
 				Vocabulary.SIO_000008.toString(),
 				Vocabulary.SIO_000300.toString());
-		if (validatePharmgkbIdentifier(inputId)) {
+		if (validateDrugBankIdentifier(inputId)) {
 			r = new CSVReader(new InputStreamReader(is));
 			String[] nextLine;
 			try {
@@ -393,7 +290,7 @@ public class DiscoverHelper {
 	 * @param anId
 	 * @return
 	 */
-	public static boolean validatePharmgkbIdentifier(String anId) {
+	public static boolean validateDrugBankIdentifier(String anId) {
 		return anId.matches("DB\\d+");
 	}
 

@@ -21,6 +21,8 @@
 package org.semanticscience.SADI.DDIdiscovery.helper;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
@@ -44,6 +46,13 @@ public class DrugDrugInteraction {
 	private String pmid;
 	private URL resultingConditionURL;
 	private String resultingConditionLabel;
+	public Resource sourceResource;
+
+	/**
+	 * A map where the key is a UMLS URL and the value is the label of the
+	 * sideEffect
+	 */
+	public Map<URL, String> sideEffectMap;
 
 	/**
 	 * A jena resource description of this ddi
@@ -53,6 +62,23 @@ public class DrugDrugInteraction {
 	public DrugDrugInteraction() {
 		aModel = ModelFactory.createDefaultModel();
 		isDirected = false;
+		sideEffectMap = new HashMap<URL,String>();
+	}
+
+	public DrugDrugInteraction(String anActorId, String aTargetId,
+			String anActorEffectOnTarget, String aTargetEffectOnActor,
+			Map<URL, String> aSideEffectMap, String aPmid, String aDescription,
+			String anActorLabel, String aTargetLabel, boolean aIsDirected) {
+		this();
+		actorId = anActorId;
+		targetId = aTargetId;
+		actorEffectOnTarget = anActorEffectOnTarget;
+		sideEffectMap = aSideEffectMap;
+		pmid = aPmid;
+		description = aDescription;
+		actorLabel = anActorLabel;
+		targetLabel = aTargetLabel;
+		isDirected = aIsDirected;		
 	}
 
 	public DrugDrugInteraction(String anActorId, String aTargetId,
@@ -102,6 +128,12 @@ public class DrugDrugInteraction {
 
 	}
 
+	public void addSideEffect(URL aUMLSURL, String aLabel) {
+		if (!this.sideEffectMap.containsKey(aUMLSURL)) {
+			this.sideEffectMap.put(aUMLSURL, aLabel);
+		}
+	}
+
 	public static Resource createActorResource(Model aM) {
 		Resource actor = aM.createResource(RdfUtils.createUniqueURI());
 		actor.addProperty(Vocabulary.rdftype, Vocabulary.DDI_00008);
@@ -130,13 +162,14 @@ public class DrugDrugInteraction {
 		chemicalEntity.addProperty(Vocabulary.SIO_000008, drugbankIdentifier);
 		return chemicalEntity;
 	}
-
-
+	
+	public Map<URL, String> getSideEffectMap(){
+		return sideEffectMap;
+	}
+	
 	public String getRCDDIId() {
 		return rConditonDDIID;
 	}
-
-	
 
 	public String getDescription() {
 		return description;
@@ -161,12 +194,17 @@ public class DrugDrugInteraction {
 	public void setResourceDescription(Resource resourceDescription) {
 		this.resourceDescription = resourceDescription;
 	}
-	public String getResultingConditionLabel(){
+
+	public String getResultingConditionLabel() {
 		return resultingConditionLabel;
 	}
 
 	public String getActorId() {
 		return actorId;
+	}
+	
+	public void setSideEffectMap(Map<URL,String> aMap){
+		this.sideEffectMap = aMap;
 	}
 
 	public URL getResultingConditionURL() {
@@ -196,8 +234,25 @@ public class DrugDrugInteraction {
 	public boolean isDirected() {
 		return isDirected;
 	}
+
 	
-	
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "DrugDrugInteraction [aModel=" + aModel + ", actorId=" + actorId
+				+ ", actorLabel=" + actorLabel + ", targetId=" + targetId
+				+ ", targetLabel=" + targetLabel + ", targetEffectOnActor="
+				+ targetEffectOnActor + ", actorEffectOnTarget="
+				+ actorEffectOnTarget + ", isDirected=" + isDirected
+				+ ", rConditonDDIID=" + rConditonDDIID + ", description="
+				+ description + ", pmid=" + pmid + ", resultingConditionURL="
+				+ resultingConditionURL + ", resultingConditionLabel="
+				+ resultingConditionLabel + ", sideEffectMap=" + sideEffectMap
+				+ ", resourceDescription=" + resourceDescription + "]";
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
@@ -206,6 +261,7 @@ public class DrugDrugInteraction {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((aModel == null) ? 0 : aModel.hashCode());
 		result = prime
 				* result
 				+ ((actorEffectOnTarget == null) ? 0 : actorEffectOnTarget
@@ -217,13 +273,11 @@ public class DrugDrugInteraction {
 				+ ((description == null) ? 0 : description.hashCode());
 		result = prime * result + (isDirected ? 1231 : 1237);
 		result = prime * result + ((pmid == null) ? 0 : pmid.hashCode());
+		result = prime * result
+				+ ((rConditonDDIID == null) ? 0 : rConditonDDIID.hashCode());
 		result = prime
 				* result
 				+ ((resourceDescription == null) ? 0 : resourceDescription
-						.hashCode());
-		result = prime
-				* result
-				+ ((rConditonDDIID == null) ? 0 : rConditonDDIID
 						.hashCode());
 		result = prime
 				* result
@@ -233,6 +287,8 @@ public class DrugDrugInteraction {
 				* result
 				+ ((resultingConditionURL == null) ? 0 : resultingConditionURL
 						.hashCode());
+		result = prime * result
+				+ ((sideEffectMap == null) ? 0 : sideEffectMap.hashCode());
 		result = prime
 				* result
 				+ ((targetEffectOnActor == null) ? 0 : targetEffectOnActor
@@ -242,22 +298,6 @@ public class DrugDrugInteraction {
 		result = prime * result
 				+ ((targetLabel == null) ? 0 : targetLabel.hashCode());
 		return result;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "DrugDrugInteraction [actorId=" + actorId + ", actorLabel="
-				+ actorLabel + ", targetId=" + targetId + ", targetLabel="
-				+ targetLabel + ", targetEffectOnActor=" + targetEffectOnActor
-				+ ", actorEffectOnTarget=" + actorEffectOnTarget
-				+ ", isDirected=" + isDirected + ", resultingCondition="
-				+ rConditonDDIID + ", description=" + description
-				+ ", pmid=" + pmid + ", resultingConditionURL="
-				+ resultingConditionURL + ", resultingConditionLabel="
-				+ resultingConditionLabel + "]\n\n";
 	}
 
 	/* (non-Javadoc)
@@ -272,6 +312,11 @@ public class DrugDrugInteraction {
 		if (getClass() != obj.getClass())
 			return false;
 		DrugDrugInteraction other = (DrugDrugInteraction) obj;
+		if (aModel == null) {
+			if (other.aModel != null)
+				return false;
+		} else if (!aModel.equals(other.aModel))
+			return false;
 		if (actorEffectOnTarget == null) {
 			if (other.actorEffectOnTarget != null)
 				return false;
@@ -299,15 +344,15 @@ public class DrugDrugInteraction {
 				return false;
 		} else if (!pmid.equals(other.pmid))
 			return false;
-		if (resourceDescription == null) {
-			if (other.resourceDescription != null)
-				return false;
-		} else if (!resourceDescription.equals(other.resourceDescription))
-			return false;
 		if (rConditonDDIID == null) {
 			if (other.rConditonDDIID != null)
 				return false;
 		} else if (!rConditonDDIID.equals(other.rConditonDDIID))
+			return false;
+		if (resourceDescription == null) {
+			if (other.resourceDescription != null)
+				return false;
+		} else if (!resourceDescription.equals(other.resourceDescription))
 			return false;
 		if (resultingConditionLabel == null) {
 			if (other.resultingConditionLabel != null)
@@ -319,6 +364,11 @@ public class DrugDrugInteraction {
 			if (other.resultingConditionURL != null)
 				return false;
 		} else if (!resultingConditionURL.equals(other.resultingConditionURL))
+			return false;
+		if (sideEffectMap == null) {
+			if (other.sideEffectMap != null)
+				return false;
+		} else if (!sideEffectMap.equals(other.sideEffectMap))
 			return false;
 		if (targetEffectOnActor == null) {
 			if (other.targetEffectOnActor != null)
