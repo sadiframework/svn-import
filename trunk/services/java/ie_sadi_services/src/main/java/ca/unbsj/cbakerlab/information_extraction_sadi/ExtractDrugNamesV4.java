@@ -5,6 +5,7 @@ import java.util.Map.Entry;
 import java.net.*;
 import java.io.*;
 
+
 import org.apache.log4j.Logger;
 
 //import org.nlp2rdf.core.ErrorHandling;
@@ -53,10 +54,21 @@ public class ExtractDrugNamesV4 extends SimpleSynchronousServiceServlet {
 	private static final long timestamp = new Date().getTime();
 	private static long instanceCounter = 0;
 
+	
+	private static final Gate2RDF g2r;
+
+	
 	public ExtractDrugNamesV4() {
 		super();
 		log.info("Service instance created.");
 	}
+	
+	static 
+	{
+		 g2r = new Gate2RDF();
+
+	    log.info("Initialised a gate pipeline");
+	};
 
 	public void processInput(Resource input, Resource output) {
 		log.info("New service invocation.");
@@ -81,19 +93,24 @@ public class ExtractDrugNamesV4 extends SimpleSynchronousServiceServlet {
 		//
 		// Annotate text with DrugNameAnnieGazetteer.
 		//
-		Gate2RDF g2r = new Gate2RDF();
+		
 		OntModel model = null;
-		try {
-			model = g2r.processTextWithDrugNameAnnieGazetteer(text,input.getURI());
-		} catch (FileNotFoundException e2) {
-			e2.printStackTrace();
-		} catch (IOException e2) {
-			e2.printStackTrace();
-		} catch (URISyntaxException e2) {
-			e2.printStackTrace();
-		} catch (GateException e2) {
-			e2.printStackTrace();
-		}
+		synchronized (g2r) 
+		{
+			try {
+				model = g2r.processTextWithDrugNameAnnieGazetteer(text,input.getURI());
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			} catch (GateException e) {
+				e.printStackTrace();
+			}
+		};
+		
+		
 		log.info("Returning " + model.size() + " triples");
 		log.info(model);
 
