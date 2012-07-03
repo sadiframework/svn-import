@@ -155,7 +155,9 @@ public class ExtractDrugNamesV4 extends SimpleSynchronousServiceServlet {
 				chemEntity.addProperty(Vocab.hasAttribute, nameAttr);
 			}
 
+			output.addProperty(Vocab.refersTo, chemEntity);
 			output.addProperty(Vocab.topic, chemEntity);
+
 			log.info("Processed drug " + entry.getValue());
 		}
 
@@ -164,7 +166,7 @@ public class ExtractDrugNamesV4 extends SimpleSynchronousServiceServlet {
 	}
 
 	/**
-	 * Extracts drugs and their identifiers from RDF model.
+	 * Extracts drugs and their identifiers from RDF model. Kind of co-reference resolution.
 	 * @param model
 	 * @return
 	 */
