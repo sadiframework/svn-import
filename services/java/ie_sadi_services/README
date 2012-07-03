@@ -19,6 +19,7 @@ Testing the services on sample input:
 curl --data @./sample_input_ednft.rdf http://localhost:9999/ie-sadi/extractDrugNamesFromTextV4
 curl --data @./sample_input_ednft2.rdf http://localhost:9999/ie-sadi/extractDrugNamesFromTextV4
 
+curl --data @./sample_input_ednft_test.rdf http://localhost:9999/ie-sadi/extractDrugNamesFromTextV4
 
 
 ============================================================================
