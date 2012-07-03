@@ -9,7 +9,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 /* package */ class Vocab
 	{
 	    private static Model m_model = ModelFactory.createDefaultModel();
-	
+
+
 
 	    // rdf:value
 	    public static final Property value = 
@@ -166,6 +167,10 @@ import com.hp.hpl.jena.rdf.model.Resource;
 		m_model.createProperty(mutationOntologyExtrasNS + "biologicalEntityTypeHasMember");
 	    
 
+		public static final Property SIO_000628 = 
+			m_model.createProperty(sioNS + "SIO_000628");
+		    public static final Property refersTo = SIO_000628;
+		
 
 
 
