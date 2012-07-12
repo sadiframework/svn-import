@@ -1,0 +1,16 @@
+<rdf:RDF
+ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/">
+<rdf:Description rdf:about="http://example.org/anInput">
+        <rdf:type rdf:resource="http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_10000"/>
+        <sio:SIO_000008 rdf:resource="http://example.org/anInputAttribute"/>
+</rdf:Description>
+<rdf:Description rdf:about="http://example.org/anInputAttribute">
+        <rdf:type rdf:resource="http://sadi-ontology.semanticscience.org/ddiv2.owl#DDI_00004"/>
+        <rdf:type rdf:resource="http://purl.oclc.org/SADI/LSRN/DrugBank_Identifier"/>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string">DB01323</sio:SIO_000300>
+</rdf:Description>
+</rdf:RDF>
+
