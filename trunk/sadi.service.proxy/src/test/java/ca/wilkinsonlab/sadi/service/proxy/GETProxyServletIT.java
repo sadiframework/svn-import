@@ -12,15 +12,14 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpResponse;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.sadiframework.utils.ContentType;
-import org.sadiframework.utils.JsonUtils;
 import org.sadiframework.utils.ModelDiff;
 import org.sadiframework.utils.RdfUtils;
 import org.sadiframework.utils.http.HttpUtils;
-
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -57,7 +56,9 @@ public class GETProxyServletIT
 		assertTrue(String.format("incorrect response %s", jsonp), jsonp.endsWith(");"));
 		Object rdf = null;
 		try {
-			rdf = JsonUtils.read(StringUtils.substring(jsonp, 4, -2));
+			// JsonUtils.read assumes result is an object, so this doesn't work... 
+			//rdf = JsonUtils.read(StringUtils.substring(jsonp, 4, -2));
+			rdf = new ObjectMapper().readValue(StringUtils.substring(jsonp, 4, -2), String.class);
 		} catch (Exception e) {
 			fail("argument to callback isn't valid JavaScript");
 		}
