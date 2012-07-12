@@ -1,7 +1,0 @@
-# Test with a typical SADI service input in the object position.
-
-PREFIX uniprot: <http://lsrn.org/UniProt:>
-SELECT *
-WHERE {
-   ?s ?p uniprot:P04036 .
-}
