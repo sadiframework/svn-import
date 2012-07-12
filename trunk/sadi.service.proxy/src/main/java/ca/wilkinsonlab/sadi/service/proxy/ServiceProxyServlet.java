@@ -8,15 +8,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
-import org.stringtree.util.StreamUtils;
+import org.sadiframework.service.ServiceServlet;
+import org.sadiframework.tasks.TaskManager;
+import org.sadiframework.utils.ContentType;
+import org.sadiframework.utils.QueryableErrorHandler;
 
-import ca.wilkinsonlab.sadi.service.ServiceServlet;
-import ca.wilkinsonlab.sadi.tasks.TaskManager;
-import ca.wilkinsonlab.sadi.utils.ContentType;
-import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
@@ -58,10 +58,10 @@ public class ServiceProxyServlet extends ServiceServlet
 			String taskID = path[0];
 			if (taskID.equals("js")) {
 				response.setContentType("application/javascript");
-				response.getWriter().print(StreamUtils.readStream(ServiceProxyServlet.class.getResourceAsStream(request.getPathInfo())));
+				response.getWriter().print(IOUtils.toString(ServiceProxyServlet.class.getResourceAsStream(request.getPathInfo())));
 				return;
 			} else if (request.getPathInfo().endsWith("html") || request.getPathInfo().endsWith("rdf")) {
-				response.getWriter().print(StreamUtils.readStream(ServiceProxyServlet.class.getResourceAsStream("/html" + request.getPathInfo())));
+				response.getWriter().print(IOUtils.toString(ServiceProxyServlet.class.getResourceAsStream("/html" + request.getPathInfo())));
 				return;
 			}
 			ServiceProxyTask task = (ServiceProxyTask)TaskManager.getInstance().getTask(taskID);

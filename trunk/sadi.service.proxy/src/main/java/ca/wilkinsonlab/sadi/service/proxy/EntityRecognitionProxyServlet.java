@@ -15,11 +15,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.htmlparser.Parser;
 import org.htmlparser.visitors.TextExtractingVisitor;
-import org.stringtree.json.JSONWriter;
+import org.sadiframework.client.ServiceFactory;
+import org.sadiframework.service.annotations.URI;
+import org.sadiframework.utils.JsonUtils;
+import org.sadiframework.utils.RdfUtils;
 
-import ca.wilkinsonlab.sadi.client.ServiceFactory;
-import ca.wilkinsonlab.sadi.service.annotations.URI;
-import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -69,16 +69,15 @@ public class EntityRecognitionProxyServlet extends GETProxyServlet
 				output.put("alive", false);
 				output.put("error", e.toString());
 			}
-			JSONWriter jsonWriter = new JSONWriter();
 			response.setContentType("text/javascript");
-			response.getWriter().format("%s", jsonWriter.write(output));
+			response.getWriter().format("%s", JsonUtils.write(output));
 		} else {
 			super.doGet(request, response);
 		}
 	}
 
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.proxy.GETProxyServlet#assembleInput(javax.servlet.http.HttpServletRequest)
+	 * @see org.sadiframework.service.proxy.GETProxyServlet#assembleInput(javax.servlet.http.HttpServletRequest)
 	 */
 	@Override
 	protected Model assembleInput(HttpServletRequest request) throws IOException
@@ -117,7 +116,7 @@ public class EntityRecognitionProxyServlet extends GETProxyServlet
 	}
 
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#outputSuccessResponse(javax.servlet.http.HttpServletResponse, com.hp.hpl.jena.rdf.model.Model)
+	 * @see org.sadiframework.service.ServiceServlet#outputSuccessResponse(javax.servlet.http.HttpServletResponse, com.hp.hpl.jena.rdf.model.Model)
 	 */
 	@Override
 	protected void outputSuccessResponse(HttpServletResponse response, Model outputModel) throws IOException

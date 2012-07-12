@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,13 +15,12 @@ import org.apache.http.HttpResponse;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.stringtree.json.JSONReader;
-import org.stringtree.util.StreamUtils;
+import org.sadiframework.utils.ContentType;
+import org.sadiframework.utils.JsonUtils;
+import org.sadiframework.utils.ModelDiff;
+import org.sadiframework.utils.RdfUtils;
+import org.sadiframework.utils.http.HttpUtils;
 
-import ca.wilkinsonlab.sadi.utils.ContentType;
-import ca.wilkinsonlab.sadi.utils.ModelDiff;
-import ca.wilkinsonlab.sadi.utils.RdfUtils;
-import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -52,12 +52,12 @@ public class GETProxyServletIT
 		params.put("inputURL", "http://sadiframework.org/examples/t/hello.input.1.rdf");
 		params.put("callback", "foo");
 		HttpResponse response = HttpUtils.GET(new URL(LOCAL_SERVICE_URL), params);
-		String jsonp = StreamUtils.readStream(response.getEntity().getContent());
+		String jsonp = IOUtils.toString(response.getEntity().getContent());
 		assertTrue(String.format("incorrect response %s", jsonp), jsonp.startsWith("foo("));
 		assertTrue(String.format("incorrect response %s", jsonp), jsonp.endsWith(");"));
 		Object rdf = null;
 		try {
-			rdf = new JSONReader().read(StringUtils.substring(jsonp, 4, -2));
+			rdf = JsonUtils.read(StringUtils.substring(jsonp, 4, -2));
 		} catch (Exception e) {
 			fail("argument to callback isn't valid JavaScript");
 		}
