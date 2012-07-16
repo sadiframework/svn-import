@@ -3,12 +3,18 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.semanticscience.SADI</groupId>
-	<artifactId>DDIdiscovery</artifactId>
+	<artifactId>ddidiscovery-static</artifactId>
 	<version>0.0.3-SNAPSHOT</version>
 	<packaging>war</packaging>
 
-	<name>DDIdiscovery</name>
+	<name>ddidiscovery-static</name>
 	<url>http://maven.apache.org</url>
+
+	<scm>
+		<url>http://code.google.com/p/sadi/source/browse/#svn/branches/ddidiscovery-static</url>
+		<connection>scm:svn:http://sadi.googlecode.com/svn/branches/ddidiscovery-static</connection>
+		<developerConnection>scm:svn:https://sadi.googlecode.com/svn/branches/ddidiscovery-static</developerConnection>
+	</scm>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
