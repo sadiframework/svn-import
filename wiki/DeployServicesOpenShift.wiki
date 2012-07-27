@@ -35,4 +35,4 @@
     {{{
       git push
     }}}
-  # If you make changes to your SADI service code, just commit and push those changes to redeploy the updated application (i.e.: `git add`, `git commit`, `git push` as necessary)
+  # When you make changes to your SADI service code, just commit and push those changes to redeploy the updated application (i.e.: `git add`, `git commit`, `git push` as necessary)
