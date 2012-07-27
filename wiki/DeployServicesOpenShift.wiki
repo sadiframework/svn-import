@@ -5,8 +5,25 @@
   # [https://openshift.redhat.com/app/console/application_types/diy-0.1 Create a new DIY application]
   # Check out/clone your application's repository
   # Apply the [https://sadi.googlecode.com/files/diy-0.1_to_jetty.patch DIY-to-Jetty patch] to your application's repository
-    {{{ git apply diy-0.1_to_jetty.patch }}}
-  # Copy your SADI service webapp project directory into your application's repository (running mvn clean in the project beforehand is a good idea)
-  # Make sure your webapp works with the Jetty Maven plugin — it must be able to successfully execute the `jetty:start` and `jetty:stop` goals (requires jetty-maven-plugin-7.6.0 or later) and it must respect the `jetty.host` and `jetty.port` parameters. You can copy the following block into your webapp's `pom.xml` file if you have no other Jetty configuration.
     {{{
+      git apply diy-0.1_to_jetty.patch
+    }}}
+  # Copy your SADI service webapp project directory into your application's repository (running mvn clean in the project beforehand is a good idea)
+  # Make sure your webapp works with the Jetty Maven plugin — it must be able to successfully execute the `jetty:start` and `jetty:stop` goals (requires jetty-maven-plugin-7.6.0 or later) and it must respect the `jetty.host` and `jetty.port` parameters. If you have no existing configuration for the jetty-maven-plugin, you can copy the following `<plugin>` block into the `<plugins>` section of your webapp's `pom.xml` file:
+    {{{
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>7.6.5.v20120716</version>
+        <configuration>
+          <connectors>
+            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+              <host>${jetty.host}</host>
+              <port>${jetty.port}</port>
+            </connector>
+          </connectors>
+          <stopPort>15001</stopPort>
+          <stopKey>(worker hello)</stopKey>
+        </configuration>
+      </plugin>
     }}}
