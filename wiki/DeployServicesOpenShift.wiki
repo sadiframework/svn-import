@@ -1,0 +1,6 @@
+#summary HOWTO deploy SADI services to OpenShift PaaS.
+
+  # [https://openshift.redhat.com/community/developers/install-the-client-tools Install the OpenShift Client Tools]
+  # [https://openshift.redhat.com/app/account/new Sign up for OpenShift]
+  # [https://openshift.redhat.com/app/console/application_types/diy-0.1 Create a new DIY application]
+  #
