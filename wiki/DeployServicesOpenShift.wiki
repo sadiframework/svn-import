@@ -3,4 +3,5 @@
   # [https://openshift.redhat.com/community/developers/install-the-client-tools Install the OpenShift Client Tools]
   # [https://openshift.redhat.com/app/account/new Sign up for OpenShift]
   # [https://openshift.redhat.com/app/console/application_types/diy-0.1 Create a new DIY application]
-  #
+  # Check out/clone your application's repository
+  # Apply the [https://sadi.googlecode.com/files/diy-0.1_to_jetty.patch DIY-to-Jetty patch] to your application's repository
