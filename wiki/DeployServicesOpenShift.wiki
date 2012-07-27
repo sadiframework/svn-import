@@ -6,4 +6,9 @@
   # Check out/clone your application's repository
   # Apply the [https://sadi.googlecode.com/files/diy-0.1_to_jetty.patch DIY-to-Jetty patch] to your application's repository
     {{{ git apply diy-0.1_to_jetty.patch }}}
-  #
+  # Copy your SADI service webapp project directory into your application's repository (running mvn clean in the project beforehand is a good idea)
+  # Make sure your webapp project works with the Jetty Maven plugin — it must be able to successfully execute the following goals (requires jetty-maven-plugin-7.6.0 or later):
+    {{{
+mvn jetty:start
+mvn jetty:stop
+    }}}
