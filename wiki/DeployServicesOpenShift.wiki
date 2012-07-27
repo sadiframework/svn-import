@@ -8,7 +8,7 @@
     {{{
       git apply diy-0.1_to_jetty.patch
     }}}
-  # Copy your SADI service webapp project directory into your application's repository (running mvn clean in the project beforehand is a good idea). Your webapp must work with the Jetty Maven plugin — specifically, it must be able to successfully execute the `jetty:start` and `jetty:stop` goals (requires jetty-maven-plugin-7.6.0 or later) and it must respect the `jetty.host` and `jetty.port` parameters. If you have no existing configuration for the jetty-maven-plugin, you can copy the following `<plugin>` block into the `<plugins>` section of your webapp's `pom.xml` file:
+  # Add your SADI service webapp source code to your application's repository. If your SADI service code is in source control (as it should be), you can just check out a copy. If not, you can copy the SADI service project directory (running mvn clean in the project beforehand is a good idea). Your webapp must work with the Jetty Maven plugin — specifically, it must be able to successfully execute the `jetty:start` and `jetty:stop` goals (requires jetty-maven-plugin-7.6.0 or later) and it must respect the `jetty.host` and `jetty.port` parameters. If you have no existing configuration for the jetty-maven-plugin, you can copy the following `<plugin>` block into the `<plugins>` section of your webapp's `pom.xml` file:
     {{{
       <plugin>
         <groupId>org.mortbay.jetty</groupId>
@@ -31,4 +31,4 @@
       git add SADI_SERVICES_PROJECT_DIRECTORY
       git commit -a -m "Added SADI services webapp"
     }}}
-  # Push your application's repository to deploy the application.
+  # Push your application's repository to deploy the application. If you make changes to your SADI service code, just commit and push those changes to redeploy the updated application. 
