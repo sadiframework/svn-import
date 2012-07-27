@@ -31,4 +31,8 @@
       git add SADI_SERVICES_PROJECT_DIRECTORY
       git commit -a -m "Added SADI services webapp"
     }}}
-  # Push your application's repository to deploy the application. If you make changes to your SADI service code, just commit and push those changes to redeploy the updated application. 
+  # Push your application's repository to deploy the application. 
+    {{{
+      git push
+    }}}
+  # If you make changes to your SADI service code, just commit and push those changes to redeploy the updated application (i.e.: `git add`, `git commit`, `git push` as necessary)
