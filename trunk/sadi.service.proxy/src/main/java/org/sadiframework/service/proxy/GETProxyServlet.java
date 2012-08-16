@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.service.proxy;
+package org.sadiframework.service.proxy;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -12,14 +12,14 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.log4j.Logger;
-import org.stringtree.json.JSONWriter;
 
-import ca.wilkinsonlab.sadi.service.ServiceServlet;
-import ca.wilkinsonlab.sadi.service.annotations.URI;
-import ca.wilkinsonlab.sadi.tasks.TaskManager;
-import ca.wilkinsonlab.sadi.utils.ContentType;
-import ca.wilkinsonlab.sadi.utils.QueryableErrorHandler;
-import ca.wilkinsonlab.sadi.utils.RdfUtils;
+import org.sadiframework.service.ServiceServlet;
+import org.sadiframework.service.annotations.URI;
+import org.sadiframework.tasks.TaskManager;
+import org.sadiframework.utils.ContentType;
+import org.sadiframework.utils.JsonUtils;
+import org.sadiframework.utils.QueryableErrorHandler;
+import org.sadiframework.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
@@ -98,7 +98,7 @@ public class GETProxyServlet extends ServiceServlet
 				StringWriter buf = new StringWriter();
 				ContentType.RDF_XML.writeModel(task.getModel(), buf, "");
 				response.getWriter().format("%s(%s);", callback, 
-						new JSONWriter().write(buf.toString()));
+						JsonUtils.write(buf.toString()));
 			} else {
 				response.setContentType(super.getContentType(request).getHTTPHeader());
 				outputSuccessResponse(response, task.getModel());
