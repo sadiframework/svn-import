@@ -3,39 +3,29 @@
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>ca.wilkinsonlab.sadi</groupId>
+  <groupId>org.sadiframework</groupId>
   <artifactId>sadi-webapp</artifactId>
-  <version>0.1.2-SNAPSHOT</version>
+  <version>0.3.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>SADI webapp parent POM</name>
+  <url>http://sadiframework.org/</url>
+  <parent>
+    <groupId>org.sadiframework</groupId>
+    <artifactId>sadi-parent</artifactId>
+    <version>0.3.1-SNAPSHOT</version>
+  </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <maven-compiler-plugin.version>2.3.2</maven-compiler-plugin.version>
-    <maven-jetty-plugin.version>6.1.10</maven-jetty-plugin.version>
     <maven-war-plugin.version>2.1.1</maven-war-plugin.version>
+    <jetty-maven-plugin.version>7.6.5.v20120716</jetty-maven-plugin.version>
+    <jetty.host>0.0.0.0</jetty.host>
+    <jetty.port>8080</jetty.port>
+    <jetty.stop-port>8081</jetty.stop-port>
   </properties>
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>${maven-compiler-plugin.version}</version>
-        <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
-        </configuration>
-      </plugin>
-      <plugin>
-      	<groupId>org.mortbay.jetty</groupId>
-      	<artifactId>maven-jetty-plugin</artifactId>
-      	<version>${maven-jetty-plugin.version}</version>
-      	<configuration>
-      	  <stopPort>8081</stopPort>
-      	  <stopKey>stop</stopKey>
-      	  <scanIntervalSeconds>2</scanIntervalSeconds>
-      	</configuration>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
@@ -50,7 +40,85 @@
            -->
         </configuration>
       </plugin>
+      <plugin>
+      	<groupId>org.mortbay.jetty</groupId>
+      	<artifactId>jetty-maven-plugin</artifactId>
+      	<version>${jetty-maven-plugin.version}</version>
+        <configuration>
+          <connectors>
+            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+              <host>${jetty.host}</host>
+              <port>${jetty.port}</port>
+            </connector>
+          </connectors>
+          <stopPort>${jetty.stop-port}</stopPort>
+          <stopKey>(worker hello)</stopKey>
+      	  <scanIntervalSeconds>2</scanIntervalSeconds>
+        </configuration>
+      	<executions>
+          <execution>
+            <id>start-jetty</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <scanIntervalSeconds>0</scanIntervalSeconds>
+              <daemon>true</daemon>
+            </configuration>
+          </execution>
+          <execution>
+            <id>stop-jetty</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+        <configuration>
+          <systemProperties>
+            <property>
+              <name>jetty-maven-plugin.host</name>
+              <value>${jetty.host}</value>
+            </property>
+            <property>
+              <name>jetty-maven-plugin.port</name>
+              <value>${jetty.port}</value>
+            </property>
+            <property>
+              <name>jetty-maven-plugin.stop-port</name>
+              <value>${jetty.stop-port}</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${maven-failsafe-plugin.version}</version>
+        <configuration>
+          <systemProperties>
+            <property>
+              <name>jetty-maven-plugin.host</name>
+              <value>${jetty.host}</value>
+            </property>
+            <property>
+              <name>jetty-maven-plugin.port</name>
+              <value>${jetty.port}</value>
+            </property>
+            <property>
+              <name>jetty-maven-plugin.stop-port</name>
+              <value>${jetty.stop-port}</value>
+            </property>
+          </systemProperties>
+        </configuration>
+      </plugin>
     </plugins>
+    <!-- 
     <extensions>
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
@@ -58,7 +126,9 @@
         <version>1.0-alpha-5</version>
       </extension>
     </extensions>
+     -->
   </build>
+  <!-- 
   <distributionManagement>
     <repository>
       <id>dev-repository</id>
@@ -81,4 +151,5 @@
   		</snapshots>
   	</repository>
   </repositories>
+   -->
 </project>
