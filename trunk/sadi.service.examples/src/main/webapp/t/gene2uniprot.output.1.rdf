@@ -1,11 +1,11 @@
 <rdf:RDF
     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
     xmlns:sio="http://semanticscience.org/resource/"
-    xmlns:j.0="http://sadiframework.org/examples/gene2uniprot.owl#"
+    xmlns:gene2uniprot="http://sadiframework.org/examples/gene2uniprot.owl#"
     xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
     xmlns:sadi="http://sadiframework.org/ontologies/properties.owl#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
-  <j.0:OutputClass rdf:about="http://lsrn.org/ENSEMBL:ENSG00000044524">
+  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/ENSEMBL:ENSG00000044524">
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:C9JXA2">
         <sio:SIO_000671>
@@ -26,8 +26,8 @@
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
-  </j.0:OutputClass>
-  <j.0:OutputClass rdf:about="http://lsrn.org/FLYBASE:FBgn0085434">
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/FLYBASE:FBgn0085434">
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q9W0Y8">
         <sio:SIO_000671>
@@ -38,8 +38,8 @@
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
-  </j.0:OutputClass>
-  <j.0:OutputClass rdf:about="http://lsrn.org/KEGG:hsa:1991">
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/KEGG:hsa:1991">
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:P08246">
         <sio:SIO_000671>
@@ -50,8 +50,8 @@
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
-  </j.0:OutputClass>
-  <j.0:OutputClass rdf:about="http://lsrn.org/RGD:708506">
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/RGD:708506">
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:P02761">
         <sio:SIO_000671>
@@ -72,8 +72,8 @@
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
-  </j.0:OutputClass>
-  <j.0:OutputClass rdf:about="urn:not-an-lsrn-uri">
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="urn:not-an-lsrn-uri">
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:F1Q8S7">
         <sio:SIO_000671>
@@ -94,24 +94,14 @@
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
-  </j.0:OutputClass>
-  <j.0:OutputClass rdf:about="http://lsrn.org/MGI:99470">
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/MGI:99470">
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q3TRX6">
         <sio:SIO_000671>
           <lsrn:UniProt_Identifier>
             <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >Q3TRX6</sio:SIO_000300>
-          </lsrn:UniProt_Identifier>
-        </sio:SIO_000671>
-      </lsrn:UniProt_Record>
-    </sio:SIO_010078>
-    <sio:SIO_010078>
-      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:E9Q9H3">
-        <sio:SIO_000671>
-          <lsrn:UniProt_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >E9Q9H3</sio:SIO_000300>
           </lsrn:UniProt_Identifier>
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
@@ -127,6 +117,16 @@
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
     <sio:SIO_010078>
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:E9Q9H3">
+        <sio:SIO_000671>
+          <lsrn:UniProt_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >E9Q9H3</sio:SIO_000300>
+          </lsrn:UniProt_Identifier>
+        </sio:SIO_000671>
+      </lsrn:UniProt_Record>
+    </sio:SIO_010078>
+    <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:P54103">
         <sio:SIO_000671>
           <lsrn:UniProt_Identifier>
@@ -136,8 +136,8 @@
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
-  </j.0:OutputClass>
-  <j.0:OutputClass rdf:about="http://lsrn.org/SGD:S000000626">
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/SGD:S000000626">
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:P25623">
         <sio:SIO_000671>
@@ -148,8 +148,8 @@
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
-  </j.0:OutputClass>
-  <j.0:OutputClass rdf:about="http://lsrn.org/HGNC:4516">
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/HGNC:4516">
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q14CE0">
         <sio:SIO_000671>
@@ -166,16 +166,6 @@
           <lsrn:UniProt_Identifier>
             <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >C9JWS0</sio:SIO_000300>
-          </lsrn:UniProt_Identifier>
-        </sio:SIO_000671>
-      </lsrn:UniProt_Record>
-    </sio:SIO_010078>
-    <sio:SIO_010078>
-      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:C9J179">
-        <sio:SIO_000671>
-          <lsrn:UniProt_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >C9J179</sio:SIO_000300>
           </lsrn:UniProt_Identifier>
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
@@ -200,8 +190,8 @@
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
-  </j.0:OutputClass>
-  <j.0:OutputClass rdf:about="http://lsrn.org/GeneID:22862">
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/GeneID:22862">
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q9Y2H6">
         <sio:SIO_000671>
@@ -212,5 +202,5 @@
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
-  </j.0:OutputClass>
+  </gene2uniprot:OutputClass>
 </rdf:RDF>
