@@ -6,15 +6,15 @@
   
   <servlet>
     <servlet-name>proxy</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.proxy.ServiceProxyServlet</servlet-class>
+    <servlet-class>org.sadiframework.service.proxy.ServiceProxyServlet</servlet-class>
   </servlet>
   <servlet>
     <servlet-name>get-proxy</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.proxy.GETProxyServlet</servlet-class>
+    <servlet-class>org.sadiframework.service.proxy.GETProxyServlet</servlet-class>
   </servlet>
   <servlet>
     <servlet-name>er-proxy</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.proxy.EntityRecognitionProxyServlet</servlet-class>
+    <servlet-class>org.sadiframework.service.proxy.EntityRecognitionProxyServlet</servlet-class>
   </servlet>
   
   <servlet-mapping>
