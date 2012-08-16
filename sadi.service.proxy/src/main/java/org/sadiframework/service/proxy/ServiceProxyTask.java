@@ -1,14 +1,14 @@
-package ca.wilkinsonlab.sadi.service.proxy;
+package org.sadiframework.service.proxy;
 
 import org.apache.log4j.Logger;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-import ca.wilkinsonlab.sadi.SADIException;
-import ca.wilkinsonlab.sadi.client.Service;
-import ca.wilkinsonlab.sadi.client.ServiceFactory;
-import ca.wilkinsonlab.sadi.client.ServiceImpl;
-import ca.wilkinsonlab.sadi.tasks.Task;
+import org.sadiframework.SADIException;
+import org.sadiframework.client.Service;
+import org.sadiframework.client.ServiceFactory;
+import org.sadiframework.client.ServiceImpl;
+import org.sadiframework.tasks.Task;
 
 public class ServiceProxyTask extends Task
 {
