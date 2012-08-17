@@ -1,8 +1,8 @@
-package ca.wilkinsonlab.sadi.service.opencitations;
+package org.sadiframework.service.opencitations;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-import ca.wilkinsonlab.sadi.service.simple.SimpleSynchronousServiceServlet;
+import org.sadiframework.service.simple.SimpleSynchronousServiceServlet;
 
 public abstract class OpenCitationsServiceServlet extends SimpleSynchronousServiceServlet
 {

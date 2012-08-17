@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.service.opencitations.test;
+package org.sadiframework.service.opencitations.test;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
 import com.hp.hpl.jena.query.ResultSet;
