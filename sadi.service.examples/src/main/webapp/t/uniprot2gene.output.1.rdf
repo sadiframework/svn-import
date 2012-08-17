@@ -1,0 +1,236 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.0="http://sadiframework.org/examples/uniprot2gene.owl#"
+    xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:sadi="http://sadiframework.org/ontologies/properties.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <j.0:OutputClass rdf:about="http://lsrn.org/UniProt:P02761">
+    <sio:SIO_010079>
+      <lsrn:GeneID_Record rdf:about="http://lsrn.org/GeneID:259246">
+        <sio:SIO_000008>
+          <lsrn:GeneID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >259246</sio:SIO_000300>
+          </lsrn:GeneID_Identifier>
+        </sio:SIO_000008>
+      </lsrn:GeneID_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:KEGG_Record rdf:about="http://lsrn.org/KEGG:rno:259246">
+        <sio:SIO_000008>
+          <lsrn:KEGG_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >rno:259246</sio:SIO_000300>
+          </lsrn:KEGG_Identifier>
+        </sio:SIO_000008>
+      </lsrn:KEGG_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:RGD_Record rdf:about="http://lsrn.org/RGD:708506">
+        <sio:SIO_000008>
+          <lsrn:RGD_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >708506</sio:SIO_000300>
+          </lsrn:RGD_Identifier>
+        </sio:SIO_000008>
+      </lsrn:RGD_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:ENSEMBL_Record rdf:about="http://lsrn.org/ENSEMBL:ENSRNOG00000042641">
+        <sio:SIO_000008>
+          <lsrn:ENSEMBL_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >ENSRNOG00000042641</sio:SIO_000300>
+          </lsrn:ENSEMBL_Identifier>
+        </sio:SIO_000008>
+      </lsrn:ENSEMBL_Record>
+    </sio:SIO_010079>
+  </j.0:OutputClass>
+  <j.0:OutputClass rdf:about="http://lsrn.org/UniProt:Q9W0Y8">
+    <sio:SIO_010079>
+      <lsrn:KEGG_Record rdf:about="http://lsrn.org/KEGG:dme:Dmel_CG34405">
+        <sio:SIO_000008>
+          <lsrn:KEGG_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >dme:Dmel_CG34405</sio:SIO_000300>
+          </lsrn:KEGG_Identifier>
+        </sio:SIO_000008>
+      </lsrn:KEGG_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:FLYBASE_Record rdf:about="http://lsrn.org/FLYBASE:FBgn0085434">
+        <sio:SIO_000008>
+          <lsrn:FLYBASE_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >FBgn0085434</sio:SIO_000300>
+          </lsrn:FLYBASE_Identifier>
+        </sio:SIO_000008>
+      </lsrn:FLYBASE_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:GeneID_Record rdf:about="http://lsrn.org/GeneID:37981">
+        <sio:SIO_000008>
+          <lsrn:GeneID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >37981</sio:SIO_000300>
+          </lsrn:GeneID_Identifier>
+        </sio:SIO_000008>
+      </lsrn:GeneID_Record>
+    </sio:SIO_010079>
+  </j.0:OutputClass>
+  <j.0:OutputClass rdf:about="http://lsrn.org/UniProt:P25623">
+    <sio:SIO_010079>
+      <lsrn:KEGG_Record rdf:about="http://lsrn.org/KEGG:sce:YCR030C">
+        <sio:SIO_000008>
+          <lsrn:KEGG_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >sce:YCR030C</sio:SIO_000300>
+          </lsrn:KEGG_Identifier>
+        </sio:SIO_000008>
+      </lsrn:KEGG_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:SGD_Record rdf:about="http://lsrn.org/SGD:S000000626">
+        <sio:SIO_000008>
+          <lsrn:SGD_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >S000000626</sio:SIO_000300>
+          </lsrn:SGD_Identifier>
+        </sio:SIO_000008>
+      </lsrn:SGD_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:GeneID_Record rdf:about="http://lsrn.org/GeneID:850396">
+        <sio:SIO_000008>
+          <lsrn:GeneID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >850396</sio:SIO_000300>
+          </lsrn:GeneID_Identifier>
+        </sio:SIO_000008>
+      </lsrn:GeneID_Record>
+    </sio:SIO_010079>
+  </j.0:OutputClass>
+  <j.0:OutputClass rdf:about="urn:not-an-lsrn-uri">
+    <sio:SIO_010079>
+      <lsrn:KEGG_Record rdf:about="http://lsrn.org/KEGG:dre:553373">
+        <sio:SIO_000008>
+          <lsrn:KEGG_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >dre:553373</sio:SIO_000300>
+          </lsrn:KEGG_Identifier>
+        </sio:SIO_000008>
+      </lsrn:KEGG_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:ZFIN_Record rdf:about="http://lsrn.org/ZFIN:ZDB-GENE-070410-17">
+        <sio:SIO_000008>
+          <lsrn:ZFIN_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >ZDB-GENE-070410-17</sio:SIO_000300>
+          </lsrn:ZFIN_Identifier>
+        </sio:SIO_000008>
+      </lsrn:ZFIN_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:GeneID_Record rdf:about="http://lsrn.org/GeneID:553373">
+        <sio:SIO_000008>
+          <lsrn:GeneID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >553373</sio:SIO_000300>
+          </lsrn:GeneID_Identifier>
+        </sio:SIO_000008>
+      </lsrn:GeneID_Record>
+    </sio:SIO_010079>
+  </j.0:OutputClass>
+  <j.0:OutputClass rdf:about="http://lsrn.org/UniProt:P54103">
+    <sio:SIO_010079>
+      <lsrn:GeneID_Record rdf:about="http://lsrn.org/GeneID:22791">
+        <sio:SIO_000008>
+          <lsrn:GeneID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >22791</sio:SIO_000300>
+          </lsrn:GeneID_Identifier>
+        </sio:SIO_000008>
+      </lsrn:GeneID_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:KEGG_Record rdf:about="http://lsrn.org/KEGG:mmu:22791">
+        <sio:SIO_000008>
+          <lsrn:KEGG_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >mmu:22791</sio:SIO_000300>
+          </lsrn:KEGG_Identifier>
+        </sio:SIO_000008>
+      </lsrn:KEGG_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:MGI_Record rdf:about="http://lsrn.org/MGI:99470">
+        <sio:SIO_000008>
+          <lsrn:MGI_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >99470</sio:SIO_000300>
+          </lsrn:MGI_Identifier>
+        </sio:SIO_000008>
+      </lsrn:MGI_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:ENSEMBL_Record rdf:about="http://lsrn.org/ENSEMBL:ENSMUSG00000029014">
+        <sio:SIO_000008>
+          <lsrn:ENSEMBL_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >ENSMUSG00000029014</sio:SIO_000300>
+          </lsrn:ENSEMBL_Identifier>
+        </sio:SIO_000008>
+      </lsrn:ENSEMBL_Record>
+    </sio:SIO_010079>
+  </j.0:OutputClass>
+  <j.0:OutputClass rdf:about="http://lsrn.org/UniProt:P29320">
+    <sio:SIO_010079>
+      <lsrn:ENSEMBL_Record rdf:about="http://lsrn.org/ENSEMBL:ENSG00000044524">
+        <sio:SIO_000008>
+          <lsrn:ENSEMBL_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >ENSG00000044524</sio:SIO_000300>
+          </lsrn:ENSEMBL_Identifier>
+        </sio:SIO_000008>
+        <sio:SIO_000008>
+          <lsrn:ENSEMBL_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >ENSG00000044524</sio:SIO_000300>
+          </lsrn:ENSEMBL_Identifier>
+        </sio:SIO_000008>
+      </lsrn:ENSEMBL_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:GeneID_Record rdf:about="http://lsrn.org/GeneID:2042">
+        <sio:SIO_000008>
+          <lsrn:GeneID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >2042</sio:SIO_000300>
+          </lsrn:GeneID_Identifier>
+        </sio:SIO_000008>
+      </lsrn:GeneID_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:2042">
+        <sio:SIO_000008>
+          <lsrn:KEGG_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >hsa:2042</sio:SIO_000300>
+          </lsrn:KEGG_Identifier>
+        </sio:SIO_000008>
+      </lsrn:KEGG_Record>
+    </sio:SIO_010079>
+    <sio:SIO_010079>
+      <lsrn:HGNC_Record rdf:about="http://lsrn.org/HGNC:3387">
+        <sio:SIO_000008>
+          <lsrn:HGNC_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >3387</sio:SIO_000300>
+          </lsrn:HGNC_Identifier>
+        </sio:SIO_000008>
+      </lsrn:HGNC_Record>
+    </sio:SIO_010079>
+  </j.0:OutputClass>
+</rdf:RDF>

@@ -23,8 +23,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 @ContactEmail("info@sadiframework.org")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/uniprot2EntrezGene.input.1.rdf",
-				output = "http://sadiframework.org/examples/t/uniprot2EntrezGene.output.1.rdf"
+				input = "http://sadiframework.org/examples/t/uniprot2gene.input.1.rdf",
+				output = "http://sadiframework.org/examples/t/uniprot2gene.output.1.rdf"
 		)
 )
 public class UniProt2GeneServiceServlet extends UniProtServiceServlet
