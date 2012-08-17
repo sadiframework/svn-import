@@ -1,17 +1,17 @@
-package ca.wilkinsonlab.sadi.service.opencitations;
+package org.sadiframework.service.opencitations;
 
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
-import ca.wilkinsonlab.sadi.service.annotations.Description;
-import ca.wilkinsonlab.sadi.service.annotations.InputClass;
-import ca.wilkinsonlab.sadi.service.annotations.Name;
-import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
-import ca.wilkinsonlab.sadi.service.annotations.TestCase;
-import ca.wilkinsonlab.sadi.service.annotations.TestCases;
-import ca.wilkinsonlab.sadi.utils.LSRNUtils;
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.vocab.SIO;
+import org.sadiframework.service.annotations.ContactEmail;
+import org.sadiframework.service.annotations.Description;
+import org.sadiframework.service.annotations.InputClass;
+import org.sadiframework.service.annotations.Name;
+import org.sadiframework.service.annotations.OutputClass;
+import org.sadiframework.service.annotations.TestCase;
+import org.sadiframework.service.annotations.TestCases;
+import org.sadiframework.utils.LSRNUtils;
+import org.sadiframework.utils.SPARQLStringUtils;
+import org.sadiframework.vocab.SIO;
 
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -22,33 +22,33 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-@Name("Get citing articles")
-@Description("Fetch a list of PubMed articles that cite the input PubMed article")
+@Name("Get cited articles")
+@Description("Fetch a list of PubMed articles that are cited by the input PubMed article")
 @ContactEmail("elmccarthy@gmail.com")
 @InputClass("http://purl.oclc.org/SADI/LSRN/PMID_Record")
-@OutputClass("http://sadiframework.org/ontologies/opencitations.owl#GetCitingArticlesOutputClass")
+@OutputClass("http://sadiframework.org/ontologies/opencitations.owl#GetCitedArticlesOutputClass")
 @TestCases({
 	@TestCase(
-			input = "/t/getCitingArticles-input.rdf", 
-			output = "/t/getCitingArticles-output.rdf"
+			input = "/t/getCitedArticles-input.rdf", 
+			output = "/t/getCitedArticles-output.rdf"
 	)
 })
-public class GetCitingArticles extends OpenCitationsServiceServlet
+public class GetCitedArticles extends OpenCitationsServiceServlet
 {
-	private static final Logger log = Logger.getLogger(GetCitingArticles.class);
+	private static final Logger log = Logger.getLogger(GetCitedArticles.class);
 	private static final long serialVersionUID = 1L;
 
 	private static final String queryTemplate =
 		"PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
 		"PREFIX cito: <http://purl.org/spar/cito/>\n" + 
 		"PREFIX fabio: <http://purl.org/spar/fabio/>\n" + 
-		"SELECT DISTINCT ?citingPubmedId\n" + 
+		"SELECT DISTINCT ?citedPubmedId\n" + 
 		"WHERE { " +
 		"  ?article cito:cites ?cites .\n" + 
-		"  ?article fabio:hasPubMedId ?citingPubmedId .\n" +
-		"  ?cites fabio:hasPubMedId %s% .\n" +
+		"  ?article fabio:hasPubMedId %s% .\n" +
+		"  ?cites fabio:hasPubMedId ?citedPubmedId .\n" +
 		"}";
-
+	
 	@Override
 	public void processInput(Resource input, Resource output)
 	{
@@ -60,12 +60,12 @@ public class GetCitingArticles extends OpenCitationsServiceServlet
 			ResultSet resultSet = qe.execSelect();
 			while (resultSet.hasNext()) {
 				QuerySolution binding = resultSet.nextSolution();
-				RDFNode citedPubmedId = binding.get("citingPubmedId");
+				RDFNode citedPubmedId = binding.get("citedPubmedId");
 				if (citedPubmedId != null && citedPubmedId.isLiteral()) {
 					Resource cited = LSRNUtils.createInstance(
 							output.getModel(), Vocab.PMID_Record, 
 							citedPubmedId.asLiteral().getLexicalForm());
-					output.addProperty(SIO.is_cited_by, cited);
+					output.addProperty(SIO.cites, cited);
 				}
 			}
 		}

@@ -6,19 +6,19 @@
 
   <servlet>
     <servlet-name>getCitingArticles</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.opencitations.GetCitingArticles</servlet-class>
+    <servlet-class>org.sadiframework.service.opencitations.GetCitingArticles</servlet-class>
   </servlet>
   <servlet>
     <servlet-name>getAbstract</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.opencitations.GetAbstract</servlet-class>
+    <servlet-class>org.sadiframework.service.opencitations.GetAbstract</servlet-class>
   </servlet>
   <servlet>
     <servlet-name>getCitedArticles</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.opencitations.GetCitedArticles</servlet-class>
+    <servlet-class>org.sadiframework.service.opencitations.GetCitedArticles</servlet-class>
   </servlet>
   <servlet>
     <servlet-name>getDocumentInfo</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.opencitations.GetDocumentInfo</servlet-class>
+    <servlet-class>org.sadiframework.service.opencitations.GetDocumentInfo</servlet-class>
   </servlet>
 
   <servlet-mapping>

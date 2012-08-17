@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.maven.ide.eclipse.Maven2LaunchConfigurationType">
 <booleanAttribute key="M2_DEBUG_OUTPUT" value="false"/>
-<stringAttribute key="M2_GOALS" value="ca.wilkinsonlab.sadi:sadi-generator:generate-service"/>
+<stringAttribute key="M2_GOALS" value="org.sadiframework:sadi-generator:generate-service"/>
 <booleanAttribute key="M2_NON_RECURSIVE" value="false"/>
 <booleanAttribute key="M2_OFFLINE" value="false"/>
 <stringAttribute key="M2_PROFILES" value=""/>
 <listAttribute key="M2_PROPERTIES">
 <listEntry value="serviceName=getCitingArticles"/>
-<listEntry value="serviceClass=ca.wilkinsonlab.sadi.service.opencitations.GetCitations"/>
+<listEntry value="serviceClass=org.sadiframework.service.opencitations.GetCitations"/>
 <listEntry value="inputClass=http://purl.oclc.org/SADI/LSRN/PMID_Record"/>
 <listEntry value="outputClass=http://sadiframework.org/ontologies/opencitations.owl#GetCitingArticlesOutputClass"/>
 <listEntry value="contactEmail=elmccarthy@gmail.com"/>

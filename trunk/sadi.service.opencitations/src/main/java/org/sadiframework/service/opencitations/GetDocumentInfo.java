@@ -1,15 +1,15 @@
-package ca.wilkinsonlab.sadi.service.opencitations;
+package org.sadiframework.service.opencitations;
 
 import org.apache.log4j.Logger;
 
-import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
-import ca.wilkinsonlab.sadi.service.annotations.Description;
-import ca.wilkinsonlab.sadi.service.annotations.InputClass;
-import ca.wilkinsonlab.sadi.service.annotations.Name;
-import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
-import ca.wilkinsonlab.sadi.service.annotations.TestCase;
-import ca.wilkinsonlab.sadi.service.annotations.TestCases;
-import ca.wilkinsonlab.sadi.utils.LSRNUtils;
+import org.sadiframework.service.annotations.ContactEmail;
+import org.sadiframework.service.annotations.Description;
+import org.sadiframework.service.annotations.InputClass;
+import org.sadiframework.service.annotations.Name;
+import org.sadiframework.service.annotations.OutputClass;
+import org.sadiframework.service.annotations.TestCase;
+import org.sadiframework.service.annotations.TestCases;
+import org.sadiframework.utils.LSRNUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
