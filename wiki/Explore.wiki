@@ -34,7 +34,7 @@ Ut ultrices faucibus lacus, vitae consequat massa suscipit vitae. Sed ut orci nu
 [http://sadiframework.org/images/spinner.gif http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png]
 
 ======= wiki-hosted image linked to a wiki-hosted image ======
-[http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png]
+[http://sadi.googlecode.com/svn/wiki/images/sadi-header.png http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png]
 
 ======= text linked to a wiki-hosted image ======
 [http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png this links to a wiki-hosted image]
