@@ -24,8 +24,17 @@ Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia
 
 Ut ultrices faucibus lacus, vitae consequat massa suscipit vitae. Sed ut orci nulla. Ut vel pretium sapien. Donec elementum, dui non dictum posuere, turpis erat faucibus dui, a mollis ligula nulla et mi. Maecenas dignissim odio non ante tempus tempor. Aliquam vestibulum fermentum turpis, vitae accumsan justo ultricies a. Curabitur pulvinar, nunc id iaculis mollis, nulla odio dignissim odio, quis pulvinar velit odio non augue. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean ultrices suscipit mattis. Fusce in arcu eget leo adipiscing feugiat in sed dui. Vivamus nec nisi est. Duis in leo est. Duis sed luctus urna. Duis sed quam non urna faucibus porttitor. Quisque semper scelerisque justo et luctus.
 
+======= external image linked to an external web page ======
 [http://sadiframework.org/ http://sadiframework.org/content/wp-content/themes/SADI/images/sadi-header.png]
 
+======= wiki-hosted image linked to an external web page ======
 [http://sadiframework.org/ http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png]
 
+======= wiki-hosted image linked to an external image ======
+[http://sadiframework.org/images/spinner.gif http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png]
+
+======= wiki-hosted image linked to a wiki-hosted image ======
 [http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png]
+
+======= text linked to a wiki-hosted image ======
+[http://sadi.googlecode.com/svn/wiki/images/sadi-logo.png this links to a wiki-hosted image]
