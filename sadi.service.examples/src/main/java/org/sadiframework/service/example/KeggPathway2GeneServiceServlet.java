@@ -9,11 +9,9 @@ import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
 import org.sadiframework.utils.KeggUtils;
-import org.sadiframework.utils.ServiceUtils;
+import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.vocab.LSRN;
 import org.sadiframework.vocab.SIO;
-import org.sadiframework.vocab.LSRN.LSRNRecordType;
-
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -31,8 +29,8 @@ public class KeggPathway2GeneServiceServlet extends KeggServiceServlet
 	private static final String GENE_RECORD_SECTION = "GENE";
 
 	@Override
-	protected LSRNRecordType getInputRecordType() {
-		return LSRN.KEGG.Pathway;
+	protected Resource getInputLSRNIdentifierType() {
+		return LSRNUtils.getIdentifierClass(LSRN.Namespace.KEGG_PATHWAY);
 	}
 
 	@Override
@@ -61,7 +59,7 @@ public class KeggPathway2GeneServiceServlet extends KeggServiceServlet
 		if(recordSections.containsKey(GENE_RECORD_SECTION)) {
 			for(String line : recordSections.get(GENE_RECORD_SECTION).split("\\r?\\n")) {
 				String keggGeneId = String.format("%s:%s", organismCode, tokenizer.reset(line).nextToken());
-				Resource keggGeneNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.KEGG.Gene, keggGeneId);
+				Resource keggGeneNode = LSRNUtils.createInstance(output.getModel(), LSRNUtils.getClass(LSRN.Namespace.KEGG_GENE), keggGeneId);
 				output.addProperty(SIO.has_participant, keggGeneNode);
 			}
 		}

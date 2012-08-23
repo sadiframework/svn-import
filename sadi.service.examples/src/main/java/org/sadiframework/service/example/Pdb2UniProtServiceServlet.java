@@ -6,7 +6,7 @@ import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
 import org.sadiframework.service.simple.SimpleAsynchronousServiceServlet;
-import org.sadiframework.utils.ServiceUtils;
+import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.vocab.LSRN;
 import org.sadiframework.vocab.Properties;
 
@@ -35,7 +35,7 @@ public class Pdb2UniProtServiceServlet extends SimpleAsynchronousServiceServlet
 	@Override
 	public void processInput(Resource input, Resource output)
 	{
-		String pdbId = ServiceUtils.getDatabaseId(input, LSRN.PDB);
+		String pdbId = LSRNUtils.getID(input, LSRNUtils.getIdentifierClass(LSRN.Namespace.PDB));
 
 		if(pdbId == null) {
 			log.error(String.format("unable to determine PDB ID for %s", input));
@@ -49,7 +49,7 @@ public class Pdb2UniProtServiceServlet extends SimpleAsynchronousServiceServlet
 
 	    for (UniProtEntry uniprotEntry : entryIterator) {
     		String uniprotId = uniprotEntry.getPrimaryUniProtAccession().getValue();
-	    	Resource uniprotNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.UniProt, uniprotId);
+	    	Resource uniprotNode = LSRNUtils.createInstance(output.getModel(), LSRNUtils.getClass(LSRN.Namespace.UNIPROT), uniprotId);
 	    	output.addProperty(Properties.is3DStructureOf, uniprotNode);
 	    }
 	}

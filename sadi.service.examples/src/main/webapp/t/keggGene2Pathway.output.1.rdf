@@ -7,22 +7,22 @@
   <j.2:OutputClass rdf:about="http://lsrn.org/KEGG:hsa:50616">
     <j.0:SIO_000062>
       <j.1:KEGG_PATHWAY_Record rdf:about="http://lsrn.org/KEGG_PATHWAY:hsa04060">
-        <j.0:SIO_000008>
+        <j.0:SIO_000671>
           <j.1:KEGG_PATHWAY_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >hsa04060</j.0:SIO_000300>
           </j.1:KEGG_PATHWAY_Identifier>
-        </j.0:SIO_000008>
+        </j.0:SIO_000671>
       </j.1:KEGG_PATHWAY_Record>
     </j.0:SIO_000062>
     <j.0:SIO_000062>
       <j.1:KEGG_PATHWAY_Record rdf:about="http://lsrn.org/KEGG_PATHWAY:hsa04630">
-        <j.0:SIO_000008>
+        <j.0:SIO_000671>
           <j.1:KEGG_PATHWAY_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >hsa04630</j.0:SIO_000300>
           </j.1:KEGG_PATHWAY_Identifier>
-        </j.0:SIO_000008>
+        </j.0:SIO_000671>
       </j.1:KEGG_PATHWAY_Record>
     </j.0:SIO_000062>
   </j.2:OutputClass>

@@ -7,72 +7,72 @@
   <j.0:OutputClass rdf:about="http://lsrn.org/KEGG_PATHWAY:hsa00232">
     <j.1:SIO_000132>
       <j.2:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:1544">
-        <j.1:SIO_000008>
+        <j.1:SIO_000671>
           <j.2:KEGG_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >hsa:1544</j.1:SIO_000300>
           </j.2:KEGG_Identifier>
-        </j.1:SIO_000008>
-      </j.2:KEGG_Record>
-    </j.1:SIO_000132>
-    <j.1:SIO_000132>
-      <j.2:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:9">
-        <j.1:SIO_000008>
-          <j.2:KEGG_Identifier>
-            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >hsa:9</j.1:SIO_000300>
-          </j.2:KEGG_Identifier>
-        </j.1:SIO_000008>
+        </j.1:SIO_000671>
       </j.2:KEGG_Record>
     </j.1:SIO_000132>
     <j.1:SIO_000132>
       <j.2:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:10">
-        <j.1:SIO_000008>
+        <j.1:SIO_000671>
           <j.2:KEGG_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >hsa:10</j.1:SIO_000300>
           </j.2:KEGG_Identifier>
-        </j.1:SIO_000008>
+        </j.1:SIO_000671>
       </j.2:KEGG_Record>
     </j.1:SIO_000132>
     <j.1:SIO_000132>
-      <j.2:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:1549">
-        <j.1:SIO_000008>
+      <j.2:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:9">
+        <j.1:SIO_000671>
           <j.2:KEGG_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >hsa:1549</j.1:SIO_000300>
+            >hsa:9</j.1:SIO_000300>
           </j.2:KEGG_Identifier>
-        </j.1:SIO_000008>
-      </j.2:KEGG_Record>
-    </j.1:SIO_000132>
-    <j.1:SIO_000132>
-      <j.2:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:1548">
-        <j.1:SIO_000008>
-          <j.2:KEGG_Identifier>
-            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >hsa:1548</j.1:SIO_000300>
-          </j.2:KEGG_Identifier>
-        </j.1:SIO_000008>
+        </j.1:SIO_000671>
       </j.2:KEGG_Record>
     </j.1:SIO_000132>
     <j.1:SIO_000132>
       <j.2:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:1553">
-        <j.1:SIO_000008>
+        <j.1:SIO_000671>
           <j.2:KEGG_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >hsa:1553</j.1:SIO_000300>
           </j.2:KEGG_Identifier>
-        </j.1:SIO_000008>
+        </j.1:SIO_000671>
+      </j.2:KEGG_Record>
+    </j.1:SIO_000132>
+    <j.1:SIO_000132>
+      <j.2:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:1548">
+        <j.1:SIO_000671>
+          <j.2:KEGG_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >hsa:1548</j.1:SIO_000300>
+          </j.2:KEGG_Identifier>
+        </j.1:SIO_000671>
+      </j.2:KEGG_Record>
+    </j.1:SIO_000132>
+    <j.1:SIO_000132>
+      <j.2:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:1549">
+        <j.1:SIO_000671>
+          <j.2:KEGG_Identifier>
+            <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >hsa:1549</j.1:SIO_000300>
+          </j.2:KEGG_Identifier>
+        </j.1:SIO_000671>
       </j.2:KEGG_Record>
     </j.1:SIO_000132>
     <j.1:SIO_000132>
       <j.2:KEGG_Record rdf:about="http://lsrn.org/KEGG:hsa:7498">
-        <j.1:SIO_000008>
+        <j.1:SIO_000671>
           <j.2:KEGG_Identifier>
             <j.1:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >hsa:7498</j.1:SIO_000300>
           </j.2:KEGG_Identifier>
-        </j.1:SIO_000008>
+        </j.1:SIO_000671>
       </j.2:KEGG_Record>
     </j.1:SIO_000132>
   </j.0:OutputClass>

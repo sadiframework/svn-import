@@ -9,11 +9,10 @@ import org.apache.commons.logging.LogFactory;
 import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
-import org.sadiframework.utils.ServiceUtils;
+import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.utils.UniProtUtils;
 import org.sadiframework.vocab.LSRN;
 import org.sadiframework.vocab.SIO;
-import org.sadiframework.vocab.LSRN.LSRNRecordType;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
@@ -33,18 +32,18 @@ public class UniProt2GeneServiceServlet extends UniProtServiceServlet
 	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(UniProt2GeneServiceServlet.class);
 
-	private static Set<LSRNRecordType> lsrnGeneRecordTypes;
+	private static Set<Resource> lsrnGeneRecordTypes;
 	static {
-		Set<LSRNRecordType> set = new HashSet<LSRNRecordType>();
-		set.add(LSRN.Ensembl);
-		set.add(LSRN.FlyBase);
-		set.add(LSRN.Entrez.Gene);
-		set.add(LSRN.HGNC);
-		set.add(LSRN.KEGG.Gene);
-		set.add(LSRN.MGI);
-		set.add(LSRN.RGD);
-		set.add(LSRN.SGD);
-		set.add(LSRN.ZFIN);
+		Set<Resource> set = new HashSet<Resource>();
+		set.add(LSRNUtils.getClass(LSRN.Namespace.ENSEMBL));
+		set.add(LSRNUtils.getClass(LSRN.Namespace.FLYBASE));
+		set.add(LSRNUtils.getClass(LSRN.Namespace.ENTREZ_GENE));
+		set.add(LSRNUtils.getClass(LSRN.Namespace.HGNC));
+		set.add(LSRNUtils.getClass(LSRN.Namespace.KEGG_GENE));
+		set.add(LSRNUtils.getClass(LSRN.Namespace.MGI));
+		set.add(LSRNUtils.getClass(LSRN.Namespace.RGD));
+		set.add(LSRNUtils.getClass(LSRN.Namespace.SGD));
+		set.add(LSRNUtils.getClass(LSRN.Namespace.ZFIN));
 		lsrnGeneRecordTypes = Collections.synchronizedSet(Collections.unmodifiableSet(set));
 	}
 
@@ -53,16 +52,19 @@ public class UniProt2GeneServiceServlet extends UniProtServiceServlet
 	{
 		for (DatabaseCrossReference xref: input.getDatabaseCrossReferences()) {
 
-			LSRNRecordType lsrnRecordType = UniProtUtils.getLSRNType(xref.getDatabase());
-			if (lsrnRecordType == null || !lsrnGeneRecordTypes.contains(lsrnRecordType))
+			String lsrnNamespace = UniProtUtils.getLSRNNamespace(xref.getDatabase());
+			if (lsrnNamespace == null)
+				continue;
+
+			Resource type = LSRNUtils.getClass(lsrnNamespace);
+			if (!lsrnGeneRecordTypes.contains(type))
 				continue;
 
 			String databaseId = UniProtUtils.getDatabaseId(xref);
 			if (databaseId == null)
 				continue;
 
-			Resource xrefNode = ServiceUtils.createLSRNRecordNode(output.getModel(), lsrnRecordType, databaseId);
-
+			Resource xrefNode = LSRNUtils.createInstance(output.getModel(), type, databaseId);
 			output.addProperty(SIO.is_encoded_by, xrefNode);
 
 		}
