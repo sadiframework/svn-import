@@ -9,12 +9,9 @@ import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
 import org.sadiframework.utils.KeggUtils;
-import org.sadiframework.utils.ServiceUtils;
+import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.vocab.LSRN;
 import org.sadiframework.vocab.Properties;
-import org.sadiframework.vocab.LSRN.LSRNRecordType;
-
-
 import com.hp.hpl.jena.rdf.model.Resource;
 
 @ContactEmail("info@sadiframework.org")
@@ -32,8 +29,8 @@ public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
 	private static final String PUBCHEM_CROSSREFS_LABEL = "PubChem";
 
 	@Override
-	protected LSRNRecordType getInputRecordType() {
-		return LSRN.KEGG.Compound;
+	protected Resource getInputLSRNIdentifierType() {
+		return LSRNUtils.getIdentifierClass(LSRN.Namespace.KEGG_COMPOUND);
 	}
 
 	@Override
@@ -43,7 +40,7 @@ public class KeggCompound2PubChemServiceServlet extends KeggServiceServlet
 
 		if(crossRefs.containsKey(PUBCHEM_CROSSREFS_LABEL)) {
 			for(String pubChemId : crossRefs.get(PUBCHEM_CROSSREFS_LABEL)) {
-				Resource pubchemNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.PubChem.Substance, pubChemId);
+				Resource pubchemNode = LSRNUtils.createInstance(output.getModel(), LSRNUtils.getClass(LSRN.Namespace.PUBCHEM_SUBSTANCE), pubChemId);
 				output.addProperty(Properties.isSubstance, pubchemNode);
 			}
 		}

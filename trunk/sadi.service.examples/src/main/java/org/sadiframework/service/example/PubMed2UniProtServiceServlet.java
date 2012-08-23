@@ -15,10 +15,9 @@ import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
 import org.sadiframework.service.annotations.URI;
 import org.sadiframework.service.simple.SimpleAsynchronousServiceServlet;
-import org.sadiframework.utils.ServiceUtils;
+import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.vocab.LSRN;
 import org.sadiframework.vocab.SIO;
-
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -36,20 +35,20 @@ import com.hp.hpl.jena.rdf.model.Statement;
 @OutputClass("http://sadiframework.org/examples/pubmed2uniprot.owl#OutputClass")
 @TestCases(
 		@TestCase(
-				input = "http://sadiframework.org/examples/t/pubmed2uniprot.input.1.rdf", 
+				input = "http://sadiframework.org/examples/t/pubmed2uniprot.input.1.rdf",
 				output = "http://sadiframework.org/examples/t/pubmed2uniprot.output.1.rdf"
 		)
 )
-public class PubMed2UniProtServiceServlet extends SimpleAsynchronousServiceServlet 
+public class PubMed2UniProtServiceServlet extends SimpleAsynchronousServiceServlet
 {
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(PubMed2UniProtServiceServlet.class);
 	private static final Property is_reference_for = ResourceFactory.createProperty(SIO.NS, "SIO_000252");
-	
+
 	@Override
-	public void processInput(Resource input, Resource output) 
+	public void processInput(Resource input, Resource output)
 	{
-		String pubmedID = ServiceUtils.getDatabaseId(input, LSRN.PMID);
+		String pubmedID = LSRNUtils.getID(input, LSRNUtils.getIdentifierClass(LSRN.Namespace.PMID));
 		if (pubmedID == null) {
 			log.warn(String.format("unable to determine PubMed ID for %s", input));
 			return;
@@ -68,7 +67,7 @@ public class PubMed2UniProtServiceServlet extends SimpleAsynchronousServiceServl
 				Matcher matcher = uniprotPattern.matcher(uniprotURI);
 				if (matcher.matches()) {
 					String uniprotID = matcher.group(1);
-			    	Resource uniprotNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.UniProt, uniprotID);
+			    	Resource uniprotNode = LSRNUtils.createInstance(output.getModel(), LSRNUtils.getClass(LSRN.Namespace.UNIPROT), uniprotID);
 			    	output.addProperty(is_reference_for, uniprotNode);
 				}
 			} else {

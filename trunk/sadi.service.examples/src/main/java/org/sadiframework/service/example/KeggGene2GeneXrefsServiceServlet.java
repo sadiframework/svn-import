@@ -11,10 +11,8 @@ import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
 import org.sadiframework.utils.KeggUtils;
-import org.sadiframework.utils.ServiceUtils;
+import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.vocab.LSRN;
-import org.sadiframework.vocab.LSRN.LSRNRecordType;
-
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -35,19 +33,19 @@ public class KeggGene2GeneXrefsServiceServlet extends KeggServiceServlet
 	// Note: This list is not comprehensive. KEGG has a separate record for a gene
 	// in each species, and it covers hundreds of different species.
 
-	protected static final Map<String, LSRNRecordType> KEGG_XREF_TO_LSRN;
+	protected static final Map<String, Resource> KEGG_XREF_TO_LSRN;
 	static {
-		Map<String, LSRNRecordType> map = new HashMap<String, LSRNRecordType>();
-		map.put("DictyBase", LSRN.DDB);
-		map.put("EcoGene", LSRN.EcoGene);
-		map.put("Ensembl", LSRN.Ensembl);
-		map.put("FlyBase", LSRN.FlyBase);
-		map.put("HGNC", LSRN.HGNC);
-		map.put("MGI", LSRN.MGI);
-		map.put("NCBI-GeneID", LSRN.Entrez.Gene);
-		map.put("OMIM", LSRN.OMIM);
-		map.put("RGD", LSRN.RGD);
-		map.put("SGD", LSRN.SGD);
+		Map<String, Resource> map = new HashMap<String, Resource>();
+		map.put("DictyBase", LSRNUtils.getClass(LSRN.Namespace.DDB));
+		map.put("EcoGene", LSRNUtils.getClass(LSRN.Namespace.ECOGENE));
+		map.put("Ensembl", LSRNUtils.getClass(LSRN.Namespace.ENSEMBL));
+		map.put("FlyBase", LSRNUtils.getClass(LSRN.Namespace.FLYBASE));
+		map.put("HGNC", LSRNUtils.getClass(LSRN.Namespace.HGNC));
+		map.put("MGI", LSRNUtils.getClass(LSRN.Namespace.MGI));
+		map.put("NCBI-GeneID", LSRNUtils.getClass(LSRN.Namespace.ENTREZ_GENE));
+		map.put("OMIM", LSRNUtils.getClass(LSRN.Namespace.OMIM));
+		map.put("RGD", LSRNUtils.getClass(LSRN.Namespace.RGD));
+		map.put("SGD", LSRNUtils.getClass(LSRN.Namespace.SGD));
 
 		// TODO:
 		//
@@ -58,13 +56,13 @@ public class KeggGene2GeneXrefsServiceServlet extends KeggServiceServlet
 		//
 		//map.put("WormBase", LSRN.WormBase);
 
-		map.put("ZFIN", LSRN.ZFIN);
+		map.put("ZFIN", LSRNUtils.getClass(LSRN.Namespace.ZFIN));
 		KEGG_XREF_TO_LSRN = Collections.unmodifiableMap(map);
 	}
 
 	@Override
-	protected LSRNRecordType getInputRecordType() {
-		return LSRN.KEGG.Gene;
+	protected Resource getInputLSRNIdentifierType() {
+		return LSRNUtils.getIdentifierClass(LSRN.Namespace.KEGG_GENE);
 	}
 
 	@Override
@@ -75,22 +73,13 @@ public class KeggGene2GeneXrefsServiceServlet extends KeggServiceServlet
 		for (String xref : KEGG_XREF_TO_LSRN.keySet()) {
 			if (xrefs.containsKey(xref)) {
 				for(String id : xrefs.get(xref)) {
-					LSRNRecordType lsrnRecordType = KEGG_XREF_TO_LSRN.get(xref);
-					Resource geneRecordNode = ServiceUtils.createLSRNRecordNode(output.getModel(), lsrnRecordType, id);
+					Resource type = KEGG_XREF_TO_LSRN.get(xref);
+					Resource geneRecordNode = LSRNUtils.createInstance(output.getModel(), type, id);
 					output.addProperty(OWL.sameAs, geneRecordNode);
 				}
 			}
 		}
 
-/*
-		if(crossRefs.containsKey(ENTREZ_GENE_CROSSREFS_LABEL)) {
-			for(String entrezGeneId : crossRefs.get(ENTREZ_GENE_CROSSREFS_LABEL)) {
-				Resource entrezGeneNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.Entrez.Gene, entrezGeneId);
-				output.addProperty(OWL.sameAs, entrezGeneNode);
-			}
-		}
-
-*/
 	}
 
 }

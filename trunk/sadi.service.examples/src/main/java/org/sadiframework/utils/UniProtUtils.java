@@ -17,8 +17,6 @@ import org.apache.commons.collections.bidimap.UnmodifiableBidiMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sadiframework.vocab.LSRN;
-import org.sadiframework.vocab.LSRN.LSRNRecordType;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
@@ -67,19 +65,19 @@ public class UniProtUtils
 	 * This list of mappings is not exhaustive; more database types may be
 	 * added as necessary.
 	 */
-	private static final BidiMap databaseTypeToLSRNType;
+	private static final BidiMap databaseTypeToLSRNNamespace;
 	static {
 		BidiMap map = new DualHashBidiMap();
-		map.put(DatabaseType.ENSEMBL, LSRN.Ensembl);
-		map.put(DatabaseType.FLYBASE, LSRN.FlyBase);
-		map.put(DatabaseType.GENEID, LSRN.Entrez.Gene);
-		map.put(DatabaseType.HGNC, LSRN.HGNC);
-		map.put(DatabaseType.KEGG, LSRN.KEGG.Gene);
-		map.put(DatabaseType.MGI, LSRN.MGI);
-		map.put(DatabaseType.RGD, LSRN.RGD);
-		map.put(DatabaseType.SGD, LSRN.SGD);
-		map.put(DatabaseType.ZFIN, LSRN.ZFIN);
-		databaseTypeToLSRNType = UnmodifiableBidiMap.decorate(map);
+		map.put(DatabaseType.ENSEMBL, "ENSEMBL");
+		map.put(DatabaseType.FLYBASE, "FLYBASE");
+		map.put(DatabaseType.GENEID, "GeneID");
+		map.put(DatabaseType.HGNC, "HGNC");
+		map.put(DatabaseType.KEGG, "KEGG");
+		map.put(DatabaseType.MGI, "MGI");
+		map.put(DatabaseType.RGD, "RGD");
+		map.put(DatabaseType.SGD, "SGD");
+		map.put(DatabaseType.ZFIN, "ZFIN");
+		databaseTypeToLSRNNamespace = UnmodifiableBidiMap.decorate(map);
 	}
 
 	/**
@@ -106,7 +104,7 @@ public class UniProtUtils
 	 */
 	public static String getUniProtId(Resource uniprotNode)
 	{
-		String id = ServiceUtils.getDatabaseId(uniprotNode, LSRN.UniProt);
+		String id = LSRNUtils.getID(uniprotNode, LSRNUtils.getIdentifierClass("UniProt"));
 
 		if(id == null) {
 			log.warn("failsafe URI pattern failed to match");
@@ -164,14 +162,14 @@ public class UniProtUtils
 		return entries;
 	}
 
-	public static LSRNRecordType getLSRNType(DatabaseType databaseType)
+	public static String getLSRNNamespace(DatabaseType databaseType)
 	{
-		return (LSRNRecordType)databaseTypeToLSRNType.get(databaseType);
+		return (String)databaseTypeToLSRNNamespace.get(databaseType);
 	}
 
-	public static DatabaseType getDatabaseType(LSRNRecordType lsrnType)
+	public static DatabaseType getDatabaseType(String lsrnNamespace)
 	{
-		return (DatabaseType)databaseTypeToLSRNType.inverseBidiMap().get(lsrnType);
+		return (DatabaseType)databaseTypeToLSRNNamespace.inverseBidiMap().get(lsrnNamespace);
 	}
 
 	public static String getDatabaseId(DatabaseCrossReference xref)

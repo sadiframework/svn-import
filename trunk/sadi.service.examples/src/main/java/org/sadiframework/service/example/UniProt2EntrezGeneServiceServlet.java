@@ -5,7 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
-import org.sadiframework.utils.ServiceUtils;
+import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.vocab.LSRN;
 import org.sadiframework.vocab.SIO;
 
@@ -38,7 +38,7 @@ public class UniProt2EntrezGeneServiceServlet extends UniProtServiceServlet
 			GeneId entrezGene = (GeneId)xref;
 			String entrezGeneId = entrezGene.getGeneIdAccessionNumber().getValue();
 
-			Resource entrezGeneNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.Entrez.Gene, entrezGeneId);
+			Resource entrezGeneNode = LSRNUtils.createInstance(output.getModel(), LSRNUtils.getClass(LSRN.Namespace.ENTREZ_GENE), entrezGeneId);
 			entrezGeneNode.addProperty(RDFS.label, entrezGene.toString());
 
 			output.addProperty(SIO.is_encoded_by, entrezGeneNode);

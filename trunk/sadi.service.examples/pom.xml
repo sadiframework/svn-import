@@ -77,7 +77,7 @@
     <dependency>
       <groupId>org.sadiframework</groupId>
       <artifactId>sadi-common</artifactId>
-      <version>0.3.0</version>
+      <version>0.3.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-math</groupId>

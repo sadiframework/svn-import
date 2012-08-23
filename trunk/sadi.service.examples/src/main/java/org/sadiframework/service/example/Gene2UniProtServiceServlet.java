@@ -18,11 +18,9 @@ import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
 import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.utils.RdfUtils;
-import org.sadiframework.utils.ServiceUtils;
 import org.sadiframework.utils.UniProtUtils;
 import org.sadiframework.vocab.LSRN;
 import org.sadiframework.vocab.SIO;
-import org.sadiframework.vocab.LSRN.LSRNRecordType;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseCrossReference;
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
@@ -49,18 +47,18 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 	private static final long serialVersionUID = 1L;
 	private static final Log log = LogFactory.getLog(Gene2UniProtServiceServlet.class);
 
-	private static final Set<LSRNRecordType> inputLSRNTypes;
+	private static final Set<Resource> inputLSRNTypes;
 	static {
-		Set<LSRNRecordType> set = new HashSet<LSRNRecordType>();
-		set.add(LSRN.Ensembl);
-		set.add(LSRN.FlyBase);
-		set.add(LSRN.Entrez.Gene);
-		set.add(LSRN.HGNC);
-		set.add(LSRN.KEGG.Gene);
-		set.add(LSRN.MGI);
-		set.add(LSRN.RGD);
-		set.add(LSRN.SGD);
-		set.add(LSRN.ZFIN);
+		Set<Resource> set = new HashSet<Resource>();
+		set.add(LSRNUtils.getClass("ENSEMBL"));
+		set.add(LSRNUtils.getClass("FLYBASE"));
+		set.add(LSRNUtils.getClass("GeneID"));
+		set.add(LSRNUtils.getClass("HGNC"));
+		set.add(LSRNUtils.getClass("KEGG"));
+		set.add(LSRNUtils.getClass("MGI"));
+		set.add(LSRNUtils.getClass("RGD"));
+		set.add(LSRNUtils.getClass("SGD"));
+		set.add(LSRNUtils.getClass("ZFIN"));
 		inputLSRNTypes = Collections.synchronizedSet(Collections.unmodifiableSet(set));
 	}
 
@@ -121,23 +119,24 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 
 		for (Resource inputNode : inputNodes) {
 			for (Resource type : RdfUtils.getTypes(inputNode).toList()) {
-				LSRNRecordType lsrnRecordType = getLSRNRecordType(type);
-				if (lsrnRecordType == null || !inputLSRNTypes.contains(lsrnRecordType))
-					continue;
-				DatabaseType databaseType = UniProtUtils.getDatabaseType(lsrnRecordType);
-				if (databaseType == null)
-					continue;
-				String queryOp = databaseTypeToQueryOp.get(databaseType);
-				if (queryOp == null)
-					continue;
-				String id = ServiceUtils.getDatabaseId(inputNode, lsrnRecordType);
-				if (id == null)
-					continue;
-				if (luceneQuery.length() > 0)
-					luceneQuery.append(" OR ");
-				luceneQuery.append(queryOp);
-				luceneQuery.append(":");
-				luceneQuery.append(id);
+				if (LSRNUtils.isLSRNType(type) && inputLSRNTypes.contains(type)) {
+					String namespace = LSRNUtils.getNamespaceFromLSRNTypeURI(type.getURI());
+					Resource idType = LSRNUtils.getIdentifierClass(namespace);
+					DatabaseType databaseType = UniProtUtils.getDatabaseType(namespace);
+					if (databaseType == null)
+						continue;
+					String queryOp = databaseTypeToQueryOp.get(databaseType);
+					if (queryOp == null)
+						continue;
+					String id = LSRNUtils.getID(inputNode, idType);
+					if (id == null)
+						continue;
+					if (luceneQuery.length() > 0)
+						luceneQuery.append(" OR ");
+					luceneQuery.append(queryOp);
+					luceneQuery.append(":");
+					luceneQuery.append(id);
+				}
 			}
 		}
 
@@ -157,11 +156,12 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 		Map<String, Resource> lsrnToOutputNode = new HashMap<String, Resource>();
 		for (Resource inputNode : inputNodes) {
 			for (String uri : getLSRNURIs(inputNode)) {
-				LSRNRecordType lsrnRecordType = getLSRNRecordTypeForEntityURI(uri);
-				if (lsrnRecordType == null || !inputLSRNTypes.contains(lsrnRecordType))
-					continue;
-				Resource outputNode = outputModel.getResource(inputNode.getURI());
-				lsrnToOutputNode.put(uri, outputNode);
+				String namespace = LSRNUtils.getNamespaceFromLSRNURI(uri);
+				Resource type = LSRNUtils.getClass(namespace);
+				if (inputLSRNTypes.contains(type)) {
+					Resource outputNode = outputModel.getResource(inputNode.getURI());
+					lsrnToOutputNode.put(uri, outputNode);
+				}
 			}
 		}
 
@@ -187,9 +187,9 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 				Resource uniprotNode;
 				/* keep track of uniprot IDs we've already added, to avoid creating duplicate blank nodes */
 				if (!visitedUniprotIds.contains(uniprotId))
-					LSRNUtils.createInstance(outputModel, LSRN.UniProt.getRecordTypeURI(), uniprotId);
+					LSRNUtils.createInstance(outputModel, LSRNUtils.getClass(LSRN.Namespace.UNIPROT), uniprotId);
 				visitedUniprotIds.add(uniprotId);
-				uniprotNode = outputModel.getResource(LSRNUtils.getURI(LSRN.UniProt.getNamespace(), uniprotId));
+				uniprotNode = outputModel.getResource(LSRNUtils.getURI(LSRN.Namespace.UNIPROT, uniprotId));
 				log.debug(String.format("result: <%s> encodes <%s>", outputNode.getURI(), uniprotId));
 				outputModel.add(outputNode, SIO.encodes, uniprotNode);
 			}
@@ -197,46 +197,42 @@ public class Gene2UniProtServiceServlet extends AsynchronousServiceServlet
 
 	}
 
-	protected static LSRNRecordType getLSRNRecordType(Resource lsrnRecordTypeURI)
-	{
-		for (LSRNRecordType lsrnRecordType : inputLSRNTypes) {
-			if(lsrnRecordType.getRecordTypeURI().equals(lsrnRecordTypeURI))
-				return lsrnRecordType;
-		}
-		return null;
-	}
+//	protected static LSRNRecordType getLSRNRecordType(Resource lsrnRecordTypeURI)
+//	{
+//		for (LSRNRecordType lsrnRecordType : inputLSRNTypes) {
+//			if(lsrnRecordType.getRecordTypeURI().equals(lsrnRecordTypeURI))
+//				return lsrnRecordType;
+//		}
+//		return null;
+//	}
 
-	protected static LSRNRecordType getLSRNRecordTypeForEntityURI(String lsrnEntityURI)
-	{
-		String namespace = LSRNUtils.getNamespaceFromLSRNURI(lsrnEntityURI);
-		if (namespace == null)
-			return null;
-
-		for (LSRNRecordType lsrnRecordType : inputLSRNTypes) {
-			if (lsrnRecordType.getNamespace().equals(namespace))
-				return lsrnRecordType;
-		}
-
-		return null;
-	}
+//	protected static LSRNRecordType getLSRNRecordTypeForEntityURI(String lsrnEntityURI)
+//	{
+//		String namespace = LSRNUtils.getNamespaceFromLSRNURI(lsrnEntityURI);
+//		if (namespace == null)
+//			return null;
+//
+//		for (LSRNRecordType lsrnRecordType : inputLSRNTypes) {
+//			if (lsrnRecordType.getNamespace().equals(namespace))
+//				return lsrnRecordType;
+//		}
+//
+//		return null;
+//	}
 
 	protected static String getLSRNURI(DatabaseCrossReference xref)
 	{
 		DatabaseType databaseType = xref.getDatabase();
 
-		LSRNRecordType lsrnRecordType = UniProtUtils.getLSRNType(databaseType);
-		if (lsrnRecordType == null)
-			return null;
-
-		String namespace = LSRNUtils.getNamespaceFromLSRNTypeURI(lsrnRecordType.getRecordTypeURI().getURI());
-		if (namespace == null)
+		String lsrnNamespace = UniProtUtils.getLSRNNamespace(databaseType);
+		if (lsrnNamespace == null)
 			return null;
 
 		String id = UniProtUtils.getDatabaseId(xref);
 		if (id == null)
 			return null;
 
-		return LSRNUtils.getURI(namespace, id);
+		return LSRNUtils.getURI(lsrnNamespace, id);
 	}
 
 

@@ -9,11 +9,9 @@ import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
 import org.sadiframework.utils.KeggUtils;
-import org.sadiframework.utils.ServiceUtils;
+import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.vocab.LSRN;
 import org.sadiframework.vocab.SIO;
-import org.sadiframework.vocab.LSRN.LSRNRecordType;
-
 
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -33,8 +31,8 @@ public class KeggPathway2CompoundServiceServlet extends KeggServiceServlet
 	private static final String COMPOUND_RECORD_SECTION = "COMPOUND";
 
 	@Override
-	protected LSRNRecordType getInputRecordType() {
-		return LSRN.KEGG.Pathway;
+	protected Resource getInputLSRNIdentifierType() {
+		return LSRNUtils.getIdentifierClass(LSRN.Namespace.KEGG_PATHWAY);
 	}
 
 	@Override
@@ -51,7 +49,7 @@ public class KeggPathway2CompoundServiceServlet extends KeggServiceServlet
 		if(recordSections.containsKey(COMPOUND_RECORD_SECTION)) {
 			for(String line : recordSections.get(COMPOUND_RECORD_SECTION).split("\\r?\\n")) {
 				String keggCompoundId = String.format("%s%s", KeggUtils.COMPOUND_ID_PREFIX, tokenizer.reset(line).nextToken());
-				Resource keggCompoundNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.KEGG.Compound, keggCompoundId);
+				Resource keggCompoundNode = LSRNUtils.createInstance(output.getModel(), LSRNUtils.getClass(LSRN.Namespace.KEGG_COMPOUND), keggCompoundId);
 				output.addProperty(SIO.has_participant, keggCompoundNode);
 			}
 		}

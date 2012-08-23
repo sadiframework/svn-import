@@ -13,7 +13,6 @@ import org.sadiframework.service.simple.SimpleAsynchronousServiceServlet;
 import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.utils.RdfUtils;
 import org.sadiframework.utils.SIOUtils;
-import org.sadiframework.vocab.LSRN;
 import org.sadiframework.vocab.Properties;
 import org.sadiframework.vocab.SIO;
 
@@ -160,7 +159,7 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		Resource uniprotNode = model.getResource(uri);
 		if (!uniprotNode.hasProperty(RDF.type)) {
 			// first time here, so create the id structure...
-			uniprotNode = LSRNUtils.createInstance(model, LSRN.UniProt.getRecordTypeURI(), hit.getAc());
+			uniprotNode = LSRNUtils.createInstance(model, LSRNUtils.getClass("UniProt"), hit.getAc());
 			for (String taxonID: hit.getOrganisms()) {
 				Resource taxon = model.getResource(LSRNUtils.getURI("taxon", taxonID));
 				if (!taxon.hasProperty(RDF.type)) {

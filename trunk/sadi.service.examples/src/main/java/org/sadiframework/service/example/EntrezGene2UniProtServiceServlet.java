@@ -6,8 +6,7 @@ import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
 import org.sadiframework.service.simple.SimpleAsynchronousServiceServlet;
-import org.sadiframework.utils.ServiceUtils;
-import org.sadiframework.vocab.LSRN;
+import org.sadiframework.utils.LSRNUtils;
 import org.sadiframework.vocab.SIO;
 
 import uk.ac.ebi.kraken.interfaces.uniprot.DatabaseType;
@@ -54,7 +53,7 @@ public class EntrezGene2UniProtServiceServlet extends SimpleAsynchronousServiceS
 	@Override
 	public void processInput(Resource input, Resource output)
 	{
-		String entrezGeneId = ServiceUtils.getDatabaseId(input, LSRN.Entrez.Gene);
+		String entrezGeneId = LSRNUtils.getID(input, LSRNUtils.getIdentifierClass("GeneID"));
 
 		if(entrezGeneId == null) {
 			log.error(String.format("skipping input, unable to determine EntrezGene ID for %s", input));
@@ -68,7 +67,7 @@ public class EntrezGene2UniProtServiceServlet extends SimpleAsynchronousServiceS
 
 	    for (UniProtEntry uniprotEntry : entryIterator) {
 	    	String id = uniprotEntry.getPrimaryUniProtAccession().getValue();
-	    	Resource uniprotNode = ServiceUtils.createLSRNRecordNode(output.getModel(), LSRN.UniProt, id);
+	    	Resource uniprotNode = LSRNUtils.createInstance(output.getModel(), LSRNUtils.getClass("UniProt"), id);
 	    	output.addProperty(SIO.encodes, uniprotNode);
 	    }
 	}

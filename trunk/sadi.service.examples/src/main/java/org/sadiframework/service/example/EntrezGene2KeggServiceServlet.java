@@ -18,9 +18,7 @@ import org.sadiframework.service.ServiceCall;
 import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
-import org.sadiframework.utils.ServiceUtils;
-import org.sadiframework.vocab.LSRN;
-
+import org.sadiframework.utils.LSRNUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -55,7 +53,7 @@ public class EntrezGene2KeggServiceServlet extends AsynchronousServiceServlet
 		Map<String, Resource> idToOutputNode = new HashMap<String, Resource>(inputNodes.size());
 
 		for (Resource inputNode: inputNodes) {
-			String id = ServiceUtils.getDatabaseId(inputNode, LSRN.Entrez.Gene);
+			String id = LSRNUtils.getID(inputNode, LSRNUtils.getIdentifierClass("GeneID"));
 			id = String.format("ncbi-geneid:%s", id);
 			idToOutputNode.put(id, outputModel.getResource(inputNode.getURI()));
 		}
@@ -89,7 +87,7 @@ public class EntrezGene2KeggServiceServlet extends AsynchronousServiceServlet
 			String entrezGeneId = fields[0];
 			String keggGeneId = fields[1];
 
-			Resource keggGeneNode = ServiceUtils.createLSRNRecordNode(outputModel, LSRN.KEGG.Gene, keggGeneId);
+			Resource keggGeneNode = LSRNUtils.createInstance(outputModel, LSRNUtils.getClass("KEGG"), keggGeneId);
 			idToOutputNode.get(entrezGeneId).addProperty(OWL.sameAs, keggGeneNode);
 
 		}

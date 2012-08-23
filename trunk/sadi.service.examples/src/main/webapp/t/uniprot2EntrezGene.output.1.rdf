@@ -8,12 +8,12 @@
   <j.0:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P04637">
     <sio:SIO_010079>
       <lsrn:GeneID_Record rdf:about="http://lsrn.org/GeneID:7157">
-        <sio:SIO_000008>
+        <sio:SIO_000671>
           <lsrn:GeneID_Identifier>
             <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >7157</sio:SIO_000300>
           </lsrn:GeneID_Identifier>
-        </sio:SIO_000008>
+        </sio:SIO_000671>
         <rdfs:label>7157:-;</rdfs:label>
       </lsrn:GeneID_Record>
     </sio:SIO_010079>

@@ -14,6 +14,7 @@ import org.sadiframework.utils.LSRNUtils;
 
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
+import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -23,12 +24,16 @@ import com.hp.hpl.jena.vocabulary.RDF;
  */
 public class LSRNUtilsTest
 {
+	private static Model testModel;
+
 	/**
 	 * @throws java.lang.Exception
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception
 	{
+		testModel = ModelFactory.createMemModelMaker().createFreshModel();
+		testModel.read(LSRNUtilsTest.class.getResourceAsStream("LSRNUtilsTest.rdf"), null);
 	}
 
 	/**
@@ -93,4 +98,41 @@ public class LSRNUtilsTest
 		assertTrue(LSRNUtils.getIDFromLSRNURI("http://sadiframework.org") == null);
 	}
 
+	@Test
+	public void testGetID()
+	{
+		Resource uniprotIdTypeURI = LSRNUtils.getIdentifierClass("UniProt");
+		Resource keggGeneIdTypeURI = LSRNUtils.getIdentifierClass("KEGG");
+		Resource testNode;
+		String id;
+
+		// CASE: node with non-LSRN URI and an attached identifier attribute
+		testNode = testModel.getResource("http://example.com/not-a-uniprot-id-1");
+		id = LSRNUtils.getID(testNode, uniprotIdTypeURI);
+		assertTrue(id.equals("Q7Z591"));
+
+		// CASE: node with standard LSRN URI and no attached identifier attribute
+		testNode = testModel.getResource("http://lsrn.org/UniProt:P12345");
+		id = LSRNUtils.getID(testNode, uniprotIdTypeURI);
+		assertTrue(id.equals("P12345"));
+
+		// CASE: node with non-LSRN URI and no attached identifier attribute,
+		// but with URI that matches pattern in test/resources/lsrn.properties
+		testNode = testModel.getResource("http://test.uri.pattern/P12345/stuff/at/the/end");
+		id = LSRNUtils.getID(testNode, uniprotIdTypeURI);
+		assertTrue(id.equals("P12345"));
+
+		// CASE: node with non-standard URI and no attached identifier attribute;
+		// failsafe URI pattern takes effect which takes part after last '#', ':', or '/' as id.
+		testNode = testModel.getResource("http://example.com/not-a-uniprot-id-2");
+		id = LSRNUtils.getID(testNode, uniprotIdTypeURI);
+		assertTrue(id.equals("not-a-uniprot-id-2"));
+
+		// CASE: custom failsafe URI pattern configured in test/resources/lsrn.properties;
+		// KEGG IDs are an unusual case for parsing URIs because the database IDs contain a ":"
+		testNode = testModel.getResource("http://unrecognized.uri.pattern:hsa:1234");
+		id = LSRNUtils.getID(testNode, keggGeneIdTypeURI);
+		assertTrue(id.equals("hsa:1234"));
+
+	}
 }
