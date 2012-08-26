@@ -1,7 +1,8 @@
 package org.sadiframework.service.idmapper;
 
-import java.util.Hashtable;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -69,7 +70,7 @@ public class Config
 	}
 
 	protected void initRelationshipMap() {
-		lsrnRelationships = new Hashtable<LSRNNamespacePair,String>();
+		lsrnRelationships = Collections.synchronizedMap(new LinkedHashMap<LSRNNamespacePair,String>());
 		Configuration relationshipConfig = config.subset(CONFIG_RELATIONSHIP_SUBSET);
 		for (Iterator<?> i = relationshipConfig.getKeys(); i.hasNext(); ) {
 			String key = (String)i.next();
