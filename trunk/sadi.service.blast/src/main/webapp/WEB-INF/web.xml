@@ -6,11 +6,11 @@
 
   <servlet>
     <servlet-name>master</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.blast.MasterServlet</servlet-class>
+    <servlet-class>org.sadiframework.service.blast.MasterServlet</servlet-class>
   </servlet>
   <servlet>
     <servlet-name>snapdragon</servlet-name>
-    <servlet-class>ca.wilkinsonlab.sadi.service.blast.DragonBLASTServiceServlet</servlet-class>
+    <servlet-class>org.sadiframework.service.blast.DragonBLASTServiceServlet</servlet-class>
   </servlet>
   
   <servlet-mapping>

@@ -1,16 +1,18 @@
-package ca.wilkinsonlab.sadi.utils.blast;
+package org.sadiframework.utils.blast;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URLEncoder;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.stringtree.util.StreamUtils;
+import org.sadiframework.utils.blast.NCBIBLASTClient;
 
 public class NCBIBLASTClientTest
 {
@@ -59,7 +61,7 @@ public class NCBIBLASTClientTest
 			"cataggagattcaattataaggacaatacagatctaatagagttcaagactctgagtgag\n" +
 			"gaagaaatagaaaaagtgctgaaaaatatatttaatatttccttgcagagaaagcttgtg\n" +
 			"cccaaacatggtgatagattttttactatttag";
-		String result = StreamUtils.readStream(
+		String result = IOUtils.toString(
 				new NCBIBLASTClient().doBLAST(program, database, query));
 		log.debug(String.format("BLAST result:\n%s", result));
 		assertFalse("no results", result.isEmpty());

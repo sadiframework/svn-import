@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.utils.blast;
+package org.sadiframework.utils.blast;
 
 import java.util.Iterator;
 

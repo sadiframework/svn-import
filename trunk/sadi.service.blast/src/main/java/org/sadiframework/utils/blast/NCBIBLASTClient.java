@@ -1,13 +1,13 @@
-package ca.wilkinsonlab.sadi.utils.blast;
+package org.sadiframework.utils.blast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.stringtree.util.StreamUtils;
 
 public class NCBIBLASTClient extends NCBIClient
 {
@@ -25,7 +25,7 @@ public class NCBIBLASTClient extends NCBIClient
 	private String readStream(InputStream in) throws IOException
 	{
 		try {
-			return StreamUtils.readStream(in);
+			return IOUtils.toString(in);
 		} finally {
 			in.close();
 		}

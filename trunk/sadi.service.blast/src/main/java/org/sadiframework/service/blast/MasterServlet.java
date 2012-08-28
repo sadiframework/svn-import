@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.service.blast;
+package org.sadiframework.service.blast;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,8 +16,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
+import org.sadiframework.utils.SPARQLStringUtils;
 
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
 
 /**
  * @author Luke McCarthy

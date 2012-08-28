@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.service.blast;
+package org.sadiframework.service.blast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,20 +12,20 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.sadiframework.ServiceDescription;
+import org.sadiframework.beans.ServiceBean;
+import org.sadiframework.service.AsynchronousServiceServlet;
+import org.sadiframework.service.ServiceCall;
+import org.sadiframework.service.annotations.URI;
+import org.sadiframework.service.blast.MasterServlet.Taxon;
+import org.sadiframework.utils.LSRNUtils;
+import org.sadiframework.utils.RdfUtils;
+import org.sadiframework.utils.SPARQLStringUtils;
+import org.sadiframework.utils.blast.AbstractBLASTParser;
+import org.sadiframework.utils.blast.NCBIBLASTClient;
+import org.sadiframework.vocab.SIO;
 import org.w3c.dom.Node;
 
-import ca.wilkinsonlab.sadi.ServiceDescription;
-import ca.wilkinsonlab.sadi.beans.ServiceBean;
-import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
-import ca.wilkinsonlab.sadi.service.ServiceCall;
-import ca.wilkinsonlab.sadi.service.annotations.URI;
-import ca.wilkinsonlab.sadi.service.blast.MasterServlet.Taxon;
-import ca.wilkinsonlab.sadi.utils.LSRNUtils;
-import ca.wilkinsonlab.sadi.utils.RdfUtils;
-import ca.wilkinsonlab.sadi.utils.SPARQLStringUtils;
-import ca.wilkinsonlab.sadi.utils.blast.AbstractBLASTParser;
-import ca.wilkinsonlab.sadi.utils.blast.NCBIBLASTClient;
-import ca.wilkinsonlab.sadi.vocab.SIO;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -90,7 +90,7 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 	}
 
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#getServiceURL()
+	 * @see org.sadiframework.service.ServiceServlet#getServiceURL()
 	 */
 	@Override
 	protected String getServiceURL()
@@ -100,7 +100,7 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 	}
 
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#createServiceDescription()
+	 * @see org.sadiframework.service.ServiceServlet#createServiceDescription()
 	 */
 	@Override
 	protected ServiceDescription createServiceDescription()
@@ -117,7 +117,7 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 	}
 
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#createOutputModel()
+	 * @see org.sadiframework.service.ServiceServlet#createOutputModel()
 	 */
 	@Override
 	protected Model createOutputModel()
@@ -130,7 +130,7 @@ public class NCBIBLASTServiceServlet extends AsynchronousServiceServlet
 	}
 
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet#processInputBatch(ca.wilkinsonlab.sadi.service.ServiceCall)
+	 * @see org.sadiframework.service.AsynchronousServiceServlet#processInputBatch(org.sadiframework.service.ServiceCall)
 	 */
 	@Override
 	protected void processInputBatch(ServiceCall call)
