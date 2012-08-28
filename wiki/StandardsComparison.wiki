@@ -26,9 +26,9 @@ SAWSDL `[`[NormativeReferences#SAWSDL SAWSDL]`]` is a small set of extensions to
   * `loweringSchemaMapping`
   * `liftingSchemaMapping`
 
-_modelReference_ is used to annotate elements of a WSDL interface with entities from a semantic data model, such as class URIs from an OWL ontology.  _liftingSchemaMapping_ and _loweringSchemaMapping_ are used to provide mappings of XML datatypes to and from a semantic data model, respectively. The values of _liftingSchemaMapping_ and _loweringSchema_ are URIs that identify documents that define the transformation; however, SAWSDL is agnostic with respect to the specific mapping language that is used.  For example, when translating between XML and RDF, the required mappings might be accomplished with XSLT for the lifting transformation and SPARQL followed by XSLT for the lowering transformation. 
+_modelReference_ is used to annotate elements of a WSDL interface with entities from a semantic data model, such as class URIs from an OWL ontology.  _liftingSchemaMapping_ and _loweringSchemaMapping_ are used to provide mappings of XML datatypes to and from a semantic data model, respectively. The values of _liftingSchemaMapping_ and _loweringSchema_ are URIs that identify documents that define the transformation, but SAWSDL is agnostic with respect to the specific mapping language that is used.  For example, when translating between XML and RDF, the required mappings might be accomplished with XSLT for the lifting transformation and SPARQL followed by XSLT for the lowering transformation. 
 
-SAWSDL can be used as an adaptor layer that maps a WSDL service to the expected behaviour of a SADI service. 
+SADI is independent of SAWSDL in that it aims to describe services that natively consume and produce semantic data, where SAWSDL aims to annotate services in such a way that their output can be interpreted semantically. SAWSDL can be used as an adaptor layer that maps a WSDL service to the expected behaviour of a SADI service. 
 
 == OWL-S and the Web Service Modeling Ontology (WSMO) ==
 

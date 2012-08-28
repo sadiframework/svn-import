@@ -23,7 +23,7 @@
       * [InputAndOutputOWLClasses Describing Service Interfaces Using OWL]
           * [InputAndOutputOWLClasses#The_Input_OWL_Class The Input OWL Class]
           * [InputAndOutputOWLClasses#The_Output_OWL_Class The Output OWL Class]
-      * [ParameterOWLClass#Describing_Service_Execution_Parameters_Using_OWL Describing Service Execution Parameters Using OWL]
+      * [ParameterOWLClass Describing Service Execution Parameters Using OWL]
           * [ParameterOWLClass#The_Parameter_OWL_Class The Parameter OWL Class]
           * [ParameterOWLClass#The_Default_Parameter_Instance The Default Parameter Instance]
   * Service Invocation
