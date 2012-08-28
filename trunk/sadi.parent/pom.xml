@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sadiframework</groupId>
   <artifactId>sadi-parent</artifactId>
-  <version>0.3.2-SNAPSHOT</version>
+  <version>0.3.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>SADI parent POM</name>
   <url>http://sadiframework.org/</url>
@@ -28,10 +28,15 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+  <!-- 
+   the scm block must be copied verbatim to other SADI projects; it will not be
+   inherited properly. for more information, see:
+   http://jira.codehaus.org/browse/MNG-4763?focusedCommentId=231889&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-231889
+    -->
   <scm>
-    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/sadi.parent</url>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/sadi.parent</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/sadi.parent</developerConnection>
+    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/${sadi.svnName}</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/${sadi.svnName}</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/${sadi.svnName}</developerConnection>
   </scm>
   <issueManagement>
   	<system>Google Code</system>
