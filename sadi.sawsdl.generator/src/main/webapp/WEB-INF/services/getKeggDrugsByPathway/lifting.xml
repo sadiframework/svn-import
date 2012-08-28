@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><lifting>
-  <mapping>
-    <map id="inputNodeURI" type="string"/>
-    <map id="return" type="xpath">//return/item/text()</map>
-  </mapping>
-  <template>                                                                            return=http\://semanticscience.org/resource/SIO_000132,http\://localhost\:8080/SAWSDL2SADIServlet/getKeggDrugsByPathway/owl\#outputClass,http\://semanticscience.org/resource/SIO_000008,http\://purl.oclc.org/SADI/LSRN/KEGG_DRUG_Identifier,http\://semanticscience.org/resource/SIO_000300,*&#13;
-    </template>
-</lifting>
