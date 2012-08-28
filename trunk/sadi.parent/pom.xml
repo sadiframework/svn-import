@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sadiframework</groupId>
   <artifactId>sadi-parent</artifactId>
-  <version>0.3.1-SNAPSHOT</version>
+  <version>0.3.1</version>
   <packaging>pom</packaging>
   <name>SADI parent POM</name>
   <url>http://sadiframework.org/</url>
@@ -34,9 +34,9 @@
    http://jira.codehaus.org/browse/MNG-4763?focusedCommentId=231889&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-231889
     -->
   <scm>
-    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/${sadi.svnName}</url>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/${sadi.svnName}</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/${sadi.svnName}</developerConnection>
+    <url>http://code.google.com/p/sadi/source/browse/#svn/tags/0.3.1/sadi-parent</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/tags/0.3.1/sadi-parent</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/tags/0.3.1/sadi-parent</developerConnection>
   </scm>
   <issueManagement>
   	<system>Google Code</system>
