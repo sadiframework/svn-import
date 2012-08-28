@@ -6,6 +6,32 @@
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <title>SADI: Semantic Automated Discovery and Integration</title>
     <link rel="stylesheet" type="text/css" href="http://www.w3.org/StyleSheets/TR/W3C-Member-SUBM" /> 
+    <style type="text/css">
+        .sample { border: thin black solid }
+        pre { 
+            margin: 1em;
+            color: black;
+            background-color: #efeff5;
+            border-top-style: double;
+            border-top-color: #d3d3d3;
+            border-bottom-width: 1px; 
+            border-bottom-style: double;
+            border-bottom-color: #d3d3d3;
+            padding: 4px;
+        }
+        .head > dt { color: #005a9c }
+        dt {padding-top: 0.5em; }
+        h2.req {font-size: 85%}
+        li.toc {list-style-type: none}
+        div.rule {padding-top: 1em;}
+        h1, h2, h3, h4, h5 {
+            text-align: left;
+            font-family: sans-serif;
+            font-weight: normal;
+            color: #005a9c;
+            margin-left: 0;
+        }
+    </style>
 </head>
 
 <body>
@@ -17,34 +43,40 @@
         
         <h1 style="clear:both" id="title">$title$</h1>
         
-        <h2 id="W3C-doctype">W3C Member Submission May 24, 2011</h2>  <!-- example: '07 June 2011' -->
+        <h2 id="W3C-doctype">W3C Member Submission $date$</h2>  <!-- example: '07 June 2011' -->
         
         <dl>
             <dt>This version:</dt>
-            <dd><a href=""></a>TODO: Add link here</dd> <!-- example: http://www.w3.org/Submission/2011/SUBM-SVGTL-20110607/ -->
+            <dd><a href="../$datetag$/">http://sadiframework.org/W3C/$datetag$/</a></dd>
+            <dd><a href="http://www.w3.org/Submission/2012/SUBM-SADI-$datetag$/">http://www.w3.org/Submission/2012/SUBM-SADI-$datetag$/</a></dd>
             <dt>Latest version:</dt>
-            <dd><a href=""></a>TODO: Add link here</dd>
+            <dd><a href="../latest/">http://sadiframework.org/W3C/latest/</a></dd>
+            <dd><a href="http://www.w3.org/Submission/2012/SUBM-SADI-$datetag$/">http://www.w3.org/Submission/2012/SUBM-SADI-$datetag$/</a></dd>
         </dl>
         
         <dl>
             <dt>Authors:</dt>
-            <dd>
-                <div>E. Luke McCarthy, University of British Columbia</div>
-                <div>Ben Vandervalk, University of British Columbia</div>
-                <div>Mark D. Wilkinson, Universidad Politécnica de Madrid</div>
-            </dd>
+            <dd>E. Luke McCarthy, University of British Columbia</dd>
+            <dd>Ben Vandervalk, University of British Columbia</dd>
+            <dd>Mark D. Wilkinson, Universidad Politécnica de Madrid</dd>
         </dl>
         
         <p class="copyright">
-            This document is available under the <a href="http://www.w3.org/Consortium/Legal/copyright-documents">W3C Document License</a>. See the 
-            <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">W3C Intellectual Rights Notice and Legal Disclaimers</a> 
-            for additional information.
+            Copyright &copy; Mark D. Wilkinson. This document is available under the <a href="http://www.w3.org/Consortium/Legal/copyright-documents">W3C Document License</a>. See the <a href="http://www.w3.org/Consortium/Legal/ipr-notice#Copyright">W3C Intellectual Rights Notice and Legal Disclaimers</a> for additional information.
         </p>
-        
-        <hr/>
     </div> 
 
-    <h1>Table Of Contents</h1>
+    <hr/>
+
+    <h2>Abstract</h2>
+    <p>SADI (Semantic Automated Discovery and Integration) is a set of best practices for Semantic Web Services that natively consume and produce RDF data.</p>
+
+    <h2>Status of this document</h2>
+    <p><em>This section describes the status of this document at the time of its publication. Other documents may supersede this document. A list of current W3C publications can be found in the <a href="http://www.w3.org/TR/">W3C technical reports index</a> at http://www.w3.org/TR/.</em></p>
+    <p>This document constitutes the entirety of the SADI Semantic Web Services submission.</p>
+    <p>By publishing this document, W3C acknowledges that the <a href="http://www.w3.org/Submission/@@@submissiondoc@@@">Submitting Members</a> have made a formal Submission request to W3C for discussion. Publication of this document by W3C indicates no endorsement of its content by W3C, nor that W3C has, is, or will be allocating any resources to the issues addressed by it. This document is not the product of a chartered W3C group, but is published as potential input to the <a href="http://www.w3.org/Consortium/Process">W3C Process</a>. A <a href="http://www.w3.org/Submission/@@@teamcomment@@@">W3C Team Comment</a> has been published in conjunction with this Member Submission. Publication of acknowledged Member Submissions at the W3C site is one of the benefits of <a href="http://www.w3.org/Consortium/Prospectus/Joining">W3C Membership</a>. Please consult the requirements associated with Member Submissions of <a href="http://www.w3.org/Consortium/Patent-Policy-20030520.html#sec-submissions">section 3.3 of the W3C Patent Policy</a>. Please consult the complete <a href="http://www.w3.org/Submission">list of acknowledged W3C Member Submissions</a>.</p>
+
+    <h2>Table Of Contents</h2>
 
     $toc$
     

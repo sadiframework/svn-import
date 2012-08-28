@@ -18,7 +18,8 @@ sub convert {
 
     # temporarily extract code blocks so their contents aren't modified
     my @code_blocks = ();
-    s/\Q{{{\E[ \t]*(\r?\n)(.*?(\r?\n))[ \t]*\Q}}}\E/push(@code_blocks, $2); '<pre><code><\/code><\/pre>'/emsg;
+    #s/\Q{{{\E[ \t]*(\r?\n)(.*?(\r?\n))[ \t]*\Q}}}\E/push(@code_blocks, $2); '<pre><code><\/code><\/pre>'/emsg;
+    s/\Q{{{\E[ \t]*(\r?\n)(.*?(\r?\n))[ \t]*\Q}}}\E/push(@code_blocks, $2); '{{{}}}'/emsg;
 
     # temporarily extract inline code spans so their contents aren't modified
     my @code_spans = ();
@@ -40,7 +41,12 @@ sub convert {
     s/^[ \t]*(=+)[ \t]*([^=]+)[ \t]*(=+)[ \t]*/sprintf('%s %s', '#'x(length($1)), $2)/meg;
 
     # re-insert code blocks
-    s/(<pre><code>)/$1 . encode_entities(shift(@code_blocks))/eg;
+    #s/\Q{{{\E/$1 . encode_entities(shift(@code_blocks))/eg;
+    foreach my $code_block (@code_blocks) {
+        #$code_block = encode_entities($code_block);
+        $code_block =~ s/^/\t/mg;
+    }
+    s/\Q{{{}}}\E/shift(@code_blocks)/eg;
     
     # re-insert code spans
     s/``/'`' . encode_entities(shift(@code_spans)) . '`'/eg;
