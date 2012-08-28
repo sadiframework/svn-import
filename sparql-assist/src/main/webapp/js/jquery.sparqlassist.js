@@ -137,6 +137,9 @@ $.SparqlAssistant.loadData = function(options, target, callback) {
                        //    console.log(data);
                        //    console.log(options);
                        //} else {
+                           if (typeof options.transform == "function") {
+                        	   data = options.transform(data);
+                           }
                            for (var i=0; i<data.length; ++i) {
                                target.push(data[i]);
                            }
