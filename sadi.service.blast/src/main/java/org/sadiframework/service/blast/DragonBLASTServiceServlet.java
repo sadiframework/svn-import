@@ -1,27 +1,26 @@
-package ca.wilkinsonlab.sadi.service.blast;
+package org.sadiframework.service.blast;
 
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLDecoder;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
-import org.stringtree.util.StreamUtils;
+import org.sadiframework.service.AsynchronousServiceServlet;
+import org.sadiframework.service.ServiceCall;
+import org.sadiframework.service.annotations.ContactEmail;
+import org.sadiframework.service.annotations.Description;
+import org.sadiframework.service.annotations.InputClass;
+import org.sadiframework.service.annotations.Name;
+import org.sadiframework.service.annotations.OutputClass;
+import org.sadiframework.service.annotations.URI;
+import org.sadiframework.utils.LSRNUtils;
+import org.sadiframework.utils.blast.AbstractBLASTParser;
+import org.sadiframework.utils.http.HttpUtils;
+import org.sadiframework.vocab.SIO;
 import org.w3c.dom.Node;
-
-import ca.wilkinsonlab.sadi.service.AsynchronousServiceServlet;
-import ca.wilkinsonlab.sadi.service.ServiceCall;
-import ca.wilkinsonlab.sadi.service.annotations.ContactEmail;
-import ca.wilkinsonlab.sadi.service.annotations.Description;
-import ca.wilkinsonlab.sadi.service.annotations.InputClass;
-import ca.wilkinsonlab.sadi.service.annotations.Name;
-import ca.wilkinsonlab.sadi.service.annotations.OutputClass;
-import ca.wilkinsonlab.sadi.service.annotations.URI;
-import ca.wilkinsonlab.sadi.utils.LSRNUtils;
-import ca.wilkinsonlab.sadi.utils.blast.AbstractBLASTParser;
-import ca.wilkinsonlab.sadi.utils.blast.SequenceWriter;
-import ca.wilkinsonlab.sadi.vocab.SIO;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -59,7 +58,7 @@ public class DragonBLASTServiceServlet extends AsynchronousServiceServlet
 //	}
 	
 	/* (non-Javadoc)
-	 * @see ca.wilkinsonlab.sadi.service.ServiceServlet#createOutputModel()
+	 * @see org.sadiframework.service.ServiceServlet#createOutputModel()
 	 */
 	@Override
 	protected Model createOutputModel()
@@ -78,28 +77,46 @@ public class DragonBLASTServiceServlet extends AsynchronousServiceServlet
 		//Resource parameters = call.getParameters();
 		
 		try {
-			Process p = Runtime.getRuntime().exec(new String[]{
-//					"ssh", "dev.biordf.net",
-					"blastall",
-					"-p", "blastn",
-					"-d", "/var/www/BLAST/db/Sept_2007.dna",
-					"-e", "10e-10",
-					"-m", "7"
-			});
-			SequenceWriter writer = new SequenceWriter(p.getOutputStream());
+//			Process p = Runtime.getRuntime().exec(new String[]{
+////					"ssh", "dev.biordf.net",
+//					"blastall",
+//					"-p", "blastn",
+//					"-d", "/var/www/BLAST/db/Sept_2007.dna",
+//					"-e", "10e-10",
+//					"-m", "7"
+//			});
+//			SequenceWriter writer = new SequenceWriter(p.getOutputStream());
+//			for (Resource inputNode: call.getInputNodes()) {
+//				String id = inputNode.getURI();
+//				String sequence = inputNode.getRequiredProperty(SIO.has_value).getLiteral().getLexicalForm();
+//				writer.addSequence(id, sequence);
+//			}
+//			new Thread(writer).start();
+//			InputStream is = p.getInputStream();
+//			if (log.isTraceEnabled()) {
+//				String s = IOUtils.toString(is);
+//				log.trace(String.format("read BLAST report:\n%s", s));
+//				is = new ByteArrayInputStream(s.getBytes());
+//			}
+//			parser.parseBLAST(call.getOutputModel(), is);
+			StringBuilder buf = new StringBuilder();
 			for (Resource inputNode: call.getInputNodes()) {
 				String id = inputNode.getURI();
 				String sequence = inputNode.getRequiredProperty(SIO.has_value).getLiteral().getLexicalForm();
-				writer.addSequence(id, sequence);
+				buf.append(">");
+				buf.append(id);
+				buf.append("\n");
+				buf.append(sequence);
+				buf.append("\n");
 			}
-			new Thread(writer).start();
-			InputStream is = p.getInputStream();
-			if (log.isTraceEnabled()) {
-				String s = StreamUtils.readStream(is);
-				log.trace(String.format("read BLAST report:\n%s", s));
-				is = new ByteArrayInputStream(s.getBytes());
-			}
-			parser.parseBLAST(call.getOutputModel(), is);
+			Map<String, String> params = new HashMap<String, String>();
+			params.put("PROGRAM", "blastn");
+			params.put("DATALIB", "Sept_2007.dna");
+			params.put("SEQUENCE", buf.toString());
+			params.put("EXPECT", "10e-10");
+			params.put("ALIGNMENT_VIEW", "7");
+			HttpResponse response = HttpUtils.POST(new URL("http://antirrhinum.net/BLAST/blast.cgi"), params);
+			parser.parseBLAST(call.getOutputModel(), response.getEntity().getContent());
 		} catch (Exception e) {
 			// TODO change the hierarchy so I can throw a real exception here...
 			log.error(e.toString(), e);

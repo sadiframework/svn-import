@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.utils.blast;
+package org.sadiframework.utils.blast;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,8 +9,8 @@ import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.log4j.Logger;
+import org.sadiframework.utils.http.HttpUtils;
 
-import ca.wilkinsonlab.sadi.utils.http.HttpUtils;
 
 public abstract class NCBIClient
 {

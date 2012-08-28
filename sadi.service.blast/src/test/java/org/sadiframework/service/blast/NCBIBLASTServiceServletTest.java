@@ -1,4 +1,4 @@
-package ca.wilkinsonlab.sadi.service.blast;
+package org.sadiframework.service.blast;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
@@ -13,9 +13,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.sadiframework.service.blast.NCBIBLASTServiceServlet;
+import org.sadiframework.service.blast.MasterServlet.Taxon;
+import org.sadiframework.utils.RdfUtils;
 
-import ca.wilkinsonlab.sadi.service.blast.MasterServlet.Taxon;
-import ca.wilkinsonlab.sadi.utils.RdfUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;

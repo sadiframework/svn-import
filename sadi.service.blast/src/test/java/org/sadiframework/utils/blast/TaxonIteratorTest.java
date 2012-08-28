@@ -1,9 +1,10 @@
-package ca.wilkinsonlab.sadi.utils.blast;
+package org.sadiframework.utils.blast;
 
 import static org.junit.Assert.assertFalse;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.sadiframework.utils.blast.TaxonIterator;
 
 public class TaxonIteratorTest
 {
