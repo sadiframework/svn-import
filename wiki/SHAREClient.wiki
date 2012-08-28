@@ -13,3 +13,4 @@ $ java -Xmx1024m -jar SHARE-client-0.1.jar </path/to/query.sparql
 = Related Pages =
 
   * [CustomRegistry Setting up a local registry]
+  * [https://code.google.com/p/cardioshare/wiki/StandaloneCardioSHARE Standalone CardioSHARE webapp]
