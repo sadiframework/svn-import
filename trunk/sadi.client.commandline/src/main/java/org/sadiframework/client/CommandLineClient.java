@@ -112,7 +112,8 @@ public class CommandLineClient {
 
 	protected static Collection<Resource> getInputNodes(Service service, Model model) throws SADIException
 	{
-		return model.listSubjectsWithProperty(RDF.type, service.getInputClass()).toList();
+		Resource inputClass = model.getResource(service.getInputClassURI());
+		return model.listSubjectsWithProperty(RDF.type, inputClass).toList();
 	}
 
 	protected static void exitWithUsage(CmdLineParser parser, String messageBeforeUsage, int exitStatus)
