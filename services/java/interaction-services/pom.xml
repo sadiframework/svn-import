@@ -7,7 +7,7 @@
   <name>SADI protein-protein interaction services</name>
   <version>0.0.1-SNAPSHOT</version>
   <build>
-    <finalName>sadi-interaction-services</finalName>
+    <finalName>interaction-services</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
