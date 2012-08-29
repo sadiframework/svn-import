@@ -4,8 +4,10 @@ import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.InputClass;
 import org.sadiframework.service.annotations.Name;
 import org.sadiframework.service.annotations.OutputClass;
+import org.sadiframework.service.annotations.URI;
 import org.sadiframework.vocab.LSRN;
 
+@URI("http://sadiframework.org/interaction-services/RetrieveYeastInteractors")
 @Name("RetrieveYeastInteractors")
 @ContactEmail("info@sadiframework.org")
 @InputClass("http://purl.oclc.org/SADI/LSRN/SGD_Record")
