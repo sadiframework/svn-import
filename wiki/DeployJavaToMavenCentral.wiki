@@ -40,4 +40,5 @@
     This will make changes to `pom.xml` and create an appropriate release tag in source control. *IMPORTANT*: when prompted for the name of the release tag, use `${project.version}/${sadi.svnName}` instead of the default `${project.artifactId}-${project.version}`. For example, use `0.3.1/sadi.parent` instead of `sadi-parent-0.3.1`. This will maximize compatibility with the Eclipse SVN plugin.
   # `mvn release:perform`
     This will push the release to the Sonatype staging repository. If you get HTTP 401 errors here, you're on your own. Mine just went away after a few weeks.
-  # …to be continued…
+  # Visit https://oss.sonatype.org/index.html and close the staged repository
+    More detailed instructions for this step are in section 8a of the [https://docs.sonatype.org/display/Repository/Sonatype+OSS+Maven+Repository+Usage+Guide Sonatype Repository Usage Guide]. Pay attention to the part of the guide that encourages you to test the release artifact before you release the closed repository.
