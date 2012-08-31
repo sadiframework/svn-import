@@ -7,11 +7,10 @@
   # `mvn deploy`
     Deploy the snapshot to the Sonatype snapshot repository. 
   # test the deployed SNAPSHOT artifact
-    Try to build other code using the deployed artifact. I recommend you add the Sonatype snapshot repository to your settings.xml in a profile that also ignores your regular local repository. This will best simulate external users building against the artifact you are deploying. For example: 
+    Try to build other code using the deployed artifact. I recommend you add the Sonatype snapshot repository to your settings.xml in a profile and build using this profile after temporarily moving your local repository to a different location. This will best simulate external users building against the artifact you are deploying. For example: 
     {{{
     <profile>
       <id>sonatype-snapshots</id>
-      <localRepository>/tmp/transient-m2-repo/</localRepository>
       <repositories>
         <repository>
           <id>sonatype-nexus-snapshots</id>
