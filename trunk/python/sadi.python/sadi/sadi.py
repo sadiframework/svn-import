@@ -367,7 +367,7 @@ if modPython:
     def handler(req):
         req.allow_methods(["GET", "POST"])
         if req.method not in ["GET", "POST"]:
-            raise apache.SERVER_RETURN, apache.HTTP_METHOD_NOT_ALLOWED
+            raise apache.SERVER_RETURN, apache.DECLINED
 
         # Derive the name of the actual module which will be
         # loaded. In older version of mod_python.publisher
@@ -442,7 +442,7 @@ if modPython:
                 req.filename = path + '/' + module_name + '.py'
 
             if not publisher.exists(req.filename):
-                raise apache.SERVER_RETURN, apache.HTTP_NOT_FOUND
+                raise apache.SERVER_RETURN, apache.DECLINED
 
         # Default to looking for the 'index' function if no
         # function path definition was supplied.
