@@ -5,6 +5,8 @@ package Scerevisiae;
 use strict;
 use warnings;
 
+use lib 'lib'; # bug fix patches for Perl dependencies
+
 use File::Spec::Functions;
 
 #-----------------------------------------------------------------

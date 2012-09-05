@@ -7,6 +7,7 @@ use warnings;
 # imports
 #----------------------------------------------------------------------
 
+use autodie qw(:all);
 use Getopt::Long;
 use File::Spec::Functions qw(catfile);
 use File::Which qw(which);
@@ -53,13 +54,30 @@ die USAGE unless $getopt_success;
 if ($opt_help) { print USAGE; exit 0; }
 die USAGE unless (@ARGV >= 3);
 
-my $target_blastdb_dir = abs_path(shift @ARGV);
-my $target_cgi_dir = abs_path(shift @ARGV);
+my $target_blastdb_dir = shift @ARGV;
+my $target_cgi_dir = shift @ARGV;
 my @input_fasta_files = @ARGV;
+
+#----------------------------------------------------------------------
+# make sure target blastdb/cgi directories exist and are writable
+#----------------------------------------------------------------------
+
+unless(-d -w $target_blastdb_dir) {
+   die "target blastdb dir '$ARGV[0]' does not exist or is not writable\n";
+}
+
+unless(-d -w $target_cgi_dir) {
+   die "target cgi dir '$ARGV[1]' does not exist or is not writable\n";
+}
+
+$target_blastdb_dir = abs_path($target_blastdb_dir);
+$target_cgi_dir = abs_path($target_cgi_dir);
 
 #----------------------------------------------------------------------
 # check for required binaries
 #----------------------------------------------------------------------
+
+which('rsync') or die "'rsync' binary not found on PATH\n";
 
 my $makeblastdb_path;
 my $blastp_path;
@@ -126,6 +144,18 @@ foreach my $blastdb_file (@blastdb_files) {
     chmod(0755, $output_file) or die "unable to set read/execute perms for $output_file: $?";
 }
 
+#----------------------------------------------------------------------
+# copy over perl lib dir containing bug fixes for perl dependencies
+#----------------------------------------------------------------------
+
+warn "copying 'lib' containing perl module bug fixes into $target_cgi_dir\n";
+run(
+    'rsync', 
+    '-av', 
+    '--exclude', '.*',
+    'lib',
+    $target_cgi_dir,
+);
 
 
 #----------------------------------------------------------------------
