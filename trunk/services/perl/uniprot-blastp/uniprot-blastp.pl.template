@@ -39,7 +39,7 @@ my $lsrn_config = {
 #-----------------------------------------------------------------
 
 use Log::Log4perl qw(:easy);
-use base 'SADI::Simple::SyncService';
+use base 'SADI::Simple::AsyncService';
 
 Log::Log4perl->easy_init($WARN);
 
