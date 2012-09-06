@@ -124,7 +124,11 @@ foreach my $fasta_file (@fasta_files) {
 # generate SADI CGI scripts
 #----------------------------------------------------------------------
 
-my $templater = Template->new();
+my $templater = Template->new({
+        START_TAG => '<%',
+        END_TAG => '%>',
+    });
+
 my @blastdb_files = <$target_blastdb_dir/*.psq>;
 
 foreach my $blastdb_file (@blastdb_files) {

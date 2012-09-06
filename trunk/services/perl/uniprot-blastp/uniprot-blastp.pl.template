@@ -14,8 +14,8 @@ use File::Spec::Functions;
 #-----------------------------------------------------------------
 
 my $service_config = {
-    ServiceName => 'BLASTP UniProt/[% SPECIES_ABBREV %]',
-    Description => 'Runs BLASTP against [% SPECIES_ABBREV %] entries in UniProt',
+    ServiceName => 'BLASTP UniProt/<% SPECIES_ABBREV %>',
+    Description => 'Runs BLASTP against <% SPECIES_ABBREV %> entries in UniProt',
     InputClass => 'http://semanticscience.org/resource/SIO_010015',
     OutputClass => 'http://sadiframework.org/ontologies/blast.owl#BLASTedSequence',
     Authority => 'sadiframework.org',
@@ -24,9 +24,9 @@ my $service_config = {
 
 my $blast_config = {
     BlastVersion => 'BLAST+ 2.2.26',
-    DatabaseDir => '[% BLAST_DATABASE_DIR %]',
-    DatabaseName => '[% BLAST_DATABASE_NAME %]',
-    BinaryDir => '[% BLAST_BINARY_DIR %]',
+    DatabaseDir => '<% BLAST_DATABASE_DIR %>',
+    DatabaseName => '<% BLAST_DATABASE_NAME %>',
+    BinaryDir => '<% BLAST_BINARY_DIR %>',
     Binary => 'blastp',
     CommandLineArgs => [ -evalue => 10 ],  
 };
