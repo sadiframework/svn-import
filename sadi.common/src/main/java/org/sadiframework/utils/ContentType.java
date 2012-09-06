@@ -17,7 +17,9 @@ public enum ContentType
 {
 	RDF_XML	("application/rdf+xml", "RDF/XML-ABBREV"),
 	N3 ("text/rdf+n3", "N3"),
-	N3_1 ("text/n3", "N3");
+	N3_1 ("text/n3", "N3"),
+    TURTLE ("text/turtle", "N3"),
+    TURTLE_1 ("application/x-turtle", "N3");
 	
 	public static ContentType getContentType(String httpHeader) 
 	{
