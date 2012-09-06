@@ -28,7 +28,6 @@ import org.sadiframework.ServiceDescription;
 import org.sadiframework.beans.ServiceBean;
 import org.sadiframework.rdfpath.RDFPath;
 import org.sadiframework.rdfpath.RDFPathUtils;
-import org.sadiframework.service.ServiceDefinitionException;
 import org.sadiframework.service.annotations.Authoritative;
 import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.Description;
@@ -51,7 +50,6 @@ import org.sadiframework.utils.RdfUtils;
 import org.sadiframework.utils.http.AcceptHeader;
 import org.sadiframework.utils.http.HttpUtils;
 import org.sadiframework.vocab.SADI;
-
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -266,16 +264,10 @@ public abstract class ServiceServlet extends HttpServlet
 	
 	protected Model readInput(HttpServletRequest request) throws IOException
 	{
-		// TODO update to use ContentType class...
 		Model inputModel = createInputModel();
-		String contentType = request.getContentType();
-		if (contentType.equals("application/rdf+xml")) {
-			inputModel.read(request.getInputStream(), "", "RDF/XML");
-		} else if (contentType.equals("text/rdf+n3")) {
-			inputModel.read(request.getInputStream(), "", "N3");
-		} else {
-			inputModel.read(request.getInputStream(), "");
-		}
+		ContentType contentType = ContentType.getContentType(request.getContentType());
+		String jenaLanguage = contentType != null ? contentType.getJenaLanguage() : null;
+		inputModel.read(request.getInputStream(), "", jenaLanguage);
 
 		if (log.isTraceEnabled())
 			log.trace("incoming input model:\n" + RdfUtils.logStatements(inputModel));
