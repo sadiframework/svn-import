@@ -11,7 +11,8 @@ WHERE
 	?serviceURI mygrid:hasServiceNameText ?name .
 	?serviceURI mygrid:hasServiceDescriptionText ?description .
 	?serviceURI sadi:decoratesWith ?decoration .
-	?decoration owl:onProperty ?onPropertyLabel .
+	?decoration owl:onProperty ?onProperty .
+	?onProperty rdfs:label ?onPropertyLabel .
 	FILTER regex(?onPropertyLabel, %s%)
 	?op mygrid:inputParameter ?input .
 	?input rdf:type mygrid:parameter .
