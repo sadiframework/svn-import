@@ -196,7 +196,8 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		 */
 		Literal e = ResourceFactory.createTypedLiteral(alignment.getExpectation().toString(), XSDDatatype.XSDdecimal);
 		SIOUtils.createAttribute(alignmentNode, Vocab.expectation, e);
-		SIOUtils.createAttribute(alignmentNode, Vocab.identity, alignment.getIdentity());
+		// this identity value is not a percentage identity, so it violates our OWL...
+		//SIOUtils.createAttribute(alignmentNode, Vocab.identity, alignment.getIdentity());
 		SIOUtils.createAttribute(alignmentNode, Vocab.bits, alignment.getBits());
 		SIOUtils.createAttribute(alignmentNode, Vocab.score, alignment.getScore());
 		SIOUtils.createAttribute(alignmentNode, Vocab.consensus_sequence, alignment.getPattern());
@@ -228,7 +229,7 @@ public class BlastUniProtServiceServlet extends SimpleAsynchronousServiceServlet
 		public static final Resource blast_hit = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#BlastHit");
 		public static final Resource sequence_alignment = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#SequenceAlignment");
 		public static final Resource expectation = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#expectation");
-		public static final Resource identity = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#identity");
+//		public static final Resource identity = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#identity");
 		public static final Resource bits = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#bits");
 		public static final Resource score = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#score");
 //		public static final Resource subsequence = ResourceFactory.createResource("http://sadiframework.org/ontologies/blast.owl#SubSequence");
