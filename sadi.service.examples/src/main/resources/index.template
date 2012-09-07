@@ -2,6 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <title>SADI services at sadiframework.org</title>
+  <link rel="icon" href="http://sadiframework.org/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="http://sadiframework.org/style/current/style.css" type="text/css" media="screen" />
 </head>
 <body>

@@ -72,11 +72,6 @@
     <dependency>
       <groupId>org.sadiframework</groupId>
       <artifactId>sadi-service</artifactId>
-      <version>0.3.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.sadiframework</groupId>
-      <artifactId>sadi-common</artifactId>
       <version>0.3.1-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -97,7 +92,7 @@
     <dependency>
     	<groupId>uk.ac.ebi.uniprot.kraken</groupId>
     	<artifactId>uniprotjapi</artifactId>
-   		<version>2012.07</version>
+   		<version>2012.08</version>
    		<exclusions>
           <exclusion>
             <groupId>log4j</groupId>
