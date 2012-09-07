@@ -45,7 +45,6 @@ public class MakeIndex
 //		for (Class<? extends ServiceServlet> c: getDescendants(reflections, ServiceServlet.class)) {
 		for (String className: parser.classes) {
 			try {
-				@SuppressWarnings("unchecked")
 				Class<? extends ServiceServlet> c = (Class<? extends ServiceServlet>) Class.forName(className);
 				Constructor<? extends ServiceServlet> constructor = c.getConstructor(new Class<?>[0]);
 				ServiceServlet servlet = constructor.newInstance(new Object[0]);
