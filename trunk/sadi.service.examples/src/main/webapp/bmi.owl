@@ -60,15 +60,36 @@
     </owl:intersectionOf>
   </owl:Class>
   
+  <owl:DatatypeProperty rdf:ID="BMI"/>
+  
   <owl:Class rdf:ID="OutputClass">
     <rdfs:subClassOf>
       <owl:Restriction>
-        <owl:onProperty>
-          <owl:DatatypeProperty rdf:ID="BMI"/>
-        </owl:onProperty>
-        <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality>
+        <owl:onProperty rdf:resource="#BMI"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
       </owl:Restriction>
     </rdfs:subClassOf>
   </owl:Class>
+  
+  <owl:Class rdf:ID="SimpleInputClass">
+    <owl:intersectionOf rdf:parseType="Collection">
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#height_m"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality>
+      </owl:Restriction>
+      <owl:Restriction>
+        <owl:onProperty rdf:resource="#weight_kg"/>
+        <owl:minCardinality rdf:datatype="&xsd;int">1</owl:minCardinality> 
+      </owl:Restriction>
+    </owl:intersectionOf>
+  </owl:Class>
+  <owl:DatatypeProperty rdf:ID="height_m">
+    <rdfs:label>height in meters</rdfs:label>
+    <rdfs:comment>curried property to specifiy height in meters</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:ID="weight_kg">
+    <rdfs:label>weight in kilograms</rdfs:label>
+    <rdfs:comment>curried property to specifiy weight in kilograms</rdfs:comment>
+  </owl:DatatypeProperty>
   
 </rdf:RDF>

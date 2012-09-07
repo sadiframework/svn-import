@@ -35,6 +35,10 @@
     <servlet-class>org.sadiframework.service.example.BMIServiceServlet</servlet-class>
   </servlet>
   <servlet>
+    <servlet-name>simpleBMI</servlet-name>
+    <servlet-class>org.sadiframework.service.example.SimpleBMIServiceServlet</servlet-class>
+  </servlet>
+  <servlet>
     <servlet-name>ermineJgo</servlet-name>
     <servlet-class>org.sadiframework.service.example.ErmineJServiceServlet</servlet-class>
   </servlet>
@@ -150,6 +154,10 @@
   <servlet-mapping>
     <servlet-name>calculateBMI</servlet-name>
     <url-pattern>/calculateBMI</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>simpleBMI</servlet-name>
+    <url-pattern>/simpleBMI</url-pattern>
   </servlet-mapping>
   <servlet-mapping>
     <servlet-name>ermineJgo</servlet-name>
