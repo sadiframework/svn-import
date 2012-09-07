@@ -1,15 +1,18 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project 
+ xmlns="http://maven.apache.org/POM/4.0.0" 
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.sadiframework</groupId>
   <artifactId>sadi-webapp</artifactId>
-  <version>0.3.1</version>
+  <version>0.3.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>SADI webapp parent POM</name>
   <url>http://sadiframework.org/</url>
   <parent>
     <groupId>org.sadiframework</groupId>
     <artifactId>sadi-parent</artifactId>
-    <version>0.3.1</version>
+    <version>0.3.1-SNAPSHOT</version>
   </parent>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -20,7 +23,13 @@
     <jetty.host>0.0.0.0</jetty.host>
     <jetty.port>8080</jetty.port>
     <jetty.stop-port>8081</jetty.stop-port>
+    <sadi.svnName>sadi.webapp</sadi.svnName>
   </properties>
+  <scm>
+    <url>http://code.google.com/p/sadi/source/browse/#svn/trunk/${sadi.svnName}</url>
+    <connection>scm:svn:http://sadi.googlecode.com/svn/trunk/${sadi.svnName}</connection>
+    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/trunk/${sadi.svnName}</developerConnection>
+  </scm>
   <build>
     <plugins>
       <plugin>
@@ -116,10 +125,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <scm>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/tags/sadi-webapp-0.3.1</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/tags/sadi-webapp-0.3.1</developerConnection>
-    <url>http://code.google.com/p/sadi/source/browse/#svn/tags/sadi-webapp-0.3.1</url>
-  </scm>
 </project>
