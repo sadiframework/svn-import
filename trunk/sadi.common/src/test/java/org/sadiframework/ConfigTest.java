@@ -1,5 +1,6 @@
 package org.sadiframework;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.configuration.Configuration;
@@ -27,8 +28,12 @@ public class ConfigTest
 	public void testGetConfiguration()
 	{
 		Configuration config = Config.getConfiguration();
-		assertTrue("Client.Config missing global key", config.containsKey("sadi.decompose.undefinedPropertiesPolicy"));
-		assertTrue("Client.Config missing local key", config.containsKey("sadi.client.localKey"));
+		assertTrue("Config missing global key", config.containsKey("sadi.defaultReasoner"));
+		assertTrue("Config missing local key", config.containsKey("sadi.localKey"));
+		assertEquals("Config did not expand property variable",
+				config.getString("sadi.defaultReasoner"), config.getString("sadi.localKey"));
+		assertEquals("Config did not expand environment variable",
+				System.getenv("HOME"), config.getString("sadi.home"));
 	}
 	
 	@Test
