@@ -4,10 +4,12 @@
   <parent>
     <groupId>org.sadiframework</groupId>
     <artifactId>sadi-parent</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1-SNAPSHOT</version>
   </parent>
   <artifactId>sadi-common</artifactId>
+  <!-- suppress stupid m2e warning... 
   <version>0.3.1-SNAPSHOT</version>
+   -->
   <name>Common SADI classes</name>
   <description>Classes used by both SADI clients and SADI services</description>
   <url>http://sadiframework.org/</url>
