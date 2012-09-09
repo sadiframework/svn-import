@@ -57,7 +57,6 @@ public class JsonUtils
 		return buf.toString();
 	}
 
-	@SuppressWarnings("unchecked")
 	public static List<Map<String, String>> convertJSONToResults(Object result)
 	{
 		List<Map<String, Map<?, ?>>> virtuosoBindings = (List<Map<String, Map<?, ?>>>)((Map<?, ?>)((Map<?, ?>)result).get("results")).get("bindings");

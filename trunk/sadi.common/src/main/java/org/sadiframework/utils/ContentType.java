@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFReader;
 import com.hp.hpl.jena.rdf.model.RDFWriter;
@@ -16,6 +18,7 @@ import com.hp.hpl.jena.rdf.model.RDFWriter;
 public enum ContentType
 {
 	RDF_XML	("application/rdf+xml", "RDF/XML-ABBREV"),
+	N_TRIPLES ("text/plain", "N-TRIPLES"),
 	N3 ("text/rdf+n3", "N3"),
 	N3_1 ("text/n3", "N3"),
     TURTLE ("text/turtle", "N3"),
@@ -37,6 +40,19 @@ public enum ContentType
 				return type;
 		}
 		return null;
+	}
+	
+	public static ContentType getContentTypeByFilename(String filename)
+	{
+		// TODO reorganize the enum to store extensions there...
+		String extension = StringUtils.substringAfterLast(filename, ".");
+		if (extension.matches("n3|ttl")) {
+			return N3;
+		} else if (extension.matches("nt")) {
+			return N_TRIPLES;
+		} else {
+			return RDF_XML;
+		}
 	}
 	
 	private static Collection<ContentType> uniqueContentTypes = null;
