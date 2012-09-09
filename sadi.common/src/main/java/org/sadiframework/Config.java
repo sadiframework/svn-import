@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.CompositeConfiguration;
@@ -12,6 +14,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
+
+import ca.elmonline.util.IterableIterator;
 
 /**
  * Base configuration class.  This class reads default configuration from the
@@ -87,6 +91,25 @@ public class Config extends CompositeConfiguration
 		this.addConfiguration(localConfig);
 		this.addConfiguration(defaultConfig);
 		this.addConfiguration(baseConfig);
+		
+		/* process environment variables in the configuration.
+		 */
+		Pattern regex = Pattern.compile("\\$\\{env:([^}]+)\\}");
+		for (Object key: new IterableIterator<Object>(this.getKeys())) {
+			Object o = this.getProperty((String)key);
+			if (o instanceof String) {
+				String value = (String)o;
+				Matcher matcher = regex.matcher(value);
+				while (matcher.find()) {
+					String var = matcher.group(1);
+					value = value.substring(0, matcher.start())
+							.concat(System.getenv(var))
+							.concat(value.substring(matcher.end()));
+					matcher = regex.matcher(value);
+				}
+				this.setProperty((String)key, value);
+			}
+		}
 	}
 	
 	/**
