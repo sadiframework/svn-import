@@ -52,7 +52,7 @@ public class RegistryImplTest
 	public static void setUpBeforeClass() throws Exception
 	{
 		LocationMapper.get().addAltEntry("http://sadiframework.org/examples/regression.owl", RegistryImplTest.class.getResource("/regression.owl").toExternalForm());
-		registry = new RegistryImpl(QueryExecutorFactory.createVirtuosoSPARQLEndpointQueryExecutor(TEST_REGISTRY_ENDPOINT, TEST_REGISTRY_GRAPH));
+		registry = new RegistryImpl(QueryExecutorFactory.createSPARQLEndpointQueryExecutor(TEST_REGISTRY_ENDPOINT, TEST_REGISTRY_GRAPH));
 		
 		inputModel = ModelFactory.createMemModelMaker().createFreshModel();
 		inputModel.read( RegistryImplTest.class.getResourceAsStream("regression-input.rdf"), "");

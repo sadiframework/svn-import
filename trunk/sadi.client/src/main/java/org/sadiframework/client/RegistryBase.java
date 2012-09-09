@@ -1,6 +1,7 @@
 package org.sadiframework.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.sadiframework.SADIException;
 import org.sadiframework.utils.QueryExecutor;
@@ -19,7 +21,6 @@ import org.sadiframework.utils.SPARQLStringUtils;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntProperty;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 
@@ -28,13 +29,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
  */
 public abstract class RegistryBase implements Registry
 {
-	protected static final String DRIVER_KEY = "driver";
-	protected static final String SPARQL_ENDPOINT_KEY = "endpoint";
-	protected static final String SPARQL_GRAPH_KEY = "graph";
-	protected static final String MYSQL_DSN_KEY = "dsn";
-	protected static final String MYSQL_USERNAME_KEY = "username";
-	protected static final String MYSQL_PASSWORD_KEY = "password";
-	
 	protected QueryExecutor backend;
 	protected Map<String, Service> serviceCache;
 	
@@ -43,32 +37,9 @@ public abstract class RegistryBase implements Registry
 	 * @param config the configuration
 	 * @throws IOException if there is an error contacting the registry
 	 */
-	protected RegistryBase(Configuration config) throws IOException
+	protected RegistryBase(Configuration config)
 	{
-		String endpointURL = config.getString(SPARQL_ENDPOINT_KEY);
-		String graphName = config.getString(SPARQL_GRAPH_KEY);
-		String dsn = config.getString(MYSQL_DSN_KEY);
-		String file = config.getString("file");
-		Logger log = getLog();
-		if (endpointURL != null) {
-			if (log.isDebugEnabled())
-				log.debug(String.format("creating Virtuoso-backed registry model from %s(%s)", endpointURL, graphName));
-			backend = QueryExecutorFactory.createVirtuosoSPARQLEndpointQueryExecutor(endpointURL, graphName);
-		} else if (dsn != null) {
-			if (log.isDebugEnabled())
-				log.debug(String.format("creating JDBC-backed registry model from %s", dsn));
-			backend = QueryExecutorFactory.createJDBCJenaModelQueryExecutor(config.getString(DRIVER_KEY), dsn, config.getString(MYSQL_USERNAME_KEY), config.getString(MYSQL_PASSWORD_KEY), graphName);
-		} else if (file != null) {
-			if (log.isDebugEnabled())
-				log.debug(String.format("creating file-backed registry model from %s", file));
-			backend = QueryExecutorFactory.createFileModelQueryExecutor(file);
-		} else {
-			if (log.isDebugEnabled())
-				log.warn("no configuration found; creating transient registry model");
-			backend = QueryExecutorFactory.createJenaModelQueryExecutor(ModelFactory.createDefaultModel());
-		}
-		
-		serviceCache = new HashMap<String, Service>();
+		this(QueryExecutorFactory.createQueryExecutor(config));
 	}
 	
 	/**
@@ -79,6 +50,8 @@ public abstract class RegistryBase implements Registry
 	protected RegistryBase(QueryExecutor backend)
 	{
 		this.backend = backend;
+		
+		serviceCache = new HashMap<String, Service>();
 	}
 	
 	/**
@@ -100,8 +73,19 @@ public abstract class RegistryBase implements Registry
 	protected String buildQuery(String template, String ... args) throws SADIException
 	{
 		String query = "";
+		InputStream is = getClass().getResourceAsStream(template);
+		if (is == null) {
+			/* this will be problematic if, for example, subclass1 isa subclass2 isa Registry
+			 * and all three are in different packages and subclass1 is using oneof subclass2's
+			 * queries... 
+			 */
+			is = Registry.class.getResourceAsStream(template);
+		}
+		if (is == null) {
+			throw new SADIException(String.format("can't locate query template %s", template));
+		}
 		try {
-			query = SPARQLStringUtils.readFully(getClass().getResource(template));
+			query = IOUtils.toString(is);
 		} catch (IOException e) {
 			throw new SADIException(e.toString());
 		}

@@ -36,7 +36,7 @@ public class RegistryImpl extends RegistryBase
 	/* (non-Javadoc)
 	 * @see org.sadiframework.client.RegistryBase#(java.lang.String)
 	 */
-	public RegistryImpl(Configuration config) throws IOException
+	public RegistryImpl(Configuration config)
 	{
 		super(config);
 		
@@ -62,23 +62,25 @@ public class RegistryImpl extends RegistryBase
 		return getServicesByQuery("getAllServices.sparql");
 	}
 
-	/**
-	 * Returns a subset of services in this registry.
-	 * Return at most the specified number of services starting at the
-	 * specified offset (services will be sorted alphabetically by name).
-	 * @param limit maximum number of services to return in this query
-	 * @param offset return services starting at this position
-	 * @return a subset of services registered in the registry
-	 * @throws SADIException if there is a problem communicating with the registry
+	/* (non-Javadoc)
+	 * @see org.sadiframework.client.Registry#getAllServices(int, int)
 	 */
-//	/* (non-Javadoc)
-//	 * @see org.sadiframework.client.Registry#getAllServices(int, int)
-//	 */
-//	@Override
+	@Override
 	public Collection<Service> getAllServices(int limit, int offset) throws SADIException
 	{
+		return getAllServices(limit, offset, null);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sadiframework.client.Registry#getAllServices(int, int, org.sadiframework.client.Registry.SortKey)
+	 */
+	@Override
+	public Collection<Service> getAllServices(int limit, int offset, SortKey sort) throws SADIException
+	{
+		if (sort == null)
+			sort = SortKey.getDefaultSortKey();
 		return getServicesByQuery("getAllServicesLimitOffset.sparql",
-				String.valueOf(limit), String.valueOf(offset));
+				 sort.getClause(), String.valueOf(limit), String.valueOf(offset));
 	}
 	
 	/* (non-Javadoc)

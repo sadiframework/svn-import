@@ -7,10 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.configuration.Configuration;
 import org.sadiframework.SADIException;
-import org.sadiframework.utils.RdfUtils;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hp.hpl.jena.db.DBConnection;
 import com.hp.hpl.jena.db.IDBConnection;
@@ -21,53 +21,107 @@ import com.hp.hpl.jena.query.ResultSet;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.ModelMaker;
+import com.hp.hpl.jena.shared.DoesNotExistException;
+import com.hp.hpl.jena.update.UpdateAction;
+import com.hp.hpl.jena.update.UpdateFactory;
+import com.hp.hpl.jena.update.UpdateRequest;
 
 /**
  * @author Luke McCarthy
  */
 public class QueryExecutorFactory
 {
-	private static final Logger log = Logger.getLogger(QueryExecutorFactory.class);
+	private static final Logger log = LoggerFactory.getLogger(QueryExecutorFactory.class);
 	
-	public static QueryExecutor createJenaModelQueryExecutor(Model model)
+	protected static final String DRIVER_KEY = "driver";
+	protected static final String SPARQL_ENDPOINT_KEY = "endpoint";
+	protected static final String SPARQL_GRAPH_KEY = "graph";
+	protected static final String DSN_KEY = "dsn";
+	protected static final String USERNAME_KEY = "username";
+	protected static final String PASSWORD_KEY = "password";
+	protected static final String FILE_KEY = "file";
+	
+	/**
+	 * 
+	 * @param config
+	 * @return
+	 */
+	public static QueryExecutor createQueryExecutor(Configuration config)
 	{
-		return new JenaModelQueryExecutor(model);
+		String endpointURL = config.getString(SPARQL_ENDPOINT_KEY);
+		String graphName = config.getString(SPARQL_GRAPH_KEY);
+		String dsn = config.getString(DSN_KEY);
+		String file = config.getString(FILE_KEY);
+		if (endpointURL != null) {
+			if (log.isDebugEnabled())
+				log.debug(String.format("creating Virtuoso-backed registry model from %s(%s)", endpointURL, graphName));
+			return QueryExecutorFactory.createSPARQLEndpointQueryExecutor(endpointURL, graphName);
+		} else if (dsn != null) {
+			if (log.isDebugEnabled())
+				log.debug(String.format("creating JDBC-backed registry model from %s(%s)", dsn, graphName));
+			return QueryExecutorFactory.createJDBCJenaModelQueryExecutor(config.getString(DRIVER_KEY), dsn, config.getString(USERNAME_KEY), config.getString(PASSWORD_KEY), graphName);
+		} else if (file != null) {
+			if (log.isDebugEnabled())
+				log.debug(String.format("creating file-backed registry model from %s", file));
+			return QueryExecutorFactory.createFileModelQueryExecutor(file);
+		} else {
+			if (log.isDebugEnabled())
+				log.warn("no configuration found; creating transient registry model");
+			return QueryExecutorFactory.createJenaModelQueryExecutor();
+		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public static QueryExecutor createJenaModelQueryExecutor()
+	{
+		return new JenaModelQueryExecutor(ModelFactory.createMemModelMaker(), null);
 	}
 
-	public static QueryExecutor createFileModelQueryExecutor(String file)
+	/**
+	 * 
+	 * @param path the path to the file containing the registry RDF
+	 * @return
+	 */
+	public static QueryExecutor createFileModelQueryExecutor(String path)
 	{
-		/* TODO this file isn't automatically reread when updated;
-		 * maybe reopen models for each query?
-		 */
-		return new JenaModelQueryExecutor(createFileModel(file));
+		File registryFile = new File(path);
+		File parentDirectory = registryFile.getParentFile();
+		if (parentDirectory == null)
+			parentDirectory = new File(".");
+		if (!parentDirectory.isDirectory())
+			parentDirectory.mkdirs();
+		
+		return new JenaModelQueryExecutor(
+				ModelFactory.createFileModelMaker(parentDirectory.getAbsolutePath()),
+				registryFile.getName());
 	}
 
+	/**
+	 * 
+	 * @param driver the database driver class name
+	 * @param dsn the data source name
+	 * @param username the username to access the database
+	 * @param password the password to access the database
+	 * @return
+	 */
 	public static QueryExecutor createJDBCJenaModelQueryExecutor(String driver, String dsn, String username, String password)
 	{
 		return createJDBCJenaModelQueryExecutor(driver, dsn, username, password, null);
 	}
 	
-	public static QueryExecutor createJDBCJenaModelQueryExecutor(String driver, String dsn, String username, String password, String graphName)
-	{
-		return new JenaModelQueryExecutor(createJDBCJenaModel(driver, dsn, username, password, graphName));
-	}
-	
 	/**
 	 * 
-	 * @param endpointURL the URL of the Virtuoso SPARQL endpoint
+	 * @param driver the database driver class name
+	 * @param dsn the data source name
+	 * @param username the username to access the database
+	 * @param password the password to access the database
+	 * @param graphName the name of a graph, or null
 	 * @return
 	 */
-	public static QueryExecutor createVirtuosoSPARQLEndpointQueryExecutor(String endpointURL)
-	{
-		return createVirtuosoSPARQLEndpointQueryExecutor(endpointURL, null);
-	}
-	
-	public static QueryExecutor createVirtuosoSPARQLEndpointQueryExecutor(String endpointURL, String graphName)
-	{
-		return new VirtuosoSPARQLEndpointQueryExecutor(endpointURL, graphName);
-	}
-	
-	private static Model createJDBCJenaModel(String driver, String dsn, String username, String password, String graphName)
+	public static QueryExecutor createJDBCJenaModelQueryExecutor(String driver, String dsn, String username, String password, String graphName)
 	{
 		// load the driver class
 		try {
@@ -85,33 +139,35 @@ public class QueryExecutorFactory
 		);
 		
 		// create a model maker with the given connection parameters
-		ModelMaker maker = ModelFactory.createModelRDBMaker(conn);
-
-		// create a default model
-		if (graphName == null)
-			return maker.createDefaultModel();
-		else 
-			return maker.createModel(graphName, false);
+		return new JenaModelQueryExecutor(ModelFactory.createModelRDBMaker(conn), graphName);
 	}
 	
-	private static Model createFileModel(String path)
+	/**
+	 * 
+	 * @param endpointURL the URL of the SPARQL endpoint
+	 * @return
+	 */
+	public static QueryExecutor createSPARQLEndpointQueryExecutor(String endpointURL)
 	{
-		File registryFile = new File(path);
-		File parentDirectory = registryFile.getParentFile();
-		if (parentDirectory == null)
-			parentDirectory = new File(".");
-		if (!parentDirectory.isDirectory())
-			parentDirectory.mkdirs();
-		
-		ModelMaker maker = ModelFactory.createFileModelMaker(parentDirectory.getAbsolutePath());
-		return maker.openModel(registryFile.getName());
+		return createSPARQLEndpointQueryExecutor(endpointURL, null);
 	}
 	
-	private static List<Map<String, String>> convertResults(ResultSet resultSet)
+	/**
+	 * 
+	 * @param endpointURL the URL of the SPARQL endpoint
+	 * @param graphName the name of a graph, or null
+	 * @return
+	 */
+	public static QueryExecutor createSPARQLEndpointQueryExecutor(String endpointURL, String graphName)
+	{
+		return new SPARQLEndpointQueryExecutor(endpointURL, graphName);
+	}
+	
+	protected static List<Map<String, String>> convertResults(ResultSet resultSet)
 	{
 		List<Map<String, String>> ourBindings = new ArrayList<Map<String, String>>();
 		while (resultSet.hasNext()) {
-			QuerySolution binding = resultSet.nextSolution();
+			QuerySolution binding = resultSet.next();
 			Map<String, String> ourBinding = new HashMap<String, String>();
 			for (Iterator<String> i = binding.varNames(); i.hasNext(); ) {
 				String variable = i.next();
@@ -122,27 +178,51 @@ public class QueryExecutorFactory
 		return ourBindings;
 	}
 	
-	private static class JenaModelQueryExecutor implements QueryExecutor
+	public static class JenaModelQueryExecutor implements QueryExecutor, UpdateQueryExecutor
 	{
-		private Model model;
+		private ModelMaker modelMaker;
+		private String modelName;
 		
-		public JenaModelQueryExecutor(Model model)
+		public JenaModelQueryExecutor(ModelMaker modelMaker, String modelName)
 		{
-			this.model = model;
+			this.modelMaker = modelMaker;
+			this.modelName = modelName;
+		}
+		
+		public Model getModel()
+		{
+			if (modelName != null) {
+				// this could possibly be replaced by maker.createModel(modelName, false);
+				try {	
+					return modelMaker.openModel(modelName);
+				} catch (DoesNotExistException e) {
+					return modelMaker.createModel(modelName);
+				}
+			} else {
+				// according to the JavaDoc, "Multiple calls will yield the *same* model"
+				return modelMaker.createDefaultModel();
+			}
 		}
 		
 		/* (non-Javadoc)
 		 * @see org.sadiframework.utils.QueryExecutor#executeQuery(java.lang.String)
 		 */
 		@Override
-		public List<Map<String, String>> executeQuery(String query)
+		public List<Map<String, String>> executeQuery(String query) throws SADIException
 		{
-			QueryExecution qe = QueryExecutionFactory.create(query, model);
+			Model model = getModel(); // refresh model (important for files...)
 			try {
-				ResultSet resultSet = qe.execSelect();
-				return convertResults(resultSet);
+				QueryExecution qe = QueryExecutionFactory.create(query, model);
+				try {
+					ResultSet resultSet = qe.execSelect();
+					return convertResults(resultSet);
+				} finally {
+					qe.close();
+				}
+			} catch (RuntimeException e) { // probably JenaException...
+				throw new SADIException(e.getMessage(), e);
 			} finally {
-				qe.close();
+				model.close();
 			}
 		}
 
@@ -152,19 +232,56 @@ public class QueryExecutorFactory
 		@Override
 		public Model executeConstructQuery(String query) throws SADIException
 		{
-			QueryExecution qe = QueryExecutionFactory.create(query, model);
-			Model result = qe.execConstruct();
-			qe.close();
-			return result;
+			Model model = getModel(); // refresh model (important for files...)
+			try {
+				QueryExecution qe = QueryExecutionFactory.create(query, model);
+				try {
+					return qe.execConstruct();
+				} finally {
+					qe.close();
+				}
+			} catch (RuntimeException e) { // probably JenaException...
+				throw new SADIException(e.getMessage(), e);
+			} finally {
+				model.close();
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see org.sadiframework.utils.UpdateQueryExecutor#executeUpdateQuery(java.lang.String)
+		 */
+		@Override
+		public void executeUpdateQuery(String query) throws SADIException
+		{
+			Model model = getModel(); // refresh model (important for files...)
+			try {
+				UpdateRequest request = UpdateFactory.create(query);
+				UpdateAction.execute(request, model);
+			} catch (RuntimeException e) { // probably JenaException...
+				throw new SADIException(e.getMessage(), e);
+			} finally {
+				model.close();
+			}
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString()
+		{
+			return String.format("%s(%s)", modelMaker.getClass(), modelName);
 		}
 	}
 	
-	private static class VirtuosoSPARQLEndpointQueryExecutor implements QueryExecutor
+	/* TODO implement SPARQL UPDATE and authentication on SPARQLEndpointQueryExecutor...
+	 */
+	public static class SPARQLEndpointQueryExecutor implements QueryExecutor
 	{
 		protected String endpointURL;
 		protected String graphName;
 		
-		public VirtuosoSPARQLEndpointQueryExecutor(String endpointURL, String graphName)
+		public SPARQLEndpointQueryExecutor(String endpointURL, String graphName)
 		{
 			this.endpointURL = endpointURL;
 			this.graphName = graphName;
@@ -188,12 +305,6 @@ public class QueryExecutorFactory
 			} finally {
 				qe.close();
 			}
-//			try {
-//				Object result = HttpUtils.postAndFetchJson(endpointURL, getPostParameters(query));
-//				return convertResults(result);
-//			} catch (IOException e) {
-//				throw new SADIException(e.toString());
-//			}
 		}
 
 		/* (non-Javadoc)
@@ -213,56 +324,15 @@ public class QueryExecutorFactory
 			} finally {
 				qe.close();
 			}
-//			Map<String, String> params = getPostParameters(query);
-//			params.put("format", "application/rdf+xml");
-//			InputStream is = null;
-//			try {
-//				HttpResponse response = HttpUtils.POST(endpointURL, params);
-//				is = response.getEntity().getContent();
-//				int statusCode = response.getStatusLine().getStatusCode();
-//				if (HttpUtils.isHttpError(statusCode)) {
-//					throw new HttpStatusException(statusCode);
-//				}
-//				Model model = ModelFactory.createDefaultModel();
-////				model.read(HttpUtils.POST(endpointURL, params), endpointURL.toString());
-//				model.read(is, endpointURL.toString());
-//				return model;
-//			} catch (IOException e) {
-//				throw new SADIException(e.toString());
-//			} finally {
-//				if (is != null)
-//					FileUtils.simpleClose(is);
-//			}
 		}
 		
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
 		public String toString()
 		{
 			return String.format("%s(%s)", endpointURL, graphName);
 		}
-
-//		private Map<String, String> getPostParameters(String query)
-//		{
-//			Map<String, String> parameters = new HashMap<String, String>();
-//			parameters.put("query", query);
-//			parameters.put("format", "JSON");
-//			if (graphName != null)
-//				parameters.put("default-graph-uri", graphName);
-//			return parameters;
-//		}
-//		
-//		@SuppressWarnings("unchecked")
-//		public static List<Map<String, String>> convertResults(Object result)
-//		{
-//			List<Map<String, Map<?, ?>>> virtuosoBindings = (List<Map<String, Map<?, ?>>>)((Map<?, ?>)((Map<?, ?>)result).get("results")).get("bindings");
-//			List<Map<String, String>> localBindings = new ArrayList<Map<String, String>>(virtuosoBindings.size());
-//			for (Map<String, Map<?, ?>> virtuosoBinding: virtuosoBindings) {
-//				Map<String, String> ourBinding = new HashMap<String, String>();
-//				for (String variable: virtuosoBinding.keySet()) {
-//					ourBinding.put(variable, (String)virtuosoBinding.get(variable).get("value"));
-//				}
-//				localBindings.add(ourBinding);
-//			}
-//			return localBindings;
-//		}
 	}
 }

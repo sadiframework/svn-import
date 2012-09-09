@@ -7,7 +7,6 @@ import org.sadiframework.SADIException;
 
 import com.hp.hpl.jena.rdf.model.Model;
 
-
 /**
  * A generic interface for classes that execute SPARQL queries and return a
  * list of variable bindings.
@@ -20,6 +19,7 @@ public interface QueryExecutor
 	 * Each binding maps variable name to value.
 	 * @param query a SPARQL query
 	 * @return the variable bindings that satisfy the query
+	 * @throws SADIException
 	 */
 	public List<Map<String, String>> executeQuery(String query) throws SADIException;
 	
@@ -27,6 +27,7 @@ public interface QueryExecutor
 	 * Execute the specified CONSTRUCT query and return an RDF model.
 	 * @param query a SPARQL CONSTRUCT query
 	 * @return the RDF model that satisfy the query
+	 * @throws SADIException
 	 */
 	public Model executeConstructQuery(String query) throws SADIException;
 }
