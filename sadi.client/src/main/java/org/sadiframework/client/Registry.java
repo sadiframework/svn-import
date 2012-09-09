@@ -15,7 +15,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
  * @author Luke McCarthy
  */
 public interface Registry
-{	
+{
 	/**
 	 * Returns the Service corresponding to the specified service URI.
 	 * The object returned will be populated using the service definition 
@@ -33,6 +33,29 @@ public interface Registry
 	 * @throws SADIException if there is a problem communicating with the registry
 	 */
 	public Collection<? extends Service> getAllServices() throws SADIException;
+
+	/**
+	 * Returns a subset of services in this registry.
+	 * Return at most the specified number of services starting at the
+	 * specified offset (services will be sorted alphabetically by name).
+	 * @param limit maximum number of services to return in this query
+	 * @param offset return services starting at this position
+	 * @return a subset of services registered in the registry
+	 * @throws SADIException if there is a problem communicating with the registry
+	 */
+	public Collection<Service> getAllServices(int limit, int offset) throws SADIException;
+	
+	/**
+	 * Returns a subset of services in this registry.
+	 * Return at most the specified number of services starting at the
+	 * specified offset (services will be sorted as specified).
+	 * @param limit maximum number of services to return in this query
+	 * @param offset return services starting at this position
+	 * @param sort a SortKey indicating how to order the services
+	 * @return a subset of services registered in the registry
+	 * @throws SADIException if there is a problem communicating with the registry
+	 */
+	public Collection<Service> getAllServices(int limit, int offset, SortKey sort) throws SADIException;
 	
 //	/**
 //	 * Returns a subset of services in this registry.
@@ -152,4 +175,53 @@ public interface Registry
 	 * @throws SADIException if there is a problem communicating with the registry
 	 */
 	public Collection<Property> findAttachedProperties(RegistrySearchCriteria criteria) throws SADIException;
+	
+	/**
+	 * 
+	 * @author Luke McCarthy
+	 */
+	public enum SortKey
+	{
+		NAME("name", "?name"),
+		NAME_REVERSE("name_r", "DESC(?name)"),
+		URI("uri", "?serviceURI"),
+		URI_REVERSE("uri_r", "DESC(?serviceURI)"),
+		INPUT_CLASS("input", "inputClassURI"),
+		INPUT_CLASS_REVERSE("input_r", "DESC(?inputClassURI)"),
+		OUTPUT_CLASS("output", "inputClassURI"),
+		OUTPUT_CLASS_REVERSE("output_r", "DESC(?outputClassURI)");
+		
+		private final String label;
+		private final String clause;
+		
+		private SortKey(String label, String clause)
+		{
+			this.label = label;
+			this.clause = clause;
+		}
+		
+		public String getLabel()
+		{
+			return label;
+		}
+
+		public String getClause()
+		{
+			return clause;
+		}
+		
+		public static SortKey getSortKeyByLabel(String label)
+		{
+			for (SortKey sort: SortKey.values()) {
+				if (sort.label.equals(label))
+					return sort;
+			}
+			return null;
+		}
+		
+		public static SortKey getDefaultSortKey()
+		{
+			return NAME;
+		}
+	}
 }

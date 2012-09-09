@@ -17,6 +17,6 @@ WHERE
 	?output mygrid:objectType ?outputClassURI .
 	OPTIONAL { ?outputClassURI rdfs:label ?outputClassLabel . }
 }
-ORDER BY ?name
+ORDER BY %v%
 LIMIT %v%
 OFFSET %v%

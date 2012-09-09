@@ -54,10 +54,37 @@ public class MultiRegistry implements Registry
 	 * @see org.sadiframework.client.Registry#getAllServices()
 	 */
 	@Override
-	public Collection<Service> getAllServices() {
+	public Collection<Service> getAllServices()
+	{
 		return accumulate(new Accumulator<Service>() {
 			public Collection<? extends Service> get(Registry registry) throws Exception {
 				return registry.getAllServices();
+			}	
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sadiframework.client.Registry#getAllServices(int, int)
+	 */
+	@Override
+	public Collection<Service> getAllServices(final int limit, final int offset)
+	{
+		return accumulate(new Accumulator<Service>() {
+			public Collection<? extends Service> get(Registry registry) throws Exception {
+				return registry.getAllServices(limit, offset);
+			}	
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sadiframework.client.Registry#getAllServices(int, int, org.sadiframework.client.Registry.SortKey)
+	 */
+	@Override
+	public Collection<Service> getAllServices(final int limit, final int offset, final SortKey sort)
+	{
+		return accumulate(new Accumulator<Service>() {
+			public Collection<? extends Service> get(Registry registry) throws Exception {
+				return registry.getAllServices(limit, offset, sort);
 			}	
 		});
 	}
