@@ -1,5 +1,8 @@
 package org.sadiframework.utils.blast;
 
+import java.io.StringWriter;
+
+import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,6 +14,8 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 public class AbstractBLASTParserTest
 {
+	private static final Logger log = Logger.getLogger(AbstractBLASTParserTest.class);
+	
 	@Before
 	public void setUp() throws Exception
 	{
@@ -40,6 +45,10 @@ public class AbstractBLASTParserTest
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		model.write(System.out, "N3");
+		// try writing to RDF/XML to catch any potential serialization errors...
+		StringWriter buf = new StringWriter();
+		model.write(buf, "RDF/XML");
+		if (log.isDebugEnabled())
+			log.debug(String.format("BLAST output\n%s", buf.toString()));
 	}
 }
