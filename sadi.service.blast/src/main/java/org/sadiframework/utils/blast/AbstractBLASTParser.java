@@ -104,7 +104,7 @@ public abstract class AbstractBLASTParser
 				Integer.valueOf(getSingleValue(hsp, "Hsp_hit-to")),
 				getSingleValue(hsp, "Hsp_hseq"));
 		
-		Resource alignmentNode = querySequence.getModel().createResource(alignmentURI, Vocab.sequence_alignment);
+		Resource alignmentNode = querySequence.getModel().createResource(alignmentURI, Vocab.blast_alignment);
 		Literal e = ResourceFactory.createTypedLiteral(getSingleValue(hsp, "Hsp_evalue"), XSDDatatype.XSDdecimal);
 		SIOUtils.createAttribute(alignmentNode, Vocab.expectation, e);
 		SIOUtils.createAttribute(alignmentNode, Vocab.identity, 
@@ -192,8 +192,8 @@ public abstract class AbstractBLASTParser
 	    public static final Resource sequence_stop_position = m_model.createResource( SIO_NS + "SIO_000792" );
 		
 		public static final String BLAST_NS = "http://sadiframework.org/ontologies/blast.owl#";
-		public static final Resource blast_hit = m_model.createResource(BLAST_NS + "BlastHit");
-		public static final Resource sequence_alignment = m_model.createResource(BLAST_NS + "SequenceAlignment");
+		public static final Resource blast_hit = m_model.createResource(BLAST_NS + "BLASTHit");
+		public static final Resource blast_alignment = m_model.createResource(BLAST_NS + "BLASTAlignment");
 		public static final Resource consensus_sequence = m_model.createResource(BLAST_NS + "Consensus");
 		public static final Resource expectation = m_model.createResource(BLAST_NS + "expectation");
 		public static final Resource identity = m_model.createResource(BLAST_NS + "identity");
