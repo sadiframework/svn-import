@@ -1,5 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>sadi-parent</artifactId>
+		<groupId>org.sadiframework</groupId>
+		<version>0.3.0</version>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.sadiframework</groupId>
 	<artifactId>sadi-client-commandline</artifactId>
@@ -7,16 +12,14 @@
 	<name>commandline SADI client</name>
 	<build>
 		<plugins>
-<!--
 			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.3.2</version>
 				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
+					<tagBase>https://sadi.googlecode.com/svn/tags</tagBase>
+					<tagNameFormat>@{project.version}/@{project.artifactId}</tagNameFormat>
 				</configuration>
 			</plugin>
--->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
@@ -28,7 +31,7 @@
 							<goal>shade</goal>
 						</goals>
 						<configuration>
-						    <createDependencyReducedPom>false</createDependencyReducedPom>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -49,9 +52,9 @@
 			<type>jar</type>
 			<scope>compile</scope>
 			<!--
-			  removes *some* of duplicate class warnings during
-			  shade plugin execution; needs more investigation perhaps.
-			  -->
+				removes *some* of duplicate class warnings during shade plugin
+				execution; needs more investigation perhaps.
+			-->
 			<exclusions>
 				<exclusion>
 					<artifactId>commons-beanutils-core</artifactId>
