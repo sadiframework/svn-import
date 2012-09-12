@@ -1,0 +1,84 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>sadi-parent</artifactId>
+		<groupId>org.sadiframework</groupId>
+		<version>0.3.0</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.sadiframework</groupId>
+	<artifactId>sadi-client-commandline</artifactId>
+	<version>0.0.4</version>
+	<name>commandline SADI client</name>
+	<build>
+		<plugins>
+            <!-- don't require signing of jar during release -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-gpg-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>1.7.1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<createDependencyReducedPom>false</createDependencyReducedPom>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>org.sadiframework.client.CommandLineClient</mainClass>
+								</transformer>
+							</transformers>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>org.sadiframework</groupId>
+			<artifactId>sadi-client</artifactId>
+			<version>0.3.0</version>
+			<type>jar</type>
+			<scope>compile</scope>
+			<!--
+				removes *some* of duplicate class warnings during shade plugin
+				execution; needs more investigation perhaps.
+			-->
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-beanutils-core</artifactId>
+					<groupId>commons-beanutils</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>args4j</groupId>
+			<artifactId>args4j</artifactId>
+			<version>2.0.16</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>13.0</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+  <scm>
+    <connection>scm:svn:scm:svn:https://sadi.googlecode.com/svn/tags/0.0.3/sadi-client-commandline</connection>
+    <developerConnection>scm:svn:scm:svn:https://sadi.googlecode.com/svn/tags/0.0.3/sadi-client-commandline</developerConnection>
+    <url>scm:svn:scm:svn:https://sadi.googlecode.com/svn/tags/0.0.3/sadi-client-commandline</url>
+  </scm>
+</project>
