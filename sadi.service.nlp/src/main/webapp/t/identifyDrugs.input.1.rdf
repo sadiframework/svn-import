@@ -1,0 +1,18 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:str="http://nlp2rdf.lod2.eu/schema/string/"
+    xmlns="http://sadiframework.org/services/nlp/nlp.owl#">
+  <Document rdf:about="http://sadiframework.org/services/nlp/t/identifyDrugs.input.1.rdf#doc1">
+    <str:sourceString>St. John's Wort
+Avoid mixing with any prescription medications. In particular, avoid taking St. John's Wort (SJW) and:
+a. Antidepressants
+b. B. Indinavir sulfate (Crixivan), a protease inhibitor used to treat HIV
+c. Digoxin (Lanoxicaps, Lanoxin), a drug used to increase the force of contraction of heart muscle and to regulate heartbeats
+d. Theophylline (Slo-bid, Theo-Dur) an asthma medication
+e. Cyclosporin (Neoral, Sandimmune, SangCya), an immunosuppressant
+f. Chemotherapy</str:sourceString>
+  </Document>
+  <Document rdf:about="http://sadiframework.org/services/nlp/t/identifyDrugs.input.1.rdf#doc2">
+    <str:sourceUrl>http://sadiframework.org/CANARIE/extension/</str:sourceUrl>
+  </Document>
+</rdf:RDF>
