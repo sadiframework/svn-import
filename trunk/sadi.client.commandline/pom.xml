@@ -7,7 +7,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.sadiframework</groupId>
 	<artifactId>sadi-client-commandline</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.3</version>
 	<name>commandline SADI client</name>
 	<build>
 		<plugins>
@@ -77,8 +77,8 @@
 	</dependencies>
 
   <scm>
-    <connection>scm:svn:http://sadi.googlecode.com/svn/tags/0.0.2/sadi-client-commandline</connection>
-    <developerConnection>scm:svn:https://sadi.googlecode.com/svn/tags/0.0.2/sadi-client-commandline</developerConnection>
-    <url>http://code.google.com/p/sadi/source/browse/#svn%2Ftrunk%2Fsadi.parent/tags/0.0.2/sadi-client-commandline</url>
+    <connection>scm:svn:scm:svn:https://sadi.googlecode.com/svn/tags/0.0.3/sadi-client-commandline</connection>
+    <developerConnection>scm:svn:scm:svn:https://sadi.googlecode.com/svn/tags/0.0.3/sadi-client-commandline</developerConnection>
+    <url>scm:svn:scm:svn:https://sadi.googlecode.com/svn/tags/0.0.3/sadi-client-commandline</url>
   </scm>
 </project>
