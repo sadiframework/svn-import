@@ -8,7 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.Argument;
@@ -17,9 +20,11 @@ import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
 import org.sadiframework.SADIException;
 
+import com.google.common.collect.Iterables;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.util.ResourceUtils;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 public class CommandLineClient {
@@ -41,11 +46,14 @@ public class CommandLineClient {
 		@Option(name="-o", aliases={"--output-file"}, metaVar="<FILENAME>", usage="write output to file instead of STDOUT")
 		String outputFile = null;
 
-		@Option(name="-I", aliases={"--input-format"}, metaVar="<RDF FORMAT>", usage="choices: 'RDF/XML' or 'N3'")
+		@Option(name="-I", aliases={"--input-format"}, metaVar="<RDF FORMAT>", usage="'RDF/XML' or 'N3' (default: 'RDF/XML')")
 		String inputFormat = "RDF/XML";
 
-		@Option(name="-O", aliases={"--output-format"}, metaVar="<RDF FORMAT>", usage="choices: 'RDF/XML' or 'N3'")
+		@Option(name="-O", aliases={"--output-format"}, metaVar="<RDF FORMAT>", usage="'RDF/XML' or 'N3' (default: 'RDF/XML')")
 		String outputFormat = "RDF/XML";
+
+		@Option(name="-m", aliases={"--max-inputs-per-invocation"}, metaVar="<INTEGER>", usage="max number of inputs per service invocation (default: no limit)")
+		int maxInputsPerInvocation = 0;
 
 		@Argument
 		String serviceURL = null;
@@ -55,7 +63,7 @@ public class CommandLineClient {
 	{
 		CommandLineOptions options = parseCommandLineOptions(args);
 		Model inputModel = readInput(options);
-		Model outputModel = invokeService(options.serviceURL, inputModel);
+		Model outputModel = invokeService(options.serviceURL, inputModel, options);
 		writeOutput(outputModel, options);
 	}
 
@@ -72,11 +80,39 @@ public class CommandLineClient {
 		return model;
 	}
 
-	protected static Model invokeService(String serviceURL, Model inputModel) throws SADIException
+	protected static Model invokeService(String serviceURL, Model inputModel, CommandLineOptions options) throws SADIException
 	{
+		log.info(String.format("invoking service %s", serviceURL));
+
+		//ServiceImpl service = (ServiceImpl)ServiceFactory.createService(serviceURL);
 		Service service = ServiceFactory.createService(serviceURL);
-		log.trace(String.format("invoking service %s", serviceURL));
-		return service.invokeService(getInputNodes(service, inputModel));
+		Model outputModel;
+
+		List<Resource> inputs = new ArrayList<Resource>(service.discoverInputInstances(inputModel));
+
+		// assign UUID URIs to inputs that are blank nodes
+		for (int i = 0; i < inputs.size(); i++) {
+			Resource input = inputs.get(i);
+			if (input.isAnon()) {
+				Resource newResource = ResourceUtils.renameResource(input, String.format("urn:uuid:%s", UUID.randomUUID()));
+				inputs.set(i, newResource);
+			}
+		}
+
+		if (options.maxInputsPerInvocation > 0) {
+			int numInvocations = (int)Math.ceil( (float)inputs.size() / options.maxInputsPerInvocation );
+			log.info(String.format("performing %d service invocations with at most %d inputs each (total inputs: %d)", numInvocations, options.maxInputsPerInvocation, inputs.size()));
+			outputModel = ModelFactory.createDefaultModel();
+			int count = 1;
+			for (List<Resource> inputsSubset : Iterables.partition(inputs, options.maxInputsPerInvocation)) {
+				log.info(String.format("performing service invocation %d/%d with %d inputs", count++, numInvocations, inputsSubset.size()));
+				outputModel.add(service.invokeService(inputsSubset));
+			}
+		} else {
+			outputModel = service.invokeService(inputs);
+		}
+
+		return outputModel;
 	}
 
 	protected static void writeOutput(Model model, CommandLineOptions options) throws FileNotFoundException
