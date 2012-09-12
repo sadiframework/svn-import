@@ -1,0 +1,164 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ca.wilkinsonlab.sadi</groupId>
+  <artifactId>sadi-service-skeleton</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <name>Information Extraction sadi webapp</name>
+  <build>
+    <finalName>ie-sadi</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>maven-jetty-plugin</artifactId>
+        <version>6.1.24</version>
+        <configuration>
+          <contextPath>/ie-sadi</contextPath>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>ca.wilkinsonlab.sadi</groupId>
+        <artifactId>sadi-generator</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+      </plugin>
+      <plugin>
+        <groupId>ca.wilkinsonlab.sadi</groupId>
+        <artifactId>sadi-tester</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+      </plugin>
+    
+			
+    </plugins>
+    
+     			
+			
+  </build>
+  
+  <pluginRepositories>
+  	<pluginRepository>
+  		<id>dev.biordf.net</id>
+  		<name>dev.biordf.net</name>
+  		<url>http://dev.biordf.net/maven</url>
+  	</pluginRepository>
+  </pluginRepositories>
+
+
+
+	<repositories>
+		<repository>
+			<id>dev.biordf.net</id>
+			<name>dev.biordf.net</name>
+			<url>http://dev.biordf.net/maven</url>
+		</repository>
+		<repository>
+			<id>maven.aksw.internal</id>
+			<name>University Leipzig, AKSW Maven2 Repository</name>
+			<url>http://maven.aksw.org/repository/internal</url>
+		</repository>
+		<repository>
+			<id>maven.aksw.snapshots</id>
+			<name>University Leipzig, AKSW Maven2 Repository</name>
+			<url>http://maven.aksw.org/repository/snapshots</url>
+		</repository>
+	</repositories>
+  
+  
+  <dependencies>
+  		<dependency>
+			<groupId>org.codehaus.woodstox</groupId>
+			<artifactId>wstx-asl</artifactId>
+			<version>3.2.9</version>
+		</dependency>
+    <dependency>
+      <groupId>ca.wilkinsonlab.sadi</groupId>
+      <artifactId>sadi-service</artifactId>
+      <version>0.1.0-SNAPSHOT</version>
+    </dependency>
+
+	<dependency>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>4.1</version>
+		<scope>test</scope>
+	</dependency>
+	<dependency>
+		<groupId>org.mortbay.jetty</groupId>
+		<artifactId>jetty</artifactId>
+		<version>6.1.24</version>
+		<scope>test</scope>
+	</dependency>
+<!-- 
+	<dependency>
+		<groupId>ca.wilkinsonlab.sadi</groupId>
+		<artifactId>sadi-common</artifactId>
+		<version>0.1.1</version>
+	</dependency>
+-->
+
+				<!-- GATE -->
+		<dependency>
+			<groupId>uk.ac.gate</groupId>
+			<artifactId>gate-core</artifactId>
+			<version>6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>uk.ac.gate</groupId>
+			<artifactId>gate-asm</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>uk.ac.gate</groupId>
+			<artifactId>gate-compiler-jdt</artifactId>
+			<version>1</version>
+		</dependency>
+
+
+		<!-- nlp2rdf -->
+		<dependency>
+			<groupId>org.nlp2rdf</groupId>
+			<artifactId>nif</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+	<dependency>
+		<groupId>ca.unbsj.cbakerlab</groupId>
+		<artifactId>SADIServiceTest</artifactId>
+		<version>1.1-SNAPSHOT</version>
+		<scope>test</scope>
+	</dependency>
+        
+         <!-- 
+     <dependency>
+      <groupId>ca.unbsj.cbakerlab.nlp</groupId>
+      <artifactId>gate2rdf</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+      
+  
+	<dependency>
+		<groupId>ca.unbsj.cbakerlab.nlp</groupId>
+		<artifactId>whatizit2rdf</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</dependency>
+
+	<dependency>
+		<groupId>ca.unbsj.cbakerlab</groupId>
+		<artifactId>informationExtraction</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	      </dependency>
+           
+           -->       
+
+  
+    
+  </dependencies>
+</project>
