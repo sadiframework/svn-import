@@ -11,14 +11,7 @@
 	<name>commandline SADI client</name>
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<tagBase>https://sadi.googlecode.com/svn/tags</tagBase>
-					<tagNameFormat>@{project.version}/@{project.artifactId}</tagNameFormat>
-				</configuration>
-			</plugin>
+            <!-- don't require signing of jar during release -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-gpg-plugin</artifactId>
