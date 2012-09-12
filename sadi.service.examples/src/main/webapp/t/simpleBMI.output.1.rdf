@@ -1,8 +1,0 @@
-<rdf:RDF
-    xmlns:j.0="http://sadiframework.org/examples/bmi.owl#"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-  <j.0:OutputClass rdf:about="http://sadiframework.org/examples/bmi-input.rdf#patient1">
-    <j.0:BMI rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
-    >26.32017237098755</j.0:BMI>
-  </j.0:OutputClass>
-</rdf:RDF>
