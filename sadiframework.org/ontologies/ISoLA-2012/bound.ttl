@@ -1,0 +1,16 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix abstract: <http://sadiframework.org/ontologies/ISoLA-2012/abstract.owl#> .
+
+<http://lsrn.org/UniProt:Q9UK53>
+    rdfs:label "ING1" ;
+    a abstract:ProteinOfInterest .
+<http://lsrn.org/taxon:9606>
+    rdfs:label "Homo sapiens" ;
+    a abstract:OrganismOfInterest .
+
+<http://lsrn.org/taxon:4932>
+    rdfs:label "Saccharomyces cerevisiae" ;
+    a abstract:Organism1 .
+<http://lsrn.org/taxon:7227>
+    rdfs:label "Drosophila melanogaster" ;
+    a abstract:Organism2 .
