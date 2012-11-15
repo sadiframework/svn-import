@@ -45,4 +45,10 @@
       git remote add -m master SADI git://github.com/sadiframework/openshift-tomcat
       git pull -s recursive -X theirs SADI master # I don't think this master is necessary
     }}}
-  # From here, you can proceed as if you'd just unpacked the SADI service skeleton (i.e.: just after BuildingServicesInJava#The_SADI_service_skeleton)
+  # From here, you can proceed as if you'd just unpacked the SADI service skeleton (i.e.: just after [http://code.google.com/p/sadi/wiki/BuildingServicesInJava#The_SADI_service_skeleton The SADI service skeleton in Building Services in Java])
+
+= If you have problems =
+
+  * [http://code.google.com/p/sadi/issues/list Open a new issue].
+  * Add a comment on this wiki page.
+  * Post on the [http://groups.google.com/group/sadi-dev sadi-dev Google group].
