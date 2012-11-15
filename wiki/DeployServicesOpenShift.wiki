@@ -1,38 +1,48 @@
 #summary HOWTO deploy SADI services to OpenShift PaaS.
 
+= If you have an existing SADI service webapp =
+
   # [https://openshift.redhat.com/community/developers/install-the-client-tools Install the OpenShift Client Tools]
   # [https://openshift.redhat.com/app/account/new Sign up for OpenShift]
-  # [https://openshift.redhat.com/app/console/application_types/diy-0.1 Create a new DIY application]
-  # Check out/clone your application's repository
-  # Apply the [https://sadi.googlecode.com/files/diy-0.1_to_jetty.patch DIY-to-Jetty patch] to your application's repository
+  # [https://openshift.redhat.com/app/console/application_types/jbossews-1.0 Create a new Tomcat application]
+  # Clone (check out) the new OpenShift application's repository according to the OpenShift instructions
+  # Add your SADI service webapp source code to the OpenShift application's repository, replacing the current `src` directory and `pom.xml` file. *Note*: before you replace the `pom.xml` file, you can copy part of it for use in the next step.
+  # Add the `openshift` profile to your `pom.xml` file (the `profiles` section follows the `build` section). You can copy this code from the original OpenShift `pom.xml` or from the snippet below:
     {{{
-      git apply diy-0.1_to_jetty.patch
+	<profiles>
+	  <profile>
+	    <id>openshift</id>
+	    <build>
+	      <finalName>tomcat</finalName>
+	      <plugins>
+	        <plugin>
+	          <artifactId>maven-war-plugin</artifactId>
+	          <version>2.1.1</version>
+	          <configuration>
+	            <outputDirectory>webapps</outputDirectory>
+	            <warName>ROOT</warName>
+	          </configuration>
+	        </plugin>
+	      </plugins>
+	    </build>
+	  </profile>
+	</profiles>
     }}}
-  # Add your SADI service webapp source code to your application's repository. If your SADI service code is in source control (as it should be), you can just check out a copy. If not, you can copy the SADI service project directory (running mvn clean in the project beforehand is a good idea). Your webapp must work with the Jetty Maven plugin — specifically, it must be able to successfully execute the `jetty:start` and `jetty:stop` goals (requires jetty-maven-plugin-7.6.0 or later) and it must respect the `jetty.host` and `jetty.port` parameters. If you have no existing configuration for the jetty-maven-plugin, you can copy the following `<plugin>` block into the `<plugins>` section of your webapp's `pom.xml` file:
-    {{{
-      <plugin>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty-maven-plugin</artifactId>
-        <version>7.6.5.v20120716</version>
-        <configuration>
-          <connectors>
-            <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-              <host>${jetty.host}</host>
-              <port>${jetty.port}</port>
-            </connector>
-          </connectors>
-          <stopPort>15001</stopPort>
-          <stopKey>(worker hello)</stopKey>
-        </configuration>
-      </plugin>
-    }}}
-  # Add your webapp project directory to your application's repository and commit.
-    {{{
-      git add SADI_SERVICES_PROJECT_DIRECTORY
-      git commit -a -m "Added SADI services webapp"
-    }}}
-  # Push your application's repository to deploy the application. 
+  # Push the OpenShift application's repository to deploy the application:
     {{{
       git push
     }}}
   # When you make changes to your SADI service code, just commit and push those changes to redeploy the updated application (i.e.: `git add`, `git commit`, `git push` as necessary)
+
+= If you are starting from scratch =
+
+  # [https://openshift.redhat.com/community/developers/install-the-client-tools Install the OpenShift Client Tools]
+  # [https://openshift.redhat.com/app/account/new Sign up for OpenShift]
+  # [https://openshift.redhat.com/app/console/application_types/jbossews-1.0 Create a new Tomcat application]
+  # Clone (check out) the new OpenShift application's repository according to the OpenShift instructions
+  # Add the SADI service quick start upstream repository and update:
+    {{{
+      git remote add -m master SADI git://github.com/sadiframework/openshift-tomcat
+      git pull -s recursive -X theirs SADI master # I don't think this master is necessary
+    }}}
+  # From here, you can proceed as if you'd just unpacked the SADI service skeleton (i.e.: just after BuildingServicesInJava#The_SADI_service_skeleton)
