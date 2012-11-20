@@ -28,6 +28,11 @@
 	  </profile>
 	</profiles>
     }}}
+  # Commit your changes to the Openshift application's repository:
+    {{{
+      git add .
+      git commit
+    }}}
   # Push the OpenShift application's repository to deploy the application:
     {{{
       git push
