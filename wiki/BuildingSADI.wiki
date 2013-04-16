@@ -35,6 +35,39 @@ Check out the SADI projects you want to build from the trunk/ directory of the S
 If a project has build errors, try the following:
   # Make sure it has been successfully identified as a Maven project (indicated by a tiny "M" on the project folder icon in the *Package Explorer* View).  If it has not, right-click the project folder and choose *Configure → Convert to Maven project* (Eclipse 3.7) or *Maven → Enable Dependency Management* (Eclipse 3.6 or earlier).
   # Make sure the required artifacts have finished downloading.  Eclipse can take a long time to update the Maven central indexes.  If there is nothing happening in the *Progress* View and there are still missing artifacts, right-click the project folder in the *Package Explorer* View and choose *Maven → Update Dependencies*.
+  # If the project you're building depends on a SNAPSHOT version of any SADI artifact, you'll need to add the Sonatype snapshot repository to your maven settings.xml. Here's an example:
+{{{
+<settings>
+  <profiles>
+    <profile>
+      <id>sonatype-snapshots</id>
+      <repositories>
+        <repository>
+          <id>sonatype-nexus-snapshots</id>
+          <name>Sonatype Nexus Snapshots</name>
+          <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>sonatype-nexus-snapshots</id>
+          <name>Sonatype Nexus Snapshots</name>
+          <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <activeProfile>sonatype-snapshots</activeProfile>
+  </activeProfiles>
+</settings>
+}}}
 
 == Missing run configurations ==
 The Run configuration XML syntax changed between Eclipse 3.6 and Eclipse 3.7, so configurations created with one will not be usable by the other.  Fortunately, the syntax is easily corrected to work with the version of Eclipse you happen to be running.
