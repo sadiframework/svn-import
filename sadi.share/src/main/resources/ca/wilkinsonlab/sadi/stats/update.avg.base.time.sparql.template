@@ -1,5 +1,0 @@
-PREFIX db: <http://sadiframework.org/ontologies/predicatestats.owl#>
-
-MODIFY GRAPH %u%
-DELETE { %u% db:averageBaseTime %v% } 
-INSERT { %u% db:averageBaseTime %v% } 
