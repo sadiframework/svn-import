@@ -261,6 +261,7 @@ sub invoke {
             # save empty output model before we begin
             $self->store($output_model, NOT_FINISHED, $poll_id);
             $self->process_it(\@inputs, $input_model, $output_model);
+            $self->_type_outputs($output_model, \@inputs);
         };
         # error thrown by the implementation class
         if ($@) {

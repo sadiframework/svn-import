@@ -118,6 +118,7 @@ sub invoke {
     eval { 
     	my @inputs = $self->_get_inputs_from_model($input_model);
     	$self->process_it(\@inputs, $input_model, $output_model);
+        $self->_type_outputs($output_model, \@inputs);
     };
     # error thrown by the implementation class
     if ($@) {
