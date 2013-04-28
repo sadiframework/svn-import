@@ -18,45 +18,19 @@ use base ("SADI::Simple::Base");
 
 {
 	my %_allowed = (
-		ServiceName      => { type => SADI::Simple::Base->STRING },
-		ServiceType      => { type => SADI::Simple::Base->STRING },
-		InputClass       => { type => SADI::Simple::Base->STRING },
-		OutputClass      => { type => SADI::Simple::Base->STRING },
-		Description      => { type => SADI::Simple::Base->STRING },
-		UniqueIdentifier => { type => SADI::Simple::Base->STRING },
-		Authority        => {
-			type => SADI::Simple::Base->STRING,
-#			post => sub {
-#				my $i      = shift;
-#				my $domain = $i->Authority; 
-#				if ($domain =~ /[\@\&\%\#\(\)\=]/gi) {
-#					$i->{Authority} = ""; 
-#                    warn("Invalid authority specified! '$domain' contains invalid characters .");
-#				}
-#				unless ($domain =~ /.+\.+.+/gi) {
-#				  	$i->{Authority} = "";
-#                    warn( "Invalid authority specified! '$domain' must take the form NNN.NNN.NNN." );
-#                }
-#				my $uri = new URI($domain);
-#                $i->{Authority} = $uri->authority if defined $uri->authority;
-#			  }
-		},
-		Provider => {
-			type => SADI::Simple::Base->STRING,
-#			post => sub {
-#				my $i = shift;
-#				my ( $name, $domain ) = $i->Provider =~ /^(.*)@(.*)$/;
-#				$i->throw(   "Invalid email address specified! '"
-#						   . $i->Provider
-#						   . "' is not a valid address" )
-#				  unless $name and $domain;
-#				warn("Invalid email address specified! Invalid characters found in username.") if $name =~ /[\@\&\%\#\(\)\=]/gi;
-#				warn("Invalid email address specified! Invalid characters found in domain.") if $domain =~ /[\@\&\%\#\(\)\=]/gi;
-#				warn( "Invalid email address specified! Please check the domain of the address.") unless $domain =~ /.+\.+.+/gi;
-#
-#			  }
-		},
-		ServiceURI => { type => SADI::Simple::Base->STRING },
+		ServiceName            => { type => SADI::Simple::Base->STRING },
+		ServiceType            => { type => SADI::Simple::Base->STRING },
+		InputClass             => { type => SADI::Simple::Base->STRING },
+		OutputClass            => { type => SADI::Simple::Base->STRING },
+		ParameterClass         => { type => SADI::Simple::Base->STRING },
+		DefaultParameterFile   => { type => SADI::Simple::Base->STRING }, 
+		DefaultParameterRDFXML => { type => SADI::Simple::Base->STRING }, 
+		DefaultParameterN3     => { type => SADI::Simple::Base->STRING }, 
+		Description            => { type => SADI::Simple::Base->STRING },
+		UniqueIdentifier       => { type => SADI::Simple::Base->STRING },
+		Authority              => { type => SADI::Simple::Base->STRING },
+		Provider               => { type => SADI::Simple::Base->STRING },
+		ServiceURI             => { type => SADI::Simple::Base->STRING },
 		URL        => {
 			type => SADI::Simple::Base->STRING,
 			post => sub {
@@ -70,10 +44,10 @@ use base ("SADI::Simple::Base");
                 $i->UniqueIdentifier( $i->URL ) unless $i->UniqueIdentifier;
 			  }
 		},
-		Authoritative => { type => SADI::Simple::Base->BOOLEAN },
-		Format        => { type => SADI::Simple::Base->STRING },
-		SignatureURL  => { type => SADI::Simple::Base->STRING },
-		UnitTest     => { type => 'SADI::Simple::UnitTest', is_array => 1 },
+		Authoritative        => { type => SADI::Simple::Base->BOOLEAN },
+		Format               => { type => SADI::Simple::Base->STRING },
+		SignatureURL         => { type => SADI::Simple::Base->STRING },
+		UnitTest             => { type => 'SADI::Simple::UnitTest', is_array => 1 },
 	);
 
 	sub _accessible {
@@ -114,7 +88,7 @@ use constant SERVICE_DESCRIPTION_TEMPLATE => <<TEMPLATE;
 <?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF
  xmlns:a="http://www.mygrid.org.uk/mygrid-moby-service#"
- xmlns:b="http://purl.org/dc/elements/1.1/"
+ xmlns:b="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#"
  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">    
   <rdf:Description rdf:about="[% uri %]">
     <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#serviceDescription"/>
@@ -144,6 +118,14 @@ use constant SERVICE_DESCRIPTION_TEMPLATE => <<TEMPLATE;
                     <rdf:type rdf:resource="[% type %]"/>
                 </rdf:Description>
             </a:performsTask>
+[% IF parameter && default_parameter_uri %] 
+            <mygrid:inputParameter>
+              <mygrid:secondaryParameter>
+                <mygrid:hasDefaultValue rdf:about="[% default_parameter_uri %]"/>
+                <mygrid:objectType rdf:resource="[% parameter %]"/>
+              </mygrid:secondaryParameter>
+            </mygrid:inputParameter>
+[% END %] 
             <a:inputParameter>
                 <rdf:Description rdf:about="[% name %]_[% authority %]_[% GET COUNTER %]">[% SET COUNTER = COUNTER+1 %]
                     <rdf:type rdf:resource="http://www.mygrid.org.uk/mygrid-moby-service#parameter"/>
@@ -219,6 +201,7 @@ sub getServiceInterface {
 					 type          => $self->ServiceType,
 					 input         => $self->InputClass,
 					 output        => $self->OutputClass,
+					 parameter     => $self->ParameterClass,
 					 desc          => $self->Description,
 					 id            => $self->UniqueIdentifier || $self->ServiceURI,
 					 email         => $self->Provider,

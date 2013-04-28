@@ -7,8 +7,11 @@ use SADI::Simple::ServiceDescription;
 use Log::Log4perl;
 use RDF::Trine::Parser 0.135;
 use RDF::Trine::Model 0.135;
+use RDF::Trine::Statement 0.135;
 
 use base qw( SADI::Simple::Base );
+
+use constant RDF_TYPE_URI => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 
 sub new {
 
@@ -125,10 +128,32 @@ sub _get_inputs_from_model
 {
     my ($self, $model) = @_;
     
+#    my $type = new RDF::Trine::Node::Resource(RDF_TYPE_URI);
     my $type = new RDF::Trine::Node::Resource('http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
+    
     my $input_class = new RDF::Trine::Node::Resource($self->{Signature}->InputClass);
 
     return $model->subjects($type, $input_class);
+}
+
+sub _type_outputs
+{
+    my ($self, $output_model, $inputs) = @_;
+#    my $rdf_type = new RDF::Trine::Node::Resource(RDF_TYPE_URI);
+    my $rdf_type = new RDF::Trine::Node::Resource('http://www.w3.org/1999/02/22-rdf-syntax-ns#type');
+    my $output_type = new RDF::Trine::Node::Resource($self->{Signature}->OutputClass);
+    my %input_uri_hash = ();
+    $input_uri_hash{$_->uri()} = 1 foreach @$inputs;
+    my %visited_output_uris = ();
+    foreach my $s ($output_model->subjects()) {
+        next if $s->is_blank();
+        my $uri = $s->uri();
+        if ($input_uri_hash{$uri} && !$visited_output_uris{$uri}) {
+            my $statement = RDF::Trine::Statement->new($s, $rdf_type, $output_type);
+            $output_model->add_statement($statement);
+            $visited_output_uris{$uri} = 1;
+        }
+    }
 }
 
 use constant SERVICE_ERROR_TEMPLATE => <<TEMPLATE;
