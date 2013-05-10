@@ -43,7 +43,19 @@ public class FindAndCallServices
  		Property p = ResourceFactory.createProperty("http://sadiframework.org/hello.owl#greeting");
  		try {
  			for (Service service: registry.findServicesByAttachedProperty(p)) {
- 				log.info(String.format("found service %s that attaches property %s", service, p));
+ 				System.out.println(String.format("found service %s that attaches property %s", service, p));
+ 			}
+ 		} catch (SADIException e) {
+ 			log.error("error contacting registry", e);
+ 		}
+ 		
+ 		Resource c = ResourceFactory.createResource("http://purl.oclc.org/SADI/LSRN/UniProt_Record");
+ 		try {
+ 			for (Service service: registry.findServicesByInputClass(c)) {
+ 				System.out.println(String.format("found service %s that consumes %s", service, c));
+ 			}
+ 			for (Service service: registry.findServicesByConnectedClass(c)) {
+ 				System.out.println(String.format("found service %s that produces %s", service, c));
  			}
  		} catch (SADIException e) {
  			log.error("error contacting registry", e);
