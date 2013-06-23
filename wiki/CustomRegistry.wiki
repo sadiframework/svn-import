@@ -39,5 +39,15 @@ sadi.registry.sparql.exclude = true
 sadi.registry.sadi.exclude = true
 }}}
 
+You can add as many registries as you like to your `sadi.properties` file as long as you give each a unique name. For example:
+{{{
+sadi.registry.foo = ca.wilkinsonlab.sadi.client.RegistryImpl
+sadi.registry.foo.file = /tmp/first-registry.rdf
+
+sadi.registry.bar = ca.wilkinsonlab.sadi.client.RegistryImpl
+sadi.registry.bar.file = /tmp/second-registry.rdf
+}}}
+Any custom registry can be disabled by setting its `exclude` property to `true`, as with the default registries above.
+
 = Related pages =
   * [http://code.google.com/p/sadi/wiki/SHAREClient Using the SHARE command-line client]
