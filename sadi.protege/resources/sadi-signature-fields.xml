@@ -91,4 +91,14 @@
         helpText="definition_authoritative_help"
         key="Authoritative"
         icon="" />
+    <DefinitionField
+        label="definition_nanopublisher"
+        type="bool"
+        id="NanoPublisher"
+        index="10"
+        required="false"
+        helpText="definition_nanopublisher_help"
+        key="NanoPublisher"
+        icon="" />
+        
 </DefinitionFields>
