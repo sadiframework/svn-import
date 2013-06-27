@@ -61,7 +61,7 @@ sub process_it {
 
     my ($self, $inputs, $input_model, $output_model) = @_;
 
-    foreach my $input (@$inputs) {
+    foreach my $input (@$inputs) {  # $input is an RDF::Trine::Node::Resource
         
         # Log4perl 'easy mode' routines: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, ALWAYS
         INFO(sprintf('processing input %s', $input->uri));
