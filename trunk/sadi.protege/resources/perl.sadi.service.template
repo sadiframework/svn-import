@@ -31,6 +31,9 @@ my %config = (
     ServiceType => '<ServiceTypeURI>',
 <endif>
     Authoritative => <IsAuthoritative>,
+<if(NanoPublisher)>
+    NanoPublisher => <NanoPublisher>,
+<endif>
 );
 
 my $service = <ModuleName>->new(%config);
@@ -66,7 +69,21 @@ sub process_it {
         # Your code goes here...
         # For a 'Hello, World!' example, see the SYNOPSIS section of
         # http://search.cpan.org/dist/SADI-Simple/lib/SADI/Simple.pm 
+		# Your code processes each $input and does something to it
+		# you then attach the results to the $input node through some
+		# $meaningful_property
 		
+		my $statement = RDF::Trine::Statement->new($input, $meaningful_property, $some_value);
+		
+		# add that statement to the model, together with a reference to the $input 
+		# that it refers to	
+		$output_model->add_statement($statement, $input);  # this second parameter is required for NanoPublishing
+			                                               # if you are not a nanopublisher the second parameter is ignored 
+			    
+    	# if you are a NanoPublisher then you must add this line to the end of your loop, 
+    	# if you are not, you can add it or not, but it will be ignored
+    	$output_model->nanopublish_result_for($input);
     }
 
 }
+1;
