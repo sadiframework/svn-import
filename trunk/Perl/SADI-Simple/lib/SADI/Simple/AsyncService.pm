@@ -5,6 +5,7 @@ use warnings;
 
 use SADI::Simple::ServiceDescription;
 use SADI::Simple::Utils;
+use SADI::Simple::OutputModel;
 
 use Log::Log4perl;
 
@@ -128,8 +129,15 @@ sub store {
 
     my ($self, $output_model, $status, $poll_id) = @_;
 
+    my $output;
+    if(($self->get_response_content_type =~ /quads/i) && !($self->{Signature}->NanoPublisher)){
+			$output = SADI::Simple::Utils->serialize_model($output_model, 'rdfxml');
+    } else {
+	        $output = SADI::Simple::Utils->serialize_model($output_model, $self->get_response_content_type);     	
+    }
     my %hash;
-    $hash{rdfxml} = SADI::Simple::Utils->serialize_model($output_model, 'application/rdf+xml');
+    #$hash{rdfxml} = SADI::Simple::Utils->serialize_model($output_model, 'application/rdf+xml');
+    $hash{rdfxml} = $output;
     $hash{status} = $status;
 
     my $filename = $self->_poll_id_to_filename($poll_id);
@@ -165,7 +173,9 @@ sub retrieve {
         return SADI::Simple::Utils->rdfxml_to_n3($rdfxml);
     }
 
-    return $rdfxml;
+    return $rdfxml;  # this might actually be n-quads, if that was what the service was invoked in originally... 
+    # maybe one day think of how to change it from n-quads to triples and back again... maybe storage as n-quads is 
+    # the lossless way, and then serialize to another format at retrieval time?
 }
 
 #-----------------------------------------------------------------
@@ -204,7 +214,11 @@ sub invoke {
     $self->default_throw_with_stack (0);
 
     my $input_model;
-    my $output_model = RDF::Trine::Model->temporary_model;
+    my $output_model; 
+    #$output_model = RDF::Trine::Model->temporary_model;
+	$output_model = SADI::Simple::OutputModel->new();  # catches quad statements necessary for NanoPubs
+	$output_model->_init($self);
+
 
     my @inputs; 
     my @input_uris = ();
