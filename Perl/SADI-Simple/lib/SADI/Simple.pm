@@ -1,8 +1,10 @@
 package SADI::Simple;
 
+our $VERSION = '0.02';
 # ABSTRACT: Module for creating Perl SADI services
 
 1;
+
 __END__
 
 =head1 NAME
@@ -36,7 +38,11 @@ script.
         InputClass => 'http://sadiframework.org/examples/hello.owl#NamedIndividual',
         OutputClass => 'http://sadiframework.org/examples/hello.owl#GreetedIndividual',   
         Authority => 'sadiframework.org', 
+        URL => 'http://somewhere.net/', 
         Provider => 'myaddress@organization.org',
+        ServiceType => 'http://edamontology.org/retrieval',
+        Authoritative => 0,
+        NanoPublisher => 1,
     };
     
     my $service = HelloWorld->new(%$config);
@@ -83,8 +89,11 @@ script.
             my $greeting_literal = RDF::Trine::Node::Literal->new($greeting);
             
             my $statement = RDF::Trine::Statement->new($input, $greeting_property, $greeting_literal);
-            $output_model->add_statement($statement);
+            # $output_model->add_statement($statement);
+            $output_model->add_statement($statement, $input);  # this second parameter is required for NanoPublishing
     
+    		# if you are a NanoPublisher then add this line, otherwise don't
+    		$output_model->nanopublish_result_for($input);
         }
     
     }
@@ -222,3 +231,4 @@ Specifying this parameter can potentially help other SADI users find your servic
 =back
 
 =cut
+
