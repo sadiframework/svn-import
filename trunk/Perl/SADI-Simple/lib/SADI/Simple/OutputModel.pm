@@ -124,11 +124,12 @@ sub _add_provenance {
 	my $signature = $self->{'service_base'}->{Signature};
 
 	# remember this is adding quads!
+	my $Identifier = RDF::Trine::Node::Literal->new($signature->ServiceURI,"","http://www.w3.org/2001/XMLSchema#string" );  # this is a URI, so I need to cast it as a string before sending it into the statement, otherwise it will be cast as a resource
 	$self->_add_statement($Nanopub, "http://purl.org/dc/terms/created", [DateTime->now,"", "http://www.w3.org/2001/XMLSchema#date",""], $provenance_named_graph);
 	$self->_add_statement($Nanopub, "http://purl.org/dc/terms/creator", [$signature->Authority, "", "http://www.w3.org/2001/XMLSchema#string",], $provenance_named_graph) if $signature->Authority ;
 	$self->_add_statement($Nanopub, "http://purl.org/dc/elements/1.1/coverage", ["Output from SADI Service", "lang:en"], $provenance_named_graph);
 	$self->_add_statement($Nanopub, "http://purl.org/dc/elements/1.1/description", ["Service Description: ".$signature->Description, "lang:en"], $provenance_named_graph) if $signature->Description;
-	$self->_add_statement($Nanopub, "http://purl.org/dc/elements/1.1/identifier", [$signature->ServiceURI], $provenance_named_graph) if $signature->ServiceURI;
+	$self->_add_statement($Nanopub, "http://purl.org/dc/elements/1.1/identifier", [$Identifier], $provenance_named_graph) if $signature->ServiceURI;
 	$self->_add_statement($Nanopub, "http://purl.org/dc/elements/1.1/publisher", [$signature->Authority,"", "http://www.w3.org/2001/XMLSchema#string" ], $provenance_named_graph) if $signature->Authority;
 	$self->_add_statement($Nanopub, "http://purl.org/dc/elements/1.1/source", [$signature->URL],  $provenance_named_graph) if $signature->URL;
 	$self->_add_statement($Nanopub, "http://purl.org/dc/elements/1.1/title", [$signature->ServiceName, "","http://www.w3.org/2001/XMLSchema#string"], $provenance_named_graph) if $signature->ServiceName;
@@ -144,7 +145,9 @@ sub _add_statement {
 	unless (ref($p) =~ /trine/i){
 		$p = RDF::Trine::Node::Resource->new($p);
 	}
-	unless (ref($obj) =~ /trine/i){
+	if (ref($obj) =~ /trine/i){
+		$o = $obj;
+	} else {
 		if ($obj =~ /http:\/\//i){
 			$o = RDF::Trine::Node::Resource->new($obj);		
 		} else {

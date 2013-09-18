@@ -22,7 +22,6 @@ sub handle_cgi_request {
         print $self->{Signature}->getServiceInterface($self->get_response_content_type());
 
     } else {
-
         # get the posted data
         my $data = join "",<STDIN>;
 
@@ -150,7 +149,7 @@ sub invoke {
 
     Log::Log4perl::NDC->pop();
     my $output;
-    if(($self->get_response_content_type =~ /quads/i) && !($self->{Signature}->NanoPublisher)){
+    if(($self->get_response_content_type =~ /quads/i) && !($self->{Signature}->NanoPublisher)){    		
 			$output = SADI::Simple::Utils->serialize_model($output_model, 'rdfxml');
     } else {
 	        $output = SADI::Simple::Utils->serialize_model($output_model, $self->get_response_content_type);     	
