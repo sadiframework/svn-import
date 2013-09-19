@@ -24,6 +24,7 @@ use Storable ();
 
 use base 'SADI::Simple::ServiceBase';
 
+
 # in seconds
 use constant POLL_INTERVAL => 30;
 
@@ -129,15 +130,18 @@ sub store {
 
     my ($self, $output_model, $status, $poll_id) = @_;
 
-    my $output;
-    if(($self->get_response_content_type =~ /quads/i) && !($self->{Signature}->NanoPublisher)){
-			$output = SADI::Simple::Utils->serialize_model($output_model, 'rdfxml');
-    } else {
-	        $output = SADI::Simple::Utils->serialize_model($output_model, $self->get_response_content_type);     	
-    }
+    my $quads;
+
+    if(($self->get_response_content_type =~ /quads/i) && ($self->{Signature}->NanoPublisher)){
+			$quads = SADI::Simple::Utils->serialize_model($output_model, $self->get_response_content_type);
+
+    } 
+    my $output = SADI::Simple::Utils->serialize_model($output_model, 'application/rdf+xml');
+
     my %hash;
-    #$hash{rdfxml} = SADI::Simple::Utils->serialize_model($output_model, 'application/rdf+xml');
+    
     $hash{rdfxml} = $output;
+    $hash{quads} = $quads;
     $hash{status} = $status;
 
     my $filename = $self->_poll_id_to_filename($poll_id);
@@ -160,22 +164,23 @@ sub _poll_id_to_filename
 sub retrieve {
 
     my ($self, $poll_id) = @_;
-
     my $log = Log::Log4perl->get_logger(__PACKAGE__);
     my $filename = $self->_poll_id_to_filename($poll_id);
 
     my $hashref = Storable::retrieve($filename) or $self->throw("no data stored for poll_id $poll_id");
     my $rdfxml = $hashref->{rdfxml};
+    my $quads = $hashref->{quads};
 
     unlink($filename) or $log->warn("failed to removed tempfile $filename: $!");
 
     if ($self->get_response_content_type eq 'text/rdf+n3') {
         return SADI::Simple::Utils->rdfxml_to_n3($rdfxml);
+    } elsif ($self->get_response_content_type eq 'application/n-quads'){
+    	return $quads
+    } else {
+	    return $rdfxml;     	
     }
 
-    return $rdfxml;  # this might actually be n-quads, if that was what the service was invoked in originally... 
-    # maybe one day think of how to change it from n-quads to triples and back again... maybe storage as n-quads is 
-    # the lossless way, and then serialize to another format at retrieval time?
 }
 
 #-----------------------------------------------------------------
