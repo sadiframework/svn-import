@@ -78,13 +78,13 @@ sub serialize_model
     if (grep($_ eq $mime_type, @N3_MIME_TYPES)) {
         $serializer = RDF::Trine::Serializer->new('turtle');
     } elsif (lc($mime_type) eq "application/n-quads") {
-    	$serializer = RDF::Trine::Serializer->new( 'nquads');
+    	$serializer = RDF::Trine::Serializer::NQuads->new();
     	$self->add_nanopub_metadata($model);
     } else {
         $serializer = RDF::Trine::Serializer->new('rdfxml');
     }
     
-    return $serializer->serialize_model_to_string($model);
+    return 	
 }
 
 sub get_standard_content_type
