@@ -23,12 +23,18 @@ sub _init {
 	
 	my $named_graph = $root_uri."/provenance/".$self->{'invocation_timestamp'};
 	$self->{'provenance_named_graph'} = $named_graph;   # http://my.service.org/servicename/provenance/1238758
+
+	my $publ_named_graph = $root_uri."/publication_info/".$self->{'invocation_timestamp'};
+	$self->{'pubinfo_named_graph'} = $publ_named_graph;   # http://my.service.org/servicename/provenance/1238758
 	
 	my $assertion_root = $root_uri."/assertion/";
 	$self->{'assertion_statement_root'} = $assertion_root;   # http://my.service.org/servicename/assertion/
 	
 	my $nanopublication_root = $root_uri."/nanopublication/";  
 	$self->{'nanopublication_root'} = $nanopublication_root;  # http://my.service.org/servicename/nanopublication/
+	
+	$self->{'nanopub_ontology_uri'} =  "http://www.nanopub.org/nschema#";
+	
 	
 	
 }
@@ -68,10 +74,12 @@ sub nanopublish_result_for {
 	# nanopub:AHhfj847hKHJRF  rdf:type  np:Nanopublication
 	# assert:AHhfj847hKHJRF   rdf:type  np:Assertion
 
-	my $np = "http://www.nanopub.org/nschema#";
+	my $np = $self->{'nanopub_ontology_uri'};
+	
 	my $NanopublicationType =  RDF::Trine::Node::Resource->new($np."Nanopublication");
 	my $AssertionType =  RDF::Trine::Node::Resource->new($np."Assertion");
 	my $ProvenanceType =  RDF::Trine::Node::Resource->new($np."Provenance");
+	my $PubInfoType =  RDF::Trine::Node::Resource->new($np."PublicationInfo");
 	my $rdfType = RDF::Trine::Node::Resource->new(RDF_TYPE_URI);
 
 
@@ -87,19 +95,26 @@ sub nanopublish_result_for {
 	my $Nanopub = RDF::Trine::Node::Resource->new($NanopublicationURI);
 	my $hasAssertion = RDF::Trine::Node::Resource->new($np."hasAssertion");
 	my $Assertion =  RDF::Trine::Node::Resource->new($AssertionContextURI);
-	my $np_hasAssertion_Assertion = RDF::Trine::Statement->new($Nanopub, $hasAssertion, $Assertion);
+	my $np_hasAssertion_Assertion = RDF::Trine::Statement::Quad->new($Nanopub, $hasAssertion, $Assertion, $Nanopub);
 	$self->add_statement($np_hasAssertion_Assertion); 
 	
 	my $provenance_named_graph = RDF::Trine::Node::Resource->new($self->{'provenance_named_graph'});	
 	my $hasProvenance = RDF::Trine::Node::Resource->new($np."hasProvenance");
-	my $np_hasProvenance_Provenance = RDF::Trine::Statement->new($Nanopub, $hasProvenance, $provenance_named_graph);
+	my $np_hasProvenance_Provenance = RDF::Trine::Statement::Quad->new($Nanopub, $hasProvenance, $provenance_named_graph, $Nanopub);
 	$self->add_statement($np_hasProvenance_Provenance); 
+
+	my $pubinfo_named_graph = RDF::Trine::Node::Resource->new($self->{'pubinfo_named_graph'});	
+	my $hasPubInfo = RDF::Trine::Node::Resource->new($np."hasPublicationInfo");
+	my $np_hasPubInfo_Pubinfo = RDF::Trine::Statement::Quad->new($Nanopub, $hasPubInfo, $pubinfo_named_graph, $Nanopub);
+	$self->add_statement($np_hasPubInfo_Pubinfo); 
+
 
 	$self->add_statement(RDF::Trine::Statement->new($Nanopub, $rdfType, $NanopublicationType));
 	$self->add_statement(RDF::Trine::Statement->new($Assertion, $rdfType, $AssertionType));
 	$self->add_statement(RDF::Trine::Statement->new($provenance_named_graph, $rdfType, $ProvenanceType));
 	
     $self->_add_provenance($Nanopub, $provenance_named_graph);
+    $self->_add_pubinfo($Nanopub, $pubinfo_named_graph);
     
 }
 
@@ -135,6 +150,18 @@ sub _add_provenance {
 	$self->_add_statement($Nanopub, "http://purl.org/dc/elements/1.1/title", [$signature->ServiceName, "","http://www.w3.org/2001/XMLSchema#string"], $provenance_named_graph) if $signature->ServiceName;
 	
 }
+
+
+
+sub _add_pubinfo {
+	my ($self, $Nanopub, $pubinfo_named_graph) = @_;
+	use DateTime;
+	# remember this is adding quads!
+	$self->_add_statement($Nanopub, "http://purl.org/dc/terms/created", [DateTime->now,"", "http://www.w3.org/2001/XMLSchema#dateTime",""], $pubinfo_named_graph);
+	$self->_add_statement($Nanopub, "http://purl.org/dc/terms/creator", ["Perl SADI::Simple Library version $VERSION", "", "http://www.w3.org/2001/XMLSchema#string",], $pubinfo_named_graph);
+	
+}
+
 
 sub _add_statement {
 	my ($self, $s, $p, $o, $c) = @_;
