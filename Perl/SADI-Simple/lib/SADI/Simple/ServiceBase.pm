@@ -154,7 +154,7 @@ sub _type_outputs
         my $uri = $s->uri();
         if ($input_uri_hash{$uri} && !$visited_output_uris{$uri}) {
             my $statement = RDF::Trine::Statement->new($s, $rdf_type, $output_type);
-            $output_model->add_statement($statement);
+            $output_model->add_statement($statement, $s);  # need to add context here, for nanopublications
             $visited_output_uris{$uri} = 1;
         }
     }
