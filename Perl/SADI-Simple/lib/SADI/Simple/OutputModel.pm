@@ -18,7 +18,8 @@ sub _init {
 	my $service_base = shift;   # this is awful!  Need to refactor the code properly at some point
 	$self->{'service_base'} = $service_base;
 	$self->{'invocation_timestamp'} = time;
-	my $root_uri = $self->{'service_base'}->{Signature}->URL;
+	my $root_uri = "http://example.org/sadi_service/";  # set to a temporary value
+	if ($self->{'service_base'}->{Signature}->URL) { $root_uri = $self->{'service_base'}->{Signature}->URL}; 
 	$root_uri =~ s/\/$//;  # REMOVE TRAILING SLASH IF IT EXISTS
 	
 	my $named_graph = $root_uri."/provenance/".$self->{'invocation_timestamp'};
@@ -109,9 +110,10 @@ sub nanopublish_result_for {
 	$self->add_statement($np_hasPubInfo_Pubinfo); 
 
 
-	$self->add_statement(RDF::Trine::Statement->new($Nanopub, $rdfType, $NanopublicationType));
-	$self->add_statement(RDF::Trine::Statement->new($Assertion, $rdfType, $AssertionType));
-	$self->add_statement(RDF::Trine::Statement->new($provenance_named_graph, $rdfType, $ProvenanceType));
+	$self->add_statement(RDF::Trine::Statement::Quad->new($Nanopub, $rdfType, $NanopublicationType, $Nanopub));
+	$self->add_statement(RDF::Trine::Statement::Quad->new($pubinfo_named_graph, $rdfType, $PubInfoType, $Nanopub));
+	$self->add_statement(RDF::Trine::Statement::Quad->new($Assertion, $rdfType, $AssertionType, $Nanopub));
+	$self->add_statement(RDF::Trine::Statement::Quad->new($provenance_named_graph, $rdfType, $ProvenanceType, $Nanopub));
 	
     $self->_add_provenance($Nanopub, $provenance_named_graph);
     $self->_add_pubinfo($Nanopub, $pubinfo_named_graph);
