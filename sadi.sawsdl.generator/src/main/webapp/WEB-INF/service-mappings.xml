@@ -1,3 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><service-mappings>
-  <service lifting="getKeggDrugsByPathway/lifting.xml" lowering="getKeggDrugsByPathway/lowering.xml" name="getKeggDrugsByPathway" owl="getKeggDrugsByPathway/getKeggDrugsByPathway.owl" sawsdl="getKeggDrugsByPathway/getKeggDrugsByPathway.sawsdl"/>
-</service-mappings>
