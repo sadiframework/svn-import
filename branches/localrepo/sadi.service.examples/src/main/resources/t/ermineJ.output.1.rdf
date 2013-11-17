@@ -1,0 +1,20 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:j.0="http://sadiframework.org/examples/ermineJ.owl#">
+  <j.0:AnnotatedProbeSet rdf:about="http://sadiframework.org/examples/input/erminej1">
+    <j.0:hasOverrepresentedTerm>
+      <j.0:OverrepresentedTerm>
+        <j.0:term rdf:resource="http://lsrn.org/GO:0005515"/>
+        <j.0:p rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >0.33333333333333326</j.0:p>
+      </j.0:OverrepresentedTerm>
+    </j.0:hasOverrepresentedTerm>
+    <j.0:hasOverrepresentedTerm>
+      <j.0:OverrepresentedTerm>
+        <j.0:term rdf:resource="http://lsrn.org/GO:0005524"/>
+        <j.0:p rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >0.0</j.0:p>
+      </j.0:OverrepresentedTerm>
+    </j.0:hasOverrepresentedTerm>
+  </j.0:AnnotatedProbeSet>
+</rdf:RDF>

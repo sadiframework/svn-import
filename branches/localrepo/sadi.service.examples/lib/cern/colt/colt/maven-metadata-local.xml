@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>cern.colt</groupId>
+  <artifactId>colt</artifactId>
+  <versioning>
+    <release>2009-06-04</release>
+    <versions>
+      <version>2009-06-04</version>
+    </versions>
+    <lastUpdated>20131117010655</lastUpdated>
+  </versioning>
+</metadata>

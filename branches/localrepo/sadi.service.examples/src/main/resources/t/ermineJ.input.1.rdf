@@ -1,0 +1,113 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:common="http://sadiframework.org/examples/common.owl#"
+    xmlns:p="http://sadiframework.org/ontologies/predicates.owl#"
+    xmlns:ermineJ="http://sadiframework.org/examples/ermineJ.owl#">
+  <ermineJ:GoProbeSet rdf:about="http://sadiframework.org/examples/input/erminej1">
+    <common:element>
+      <ermineJ:GoProbe rdf:about="http://sadiframework.org/examples/input/erminej1#117_at">
+        <ermineJ:expressionLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >1.2</ermineJ:expressionLevel>
+        <ermineJ:mappedTo>
+          <ermineJ:GoAnnotated rdf:about="http://sadiframework.org/examples/input/erminej1#HSPA6">
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0000166"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0005524"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0006950"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0006986"/>
+            </p:hasGOTerm>
+          </ermineJ:GoAnnotated>
+        </ermineJ:mappedTo>
+      </ermineJ:GoProbe>
+    </common:element>
+    <common:element>
+      <ermineJ:GoProbe rdf:about="http://sadiframework.org/examples/input/erminej1#1007_s_at">
+        <ermineJ:expressionLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >1.903370423</ermineJ:expressionLevel>
+        <ermineJ:mappedTo>
+          <ermineJ:GoAnnotated rdf:about="http://sadiframework.org/examples/input/erminej1#DDR1">
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0016021"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0004672"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0005887"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0005515"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0016020"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0006468"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0004872"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0016740"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0007155"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0016301"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0004714"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm rdf:resource="http://lsrn.org/GO:0005524"/>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0004713"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0007169"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm rdf:resource="http://lsrn.org/GO:0000166"/>
+          </ermineJ:GoAnnotated>
+        </ermineJ:mappedTo>
+      </ermineJ:GoProbe>
+    </common:element>
+    <common:element>
+      <ermineJ:GoProbe rdf:about="http://sadiframework.org/examples/input/erminej1#1053_at">
+        <ermineJ:expressionLevel rdf:datatype="http://www.w3.org/2001/XMLSchema#double"
+        >0.903370423</ermineJ:expressionLevel>
+        <ermineJ:mappedTo>
+          <ermineJ:GoAnnotated rdf:about="http://sadiframework.org/examples/input/erminej1#RFC2">
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0017111"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0005634"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0003677"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm rdf:resource="http://lsrn.org/GO:0005515"/>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0005663"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm rdf:resource="http://lsrn.org/GO:0005524"/>
+            <p:hasGOTerm rdf:resource="http://lsrn.org/GO:0000166"/>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0006260"/>
+            </p:hasGOTerm>
+            <p:hasGOTerm>
+              <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0003689"/>
+            </p:hasGOTerm>
+          </ermineJ:GoAnnotated>
+        </ermineJ:mappedTo>
+      </ermineJ:GoProbe>
+    </common:element>
+  </ermineJ:GoProbeSet>
+</rdf:RDF>

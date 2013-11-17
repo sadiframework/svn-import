@@ -1,0 +1,60 @@
+package org.sadiframework.service.example;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sadiframework.service.AsynchronousServiceServlet;
+import org.sadiframework.service.ServiceCall;
+import org.sadiframework.utils.UniProtUtils;
+
+import uk.ac.ebi.kraken.interfaces.uniprot.UniProtEntry;
+
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Resource;
+
+public abstract class UniProtServiceServlet extends AsynchronousServiceServlet
+{
+	private static final long serialVersionUID = 1L;
+	private static final Log log = LogFactory.getLog(UniProtServiceServlet.class);
+	
+	@Override
+	protected Model createOutputModel()
+	{
+		Model model = super.createOutputModel();
+		model.setNsPrefix("sio", "http://semanticscience.org/resource/");
+		model.setNsPrefix("lsrn", "http://purl.oclc.org/SADI/LSRN/");
+		model.setNsPrefix("sadi", "http://sadiframework.org/ontologies/properties.owl#");
+		return model;
+	}
+
+	@Override
+	public int getInputBatchSize()
+	{
+		// override input batch size to 1024, the maximum for the UniProt API...
+		return 1024;
+	}
+	
+	@Override
+	protected void processInputBatch(ServiceCall call)
+	{
+		Collection<Resource> inputNodes = call.getInputNodes();
+		Model outputModel = call.getOutputModel();
+		Map<String, Resource> idToOutputNode = new HashMap<String, Resource>(inputNodes.size());
+		for (Resource inputNode: inputNodes) {
+			String id = UniProtUtils.getUniProtId(inputNode);
+			idToOutputNode.put(id, outputModel.getResource(inputNode.getURI()));
+		}
+		Set<Entry<String, UniProtEntry>> entries = UniProtUtils.getUniProtEntries(idToOutputNode.keySet()).entrySet();
+		log.debug(String.format("retrieved %d entries", entries.size()));
+		for (Entry<String, UniProtEntry> entry: entries) {
+			processInput(entry.getValue(), idToOutputNode.get(entry.getKey()));
+		}
+	}
+
+	public abstract void processInput(UniProtEntry input, Resource output);
+}

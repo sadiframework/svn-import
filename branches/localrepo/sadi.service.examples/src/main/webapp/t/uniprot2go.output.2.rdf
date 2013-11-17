@@ -1,0 +1,60 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:sio="http://semanticscience.org/resource/"
+    xmlns:j.0="http://sadiframework.org/examples/uniprot2go.owl#"
+    xmlns:lsrn="http://purl.oclc.org/SADI/LSRN/"
+    xmlns:sadi="http://sadiframework.org/ontologies/properties.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <j.0:AnnotatedUniProtRecord rdf:about="http://lsrn.org/UniProt:B7ZA85">
+    <sio:SIO_000061>
+      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0005634">
+        <sio:SIO_000008>
+          <lsrn:GO_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >GO:0005634</sio:SIO_000300>
+          </lsrn:GO_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>nucleus</rdfs:label>
+      </lsrn:GO_Record>
+    </sio:SIO_000061>
+    <sio:SIO_000225>
+      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0003677">
+        <sio:SIO_000008>
+          <lsrn:GO_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >GO:0003677</sio:SIO_000300>
+          </lsrn:GO_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>DNA binding</rdfs:label>
+      </lsrn:GO_Record>
+    </sio:SIO_000225>
+    <sio:SIO_000225>
+      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0008270">
+        <sio:SIO_000008>
+          <lsrn:GO_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >GO:0008270</sio:SIO_000300>
+          </lsrn:GO_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>zinc ion binding</rdfs:label>
+      </lsrn:GO_Record>
+    </sio:SIO_000225>
+    <sio:SIO_000062>
+      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0006281">
+        <sio:SIO_000008>
+          <lsrn:GO_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >GO:0006281</sio:SIO_000300>
+          </lsrn:GO_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>DNA repair</rdfs:label>
+      </lsrn:GO_Record>
+    </sio:SIO_000062>
+  </j.0:AnnotatedUniProtRecord>
+  <j.0:AnnotatedUniProtRecord rdf:about="http://lsrn.org/UniProt:Q8IZK3">
+    <sio:SIO_000225 rdf:resource="http://lsrn.org/GO:0003677"/>
+    <sio:SIO_000225 rdf:resource="http://lsrn.org/GO:0008270"/>
+    <sio:SIO_000062 rdf:resource="http://lsrn.org/GO:0006281"/>
+    <sio:SIO_000061 rdf:resource="http://lsrn.org/GO:0005634"/>
+  </j.0:AnnotatedUniProtRecord>
+</rdf:RDF>
