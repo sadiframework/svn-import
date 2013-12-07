@@ -1,13 +1,11 @@
 package org.sadiframework.service.example;
 
-import java.rmi.RemoteException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-
-import javax.xml.rpc.ServiceException;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -61,9 +59,7 @@ public abstract class KeggServiceServlet extends AsynchronousServiceServlet
 		Set<Entry<String,String>> entries;
 		try {
 			entries = KeggUtils.getKeggRecords(idToOutputNode.keySet()).entrySet();
-		} catch(ServiceException e) {
-			throw new RuntimeException("error initializing KEGG API", e);
-		} catch(RemoteException e) {
+		} catch(IOException e) {
 			throw new RuntimeException("error contacting KEGG service", e);
 		}
 

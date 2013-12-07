@@ -1,16 +1,10 @@
 package org.sadiframework.service.example;
 
-import java.rmi.RemoteException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.rpc.ServiceException;
-
-import keggapi.KEGGLocator;
-import keggapi.KEGGPortType;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sadiframework.service.AsynchronousServiceServlet;
@@ -18,6 +12,7 @@ import org.sadiframework.service.ServiceCall;
 import org.sadiframework.service.annotations.ContactEmail;
 import org.sadiframework.service.annotations.TestCase;
 import org.sadiframework.service.annotations.TestCases;
+import org.sadiframework.utils.KeggUtils;
 import org.sadiframework.utils.LSRNUtils;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -34,6 +29,7 @@ import com.hp.hpl.jena.vocabulary.OWL;
 public class EntrezGene2KeggServiceServlet extends AsynchronousServiceServlet
 {
 	private static final long serialVersionUID = 1L;
+	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(EntrezGene2KeggServiceServlet.class);
 
 	@Override
@@ -44,7 +40,7 @@ public class EntrezGene2KeggServiceServlet extends AsynchronousServiceServlet
 	}
 
 	@Override
-	protected void processInputBatch(ServiceCall call)
+	protected void processInputBatch(ServiceCall call) throws IOException
 	{
 		Collection<Resource> inputNodes = call.getInputNodes();
 		Model outputModel = call.getOutputModel();
@@ -59,33 +55,10 @@ public class EntrezGene2KeggServiceServlet extends AsynchronousServiceServlet
 		}
 
 		// retrieve the id mappings
-
-		String[] idMappings;
-		try {
-
-			KEGGPortType keggService = new KEGGLocator().getKEGGPort();
-			String idList = StringUtils.join(idToOutputNode.keySet(), " ");
-			idMappings = keggService.bconv(idList).split("\\r?\\n");
-
-		} catch(ServiceException e) {
-			throw new RuntimeException("error initializing KEGG API", e);
-		} catch(RemoteException e) {
-			throw new RuntimeException("error contacting KEGG service", e);
-		}
-
-		// encode the mappings in RDF
-
-		for(String idMapping : idMappings) {
-
-			String[] fields = idMapping.split("\\s+");
-
-			if(fields.length < 2) {
-				log.warn(String.format("skipping line with unexpected number of fields: %s", idMapping));
-				continue;
-			}
-
-			String entrezGeneId = fields[0];
-			String keggGeneId = fields[1];
+		Map<String, String> idMap = KeggUtils.getKeggIdMap("genes", idToOutputNode.keySet());
+		for (Map.Entry<String, String> entry: idMap.entrySet()) {
+			String entrezGeneId = entry.getKey();
+			String keggGeneId = entry.getValue();
 
 			Resource keggGeneNode = LSRNUtils.createInstance(outputModel, LSRNUtils.getClass("KEGG"), keggGeneId);
 			idToOutputNode.get(entrezGeneId).addProperty(OWL.sameAs, keggGeneNode);
