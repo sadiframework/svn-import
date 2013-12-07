@@ -1,5 +1,6 @@
 package org.sadiframework.utils;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,15 +10,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.rpc.ServiceException;
-
-import keggapi.KEGGLocator;
-import keggapi.KEGGPortType;
-
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.text.StrTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sadiframework.utils.http.HttpUtils;
 
 import ca.elmonline.util.BatchIterator;
 
@@ -35,6 +33,7 @@ public class KeggUtils
 
 	/**
 	 * The maximum number of IDs per request to the KEGG API.
+	 * TODO maximum number of IDs should now be based on URL length limit...
 	 */ 
 	public static int MAX_IDS_PER_REQUEST = 100;
 	
@@ -51,6 +50,29 @@ public class KeggUtils
 	private final static Pattern RECORD_SECTION_REGEX = Pattern.compile("(\\S+)[ \\t]+.*(\\r?\\n[ \\t]+.*)*");
 	private final static Pattern LEADING_WHITESPACE_REGEX = Pattern.compile("^[ \t]+", Pattern.MULTILINE); 
 
+	protected static String kegg_get(String ids) throws IOException {
+		String url = String.format("http://rest.kegg.jp/get/%s", ids);
+		return IOUtils.toString(HttpUtils.getReader(url));
+	}
+	protected static String kegg_conv(String fromto, String ids) throws IOException {
+		String url = String.format("http://rest.kegg.jp/conv/%s/%s", fromto, ids);
+		return IOUtils.toString(HttpUtils.getReader(url));
+	}
+	
+	public synchronized static Map<String, String> getKeggIdMap(String ns, Collection<String> ids) throws IOException
+	{
+		Map<String, String> idMap = new HashMap<String, String>();
+		for (String line: kegg_conv(ns, StringUtils.join(ids, "+")).split("\\r?\\n")) {
+			String[] fields = line.split("\\s+");
+			if(fields.length < 2) {
+				log.warn(String.format("skipping line with unexpected number of fields: %s", line));
+				continue;
+			}
+			idMap.put(fields[0], fields[1]);
+		}
+		return idMap;
+	}
+	
 	/**
 	 * Retrieve string representations (i.e. flat files) of KEGG records 
 	 * for the given IDs.  Identifers may be KEGG genes (e.g. hsa:7157), 
@@ -63,7 +85,7 @@ public class KeggUtils
 	 * @throws ServiceException if there is a problem initializing the KEGG API 
 	 * @throws RemoteException if there is a problem contacting the KEGG API 
 	 */
-	public synchronized static Map<String,String> getKeggRecords(Collection<String> ids) throws ServiceException, RemoteException
+	public synchronized static Map<String,String> getKeggRecords(Collection<String> ids) throws IOException
 	{
 		Map<String,String> entries = new HashMap<String,String>(ids.size());
 		List<String> uncachedIds = new ArrayList<String>(ids.size());
@@ -77,14 +99,10 @@ public class KeggUtils
 		}
 		
 		if (!uncachedIds.isEmpty()) {
-			
 			log.debug(String.format("calling KEGG API to retrieve %d uncached records", uncachedIds.size()));
-			KEGGPortType keggService = new KEGGLocator().getKEGGPort();
-			
 			for (Collection<String> batch: BatchIterator.batches(uncachedIds, MAX_IDS_PER_REQUEST)) {
-			
-				String idList = StringUtils.join(batch, " ");
-				String[] records = keggService.bget(idList).split(RECORD_SEPARATOR_REGEX);
+				String idList = StringUtils.join(batch, "+");
+				String[] records = kegg_get(idList).split(RECORD_SEPARATOR_REGEX);
 				
 				for (String record : records) {
 					
