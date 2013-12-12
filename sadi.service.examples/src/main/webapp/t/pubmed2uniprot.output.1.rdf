@@ -6,46 +6,6 @@
     xmlns:j.2="http://sadiframework.org/examples/pubmed2uniprot.owl#">
   <j.2:OutputClass rdf:about="http://lsrn.org/PMID:9207092">
     <j.0:SIO_000252>
-      <j.1:UniProt_Record rdf:about="http://lsrn.org/UniProt:O14733_C">
-        <j.0:SIO_000671>
-          <j.1:UniProt_Identifier>
-            <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >O14733_C</j.0:SIO_000300>
-          </j.1:UniProt_Identifier>
-        </j.0:SIO_000671>
-      </j.1:UniProt_Record>
-    </j.0:SIO_000252>
-    <j.0:SIO_000252>
-      <j.1:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q23977_3">
-        <j.0:SIO_000671>
-          <j.1:UniProt_Identifier>
-            <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Q23977_3</j.0:SIO_000300>
-          </j.1:UniProt_Identifier>
-        </j.0:SIO_000671>
-      </j.1:UniProt_Record>
-    </j.0:SIO_000252>
-    <j.0:SIO_000252>
-      <j.1:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q91Y86">
-        <j.0:SIO_000671>
-          <j.1:UniProt_Identifier>
-            <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Q91Y86</j.0:SIO_000300>
-          </j.1:UniProt_Identifier>
-        </j.0:SIO_000671>
-      </j.1:UniProt_Record>
-    </j.0:SIO_000252>
-    <j.0:SIO_000252>
-      <j.1:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q91Y86_5">
-        <j.0:SIO_000671>
-          <j.1:UniProt_Identifier>
-            <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Q91Y86_5</j.0:SIO_000300>
-          </j.1:UniProt_Identifier>
-        </j.0:SIO_000671>
-      </j.1:UniProt_Record>
-    </j.0:SIO_000252>
-    <j.0:SIO_000252>
       <j.1:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q23977">
         <j.0:SIO_000671>
           <j.1:UniProt_Identifier>
@@ -66,21 +26,11 @@
       </j.1:UniProt_Record>
     </j.0:SIO_000252>
     <j.0:SIO_000252>
-      <j.1:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q23977_11">
+      <j.1:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q91Y86">
         <j.0:SIO_000671>
           <j.1:UniProt_Identifier>
             <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Q23977_11</j.0:SIO_000300>
-          </j.1:UniProt_Identifier>
-        </j.0:SIO_000671>
-      </j.1:UniProt_Record>
-    </j.0:SIO_000252>
-    <j.0:SIO_000252>
-      <j.1:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q91Y86_1C">
-        <j.0:SIO_000671>
-          <j.1:UniProt_Identifier>
-            <j.0:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Q91Y86_1C</j.0:SIO_000300>
+            >Q91Y86</j.0:SIO_000300>
           </j.1:UniProt_Identifier>
         </j.0:SIO_000671>
       </j.1:UniProt_Record>

@@ -29,6 +29,17 @@
       </lsrn:GO_Record>
     </sio:SIO_000225>
     <sio:SIO_000225>
+      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0004842">
+        <sio:SIO_000008>
+          <lsrn:GO_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >GO:0004842</sio:SIO_000300>
+          </lsrn:GO_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>ubiquitin-protein ligase activity</rdfs:label>
+      </lsrn:GO_Record>
+    </sio:SIO_000225>
+    <sio:SIO_000225>
       <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0008270">
         <sio:SIO_000008>
           <lsrn:GO_Identifier>
@@ -50,11 +61,17 @@
         <rdfs:label>DNA repair</rdfs:label>
       </lsrn:GO_Record>
     </sio:SIO_000062>
+    <sio:SIO_000062>
+      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0016567">
+        <sio:SIO_000008>
+          <lsrn:GO_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >GO:0016567</sio:SIO_000300>
+          </lsrn:GO_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>protein ubiquitination</rdfs:label>
+      </lsrn:GO_Record>
+    </sio:SIO_000062>
   </j.0:AnnotatedUniProtRecord>
-  <j.0:AnnotatedUniProtRecord rdf:about="http://lsrn.org/UniProt:Q8IZK3">
-    <sio:SIO_000225 rdf:resource="http://lsrn.org/GO:0003677"/>
-    <sio:SIO_000225 rdf:resource="http://lsrn.org/GO:0008270"/>
-    <sio:SIO_000062 rdf:resource="http://lsrn.org/GO:0006281"/>
-    <sio:SIO_000061 rdf:resource="http://lsrn.org/GO:0005634"/>
-  </j.0:AnnotatedUniProtRecord>
+  <j.0:AnnotatedUniProtRecord rdf:about="http://lsrn.org/UniProt:Q8IZK3"/>
 </rdf:RDF>

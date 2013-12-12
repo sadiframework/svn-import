@@ -27,18 +27,6 @@
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
   </gene2uniprot:OutputClass>
-  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/FLYBASE:FBgn0085434">
-    <sio:SIO_010078>
-      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q9W0Y8">
-        <sio:SIO_000671>
-          <lsrn:UniProt_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Q9W0Y8</sio:SIO_000300>
-          </lsrn:UniProt_Identifier>
-        </sio:SIO_000671>
-      </lsrn:UniProt_Record>
-    </sio:SIO_010078>
-  </gene2uniprot:OutputClass>
   <gene2uniprot:OutputClass rdf:about="http://lsrn.org/KEGG:hsa:1991">
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:P08246">
@@ -73,45 +61,43 @@
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
   </gene2uniprot:OutputClass>
-  <gene2uniprot:OutputClass rdf:about="urn:not-an-lsrn-uri">
-    <sio:SIO_010078>
-      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:F1Q8S7">
-        <sio:SIO_000671>
-          <lsrn:UniProt_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >F1Q8S7</sio:SIO_000300>
-          </lsrn:UniProt_Identifier>
-        </sio:SIO_000671>
-      </lsrn:UniProt_Record>
-    </sio:SIO_010078>
-    <sio:SIO_010078>
-      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:A3KNI7">
-        <sio:SIO_000671>
-          <lsrn:UniProt_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >A3KNI7</sio:SIO_000300>
-          </lsrn:UniProt_Identifier>
-        </sio:SIO_000671>
-      </lsrn:UniProt_Record>
-    </sio:SIO_010078>
-  </gene2uniprot:OutputClass>
   <gene2uniprot:OutputClass rdf:about="http://lsrn.org/MGI:99470">
+    <sio:SIO_010078>
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q3UVT4">
+        <sio:SIO_000671>
+          <lsrn:UniProt_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Q3UVT4</sio:SIO_000300>
+          </lsrn:UniProt_Identifier>
+        </sio:SIO_000671>
+      </lsrn:UniProt_Record>
+    </sio:SIO_010078>
+    <sio:SIO_010078>
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q3TTG9">
+        <sio:SIO_000671>
+          <lsrn:UniProt_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Q3TTG9</sio:SIO_000300>
+          </lsrn:UniProt_Identifier>
+        </sio:SIO_000671>
+      </lsrn:UniProt_Record>
+    </sio:SIO_010078>
+    <sio:SIO_010078>
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q3TE39">
+        <sio:SIO_000671>
+          <lsrn:UniProt_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Q3TE39</sio:SIO_000300>
+          </lsrn:UniProt_Identifier>
+        </sio:SIO_000671>
+      </lsrn:UniProt_Record>
+    </sio:SIO_010078>
     <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q3TRX6">
         <sio:SIO_000671>
           <lsrn:UniProt_Identifier>
             <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >Q3TRX6</sio:SIO_000300>
-          </lsrn:UniProt_Identifier>
-        </sio:SIO_000671>
-      </lsrn:UniProt_Record>
-    </sio:SIO_010078>
-    <sio:SIO_010078>
-      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:E9Q9H2">
-        <sio:SIO_000671>
-          <lsrn:UniProt_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >E9Q9H2</sio:SIO_000300>
           </lsrn:UniProt_Identifier>
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
@@ -127,6 +113,16 @@
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
     <sio:SIO_010078>
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q99KR5">
+        <sio:SIO_000671>
+          <lsrn:UniProt_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Q99KR5</sio:SIO_000300>
+          </lsrn:UniProt_Identifier>
+        </sio:SIO_000671>
+      </lsrn:UniProt_Record>
+    </sio:SIO_010078>
+    <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:P54103">
         <sio:SIO_000671>
           <lsrn:UniProt_Identifier>
@@ -136,14 +132,22 @@
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
-  </gene2uniprot:OutputClass>
-  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/SGD:S000000626">
     <sio:SIO_010078>
-      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:P25623">
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q3TTI5">
         <sio:SIO_000671>
           <lsrn:UniProt_Identifier>
             <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >P25623</sio:SIO_000300>
+            >Q3TTI5</sio:SIO_000300>
+          </lsrn:UniProt_Identifier>
+        </sio:SIO_000671>
+      </lsrn:UniProt_Record>
+    </sio:SIO_010078>
+    <sio:SIO_010078>
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:E9Q9H2">
+        <sio:SIO_000671>
+          <lsrn:UniProt_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >E9Q9H2</sio:SIO_000300>
           </lsrn:UniProt_Identifier>
         </sio:SIO_000671>
       </lsrn:UniProt_Record>
@@ -171,16 +175,6 @@
       </lsrn:UniProt_Record>
     </sio:SIO_010078>
     <sio:SIO_010078>
-      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:H7BYS1">
-        <sio:SIO_000671>
-          <lsrn:UniProt_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >H7BYS1</sio:SIO_000300>
-          </lsrn:UniProt_Identifier>
-        </sio:SIO_000671>
-      </lsrn:UniProt_Record>
-    </sio:SIO_010078>
-    <sio:SIO_010078>
       <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q8IZP9">
         <sio:SIO_000671>
           <lsrn:UniProt_Identifier>
@@ -198,6 +192,52 @@
           <lsrn:UniProt_Identifier>
             <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
             >Q9Y2H6</sio:SIO_000300>
+          </lsrn:UniProt_Identifier>
+        </sio:SIO_000671>
+      </lsrn:UniProt_Record>
+    </sio:SIO_010078>
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/FLYBASE:FBgn0085434">
+    <sio:SIO_010078>
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:Q9W0Y8">
+        <sio:SIO_000671>
+          <lsrn:UniProt_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Q9W0Y8</sio:SIO_000300>
+          </lsrn:UniProt_Identifier>
+        </sio:SIO_000671>
+      </lsrn:UniProt_Record>
+    </sio:SIO_010078>
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="urn:not-an-lsrn-uri">
+    <sio:SIO_010078>
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:F1Q8S7">
+        <sio:SIO_000671>
+          <lsrn:UniProt_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >F1Q8S7</sio:SIO_000300>
+          </lsrn:UniProt_Identifier>
+        </sio:SIO_000671>
+      </lsrn:UniProt_Record>
+    </sio:SIO_010078>
+    <sio:SIO_010078>
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:A3KNI7">
+        <sio:SIO_000671>
+          <lsrn:UniProt_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >A3KNI7</sio:SIO_000300>
+          </lsrn:UniProt_Identifier>
+        </sio:SIO_000671>
+      </lsrn:UniProt_Record>
+    </sio:SIO_010078>
+  </gene2uniprot:OutputClass>
+  <gene2uniprot:OutputClass rdf:about="http://lsrn.org/SGD:S000000626">
+    <sio:SIO_010078>
+      <lsrn:UniProt_Record rdf:about="http://lsrn.org/UniProt:P25623">
+        <sio:SIO_000671>
+          <lsrn:UniProt_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >P25623</sio:SIO_000300>
           </lsrn:UniProt_Identifier>
         </sio:SIO_000671>
       </lsrn:UniProt_Record>

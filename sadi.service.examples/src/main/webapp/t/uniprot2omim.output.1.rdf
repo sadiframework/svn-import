@@ -83,5 +83,16 @@
         <rdfs:label>275355:phenotype;</rdfs:label>
       </lsrn:OMIM_Record>
     </sio:SIO_000243>
+    <sio:SIO_000243>
+      <lsrn:OMIM_Record rdf:about="http://lsrn.org/OMIM:614740">
+        <sio:SIO_000008>
+          <lsrn:OMIM_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >614740</sio:SIO_000300>
+          </lsrn:OMIM_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>614740:phenotype;</rdfs:label>
+      </lsrn:OMIM_Record>
+    </sio:SIO_000243>
   </j.0:AnnotatedUniProtRecord>
 </rdf:RDF>
