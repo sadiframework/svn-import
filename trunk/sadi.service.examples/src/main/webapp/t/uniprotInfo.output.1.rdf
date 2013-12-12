@@ -42,6 +42,36 @@
     </sadi:hasSequence>
   </uniprotInfo:AnnotatedUniProtRecord>
   <uniprotInfo:AnnotatedUniProtRecord rdf:about="http://purl.uniprot.org/uniprot/P12345">
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >Kynurenine--oxoglutarate transaminase IV</sio:SIO_000300>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sio:SIO_000008>
+      <sio:SIO_000105>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >GOT2</sio:SIO_000300>
+      </sio:SIO_000105>
+    </sio:SIO_000008>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >Glutamate oxaloacetate transaminase 2</sio:SIO_000300>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sadi:hasName>
+      <sio:SIO_000116 rdf:nodeID="A0">
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >Plasma membrane-associated fatty acid-binding protein</sio:SIO_000300>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >Kynurenine aminotransferase 4</sio:SIO_000300>
+      </sio:SIO_000116>
+    </sadi:hasName>
     <sadi:fromOrganism>
       <lsrn:taxon_Record>
         <sio:SIO_000008>
@@ -58,68 +88,62 @@
         </sadi:hasName>
       </lsrn:taxon_Record>
     </sadi:fromOrganism>
-    <sadi:hasName>
-      <sio:SIO_000116>
-        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >FABPpm</sio:SIO_000300>
-        <sio:SIO_000272>
-          <sio:SIO_000116 rdf:nodeID="A0">
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Plasma membrane-associated fatty acid-binding protein</sio:SIO_000300>
-          </sio:SIO_000116>
-        </sio:SIO_000272>
-      </sio:SIO_000116>
-    </sadi:hasName>
-    <sadi:hasName rdf:nodeID="A0"/>
-    <sadi:hasName>
-      <sio:SIO_000116>
-        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >mAspAT</sio:SIO_000300>
-        <sio:SIO_000272>
-          <sio:SIO_000117 rdf:nodeID="A1">
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >Aspartate aminotransferase, mitochondrial</sio:SIO_000300>
-          </sio:SIO_000117>
-        </sio:SIO_000272>
-      </sio:SIO_000116>
-    </sadi:hasName>
-    <sio:SIO_000008>
-      <sio:SIO_000105>
-        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >GOT2</sio:SIO_000300>
-      </sio:SIO_000105>
-    </sio:SIO_000008>
-    <sadi:hasName>
-      <sio:SIO_000116>
-        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >Transaminase A</sio:SIO_000300>
-      </sio:SIO_000116>
-    </sadi:hasName>
     <sadi:hasSequence>
       <sio:SIO_010015>
         <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >SSWWAHVEMGPPDPILGVTEAYKRDTNSKK</sio:SIO_000300>
+        >MALLHSARVLSGVASAFHPGLAAAASARASSWWAHVEMGPPDPILGVTEAYKRDTNSKKMNLGVGAYRDDNGKPYVLPSVRKAEAQIAAKGLDKEYLPIGGLAEFCRASAELALGENSEVVKSGRFVTVQTISGTGALRIGASFLQRFFKFSRDVFLPKPSWGNHTPIFRDAGMQLQSYRYYDPKTCGFDFTGALEDISKIPEQSVLLLHACAHNPTGVDPRPEQWKEIATVVKKRNLFAFFDMAYQGFASGDGDKDAWAVRHFIEQGINVCLCQSYAKNMGLYGERVGAFTVICKDADEAKRVESQLKILIRPMYSNPPIHGARIASTILTSPDLRKQWLQEVKGMADRIIGMRTQLVSNLKKEGSTHSWQHITDQIGMFCFTGLKPEQVERLTKEFSIYMTKDGRISVAGVTSGNVGYLAHAIHQVTK</sio:SIO_000300>
       </sio:SIO_010015>
     </sadi:hasSequence>
     <sadi:hasName>
-      <sio:SIO_000116 rdf:nodeID="A2">
+      <sio:SIO_000116 rdf:nodeID="A1">
         <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
         >Fatty acid-binding protein</sio:SIO_000300>
       </sio:SIO_000116>
     </sadi:hasName>
-    <sadi:hasName rdf:nodeID="A1"/>
     <sadi:hasName>
       <sio:SIO_000116>
         <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-        >Glutamate oxaloacetate transaminase 2</sio:SIO_000300>
+        >Kynurenine aminotransferase IV</sio:SIO_000300>
       </sio:SIO_000116>
     </sadi:hasName>
     <sadi:hasName>
       <sio:SIO_000116>
         <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
         >FABP-1</sio:SIO_000300>
-        <sio:SIO_000272 rdf:nodeID="A2"/>
+        <sio:SIO_000272 rdf:nodeID="A1"/>
       </sio:SIO_000116>
     </sadi:hasName>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >Transaminase A</sio:SIO_000300>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >FABPpm</sio:SIO_000300>
+        <sio:SIO_000272 rdf:nodeID="A0"/>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >mAspAT</sio:SIO_000300>
+        <sio:SIO_000272>
+          <sio:SIO_000117 rdf:nodeID="A2">
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >Aspartate aminotransferase, mitochondrial</sio:SIO_000300>
+          </sio:SIO_000117>
+        </sio:SIO_000272>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sadi:hasName>
+      <sio:SIO_000116>
+        <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+        >Kynurenine--oxoglutarate transaminase 4</sio:SIO_000300>
+      </sio:SIO_000116>
+    </sadi:hasName>
+    <sadi:hasName rdf:nodeID="A2"/>
   </uniprotInfo:AnnotatedUniProtRecord>
 </rdf:RDF>

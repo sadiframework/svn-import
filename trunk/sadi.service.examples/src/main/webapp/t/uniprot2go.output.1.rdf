@@ -83,6 +83,17 @@
         <rdfs:label>aspartate biosynthetic process</rdfs:label>
       </lsrn:GO_Record>
     </sio:SIO_000062>
+    <sio:SIO_000225>
+      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0016212">
+        <sio:SIO_000008>
+          <lsrn:GO_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >GO:0016212</sio:SIO_000300>
+          </lsrn:GO_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>kynurenine-oxoglutarate transaminase activity</rdfs:label>
+      </lsrn:GO_Record>
+    </sio:SIO_000225>
     <sio:SIO_000062>
       <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0006536">
         <sio:SIO_000008>
@@ -250,6 +261,17 @@
         <rdfs:label>single fertilization</rdfs:label>
       </lsrn:GO_Record>
     </sio:SIO_000062>
+    <sio:SIO_000062>
+      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0043524">
+        <sio:SIO_000008>
+          <lsrn:GO_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >GO:0043524</sio:SIO_000300>
+          </lsrn:GO_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>negative regulation of neuron apoptotic process</rdfs:label>
+      </lsrn:GO_Record>
+    </sio:SIO_000062>
     <sio:SIO_000225>
       <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0051920">
         <sio:SIO_000008>
@@ -284,17 +306,6 @@
       </lsrn:GO_Record>
     </sio:SIO_000062>
     <sio:SIO_000062>
-      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0043526">
-        <sio:SIO_000008>
-          <lsrn:GO_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >GO:0043526</sio:SIO_000300>
-          </lsrn:GO_Identifier>
-        </sio:SIO_000008>
-        <rdfs:label>neuroprotection</rdfs:label>
-      </lsrn:GO_Record>
-    </sio:SIO_000062>
-    <sio:SIO_000062>
       <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0006914">
         <sio:SIO_000008>
           <lsrn:GO_Identifier>
@@ -303,17 +314,6 @@
           </lsrn:GO_Identifier>
         </sio:SIO_000008>
         <rdfs:label>autophagy</rdfs:label>
-      </lsrn:GO_Record>
-    </sio:SIO_000062>
-    <sio:SIO_000062>
-      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0060548">
-        <sio:SIO_000008>
-          <lsrn:GO_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >GO:0060548</sio:SIO_000300>
-          </lsrn:GO_Identifier>
-        </sio:SIO_000008>
-        <rdfs:label>negative regulation of cell death</rdfs:label>
       </lsrn:GO_Record>
     </sio:SIO_000062>
     <sio:SIO_000062>
@@ -371,28 +371,17 @@
         <rdfs:label>negative regulation of protein binding</rdfs:label>
       </lsrn:GO_Record>
     </sio:SIO_000062>
-    <sio:SIO_000061>
-      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0005829">
+    <sio:SIO_000225>
+      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0042803">
         <sio:SIO_000008>
           <lsrn:GO_Identifier>
             <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >GO:0005829</sio:SIO_000300>
+            >GO:0042803</sio:SIO_000300>
           </lsrn:GO_Identifier>
         </sio:SIO_000008>
-        <rdfs:label>cytosol</rdfs:label>
+        <rdfs:label>protein homodimerization activity</rdfs:label>
       </lsrn:GO_Record>
-    </sio:SIO_000061>
-    <sio:SIO_000062>
-      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0042493">
-        <sio:SIO_000008>
-          <lsrn:GO_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >GO:0042493</sio:SIO_000300>
-          </lsrn:GO_Identifier>
-        </sio:SIO_000008>
-        <rdfs:label>response to drug</rdfs:label>
-      </lsrn:GO_Record>
-    </sio:SIO_000062>
+    </sio:SIO_000225>
     <sio:SIO_000061>
       <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0005634">
         <sio:SIO_000008>
@@ -437,7 +426,6 @@
         <rdfs:label>regulation of inflammatory response</rdfs:label>
       </lsrn:GO_Record>
     </sio:SIO_000062>
-    <sio:SIO_000061 rdf:resource="http://lsrn.org/GO:0005739"/>
     <sio:SIO_000062>
       <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0042743">
         <sio:SIO_000008>
@@ -460,17 +448,17 @@
         <rdfs:label>dopamine uptake involved in synaptic transmission</rdfs:label>
       </lsrn:GO_Record>
     </sio:SIO_000062>
-    <sio:SIO_000061>
-      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0030424">
+    <sio:SIO_000062>
+      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0008219">
         <sio:SIO_000008>
           <lsrn:GO_Identifier>
             <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >GO:0030424</sio:SIO_000300>
+            >GO:0008219</sio:SIO_000300>
           </lsrn:GO_Identifier>
         </sio:SIO_000008>
-        <rdfs:label>axon</rdfs:label>
+        <rdfs:label>cell death</rdfs:label>
       </lsrn:GO_Record>
-    </sio:SIO_000061>
+    </sio:SIO_000062>
     <sio:SIO_000225>
       <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0003729">
         <sio:SIO_000008>
@@ -493,17 +481,7 @@
         <rdfs:label>regulation of androgen receptor signaling pathway</rdfs:label>
       </lsrn:GO_Record>
     </sio:SIO_000062>
-    <sio:SIO_000062>
-      <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0008219">
-        <sio:SIO_000008>
-          <lsrn:GO_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >GO:0008219</sio:SIO_000300>
-          </lsrn:GO_Identifier>
-        </sio:SIO_000008>
-        <rdfs:label>cell death</rdfs:label>
-      </lsrn:GO_Record>
-    </sio:SIO_000062>
+    <sio:SIO_000061 rdf:resource="http://lsrn.org/GO:0005739"/>
     <sio:SIO_000225>
       <lsrn:GO_Record rdf:about="http://lsrn.org/GO:0008233">
         <sio:SIO_000008>

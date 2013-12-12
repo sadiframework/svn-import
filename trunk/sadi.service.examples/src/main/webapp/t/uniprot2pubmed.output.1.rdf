@@ -194,6 +194,17 @@
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:23431171">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >23431171</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Rokudai S. et al, MOZ increases p53 acetylation and premature senescence through its complex formation with PML.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
       <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:14702041">
         <sio:SIO_000008>
           <lsrn:PMID_Identifier>
@@ -213,6 +224,17 @@
           </lsrn:PMID_Identifier>
         </sio:SIO_000008>
         <rdfs:label>Jones R.G. et al, AMP-activated protein kinase induces a p53-dependent metabolic checkpoint.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:22214662">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >22214662</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Bennett R.L. et al, The RAX/PACT-PKR stress response pathway promotes p53 sumoylation and activation, leading to G(1) arrest.</rdfs:label>
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
@@ -257,6 +279,17 @@
           </lsrn:PMID_Identifier>
         </sio:SIO_000008>
         <rdfs:label>Gauci S. et al, Lys-N and trypsin cover complementary parts of the phosphoproteome in a refined SCX-based approach.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:18585004">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >18585004</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Xie P. et al, Histone methyltransferase protein SETD2 interacts with p53 and selectively regulates its downstream genes.</rdfs:label>
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
@@ -502,17 +535,6 @@
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
-      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:16083285">
-        <sio:SIO_000008>
-          <lsrn:PMID_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >16083285</sio:SIO_000300>
-          </lsrn:PMID_Identifier>
-        </sio:SIO_000008>
-        <rdfs:label>Kim J.-E., Tannenbaum S.R. &amp; White F.M., Global phosphoproteome of HT-29 human colon adenocarcinoma cells.</rdfs:label>
-      </lsrn:PMID_Record>
-    </sio:SIO_000253>
-    <sio:SIO_000253>
       <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:19880522">
         <sio:SIO_000008>
           <lsrn:PMID_Identifier>
@@ -612,6 +634,17 @@
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:20385133">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >20385133</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Lim S.O., Kim H. &amp; Jung G., p53 inhibits tumor cell invasion via the degradation of snail protein in hepatocellular carcinoma.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
       <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:1999338">
         <sio:SIO_000008>
           <lsrn:PMID_Identifier>
@@ -675,6 +708,17 @@
           </lsrn:PMID_Identifier>
         </sio:SIO_000008>
         <rdfs:label>Guldberg P. et al, Single-step DGGE-based mutation scanning of the p53 gene: application to genetic diagnosis of colorectal cancer.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:17719541">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >17719541</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Das S. et al, Hzf Determines cell survival upon genotoxic stress by modulating p53 transactivation.</rdfs:label>
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
@@ -799,6 +843,17 @@
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:22864287">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >22864287</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Cui G. et al, PHF20 is an effector protein of p53 double lysine methylation that stabilizes and activates p53.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
       <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:1699228">
         <sio:SIO_000008>
           <lsrn:PMID_Identifier>
@@ -840,6 +895,17 @@
           </lsrn:PMID_Identifier>
         </sio:SIO_000008>
         <rdfs:label>Fang S. et al, Mdm2 is a RING finger-dependent ubiquitin protein ligase for itself and p53.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:21946351">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >21946351</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Stacey S.N. et al, A germline variant in the TP53 polyadenylation signal confers cancer susceptibility.</rdfs:label>
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
@@ -983,6 +1049,17 @@
           </lsrn:PMID_Identifier>
         </sio:SIO_000008>
         <rdfs:label>Shaw P. et al, Regulation of specific DNA binding by p53: evidence for a role for O-glycosylation and charged residues at the carboxy-terminus.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:22726440">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >22726440</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Vaseva A.V. et al, p53 opens the mitochondrial permeability transition pore to trigger necrosis.</rdfs:label>
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
@@ -1316,6 +1393,17 @@
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:22945289">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >22945289</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Iijima K. et al, ZNF385B is characteristically expressed in germinal center B cells and involved in B-cell apoptosis.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
       <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:11058590">
         <sio:SIO_000008>
           <lsrn:PMID_Identifier>
@@ -1580,6 +1668,17 @@
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:20673990">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >20673990</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Huarte M. et al, A large intergenic noncoding RNA induced by p53 mediates global gene repression in the p53 response.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
       <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:1672732">
         <sio:SIO_000008>
           <lsrn:PMID_Identifier>
@@ -1588,17 +1687,6 @@
           </lsrn:PMID_Identifier>
         </sio:SIO_000008>
         <rdfs:label>Bressac B. et al, Selective G to T mutations of p53 gene in hepatocellular carcinoma from southern Africa.</rdfs:label>
-      </lsrn:PMID_Record>
-    </sio:SIO_000253>
-    <sio:SIO_000253>
-      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:17287340">
-        <sio:SIO_000008>
-          <lsrn:PMID_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >17287340</sio:SIO_000300>
-          </lsrn:PMID_Identifier>
-        </sio:SIO_000008>
-        <rdfs:label>Molina H. et al, Global proteomic profiling of phosphopeptides using electron transfer dissociation tandem mass spectrometry.</rdfs:label>
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
@@ -1712,14 +1800,14 @@
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
-      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:8402617">
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:20041275">
         <sio:SIO_000008>
           <lsrn:PMID_Identifier>
             <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >8402617</sio:SIO_000300>
+            >20041275</sio:SIO_000300>
           </lsrn:PMID_Identifier>
         </sio:SIO_000008>
-        <rdfs:label>Boyle J.O. et al, The incidence of p53 mutations increases with progression of head and neck cancer.</rdfs:label>
+        <rdfs:label>Venerando A. et al, Isoform specific phosphorylation of p53 by protein kinase CK1.</rdfs:label>
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
@@ -1745,14 +1833,25 @@
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
-      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:20041275">
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:8402617">
         <sio:SIO_000008>
           <lsrn:PMID_Identifier>
             <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >20041275</sio:SIO_000300>
+            >8402617</sio:SIO_000300>
           </lsrn:PMID_Identifier>
         </sio:SIO_000008>
-        <rdfs:label>Venerando A. et al, Isoform specific phosphorylation of p53 by protein kinase CK1.</rdfs:label>
+        <rdfs:label>Boyle J.O. et al, The incidence of p53 mutations increases with progression of head and neck cancer.</rdfs:label>
+      </lsrn:PMID_Record>
+    </sio:SIO_000253>
+    <sio:SIO_000253>
+      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:17349958">
+        <sio:SIO_000008>
+          <lsrn:PMID_Identifier>
+            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+            >17349958</sio:SIO_000300>
+          </lsrn:PMID_Identifier>
+        </sio:SIO_000008>
+        <rdfs:label>Taira N. et al, DYRK2 is targeted to the nucleus and controls p53 via Ser46 phosphorylation in the apoptotic response to DNA damage.</rdfs:label>
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
@@ -1775,17 +1874,6 @@
           </lsrn:PMID_Identifier>
         </sio:SIO_000008>
         <rdfs:label>An W., Kim J. &amp; Roeder R.G., Ordered cooperative functions of PRMT1, p300, and CARM1 in transcriptional activation by p53.</rdfs:label>
-      </lsrn:PMID_Record>
-    </sio:SIO_000253>
-    <sio:SIO_000253>
-      <lsrn:PMID_Record rdf:about="http://lsrn.org/PMID:19369195">
-        <sio:SIO_000008>
-          <lsrn:PMID_Identifier>
-            <sio:SIO_000300 rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
-            >19369195</sio:SIO_000300>
-          </lsrn:PMID_Identifier>
-        </sio:SIO_000008>
-        <rdfs:label>Oppermann F.S. et al, Large-scale proteomics analysis of the human kinome.</rdfs:label>
       </lsrn:PMID_Record>
     </sio:SIO_000253>
     <sio:SIO_000253>
