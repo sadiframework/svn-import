@@ -1,8 +1,8 @@
 import sadi
 from rdflib import *
-from surf import *
 
-ns.register(hello="http://sadiframework.org/examples/hello.owl#")
+hello=Namespace("http://sadiframework.org/examples/hello.owl#")
+foaf=Namespace("http://xmlns.com/foaf/0.1/")
 
 class ExampleService(sadi.Service):
     label = "Hello, world"
@@ -12,23 +12,23 @@ class ExampleService(sadi.Service):
     name = "example"
 
     def getOrganization(self):
-        result = self.Organization("http://tw.rpi.edu")
-        result.mygrid_authoritative = False
-        result.protegedc_creator = 'mccusker@gmail.com'
-        result.save()
+        result = self.Organization()
+        result.add(RDFS.label,Literal("Tetherless World Constellation, RPI"))
+        result.add(sadi.mygrid.authoritative, Literal(False))
+        result.add(sadi.dc.creator, URIRef('mailto:mccusker@gmail.com'))
         return result
 
     def getInputClass(self):
-        return ns.HELLO["NamedIndividual"]
+        return hello.NamedIndividual
 
     def getOutputClass(self):
-        return ns.HELLO["GreetedIndividual"]
+        return hello.GreetedIndividual
 
     def process(self, input, output):
-        output.hello_greeting = "Hello, "+input.foaf_name[0]
-        output.save()
+        print input
+        output.set(hello.greeting, Literal("Hello, "+input.value(foaf.name).value))
 
 resource = ExampleService()
 
 if __name__ == "__main__":
-    sadi.publishTwistedService(resource, port=9090)
+    sadi.serve(resource, port=9090)
