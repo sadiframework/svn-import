@@ -1,0 +1,172 @@
+#summary Tutorial: building a SADI service in Python.
+
+== Table of Contents ==
+<wiki:toc max_depth="1" />
+
+Building services in Python is very easy. They are also easy to publish as WSGI applications or incorporated into other frameworks such as Pylons and TurboGears. We will be creating a Python version of the service described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?].
+
+= Requirements =
+
+SADI requires Python 2.6 or greater, and can be installed using easy_install:
+
+{{{
+easy_install sadi
+}}}
+
+It can also be installed using pip:
+
+{{{
+pip install sadi
+}}}
+
+Python SADI services can be added to Pylons or TurboGears applications as [http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/controllers.html Controllers] or can be run by themselves. SADI Services can also be used as WSGI applications. 
+
+= Defining input and output OWL classes =
+
+Your service’s input and output OWL classes describe its interface to the world. The property restrictions on the input class define the properties your service needs to operate and the property restrictions on the output class define the properties your service will attach.
+
+As described in [http://sadiframework.org/content/getting-involved/what-is-a-sadi-service/ What is a SADI service?], your input and output classes must each be identified by a URL that resolves to the class definition. Before you can proceed, you must have created the ontology describing your input and output and hosted it such that this is the case. Ontology design is beyond the scope of this document, but see DefiningInputAndOutputOWLClasses for some SADI-specific tips.
+
+For our example, our input class will be [http://sadiframework.org/examples/hello.owl#NamedIndividual]. The class definition is reproduced below:
+
+{{{
+<owl:Class rdf:ID="NamedIndividual"> 
+  <owl:equivalentClass> 
+    <owl:Restriction> 
+      <owl:onProperty rdf:resource="http://xmlns.com/foaf/0.1/name"/> 
+      <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#int">1</owl:minCardinality> 
+    </owl:Restriction> 
+  </owl:equivalentClass> 
+</owl:Class>
+}}}
+
+This class specifies a single property restriction: that there is at least one value of the [http://xmlns.com/foaf/0.1/name] property. As suggested in DefiningInputAndOutputOWLClasses, this is a necessary and sufficient condition for class membership (indicated by the `owl:equivalentClass` construct), allowing any individual with a `foaf:name` to be dynamically identified as a `NamedIndividual`.
+
+For our example, our output class will be [http://sadiframework.org/examples/hello.owl#GreetedIndividual]. The class definition is reproduced below:
+
+{{{
+<owl:Class rdf:ID="GreetedIndividual"> 
+  <owl:equivalentClass> 
+    <owl:Restriction> 
+      <owl:onProperty rdf:resource="#greeting"/> 
+      <owl:someValuesFrom rdf:resource="http://www.w3.org/2001/XMLSchema#string"/> 
+    </owl:Restriction> 
+  </owl:equivalentClass> 
+</owl:Class>
+}}}
+
+This class also specifies a single property restriction, indicating that the service will attach a value of the [http://sadiframework.org/examples/hello.owl#greeting] property that is an `xsd:string`.
+
+Note that, as mentioned in DefiningInputAndOutputOWLClasses, the [hello.owl http://sadiframework.org/examples/hello.owl] ontology completely specifies the properties it uses: it defines the `greeting` property and imports the `foaf:name` property.
+
+= Creating the Python SADI service =
+
+A python SADI service is very simple, and takes very few lines to define in a python file. Create a file called example.py to edit. First, we need to import the SADI and RDFlib modules:
+
+{{{
+import sadi
+from rdflib import *
+}}}
+
+Next, we need to define the namespaceswe need to use in our code:
+
+{{{
+hello=Namespace("http://sadiframework.org/examples/hello.owl#")
+foaf=Namespace("http://xmlns.com/foaf/0.1/")
+}}}
+
+We also define our class. We need to set some service metadata (including organization), input and output classes, and the service body, called process():
+
+{{{
+class ExampleService(sadi.Service):
+    label = "Hello, world"
+    serviceDescriptionText = 'A simple "Hello, World" service that reads a name and attaches a greeting.'
+    comment = 'A simple "Hello, World" service that reads a name and attaches a greeting.'
+    serviceNameText = "Hello, world (python)"
+    name = "example"
+
+    def getOrganization(self):
+        result = self.Organization()
+        result.add(RDFS.label,Literal("Example Organization"))
+        result.add(sadi.mygrid.authoritative, Literal(False))
+        result.add(sadi.dc.creator, URIRef('mailto:john.smith@example.com'))
+        return result
+
+    def getInputClass(self):
+        return hello.NamedIndividual
+
+    def getOutputClass(self):
+        return hello.GreetedIndividual
+
+    def process(self, input, output):
+        pass
+}}}
+
+Finally, in order to execute the service by itself, add a main method:
+
+{{{
+resource = ExampleService()
+
+if __name__ == "__main__":
+    sadi.serve(resource, port=9090)
+}}}
+
+This lets you run your service from the command line, which can help with testing.
+
+= Adding business logic =
+
+Your service is now ready for some business logic. This can go in the process() function. Turning a Named Individual into a GreetedIndividual is simple:
+
+{{{
+    def process(self, input, output):
+        output.set(hello.greeting, Literal("Hello, "+input.value(foaf.name).value))
+}}} 
+
+That's all we need to implement our SADI service! 
+
+= Running your service =
+
+In order to test your service, it must first be running. If you are working from the command line, execute the following command:
+
+{{{
+$ python example.py
+}}}
+
+Note: while your service is running, you will not be able to execute further commands in that terminal window.
+
+= Testing your service =
+
+In order to test your service, you need an input RDF document and the corresponding expected output. For our example, we will use the following RDF input, available at [http://sadiframework.org/test/hello-input.rdf].
+
+{{{
+<http://sadiframework.org/examples/hello-input.rdf#1>
+    <http://xmlns.com/foaf/0.1/name> "Guy Incognito";
+    a <http://sadiframework.org/examples/hello.owl#NamedIndividual>.
+}}}
+
+Save this input to a file called "exampleInput.ttl". Here is the corresponding expected output:
+
+{{{
+@prefix ns1: <http://sadiframework.org/examples/hello.owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://sadiframework.org/examples/hello-input.rdf#1> a ns1:GreetedIndividual ;
+    ns1:greeting "Hello, Guy Incognito" .
+}}}
+
+If you are working from the command line, execute the following curl command to test the service (remember that the SADI service is running in your original terminal, so you will have to open a new terminal and change to the sadi.service.skeleton directory):
+
+{{{
+$ curl -s -H Content-Type:text/turtle -H Accept:text/turtle  -X POST --data-binary @exampleInput.ttl http://localhost:9090/
+}}}
+
+_Note: if you are copying-and-pasting the above command, be sure that it all appears on one line._
+
+= Deploying and registering your service =
+
+The SADI service can be deployed to Apache using mod_wsgi using [https://code.google.com/p/modwsgi/wiki/QuickConfigurationGuide these instructions], or can be incorporated into other WSGI applications such as [http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/wsgi_support.html Pylons], [http://turbogears.org/2.1/docs/main/WSGIAppControllers.html Turbogears], or [http://ckan.org CKAN].
+
+Once your service has been deployed, you can register it by visiting [http://sadiframework.org/registry/] and submitting the URL of your service in the form on that page. If you wish to unregister your service later, simply undeploy it and resubmit the now invalid URL.
