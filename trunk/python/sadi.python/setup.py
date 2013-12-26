@@ -4,11 +4,11 @@ use_setuptools()
 from setuptools import setup, find_packages
 setup(
     name = "sadi",
-    version = "0.1.5",
-    packages = find_packages(exclude="example.py"),
+    version = "0.2",
+    packages = find_packages(exclude=['test.py',"example.py"]),
 
-    install_requires = ['rdflib>=3.0', 'surf', 'rdfextras', 'surf.rdflib'],
-
+    install_requires = ['rdflib>=4.0', 'rdfextras', 'webob'],
+    setup_requires=['nose>=1.0', 'nose-cov>=1.6','werkzeug'],
     # metadata for upload to PyPI
     author = "James McCusker",
     author_email = "mccusker@gmail.com",

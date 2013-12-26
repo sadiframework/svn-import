@@ -120,7 +120,7 @@ def best_match(supported, header):
     >>> best_match(['application/xbel+xml', 'text/xml'], 'text/*;q=0.5,*/*; q=0.1')
     'text/xml'
     """
-    parsed_header = [parse_media_range(r) for r in _filter_blank(header.split(","))]
+    parsed_header = [parse_media_range(r) for r in _filter_blank(str(header).split(","))]
     weighted_matches = []
     pos = 0
     for mime_type in supported:
