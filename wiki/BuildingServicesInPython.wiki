@@ -115,7 +115,7 @@ This lets you run your service from the command line, which can help with testin
 
 = Adding business logic =
 
-Your service is now ready for some business logic. This can go in the process() function. Turning a Named Individual into a GreetedIndividual is simple:
+Your service is now ready for some business logic. SADI in python uses the [https://rdflib.readthedocs.org/en/latest/apidocs/rdflib.html#module-rdflib.resource resource] module from [https://rdflib.readthedocs.org/en/latest/ rdflib], which acts very much like the Resource objects in Jena. Read the [http://rdflib.readthedocs.org/en/latest/apidocs/rdflib.html rdflib documentation] for further information about how to work with it. Business logic goes in the process() function. Turning a Named Individual into a GreetedIndividual is simple:
 
 {{{
     def process(self, input, output):
