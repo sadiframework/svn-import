@@ -145,10 +145,6 @@
                     }
                 })
             })
-            //d3.keys(shortcuts).forEach(function(shortcut) {
-	    //    if (!subject[shortcuts[shortcut]]) subject[shortcuts[shortcut]] = [];
-            //    subject[shortcut] = subject[shortcuts[shortcut]];
-            //});
         });
         return result;
     };
