@@ -172,7 +172,7 @@ The SADI service can be deployed to Apache using mod_wsgi using [https://code.go
 Once your service has been deployed, you can register it by visiting [http://sadiframework.org/registry/] and submitting the URL of your service in the form on that page. If you wish to unregister your service later, simply undeploy it and resubmit the now invalid URL.
 
 = Integrating your service into TurboGears 2.3 =
-TurboGears has some capabilities that allow for things like URL routing that make traditional WSGI applications unsuitable as controllers. Integrating a SADI service therefore requires a little bit of shim code to work. The main issue is that the request body seems to become unavailable by the time the service is actually called. We need to intercept that body before it goes away. To start, add the following line to the {{{_call_}}} method of the BaseController class in your project:
+[http://turbogears.org/ TurboGears] has some capabilities that allow for things like URL routing that make traditional WSGI applications unsuitable as controllers. Integrating a SADI service therefore requires a little bit of shim code to work. The main issue is that the request body seems to become unavailable by the time the service is actually called. We need to intercept that body before it goes away. To start, add the following line to the {{{_call_}}} method of the BaseController class in your project:
 
 {{{
 class BaseController(TGController):
@@ -199,6 +199,7 @@ def wsgi_wrap(fn):
 
 Finally, to add a SADI service to a TurboGears controller, instantiate it privately and call it via a controller method. If we could decorate callable classes, this would be even simpler, but this will work:
 
+{{{
 class MyController(BaseController):
     _example = ExampleService()
 
@@ -206,3 +207,4 @@ class MyController(BaseController):
     @wsgi_wrap
     def example(self,environ, start_response):
         return self._example(environ, start_response)
+}}}
