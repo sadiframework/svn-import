@@ -170,3 +170,39 @@ _Note: if you are copying-and-pasting the above command, be sure that it all app
 The SADI service can be deployed to Apache using mod_wsgi using [https://code.google.com/p/modwsgi/wiki/QuickConfigurationGuide these instructions], or can be incorporated into other WSGI applications such as [http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/wsgi_support.html Pylons], [http://turbogears.org/2.1/docs/main/WSGIAppControllers.html Turbogears], or [http://ckan.org CKAN].
 
 Once your service has been deployed, you can register it by visiting [http://sadiframework.org/registry/] and submitting the URL of your service in the form on that page. If you wish to unregister your service later, simply undeploy it and resubmit the now invalid URL.
+
+= Integrating your service into TurboGears 2.3 =
+TurboGears has some capabilities that allow for things like URL routing that make traditional WSGI applications unsuitable as controllers. Integrating a SADI service therefore requires a little bit of shim code to work. The main issue is that the request body seems to become unavailable by the time the service is actually called. We need to intercept that body before it goes away. To start, add the following line to the {{{_call_}}} method of the BaseController class in your project:
+
+{{{
+class BaseController(TGController):
+    def __call__(self, environ, start_response):
+        environ['request_body'] = start_response.request.body
+}}}
+
+The next step is to define a {{{wsgi_wrap}}} function that shims the service:
+
+{{{
+def wsgi_wrap(fn):
+    '''Decorate a WSGI application so that it can work within a TurboGears controller.'''
+    def call(self):
+        tglocals = request.environ['tg.locals']
+        def start_response(status, headers, exc_info=None):
+            response.status = status
+            response.headers.update(headers)
+            if exc_info:
+                response.headerlist = exc_info
+        tglocals.request.body = request.environ['request_body']
+        return fn(self,tglocals.request.environ, start_response)
+    return call
+}}}
+
+Finally, to add a SADI service to a TurboGears controller, instantiate it privately and call it via a controller method. If we could decorate callable classes, this would be even simpler, but this will work:
+
+class MyController(BaseController):
+    _example = ExampleService()
+
+    @expose()
+    @wsgi_wrap
+    def example(self,environ, start_response):
+        return self._example(environ, start_response)
