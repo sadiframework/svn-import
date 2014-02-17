@@ -5,6 +5,8 @@ import mimeparse
 import collections
 import sys
 from webob import Request
+from .utils import create_id
+from threading import Thread
 
 from serializers import *
 
@@ -38,6 +40,18 @@ class OntClass(Resource):
         for x in self.graph.subjects(RDF.type,self.identifier):
             yield Resource(self.graph,x)
 
+class HTTPError(Exception):
+    def __init__(self, status):
+        self.value = status
+    def __str__(self):
+        return repr(self.value)
+            
+class IncompleteError(Exception):
+    def __init__(self):
+        self.value = "302 Moved Temporarily"
+    def __str__(self):
+        return repr(self.value)
+            
 class Service:
     serviceDescription = None
 
@@ -46,6 +60,8 @@ class Service:
     serviceNameText = None
     label = None
     name = None
+    results = {}
+    active_tasks = {}
 
     def __init__(self):
         self.contentTypes = {
@@ -135,6 +151,12 @@ class Service:
         instances = InputClass.all()
         return instances
 
+    def makeOutputInstance(self,i):
+        outputGraph = Graph()
+        OutputClass = OntClass(outputGraph,self.getOutputClass())
+        o = OutputClass(i.identifier)
+        return o
+
     def processGraph(self,content, type):
         inputGraph = Graph()
         self.deserialize(inputGraph, content, type)
@@ -147,28 +169,73 @@ class Service:
             self.process(i, o)
         return outputGraph
 
+    def defer(self, i, task):
+        o = self.makeOutputInstance(i)
+        def fn():
+            self.async_process(i,o)
+            self.results[task] = o.graph
+            del self.active_tasks[task]
+        thread = Thread(target=fn)
+        thread.daemon = True
+        self.active_tasks[task] = thread
+        thread.start()
+
+    def result(self,task):
+        try:
+            return self.results[task]
+        except:
+            if task in self.active_tasks:
+                raise IncompleteError()
+        raise HTTPError('404 Not Found')
+
+    def process(self, i, o):
+        task = URIRef(self.request.url+"?task="+create_id())
+        self.defer(i, task)
+        o.add(RDFS.isDefinedBy,task)
+        self.status = '202 Accepted'
+
     def GET(self, environ, start_response):
-        modelGraph = self.getServiceDescription()
+        request = Request(environ,'utf-8')
         acceptType = self.getFormat(environ.get('HTTP_ACCEPT'))
         response_headers = [
             ('Content-type', acceptType[0]+'; charset=utf-8'),
             ('Access-Control-Allow-Origin','*')
         ]
-        status = '200 OK'
+        status = None
+        graph = None
+        if 'task' in request.params:
+            task = URIRef(request.url)
+            try:
+                graph = self.result(task)
+                status = '200 OK'
+            except IncompleteError:
+                status = '302 Moved Temporarily'
+                response_headers = [
+                    ('Pragma','sadi-please-wait = 5000'),
+                    ('Location',str(task))
+                ]
+        else:
+            graph = self.getServiceDescription()
+            status = '200 OK'
         start_response(status, response_headers)
-        return [self.serialize(modelGraph,acceptType[0])]
+        self.request = None
+        if graph != None:
+            return [self.serialize(graph,acceptType[0])]
+        else:
+            return []
 
     def POST(self, environ, start_response):
-        request = Request(environ,'utf-8')
-        status = '200 OK'
-        acceptType = self.getFormat(request.headers.get('Accept'))
+        self.request = Request(environ,'utf-8')
+        self.status = '200 OK'
+        acceptType = self.getFormat(self.request.headers.get('Accept'))
         response_headers = [
             ('Content-type', acceptType[0]+'; charset=utf-8'),
             ('Access-Control-Allow-Origin','*')
         ]
-        start_response(status, response_headers)
-        content = unicode(request.body,'utf-8')
-        graph = self.processGraph(content, request.headers['Content-Type'])
+        content = unicode(self.request.body,'utf-8')
+        graph = self.processGraph(content, self.request.headers['Content-Type'])
+        start_response(self.status, response_headers)
+        self.request = None
         return [self.serialize(graph,acceptType[0])]
 
     def __call__(self,environ,start_response):
@@ -185,7 +252,10 @@ class Service:
 def setup_test_client(app):
     from werkzeug.test import Client
     from werkzeug.wrappers import BaseResponse
-    c = Client(app,BaseResponse)
+    import werkzeug.wrappers
+    class Response(BaseResponse, werkzeug.wrappers.CommonResponseDescriptorsMixin):
+        pass 
+    c = Client(app,Response)
     return c
     
 def serve(resource,port):
@@ -196,3 +266,4 @@ def serve(resource,port):
 
     # Respond to requests until process is killed
     httpd.serve_forever()
+

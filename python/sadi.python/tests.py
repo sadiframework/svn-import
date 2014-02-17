@@ -1,8 +1,12 @@
 import sadi
 from sadi.serializers import JSONSerializer
 from rdflib import *
-from example import resource
+from example import resource, async_resource
 from io import StringIO
+import urlparse
+import time
+import traceback
+
 
 def no_accept_header_test():
     '''Test to make sure that SADI services will work even if the Accept header isn't included.'''
@@ -206,6 +210,15 @@ def curl_turtle_comment_test():
     print "Output graph has", len(g), "triples."
     assert len(g) > 0
 
+def make_relative(uri):
+    puri = urlparse.urlsplit(uri)
+    result = puri.path
+    if len(puri.query) > 0:
+        result += "?"+puri.query
+    if len(puri.fragment) > 0:
+        result += "#"+ puri.fragment
+    return result
+
 def wrong_curl_turtle_comment_test():
     '''How NOT to test a SADI service using cURL. Use --data-binary instead of -d, which strips newlines.'''
     from wsgiref.simple_server import make_server
@@ -226,3 +239,54 @@ def wrong_curl_turtle_comment_test():
     g.parse(StringIO(unicode(data)),format='turtle')
     print "Output graph has", len(g), "triples."
     assert len(g) == 0
+
+def get_pragmas(response):
+    p = response.headers['Pragma']
+    p = p.split('\n')
+    p = dict([tuple([x.strip() for x in line.split('=')]) for line in p])
+    return p
+
+def async_service_test():
+    '''Basic test of using an asynchronous SADI service.'''
+    testInput = unicode('''<http://tw.rpi.edu/instances/JamesMcCusker> <http://xmlns.com/foaf/0.1/name> "Jim McCusker";
+     a <http://sadiframework.org/examples/hello.owl#NamedIndividual>. ''')
+    c = sadi.setup_test_client(async_resource)
+    resp = c.post('/',data=testInput, headers={'Content-Type':'text/turtle','Accept':'*/*'})
+    assert resp.status_code == 202
+    g = Graph()
+    g.parse(StringIO(unicode(resp.data)),format="turtle")
+    jim = URIRef('http://tw.rpi.edu/instances/JamesMcCusker')
+    idb = [x for x in g[jim:RDFS.isDefinedBy]]
+    assert len(idb) == 1
+    idb = idb[0]
+    notDone = True
+    while notDone:
+        idb = make_relative(idb)
+        print idb
+        resp = c.get(idb,headers={'Accept':'text/turtle'})
+        if resp.status_code == 302:
+            location = resp.headers['Location']
+            try:
+                loc = URIRef(location)
+                idb = loc
+            except:
+                assert False
+            try:
+                pragma = get_pragmas(resp)
+                wait = int(pragma['sadi-please-wait'])
+                time.sleep(wait/1000.0)
+            except:
+                print traceback.print_exc()
+                assert False
+        elif resp.status_code == 200:
+            notDone = False
+        else:
+            raise Exception(str(resp))
+    assert resp.status_code == 200
+    g = Graph()
+    g.parse(StringIO(unicode(resp.data)),format="turtle")
+    assert len(g) > 0
+    jim = URIRef('http://tw.rpi.edu/instances/JamesMcCusker')
+    triples = [x for x in g[jim]]
+    assert len(triples) > 0
+    print g.serialize(format="turtle")
