@@ -7,6 +7,8 @@ import sys
 from webob import Request
 from .utils import create_id
 from threading import Thread
+import urllib2
+from werkzeug.wrappers import BaseResponse as Response
 
 from serializers import *
 
@@ -51,7 +53,23 @@ class IncompleteError(Exception):
         self.value = "302 Moved Temporarily"
     def __str__(self):
         return repr(self.value)
-            
+
+class SADIGraph(Graph):
+    attachments = {}
+
+    def get(self, uri):
+        try:
+            message = self.attachments[str(uri)]
+            data = message.get_payload(decode=True)
+            mimetype = message.get_content_type()
+            return Response(data,mimetype=mimetype)
+        except:
+            response = urllib2.urlopen(str(uri))
+            info = response.info()
+            data = response.read()
+            mimetype = info.getheader("Content-Type")
+            return Response(data,mimetype=mimetype)
+    
 class Service:
     serviceDescription = None
 
@@ -62,12 +80,15 @@ class Service:
     name = None
     results = {}
     active_tasks = {}
+    attachments = {}
 
     def __init__(self):
-        self.contentTypes = {
+        self.contentTypes = {}
+        self.contentTypes.update({
             None:DefaultSerializer('xml'),
             "application/rdf+xml":DefaultSerializer('xml'),
             "text/rdf":DefaultSerializer('xml'),
+            'multipart/related': MultipartSerializer(self.contentTypes),
             'application/x-www-form-urlencoded':DefaultSerializer('xml'),
             'text/turtle':DefaultSerializer('n3','turtle'),
             'application/x-turtle':DefaultSerializer('n3','turtle'),
@@ -75,7 +96,8 @@ class Service:
             'text/n3':DefaultSerializer('n3'),
             'text/html':DefaultSerializer('rdfa','xml'),
             'application/json':JSONSerializer(),
-            }
+            })
+        #self.contentTypes['multipart/related'] = MultipartSerializer(self.contentTypes)
 
 
     def getFormat(self, contentType):
@@ -90,11 +112,14 @@ class Service:
 
     def deserialize(self, graph, content, mimetype):
         f = self.getFormat(mimetype)
-        f[1].deserialize(graph,content)
+        f[1].deserialize(graph,content,mimetype)
 
     def serialize(self, graph, accept):
         f = self.getFormat(accept)
         return f[1].serialize(graph)
+
+    def get(self, uri, i):
+        return i.graph.get(uri)
 
     def annotateServiceDescription(self, desc):
         pass
@@ -158,7 +183,7 @@ class Service:
         return o
 
     def processGraph(self,content, type):
-        inputGraph = Graph()
+        inputGraph = SADIGraph()
         self.deserialize(inputGraph, content, type)
         outputGraph = Graph()
         OutputClass = OntClass(outputGraph,self.getOutputClass())

@@ -1,5 +1,6 @@
 import uuid
 import string
+import email
 
 ALPHABET = string.ascii_uppercase + string.ascii_lowercase + \
            string.digits
