@@ -3,6 +3,7 @@ import json
 import rdflib
 import mimeparse
 import collections
+import email
 from io import StringIO, BytesIO
 from xml.sax.xmlreader import InputSource
 
@@ -37,7 +38,7 @@ class DefaultSerializer:
     def serialize(self,graph):
         self.bindPrefixes(graph)
         return graph.serialize(format=self.outputFormat,encoding='utf-8')
-    def deserialize(self,graph, content):
+    def deserialize(self,graph, content,mimetype):
         if type(content) == str or type(content) == unicode:
             #if self.inputFormat == 'xml':
             #    inputSource = InputSource()
@@ -49,6 +50,38 @@ class DefaultSerializer:
         else:
             graph.parse(content,format=self.inputFormat)
 
+class MultipartSerializer:
+    def __init__(self,serializers):
+        self.serializers = serializers
+    def deserialize(self,graph,content,mimetype):
+        if type(content) == str or type(content) == unicode:
+            msg = email.message_from_string("Content-Type:"+mimetype+"\n"+content)
+        else:
+            msg = email.message_from_string("Content-Type:"+mimetype+"\n"+content.read())
+        named_parts = {}
+        unnamed_parts = []
+        for part in msg.walk():
+            if part.is_multipart():
+                continue
+            filename = part.get_filename(None)
+            if filename:
+                named_parts[filename] = part
+            else:
+                unnamed_parts.append(part)
+        rdf = [part for part in unnamed_parts if part.get_content_type() in self.serializers]
+        if len(rdf) == 0:
+            raise Exception("SADI With Attachments requires one unnamed RDF part.")
+        print '\n'.join([str(x) for x in rdf])
+        print '\n'.join([str(x) for x in named_parts.values()])
+        rdf_content = rdf[0].get_payload()
+        print "using this RDF content:"
+        print rdf_content
+        ser = self.serializers[rdf[0].get_content_type()]
+        ser.deserialize(graph, unicode(rdf_content), rdf[0].get_content_type())
+        graph.attachments.update(named_parts)
+    def serialize(self,graph):
+        raise Exception("Multipart serialization is unsupported")
+            
 class JSONSerializer:
     def serialize(self,graph):
 
@@ -91,7 +124,7 @@ class JSONSerializer:
             result = URIRef(r)
         return result
 
-    def deserialize(self,graph, content):
+    def deserialize(self,graph, content,mimetype):
         #if type(content) != str:
         #    graph.parse(StringIO(content,newline=None),format=f)
         #else:

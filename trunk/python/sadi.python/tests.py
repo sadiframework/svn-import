@@ -77,7 +77,7 @@ def json_descriptor_test():
     g = Graph()
     print resp.data
     s = JSONSerializer()
-    s.deserialize(g,resp.data)
+    s.deserialize(g,resp.data,"application/json")
     assert len(g) > 0
     
 def oddball_accept_service_test():
@@ -185,7 +185,7 @@ def service_JSON_accept_content_type_test():
     g = Graph()
     print resp.data
     s = JSONSerializer()
-    s.deserialize(g,resp.data)
+    s.deserialize(g,resp.data,"application/json")
     assert len(g) > 0
     
 
@@ -290,3 +290,65 @@ def async_service_test():
     triples = [x for x in g[jim]]
     assert len(triples) > 0
     print g.serialize(format="turtle")
+
+prov = Namespace("http://www.w3.org/ns/prov#")
+hello=Namespace("http://sadiframework.org/examples/hello.owl#")
+
+class ValueateService(sadi.Service):
+    label = "Valueate"
+    serviceDescriptionText = 'Pulls in text via attachment or HTTP and adds it to a prov:value statement.'
+    comment = 'Pulls in text via attachment or HTTP and adds it to a prov:value statement.'
+    serviceNameText = "Valueate"
+    name = "valueate"
+
+    def getOrganization(self):
+        result = self.Organization()
+        result.add(RDFS.label,Literal("Tetherless World Constellation, RPI"))
+        result.add(sadi.mygrid.authoritative, Literal(False))
+        result.add(sadi.dc.creator, URIRef('mailto:mccusker@gmail.com'))
+        return result
+
+    def getInputClass(self):
+        return OWL.Thing
+
+    def getOutputClass(self):
+        return hello.ValuedThing
+
+    def process(self, i, o):
+        response = self.get(i.identifier,i)
+        data = response.get_data(as_text=True)
+        o.set(prov.value, Literal(data))
+
+valuator = ValueateService()
+
+def service_get_no_attachment_test():
+    '''Test of a SADI service that GETs data from the web.'''
+    testInput = unicode('''<http://www.google.com> a <http://www.w3.org/2002/07/owl#Thing>. ''')
+    c = sadi.setup_test_client(valuator)
+    resp = c.post('/',data=testInput, headers={'Content-Type':'text/turtle','Accept':'*/*'})
+    assert resp.status_code == 200
+    g = Graph()
+    print resp.data
+    g.parse(StringIO(unicode(resp.data)),format="turtle")
+    assert len(g) > 0
+
+def service_get_attachment_test():
+    '''Test of a SADI service that GETs data from an attachment.'''
+    testInput = unicode('''--gc0p4Jq0M2Yt08jU534c0p
+Content-Type: text/turtle
+
+<http://www.google.com> a <http://www.w3.org/2002/07/owl#Thing>. 
+--gc0p4Jq0M2Yt08jU534c0p
+Content-Type:text/html
+Content-Disposition: attachment; filename="http://www.google.com"
+
+<html><head><title>Welcome to Google.</title></head><body><h1>Hello, World!</h1></body></html>''')
+    c = sadi.setup_test_client(valuator)
+    resp = c.post('/',data=testInput, headers={'Content-Type':'multipart/related; boundary=gc0p4Jq0M2Yt08jU534c0p',
+                                               'Accept':'*/*'})
+    assert resp.status_code == 200
+    g = Graph()
+    print resp.data
+    assert '<html><head><title>Welcome to Google.</title></head><body><h1>Hello, World!</h1></body></html>' in resp.data
+    g.parse(StringIO(unicode(resp.data)),format="turtle")
+    assert len(g) > 0
