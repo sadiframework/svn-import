@@ -165,6 +165,50 @@ $ curl -s -H Content-Type:text/turtle -H Accept:text/turtle  -X POST --data-bina
 
 _Note: if you are copying-and-pasting the above command, be sure that it all appears on one line._
 
+
+= Writing Asynchronous SADI Services =
+
+There are two ways to write an asynchronous SADI service: the easy way or the hard way. The easy way provides an execution thread for each instance that is submitted. It does nothing fancy with thread pooling (yet), but provides a simple interface that looks just like a synchronous SADI service. The hard way provides a different interface, but provides more control over how the service is executed, allowing implementers to write the request to secondary submission services (like a message queueing system or workflow submission system) and check for status when the user asks for it.
+
+== Asynchronous SADI Services the Easy Way ==
+
+Instead of implementing the `process()` function, instead implement the `async_process()` function:
+
+{{{
+    def async_process(self, input, output):
+        output.set(hello.greeting, Literal("Hello, "+input.value(foaf.name).value))
+}}} 
+
+That's it. You now have an asynchronous SADI service. Do not attempt to also override the `process()` function as well, as that will short-circuit the asynchronous functionality.
+
+== Asynchronous SADI Services the Hard Way ==
+
+To do more advanced handling of asynchronous requests, you will need to write two methods: `defer()` and `result()`:
+
+{{{
+    def defer(self, input, task):
+        submit_to_external_processor(input,task)
+
+    def result(self, task):
+        try:
+            graph = check_external_processor(task)
+            return graph
+            if graph == None:
+                raise sadi.IncompleteError()
+        except:
+            raise sadi.HTTPError('404 Not Found')
+}}}
+
+`defer()` accepts a task and passes it on to whatever mechanism it uses. The input data is available, as before, via the input resource, while a URI for the task (the actual URL that the client will access the results from) should be used to identify the task in the future. When a user asks for the status of a task, they will use that URI to identify it. `result()` is called whenever the user asks for the result of processing. If the task is complete, return a RDFlib Graph object that contains the result. If it is not, raise a `sadi.IncompleteError`. If the task is unheard of, then raise a 404 Not Found error using `sadi.HTTPError`.
+
+= SADI Attachment Support =
+
+SADI in Python supports the inclusion of attachments using the [http://tools.ietf.org/html/rfc2387 multipart/related Content Type]. To submit data with attachments, the Content-Type header must be set to "multipart/related" and include a boundry parameter. The first unnamed part that is has a parseable RDF content type will be treated as the input graph. All named attachments that have a content disposition that contains a valid URI will be available for access via the `sadi.Service.get()` function.
+
+Services that call `self.get("http://example.com/#",input)` or pass a `rdflib.URIRef` object will get back a [http://werkzeug.pocoo.org/docs/wrappers/#werkzeug.wrappers.Response werkzeug.wrappers.Response] object containing the requested content from the attachment. If there is no attachment for the requested URI, the URI will be treated as a URL and a download attempt will be made using [http://docs.python.org/2/library/urllib2.html urllib2]. 
+
+*Technical Note:* the input object must be passed to `sadi.Service.get()` in order to provide access to its underlying graph, which in our implementation, include references to all named attachments. This is to keep SADI service implementations re-entrant, so that more than one request can be processed concurrently.
+
 = Deploying and registering your service =
 
 The SADI service can be deployed to Apache using mod_wsgi using [https://code.google.com/p/modwsgi/wiki/QuickConfigurationGuide these instructions], or can be incorporated into other WSGI applications such as [http://docs.pylonsproject.org/projects/pylons-webframework/en/latest/wsgi_support.html Pylons], [http://turbogears.org/2.1/docs/main/WSGIAppControllers.html Turbogears], or [http://ckan.org CKAN].
@@ -209,45 +253,11 @@ class MyController(BaseController):
         return self._example(environ, start_response)
 }}}
 
-= Writing Asynchronous SADI Services =
-
-There are two ways to write an asynchronous SADI service: the easy way or the hard way. The easy way provides an execution thread for each instance that is submitted. It does nothing fancy with thread pooling (yet), but provides a simple interface that looks just like a synchronous SADI service. The hard way provides a different interface, but provides more control over how the service is executed, allowing implementers to write the request to secondary submission services (like a message queueing system or workflow submission system) and check for status when the user asks for it.
-
-== Asynchronous SADI Services the Easy Way ==
-
-Instead of implementing the `process()` function, instead implement the `async_process()` function:
+= Integrating your service into Flask =
+[http://flask.pocoo.org/ Flask] is a very simple python microframework that punches well above its weight. It is much simpler to integrate SADI services into Flask, as it supports easy integration with all WSGI services. If you have implemented the example in the tutorial and instantiated it at `resource` and have instantiated a Flask application at `app`, you can route the path `/example` to the service like this:
 
 {{{
-    def async_process(self, input, output):
-        output.set(hello.greeting, Literal("Hello, "+input.value(foaf.name).value))
-}}} 
-
-That's it. You now have an asynchronous SADI service. Do not attempt to also override the `process()` function as well, as that will short-circuit the asynchronous functionality.
-
-== Asynchronous SADI Services the Hard Way ==
-
-To do more advanced handling of asynchronous requests, you will need to write two methods: `defer()` and `result()`:
-
-{{{
-    def defer(self, input, task):
-        submit_to_external_processor(input,task)
-
-    def result(self, task):
-        try:
-            graph = check_external_processor(task)
-            return graph
-            if graph == None:
-                raise sadi.IncompleteError()
-        except:
-            raise sadi.HTTPError('404 Not Found')
+@app.route("/example",methods=['POST','GET'])
+def example():
+    return resource
 }}}
-
-{defer()} accepts a task and passes it on to whatever mechanism it uses. The input data is available, as before, via the input resource, while a URI for the task (the actual URL that the client will access the results from) should be used to identify the task in the future. When a user asks for the status of a task, they will use that URI to identify it. `result()` is called whenever the user asks for the result of processing. If the task is complete, return a RDFlib Graph object that contains the result. If it is not, raise a `sadi.IncompleteError`. If the task is unheard of, then raise a 404 Not Found error using `sadi.HTTPError`.
-
-= SADI Attachment Support =
-
-SADI in Python supports the inclusion of attachments using the [http://tools.ietf.org/html/rfc2387 multipart/related Content Type]. To submit data with attachments, the Content-Type header must be set to "multipart/related" and include a boundry parameter. The first unnamed part that is has a parseable RDF content type will be treated as the input graph. All named attachments that have a content disposition that contains a valid URI will be available for access via the `sadi.Service.get()` function.
-
-Services that call `self.get("http://example.com/#",input)` or pass a `rdflib.URIRef` object will get back a [http://werkzeug.pocoo.org/docs/wrappers/#werkzeug.wrappers.Response werkzeug.wrappers.Response] object containing the requested content from the attachment. If there is no attachment for the requested URI, the URI will be treated as a URL and a download attempt will be made using [http://docs.python.org/2/library/urllib2.html urllib2]. 
-
-*Technical Note:* the input object must be passed to `sadi.Service.get()` in order to provide access to its underlying graph, which in our implementation, include references to all named attachments. This is to keep SADI service implementations re-entrant, so that more than one request can be processed concurrently.
