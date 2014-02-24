@@ -124,7 +124,7 @@
         var result = {}
         var graph = this;
         $.each(data, function(uri, s) {
-            console.log("Loading",uri);
+            //console.log("Loading",uri);
             var subject = graph.getResource(uri);
             result[uri] = subject;
             $.each(s, function(predicate, objects) {
