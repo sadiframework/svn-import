@@ -192,11 +192,11 @@ To do more advanced handling of asynchronous requests, you will need to write tw
     def result(self, task):
         try:
             graph = check_external_processor(task)
-            if graph == None:
-                raise sadi.IncompleteError()
-            return graph
         except:
             raise sadi.HTTPError('404 Not Found')
+        if graph == None:
+            raise sadi.IncompleteError()
+        return graph
 }}}
 
 `defer()` accepts a task and passes it on to whatever mechanism it uses. The input data is available, as before, via the input resource, while a URI for the task (the actual URL that the client will access the results from) should be used to identify the task in the future. When a user asks for the status of a task, they will use that URI to identify it. `result()` is called whenever the user asks for the result of processing. If the task is complete, return a RDFlib Graph object that contains the result. If it is not, raise a `sadi.IncompleteError`. If the task is unheard of, then raise a 404 Not Found error using `sadi.HTTPError`.
