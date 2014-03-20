@@ -42,13 +42,17 @@
 	graph.resources.push(uri);
     };
     $.BNode = function(id,graph) {
-        this.id = id;
+        this.uri = id;
         this.graph = graph;
         graph[id] = this;
 	graph.resources.push(id);
     };
     $.Graph.prototype.getResource = function(uri, type) {
         //console.log(uri, type);
+        if (!uri) {
+            type = "bnode";
+            uri = "_:node"+graph.length;
+        }
         if (!type) {
             if (uri.indexOf("_:") == 0) type = "bnode";
             else type = "uri";
