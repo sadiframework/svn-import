@@ -1,12 +1,12 @@
 import sadi
-from sadi.serializers import JSONSerializer
+from sadi.serializers import JSONSerializer, RDFaSerializer
 from rdflib import *
 from example import resource, async_resource
 from io import StringIO
 import urlparse
 import time
 import traceback
-
+import frir
 
 def no_accept_header_test():
     '''Test to make sure that SADI services will work even if the Accept header isn't included.'''
@@ -352,3 +352,177 @@ Content-Disposition: attachment; filename="http://www.google.com"
     assert '<html><head><title>Welcome to Google.</title></head><body><h1>Hello, World!</h1></body></html>' in resp.data
     g.parse(StringIO(unicode(resp.data)),format="turtle")
     assert len(g) > 0
+
+def ontclass_individual_test():
+    g = Graph()
+    prov = Namespace("http://www.w3.org/ns/prov#")
+    Agent = sadi.OntClass(g,prov.Agent)
+    # make a blank node
+    bob = Agent()
+    # Types should be set automatically.
+    assert Agent in [x for x in bob[RDF.type]]
+
+def get_digest_value(rdf,mimetype):
+    gd = frir.RDFGraphDigest()
+    graph, item = gd.fstack(StringIO(rdf),mimetype=mimetype)
+    graphDigests = list(graph[:RDF.type:URIRef("http://purl.org/twc/ontology/frir.owl#RDFGraphDigest")])
+    assert len(graphDigests) > 0
+    assert len(list(graph[:RDF.type:URIRef("http://purl.org/twc/ontology/frir.owl#TabularDigest")])) == 0
+    digestValue = list(graph[graphDigests[0]:URIRef("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#hashValue"):])[0]
+    return digestValue.value
+
+def frir_test():
+    '''Test of FRIR identifiers against different RDF serializations against reference turtle serialization.'''
+    testInputs = [
+    unicode('''<http://tw.rpi.edu/instances/JamesMcCusker> <http://xmlns.com/foaf/0.1/name> "Jim McCusker";
+     a <http://sadiframework.org/examples/hello.owl#NamedIndividual>. '''),
+    unicode('''<http://tw.rpi.edu/instances/JamesMcCusker> <http://xmlns.com/foaf/0.1/name> "Jim McCusker";
+     a <http://sadiframework.org/examples/hello.owl#NamedIndividual>;
+     <http://purl.org/dc/terms/authorOf> [
+       <http://purl.org/dc/terms/title> "Some Blog Post";
+     ].'''),
+    unicode('''@prefix : <http://example.org/ns#> .
+     <http://example.org> :rel
+         <http://example.org/same>,
+         [ :label "Same" ],
+         <http://example.org/a>,
+         [ :label "A" ] .''')
+    ]
+
+    def fn(rdf, mimetype, f):
+        ttlDigest = get_digest_value(rdf,"text/turtle")
+
+        testInputGraph = Graph()
+        testInputGraph.parse(StringIO(rdf),format="turtle")
+        testInputOther = unicode(testInputGraph.serialize(format=f))
+        digest = get_digest_value(testInputOther,mimetype)
+        print rdf
+        print f, ttlDigest, digest
+        assert ttlDigest == digest
+
+    for rdf in testInputs:
+        for mimetype, f, of in supported_mimetypes:
+            yield fn, rdf, mimetype, f
+
+def negative_graph_match_test():
+    '''Test of FRIR identifiers against tricky RDF graphs with blank nodes.'''
+    testInputs = [
+    [ unicode('''@prefix : <http://example.org/ns#> .
+     <http://example.org> :rel
+         [ :label "Same" ].
+         '''),
+    unicode('''@prefix : <http://example.org/ns#> .
+     <http://example.org> :rel
+         [ :label "Same" ],
+         [ :label "Same" ].
+         '''),
+    False
+    ],
+    [ unicode('''@prefix : <http://example.org/ns#> .
+     <http://example.org> :rel
+         <http://example.org/a>.
+         '''),
+    unicode('''@prefix : <http://example.org/ns#> .
+     <http://example.org> :rel
+         <http://example.org/a>,
+         <http://example.org/a>.
+         '''),
+    True
+    ],
+    [ unicode('''@prefix : <http://example.org/ns#> .
+     _:a :rel [
+         :rel [
+         :rel [
+         :rel [
+           :rel _:a;
+          ];
+          ];
+          ];
+          ].'''),
+    unicode('''@prefix : <http://example.org/ns#> .
+     _:a :rel [
+         :rel [
+         :rel [
+         :rel [
+         :rel [
+           :rel _:a;
+          ];
+          ];
+          ];
+          ];
+          ].'''),
+    False
+    ],
+    # This test fails because the algorithm purposefully breaks the symmetry of symetric 
+    [ unicode('''@prefix : <http://example.org/ns#> .
+     _:a :rel [
+         :rel [
+         :rel [
+         :rel [
+           :rel _:a;
+          ];
+          ];
+          ];
+          ].'''),
+    unicode('''@prefix : <http://example.org/ns#> .
+     _:a :rel [
+         :rel [
+         :rel [
+         :rel [
+           :rel _:a;
+          ];
+          ];
+          ];
+          ].'''),
+    True
+    ],
+    [ unicode('''@prefix : <http://example.org/ns#> .
+     _:a :rel [
+         :rel [
+         :label "foo";
+         :rel [
+         :rel [
+           :rel _:a;
+          ];
+          ];
+          ];
+          ].'''),
+    unicode('''@prefix : <http://example.org/ns#> .
+     _:a :rel [
+         :rel [
+         :rel [
+         :rel [
+           :rel _:a;
+          ];
+          ];
+          ];
+          ].'''),
+    False
+    ],
+    ]
+    def fn(rdf1, rdf2, identical):
+        digest1 = get_digest_value(rdf1,"text/turtle")
+        digest2 = get_digest_value(rdf2,"text/turtle")
+        assert (digest1 == digest2) == identical
+    for inputs in testInputs:
+        yield fn, inputs[0], inputs[1], inputs[2]
+
+def ontclass_list_all_instances_test():
+    g = Graph()
+    prov = Namespace("http://www.w3.org/ns/prov#")
+    Agent = sadi.OntClass(g,prov.Agent)
+    a1 = Agent()
+    a2 = Agent(URIRef('http://example.com/me'))
+    agents = list(Agent.all())
+    assert len(agents) == 2
+    assert a1 in agents
+    assert a2 in agents
+
+def rdfa_parser_test():
+    parser = RDFaSerializer()
+    graph = Graph()
+    import urllib
+    doc = urllib.urlopen('http://www.3kbo.com/examples/rdfa/simple.html').read()
+    parser.deserialize(graph,doc,'text/html')
+    print graph.serialize(format="turtle")
+    assert len(graph) > 10
