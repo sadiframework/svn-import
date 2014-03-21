@@ -126,7 +126,7 @@ def getFormat(contentType):
     if type == '' or type == None: 
         return ["application/rdf+xml",DefaultSerializer('xml')]
     else:
-        return [type,self.contentTypes[type]]
+        return [type,contentTypes[type]]
 
 def deserialize(graph, content, mimetype):
     f = getFormat(mimetype)
