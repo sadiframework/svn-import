@@ -6,6 +6,7 @@ import collections
 import email
 from io import StringIO, BytesIO
 from xml.sax.xmlreader import InputSource
+from tidylib import tidy_document
 
 import sys
 
@@ -22,6 +23,27 @@ def setDefaultEncoding():
     sys.stderr = currentStdErr
 
 setDefaultEncoding()
+
+frir = Namespace("http://purl.org/twc/ontology/frir.owl#")
+
+class CSVSerializer:
+    def __init__(self,delimiter=","):
+        self.delimiter = delimiter
+    def serialize(self,graph):
+        return None # Not implemented
+    def deserialize(self, graph, content):
+        reader = csv.reader(StringIO(content),delimiter=self.delimiter)
+        rowNum = 1
+        for row in reader:
+            rowURI = URIRef('row:'+str(rowNum))
+            colNum = 1
+            for value in row:
+                colURI = URIRef('column:'+str(colNum))
+                #if len(value) > 0:
+                graph.add((rowURI,colURI,Literal(value)))
+                colNum += 1
+            rowNum += 1
+        return frir.TabularDigest
 
 class DefaultSerializer:
     def __init__(self,inputFormat,outputFormat=None):
@@ -49,6 +71,17 @@ class DefaultSerializer:
             graph.parse(StringIO(content),format=self.inputFormat)
         else:
             graph.parse(content,format=self.inputFormat)
+        return frir.RDFGraphDigest
+
+class RDFaSerializer(DefaultSerializer):
+    def __init__(self):
+        DefaultSerializer.__init__(self,'rdfa','xml')
+    def deserialize(self,graph,content,mimetype):
+        print "Time to Tidy RDFa!!!"
+        document, errors = tidy_document(unicode(content),options={"numeric-entities":1})
+        if len(errors) > 0:
+            print errors
+        DefaultSerializer.deserialize(self,graph,document,mimetype)
 
 class MultipartSerializer:
     def __init__(self,serializers):
@@ -79,6 +112,7 @@ class MultipartSerializer:
         ser = self.serializers[rdf[0].get_content_type()]
         ser.deserialize(graph, unicode(rdf_content), rdf[0].get_content_type())
         graph.attachments.update(named_parts)
+        return frir.RDFGraphDigest
     def serialize(self,graph):
         raise Exception("Multipart serialization is unsupported")
             
@@ -156,3 +190,4 @@ class JSONSerializer:
                     else:
                         obj = self.getResource(o['value'],bnodes)
                     graph.add((subject, predicate, obj))
+        return frir.RDFGraphDigest

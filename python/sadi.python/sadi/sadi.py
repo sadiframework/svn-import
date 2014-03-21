@@ -25,8 +25,38 @@ mygrid = Namespace("http://www.mygrid.org.uk/mygrid-moby-service#")
 # Install required libraries using easy_install:
 # sudo easy_install 'rdflib>=3.0' surf rdfextras surf.rdflib
 
+class Individual(Resource):
+    class item():
+        def __init__(self, subject, predicate):
+            self._subject = subject
+            self._predicate = predicate
+        def __iter__(self):
+            for o in self._subject.objects(self._predicate):
+                if isinstance(o,Literal): yield o.value
+                else: yield o
+        def remove(self,o):
+            if not isinstance(o,rdflib.term.Identifier) and isinstance(o,Literal):
+                o = Literal(o)
+            self._subject.remove(self._predicate,o)
+        def append(self,o):
+            if not isinstance(o,rdflib.term.Identifier) and not isinstance(o,Literal):
+                o = Literal(o)
+            self._subject.add(self._predicate,o)
+        # def __iadd__(self, l):
+        #     for o in l:
+        #         self.append(o)
+        # def __isub__(self, l):
+        #     for o in l:
+        #         self.remove(o)
+    # def __getitem__(self, predicate):
+    #     return self.item(self,predicate)
+    # def __setitem__(self, predicate, o):
+    #     if not isinstance(o,rdflib.term.Identifier) and not isinstance(o,Literal):
+    #         o = Literal(o)
+    #     self.set(predicate,o)
+
 class OntClass(Resource):
-    def __init__(self,graph, identifier):
+    def __init__(self,graph, identifier=None):
         if isinstance(identifier, basestring):
             identifier = URIRef(identifier)
         Resource.__init__(self,graph,identifier)
@@ -39,7 +69,7 @@ class OntClass(Resource):
         result.add(RDF.type,self.identifier)
         return result
     def all(self):
-        for x in self.graph.subjects(RDF.type,self.identifier):
+        for x in self.graph[:RDF.type:self.identifier]:
             yield Resource(self.graph,x)
 
 class HTTPError(Exception):
@@ -69,7 +99,43 @@ class SADIGraph(Graph):
             data = response.read()
             mimetype = info.getheader("Content-Type")
             return Response(data,mimetype=mimetype)
-    
+
+contentTypes = {}
+contentTypes.update({
+            None:DefaultSerializer('xml'),
+            "application/rdf+xml":DefaultSerializer('xml'),
+            "text/rdf":DefaultSerializer('xml'),
+            'multipart/related': MultipartSerializer(contentTypes),
+            'application/x-www-form-urlencoded':DefaultSerializer('xml'),
+            'text/turtle':DefaultSerializer('n3','turtle'),
+            'application/x-turtle':DefaultSerializer('n3','turtle'),
+            'text/plain':DefaultSerializer('nt'),
+            'text/n3':DefaultSerializer('n3'),
+            'text/html':RDFaSerializer(),
+            'application/json':JSONSerializer(),
+            'text/csv':CSVSerializer(','),
+            'text/comma-separated-values':CSVSerializer(','),
+            'text/tab-separated-values':CSVSerializer('\t'),
+    })
+
+def getFormat(contentType):
+    if contentType == None:
+        return [ "application/rdf+xml",contentTypes[None]]
+    type = mimeparse.best_match(["application/rdf+xml"]+[x for x in contentTypes.keys() if x != None],
+                                contentType)
+    if type == '' or type == None: 
+        return ["application/rdf+xml",DefaultSerializer('xml')]
+    else:
+        return [type,self.contentTypes[type]]
+
+def deserialize(graph, content, mimetype):
+    f = getFormat(mimetype)
+    f[1].deserialize(graph,content,mimetype)
+
+def serialize(graph, accept):
+    f = getFormat(accept)
+    return f[1].serialize(graph)
+
 class Service:
     serviceDescription = None
 
@@ -83,40 +149,18 @@ class Service:
     attachments = {}
 
     def __init__(self):
-        self.contentTypes = {}
-        self.contentTypes.update({
-            None:DefaultSerializer('xml'),
-            "application/rdf+xml":DefaultSerializer('xml'),
-            "text/rdf":DefaultSerializer('xml'),
-            'multipart/related': MultipartSerializer(self.contentTypes),
-            'application/x-www-form-urlencoded':DefaultSerializer('xml'),
-            'text/turtle':DefaultSerializer('n3','turtle'),
-            'application/x-turtle':DefaultSerializer('n3','turtle'),
-            'text/plain':DefaultSerializer('nt'),
-            'text/n3':DefaultSerializer('n3'),
-            'text/html':DefaultSerializer('rdfa','xml'),
-            'application/json':JSONSerializer(),
-            })
+        self.contentTypes = contentTypes
         #self.contentTypes['multipart/related'] = MultipartSerializer(self.contentTypes)
 
 
     def getFormat(self, contentType):
-        if contentType == None:
-            return [ "application/rdf+xml",self.contentTypes[None]]
-        type = mimeparse.best_match(["application/rdf+xml"]+[x for x in self.contentTypes.keys() if x != None],
-                                    contentType)
-        if type == '' or type == None: 
-            return ["application/rdf+xml",DefaultSerializer('xml')]
-        else:
-            return [type,self.contentTypes[type]]
+        return getFormat(contentType)
 
     def deserialize(self, graph, content, mimetype):
-        f = self.getFormat(mimetype)
-        f[1].deserialize(graph,content,mimetype)
+        deserialize(graph,content,mimetype)
 
     def serialize(self, graph, accept):
-        f = self.getFormat(accept)
-        return f[1].serialize(graph)
+        return serialize(graph, accept)
 
     def get(self, uri, i):
         return i.graph.get(uri)
