@@ -34,18 +34,22 @@
     $.Graph = function() {
         //this.endpoint = endpoint;
         this.resources = [];
+        this.rdf = $.Namespace("http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+        this.rdfs = $.Namespace("http://www.w3.org/2000/01/rdf-schema#");
+        this.owl = $.Namespace("http://www.w3.org/2002/07/owl#");
+        this.xsd = $.Namespace("http://www.w3.org/2001/XMLSchema#");
     }
     $.Resource = function(uri,graph) {
         this.uri = uri;
         this.graph = graph;
         graph[uri] = this;
-	graph.resources.push(uri);
+	      graph.resources.push(uri);
     };
     $.BNode = function(id,graph) {
         this.uri = id;
         this.graph = graph;
         graph[id] = this;
-	graph.resources.push(id);
+	      graph.resources.push(id);
     };
     $.Graph.prototype.getResource = function(uri, type) {
         //console.log(uri, type);
@@ -70,7 +74,7 @@
             if (k == "getResource"|| k=="byClass") return false;
             var d = graph[k];
             if (d[rdf_type] == null) return false;
-            return d[rdf_type].some(function(element) {
+            return d[graph.rdf('type')].some(function(element) {
                 return element.uri == c;
             });
         }).map(function(k) {
@@ -78,9 +82,9 @@
         });
     };
     $.Graph.prototype.getDatatype = function(o) {
-        if (o instanceof Date ) return "http://www.w3.org/2001/XMLSchema#dateTime";
-        if (parseInt(o) == o) return "http://www.w3.org/2001/XMLSchema#integer";
-        if (o instanceof Number ) return "http://www.w3.org/2001/XMLSchema#decimal";
+        if (o instanceof Date ) return this.xsd("dateTime");
+        if (parseInt(o) == o) return this.xsd("integer");
+        if (o instanceof Number ) return this.xsd("decimal");
     }
     $.Graph.prototype.toJSON = function() {
         var that = this;
