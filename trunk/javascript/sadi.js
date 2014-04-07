@@ -73,7 +73,7 @@
         return d3.keys(graph).filter(function(k) {
             if (k == "getResource"|| k=="byClass") return false;
             var d = graph[k];
-            if (d[rdf_type] == null) return false;
+            if (d[graph.rdf("type")] == null) return false;
             return d[graph.rdf('type')].some(function(element) {
                 return element.uri == c;
             });
