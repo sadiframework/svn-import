@@ -45,15 +45,15 @@
     </Reference>
     <Reference Include="SemWeb, Version=1.0.7.0, Culture=neutral, PublicKeyToken=3e1051c7e190e42e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\semweb\bin\Debug\SemWeb.dll</HintPath>
+      <HintPath>semweb\bin\SemWeb.dll</HintPath>
     </Reference>
     <Reference Include="SemWeb.Sparql, Version=1.0.7.0, Culture=neutral, PublicKeyToken=3e1051c7e190e42e, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\semweb\bin\Debug\SemWeb.Sparql.dll</HintPath>
+      <HintPath>semweb\bin\SemWeb.Sparql.dll</HintPath>
     </Reference>
     <Reference Include="sparql-core, Version=1.0.6.2, Culture=neutral, PublicKeyToken=3e1051c7e190e42e">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\semweb\bin\Debug\sparql-core.dll</HintPath>
+      <HintPath>semweb\bin\sparql-core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />

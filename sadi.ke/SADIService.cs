@@ -44,15 +44,16 @@ namespace SADI.KEPlugin
         {
             SADIHelper.trace("SADIService", "sending data to  " + uri, input);
             WebRequest request = WebRequest.Create(this.uri);
-            request.ContentType = "application/rdf+xml";
+            request.ContentType = "text/rdf+n3";
             request.Method = "POST";
             Stream stream = request.GetRequestStream();
             StreamWriter writer = new StreamWriter(stream);
-            using (RdfWriter rdfWriter = new RdfXmlWriter("C:\\Users\\Luke\\Desktop\\input.rdf"))
-            {
-                rdfWriter.Write(input);
-            }
-            using (RdfWriter rdfWriter = new RdfXmlWriter(writer))
+///            using (RdfWriter rdfWriter = new RdfXmlWriter("C:\\Users\\Luke\\Desktop\\input.rdf"))
+///            {
+///                rdfWriter.Write(input);
+///            }
+///            using (RdfWriter rdfWriter = new RdfXmlWriter(writer))
+            using (N3Writer rdfWriter = new N3Writer(writer))
             {
                 rdfWriter.Write(input);
             }
