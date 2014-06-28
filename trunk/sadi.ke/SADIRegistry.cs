@@ -197,7 +197,7 @@ namespace SADI.KEPlugin
 
         private JsonData executeQuery(string query)
         {
-            SADIHelper.trace("SADIRegistry", "executing query", query);
+            //SADIHelper.debug("SADIRegistry", "executing query", query);
             NameValueCollection data = new NameValueCollection();
             data.Add("query", query);
             data.Set("format", "JSON");
@@ -209,7 +209,7 @@ namespace SADI.KEPlugin
             WebClient client = new WebClient();
             byte[] response = client.UploadValues(endpoint, data);
             JsonData json = JsonMapper.ToObject(Encoding.UTF8.GetString(response));
-            SADIHelper.trace("SADIRegistry", "query returned", json["results"]["bindings"].ToJson());
+            //SADIHelper.debug("SADIRegistry", "query returned", json["results"]["bindings"].ToJson());
             return json["results"]["bindings"];
         }
 

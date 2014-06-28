@@ -39,7 +39,7 @@ namespace SADI.KEPlugin
             try
             {
                 string logFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                Trace.Listeners.Add(new TextWriterTraceListener(System.IO.File.AppendText(logFolder + "\\SADI.KE.log")));
+                //Trace.Listeners.Add(new TextWriterTraceListener(System.IO.File.AppendText(logFolder + "\\SADI.KE.log")));
                 Debug.WriteLine("new logging session at " + DateTime.Now);
                 Debug.Flush();
             }

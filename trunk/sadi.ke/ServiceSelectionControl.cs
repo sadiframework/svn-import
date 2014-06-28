@@ -30,6 +30,11 @@ namespace SADI.KEPlugin
             return selected.Checked;
         }
 
+        internal void deselect()
+        {
+            selected.Checked = false;
+        }
+
         internal static String getName(SADIService service)
         {
             if (service.name != null)

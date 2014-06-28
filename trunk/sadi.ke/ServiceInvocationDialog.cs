@@ -23,8 +23,8 @@ namespace SADI.KEPlugin
         public ServiceInvocationDialog(KEStore ke, ICollection<SADIService> services, IEnumerable<IResource> selectedNodes)
         {
             KE = ke;
-            Services = services;
-            SelectedNodes = selectedNodes;
+            Services = new List<SADIService>(services);
+            SelectedNodes = new List<IResource>(selectedNodes);
             InitializeComponent();
         }
 
@@ -114,7 +114,7 @@ namespace SADI.KEPlugin
             }
             while (NumWorkers > 0)
             {
-                SADIHelper.trace("ServiceInvocation", "waiting for " + NumWorkers + " service calls to finish", null);
+                SADIHelper.debug("ServiceInvocation", "waiting for " + NumWorkers + " service calls to finish", null);
                 Thread.Sleep(1000);
             }
         }
