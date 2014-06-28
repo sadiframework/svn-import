@@ -14,12 +14,12 @@ namespace SADI.KEPlugin
     {
         private KEStore KE;
         private IEnumerable<IResource> SelectedNodes;
-        private Hashtable Seen; 
+        private Hashtable Seen;
 
         public ServiceDiscoveryDialog(KEStore ke, IEnumerable<IResource> selectedNodes)
         {
             KE = ke;
-            SelectedNodes = selectedNodes;
+            SelectedNodes = new List<IResource>(selectedNodes);
             Seen = new Hashtable();
             InitializeComponent();
         }
@@ -40,15 +40,18 @@ namespace SADI.KEPlugin
                 control.setService(e.UserState as SADIService);
                 ResizeLabels(control);
                 flowLayoutPanel1.SuspendLayout();
+                int ypos = flowLayoutPanel1.VerticalScroll.Value;
                 flowLayoutPanel1.Controls.Add(control);
                 int i = 0;
-                while ((i < flowLayoutPanel1.Controls.Count) && 
-                    ((flowLayoutPanel1.Controls[i] as ServiceSelectionControl).service.name.CompareTo(control.service.name) < 0)) {
-                        ++i;
+                while ((i < flowLayoutPanel1.Controls.Count) &&
+                    ((flowLayoutPanel1.Controls[i] as ServiceSelectionControl).service.name.CompareTo(control.service.name) < 0))
+                {
+                    ++i;
                 }
                 flowLayoutPanel1.Controls.SetChildIndex(control, i);
                 flowLayoutPanel1.ResumeLayout(false);
                 flowLayoutPanel1.PerformLayout();
+                flowLayoutPanel1.VerticalScroll.Value = ypos;
             }
             else if (e.UserState is string)
             {
@@ -56,29 +59,44 @@ namespace SADI.KEPlugin
                 status.Text = e.UserState as string;
                 timer.Start();
             }
+            else if (e.UserState is Exception)
+            {
+                timer.Stop();
+                status.Text = (e.UserState as Exception).Message;
+                timer.Start();
+            }
         }
 
         private void FindServicesWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             timer.Stop();
-            progress.Visible = false;
-            status.Text = "Found " + this.flowLayoutPanel1.Controls.Count + " services.";
+            // TODO fix this logically; actually kill the background worker when the window is closed...
+            if (!progress.IsDisposed)
+            {
+                progress.Visible = false;
+            }
+            if (!status.IsDisposed)
+            {
+                status.Text = "Found " + this.flowLayoutPanel1.Controls.Count + " services.";
+            }
         }
 
         private void invoke_Click(object sender, EventArgs e)
         {
+            /*
             if (FindServicesWorker.IsBusy)
             {
                 FindServicesWorker.CancelAsync();
             }
+            */
 
-            List<SADIService> services = GetSelectedServices();
+            List<SADIService> services = GetSelectedServices(true);
             if (services.Count > 0)
             {
                 ServiceInvocationDialog dialog = new ServiceInvocationDialog(KE, services, SelectedNodes);
                 dialog.Show();
                 dialog.invokeServices();
-                CleanUp();
+                //CleanUp();
             }
             else
             {
@@ -90,7 +108,7 @@ namespace SADI.KEPlugin
             }
         }
 
-        private List<SADIService> GetSelectedServices()
+        private List<SADIService> GetSelectedServices(Boolean withClear)
         {
             List<SADIService> services = new List<SADIService>();
             foreach (Control control in flowLayoutPanel1.Controls)
@@ -101,6 +119,10 @@ namespace SADI.KEPlugin
                     if (ssc.isSelected())
                     {
                         services.Add(ssc.service);
+                        if (withClear)
+                        {
+                            ssc.deselect();
+                        }
                     }
                 }
             }
@@ -113,10 +135,10 @@ namespace SADI.KEPlugin
             {
                 FindServicesWorker.CancelAsync();
             }
-            CleanUp();
+            //CleanUp();
         }
 
-        private static char[] ELLIPSIS = {'.'};
+        private static char[] ELLIPSIS = { '.' };
         private void timer_Tick(object sender, EventArgs e)
         {
             if (status.Text.EndsWith("..."))
@@ -148,6 +170,8 @@ namespace SADI.KEPlugin
 
         private void ServiceSelectionDialog_FormClosing(object sender, FormClosingEventArgs e)
         {
+            this.FindServicesWorker.RunWorkerCompleted -= this.FindServicesWorker_RunWorkerCompleted;
+            this.FindServicesWorker.ProgressChanged -= this.FindServicesWorker_ProgressChanged;
             if (FindServicesWorker.IsBusy)
             {
                 FindServicesWorker.CancelAsync();
@@ -160,6 +184,21 @@ namespace SADI.KEPlugin
             this.Dispose();
         }
 
+        // use from _DoWork like so: 
+        // if (!ReportProgressIfNotCancelled(...)) { return; } 
+        private Boolean ReportProgressIfNotCancelled(int progress, Object message)
+        {
+            if (FindServicesWorker.CancellationPending)
+            {
+                return false;
+            }
+            else
+            {
+                FindServicesWorker.ReportProgress(progress, message);
+                return true;
+            }
+        }
+
         private const int SERVICES_PER_QUERY = 25;
         private void FindServicesWorker_DoWork(object sender, DoWorkEventArgs e)
         {
@@ -168,17 +207,20 @@ namespace SADI.KEPlugin
             {
                 if (node is IEntity)
                 {
-                    if (FindServicesWorker.CancellationPending)
-                    {
-                        return;
-                    }
-                    else if (!KE.HasType(node))
+                    if (!KE.HasType(node))
                     {
                         Uri uri = (node as IEntity).Uri;
-                        FindServicesWorker.ReportProgress(0, String.Format("Resolving {0}...", uri));
+                        if (!ReportProgressIfNotCancelled(0, String.Format("Resolving {0}...", uri)))
+                        {
+                            return;
+                        }
                         try
                         {
                             SADIHelper.debug("ServiceSelection", "resolving URI", node);
+                            if (FindServicesWorker.CancellationPending)
+                            {
+                                return;
+                            }
                             KE.Import(SemWebHelper.resolveURI(uri));
                         }
                         catch (Exception err)
@@ -188,6 +230,10 @@ namespace SADI.KEPlugin
                         try
                         {
                             SADIHelper.debug("ServiceSelection", "resolving against SADI resolver", node);
+                            if (FindServicesWorker.CancellationPending)
+                            {
+                                return;
+                            }
                             KE.Import(SADIHelper.resolve(uri));
                         }
                         catch (Exception err)
@@ -195,7 +241,6 @@ namespace SADI.KEPlugin
                             SADIHelper.error("ServiceSelection", "error resolving against SADI resolver", node, err);
                         }
                     }
-
                     foreach (IEntity type in KE.GetTypes(node as IEntity))
                     {
                         types.Add(type.Uri.ToString());
@@ -203,54 +248,64 @@ namespace SADI.KEPlugin
                 }
             }
 
-            //ICollection<SADIService> services = new List<SADIService>();
-            //services.Add(new SADIService("http://sadiframework.org/examples/blast/human-blast", "NCBI BLAST (human)", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras malesuada, dui eu tempus adipiscing, mauris sapien ultrices lectus, sit amet lobortis leo ipsum id lacus. Morbi porta, mi sit amet pulvinar adipiscing, leo tellus laoreet justo, et suscipit odio nisl nec velit. Pellentesque vel urna risus. Cras magna massa, volutpat at iaculis a, tincidunt et erat. Morbi ullamcorper feugiat augue, at pharetra nulla egestas at. Nunc ac orci ut erat porttitor auctor quis sit amet ipsum. Curabitur bibendum tortor quis libero adipiscing ultricies. Ut tempor rhoncus luctus."));
-            //services.Add(new SADIService("http://sadiframework.org/examples/blast/mouse-blast", "NCBI BLAST (mouse)", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras malesuada, dui eu tempus adipiscing, mauris sapien ultrices lectus, sit amet lobortis leo ipsum id lacus. Morbi porta, mi sit amet pulvinar adipiscing, leo tellus laoreet justo, et suscipit odio nisl nec velit. Pellentesque vel urna risus. Cras magna massa, volutpat at iaculis a, tincidunt et erat. Morbi ullamcorper feugiat augue, at pharetra nulla egestas at. Nunc ac orci ut erat porttitor auctor quis sit amet ipsum. Curabitur bibendum tortor quis libero adipiscing ultricies. Ut tempor rhoncus luctus."));
-
             // find services by exact input class; quick, but misses a lot...
-            FindServicesWorker.ReportProgress(0, "Finding services by direct type...");
+            if (!ReportProgressIfNotCancelled(0, "Finding services by direct type..."))
+            {
+                return;
+            }
             ICollection<SADIService> services = SADIRegistry.Instance().findServicesByInputClass(types);
             int i = 0;
             int n = services.Count;
             foreach (SADIService service in services)
             {
-                if (FindServicesWorker.CancellationPending)
+                SADIRegistry.Instance().addPropertyRestrictions(service);
+                if (!ReportProgressIfNotCancelled((++i * 100) / n, service))
                 {
                     return;
-                }
-                else
-                {
-                    SADIRegistry.Instance().addPropertyRestrictions(service);
-                    FindServicesWorker.ReportProgress((++i * 100) / n, service);
                 }
             }
 
             // reset progress bar
-            FindServicesWorker.ReportProgress(1, "Finding services by input instance query...");
+            if (!ReportProgressIfNotCancelled(0, "Finding services by input instance query..."))
+            {
+                return;
+            }
 
             // find service by input instance SPARQL query; slow, but is complete modulo reasoning...
             i = 0;
             n = SADIRegistry.Instance().getServiceCount();
             do
             {
-                if (FindServicesWorker.CancellationPending)
+                if (!ReportProgressIfNotCancelled((i * 100) / n, String.Format("Finding services by input instance query {0}-{1}/{2}",
+                    i, Math.Min(i + SERVICES_PER_QUERY, n), n)))
                 {
                     return;
                 }
-                else
+                services = SADIRegistry.Instance().getAllServices(i, SERVICES_PER_QUERY);
+                foreach (SADIService service in services)
                 {
-                    services = SADIRegistry.Instance().getAllServices(i, SERVICES_PER_QUERY);
-                    foreach (SADIService service in services)
+                    //SADIHelper.debug("ServiceDiscoveryDialog", String.Format("checking {0}", service.uri), null);
+                    Object rv = null;
+                    try
                     {
-                        if (FindServicesWorker.CancellationPending)
-                        {
-                            return;
-                        }
-                        else if (checkForInputInstances(service, SelectedNodes))
+                        if (checkForInputInstances(service, SelectedNodes))
                         {
                             SADIRegistry.Instance().addPropertyRestrictions(service);
-                            FindServicesWorker.ReportProgress((++i * 100) / n, service);
+                            rv = service;
                         }
+                        else
+                        {
+                            rv = String.Format("No match to {0}", service.uri);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //rv = ex;
+                        rv = String.Format("Error executing input instance query for {0}: {1}", service.uri, ex.Message);
+                    }
+                    if (!ReportProgressIfNotCancelled((++i * 100) / n, rv))
+                    {
+                        return;
                     }
                 }
             } while (services.Count == SERVICES_PER_QUERY);

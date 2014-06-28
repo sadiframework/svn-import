@@ -42,7 +42,7 @@ namespace SADI.KEPlugin
 
         public MemoryStore invokeService(Store input)
         {
-            SADIHelper.trace("SADIService", "sending data to  " + uri, input);
+            //SADIHelper.debug("SADIService", "sending data to  " + uri, input);
             WebRequest request = WebRequest.Create(this.uri);
             request.ContentType = "text/rdf+n3";
             request.Method = "POST";
@@ -71,7 +71,7 @@ namespace SADI.KEPlugin
             reader.Close();
             stream.Close();
             response.Close();
-            SADIHelper.trace("SADIService", "read data from  " + uri, output);
+            //SADIHelper.debug("SADIService", "read data from  " + uri, output);
 
             if (((HttpWebResponse)response).StatusCode == HttpStatusCode.Accepted)
             {
@@ -101,7 +101,7 @@ namespace SADI.KEPlugin
         {
             while (uri != null)
             {
-                SADIHelper.trace("SADIService", "fetching asynchronous data", uri);
+                //SADIHelper.debug("SADIService", "fetching asynchronous data", uri);
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
                 request.Method = "GET";
                 request.AllowAutoRedirect = false;
@@ -127,7 +127,7 @@ namespace SADI.KEPlugin
                     {
                         SADIHelper.error("SADIService", "failed to parse Retry-After header", retry, e);
                     }
-                    SADIHelper.trace("SADIService", "sleeping " + toSleep + "s before asynchronous request", null);
+                    //SADIHelper.debug("SADIService", "sleeping " + toSleep + "s before asynchronous request", null);
                     System.Threading.Thread.Sleep(toSleep * 1000);
                 }
                 else
