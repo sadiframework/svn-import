@@ -32,7 +32,8 @@ use base ("SADI::Simple::Base");
 		Authority              => { type => SADI::Simple::Base->STRING },
 		Provider               => { type => SADI::Simple::Base->STRING },
 		ServiceURI             => { type => SADI::Simple::Base->STRING },
-		NanoPublisher		   => { type => SADI::Simple::Base->BOOLEAN },
+		StylesheetURL          => { type => SADI::Simple::Base->STRING },
+		NanoPublisher	       => { type => SADI::Simple::Base->BOOLEAN },
 		URL        => {
 			type => SADI::Simple::Base->STRING,
 			post => sub {
@@ -89,6 +90,7 @@ use constant SERVICE_DESCRIPTION_TEMPLATE => <<TEMPLATE;
 [% SET COUNTER = 0 %]
 [% SET TEST_COUNTER = 1 %]
 <?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="[% style %]" ?>
 <rdf:RDF
  xmlns:a="http://www.mygrid.org.uk/mygrid-moby-service#"
  xmlns:b="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl#"
@@ -217,6 +219,7 @@ sub getServiceInterface {
 					 authority     => $self->Authority,
 					 sigURL        => $self->SignatureURL,
 					 tests         => $self->UnitTest || undef,
+					 style		=> $self->StylesheetURL || 'http://biordf.org/css/SADIService.xsl',
 				  },
 				  \$sadi_interface_signature
 
@@ -260,6 +263,7 @@ SADI::Simple::ServiceDescription - A module that describes a SADI web service.
      ServiceURI => "http://helloworld.com/cgi-bin/helloworld.pl",
      URL => "http://helloworld.com/cgi-bin/helloworld.pl",
      SignatureURL =>"http://foo.bar/myServiceDescription",
+     StylesheetURL => 'http://biordf.org/css/SADIService.xsl',     
  );
 
  # get an RDF representation of the service description
