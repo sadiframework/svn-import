@@ -1,6 +1,6 @@
 package SADI::Simple;
 
-our $VERSION = '0.12';
+our $VERSION = '0.15';
 # ABSTRACT: Module for creating Perl SADI services
 
 1;
@@ -89,10 +89,15 @@ script.
             my $greeting_literal = RDF::Trine::Node::Literal->new($greeting);
             
             my $statement = RDF::Trine::Statement->new($input, $greeting_property, $greeting_literal);
-            # $output_model->add_statement($statement);
+            
             $output_model->add_statement($statement, $input);  # this second parameter is required for NanoPublishing
+            # every statement added to the output model must include $input as the second parameter
+            # in order for all of the statements to be in the same Assertion graph
+            
+            # $output_model->add_statement($statement); # non nanopublishers may omit the second parameter
     
-    		# if you are a NanoPublisher then add this line, otherwise don't
+    		# if you are a NanoPublisher then add this line, at the end of the @inputs loop
+    		# it will be ignored for non-nanopublishers (i.e. optional)
     		$output_model->nanopublish_result_for($input);
         }
     
